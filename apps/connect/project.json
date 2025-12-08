@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json.schemastore.org/nx-project.json",
+  "name": "connect",
+  "projectType": "application",
+  "root": "apps/connect",
+  "sourceRoot": "apps/connect/src",
+  "targets": {
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "connect:build",
+        "cwd": "apps/connect"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "connect:build"
+        }
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{workspaceRoot}/dist/apps/connect"],
+      "options": {
+        "outputPath": "dist/apps/connect",
+        "cwd": "apps/connect"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/connect/**/*.ts", "apps/connect/**/*.tsx"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project apps/connect/tsconfig.app.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run connect:typecheck",
+          "nx run connect:lint"
+        ],
+        "parallel": false
+      }
+    }
+  },
+  "tags": ["type:app", "scope:frontend"]
+}

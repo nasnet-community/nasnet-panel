@@ -1,0 +1,1 @@
+export { StarContainer } from './StarContainer';

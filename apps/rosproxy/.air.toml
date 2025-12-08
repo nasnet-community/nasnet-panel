@@ -1,0 +1,17 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o dist/rosproxy.exe ."
+  bin = "dist/rosproxy.exe"
+  include_ext = ["go", "mod", "sum", "tpl", "tmpl", "html", "yaml", "json"]
+  exclude_dir = ["dist", "tmp", "node_modules", ".git"]
+  stop_on_error = true
+  # Set PORT to 80 for dev consistency with production
+  envs = ["PORT=80"]
+
+[log]
+  time = true
+
+
+

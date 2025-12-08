@@ -1,0 +1,53 @@
+{
+  "name": "ros-cmd-generator",
+  "sourceRoot": "libs/ros-cmd-generator/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/ros-cmd-generator",
+        "configFile": "libs/ros-cmd-generator/vite.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/ros-cmd-generator/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "coverage/libs/ros-cmd-generator"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/ros-cmd-generator/tsconfig.lib.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run ros-cmd-generator:typecheck",
+          "nx run ros-cmd-generator:lint"
+        ],
+        "parallel": false
+      }
+    }
+  },
+  "tags": ["type:lib", "scope:ros-cmd-generator"]
+}
+
+
+
+
+
+

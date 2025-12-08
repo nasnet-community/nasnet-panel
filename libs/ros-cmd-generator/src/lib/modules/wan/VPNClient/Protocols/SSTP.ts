@@ -1,0 +1,120 @@
+import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import type { SstpClientConfig } from "@nas-net/star-context";
+import {
+    CommandShortner,
+    mergeConfigurations,
+    mergeMultipleConfigs,
+} from "@nas-net/ros-cmd-generator";
+import { BaseVPNConfig, GenerateVCInterfaceName } from "@nas-net/ros-cmd-generator";
+
+
+// SSTP Client
+
+export const SSTPClient = (config: SstpClientConfig): RouterConfig => {
+    const routerConfig: RouterConfig = {
+        "/interface sstp-client": [],
+    };
+
+    const {
+        Name,
+        Server,
+        Credentials,
+        AuthMethod,
+        Ciphers,
+        TlsVersion,
+        Proxy,
+        SNI,
+        PFS,
+        DialOnDemand,
+        KeepAlive,
+        VerifyServerCertificate,
+        VerifyServerAddressFromCertificate,
+        ClientCertificateName,
+    } = config;
+
+    const interfaceName = GenerateVCInterfaceName(Name, "SSTP");
+
+    let command = `add name="${interfaceName}" connect-to="${Server.Address}" comment="${Name} SSTP"`;
+
+    // if (Server.Port) {
+    //     command += ` port=${Server.Port}`;
+    // }
+
+    // command += ` user="${Credentials.Username}" password="${Credentials.Password}"`;
+    command += ` user="${Credentials.Username}" `;
+
+    if (AuthMethod && AuthMethod.length > 0) {
+        command += ` authentication="${AuthMethod.join(",")}"`;
+    }
+
+    if (Ciphers && Ciphers.length > 0) {
+        command += ` ciphers=${Ciphers.join(",")}`;
+    }
+
+    if (TlsVersion) {
+        command += ` tls-version=any`;
+    }
+
+    if (Proxy) {
+        command += ` http-proxy="${Proxy.Address}" proxy-port="${Proxy.Port || 8080}"`;
+    }
+
+    if (SNI !== undefined) {
+        command += ` add-sni=${SNI ? "yes" : "no"}`;
+    }
+
+    if (PFS) {
+        command += ` pfs=${PFS}`;
+    }
+
+    if (DialOnDemand !== undefined) {
+        command += ` dial-on-demand=${DialOnDemand ? "yes" : "no"}`;
+    }
+
+    if (KeepAlive) {
+        command += ` keepalive=${KeepAlive}`;
+    }
+
+    if (VerifyServerCertificate !== undefined) {
+        command += ` verify-server-certificate=${VerifyServerCertificate ? "yes" : "no"}`;
+    }
+
+    if (VerifyServerAddressFromCertificate !== undefined) {
+        command += ` verify-server-address-from-certificate=${VerifyServerAddressFromCertificate ? "yes" : "no"}`;
+    }
+
+    if (ClientCertificateName) {
+        command += ` certificate="${ClientCertificateName}"`;
+    }
+
+    command += ` disabled=no`;
+
+    routerConfig["/interface sstp-client"].push(command);
+
+    return CommandShortner(routerConfig);
+};
+
+export const SSTPClientWrapper = ( configs: SstpClientConfig[], checkIPMap?: Map<string, string> ): RouterConfig => {
+    const routerConfigs: RouterConfig[] = [];
+
+    configs.forEach((sstpConfig) => {
+        const vpnConfig = SSTPClient(sstpConfig);
+        const interfaceName = GenerateVCInterfaceName(sstpConfig.Name, "SSTP");
+        const endpointAddress = sstpConfig.Server.Address;
+        
+        // Use pre-assigned checkIP from map, or fallback to old behavior for backwards compatibility
+        const checkIP = checkIPMap?.get(sstpConfig.Name);
+
+        const baseConfig = BaseVPNConfig(
+            interfaceName,
+            endpointAddress,
+            sstpConfig.Name,
+            sstpConfig.WanInterface,
+            checkIP,
+        );
+
+        routerConfigs.push(mergeConfigurations(vpnConfig, baseConfig));
+    });
+
+    return mergeMultipleConfigs(...routerConfigs);
+};

@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+/* Reference the Tailwind config file */
+@config '../tailwind.config.ts';
+
+/* Import Tailwind plugins using v4 @plugin directive */
+@plugin '@tailwindcss/typography';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/aspect-ratio';
+@plugin '@tailwindcss/container-queries';
+@plugin 'tailwindcss-rtl';

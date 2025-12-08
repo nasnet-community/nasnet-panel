@@ -1,0 +1,40 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "ES2020",
+    "module": "ES2020",
+    "lib": ["es2020", "DOM"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@builder.io/qwik",
+    "strict": true,
+    "declaration": true,
+    "declarationDir": "lib-types",
+    "resolveJsonModule": true,
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "incremental": true,
+    "noImplicitAny": false,
+    "isolatedModules": true,
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@utils": ["./src/utils"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
+  "references": [
+    {
+      "path": "../ros-cmd-generator"
+    },
+    {
+      "path": "../star-context"
+    },
+    {
+      "path": "../core-ui-qwik"
+    }
+  ]
+}

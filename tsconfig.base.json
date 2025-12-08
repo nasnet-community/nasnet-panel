@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "customConditions": ["@nas-net/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@nasnet/core/*": ["libs/core/*/src"],
+      "@nasnet/ui/*": ["libs/ui/*/src"],
+      "@nasnet/features/*": ["libs/features/*/src"],
+      "@nasnet/api-client/*": ["libs/api-client/*/src"],
+      "@nasnet/state/*": ["libs/state/*/src"],
+      "@nasnet/config-gen/*": ["libs/config-gen/*/src"]
+    }
+  }
+}

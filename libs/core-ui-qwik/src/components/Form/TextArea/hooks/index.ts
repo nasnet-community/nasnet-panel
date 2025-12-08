@@ -1,0 +1,1 @@
+export { useTextArea } from "./useTextArea";

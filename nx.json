@@ -1,0 +1,116 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "master",
+  "sync": {
+    "applyChanges": false,
+    "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"]
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/src/test-setup.[jt]s"
+    ],
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      },
+      "exclude": [
+        "shared/*",
+        "libs/api-client/core/*",
+        "libs/core/types/*",
+        "libs/core/utils/*",
+        "libs/core/constants/*"
+      ]
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    {
+      "plugin": "@nx/docker",
+      "options": {
+        "buildTarget": "docker:build",
+        "runTarget": "docker:run"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": [
+        "shared/*",
+        "libs/api-client/core/*",
+        "libs/core/types/*",
+        "libs/core/utils/*",
+        "libs/core/constants/*"
+      ],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json"
+        }
+      }
+    }
+  ],
+  "targetDefaults": {
+    "test": {
+      "dependsOn": ["^build"]
+    }
+  },
+  "generators": {
+    "@nx/web:application": {
+      "style": "css",
+      "linter": "none",
+      "unitTestRunner": "vitest",
+      "e2eTestRunner": "playwright"
+    },
+    "@nx/react": {
+      "application": {
+        "babel": true,
+        "style": "tailwind",
+        "linter": "none",
+        "bundler": "vite"
+      },
+      "component": {
+        "style": "tailwind"
+      },
+      "library": {
+        "style": "tailwind",
+        "linter": "none"
+      }
+    }
+  },
+  "pluginsConfig": {}
+}

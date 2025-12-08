@@ -1,0 +1,195 @@
+/**
+ * Log Group Component
+ * Displays a collapsible group of related log entries
+ * Epic 0.8: System Logs - Log Correlation/Grouping
+ */
+
+import * as React from 'react';
+import { cn, Button } from '@nasnet/ui/primitives';
+import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
+import type { LogEntry } from '@nasnet/core/types';
+import { LogEntry as LogEntryComponent } from '../log-entry';
+import { SeverityBadge } from '../severity-badge';
+import { formatTimestamp } from '@nasnet/core/utils';
+
+export interface LogGroupData {
+  id: string;
+  startTime: Date;
+  endTime: Date;
+  entries: LogEntry[];
+  primaryTopic: string;
+  severityLevel: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+}
+
+export interface LogGroupProps {
+  /**
+   * The group data
+   */
+  group: LogGroupData;
+  /**
+   * Search term for highlighting
+   */
+  searchTerm?: string;
+  /**
+   * Click handler for individual entries
+   */
+  onEntryClick?: (entry: LogEntry) => void;
+  /**
+   * Whether an entry is bookmarked
+   */
+  isBookmarked?: (entryId: string) => boolean;
+  /**
+   * Toggle bookmark handler
+   */
+  onToggleBookmark?: (entry: LogEntry) => void;
+  /**
+   * Additional class names
+   */
+  className?: string;
+}
+
+/**
+ * LogGroup Component
+ */
+export function LogGroup({
+  group,
+  searchTerm,
+  onEntryClick,
+  isBookmarked,
+  onToggleBookmark,
+  className,
+}: LogGroupProps) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const isSingleEntry = group.entries.length === 1;
+
+  // Single entry - render directly
+  if (isSingleEntry) {
+    return (
+      <LogEntryComponent
+        entry={group.entries[0]}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <div className={cn('border rounded-card-sm overflow-hidden', className)}>
+      {/* Group header */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={cn(
+          'w-full flex items-center gap-3 p-3 text-left',
+          'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800',
+          'transition-colors'
+        )}
+      >
+        {/* Expand icon */}
+        {isExpanded ? (
+          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+        ) : (
+          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        )}
+
+        {/* Group icon */}
+        <Layers className="h-4 w-4 text-muted-foreground shrink-0" />
+
+        {/* Time range */}
+        <span className="text-xs text-muted-foreground font-mono shrink-0">
+          {formatTimestamp(group.startTime)}
+          {group.startTime.getTime() !== group.endTime.getTime() && (
+            <> - {formatTimestamp(group.endTime)}</>
+          )}
+        </span>
+
+        {/* Severity badge */}
+        <SeverityBadge severity={group.severityLevel} />
+
+        {/* Topic */}
+        <span className="text-sm text-muted-foreground capitalize">
+          {group.primaryTopic}
+        </span>
+
+        {/* Entry count */}
+        <span className="ml-auto text-xs font-medium bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+          {group.entries.length} entries
+        </span>
+      </button>
+
+      {/* Expanded entries */}
+      {isExpanded && (
+        <div className="divide-y divide-border">
+          {group.entries.map((entry) => (
+            <LogEntryComponent
+              key={entry.id}
+              entry={entry}
+              onClick={() => onEntryClick?.(entry)}
+              className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Props for LogGroupList
+ */
+export interface LogGroupListProps {
+  /**
+   * Groups to display
+   */
+  groups: LogGroupData[];
+  /**
+   * Search term for highlighting
+   */
+  searchTerm?: string;
+  /**
+   * Entry click handler
+   */
+  onEntryClick?: (entry: LogEntry) => void;
+  /**
+   * Check if entry is bookmarked
+   */
+  isBookmarked?: (entryId: string) => boolean;
+  /**
+   * Toggle bookmark
+   */
+  onToggleBookmark?: (entry: LogEntry) => void;
+  /**
+   * Additional class names
+   */
+  className?: string;
+}
+
+/**
+ * LogGroupList Component
+ * Renders a list of log groups
+ */
+export function LogGroupList({
+  groups,
+  searchTerm,
+  onEntryClick,
+  isBookmarked,
+  onToggleBookmark,
+  className,
+}: LogGroupListProps) {
+  return (
+    <div className={cn('space-y-2', className)}>
+      {groups.map((group) => (
+        <LogGroup
+          key={group.id}
+          group={group}
+          searchTerm={searchTerm}
+          onEntryClick={onEntryClick}
+          isBookmarked={isBookmarked}
+          onToggleBookmark={onToggleBookmark}
+        />
+      ))}
+    </div>
+  );
+}
+
+
+
+

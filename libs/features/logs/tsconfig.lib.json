@@ -1,0 +1,33 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.js",
+    "src/**/*.spec.jsx"
+  ],
+  "references": [
+    {
+      "path": "../../ui/primitives/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/types/tsconfig.lib.json"
+    },
+    {
+      "path": "../../core/utils/tsconfig.lib.json"
+    }
+  ]
+}
+
+
+
+
+
+

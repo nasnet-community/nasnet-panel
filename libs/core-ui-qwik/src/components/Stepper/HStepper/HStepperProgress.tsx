@@ -1,0 +1,142 @@
+import { component$ } from "@builder.io/qwik";
+import type { StepItem } from "./HSteppertypes";
+import { LuCheck } from "@qwikest/icons/lucide";
+import { Toggle } from "@nas-net/core-ui-qwik";
+import { useGlobalHelpSettings } from "../shared/hooks/useGlobalHelpSettings";
+
+interface StepperProgressProps {
+  steps: StepItem[];
+  activeStep: number;
+}
+
+export const StepperProgress = component$((props: StepperProgressProps) => {
+  return (
+    <div class="container mx-auto">
+      <div class="hidden py-6 md:block">
+        <div class="mx-auto max-w-4xl px-4">
+          <div class="relative">
+            <div class="absolute left-0 top-[2.125rem] h-0.5 w-full">
+              <div class="absolute inset-0 bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-500/20 dark:from-primary-500/40 dark:via-secondary-500/40 dark:to-primary-500/40" />
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-primary-500 to-secondary-500 transition-all duration-500"
+                style={{
+                  width: `${(props.activeStep / (props.steps.length - 1)) * 100}%`,
+                }}
+              />
+            </div>
+
+            <div class="relative flex justify-between">
+              {props.steps.map((step, index) => (
+                <div key={step.id} class="group flex flex-col items-center">
+                  <div
+                    class={`flex h-9 w-9 items-center justify-center rounded-full border-2 
+                    shadow-lg transition-all duration-300 ${
+                      step.isComplete
+                        ? "scale-110 border-primary-500 bg-primary-500"
+                        : index === props.activeStep
+                          ? "scale-110 border-primary-500 bg-surface dark:bg-surface-dark"
+                          : "border-border/40 bg-surface-secondary/60 dark:border-border-dark dark:bg-surface-dark-secondary/80"
+                    }`}
+                  >
+                    {step.isComplete ? (
+                      <LuCheck class="h-4 w-4 text-white" />
+                    ) : step.icon ? (
+                      <step.icon
+                        class={`h-4 w-4 ${
+                          index === props.activeStep
+                            ? "text-primary-500 dark:text-primary-300"
+                            : "text-text-secondary dark:text-text-dark-secondary/80"
+                        }`}
+                      />
+                    ) : null}
+                  </div>
+                  <span
+                    class={`mt-2 text-sm transition-all duration-300 ${
+                      index === props.activeStep
+                        ? "scale-105 font-bold text-text dark:text-white"
+                        : "font-medium text-text-secondary dark:text-text-dark-secondary/80"
+                    }`}
+                  >
+                    {step.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export interface HelpSettingsToggleProps {
+  /** Optional custom label for the toggle */
+  label?: string;
+  
+  /** Size of the toggle component */
+  size?: "sm" | "md" | "lg";
+  
+  /** Position of the label relative to toggle */
+  labelPosition?: "left" | "right";
+  
+  /** Additional CSS classes */
+  class?: string;
+  
+  /** Show help icon next to label */
+  showIcon?: boolean;
+}
+
+/**
+ * Global Help Settings Toggle Component
+ * 
+ * Provides a toggle control that enables/disables auto-show help functionality
+ * across all stepper types (HStepper, VStepper, CStepper) in the application.
+ */
+export const HelpSettingsToggle = component$<HelpSettingsToggleProps>((props) => {
+  const {
+    label = "Auto-show help",
+    size = "sm",
+    labelPosition = "right",
+    class: className = "",
+    showIcon = true
+  } = props;
+  
+  // Get global help settings (context is guaranteed to be available)
+  const globalSettings = useGlobalHelpSettings();
+  
+  return (
+    <div class={`inline-flex items-center gap-2 ${className}`}>
+      {showIcon && (
+        <svg 
+          class="w-4 h-4 text-gray-500 dark:text-gray-400" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            stroke-width="2" 
+            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+          />
+        </svg>
+      )}
+      
+      <Toggle
+        checked={globalSettings.autoShowHelpOnStepChange.value}
+        onChange$={globalSettings.setAutoShowHelp$}
+        label={label}
+        labelPosition={labelPosition}
+        size={size}
+        aria-label="Toggle auto-show help on step changes"
+        aria-describedby="help-toggle-description"
+      />
+      
+      {/* Hidden description for screen readers */}
+      <span id="help-toggle-description" class="sr-only">
+        When enabled, help modals will automatically appear when navigating to steps that have help content available across all stepper components
+      </span>
+    </div>
+  );
+});

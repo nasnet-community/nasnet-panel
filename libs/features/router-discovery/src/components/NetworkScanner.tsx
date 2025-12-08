@@ -1,0 +1,337 @@
+/**
+ * Network Scanner Component
+ * Auto-discovers MikroTik routers on the network (Story 0-1-1)
+ */
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { ScanResult, ScanProgress } from '@nasnet/core/types';
+import {
+  startNetworkScan,
+  validateSubnet,
+  getDefaultSubnet,
+  ScanError,
+} from '../services/scanService';
+
+export interface NetworkScannerProps {
+  /**
+   * Callback when scan completes successfully
+   */
+  onScanComplete?: (results: ScanResult[]) => void;
+
+  /**
+   * Callback when user selects a discovered router
+   */
+  onRouterSelect?: (result: ScanResult) => void;
+
+  /**
+   * Default subnet to scan
+   */
+  defaultSubnet?: string;
+}
+
+/**
+ * NetworkScanner Component
+ *
+ * Provides interface for discovering MikroTik routers on the network
+ * through automated subnet scanning.
+ *
+ * Features:
+ * - Subnet input with validation
+ * - Real-time scan progress
+ * - Results display with router information
+ * - Error handling and retry capability
+ *
+ * @example
+ * ```tsx
+ * <NetworkScanner
+ *   onScanComplete={(results) => console.log("Found:", results.length)}
+ *   onRouterSelect={(router) => console.log("Selected:", router.ipAddress)}
+ * />
+ * ```
+ */
+export function NetworkScanner({
+  onScanComplete,
+  onRouterSelect,
+  defaultSubnet,
+}: NetworkScannerProps) {
+  const [subnet, setSubnet] = useState(defaultSubnet || getDefaultSubnet());
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState<ScanProgress | null>(null);
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Handles scan initiation
+   */
+  const handleStartScan = async () => {
+    // Validate subnet format
+    if (!validateSubnet(subnet)) {
+      setError('Invalid subnet format. Use CIDR notation (e.g., 192.168.88.0/24)');
+      return;
+    }
+
+    setError(null);
+    setIsScanning(true);
+    setScanResults([]);
+    setScanProgress(null);
+
+    try {
+      const results = await startNetworkScan(subnet, (progress) => {
+        setScanProgress(progress);
+      });
+
+      setScanResults(results);
+      setIsScanning(false);
+      onScanComplete?.(results);
+    } catch (err) {
+      setIsScanning(false);
+      setScanProgress(null);
+
+      if (err instanceof ScanError) {
+        setError(getScanErrorMessage(err));
+      } else {
+        setError(err instanceof Error ? err.message : 'Unknown scan error');
+      }
+    }
+  };
+
+  /**
+   * Handles router selection from results
+   */
+  const handleSelectRouter = (result: ScanResult) => {
+    onRouterSelect?.(result);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Scan Input */}
+      <div className="space-y-4">
+        <div>
+          <label
+            htmlFor="subnet"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Network Subnet
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="subnet"
+              type="text"
+              value={subnet}
+              onChange={(e) => setSubnet(e.target.value)}
+              disabled={isScanning}
+              placeholder="192.168.88.0/24"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white disabled:opacity-50"
+            />
+            <button
+              onClick={handleStartScan}
+              disabled={isScanning}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isScanning ? 'Scanning...' : 'Scan Network'}
+            </button>
+          </div>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Enter subnet in CIDR notation (e.g., 192.168.88.0/24)
+          </p>
+        </div>
+      </div>
+
+      {/* Error Display */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
+          >
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Scan Failed
+                </h3>
+                <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scan Progress */}
+      <AnimatePresence>
+        {isScanning && scanProgress && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                  Scanning Network...
+                </h3>
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
+                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                    {scanProgress.scannedHosts} / {scanProgress.totalHosts}
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 overflow-hidden">
+                <motion.div
+                  className="h-full bg-blue-600 dark:bg-blue-400"
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${
+                      (scanProgress.scannedHosts / scanProgress.totalHosts) * 100
+                    }%`,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Current IP:
+                  </span>
+                  <p className="font-mono text-blue-900 dark:text-blue-100">
+                    {scanProgress.currentIp}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Routers Found:
+                  </span>
+                  <p className="font-semibold text-blue-900 dark:text-blue-100">
+                    {scanProgress.foundRouters}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scan Results */}
+      <AnimatePresence>
+        {scanResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Found {scanResults.length} Router{scanResults.length !== 1 ? 's' : ''}
+            </h3>
+            <div className="grid gap-3">
+              {scanResults.map((result) => (
+                <motion.button
+                  key={result.ipAddress}
+                  onClick={() => handleSelectRouter(result)}
+                  className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md transition-all text-left"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white">
+                        {result.ipAddress}
+                      </p>
+                      {result.model && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Model: {result.model}
+                        </p>
+                      )}
+                      {result.routerOsVersion && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          RouterOS: {result.routerOsVersion}
+                        </p>
+                      )}
+                      {result.macAddress && (
+                        <p className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                          MAC: {result.macAddress}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      {result.isReachable && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          Online
+                        </span>
+                      )}
+                      {result.responseTime !== undefined && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {result.responseTime}ms
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* No Results Message */}
+      {!isScanning && scanResults.length === 0 && !error && scanProgress && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <svg
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p className="mt-2">No routers found on the network</p>
+          <p className="text-sm mt-1">Try scanning a different subnet</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Helper to get user-friendly error messages
+ */
+function getScanErrorMessage(error: ScanError): string {
+  switch (error.code) {
+    case 'SCAN_START_FAILED':
+      return 'Failed to start network scan. Please check if the backend service is running.';
+    case 'NETWORK_ERROR':
+      return 'Network error occurred. Please check your connection and try again.';
+    case 'TIMEOUT':
+      return 'Scan timed out. The network may be too large or slow to scan.';
+    case 'SCAN_FAILED':
+      return 'Scan failed on the backend. Please try again or check backend logs.';
+    default:
+      return error.message || 'An unknown error occurred during scanning.';
+  }
+}

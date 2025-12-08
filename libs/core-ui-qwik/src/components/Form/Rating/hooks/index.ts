@@ -1,0 +1,1 @@
+export { useRating } from "./useRating";

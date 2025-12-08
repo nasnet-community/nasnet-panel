@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "tsBuildInfoFile": "../../dist/out-tsc/star-setup-docker.tsbuildinfo",
+    "noEmit": false
+  },
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.tsx",
+    "vite.config.ts",
+    "eslint.config.js"
+  ]
+}
+

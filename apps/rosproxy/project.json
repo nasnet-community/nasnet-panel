@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json.schemastore.org/nx-project.json",
+  "name": "rosproxy",
+  "projectType": "application",
+  "root": "apps/rosproxy",
+  "sourceRoot": "apps/rosproxy",
+  "tags": ["type:api", "lang:go", "routeros"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": { "command": "air", "cwd": "apps/rosproxy" }
+    },
+    "server": {
+      "executor": "nx:run-commands",
+      "options": { "command": "air", "cwd": "apps/rosproxy" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/rosproxy"],
+      "options": { "command": "node tools/copy-frontend.mjs && cd apps/rosproxy && go build -o ../../dist/apps/rosproxy/rosproxy main.prod.go router_proxy.go scanner.go server_shared.go", "cwd": "." },
+      "dependsOn": ["connect:build"]
+    },
+    "serve-prod": {
+      "executor": "nx:run-commands",
+      "options": { "command": "../../dist/apps/rosproxy/rosproxy", "cwd": "apps/rosproxy" },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go test -tags=dev ./...", "cwd": "apps/rosproxy" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "where golangci-lint >nul 2>&1 && golangci-lint run ./... || echo golangci-lint not installed, skipping lint", "cwd": "apps/rosproxy" }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go vet ./...", "cwd": "apps/rosproxy" }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run rosproxy:typecheck",
+          "nx run rosproxy:lint"
+        ],
+        "parallel": false
+      }
+    },
+    "docker:build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "docker buildx build --platform=${PLATFORMS:-linux/amd64,linux/arm64,linux/arm/v7} -f apps/rosproxy/Dockerfile --tag ghcr.io/$GHCR_REPOSITORY:latest ${DOCKERHUB_REPO:+--tag docker.io/$DOCKERHUB_REPO:latest} ${PUSH:+--push} ."
+      }
+    },
+    "docker:build-local": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-local --tag nasnet:local --platform linux/amd64"
+      }
+    },
+    "docker:export-tar": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs export-tar --tag nasnet:local --out dist/images/nasnet-local-amd64.tar.gz"
+      }
+    },
+    "docker:build-export": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-export --tag nasnet:local --platform linux/amd64 --out dist/images/nasnet-local-amd64.tar.gz"
+      }
+    },
+    "docker:build-export-multi": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-export-multi --tag nasnet --base_out dist/images"
+      }
+    }
+  }
+}
+
+
+

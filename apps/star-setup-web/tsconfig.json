@@ -1,0 +1,47 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "ES2020",
+    "module": "ES2022",
+    "lib": ["es2022", "DOM", "WebWorker", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@builder.io/qwik",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "outDir": "tmp",
+    "noEmit": true,
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "@nas-net/star-setup": ["../../libs/star-setup/src/index.ts"],
+      "@nas-net/core-ui-qwik": ["../../libs/core-ui-qwik/src/index.ts"]
+    },
+    /* if you do not use CSS modules, remove this line and delete the typescript-plugin-css-modules module from package.json */
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  },
+  "include": ["src/**/*", "./*.d.ts", "./*.config.ts"],
+  "files": [
+    "src/locales/message.en.json",
+    "src/locales/message.it.json",
+    "src/locales/message.ru.json",
+    "src/locales/message.fa.json",
+    "src/locales/message.zh.json",
+    "src/locales/message.ar.json",
+    "src/locales/message.tr.json"
+  ],
+  "references": [
+    { "path": "../../libs/core-ui-qwik" },
+    { "path": "../../libs/star-setup" }
+  ]
+}

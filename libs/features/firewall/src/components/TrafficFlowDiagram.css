@@ -1,0 +1,45 @@
+/**
+ * Traffic Flow Diagram Animations
+ * CSS animations for packet flow visualization
+ */
+
+/* Animated dashed line for traffic flow */
+.traffic-flow-path {
+  stroke-width: 2;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Chain node hover effect */
+.chain-node:hover rect {
+  filter: brightness(0.95);
+}
+
+.chain-node.cursor-pointer:hover rect {
+  stroke-width: 2;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .chain-node:hover rect {
+    filter: brightness(1.1);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .traffic-flow-path {
+    animation: none;
+  }
+}
+
+
+
+
+
+

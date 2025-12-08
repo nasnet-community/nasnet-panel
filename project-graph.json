@@ -1,0 +1,2136 @@
+{
+  "graph": {
+    "nodes": {
+      "ros-cmd-generator": {
+        "name": "ros-cmd-generator",
+        "type": "lib",
+        "data": {
+          "root": "libs/ros-cmd-generator",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "outputs": [],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "libs/ros-cmd-generator",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/ros-cmd-generator",
+                "configFile": "libs/ros-cmd-generator/vite.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects ros-cmd-generator --includeDependentProjects -- npx nx build-deps ros-cmd-generator"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/vite:test",
+              "outputs": [
+                "{options.reportsDirectory}"
+              ],
+              "options": {
+                "passWithNoTests": true,
+                "reportsDirectory": "coverage/libs/ros-cmd-generator"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "libs/ros-cmd-generator/**/*.{ts,tsx,js,jsx}"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/ros-cmd-generator",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                "./package.json": "./package.json",
+                ".": {
+                  "@nas-net/source": "./src/index.ts",
+                  "types": "./dist/index.d.ts",
+                  "import": "./dist/index.js",
+                  "default": "./dist/index.js"
+                }
+              },
+              "packageMain": "./dist/index.js",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "ros-cmd-generator",
+          "tags": [
+            "npm:private",
+            "type:lib",
+            "scope:ros-cmd-generator"
+          ],
+          "sourceRoot": "libs/ros-cmd-generator/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "star-setup-docker": {
+        "name": "star-setup-docker",
+        "type": "app",
+        "data": {
+          "root": "apps/star-setup-docker",
+          "targets": {
+            "typecheck": {
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "options": {
+                "cwd": "apps/star-setup-docker",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/apps/star-setup-docker",
+                "configFile": "apps/star-setup-docker/vite.config.ts"
+              },
+              "configurations": {
+                "production": {
+                  "mode": "production"
+                }
+              },
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx/vite:dev-server",
+              "defaultConfiguration": "development",
+              "options": {
+                "buildTarget": "star-setup-docker:build",
+                "port": 5174
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "star-setup-docker:build",
+                  "hmr": true
+                }
+              },
+              "parallelism": true,
+              "continuous": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/star-setup-docker",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "preview": {
+              "executor": "@nx/vite:preview-server",
+              "options": {
+                "buildTarget": "star-setup-docker:build",
+                "port": 4301
+              },
+              "configurations": {},
+              "parallelism": true,
+              "continuous": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects star-setup-docker --includeDependentProjects -- npx nx build-deps star-setup-docker"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "star-setup-docker",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "star-setup-docker",
+          "tags": [
+            "npm:private",
+            "type:app",
+            "framework:qwik",
+            "scope:star-setup"
+          ],
+          "sourceRoot": "apps/star-setup-docker/src",
+          "implicitDependencies": []
+        }
+      },
+      "@nas-net/connectpoc-e2e": {
+        "name": "@nas-net/connectpoc-e2e",
+        "type": "app",
+        "data": {
+          "root": "apps/connectpoc-e2e",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps\\connectpoc-e2e",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/package.json",
+                "{workspaceRoot}/tsconfig.base.json",
+                "{projectRoot}/tsconfig.json",
+                "{projectRoot}/**/*.ts",
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/playwright.config.ts",
+                "{projectRoot}/src/**/*.spec.ts",
+                "{projectRoot}/src/**/*.spec.js",
+                "{projectRoot}/src/**/*.test.ts",
+                "{projectRoot}/src/**/*.test.js",
+                "{projectRoot}/src/**/*.d.ts",
+                "!{projectRoot}/out-tsc",
+                "!{projectRoot}/test-output",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/out-tsc/playwright/**/*.d.ts",
+                "{projectRoot}/out-tsc/playwright/**/*.d.ts.map",
+                "{projectRoot}/out-tsc/playwright/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e": {
+              "options": {
+                "cwd": "apps/connectpoc-e2e",
+                "command": "playwright test"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "connectpoc"
+                  ],
+                  "target": "serve"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output",
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci--src/example.spec.ts": {
+              "options": {
+                "cwd": "apps/connectpoc-e2e",
+                "env": {
+                  "PLAYWRIGHT_HTML_OUTPUT_DIR": "test-output\\playwright\\report\\src-example-spec-ts",
+                  "PLAYWRIGHT_HTML_REPORT": "test-output\\playwright\\report\\src-example-spec-ts"
+                },
+                "command": "playwright test src/example.spec.ts --output=test-output\\playwright\\output\\src-example-spec-ts"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in src/example.spec.ts in CI",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "connectpoc"
+                  ],
+                  "target": "serve"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output/src-example-spec-ts",
+                "{projectRoot}/test-output/playwright/report/src-example-spec-ts"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci": {
+              "executor": "nx:noop",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output",
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "dependsOn": [
+                {
+                  "target": "e2e-ci--src/example.spec.ts",
+                  "projects": "self",
+                  "params": "forward",
+                  "options": "forward"
+                }
+              ],
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in CI",
+                "nonAtomizedTarget": "e2e",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "e2e-ci--merge-reports": {
+              "executor": "@nx/playwright:merge-reports",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "options": {
+                "config": "playwright.config.ts",
+                "expectedSuites": 1
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Merges Playwright blob reports from atomized tasks to produce unified reports for the configured reporters."
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "metadata": {
+            "targetGroups": {
+              "E2E (CI)": [
+                "e2e-ci--src/example.spec.ts",
+                "e2e-ci",
+                "e2e-ci--merge-reports"
+              ]
+            },
+            "js": {
+              "packageName": "@nas-net/connectpoc-e2e",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@nas-net/connectpoc-e2e",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": [
+            "connectpoc"
+          ]
+        }
+      },
+      "star-setup-web": {
+        "name": "star-setup-web",
+        "type": "app",
+        "data": {
+          "root": "apps/star-setup-web",
+          "targets": {
+            "typecheck": {
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "options": {
+                "cwd": "apps/star-setup-web",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "dependsOn": [
+                "^build"
+              ],
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/apps/star-setup-web",
+                "configFile": "apps/star-setup-web/vite.config.ts"
+              },
+              "configurations": {
+                "production": {
+                  "mode": "production"
+                }
+              },
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx/vite:dev-server",
+              "defaultConfiguration": "development",
+              "options": {
+                "buildTarget": "star-setup-web:build",
+                "port": 5173
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "star-setup-web:build",
+                  "hmr": true
+                }
+              },
+              "parallelism": true,
+              "continuous": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/star-setup-web",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "preview": {
+              "executor": "@nx/vite:preview-server",
+              "options": {
+                "buildTarget": "star-setup-web:build",
+                "port": 4300
+              },
+              "configurations": {},
+              "parallelism": true,
+              "continuous": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects star-setup-web --includeDependentProjects -- npx nx build-deps star-setup-web"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "apps/star-setup-web/src/**/*.{ts,tsx}"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "star-setup-web",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "star-setup-web",
+          "tags": [
+            "npm:private",
+            "type:app",
+            "framework:qwik",
+            "scope:star-setup"
+          ],
+          "sourceRoot": "apps/star-setup-web/src",
+          "implicitDependencies": [
+            "core-ui-qwik",
+            "star-setup"
+          ]
+        }
+      },
+      "core-ui-qwik": {
+        "name": "core-ui-qwik",
+        "type": "lib",
+        "data": {
+          "root": "libs/core-ui-qwik",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "libs/core-ui-qwik",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/core-ui-qwik",
+                "configFile": "libs/core-ui-qwik/vite.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "options": {
+                "cwd": "libs/core-ui-qwik",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                },
+                "deprecated": "Use devTargetName instead. This option will be removed in Nx 22."
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "libs/core-ui-qwik",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "cwd": "libs/core-ui-qwik",
+                "command": "vite preview"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Locally preview Vite production build",
+                "help": {
+                  "command": "npx vite preview --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects core-ui-qwik --includeDependentProjects -- npx nx build-deps core-ui-qwik"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/core-ui-qwik/src/**/*.{ts,tsx}"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint:quiet": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx eslint \"src/**/*.{ts,tsx}\" --quiet",
+                "cwd": "libs/core-ui-qwik"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "library",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/core-ui-qwik",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                ".": {
+                  "@nas-net/source": "./src/index.ts",
+                  "types": "./lib-types/index.d.ts",
+                  "import": "./lib/index.qwik.mjs",
+                  "require": "./lib/index.qwik.cjs"
+                }
+              },
+              "packageMain": "./lib/index.qwik.mjs",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "core-ui-qwik",
+          "tags": [
+            "npm:private",
+            "type:lib",
+            "framework:qwik",
+            "scope:shared"
+          ],
+          "sourceRoot": "libs/core-ui-qwik/src",
+          "implicitDependencies": []
+        }
+      },
+      "star-context": {
+        "name": "star-context",
+        "type": "lib",
+        "data": {
+          "root": "libs/star-context",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "outputs": [],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "libs/star-context",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/star-context",
+                "configFile": "libs/star-context/vite.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects star-context --includeDependentProjects -- npx nx build-deps star-context"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/vite:test",
+              "outputs": [
+                "{options.reportsDirectory}"
+              ],
+              "options": {
+                "passWithNoTests": true,
+                "reportsDirectory": "coverage/libs/star-context"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ]
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "libs/star-context/**/*.{ts,tsx,js,jsx}"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/star-context",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                "./package.json": "./package.json",
+                ".": {
+                  "@nas-net/source": "./src/index.ts",
+                  "types": "./dist/index.d.ts",
+                  "import": "./dist/index.js",
+                  "default": "./dist/index.js"
+                }
+              },
+              "packageMain": "./dist/index.js",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "star-context",
+          "tags": [
+            "npm:private",
+            "type:lib",
+            "framework:qwik",
+            "scope:star-context"
+          ],
+          "sourceRoot": "libs/star-context/src",
+          "projectType": "library",
+          "implicitDependencies": []
+        }
+      },
+      "@nas-net/connect-e2e": {
+        "name": "@nas-net/connect-e2e",
+        "type": "app",
+        "data": {
+          "root": "apps/connect-e2e",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps\\connect-e2e",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/package.json",
+                "{workspaceRoot}/tsconfig.base.json",
+                "{projectRoot}/tsconfig.json",
+                "{projectRoot}/**/*.ts",
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/playwright.config.ts",
+                "{projectRoot}/src/**/*.spec.ts",
+                "{projectRoot}/src/**/*.spec.js",
+                "{projectRoot}/src/**/*.test.ts",
+                "{projectRoot}/src/**/*.test.js",
+                "{projectRoot}/src/**/*.d.ts",
+                "!{projectRoot}/out-tsc",
+                "!{projectRoot}/test-output",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/out-tsc/playwright/**/*.d.ts",
+                "{projectRoot}/out-tsc/playwright/**/*.d.ts.map",
+                "{projectRoot}/out-tsc/playwright/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e": {
+              "options": {
+                "cwd": "apps/connect-e2e",
+                "command": "playwright test"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "@nas-net/connect"
+                  ],
+                  "target": "preview"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output",
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci--src/example.spec.ts": {
+              "options": {
+                "cwd": "apps/connect-e2e",
+                "env": {
+                  "PLAYWRIGHT_HTML_OUTPUT_DIR": "test-output\\playwright\\report\\src-example-spec-ts",
+                  "PLAYWRIGHT_HTML_REPORT": "test-output\\playwright\\report\\src-example-spec-ts"
+                },
+                "command": "playwright test src/example.spec.ts --output=test-output\\playwright\\output\\src-example-spec-ts"
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in src/example.spec.ts in CI",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                {
+                  "projects": [
+                    "@nas-net/connect"
+                  ],
+                  "target": "preview"
+                }
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output/src-example-spec-ts",
+                "{projectRoot}/test-output/playwright/report/src-example-spec-ts"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e-ci": {
+              "executor": "nx:noop",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/output",
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "dependsOn": [
+                {
+                  "target": "e2e-ci--src/example.spec.ts",
+                  "projects": "self",
+                  "params": "forward",
+                  "options": "forward"
+                }
+              ],
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Runs Playwright Tests in CI",
+                "nonAtomizedTarget": "e2e",
+                "help": {
+                  "command": "npx playwright test --help",
+                  "example": {
+                    "options": {
+                      "workers": 1
+                    }
+                  }
+                }
+              },
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "e2e-ci--merge-reports": {
+              "executor": "@nx/playwright:merge-reports",
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "@playwright/test"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/playwright/report"
+              ],
+              "options": {
+                "config": "playwright.config.ts",
+                "expectedSuites": 1
+              },
+              "metadata": {
+                "technologies": [
+                  "playwright"
+                ],
+                "description": "Merges Playwright blob reports from atomized tasks to produce unified reports for the configured reporters."
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "metadata": {
+            "targetGroups": {
+              "E2E (CI)": [
+                "e2e-ci--src/example.spec.ts",
+                "e2e-ci",
+                "e2e-ci--merge-reports"
+              ]
+            },
+            "js": {
+              "packageName": "@nas-net/connect-e2e",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@nas-net/connect-e2e",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "connectpoc": {
+        "name": "connectpoc",
+        "type": "app",
+        "data": {
+          "root": "apps/connectpoc",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "outputs": [],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/connectpoc",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/vite:test",
+              "options": {
+                "cwd": "apps/connectpoc"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ]
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{workspaceRoot}/dist/apps/connectpoc"
+              ],
+              "options": {
+                "outputPath": "dist/apps/connectpoc",
+                "cwd": "apps/connectpoc"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx/vite:dev-server",
+              "options": {
+                "buildTarget": "connectpoc:build",
+                "cwd": "apps/connectpoc"
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "connectpoc:build"
+                }
+              },
+              "parallelism": true,
+              "continuous": true
+            },
+            "dev": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "nx run connectpoc:serve"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "cwd": "apps/connectpoc",
+                "command": "vite preview"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Locally preview Vite production build",
+                "help": {
+                  "command": "npx vite preview --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects connectpoc --includeDependentProjects -- npx nx build-deps connectpoc"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "apps/connectpoc/**/*.ts",
+                  "apps/connectpoc/**/*.tsx"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "type": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "tsc --noEmit --project apps/connectpoc/tsconfig.app.json"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "check": {
+              "executor": "nx:run-commands",
+              "options": {
+                "commands": [
+                  "nx run connectpoc:type && nx run connectpoc:lint"
+                ],
+                "parallel": false
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/connectpoc",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "connectpoc",
+          "tags": [
+            "npm:private",
+            "type:app",
+            "scope:frontend"
+          ],
+          "$schema": "https://json.schemastore.org/nx-project.json",
+          "sourceRoot": "apps/connectpoc/src",
+          "implicitDependencies": [
+            "@nas-net/shared"
+          ]
+        }
+      },
+      "star-setup": {
+        "name": "star-setup",
+        "type": "lib",
+        "data": {
+          "root": "libs/star-setup",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "typescript"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript",
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "libs/star-setup",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/vite:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/libs/star-setup",
+                "configFile": "libs/star-setup/vite.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "options": {
+                "cwd": "libs/star-setup",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                },
+                "deprecated": "Use devTargetName instead. This option will be removed in Nx 22."
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "libs/star-setup",
+                "command": "vite"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Starts Vite dev server",
+                "help": {
+                  "command": "npx vite --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "cwd": "libs/star-setup",
+                "command": "vite preview"
+              },
+              "metadata": {
+                "technologies": [
+                  "vite"
+                ],
+                "description": "Locally preview Vite production build",
+                "help": {
+                  "command": "npx vite preview --help",
+                  "example": {
+                    "options": {
+                      "port": 3000
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects star-setup --includeDependentProjects -- npx nx build-deps star-setup"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "libs/star-setup/src/**/*.{ts,tsx}"
+                ]
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint:quiet": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx eslint \"src/**/*.{ts,tsx}\" --quiet",
+                "cwd": "libs/star-setup"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "library",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/star-setup",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                ".": {
+                  "@nas-net/source": "./src/index.ts",
+                  "types": "./lib-types/index.d.ts",
+                  "import": "./lib/index.qwik.mjs",
+                  "require": "./lib/index.qwik.cjs"
+                }
+              },
+              "packageMain": "./lib/index.qwik.mjs",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "star-setup",
+          "tags": [
+            "npm:private",
+            "type:lib",
+            "framework:qwik",
+            "scope:star-setup"
+          ],
+          "sourceRoot": "libs/star-setup/src",
+          "implicitDependencies": []
+        }
+      },
+      "rosproxy": {
+        "name": "rosproxy",
+        "type": "app",
+        "data": {
+          "root": "apps/rosproxy",
+          "metadata": {
+            "targetGroups": {
+              "Docker": [
+                "docker:build",
+                "docker:run",
+                "nx-release-publish"
+              ]
+            }
+          },
+          "targets": {
+            "docker:build": {
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": ".",
+                "command": "docker buildx build --platform=${PLATFORMS:-linux/amd64,linux/arm64,linux/arm/v7} -f apps/rosproxy/Dockerfile --tag ghcr.io/$GHCR_REPOSITORY:latest ${DOCKERHUB_REPO:+--tag docker.io/$DOCKERHUB_REPO:latest} ${PUSH:+--push} ."
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:run": {
+              "dependsOn": [
+                "docker:build"
+              ],
+              "options": {
+                "cwd": "apps/rosproxy",
+                "command": "docker run {args} apps-rosproxy"
+              },
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "metadata": {
+                "technologies": [
+                  "docker"
+                ],
+                "description": "Run Docker run",
+                "help": {
+                  "command": "docker run --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "-p",
+                        "3000:3000"
+                      ]
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "nx-release-publish": {
+              "executor": "@nx/docker:release-publish",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "go run -tags=dev main.dev.go router_proxy.go scanner.go server_shared.go",
+                "cwd": "apps/rosproxy"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "nx:run-commands",
+              "outputs": [
+                "{workspaceRoot}/dist/apps/rosproxy"
+              ],
+              "options": {
+                "command": "node tools/copy-frontend.mjs && cd apps/rosproxy && go build -o ../../dist/apps/rosproxy/rosproxy main.prod.go router_proxy.go scanner.go server_shared.go",
+                "cwd": "."
+              },
+              "dependsOn": [
+                "connectpoc:build"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-prod": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "../../dist/apps/rosproxy/rosproxy",
+                "cwd": "apps/rosproxy"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "go test -tags=dev ./...",
+                "cwd": "apps/rosproxy"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ]
+            },
+            "lint": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "where golangci-lint >nul 2>&1 && golangci-lint run ./... || echo golangci-lint not installed, skipping lint",
+                "cwd": "apps/rosproxy"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:build-local": {
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": ".",
+                "command": "node tools/docker/cli.mjs build-local --tag nasnet:local --platform linux/amd64"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:export-tar": {
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": ".",
+                "command": "node tools/docker/cli.mjs export-tar --tag nasnet:local --out dist/images/nasnet-local-amd64.tar.gz"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:build-export": {
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": ".",
+                "command": "node tools/docker/cli.mjs build-export --tag nasnet:local --platform linux/amd64 --out dist/images/nasnet-local-amd64.tar.gz"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:build-export-multi": {
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": ".",
+                "command": "node tools/docker/cli.mjs build-export-multi --tag nasnet --base_out dist/images"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "rosproxy",
+          "$schema": "https://json.schemastore.org/nx-project.json",
+          "projectType": "application",
+          "sourceRoot": "apps/rosproxy",
+          "tags": [
+            "type:api",
+            "lang:go",
+            "routeros"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@nas-net/shared": {
+        "name": "@nas-net/shared",
+        "type": "lib",
+        "data": {
+          "root": "shared",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "shared",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                {
+                  "dependentTasksOutputFiles": "**/*.d.ts"
+                }
+              ],
+              "outputs": [],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@nas-net/shared",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@nas-net/shared",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                ".": {
+                  "types": "./src/index.ts",
+                  "import": "./src/index.ts",
+                  "default": "./src/index.ts"
+                },
+                "./package.json": "./package.json"
+              },
+              "packageMain": "./src/index.ts",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "ros-cmd-generator": [
+        {
+          "source": "ros-cmd-generator",
+          "target": "star-context",
+          "type": "static"
+        }
+      ],
+      "star-setup-docker": [],
+      "@nas-net/connectpoc-e2e": [
+        {
+          "source": "@nas-net/connectpoc-e2e",
+          "target": "connectpoc",
+          "type": "implicit"
+        }
+      ],
+      "star-setup-web": [
+        {
+          "source": "star-setup-web",
+          "target": "core-ui-qwik",
+          "type": "implicit"
+        },
+        {
+          "source": "star-setup-web",
+          "target": "star-setup",
+          "type": "implicit"
+        },
+        {
+          "source": "star-setup-web",
+          "target": "star-setup",
+          "type": "static"
+        },
+        {
+          "source": "star-setup-web",
+          "target": "core-ui-qwik",
+          "type": "static"
+        }
+      ],
+      "core-ui-qwik": [
+        {
+          "source": "core-ui-qwik",
+          "target": "star-context",
+          "type": "static"
+        },
+        {
+          "source": "core-ui-qwik",
+          "target": "ros-cmd-generator",
+          "type": "static"
+        }
+      ],
+      "star-context": [],
+      "@nas-net/connect-e2e": [],
+      "connectpoc": [
+        {
+          "source": "connectpoc",
+          "target": "@nas-net/shared",
+          "type": "implicit"
+        }
+      ],
+      "star-setup": [
+        {
+          "source": "star-setup",
+          "target": "core-ui-qwik",
+          "type": "static"
+        },
+        {
+          "source": "star-setup",
+          "target": "star-context",
+          "type": "static"
+        },
+        {
+          "source": "star-setup",
+          "target": "star-context",
+          "type": "dynamic"
+        },
+        {
+          "source": "star-setup",
+          "target": "ros-cmd-generator",
+          "type": "static"
+        }
+      ],
+      "rosproxy": [],
+      "@nas-net/shared": []
+    }
+  }
+}

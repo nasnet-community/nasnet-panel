@@ -1,0 +1,46 @@
+{
+  "name": "@nasnet/state/stores",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/state/stores/src",
+  "projectType": "library",
+  "tags": ["type:state", "scope:shared"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/libs/state/stores"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../../coverage/libs/state/stores"
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/state/stores"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/state/stores/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/state/stores/tsconfig.lib.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run @nasnet/state/stores:typecheck",
+          "nx run @nasnet/state/stores:lint"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

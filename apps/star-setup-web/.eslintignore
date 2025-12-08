@@ -1,0 +1,5 @@
+*.config.js
+*.config.ts
+.eslintrc.cjs
+vite.config.ts
+

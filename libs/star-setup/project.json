@@ -1,0 +1,46 @@
+{
+  "name": "star-setup",
+  "sourceRoot": "libs/star-setup/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/star-setup",
+        "configFile": "libs/star-setup/vite.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/star-setup/src/**/*.{ts,tsx}"]
+      }
+    },
+    "lint:quiet": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx eslint \"src/**/*.{ts,tsx}\" --quiet",
+        "cwd": "libs/star-setup"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/star-setup/tsconfig.lib.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run star-setup:typecheck",
+          "nx run star-setup:lint"
+        ],
+        "parallel": false
+      }
+    }
+  },
+  "tags": ["type:lib", "framework:qwik", "scope:star-setup"]
+}
+

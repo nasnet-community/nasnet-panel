@@ -1,0 +1,45 @@
+{
+  "name": "ui-layouts",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/layouts/src",
+  "projectType": "library",
+  "tags": ["scope:ui", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/ui/layouts"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/libs/ui/layouts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/ui/layouts/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/ui/layouts/tsconfig.lib.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run ui-layouts:typecheck",
+          "nx run ui-layouts:lint"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

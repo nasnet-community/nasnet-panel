@@ -1,0 +1,46 @@
+{
+  "name": "ui-primitives",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/primitives/src",
+  "projectType": "library",
+  "tags": ["scope:ui", "type:lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/ui/primitives"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{projectRoot}/coverage"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/libs/ui/primitives"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["libs/ui/primitives/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/ui/primitives/tsconfig.lib.json"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run ui-primitives:typecheck",
+          "nx run ui-primitives:lint"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

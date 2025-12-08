@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "tsBuildInfoFile": "../../dist/out-tsc/core-ui-qwik.tsbuildinfo"
+  },
+  "include": [
+    "src",
+    "src/locales/*.json"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.tsx",
+    "vite.config.ts"
+  ],
+  "references": [
+    {
+      "path": "../ros-cmd-generator/tsconfig.lib.json"
+    },
+    {
+      "path": "../star-context/tsconfig.lib.json"
+    }
+  ]
+}

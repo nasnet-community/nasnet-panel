@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>NasNetConnect</title>
+    <base href="/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Theme Flash Prevention Script -->
+    <!-- Runs before React loads to prevent FOUC (Flash of Unstyled Content) -->
+    <script>
+      (function() {
+        try {
+          // Read theme from localStorage (Zustand persist format)
+          var stored = localStorage.getItem('nasnet-theme');
+          var theme = 'system'; // Default to system if no preference saved
+
+          if (stored) {
+            var data = JSON.parse(stored);
+            theme = (data.state && data.state.theme) || 'system';
+          }
+
+          // Determine if dark mode should be applied
+          var shouldUseDark = false;
+
+          if (theme === 'dark') {
+            // Explicitly dark mode
+            shouldUseDark = true;
+          } else if (theme === 'system') {
+            // Detect system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              shouldUseDark = true;
+            }
+          }
+          // If theme === 'light', shouldUseDark stays false
+
+          // Apply dark class if needed
+          if (shouldUseDark) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // Silently fail if localStorage unavailable or parsing fails
+          // App will use default light theme
+        }
+      })();
+    </script>
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

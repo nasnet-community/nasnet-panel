@@ -1,0 +1,64 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./shared"
+    },
+    {
+      "path": "./libs/star-context"
+    },
+    {
+      "path": "./libs/ros-cmd-generator"
+    },
+    {
+      "path": "./apps/star-setup-docker"
+    },
+    {
+      "path": "./apps/connectpoc-e2e"
+    },
+    {
+      "path": "./libs/core-ui-qwik"
+    },
+    {
+      "path": "./apps/connectpoc"
+    },
+    {
+      "path": "./libs/star-setup"
+    },
+    {
+      "path": "./apps/connect-e2e"
+    },
+    {
+      "path": "./apps/connect"
+    },
+    {
+      "path": "./libs/api-client/core"
+    },
+    {
+      "path": "./libs/core/types"
+    },
+    {
+      "path": "./libs/core/utils"
+    },
+    {
+      "path": "./libs/core/constants"
+    },
+    {
+      "path": "./libs/ui/primitives"
+    },
+    {
+      "path": "./libs/ui/patterns"
+    },
+    {
+      "path": "./libs/ui/layouts"
+    },
+    {
+      "path": "./libs/features/firewall"
+    },
+    {
+      "path": "./libs/state/stores"
+    }
+  ]
+}

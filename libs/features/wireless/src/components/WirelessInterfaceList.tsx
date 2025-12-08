@@ -1,0 +1,136 @@
+/**
+ * WirelessInterfaceList Component
+ * Displays a list of wireless interfaces with loading and empty states
+ * Implements responsive grid layout (stacked mobile, 2-column tablet+)
+ */
+
+import { useNavigate } from 'react-router-dom';
+import { WirelessInterfaceCard } from './WirelessInterfaceCard';
+import { useWirelessInterfaces } from '@nasnet/api-client/queries';
+import { useConnectionStore } from '@nasnet/state/stores';
+import { Wifi } from 'lucide-react';
+
+/**
+ * Skeleton loader for wireless interface cards
+ * Matches final component structure to prevent layout shift
+ */
+function WirelessInterfaceSkeleton() {
+  return (
+    <div className="rounded-2xl md:rounded-3xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 animate-pulse">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div className="space-y-2">
+            <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+          </div>
+        </div>
+        <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" />
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="h-5 w-16 bg-slate-200 dark:bg-slate-800 rounded-md" />
+        <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Empty state component when no wireless interfaces are found
+ * Encouraging and helpful, not intimidating
+ */
+function WirelessInterfacesEmpty() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="p-6 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+        <Wifi className="h-12 w-12 text-slate-400" />
+      </div>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+        No wireless interfaces found
+      </h3>
+      <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
+        Your router doesn't appear to have any wireless interfaces configured.
+        This is normal for routers without WiFi capabilities.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Error state component when API request fails
+ */
+function WirelessInterfacesError({ error }: { error: Error }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="p-6 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+        <Wifi className="h-12 w-12 text-red-600 dark:text-red-400" />
+      </div>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+        Failed to load wireless interfaces
+      </h3>
+      <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mb-4">
+        {error.message || 'An error occurred while loading wireless interfaces'}
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="px-4 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 rounded-lg text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Main list component for wireless interfaces
+ * - Fetches data using useWirelessInterfaces hook
+ * - Shows skeleton loading state
+ * - Shows empty state when no interfaces exist
+ * - Shows error state on API failure
+ * - Displays interfaces in responsive grid
+ * - Navigates to detail view on card click
+ *
+ * @example
+ * ```tsx
+ * <WirelessInterfaceList />
+ * ```
+ */
+export function WirelessInterfaceList() {
+  const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
+  const { data: interfaces, isLoading, error } = useWirelessInterfaces(routerIp);
+  const navigate = useNavigate();
+
+  // Loading state: show skeleton cards
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <WirelessInterfaceSkeleton />
+        <WirelessInterfaceSkeleton />
+        <WirelessInterfaceSkeleton />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return <WirelessInterfacesError error={error} />;
+  }
+
+  // Empty state: no interfaces found
+  if (!interfaces || interfaces.length === 0) {
+    return <WirelessInterfacesEmpty />;
+  }
+
+  // Success state: display interface cards in responsive grid
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {interfaces.map((iface) => (
+        <WirelessInterfaceCard
+          key={iface.id}
+          interface={iface}
+          onClick={() => navigate(`/wifi/${iface.name}`)}
+        />
+      ))}
+    </div>
+  );
+}

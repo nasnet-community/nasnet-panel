@@ -1,0 +1,48 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "jsx": "react-jsx",
+    "lib": ["dom"],
+    "types": [
+      "node",
+      "@nx/react/typings/cssmodule.d.ts",
+      "@nx/react/typings/image.d.ts",
+      "vite/client"
+    ],
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@nasnet/core/*": ["../../libs/core/*/src"],
+      "@nasnet/ui/*": ["../../libs/ui/*/src"],
+      "@nasnet/features/*": ["../../libs/features/*/src"],
+      "@nasnet/api-client/*": ["../../libs/api-client/*/src"],
+      "@nasnet/state/*": ["../../libs/state/*/src"]
+    }
+  },
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.spec.tsx",
+    "**/*.test.tsx",
+    "**/*.spec.js",
+    "**/*.test.js",
+    "**/*.spec.jsx",
+    "**/*.test.jsx",
+    "**/__tests__/**",
+    "../../libs/**/*.test.ts",
+    "../../libs/**/*.test.tsx",
+    "../../libs/**/*.spec.ts",
+    "../../libs/**/*.spec.tsx",
+    "../../libs/**/__tests__/**"
+  ],
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
+  "references": []
+}
