@@ -84,6 +84,26 @@ export type { SeverityBadgeProps } from './severity-badge';
 export { NewEntriesIndicator } from './new-entries-indicator';
 export type { NewEntriesIndicatorProps } from './new-entries-indicator';
 
+// LogSearch - Text search with match highlighting (Epic 0.8)
+export { LogSearch } from './log-search';
+export type { LogSearchProps } from './log-search';
+
+// LogControls - Pause/Resume & Export controls (Epic 0.8)
+export { LogControls } from './log-controls';
+export type { LogControlsProps } from './log-controls';
+
+// LogStats - Statistics summary for logs (Epic 0.8)
+export { LogStats } from './log-stats';
+export type { LogStatsProps } from './log-stats';
+
+// LogDetailPanel - Detailed log entry view (Epic 0.8)
+export { LogDetailPanel } from './log-detail-panel';
+export type { LogDetailPanelProps } from './log-detail-panel';
+
+// LogGroup - Log correlation/grouping (Epic 0.8)
+export { LogGroup, LogGroupList } from './log-group';
+export type { LogGroupData, LogGroupProps, LogGroupListProps } from './log-group';
+
 // LeaseTable - DHCP lease table with sorting and filtering (Epic 0.5)
 export { LeaseTable } from './lease-table';
 export type { LeaseTableProps } from './lease-table';
@@ -167,23 +187,3 @@ export type { VPNClientsSummaryProps, ConnectedVPNClient } from './vpn-clients-s
 // StatusPills - Horizontal scrollable status indicators
 export { StatusPills } from './status-pills';
 export type { StatusPillsProps, StatusPill, StatusPillVariant } from './status-pills';
-
-// LogSearch - Text search for filtering logs (Epic 0.8)
-export { LogSearch, HighlightedText } from './log-search';
-export type { LogSearchProps, HighlightedTextProps } from './log-search';
-
-// LogControls - Pause/resume and export controls (Epic 0.8)
-export { LogControls, logExport } from './log-controls';
-export type { LogControlsProps } from './log-controls';
-
-// LogStats - Statistics summary for logs (Epic 0.8)
-export { LogStats } from './log-stats';
-export type { LogStatsProps } from './log-stats';
-
-// LogDetailPanel - Side panel for log entry details (Epic 0.8)
-export { LogDetailPanel } from './log-detail-panel';
-export type { LogDetailPanelProps } from './log-detail-panel';
-
-// LogGroup - Grouped/correlated log entries (Epic 0.8)
-export { LogGroup, LogGroupList } from './log-group';
-export type { LogGroupProps, LogGroupData, LogGroupListProps } from './log-group';

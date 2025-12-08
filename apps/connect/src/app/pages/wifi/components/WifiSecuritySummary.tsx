@@ -77,3 +77,4 @@ export function WifiSecuritySummary({ interfaces, isLoading }: WifiSecuritySumma
 
 
 
+

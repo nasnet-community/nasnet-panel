@@ -379,7 +379,7 @@ export function LogViewer({ className, limit = 100 }: LogViewerProps) {
                   groups={groups as LogGroupData[]}
                   searchTerm={searchTerm}
                   onEntryClick={setSelectedEntry}
-                  isBookmarked={(id) => isBookmarked(id)}
+                  isBookmarked={(id: string) => isBookmarked(id)}
                   onToggleBookmark={toggleBookmark}
                 />
               </div>

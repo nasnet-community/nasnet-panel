@@ -5,7 +5,12 @@ import { RouterHeader } from './components/RouterHeader';
 import { ROUTES } from '@nasnet/core/constants';
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 import { storeCredentials, clearCredentials } from '@nasnet/api-client/core';
-import { loadCredentials } from '@nasnet/features/router-discovery';
+import {
+  loadCredentials,
+  saveCredentials,
+  CredentialDialog,
+} from '@nasnet/features/router-discovery';
+import type { RouterCredentials } from '@nasnet/core/types';
 import {
   ConfigurationImportWizard,
   useConfigurationCheck,
@@ -65,6 +70,11 @@ export function RouterPanel() {
     password: string;
   } | null>(null);
 
+  // Credential dialog state
+  const [showCredentialDialog, setShowCredentialDialog] = useState(false);
+  const [isValidatingCredentials, setIsValidatingCredentials] = useState(false);
+  const [credentialError, setCredentialError] = useState<string>();
+
   // Configuration check hook - determines if wizard should show
   const { showWizard, closeWizard } = useConfigurationCheck(id || '', routerIp);
 
@@ -73,21 +83,33 @@ export function RouterPanel() {
   useEffect(() => {
     if (id) {
       const routerData = useRouterStore.getState().getRouter(id);
+      
+      // If router doesn't exist, navigate back to router list
+      if (!routerData) {
+        console.warn(`Router ${id} not found, redirecting to router list`);
+        navigate(ROUTES.ROUTER_LIST);
+        return;
+      }
+      
       if (routerData?.ipAddress) {
         useConnectionStore.getState().setCurrentRouter(id, routerData.ipAddress);
 
-        // Load and set saved credentials for API client
+        // Load saved credentials for API client
         const savedCredentials = loadCredentials(id);
+        
         if (savedCredentials) {
+          // Use saved credentials
           storeCredentials({
             username: savedCredentials.username,
             password: savedCredentials.password,
           });
-          // Store credentials for wizard use
           setCredentials({
             username: savedCredentials.username,
             password: savedCredentials.password,
           });
+        } else {
+          // No saved credentials - show credential dialog
+          setShowCredentialDialog(true);
         }
       }
     }
@@ -97,7 +119,38 @@ export function RouterPanel() {
       useConnectionStore.getState().clearCurrentRouter();
       clearCredentials();
     };
-  }, [id]); // Only depend on id - Zustand actions are stable
+  }, [id, navigate]); // Only depend on id and navigate - Zustand actions are stable
+
+  // Handle credential submission
+  const handleCredentialSubmit = (
+    creds: RouterCredentials,
+    shouldSave: boolean
+  ) => {
+    if (!id) return;
+
+    setIsValidatingCredentials(true);
+    setCredentialError(undefined);
+
+    // Store credentials in API client
+    storeCredentials(creds);
+    setCredentials(creds);
+
+    // Save to localStorage if requested
+    if (shouldSave) {
+      saveCredentials(id, creds);
+    }
+
+    // Close dialog
+    setShowCredentialDialog(false);
+    setIsValidatingCredentials(false);
+  };
+
+  // Handle credential dialog cancellation
+  const handleCredentialCancel = () => {
+    setShowCredentialDialog(false);
+    // Navigate back to router list since we can't proceed without credentials
+    navigate(ROUTES.ROUTER_LIST);
+  };
 
   // Keyboard shortcut: Escape key returns to router list
   useEffect(() => {
@@ -134,6 +187,17 @@ export function RouterPanel() {
       <div className="flex-1 overflow-auto pb-20 md:pb-0">
         <Outlet />
       </div>
+
+      {/* Credential Dialog - shows when no saved credentials exist */}
+      <CredentialDialog
+        isOpen={showCredentialDialog}
+        routerIp={routerIp}
+        routerName={router?.name}
+        isValidating={isValidatingCredentials}
+        validationError={credentialError}
+        onSubmit={handleCredentialSubmit}
+        onCancel={handleCredentialCancel}
+      />
 
       {/* Configuration Import Wizard - shows on first visit if router note is empty */}
       {credentials && (

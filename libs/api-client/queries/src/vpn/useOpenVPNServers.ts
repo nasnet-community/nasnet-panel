@@ -63,7 +63,7 @@ function transformOpenVPNServer(raw: OpenVPNServerRaw): OpenVPNServer {
 async function fetchOpenVPNServers(routerIp: string): Promise<OpenVPNServer[]> {
   const result = await makeRouterOSRequest<OpenVPNServerRaw[]>(
     routerIp,
-    'interface/ovpn-server/server'
+    'interface/ovpn-server'
   );
 
   if (!result.success || !result.data) {

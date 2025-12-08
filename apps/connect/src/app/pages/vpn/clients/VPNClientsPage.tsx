@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { 
   VPNClientCard,
   VPNTypeSection,
@@ -42,6 +42,7 @@ const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 's
  */
 export function VPNClientsPage() {
   const navigate = useNavigate();
+  const { id: routerId } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const initialProtocol = searchParams.get('protocol') as VPNProtocol | null;
   const [activeTab, setActiveTab] = React.useState<VPNProtocol | 'all'>(initialProtocol || 'all');
@@ -363,7 +364,7 @@ export function VPNClientsPage() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <BackButton to="/vpn" />
+            <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
                 VPN Clients

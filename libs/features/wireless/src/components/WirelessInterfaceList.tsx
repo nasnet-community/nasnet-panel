@@ -4,7 +4,7 @@
  * Implements responsive grid layout (stacked mobile, 2-column tablet+)
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { WirelessInterfaceCard } from './WirelessInterfaceCard';
 import { useWirelessInterfaces } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -99,6 +99,7 @@ export function WirelessInterfaceList() {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: interfaces, isLoading, error } = useWirelessInterfaces(routerIp);
   const navigate = useNavigate();
+  const { id: routerId } = useParams<{ id: string }>();
 
   // Loading state: show skeleton cards
   if (isLoading) {
@@ -128,7 +129,7 @@ export function WirelessInterfaceList() {
         <WirelessInterfaceCard
           key={iface.id}
           interface={iface}
-          onClick={() => navigate(`/wifi/${iface.name}`)}
+          onClick={() => navigate(`/router/${routerId}/wifi/${iface.name}`)}
         />
       ))}
     </div>

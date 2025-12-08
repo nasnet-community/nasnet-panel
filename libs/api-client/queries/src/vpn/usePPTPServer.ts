@@ -49,7 +49,7 @@ function transformPPTPServer(raw: PPTPServerRaw): PPTPServer {
 async function fetchPPTPServer(routerIp: string): Promise<PPTPServer> {
   const result = await makeRouterOSRequest<PPTPServerRaw>(
     routerIp,
-    'interface/pptp-server/server'
+    'interface/pptp-server'
   );
 
   if (!result.success || !result.data) {

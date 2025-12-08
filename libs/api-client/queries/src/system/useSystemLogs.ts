@@ -50,6 +50,13 @@ export interface UseSystemLogsOptions {
 /**
  * Fetches system logs from RouterOS via rosproxy
  * Transforms RouterOS API response to LogEntry type
+ * 
+ * Uses POST /rest/log/print with JSON body per MikroTik REST API spec:
+ * - .proplist: specifies which fields to return
+ * - .query: filters results (optional)
+ * 
+ * Note: RouterOS REST API doesn't support a native 'limit' parameter.
+ * We fetch all logs and limit in frontend for simplicity.
  */
 async function fetchSystemLogs(
   routerIp: string,
@@ -57,25 +64,60 @@ async function fetchSystemLogs(
 ): Promise<LogEntry[]> {
   const { topics, severities, limit = 100 } = options;
 
-  // Build query params
-  const params = new URLSearchParams();
-  if (limit) params.append('limit', limit.toString());
+  // Build request body for POST /rest/log/print
+  // MikroTik REST API requires POST with JSON body for print commands
+  const requestBody: Record<string, unknown> = {
+    '.proplist': ['.id', 'time', 'topics', 'message'],
+  };
+
+  // Build query filters if topics are specified
+  // RouterOS query format: [".query": ["field=value", "field2=value2", "#|"]]
+  // Topics filter uses regex match on the 'topics' field
   if (topics && topics.length > 0) {
-    params.append('topics', topics.join(','));
-  }
-  if (severities && severities.length > 0) {
-    params.append('severities', severities.join(','));
+    // Create OR query for multiple topics: topics~"system", topics~"firewall", "#|"
+    const queryParts: string[] = [];
+    topics.forEach((topic) => {
+      queryParts.push(`topics~${topic}`);
+    });
+    // Add OR operators for multiple topics
+    if (queryParts.length > 1) {
+      // Add (n-1) OR operators to combine all conditions
+      for (let i = 1; i < queryParts.length; i++) {
+        queryParts.push('#|');
+      }
+    }
+    requestBody['.query'] = queryParts;
   }
 
-  const endpoint = `log${params.toString() ? `?${params.toString()}` : ''}`;
-  const result = await makeRouterOSRequest<RouterOSLogEntry[]>(routerIp, endpoint);
+  // Use POST method with /log/print endpoint
+  const result = await makeRouterOSRequest<RouterOSLogEntry[]>(
+    routerIp,
+    'log/print',
+    {
+      method: 'POST',
+      body: requestBody,
+    }
+  );
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch system logs');
   }
 
   // Transform RouterOS response to LogEntry format
-  return result.data.map((entry: RouterOSLogEntry) => transformLogEntry(entry));
+  let entries = result.data.map((entry: RouterOSLogEntry) => transformLogEntry(entry));
+
+  // Apply severity filter in frontend (RouterOS topics field combines topic + severity)
+  if (severities && severities.length > 0) {
+    entries = entries.filter((entry) => severities.includes(entry.severity));
+  }
+
+  // Apply limit in frontend (RouterOS REST API doesn't support native limit)
+  // Return most recent entries (logs are typically ordered oldest first)
+  if (limit && entries.length > limit) {
+    entries = entries.slice(-limit);
+  }
+
+  return entries;
 }
 
 /**

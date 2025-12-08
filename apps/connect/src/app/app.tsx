@@ -35,11 +35,6 @@ const router = createBrowserRouter([
   { path: ROUTES.ROUTER_LIST, element: <RouterListPage /> },
   { path: ROUTES.NETWORK, element: <NetworkTab /> },
   { path: ROUTES.WIFI, element: <WifiPage /> },
-  { path: ROUTES.WIFI_DETAIL, element: <WifiDetailPage /> },
-  // VPN Dashboard routes
-  { path: ROUTES.VPN, element: <VPNDashboard /> },
-  { path: ROUTES.VPN_SERVERS, element: <VPNServersPage /> },
-  { path: ROUTES.VPN_CLIENTS, element: <VPNClientsPage /> },
   // Router panel with nested tab routes (Epic 0.9)
   {
     path: '/router/:id',
@@ -47,7 +42,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <OverviewTab /> },
       { path: 'wifi', element: <WiFiTab /> },
+      { path: 'wifi/:interfaceName', element: <WifiDetailPage /> },
       { path: 'vpn', element: <VPNDashboard /> },
+      { path: 'vpn/servers', element: <VPNServersPage /> },
+      { path: 'vpn/clients', element: <VPNClientsPage /> },
       { path: 'firewall', element: <FirewallTab /> },
       { path: 'dhcp', element: <DHCPTab /> },
       { path: 'network', element: <RouterNetworkTab /> },

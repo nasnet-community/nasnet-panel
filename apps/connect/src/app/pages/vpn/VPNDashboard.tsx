@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   VPNStatusHero,
   VPNProtocolStatsCard,
@@ -35,6 +35,7 @@ const PROTOCOL_ORDER: VPNProtocol[] = [
  */
 export function VPNDashboard() {
   const navigate = useNavigate();
+  const { id: routerId } = useParams<{ id: string }>();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   
   const { 
@@ -45,14 +46,25 @@ export function VPNDashboard() {
     isFetching 
   } = useVPNStats(routerIp);
 
-  // Navigate to server/client pages
-  const handleNavigateServers = () => navigate('/vpn/servers');
-  const handleNavigateClients = () => navigate('/vpn/clients');
+  // Navigate to server/client pages within router context
+  const handleNavigateServers = () => {
+    if (routerId) {
+      navigate(`/router/${routerId}/vpn/servers`);
+    }
+  };
+  
+  const handleNavigateClients = () => {
+    if (routerId) {
+      navigate(`/router/${routerId}/vpn/clients`);
+    }
+  };
 
   // Navigate to specific protocol
   const handleProtocolClick = (protocol: VPNProtocol) => {
     // Navigate to servers page with protocol filter
-    navigate(`/vpn/servers?protocol=${protocol}`);
+    if (routerId) {
+      navigate(`/router/${routerId}/vpn/servers?protocol=${protocol}`);
+    }
   };
 
   return (

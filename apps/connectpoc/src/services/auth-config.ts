@@ -14,7 +14,7 @@ interface AuthConfig {
 const authConfig: AuthConfig = {
   defaultCredentials: {
     username: 'admin',
-    password: 'Slate6161', // Default credentials for your network
+    password: '', // Empty password is the MikroTik default
   },
   routerSpecificCredentials: new Map(),
 };

@@ -40,31 +40,32 @@ interface RouterOSWifiInterface {
 
 /**
  * Fetches detailed configuration for a single wireless interface via rosproxy
+ * Note: RouterOS REST API does not support query parameter filtering,
+ * so we fetch all interfaces and filter client-side
  * @param routerIp - Target router IP address
- * @param interfaceName - The interface name (e.g., "wlan1")
+ * @param interfaceName - The interface name (e.g., "wifi2.4-DomesticLAN")
  * @returns Detailed wireless interface configuration
  */
 async function fetchWirelessInterfaceDetail(
   routerIp: string,
   interfaceName: string
 ): Promise<WirelessInterfaceDetail> {
-  // GET /rest/interface/wifi with name filter
+  // GET all WiFi interfaces (will use cache if available from useWirelessInterfaces)
   const result = await makeRouterOSRequest<RouterOSWifiInterface[]>(
     routerIp,
-    `interface/wifi?name=${encodeURIComponent(interfaceName)}`
+    'interface/wifi'
   );
 
   if (!result.success || !result.data) {
-    throw new Error(result.error || `Failed to fetch interface ${interfaceName}`);
+    throw new Error(result.error || `Failed to fetch interfaces`);
   }
 
-  const data = result.data;
+  // Filter client-side by name (RouterOS REST API doesn't support query params)
+  const iface = result.data.find(i => i.name === interfaceName);
 
-  if (!data || data.length === 0) {
-    throw new Error(`Interface ${interfaceName} not found`);
+  if (!iface) {
+    throw new Error(`Interface "${interfaceName}" not found`);
   }
-
-  const iface = data[0];
 
   // Transform RouterOS API response to our typed interface
   return {
@@ -131,7 +132,8 @@ export function useWirelessInterfaceDetail(
   interfaceName: string
 ): UseQueryResult<WirelessInterfaceDetail, Error> {
   return useQuery({
-    queryKey: wirelessKeys.interface(routerIp, interfaceName),
+    // Share cache with useWirelessInterfaces by using the same base key
+    queryKey: [...wirelessKeys.interfaces(routerIp), 'detail', interfaceName] as const,
     queryFn: () => fetchWirelessInterfaceDetail(routerIp, interfaceName),
     staleTime: 30_000, // 30 seconds
     refetchOnWindowFocus: true,

@@ -162,3 +162,4 @@ export function WifiStatusHero({ interfaces, clients, isLoading }: WifiStatusHer
 
 
 
+

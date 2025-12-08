@@ -59,7 +59,7 @@ function transformSSTPServer(raw: SSTPServerRaw): SSTPServer {
 async function fetchSSTPServer(routerIp: string): Promise<SSTPServer> {
   const result = await makeRouterOSRequest<SSTPServerRaw>(
     routerIp,
-    'interface/sstp-server/server'
+    'interface/sstp-server'
   );
 
   if (!result.success || !result.data) {

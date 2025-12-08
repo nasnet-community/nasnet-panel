@@ -59,7 +59,7 @@ function transformL2TPServer(raw: L2TPServerRaw): L2TPServer {
 async function fetchL2TPServer(routerIp: string): Promise<L2TPServer> {
   const result = await makeRouterOSRequest<L2TPServerRaw>(
     routerIp,
-    'interface/l2tp-server/server'
+    'interface/l2tp-server'
   );
 
   if (!result.success || !result.data) {

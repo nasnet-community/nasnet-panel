@@ -384,17 +384,31 @@ func isRouterOSResponse(headers map[string]string, body []byte, statusCode int) 
 		}
 	}
 
-	// For successful responses, check if body structure looks like RouterOS JSON
-	if statusCode == 200 && len(body) > 0 {
-		bodyStr := string(body)
-		// RouterOS responses often contain these patterns
-		if strings.Contains(bodyStr, "<!DOCTYPE html>") || strings.Contains(bodyStr, "<html") {
-			fmt.Printf("[VALIDATION] ❌ HTML content detected in response body - not RouterOS API\n")
+	// For successful responses with JSON content type, validate JSON structure
+	if statusCode == 200 && len(body) > 0 && strings.Contains(contentType, "application/json") {
+		// Check if body STARTS with valid JSON (array or object)
+		// This avoids false positives when log messages contain HTML-like text
+		trimmedBody := strings.TrimSpace(string(body))
+		if len(trimmedBody) > 0 {
+			firstChar := trimmedBody[0]
+			// Valid JSON starts with [ (array) or { (object)
+			if firstChar == '[' || firstChar == '{' {
+				return true
+			}
+		}
+	}
+
+	// For non-JSON responses, check if body STARTS with HTML (not contains, to avoid false positives)
+	if statusCode == 200 && len(body) > 0 && !strings.Contains(contentType, "application/json") {
+		trimmedBody := strings.TrimSpace(string(body))
+		// Check if response STARTS with HTML patterns
+		if strings.HasPrefix(trimmedBody, "<!DOCTYPE html>") || strings.HasPrefix(strings.ToLower(trimmedBody), "<html") {
+			fmt.Printf("[VALIDATION] ❌ HTML content detected at start of response body - not RouterOS API\n")
 			return false
 		}
 	}
 
-	// If we have JSON content type and no obvious HTML, assume it's RouterOS
+	// If we have JSON content type, assume it's RouterOS
 	return strings.Contains(contentType, "application/json")
 }
 

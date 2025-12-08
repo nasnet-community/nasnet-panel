@@ -19,10 +19,10 @@ import { ROUTES } from '@nasnet/core/constants';
  * - Implements loading and error states
  *
  * @example
- * Route: /wifi/:interfaceName
+ * Route: /router/:id/wifi/:interfaceName
  */
 export function WifiDetailPage() {
-  const { interfaceName } = useParams<{ interfaceName: string }>();
+  const { interfaceName, id: routerId } = useParams<{ interfaceName: string; id: string }>();
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: interfaceData, isLoading, error } = useWirelessInterfaceDetail(
@@ -31,10 +31,10 @@ export function WifiDetailPage() {
   );
 
   /**
-   * Navigate back to the wireless interface list
+   * Navigate back to the router's WiFi tab
    */
   const handleBack = () => {
-    navigate(ROUTES.WIFI);
+    navigate(`/router/${routerId}/wifi`);
   };
 
   // Loading state

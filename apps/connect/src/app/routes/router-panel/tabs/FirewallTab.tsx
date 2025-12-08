@@ -6,7 +6,6 @@
 
 import { useState, useCallback } from 'react';
 import {
-  ReadOnlyNotice,
   ServicesStatus,
   ChainSummaryCards,
   TrafficFlowDiagram,
@@ -43,9 +42,6 @@ export function FirewallTab() {
             Monitor firewall rules, NAT configuration, and routing tables
           </p>
         </div>
-
-        {/* Read-Only Notice */}
-        <ReadOnlyNotice />
 
         {/* Hero Stats Section */}
         <FirewallStatusHero />

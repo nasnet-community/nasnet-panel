@@ -33,21 +33,29 @@ async function fetchWirelessInterfaces(routerIp: string): Promise<WirelessInterf
   }
 
   // Transform RouterOS response to our interface type
-  return result.data.map((iface: WirelessInterface) => ({
-    id: iface.id || '',
+  // RouterOS returns kebab-case properties and string booleans/numbers
+  return result.data.map((iface: any) => ({
+    id: iface['.id'] || iface.id || '',
     name: iface.name || 'unknown',
-    macAddress: iface.macAddress || '',
+    macAddress: iface['mac-address'] || iface.macAddress || '',
     ssid: iface.ssid || null,
-    disabled: iface.disabled || false,
-    running: iface.running || false,
-    band: determineBand(iface.frequency || 0),
-    frequency: iface.frequency || 0,
+    disabled: iface.disabled === 'true' || iface.disabled === true,
+    running: iface.running === 'true' || iface.running === true,
+    band: determineBand(
+      typeof iface.frequency === 'string' ? parseInt(iface.frequency) : iface.frequency || 0
+    ),
+    frequency: 
+      typeof iface.frequency === 'string' ? parseInt(iface.frequency) : iface.frequency || 0,
     channel: iface.channel || '',
     mode: iface.mode || 'ap-bridge',
-    txPower: iface.txPower || 0,
-    securityProfile: iface.securityProfile || 'default',
-    connectedClients: iface.connectedClients || 0,
-    countryCode: iface.countryCode,
+    txPower: 
+      typeof iface['tx-power'] === 'string' ? parseInt(iface['tx-power']) : iface.txPower || 0,
+    securityProfile: iface['security-profile'] || iface.securityProfile || 'default',
+    connectedClients: 
+      typeof iface['registered-clients'] === 'string' 
+        ? parseInt(iface['registered-clients']) 
+        : iface.connectedClients || 0,
+    countryCode: iface.country || iface.countryCode,
   }));
 }
 
