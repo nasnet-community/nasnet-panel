@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NasNetConnect - Design Direction Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#EFC729',
+              50: '#FDF8E3',
+              100: '#FCF2C7',
+              200: '#F9E58F',
+              300: '#F5D857',
+              400: '#F2CB1F',
+              500: '#EFC729',
+              600: '#D4A50E',
+              700: '#9C790A',
+              800: '#644E07',
+              900: '#2C2203',
+            },
+            secondary: {
+              DEFAULT: '#4972ba',
+              50: '#EDF2FA',
+              100: '#D7E2F4',
+              200: '#AFC5E9',
+              300: '#87A8DE',
+              400: '#5F8BD3',
+              500: '#4972ba',
+              600: '#3A5B95',
+              700: '#2C4470',
+              800: '#1D2D4A',
+              900: '#0F1725',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .design-card {
+      transition: all 0.3s ease;
+    }
+    .design-card:hover {
+      transform: translateY(-4px);
+    }
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .tab-active {
+      border-bottom: 3px solid #EFC729;
+      color: #EFC729;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    }
+    .status-connected {
+      animation: pulse-glow 2s infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">NasNetConnect Design Directions</h1>
+          <p class="text-slate-500 text-sm">Mobile-first UX exploration for MikroTik router management</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="setTheme('light')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200">Light</button>
+          <button onclick="setTheme('dark')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm font-medium hover:bg-slate-700">Dark</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex gap-8 overflow-x-auto">
+        <button onclick="showDirection(1)" id="tab-1" class="tab-active py-4 px-2 text-sm font-medium whitespace-nowrap">Direction 1: Clean Minimal</button>
+        <button onclick="showDirection(2)" id="tab-2" class="py-4 px-2 text-sm font-medium text-slate-500 whitespace-nowrap hover:text-slate-700">Direction 2: Card-Heavy</button>
+        <button onclick="showDirection(3)" id="tab-3" class="py-4 px-2 text-sm font-medium text-slate-500 whitespace-nowrap hover:text-slate-700">Direction 3: Dashboard Pro</button>
+        <button onclick="showDirection(4)" id="tab-4" class="py-4 px-2 text-sm font-medium text-slate-500 whitespace-nowrap hover:text-slate-700">Direction 4: Action-First</button>
+        <button onclick="showDirection(5)" id="tab-5" class="py-4 px-2 text-sm font-medium text-slate-500 whitespace-nowrap hover:text-slate-700">Direction 5: Status Hero</button>
+        <button onclick="showDirection(6)" id="tab-6" class="py-4 px-2 text-sm font-medium text-slate-500 whitespace-nowrap hover:text-slate-700">Direction 6: Guided Flow</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Direction 1: Clean Minimal -->
+    <section id="direction-1" class="direction-content">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 1: Clean Minimal</h2>
+        <p class="text-slate-600">Maximum whitespace, subtle shadows, typography-driven hierarchy. Inspired by Apple's design language.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Confidence-building</span>
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Calm & Professional</span>
+          <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">Beginner-friendly</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Screen 1: Dashboard -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Dashboard / Home</h3>
+          <div class="phone-frame bg-slate-50 relative" id="d1-dashboard">
+            <!-- Status Bar -->
+            <div class="bg-slate-50 px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-6 pb-6">
+              <p class="text-slate-400 text-sm">Good morning</p>
+              <h1 class="text-2xl font-semibold text-slate-900">Your Network</h1>
+            </div>
+
+            <!-- Main Status Card -->
+            <div class="px-6 pb-4">
+              <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-6">
+                  <div>
+                    <p class="text-sm text-slate-400">Status</p>
+                    <p class="text-lg font-semibold text-green-600 flex items-center gap-2">
+                      <span class="w-2 h-2 bg-green-500 rounded-full status-connected"></span>
+                      All Systems Online
+                    </p>
+                  </div>
+                  <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center">
+                    <span class="text-2xl">✓</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p class="text-2xl font-semibold text-slate-900">12</p>
+                    <p class="text-xs text-slate-400">Devices</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-semibold text-slate-900">847</p>
+                    <p class="text-xs text-slate-400">Mbps</p>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-semibold text-slate-900">3d</p>
+                    <p class="text-xs text-slate-400">Uptime</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VPN Quick Action -->
+            <div class="px-6 pb-4">
+              <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                      <span class="text-lg">🔐</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-900">VPN</p>
+                      <p class="text-sm text-slate-400">Mullvad - Amsterdam</p>
+                    </div>
+                  </div>
+                  <div class="w-12 h-7 bg-green-500 rounded-full flex items-center justify-end px-1">
+                    <div class="w-5 h-5 bg-white rounded-full shadow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="px-6 pb-6">
+              <p class="text-sm font-medium text-slate-400 mb-3">Quick Actions</p>
+              <div class="grid grid-cols-4 gap-3">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                  <span class="text-xl">📡</span>
+                  <p class="text-xs text-slate-600 mt-1">WiFi</p>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                  <span class="text-xl">🔒</span>
+                  <p class="text-xs text-slate-600 mt-1">Firewall</p>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                  <span class="text-xl">📊</span>
+                  <p class="text-xs text-slate-600 mt-1">Stats</p>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                  <span class="text-xl">⚙️</span>
+                  <p class="text-xs text-slate-600 mt-1">Settings</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-primary-500 text-xl">🏠</span>
+                  <p class="text-xs text-primary-500 font-medium mt-1">Home</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">🔐</span>
+                  <p class="text-xs text-slate-400 mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">📊</span>
+                  <p class="text-xs text-slate-400 mt-1">Monitor</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-400 mt-1">Settings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 2: VPN Setup -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Configuration</h3>
+          <div class="phone-frame bg-slate-50 relative">
+            <!-- Status Bar -->
+            <div class="bg-slate-50 px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-6 pb-6">
+              <button class="text-primary-500 text-sm font-medium mb-2">← Back</button>
+              <h1 class="text-2xl font-semibold text-slate-900">Add VPN</h1>
+              <p class="text-slate-400 text-sm mt-1">Upload your WireGuard config</p>
+            </div>
+
+            <!-- Upload Zone -->
+            <div class="px-6 pb-6">
+              <div class="border-2 border-dashed border-slate-200 rounded-3xl p-8 text-center bg-white">
+                <div class="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span class="text-3xl">📄</span>
+                </div>
+                <p class="font-medium text-slate-900 mb-1">Drop .conf file here</p>
+                <p class="text-sm text-slate-400 mb-4">or tap to browse</p>
+                <button class="bg-primary-500 text-slate-900 font-medium px-6 py-2.5 rounded-xl">
+                  Select File
+                </button>
+              </div>
+            </div>
+
+            <!-- Or divider -->
+            <div class="px-6 pb-4">
+              <div class="flex items-center gap-4">
+                <div class="flex-1 h-px bg-slate-200"></div>
+                <span class="text-sm text-slate-400">or scan QR</span>
+                <div class="flex-1 h-px bg-slate-200"></div>
+              </div>
+            </div>
+
+            <!-- QR Option -->
+            <div class="px-6 pb-6">
+              <button class="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-4">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+                  <span class="text-lg">📷</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-slate-900">Scan QR Code</p>
+                  <p class="text-sm text-slate-400">From your VPN provider</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Help Text -->
+            <div class="px-6">
+              <div class="bg-blue-50 rounded-2xl p-4">
+                <p class="text-sm text-blue-700">
+                  <span class="font-medium">💡 Tip:</span> Export your config from Mullvad, ProtonVPN, or any WireGuard-compatible provider.
+                </p>
+              </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">🏠</span>
+                  <p class="text-xs text-slate-400 mt-1">Home</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-primary-500 text-xl">🔐</span>
+                  <p class="text-xs text-primary-500 font-medium mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">📊</span>
+                  <p class="text-xs text-slate-400 mt-1">Monitor</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-400 mt-1">Settings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3: Connected State -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Connected State</h3>
+          <div class="phone-frame bg-slate-50 relative">
+            <!-- Status Bar -->
+            <div class="bg-green-500 px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/80">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Connected Hero -->
+            <div class="bg-green-500 px-6 pb-8 rounded-b-[40px]">
+              <div class="text-center py-8">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 status-connected">
+                  <span class="text-4xl">🔒</span>
+                </div>
+                <h1 class="text-2xl font-semibold text-white mb-1">Connected</h1>
+                <p class="text-white/80">Your traffic is protected</p>
+              </div>
+            </div>
+
+            <!-- Connection Details -->
+            <div class="px-6 -mt-6">
+              <div class="bg-white rounded-3xl p-6 shadow-lg">
+                <div class="flex items-center gap-4 mb-6">
+                  <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-2xl">
+                    🇳🇱
+                  </div>
+                  <div>
+                    <p class="font-semibold text-slate-900">Mullvad - Amsterdam</p>
+                    <p class="text-sm text-slate-400">WireGuard Protocol</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="bg-slate-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-400">IP Address</p>
+                    <p class="font-mono text-slate-900">185.65.134.xxx</p>
+                  </div>
+                  <div class="bg-slate-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-400">Uptime</p>
+                    <p class="font-mono text-slate-900">02:34:56</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-slate-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-400">Download</p>
+                    <p class="font-semibold text-slate-900">1.2 GB</p>
+                  </div>
+                  <div class="bg-slate-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-400">Upload</p>
+                    <p class="font-semibold text-slate-900">342 MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Disconnect Button -->
+            <div class="px-6 py-6">
+              <button class="w-full bg-red-50 text-red-600 font-medium py-4 rounded-2xl border border-red-100">
+                Disconnect
+              </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">🏠</span>
+                  <p class="text-xs text-slate-400 mt-1">Home</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-primary-500 text-xl">🔐</span>
+                  <p class="text-xs text-primary-500 font-medium mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">📊</span>
+                  <p class="text-xs text-slate-400 mt-1">Monitor</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-300 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-400 mt-1">Settings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direction 2: Card-Heavy -->
+    <section id="direction-2" class="direction-content hidden">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 2: Card-Heavy Dashboard</h2>
+        <p class="text-slate-600">Information-dense cards with clear visual hierarchy. Inspired by Home Assistant and network monitoring tools.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Information-rich</span>
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Power-user friendly</span>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Scannable</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Screen 1: Dashboard -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Dashboard / Home</h3>
+          <div class="phone-frame bg-slate-900 relative">
+            <!-- Status Bar -->
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-4 pb-4 flex justify-between items-center">
+              <div>
+                <h1 class="text-xl font-bold text-white">NasNetConnect</h1>
+                <p class="text-slate-400 text-sm">RouterOS 7.15.3</p>
+              </div>
+              <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                <span class="text-green-400">●</span>
+              </div>
+            </div>
+
+            <!-- Status Cards Grid -->
+            <div class="px-4 pb-4 grid grid-cols-2 gap-3">
+              <div class="bg-slate-800 rounded-2xl p-4">
+                <p class="text-slate-400 text-xs uppercase tracking-wide">CPU</p>
+                <p class="text-2xl font-bold text-white mt-1">12%</p>
+                <div class="w-full bg-slate-700 rounded-full h-1.5 mt-2">
+                  <div class="bg-green-400 h-1.5 rounded-full" style="width: 12%"></div>
+                </div>
+              </div>
+              <div class="bg-slate-800 rounded-2xl p-4">
+                <p class="text-slate-400 text-xs uppercase tracking-wide">Memory</p>
+                <p class="text-2xl font-bold text-white mt-1">43%</p>
+                <div class="w-full bg-slate-700 rounded-full h-1.5 mt-2">
+                  <div class="bg-blue-400 h-1.5 rounded-full" style="width: 43%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VPN Card -->
+            <div class="px-4 pb-4">
+              <div class="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4 border border-green-500/30">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="text-green-400 text-xs uppercase tracking-wide">VPN Active</p>
+                    <p class="text-white font-semibold mt-1">Mullvad - NL</p>
+                    <p class="text-slate-400 text-sm">185.65.134.xxx</p>
+                  </div>
+                  <button class="bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-sm font-medium">
+                    Stop
+                  </button>
+                </div>
+                <div class="flex gap-6 mt-4">
+                  <div>
+                    <p class="text-slate-400 text-xs">↓ Down</p>
+                    <p class="text-white font-mono">847 Mb/s</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-400 text-xs">↑ Up</p>
+                    <p class="text-white font-mono">234 Mb/s</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interfaces -->
+            <div class="px-4 pb-4">
+              <p class="text-slate-400 text-xs uppercase tracking-wide mb-3">Interfaces</p>
+              <div class="space-y-2">
+                <div class="bg-slate-800 rounded-xl p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span class="text-white font-medium">ether1-wan</span>
+                  </div>
+                  <span class="text-slate-400 text-sm">1 Gbps</span>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span class="text-white font-medium">bridge-lan</span>
+                  </div>
+                  <span class="text-slate-400 text-sm">12 hosts</span>
+                </div>
+                <div class="bg-slate-800 rounded-xl p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span class="text-white font-medium">wg-mullvad</span>
+                  </div>
+                  <span class="text-slate-400 text-sm">Active</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-primary-400 text-xl">📊</span>
+                  <p class="text-xs text-primary-400 font-medium mt-1">Dashboard</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">🔐</span>
+                  <p class="text-xs text-slate-500 mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">🌐</span>
+                  <p class="text-xs text-slate-500 mt-1">Network</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-500 mt-1">Config</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 2: VPN List -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Connections</h3>
+          <div class="phone-frame bg-slate-900 relative">
+            <!-- Status Bar -->
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-4 pb-4 flex justify-between items-center">
+              <h1 class="text-xl font-bold text-white">VPN Connections</h1>
+              <button class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center text-xl">
+                +
+              </button>
+            </div>
+
+            <!-- VPN Cards -->
+            <div class="px-4 space-y-3">
+              <div class="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl p-4 border border-green-500/30">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center text-2xl">
+                    🇳🇱
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-white font-semibold">Mullvad Amsterdam</p>
+                    <p class="text-green-400 text-sm">● Connected • 02:34:56</p>
+                  </div>
+                  <div class="w-12 h-7 bg-green-500 rounded-full flex items-center justify-end px-1">
+                    <div class="w-5 h-5 bg-white rounded-full shadow"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center text-2xl">
+                    🇨🇭
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-white font-semibold">ProtonVPN Zurich</p>
+                    <p class="text-slate-400 text-sm">○ Disconnected</p>
+                  </div>
+                  <div class="w-12 h-7 bg-slate-600 rounded-full flex items-center px-1">
+                    <div class="w-5 h-5 bg-slate-400 rounded-full shadow"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center text-2xl">
+                    🇺🇸
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-white font-semibold">Work VPN</p>
+                    <p class="text-slate-400 text-sm">○ Disconnected</p>
+                  </div>
+                  <div class="w-12 h-7 bg-slate-600 rounded-full flex items-center px-1">
+                    <div class="w-5 h-5 bg-slate-400 rounded-full shadow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add New -->
+            <div class="px-4 mt-6">
+              <button class="w-full border-2 border-dashed border-slate-700 rounded-2xl p-4 text-slate-400 flex items-center justify-center gap-2">
+                <span>+</span> Add VPN Connection
+              </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">📊</span>
+                  <p class="text-xs text-slate-500 mt-1">Dashboard</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-primary-400 text-xl">🔐</span>
+                  <p class="text-xs text-primary-400 font-medium mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">🌐</span>
+                  <p class="text-xs text-slate-500 mt-1">Network</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-500 mt-1">Config</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 3: Config Import -->
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Import Configuration</h3>
+          <div class="phone-frame bg-slate-900 relative">
+            <!-- Status Bar -->
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-4 pb-4">
+              <button class="text-primary-400 text-sm font-medium mb-2">← Back</button>
+              <h1 class="text-xl font-bold text-white">Import Config</h1>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="px-4 pb-6">
+              <div class="border-2 border-dashed border-slate-700 rounded-2xl p-8 text-center bg-slate-800/50">
+                <div class="w-16 h-16 bg-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span class="text-3xl">📄</span>
+                </div>
+                <p class="text-white font-medium mb-1">Drop WireGuard Config</p>
+                <p class="text-slate-400 text-sm mb-4">.conf or .wg file</p>
+                <button class="bg-primary-500 text-slate-900 font-semibold px-6 py-3 rounded-xl">
+                  Browse Files
+                </button>
+              </div>
+            </div>
+
+            <!-- Parsing Preview (simulated) -->
+            <div class="px-4">
+              <p class="text-slate-400 text-xs uppercase tracking-wide mb-3">Config Preview</p>
+              <div class="bg-slate-800 rounded-2xl p-4 font-mono text-sm">
+                <div class="text-green-400">[Interface]</div>
+                <div class="text-slate-300">PrivateKey = <span class="text-slate-500">••••••••</span></div>
+                <div class="text-slate-300">Address = 10.66.123.45/32</div>
+                <div class="text-slate-300">DNS = 10.64.0.1</div>
+                <div class="text-green-400 mt-2">[Peer]</div>
+                <div class="text-slate-300">Endpoint = nl-ams-wg-001...</div>
+              </div>
+            </div>
+
+            <!-- Import Button -->
+            <div class="px-4 mt-6">
+              <button class="w-full bg-green-500 text-white font-semibold py-4 rounded-xl">
+                ✓ Import & Connect
+              </button>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">📊</span>
+                  <p class="text-xs text-slate-500 mt-1">Dashboard</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-primary-400 text-xl">🔐</span>
+                  <p class="text-xs text-primary-400 font-medium mt-1">VPN</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">🌐</span>
+                  <p class="text-xs text-slate-500 mt-1">Network</p>
+                </div>
+                <div class="text-center">
+                  <span class="text-slate-500 text-xl">⚙️</span>
+                  <p class="text-xs text-slate-500 mt-1">Config</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direction 3: Dashboard Pro -->
+    <section id="direction-3" class="direction-content hidden">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 3: Dashboard Pro</h2>
+        <p class="text-slate-600">Professional monitoring aesthetic with data visualization focus. Inspired by Grafana and network operations centers.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">Data-forward</span>
+          <span class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm">Technical users</span>
+          <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">Dense information</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Network Overview</h3>
+          <div class="phone-frame bg-slate-950 relative">
+            <!-- Status Bar -->
+            <div class="px-6 pt-12 pb-2">
+              <div class="flex justify-between items-center text-xs text-slate-500">
+                <span>9:41</span>
+                <div class="flex gap-1">
+                  <span>📶</span>
+                  <span>🔋</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Bar -->
+            <div class="px-4 py-3 flex justify-between items-center border-b border-slate-800">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center text-sm font-bold text-slate-900">N</div>
+                <div>
+                  <p class="text-white text-sm font-medium">hAP ax³</p>
+                  <p class="text-green-400 text-xs">● Online</p>
+                </div>
+              </div>
+              <button class="text-slate-400">
+                <span>⋮</span>
+              </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="p-4 grid grid-cols-3 gap-2">
+              <div class="bg-slate-900 rounded-xl p-3 text-center">
+                <p class="text-cyan-400 text-lg font-bold">12%</p>
+                <p class="text-slate-500 text-xs">CPU</p>
+              </div>
+              <div class="bg-slate-900 rounded-xl p-3 text-center">
+                <p class="text-purple-400 text-lg font-bold">43%</p>
+                <p class="text-slate-500 text-xs">RAM</p>
+              </div>
+              <div class="bg-slate-900 rounded-xl p-3 text-center">
+                <p class="text-emerald-400 text-lg font-bold">3d</p>
+                <p class="text-slate-500 text-xs">Uptime</p>
+              </div>
+            </div>
+
+            <!-- Traffic Graph Placeholder -->
+            <div class="px-4 pb-4">
+              <div class="bg-slate-900 rounded-xl p-4">
+                <p class="text-slate-400 text-xs mb-3">Traffic (last hour)</p>
+                <div class="h-20 flex items-end gap-1">
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 40%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 60%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 45%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 80%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 55%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 70%"></div>
+                  <div class="flex-1 bg-cyan-500/30 rounded-t" style="height: 90%"></div>
+                  <div class="flex-1 bg-cyan-500 rounded-t" style="height: 65%"></div>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-slate-600">
+                  <span>-1h</span>
+                  <span>now</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="px-4">
+              <div class="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30 rounded-xl p-4">
+                <div class="flex justify-between items-center">
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">🔐</span>
+                    <div>
+                      <p class="text-white font-medium">VPN Protected</p>
+                      <p class="text-emerald-400 text-sm">Mullvad NL</p>
+                    </div>
+                  </div>
+                  <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm">
+                    Manage
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interface List -->
+            <div class="px-4 py-4">
+              <div class="flex justify-between items-center mb-2">
+                <p class="text-slate-400 text-xs uppercase tracking-wide">Interfaces</p>
+                <button class="text-primary-400 text-xs">View All</button>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between py-2 border-b border-slate-800">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span class="text-white text-sm">ether1</span>
+                  </div>
+                  <span class="text-slate-400 text-xs font-mono">↓847 ↑234 Mb/s</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span class="text-white text-sm">wlan1</span>
+                  </div>
+                  <span class="text-slate-400 text-xs font-mono">12 clients</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 px-4 py-3 pb-7">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-primary-400">📊</span>
+                  <span class="text-xs text-primary-400">Overview</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">🔐</span>
+                  <span class="text-xs text-slate-600">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">📡</span>
+                  <span class="text-xs text-slate-600">Interfaces</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">⚡</span>
+                  <span class="text-xs text-slate-600">Actions</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Management</h3>
+          <div class="phone-frame bg-slate-950 relative overflow-hidden">
+            <!-- Similar structure with VPN-focused content -->
+            <div class="px-6 pt-12 pb-2">
+              <div class="flex justify-between items-center text-xs text-slate-500">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <div class="px-4 py-3 border-b border-slate-800">
+              <h1 class="text-white font-bold text-lg">VPN Tunnels</h1>
+            </div>
+
+            <!-- Active Tunnel -->
+            <div class="p-4">
+              <div class="bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-transparent rounded-2xl p-4 border border-emerald-500/30">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-2xl">🇳🇱</div>
+                    <div>
+                      <p class="text-white font-semibold">Mullvad Amsterdam</p>
+                      <p class="text-emerald-400 text-sm flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        Connected
+                      </p>
+                    </div>
+                  </div>
+                  <button class="text-red-400 text-sm font-medium px-3 py-1 bg-red-500/10 rounded-lg">Stop</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p class="text-slate-500">Public IP</p>
+                    <p class="text-white font-mono">185.65.134.xxx</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500">Tunnel IP</p>
+                    <p class="text-white font-mono">10.66.123.45</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500">Uptime</p>
+                    <p class="text-white font-mono">02:34:56</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500">Latency</p>
+                    <p class="text-white font-mono">23ms</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other tunnels -->
+            <div class="px-4">
+              <p class="text-slate-500 text-xs uppercase tracking-wide mb-2">Available</p>
+              <div class="space-y-2">
+                <div class="bg-slate-900 rounded-xl p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xl">🇨🇭</span>
+                    <span class="text-white">ProtonVPN CH</span>
+                  </div>
+                  <button class="text-primary-400 text-sm">Connect</button>
+                </div>
+                <div class="bg-slate-900 rounded-xl p-3 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xl">🏢</span>
+                    <span class="text-white">Office VPN</span>
+                  </div>
+                  <button class="text-primary-400 text-sm">Connect</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add button -->
+            <div class="px-4 py-4">
+              <button class="w-full bg-primary-500 text-slate-900 font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
+                <span>+</span> Add Tunnel
+              </button>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 px-4 py-3 pb-7">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">📊</span>
+                  <span class="text-xs text-slate-600">Overview</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-primary-400">🔐</span>
+                  <span class="text-xs text-primary-400">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">📡</span>
+                  <span class="text-xs text-slate-600">Interfaces</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">⚡</span>
+                  <span class="text-xs text-slate-600">Actions</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Import Flow</h3>
+          <div class="phone-frame bg-slate-950 relative">
+            <div class="px-6 pt-12 pb-2">
+              <div class="flex justify-between items-center text-xs text-slate-500">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <div class="px-4 py-3 border-b border-slate-800 flex items-center gap-3">
+              <button class="text-slate-400">←</button>
+              <h1 class="text-white font-bold">New Tunnel</h1>
+            </div>
+
+            <!-- Steps indicator -->
+            <div class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-slate-900 font-bold text-sm">1</div>
+                <div class="flex-1 h-0.5 bg-slate-700"></div>
+                <div class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 font-bold text-sm">2</div>
+                <div class="flex-1 h-0.5 bg-slate-700"></div>
+                <div class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 font-bold text-sm">3</div>
+              </div>
+              <div class="flex justify-between mt-2 text-xs">
+                <span class="text-primary-400">Import</span>
+                <span class="text-slate-600">Configure</span>
+                <span class="text-slate-600">Verify</span>
+              </div>
+            </div>
+
+            <!-- Upload zone -->
+            <div class="px-4">
+              <div class="border border-dashed border-slate-700 rounded-2xl p-8 text-center">
+                <div class="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">📄</div>
+                <p class="text-white font-medium mb-1">Import WireGuard Config</p>
+                <p class="text-slate-500 text-sm mb-4">.conf file from your provider</p>
+                <button class="bg-slate-800 text-white px-6 py-2 rounded-lg font-medium">Choose File</button>
+              </div>
+            </div>
+
+            <!-- Alternative -->
+            <div class="px-4 py-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="flex-1 h-px bg-slate-800"></div>
+                <span class="text-slate-600 text-sm">or</span>
+                <div class="flex-1 h-px bg-slate-800"></div>
+              </div>
+
+              <button class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 flex items-center gap-4">
+                <div class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">📷</div>
+                <div class="text-left">
+                  <p class="text-white font-medium">Scan QR Code</p>
+                  <p class="text-slate-500 text-sm">From your VPN app</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 px-4 py-3 pb-7">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">📊</span>
+                  <span class="text-xs text-slate-600">Overview</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-primary-400">🔐</span>
+                  <span class="text-xs text-primary-400">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">📡</span>
+                  <span class="text-xs text-slate-600">Interfaces</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-slate-600">⚡</span>
+                  <span class="text-xs text-slate-600">Actions</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direction 4: Action-First -->
+    <section id="direction-4" class="direction-content hidden">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 4: Action-First</h2>
+        <p class="text-slate-600">Primary actions front and center with status as secondary. Optimized for quick tasks and one-tap operations.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">Task-focused</span>
+          <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Quick actions</span>
+          <span class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm">Mobile-optimized</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Action Home</h3>
+          <div class="phone-frame bg-white relative">
+            <div class="bg-primary-500 px-6 pt-12 pb-24 rounded-b-[40px]">
+              <div class="flex justify-between items-center text-xs text-slate-800/60 mb-4">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+              <div class="text-center">
+                <p class="text-slate-800/60 text-sm">Router Status</p>
+                <h1 class="text-3xl font-bold text-slate-900">All Good ✓</h1>
+              </div>
+            </div>
+
+            <!-- Floating action card -->
+            <div class="px-4 -mt-12">
+              <div class="bg-white rounded-3xl shadow-xl p-6">
+                <p class="text-slate-500 text-sm font-medium mb-4">Quick Actions</p>
+                <div class="grid grid-cols-2 gap-4">
+                  <button class="bg-green-500 text-white rounded-2xl p-4 text-left">
+                    <span class="text-2xl mb-2 block">🔐</span>
+                    <p class="font-semibold">Connect VPN</p>
+                    <p class="text-green-100 text-sm">Mullvad NL</p>
+                  </button>
+                  <button class="bg-slate-100 text-slate-700 rounded-2xl p-4 text-left">
+                    <span class="text-2xl mb-2 block">📡</span>
+                    <p class="font-semibold">WiFi</p>
+                    <p class="text-slate-500 text-sm">12 devices</p>
+                  </button>
+                  <button class="bg-slate-100 text-slate-700 rounded-2xl p-4 text-left">
+                    <span class="text-2xl mb-2 block">🔄</span>
+                    <p class="font-semibold">Restart</p>
+                    <p class="text-slate-500 text-sm">Safe restart</p>
+                  </button>
+                  <button class="bg-slate-100 text-slate-700 rounded-2xl p-4 text-left">
+                    <span class="text-2xl mb-2 block">🛡️</span>
+                    <p class="font-semibold">Firewall</p>
+                    <p class="text-slate-500 text-sm">Enabled</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status pills -->
+            <div class="px-4 py-6">
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <div class="flex-shrink-0 bg-green-50 border border-green-200 rounded-full px-4 py-2 flex items-center gap-2">
+                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span class="text-green-700 text-sm font-medium">Internet OK</span>
+                </div>
+                <div class="flex-shrink-0 bg-green-50 border border-green-200 rounded-full px-4 py-2 flex items-center gap-2">
+                  <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span class="text-green-700 text-sm font-medium">VPN Active</span>
+                </div>
+                <div class="flex-shrink-0 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 flex items-center gap-2">
+                  <span class="text-slate-600 text-sm font-medium">3d uptime</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent -->
+            <div class="px-4">
+              <p class="text-slate-500 text-sm font-medium mb-3">Recent Activity</p>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <span class="text-lg">🔐</span>
+                  <div class="flex-1">
+                    <p class="text-slate-900 text-sm font-medium">VPN Connected</p>
+                    <p class="text-slate-500 text-xs">2 hours ago</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <span class="text-lg">📱</span>
+                  <div class="flex-1">
+                    <p class="text-slate-900 text-sm font-medium">iPhone joined WiFi</p>
+                    <p class="text-slate-500 text-xs">4 hours ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <span class="text-primary-500 text-2xl">🏠</span>
+                <span class="text-slate-300 text-2xl">🔐</span>
+                <span class="text-slate-300 text-2xl">📊</span>
+                <span class="text-slate-300 text-2xl">⚙️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Quick Connect</h3>
+          <div class="phone-frame bg-white relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <div class="px-4 pb-4">
+              <h1 class="text-2xl font-bold text-slate-900">VPN</h1>
+            </div>
+
+            <!-- Big connect button -->
+            <div class="px-4 py-8">
+              <button class="w-48 h-48 mx-auto block bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-lg shadow-green-500/30 flex items-center justify-center">
+                <div class="text-center text-white">
+                  <span class="text-5xl block mb-2">⏻</span>
+                  <p class="font-bold text-lg">TAP TO CONNECT</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Location selector -->
+            <div class="px-4 pb-4">
+              <button class="w-full bg-slate-100 rounded-2xl p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">🇳🇱</span>
+                  <div class="text-left">
+                    <p class="font-semibold text-slate-900">Netherlands</p>
+                    <p class="text-slate-500 text-sm">Mullvad Amsterdam</p>
+                  </div>
+                </div>
+                <span class="text-slate-400">▼</span>
+              </button>
+            </div>
+
+            <!-- Other profiles -->
+            <div class="px-4">
+              <p class="text-slate-500 text-sm font-medium mb-3">Other Profiles</p>
+              <div class="flex gap-3 overflow-x-auto pb-2">
+                <button class="flex-shrink-0 bg-slate-100 rounded-xl p-3 flex flex-col items-center w-20">
+                  <span class="text-xl">🇨🇭</span>
+                  <p class="text-xs text-slate-600 mt-1">Zurich</p>
+                </button>
+                <button class="flex-shrink-0 bg-slate-100 rounded-xl p-3 flex flex-col items-center w-20">
+                  <span class="text-xl">🇺🇸</span>
+                  <p class="text-xs text-slate-600 mt-1">NYC</p>
+                </button>
+                <button class="flex-shrink-0 bg-slate-100 rounded-xl p-3 flex flex-col items-center w-20">
+                  <span class="text-xl">🏢</span>
+                  <p class="text-xs text-slate-600 mt-1">Work</p>
+                </button>
+                <button class="flex-shrink-0 border-2 border-dashed border-slate-200 rounded-xl p-3 flex flex-col items-center w-20">
+                  <span class="text-xl text-slate-300">+</span>
+                  <p class="text-xs text-slate-400 mt-1">Add</p>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <span class="text-slate-300 text-2xl">🏠</span>
+                <span class="text-primary-500 text-2xl">🔐</span>
+                <span class="text-slate-300 text-2xl">📊</span>
+                <span class="text-slate-300 text-2xl">⚙️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Connected State</h3>
+          <div class="phone-frame bg-green-500 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/60">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Connected state -->
+            <div class="px-4 py-8 text-center">
+              <div class="w-32 h-32 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6 status-connected">
+                <span class="text-6xl">🔒</span>
+              </div>
+              <h1 class="text-3xl font-bold text-white mb-2">Protected</h1>
+              <p class="text-white/80">Your connection is secure</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="px-4">
+              <div class="bg-white/10 backdrop-blur rounded-3xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="text-2xl">🇳🇱</span>
+                  <div>
+                    <p class="text-white font-semibold">Amsterdam, Netherlands</p>
+                    <p class="text-white/60 text-sm">Mullvad WireGuard</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p class="text-white/60 text-xs">TIME</p>
+                    <p class="text-white font-mono text-lg">02:34</p>
+                  </div>
+                  <div>
+                    <p class="text-white/60 text-xs">DOWN</p>
+                    <p class="text-white font-mono text-lg">1.2G</p>
+                  </div>
+                  <div>
+                    <p class="text-white/60 text-xs">UP</p>
+                    <p class="text-white font-mono text-lg">342M</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Disconnect -->
+            <div class="px-4 py-6">
+              <button class="w-full bg-white text-red-500 font-bold py-4 rounded-2xl">
+                Disconnect
+              </button>
+            </div>
+
+            <!-- Bottom Nav (inverted for dark bg) -->
+            <div class="absolute bottom-0 left-0 right-0 bg-green-600 border-t border-green-400/30 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <span class="text-white/40 text-2xl">🏠</span>
+                <span class="text-white text-2xl">🔐</span>
+                <span class="text-white/40 text-2xl">📊</span>
+                <span class="text-white/40 text-2xl">⚙️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direction 5: Status Hero -->
+    <section id="direction-5" class="direction-content hidden">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 5: Status Hero</h2>
+        <p class="text-slate-600">Large, prominent status indicators with everything else secondary. Confidence-building through bold visual feedback.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">Confidence-first</span>
+          <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Clear status</span>
+          <span class="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">Reassuring</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Everything OK</h3>
+          <div class="phone-frame bg-gradient-to-b from-emerald-500 to-emerald-600 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/60">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Giant status -->
+            <div class="text-center py-12">
+              <div class="w-40 h-40 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6">
+                <span class="text-8xl">✓</span>
+              </div>
+              <h1 class="text-4xl font-bold text-white mb-2">All Good</h1>
+              <p class="text-white/80 text-lg">Network is healthy</p>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="px-6">
+              <div class="bg-white/10 backdrop-blur rounded-2xl p-4 grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-white text-2xl font-bold">12</p>
+                  <p class="text-white/60 text-xs">Devices</p>
+                </div>
+                <div>
+                  <p class="text-white text-2xl font-bold">3d</p>
+                  <p class="text-white/60 text-xs">Uptime</p>
+                </div>
+                <div>
+                  <p class="text-white text-2xl font-bold">🔒</p>
+                  <p class="text-white/60 text-xs">VPN On</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-emerald-700/50 backdrop-blur border-t border-emerald-400/20 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white text-xl">🏠</span>
+                  <span class="text-xs text-white/80">Home</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">🔐</span>
+                  <span class="text-xs text-white/50">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">📊</span>
+                  <span class="text-xs text-white/50">Stats</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">⚙️</span>
+                  <span class="text-xs text-white/50">Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">VPN Disconnected (Warning)</h3>
+          <div class="phone-frame bg-gradient-to-b from-amber-500 to-orange-500 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/60">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Warning status -->
+            <div class="text-center py-12">
+              <div class="w-40 h-40 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6">
+                <span class="text-8xl">⚠️</span>
+              </div>
+              <h1 class="text-4xl font-bold text-white mb-2">Exposed</h1>
+              <p class="text-white/80 text-lg">VPN is not connected</p>
+            </div>
+
+            <!-- Action -->
+            <div class="px-6">
+              <button class="w-full bg-white text-amber-600 font-bold py-4 rounded-2xl text-lg">
+                Connect VPN Now
+              </button>
+              <p class="text-center text-white/60 text-sm mt-4">Your traffic is not protected</p>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-orange-600/50 backdrop-blur border-t border-orange-400/20 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white text-xl">🏠</span>
+                  <span class="text-xs text-white/80">Home</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">🔐</span>
+                  <span class="text-xs text-white/50">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">📊</span>
+                  <span class="text-xs text-white/50">Stats</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">⚙️</span>
+                  <span class="text-xs text-white/50">Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Connection Issue (Error)</h3>
+          <div class="phone-frame bg-gradient-to-b from-red-500 to-rose-600 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/60">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Error status -->
+            <div class="text-center py-12">
+              <div class="w-40 h-40 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6">
+                <span class="text-8xl">✕</span>
+              </div>
+              <h1 class="text-4xl font-bold text-white mb-2">Issue Found</h1>
+              <p class="text-white/80 text-lg">Internet connection lost</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-6 space-y-3">
+              <button class="w-full bg-white text-red-600 font-bold py-4 rounded-2xl text-lg">
+                Run Diagnostics
+              </button>
+              <button class="w-full bg-white/20 text-white font-medium py-3 rounded-2xl">
+                Restart Router
+              </button>
+            </div>
+
+            <!-- Bottom Nav -->
+            <div class="absolute bottom-0 left-0 right-0 bg-rose-700/50 backdrop-blur border-t border-rose-400/20 px-6 py-4 pb-8">
+              <div class="flex justify-around">
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white text-xl">🏠</span>
+                  <span class="text-xs text-white/80">Home</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">🔐</span>
+                  <span class="text-xs text-white/50">VPN</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">📊</span>
+                  <span class="text-xs text-white/50">Stats</span>
+                </button>
+                <button class="flex flex-col items-center gap-1">
+                  <span class="text-white/50 text-xl">⚙️</span>
+                  <span class="text-xs text-white/50">Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Direction 6: Guided Flow -->
+    <section id="direction-6" class="direction-content hidden">
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-2">Direction 6: Guided Flow</h2>
+        <p class="text-slate-600">Step-by-step wizard approach with clear progress. Hand-holding for first-time users while still being fast.</p>
+        <div class="flex gap-4 mt-4">
+          <span class="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm">Beginner-friendly</span>
+          <span class="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">Step-by-step</span>
+          <span class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm">Reassuring</span>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Step 1: Upload</h3>
+          <div class="phone-frame bg-slate-50 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="px-6 py-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-900">Add VPN Connection</span>
+                <span class="text-sm text-slate-500">Step 1 of 3</span>
+              </div>
+              <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-primary-500 rounded-full" style="width: 33%"></div>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-6 py-8">
+              <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span class="text-4xl">📄</span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Upload Your Config</h2>
+                <p class="text-slate-500">Get a .conf file from your VPN provider (Mullvad, ProtonVPN, etc.)</p>
+              </div>
+
+              <button class="w-full bg-primary-500 text-slate-900 font-semibold py-4 rounded-2xl text-lg mb-4">
+                Choose File
+              </button>
+
+              <div class="text-center">
+                <button class="text-secondary-500 font-medium">Or scan QR code →</button>
+              </div>
+            </div>
+
+            <!-- Help tip -->
+            <div class="px-6">
+              <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex gap-3">
+                <span class="text-blue-500">💡</span>
+                <div>
+                  <p class="text-blue-800 text-sm font-medium">Where do I get this?</p>
+                  <p class="text-blue-600 text-sm">Go to your VPN provider's website → Download → WireGuard config</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="absolute bottom-0 left-0 right-0 px-6 py-4 pb-8">
+              <button class="text-slate-400 w-full py-3">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Step 2: Confirm</h3>
+          <div class="phone-frame bg-slate-50 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="px-6 py-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-900">Add VPN Connection</span>
+                <span class="text-sm text-slate-500">Step 2 of 3</span>
+              </div>
+              <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-primary-500 rounded-full" style="width: 66%"></div>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-6 py-4">
+              <div class="text-center mb-6">
+                <span class="text-4xl">✅</span>
+                <h2 class="text-xl font-bold text-slate-900 mt-2">Config Validated!</h2>
+              </div>
+
+              <!-- Parsed info -->
+              <div class="bg-white rounded-2xl p-4 mb-4 border border-slate-200">
+                <p class="text-sm text-slate-500 mb-3">We found:</p>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600">✓</span>
+                    <div>
+                      <p class="font-medium text-slate-900">Server Location</p>
+                      <p class="text-sm text-slate-500">nl-ams-wg-001.mullvad.net</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600">✓</span>
+                    <div>
+                      <p class="font-medium text-slate-900">Protocol</p>
+                      <p class="text-sm text-slate-500">WireGuard (fast & secure)</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600">✓</span>
+                    <div>
+                      <p class="font-medium text-slate-900">Your Tunnel IP</p>
+                      <p class="text-sm text-slate-500">10.66.123.45</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Name input -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Connection Name</label>
+                <input type="text" value="Mullvad Amsterdam" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="absolute bottom-0 left-0 right-0 px-6 py-4 pb-8 bg-slate-50 border-t border-slate-200">
+              <button class="w-full bg-primary-500 text-slate-900 font-semibold py-4 rounded-2xl text-lg mb-2">
+                Create Connection →
+              </button>
+              <button class="text-slate-400 w-full py-2">← Back</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="design-card">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Step 3: Success</h3>
+          <div class="phone-frame bg-green-500 relative">
+            <div class="px-6 pt-12 pb-4">
+              <div class="flex justify-between items-center text-xs text-white/60">
+                <span>9:41</span>
+                <div class="flex gap-1"><span>📶</span><span>🔋</span></div>
+              </div>
+            </div>
+
+            <!-- Progress (complete) -->
+            <div class="px-6 py-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-white">Add VPN Connection</span>
+                <span class="text-sm text-white/70">Complete!</span>
+              </div>
+              <div class="h-2 bg-green-400 rounded-full overflow-hidden">
+                <div class="h-full bg-white rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Success content -->
+            <div class="px-6 py-8 text-center">
+              <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6 status-connected">
+                <span class="text-6xl">🎉</span>
+              </div>
+              <h2 class="text-3xl font-bold text-white mb-2">You're Connected!</h2>
+              <p class="text-white/80 text-lg mb-8">Your traffic is now protected</p>
+
+              <div class="bg-white/10 backdrop-blur rounded-2xl p-4 mb-6">
+                <div class="flex items-center gap-3 justify-center">
+                  <span class="text-2xl">🇳🇱</span>
+                  <div class="text-left">
+                    <p class="text-white font-medium">Mullvad Amsterdam</p>
+                    <p class="text-white/60 text-sm">185.65.134.xxx</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="absolute bottom-0 left-0 right-0 px-6 py-4 pb-8">
+              <button class="w-full bg-white text-green-600 font-semibold py-4 rounded-2xl text-lg mb-3">
+                Done
+              </button>
+              <button class="w-full text-white/80 py-2">
+                Add Another Connection
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-slate-500 text-sm">NasNetConnect UX Design Exploration</p>
+      <p class="text-slate-400 text-xs mt-1">Created with BMad Method - UX Design Workflow</p>
+    </div>
+  </footer>
+
+  <script>
+    function showDirection(num) {
+      // Hide all
+      document.querySelectorAll('.direction-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('nav button').forEach(el => {
+        el.classList.remove('tab-active');
+        el.classList.add('text-slate-500');
+      });
+
+      // Show selected
+      document.getElementById('direction-' + num).classList.remove('hidden');
+      document.getElementById('tab-' + num).classList.add('tab-active');
+      document.getElementById('tab-' + num).classList.remove('text-slate-500');
+    }
+
+    function setTheme(theme) {
+      // This would toggle dark mode classes in a real implementation
+      alert('Theme switching would be implemented with proper dark mode CSS classes');
+    }
+  </script>
+</body>
+</html>

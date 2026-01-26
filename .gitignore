@@ -70,4 +70,19 @@ CLAUDE.md
 
 /.vscode
 *.exe
-Docs
+
+
+Trash
+
+
+Docs/brainstorming-sessions
+Docs/diagrams
+Docs/epics
+Docs/implementation-readiness
+Docs/prd
+Docs/product-brief
+Docs/researchs
+Docs/schemas
+Docs/sprint-artifacts
+Docs/test-design-system
+Docs/bmm-workflow-status.yaml

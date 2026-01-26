@@ -1,0 +1,23 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Force specific files to use LF
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.go text eol=lf
+
+# Keep batch files with CRLF (Windows)
+*.bat text eol=crlf
+
+# Binaries - don't touch
+*.png binary
+*.jpg binary
+*.ico binary
+*.tar.gz binary

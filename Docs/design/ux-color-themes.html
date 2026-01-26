@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NasNetConnect - Color Theme Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#EFC729',
+              50: '#FDF8E3',
+              100: '#FCF2C7',
+              200: '#F9E58F',
+              300: '#F5D857',
+              400: '#F2CB1F',
+              500: '#EFC729',
+              600: '#D4A50E',
+              700: '#9C790A',
+              800: '#644E07',
+              900: '#2C2203',
+            },
+            secondary: {
+              DEFAULT: '#4972ba',
+              50: '#EDF2FA',
+              100: '#D7E2F4',
+              200: '#AFC5E9',
+              300: '#87A8DE',
+              400: '#5F8BD3',
+              500: '#4972ba',
+              600: '#3A5B95',
+              700: '#2C4470',
+              800: '#1D2D4A',
+              900: '#0F1725',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    .color-swatch {
+      transition: transform 0.2s ease;
+    }
+    .color-swatch:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900">NasNetConnect Color System</h1>
+          <p class="text-slate-500 text-sm">Based on existing Tailwind configuration</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="toggleTheme()" id="theme-toggle" class="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm font-medium hover:bg-slate-700">
+            Toggle Dark Mode
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Brand Colors Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Brand Colors</h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Primary Color -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-16 h-16 rounded-xl bg-primary-500 shadow-lg"></div>
+            <div>
+              <h3 class="font-bold text-slate-900">Primary - Golden Amber</h3>
+              <p class="text-slate-500 text-sm">#EFC729</p>
+              <p class="text-slate-400 text-xs mt-1">Empowerment, confidence, energy</p>
+            </div>
+          </div>
+
+          <div class="flex gap-1 mt-4">
+            <div class="flex-1 h-12 rounded bg-primary-50 color-swatch" title="primary-50: #FDF8E3"></div>
+            <div class="flex-1 h-12 rounded bg-primary-100 color-swatch" title="primary-100: #FCF2C7"></div>
+            <div class="flex-1 h-12 rounded bg-primary-200 color-swatch" title="primary-200: #F9E58F"></div>
+            <div class="flex-1 h-12 rounded bg-primary-300 color-swatch" title="primary-300: #F5D857"></div>
+            <div class="flex-1 h-12 rounded bg-primary-400 color-swatch" title="primary-400: #F2CB1F"></div>
+            <div class="flex-1 h-12 rounded bg-primary-500 color-swatch" title="primary-500: #EFC729"></div>
+            <div class="flex-1 h-12 rounded bg-primary-600 color-swatch" title="primary-600: #D4A50E"></div>
+            <div class="flex-1 h-12 rounded bg-primary-700 color-swatch" title="primary-700: #9C790A"></div>
+            <div class="flex-1 h-12 rounded bg-primary-800 color-swatch" title="primary-800: #644E07"></div>
+            <div class="flex-1 h-12 rounded bg-primary-900 color-swatch" title="primary-900: #2C2203"></div>
+          </div>
+          <div class="flex justify-between mt-2 text-xs text-slate-400">
+            <span>50</span>
+            <span>500</span>
+            <span>900</span>
+          </div>
+        </div>
+
+        <!-- Secondary Color -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-16 h-16 rounded-xl bg-secondary-500 shadow-lg"></div>
+            <div>
+              <h3 class="font-bold text-slate-900">Secondary - Trust Blue</h3>
+              <p class="text-slate-500 text-sm">#4972ba</p>
+              <p class="text-slate-400 text-xs mt-1">Trust, stability, safety</p>
+            </div>
+          </div>
+
+          <div class="flex gap-1 mt-4">
+            <div class="flex-1 h-12 rounded bg-secondary-50 color-swatch" title="secondary-50: #EDF2FA"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-100 color-swatch" title="secondary-100: #D7E2F4"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-200 color-swatch" title="secondary-200: #AFC5E9"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-300 color-swatch" title="secondary-300: #87A8DE"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-400 color-swatch" title="secondary-400: #5F8BD3"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-500 color-swatch" title="secondary-500: #4972ba"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-600 color-swatch" title="secondary-600: #3A5B95"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-700 color-swatch" title="secondary-700: #2C4470"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-800 color-swatch" title="secondary-800: #1D2D4A"></div>
+            <div class="flex-1 h-12 rounded bg-secondary-900 color-swatch" title="secondary-900: #0F1725"></div>
+          </div>
+          <div class="flex justify-between mt-2 text-xs text-slate-400">
+            <span>50</span>
+            <span>500</span>
+            <span>900</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Semantic Colors Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Semantic Colors</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="w-full h-20 rounded-xl bg-green-500 mb-3 flex items-center justify-center">
+            <span class="text-white text-2xl">✓</span>
+          </div>
+          <h4 class="font-semibold text-slate-900">Success</h4>
+          <p class="text-slate-500 text-sm">#22C55E</p>
+          <p class="text-slate-400 text-xs">Connected, healthy, completed</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="w-full h-20 rounded-xl bg-amber-500 mb-3 flex items-center justify-center">
+            <span class="text-white text-2xl">⚠</span>
+          </div>
+          <h4 class="font-semibold text-slate-900">Warning</h4>
+          <p class="text-slate-500 text-sm">#F59E0B</p>
+          <p class="text-slate-400 text-xs">Attention needed, pending</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="w-full h-20 rounded-xl bg-red-500 mb-3 flex items-center justify-center">
+            <span class="text-white text-2xl">✕</span>
+          </div>
+          <h4 class="font-semibold text-slate-900">Error</h4>
+          <p class="text-slate-500 text-sm">#EF4444</p>
+          <p class="text-slate-400 text-xs">Failed, disconnected, critical</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="w-full h-20 rounded-xl bg-sky-500 mb-3 flex items-center justify-center">
+            <span class="text-white text-2xl">i</span>
+          </div>
+          <h4 class="font-semibold text-slate-900">Info</h4>
+          <p class="text-slate-500 text-sm">#0EA5E9</p>
+          <p class="text-slate-400 text-xs">Informational, tips, help</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Surface Colors Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Surface Colors</h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Light Theme -->
+        <div>
+          <h3 class="font-semibold text-slate-700 mb-4">Light Theme</h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-4 p-3 bg-slate-100 rounded-xl">
+              <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200"></div>
+              <div>
+                <p class="font-medium text-slate-900">Background</p>
+                <p class="text-slate-500 text-sm">#F1F5F9 (slate-100)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-200">
+              <div class="w-12 h-12 rounded-lg bg-white border border-slate-200"></div>
+              <div>
+                <p class="font-medium text-slate-900">Surface</p>
+                <p class="text-slate-500 text-sm">#FFFFFF (white)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200"></div>
+              <div>
+                <p class="font-medium text-slate-900">Surface Secondary</p>
+                <p class="text-slate-500 text-sm">#F8FAFC (slate-50)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-200">
+              <div class="w-12 h-12 rounded-lg border-2 border-slate-200"></div>
+              <div>
+                <p class="font-medium text-slate-900">Border</p>
+                <p class="text-slate-500 text-sm">#E2E8F0 (slate-200)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-200">
+              <div class="w-12 h-12 rounded-lg bg-slate-900"></div>
+              <div>
+                <p class="font-medium text-slate-900">Text</p>
+                <p class="text-slate-500 text-sm">#0F172A (slate-900)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Theme -->
+        <div>
+          <h3 class="font-semibold text-slate-700 mb-4">Dark Theme</h3>
+          <div class="space-y-2 bg-slate-900 p-4 rounded-2xl">
+            <div class="flex items-center gap-4 p-3 bg-slate-900 rounded-xl">
+              <div class="w-12 h-12 rounded-lg bg-slate-900 border border-slate-700"></div>
+              <div>
+                <p class="font-medium text-slate-100">Background</p>
+                <p class="text-slate-400 text-sm">#0F172A (slate-900)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-800 rounded-xl">
+              <div class="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700"></div>
+              <div>
+                <p class="font-medium text-slate-100">Surface</p>
+                <p class="text-slate-400 text-sm">#1E293B (slate-800)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-700 rounded-xl">
+              <div class="w-12 h-12 rounded-lg bg-slate-700 border border-slate-600"></div>
+              <div>
+                <p class="font-medium text-slate-100">Surface Secondary</p>
+                <p class="text-slate-400 text-sm">#334155 (slate-700)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-800 rounded-xl">
+              <div class="w-12 h-12 rounded-lg border-2 border-slate-700"></div>
+              <div>
+                <p class="font-medium text-slate-100">Border</p>
+                <p class="text-slate-400 text-sm">#334155 (slate-700)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-slate-800 rounded-xl">
+              <div class="w-12 h-12 rounded-lg bg-slate-50"></div>
+              <div>
+                <p class="font-medium text-slate-100">Text</p>
+                <p class="text-slate-400 text-sm">#F8FAFC (slate-50)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Component Examples -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Component Examples</h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Light Mode Components -->
+        <div class="bg-slate-100 rounded-2xl p-6">
+          <h3 class="font-semibold text-slate-700 mb-4">Light Mode</h3>
+
+          <!-- Buttons -->
+          <div class="space-y-3 mb-6">
+            <button class="w-full bg-primary-500 text-slate-900 font-semibold py-3 px-4 rounded-xl hover:bg-primary-600 transition">
+              Primary Action
+            </button>
+            <button class="w-full bg-secondary-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-secondary-600 transition">
+              Secondary Action
+            </button>
+            <button class="w-full bg-white text-slate-700 font-medium py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+              Tertiary Action
+            </button>
+          </div>
+
+          <!-- Status Card -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <span class="text-green-600">✓</span>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-900">All Good</p>
+                <p class="text-slate-500 text-sm">Network is healthy</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toggle -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🔐</span>
+              <div>
+                <p class="font-medium text-slate-900">VPN</p>
+                <p class="text-slate-500 text-sm">Connected</p>
+              </div>
+            </div>
+            <div class="w-12 h-7 bg-green-500 rounded-full flex items-center justify-end px-1">
+              <div class="w-5 h-5 bg-white rounded-full shadow"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Mode Components -->
+        <div class="bg-slate-900 rounded-2xl p-6">
+          <h3 class="font-semibold text-slate-300 mb-4">Dark Mode</h3>
+
+          <!-- Buttons -->
+          <div class="space-y-3 mb-6">
+            <button class="w-full bg-primary-500 text-slate-900 font-semibold py-3 px-4 rounded-xl hover:bg-primary-400 transition">
+              Primary Action
+            </button>
+            <button class="w-full bg-secondary-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-secondary-400 transition">
+              Secondary Action
+            </button>
+            <button class="w-full bg-slate-800 text-slate-200 font-medium py-3 px-4 rounded-xl border border-slate-700 hover:bg-slate-700 transition">
+              Tertiary Action
+            </button>
+          </div>
+
+          <!-- Status Card -->
+          <div class="bg-slate-800 rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                <span class="text-green-400">✓</span>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-100">All Good</p>
+                <p class="text-slate-400 text-sm">Network is healthy</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toggle -->
+          <div class="bg-slate-800 rounded-2xl p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">🔐</span>
+              <div>
+                <p class="font-medium text-slate-100">VPN</p>
+                <p class="text-slate-400 text-sm">Connected</p>
+              </div>
+            </div>
+            <div class="w-12 h-7 bg-green-500 rounded-full flex items-center justify-end px-1">
+              <div class="w-5 h-5 bg-white rounded-full shadow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Accessibility Section -->
+    <section class="mb-12">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Accessibility - Contrast Ratios</h2>
+
+      <div class="bg-white rounded-2xl p-6 shadow-sm">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left border-b border-slate-200">
+              <th class="pb-3 font-semibold text-slate-700">Combination</th>
+              <th class="pb-3 font-semibold text-slate-700">Ratio</th>
+              <th class="pb-3 font-semibold text-slate-700">WCAG AA</th>
+              <th class="pb-3 font-semibold text-slate-700">Preview</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-b border-slate-100">
+              <td class="py-3 text-slate-600">Primary on Dark</td>
+              <td class="py-3 text-slate-900 font-mono">11.2:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AAA</span></td>
+              <td class="py-3">
+                <span class="bg-slate-900 text-primary-500 px-3 py-1 rounded font-medium">Sample</span>
+              </td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-3 text-slate-600">Dark text on Primary</td>
+              <td class="py-3 text-slate-900 font-mono">8.4:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AAA</span></td>
+              <td class="py-3">
+                <span class="bg-primary-500 text-slate-900 px-3 py-1 rounded font-medium">Sample</span>
+              </td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-3 text-slate-600">Slate-900 on White</td>
+              <td class="py-3 text-slate-900 font-mono">17.5:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AAA</span></td>
+              <td class="py-3">
+                <span class="bg-white text-slate-900 px-3 py-1 rounded font-medium border">Sample</span>
+              </td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-3 text-slate-600">Slate-50 on Slate-900</td>
+              <td class="py-3 text-slate-900 font-mono">15.3:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AAA</span></td>
+              <td class="py-3">
+                <span class="bg-slate-900 text-slate-50 px-3 py-1 rounded font-medium">Sample</span>
+              </td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="py-3 text-slate-600">Green-600 on White</td>
+              <td class="py-3 text-slate-900 font-mono">4.8:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AA</span></td>
+              <td class="py-3">
+                <span class="bg-white text-green-600 px-3 py-1 rounded font-medium border">Sample</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-3 text-slate-600">White on Secondary</td>
+              <td class="py-3 text-slate-900 font-mono">4.7:1</td>
+              <td class="py-3"><span class="text-green-600 font-medium">Pass AA</span></td>
+              <td class="py-3">
+                <span class="bg-secondary-500 text-white px-3 py-1 rounded font-medium">Sample</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-8">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <p class="text-slate-500 text-sm">NasNetConnect Color System Explorer</p>
+      <p class="text-slate-400 text-xs mt-1">Based on existing Tailwind configuration from ConnectPOC</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+  </script>
+</body>
+</html>
