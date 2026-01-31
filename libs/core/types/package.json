@@ -14,5 +14,8 @@
     },
     "./package.json": "./package.json"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "nx": {
+    "tags": ["type:lib", "scope:core"]
+  }
 }

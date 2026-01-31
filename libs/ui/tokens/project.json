@@ -1,0 +1,24 @@
+{
+  "name": "@nasnet/ui-tokens",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/tokens/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:ui"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node libs/ui/tokens/build.js",
+        "cwd": "{workspaceRoot}"
+      },
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node libs/ui/tokens/build.js --watch",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

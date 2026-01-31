@@ -1,0 +1,7 @@
+Flags: X - disabled, R - running, S - slave
+ #    NAME         DEFAULT-NAME   MTU   MAC-ADDRESS        RUNNING
+ 0 RS ether1       ether1        1500   AA:BB:CC:DD:EE:01  true
+ 1 RS ether2       ether2        1500   AA:BB:CC:DD:EE:02  true
+ 2 R  ether3       ether3        1500   AA:BB:CC:DD:EE:03  true
+ 3 R  ether4       ether4        1500   AA:BB:CC:DD:EE:04  true
+ 4 X  ether5       ether5        1500   AA:BB:CC:DD:EE:05  false

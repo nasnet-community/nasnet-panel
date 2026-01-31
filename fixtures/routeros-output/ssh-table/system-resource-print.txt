@@ -1,0 +1,10 @@
+                   uptime: 2w3d12h30m45s
+                  version: 7.13.2 (stable)
+               board-name: RB4011iGS+5HacQ2HnD-IN
+                 platform: MikroTik
+                 cpu-load: 5
+              free-memory: 512.0MiB
+             total-memory: 1024.0MiB
+           free-hdd-space: 8.0GiB
+          total-hdd-space: 16.0GiB
+        architecture-name: arm64

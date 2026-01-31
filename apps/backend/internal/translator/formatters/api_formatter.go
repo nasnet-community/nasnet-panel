@@ -1,0 +1,364 @@
+package formatters
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"backend/internal/translator"
+)
+
+// APIFormatter formats commands for the RouterOS Binary API protocol.
+//
+// Binary API format uses sentences:
+//   - Command: /interface/ethernet/print
+//   - Arguments: =.id=*1, =name=ether1, =disabled=no
+//   - Queries: ?name=ether1, ?#|, ?#&
+//
+// The Format method returns a JSON representation of the API command
+// that can be executed by go-routeros library.
+type APIFormatter struct{}
+
+// NewAPIFormatter creates a new Binary API formatter.
+func NewAPIFormatter() *APIFormatter {
+	return &APIFormatter{}
+}
+
+// Protocol returns the API protocol type.
+func (f *APIFormatter) Protocol() translator.Protocol {
+	return translator.ProtocolAPI
+}
+
+// APICommand represents a formatted Binary API command.
+type APICommand struct {
+	Command string   `json:"command"` // e.g., "/interface/ethernet/print"
+	Args    []string `json:"args"`    // e.g., ["=name=ether1", "?.id=*1"]
+}
+
+// Format converts a canonical command to Binary API format.
+func (f *APIFormatter) Format(cmd *translator.CanonicalCommand) ([]byte, error) {
+	if cmd == nil {
+		return nil, fmt.Errorf("nil command")
+	}
+
+	apiCmd := APICommand{
+		Command: f.formatCommand(cmd),
+		Args:    make([]string, 0),
+	}
+
+	// Add ID if present
+	if cmd.ID != "" {
+		apiCmd.Args = append(apiCmd.Args, fmt.Sprintf("=.id=%s", cmd.ID))
+	}
+
+	// Add parameters for add/set operations
+	if cmd.Action == translator.ActionAdd || cmd.Action == translator.ActionSet {
+		for key, value := range cmd.Parameters {
+			apiCmd.Args = append(apiCmd.Args, fmt.Sprintf("=%s=%s", key, f.formatValue(value)))
+		}
+	}
+
+	// Add enable/disable parameter
+	if cmd.Action == translator.ActionEnable {
+		apiCmd.Args = append(apiCmd.Args, "=disabled=no")
+	} else if cmd.Action == translator.ActionDisable {
+		apiCmd.Args = append(apiCmd.Args, "=disabled=yes")
+	}
+
+	// Add filters for print operations
+	for _, filter := range cmd.Filters {
+		apiCmd.Args = append(apiCmd.Args, f.formatFilter(filter))
+	}
+
+	// Add proplist for print operations
+	if len(cmd.PropList) > 0 {
+		apiCmd.Args = append(apiCmd.Args, fmt.Sprintf("=.proplist=%s", strings.Join(cmd.PropList, ",")))
+	}
+
+	return json.Marshal(apiCmd)
+}
+
+// formatCommand builds the API command path.
+func (f *APIFormatter) formatCommand(cmd *translator.CanonicalCommand) string {
+	// Convert action to API verb
+	verb := f.actionToVerb(cmd.Action)
+
+	// Build command path
+	return cmd.Path + "/" + verb
+}
+
+// actionToVerb converts a canonical action to API verb.
+func (f *APIFormatter) actionToVerb(action translator.Action) string {
+	switch action {
+	case translator.ActionPrint:
+		return "print"
+	case translator.ActionGet:
+		return "print" // Get is just print with ID filter
+	case translator.ActionAdd:
+		return "add"
+	case translator.ActionSet:
+		return "set"
+	case translator.ActionRemove:
+		return "remove"
+	case translator.ActionEnable:
+		return "set" // Enable is set with disabled=no
+	case translator.ActionDisable:
+		return "set" // Disable is set with disabled=yes
+	case translator.ActionMove:
+		return "move"
+	default:
+		return string(action)
+	}
+}
+
+// formatFilter converts a filter to API query format.
+func (f *APIFormatter) formatFilter(filter translator.Filter) string {
+	// API uses ? prefix for queries
+	// Operators: = (equals), < (less), > (greater)
+	op := "="
+	switch filter.Operator {
+	case translator.FilterOpEquals:
+		op = "="
+	case translator.FilterOpNotEquals:
+		// Not equals uses negation in API
+		return fmt.Sprintf("?%s=%s", filter.Field, f.formatValue(filter.Value))
+	case translator.FilterOpGreater:
+		op = ">"
+	case translator.FilterOpLess:
+		op = "<"
+	case translator.FilterOpContains:
+		op = "~" // Regex
+	}
+
+	return fmt.Sprintf("?%s%s%s", filter.Field, op, f.formatValue(filter.Value))
+}
+
+// formatValue formats a value for the Binary API.
+func (f *APIFormatter) formatValue(v interface{}) string {
+	switch val := v.(type) {
+	case bool:
+		if val {
+			return "yes"
+		}
+		return "no"
+	case []string:
+		return strings.Join(val, ",")
+	case string:
+		return val
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+// APIResponse represents a parsed Binary API response.
+type APIResponse struct {
+	Re   []map[string]string `json:"re"`   // Reply sentences
+	Done map[string]string   `json:"done"` // Done sentence with return value
+	Trap *APITrap            `json:"trap"` // Error trap
+}
+
+// APITrap represents an API error response.
+type APITrap struct {
+	Category string `json:"category"`
+	Message  string `json:"message"`
+}
+
+// Parse converts Binary API response bytes to canonical format.
+func (f *APIFormatter) Parse(response []byte) (*translator.CanonicalResponse, error) {
+	if len(response) == 0 {
+		return translator.NewSuccessResponse(nil), nil
+	}
+
+	// Try to parse as JSON (our serialization format)
+	var apiResp APIResponse
+	if err := json.Unmarshal(response, &apiResp); err == nil {
+		return f.parseAPIResponse(&apiResp)
+	}
+
+	// Try to parse as raw API output (from go-routeros Reply)
+	return f.parseRawResponse(response)
+}
+
+// parseAPIResponse converts our JSON-serialized API response.
+func (f *APIFormatter) parseAPIResponse(resp *APIResponse) (*translator.CanonicalResponse, error) {
+	// Check for trap (error)
+	if resp.Trap != nil {
+		return &translator.CanonicalResponse{
+			Success: false,
+			Error: &translator.CommandError{
+				Code:     "API_TRAP",
+				Message:  resp.Trap.Message,
+				Category: f.categorizeError(resp.Trap.Category, resp.Trap.Message),
+			},
+			Metadata: translator.ResponseMetadata{
+				Protocol: translator.ProtocolAPI,
+			},
+		}, nil
+	}
+
+	// Check for return value (add operation)
+	if resp.Done != nil {
+		if ret, ok := resp.Done["ret"]; ok {
+			return &translator.CanonicalResponse{
+				Success: true,
+				ID:      ret,
+				Metadata: translator.ResponseMetadata{
+					Protocol: translator.ProtocolAPI,
+				},
+			}, nil
+		}
+	}
+
+	// Convert reply sentences to interface map
+	if len(resp.Re) > 0 {
+		// Convert []map[string]string to []map[string]interface{}
+		data := make([]map[string]interface{}, len(resp.Re))
+		for i, re := range resp.Re {
+			data[i] = make(map[string]interface{}, len(re))
+			for k, v := range re {
+				data[i][k] = v
+			}
+		}
+
+		return &translator.CanonicalResponse{
+			Success: true,
+			Data:    data,
+			Metadata: translator.ResponseMetadata{
+				Protocol:    translator.ProtocolAPI,
+				RecordCount: len(data),
+			},
+		}, nil
+	}
+
+	return translator.NewSuccessResponse(nil), nil
+}
+
+// parseRawResponse parses raw API protocol output.
+func (f *APIFormatter) parseRawResponse(response []byte) (*translator.CanonicalResponse, error) {
+	// Parse line-based format: !re, !done, !trap
+	lines := bytes.Split(response, []byte("\n"))
+	var records []map[string]interface{}
+	var currentRecord map[string]interface{}
+	var trapMessage string
+	var retValue string
+
+	for _, line := range lines {
+		lineStr := string(bytes.TrimSpace(line))
+		if lineStr == "" {
+			continue
+		}
+
+		switch {
+		case lineStr == "!re":
+			// New record starts
+			if currentRecord != nil {
+				records = append(records, currentRecord)
+			}
+			currentRecord = make(map[string]interface{})
+
+		case lineStr == "!done":
+			// Save last record
+			if currentRecord != nil {
+				records = append(records, currentRecord)
+				currentRecord = nil
+			}
+
+		case lineStr == "!trap":
+			// Error follows
+			currentRecord = nil
+
+		case strings.HasPrefix(lineStr, "="):
+			// Key-value pair: =name=value
+			kv := strings.SplitN(lineStr[1:], "=", 2)
+			if len(kv) == 2 {
+				if kv[0] == "ret" {
+					retValue = kv[1]
+				} else if kv[0] == "message" && trapMessage == "" {
+					trapMessage = kv[1]
+				} else if currentRecord != nil {
+					currentRecord[kv[0]] = kv[1]
+				}
+			}
+		}
+	}
+
+	// Handle trap
+	if trapMessage != "" {
+		return &translator.CanonicalResponse{
+			Success: false,
+			Error: &translator.CommandError{
+				Code:     "API_ERROR",
+				Message:  trapMessage,
+				Category: translator.ErrorCategoryInternal,
+			},
+			Metadata: translator.ResponseMetadata{
+				Protocol: translator.ProtocolAPI,
+			},
+		}, nil
+	}
+
+	// Handle return value
+	if retValue != "" {
+		return &translator.CanonicalResponse{
+			Success: true,
+			ID:      retValue,
+			Metadata: translator.ResponseMetadata{
+				Protocol: translator.ProtocolAPI,
+			},
+		}, nil
+	}
+
+	// Return records
+	if len(records) > 0 {
+		return &translator.CanonicalResponse{
+			Success: true,
+			Data:    records,
+			Metadata: translator.ResponseMetadata{
+				Protocol:    translator.ProtocolAPI,
+				RecordCount: len(records),
+			},
+		}, nil
+	}
+
+	return translator.NewSuccessResponse(nil), nil
+}
+
+// categorizeError maps API error categories to canonical categories.
+func (f *APIFormatter) categorizeError(category, message string) translator.ErrorCategory {
+	// Check message first for specific error patterns
+	lowerMsg := strings.ToLower(message)
+	if strings.Contains(lowerMsg, "not found") || strings.Contains(lowerMsg, "no such item") {
+		return translator.ErrorCategoryNotFound
+	}
+	if strings.Contains(lowerMsg, "already") || strings.Contains(lowerMsg, "duplicate") {
+		return translator.ErrorCategoryConflict
+	}
+	if strings.Contains(lowerMsg, "invalid") || strings.Contains(lowerMsg, "bad") {
+		return translator.ErrorCategoryValidation
+	}
+
+	// Then check category codes
+	switch category {
+	case "0": // General error
+		return translator.ErrorCategoryInternal
+	case "1": // Argument error
+		return translator.ErrorCategoryValidation
+	case "2": // Execution error
+		if strings.Contains(message, "not found") {
+			return translator.ErrorCategoryNotFound
+		}
+		if strings.Contains(message, "already") {
+			return translator.ErrorCategoryConflict
+		}
+		return translator.ErrorCategoryInternal
+	case "3": // API server error
+		return translator.ErrorCategoryInternal
+	case "4": // Login failure
+		return translator.ErrorCategoryPermission
+	case "5": // Fatal error
+		return translator.ErrorCategoryInternal
+	}
+
+	return translator.ErrorCategoryInternal
+}

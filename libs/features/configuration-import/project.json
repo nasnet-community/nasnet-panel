@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/configuration-import",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/configuration-import/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

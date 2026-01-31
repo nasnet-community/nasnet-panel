@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json.schemastore.org/nx-project.json",
+  "name": "backend",
+  "projectType": "application",
+  "root": "apps/backend",
+  "sourceRoot": "apps/backend",
+  "tags": ["type:api", "lang:go", "routeros"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": { "command": "air", "cwd": "apps/backend" }
+    },
+    "server": {
+      "executor": "nx:run-commands",
+      "options": { "command": "air", "cwd": "apps/backend" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/apps/backend"],
+      "options": { "command": "node tools/copy-frontend.mjs && cd apps/backend && go build -ldflags=\"-s -w\" -o ../../dist/apps/backend/backend main.prod.go server_shared.go router_proxy.go scanner.go batch_executor.go batch_handlers.go cli_parser.go ros_client.go ssh_client.go telnet_client.go", "cwd": "." },
+      "dependsOn": ["connect:build"]
+    },
+    "codegen": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go generate ./graph/...", "cwd": "apps/backend" }
+    },
+    "serve-prod": {
+      "executor": "nx:run-commands",
+      "options": { "command": "../../dist/apps/backend/backend", "cwd": "apps/backend" },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go test -tags=dev ./...", "cwd": "apps/backend" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "command -v golangci-lint >/dev/null 2>&1 && golangci-lint run --config ../../.golangci.yml ./... || (echo 'golangci-lint not installed, skipping Go lint (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)' && exit 0)", "cwd": "apps/backend" }
+    },
+    "lint:fix": {
+      "executor": "nx:run-commands",
+      "options": { "command": "command -v golangci-lint >/dev/null 2>&1 && golangci-lint run --config ../../.golangci.yml --fix ./... || echo 'golangci-lint not installed'", "cwd": "apps/backend" }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go vet ./...", "cwd": "apps/backend" }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run backend:typecheck",
+          "nx run backend:lint"
+        ],
+        "parallel": false
+      }
+    },
+    "docker:build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "docker buildx build --platform=${PLATFORMS:-linux/amd64,linux/arm64,linux/arm/v7} -f apps/backend/Dockerfile --tag ghcr.io/$GHCR_REPOSITORY:latest ${DOCKERHUB_REPO:+--tag docker.io/$DOCKERHUB_REPO:latest} ${PUSH:+--push} ."
+      }
+    },
+    "docker:build-local": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-local --tag nasnet:local --platform linux/amd64"
+      }
+    },
+    "docker:export-tar": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs export-tar --tag nasnet:local --out dist/images/nasnet-local-amd64.tar.gz"
+      }
+    },
+    "docker:build-export": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-export --tag nasnet:local --platform linux/amd64 --out dist/images/nasnet-local-amd64.tar.gz"
+      }
+    },
+    "docker:build-export-multi": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": ".",
+        "command": "node tools/docker/cli.mjs build-export-multi --tag nasnet --base_out dist/images"
+      }
+    }
+  }
+}

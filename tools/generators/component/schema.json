@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "NasNetComponentGenerator",
+  "title": "NasNet Component Generator",
+  "description": "Generate a React component following NasNet conventions with TypeScript, shadcn/ui patterns, test file, and barrel export",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the component (PascalCase recommended)",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the name of the component?"
+    },
+    "project": {
+      "type": "string",
+      "description": "The project where the component will be created",
+      "x-prompt": "Which project should the component be added to?",
+      "x-dropdown": "projects"
+    },
+    "directory": {
+      "type": "string",
+      "description": "The directory path within the project's src folder (e.g., 'components/shared')",
+      "default": "components"
+    },
+    "withVariants": {
+      "type": "boolean",
+      "description": "Include class-variance-authority (cva) variants setup",
+      "default": false
+    },
+    "withForwardRef": {
+      "type": "boolean",
+      "description": "Use React.forwardRef pattern",
+      "default": true
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Preview file changes without writing to disk",
+      "default": false,
+      "alias": "d"
+    }
+  },
+  "required": ["name", "project"]
+}

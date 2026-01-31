@@ -1,0 +1,77 @@
+package <%= module %>
+
+import (
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestNew<%= className %>Resolver(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	require.NotNil(t, resolver)
+}
+<% if (withQuery) { %>
+func Test<%= className %>Resolver_List<%= className %>s(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	ctx := context.Background()
+
+	items, err := resolver.List<%= className %>s(ctx)
+
+	// TODO: Update assertions once implementation is complete
+	// Currently expects "not implemented" error
+	assert.Error(t, err)
+	assert.Nil(t, items)
+}
+
+func Test<%= className %>Resolver_Get<%= className %>(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	ctx := context.Background()
+
+	item, err := resolver.Get<%= className %>(ctx, "test-id")
+
+	// TODO: Update assertions once implementation is complete
+	assert.Error(t, err)
+	assert.Nil(t, item)
+}
+<% } %><% if (withMutation) { %>
+func Test<%= className %>Resolver_Create<%= className %>(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	ctx := context.Background()
+	input := <%= className %>Input{
+		Name: "test-<%= propertyName %>",
+	}
+
+	item, err := resolver.Create<%= className %>(ctx, input)
+
+	// TODO: Update assertions once implementation is complete
+	assert.Error(t, err)
+	assert.Nil(t, item)
+}
+
+func Test<%= className %>Resolver_Update<%= className %>(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	ctx := context.Background()
+	input := <%= className %>Input{
+		Name: "updated-<%= propertyName %>",
+	}
+
+	item, err := resolver.Update<%= className %>(ctx, "test-id", input)
+
+	// TODO: Update assertions once implementation is complete
+	assert.Error(t, err)
+	assert.Nil(t, item)
+}
+
+func Test<%= className %>Resolver_Delete<%= className %>(t *testing.T) {
+	resolver := New<%= className %>Resolver()
+	ctx := context.Background()
+
+	deleted, err := resolver.Delete<%= className %>(ctx, "test-id")
+
+	// TODO: Update assertions once implementation is complete
+	assert.Error(t, err)
+	assert.False(t, deleted)
+}
+<% } %>

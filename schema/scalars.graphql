@@ -1,0 +1,69 @@
+# =============================================================================
+# Custom Scalar Definitions for NasNetConnect
+# =============================================================================
+# These scalars provide type safety for network-specific data types.
+# Generated code will map these to appropriate language types.
+# =============================================================================
+
+"""
+ISO 8601 datetime string (e.g., "2024-01-15T10:30:00Z")
+"""
+scalar DateTime
+
+"""
+Arbitrary JSON data for flexible configuration
+"""
+scalar JSON
+
+"""
+IPv4 address string (e.g., "192.168.1.1")
+Validated format: XXX.XXX.XXX.XXX where XXX is 0-255
+"""
+scalar IPv4
+
+"""
+IPv6 address string (e.g., "2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+"""
+scalar IPv6
+
+"""
+MAC address string (e.g., "00:1A:2B:3C:4D:5E" or "00-1A-2B-3C-4D-5E")
+"""
+scalar MAC
+
+"""
+CIDR notation for network address (e.g., "192.168.1.0/24")
+"""
+scalar CIDR
+
+"""
+TCP/UDP port number (1-65535)
+"""
+scalar Port
+
+"""
+Port range string (e.g., "80", "80-443", "80,443,8080")
+"""
+scalar PortRange
+
+"""
+Duration string in RouterOS format (e.g., "1d2h3m4s", "30s", "5m")
+"""
+scalar Duration
+
+"""
+Bandwidth string with unit (e.g., "10M", "1G", "100k")
+"""
+scalar Bandwidth
+
+"""
+Size in bytes with optional unit (e.g., "1024", "1k", "1M", "1G")
+"""
+scalar Size
+
+"""
+ULID (Universally Unique Lexicographically Sortable Identifier)
+A 26-character string that is time-sortable and globally unique.
+Example: "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+"""
+scalar ULID

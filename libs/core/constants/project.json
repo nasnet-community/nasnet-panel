@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/core-constants",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/constants/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:core"]
+}

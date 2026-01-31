@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/state/stores/src",
   "projectType": "library",
-  "tags": ["type:state", "scope:shared"],
+  "tags": ["type:lib", "scope:state"],
   "targets": {
     "test": {
       "executor": "@nx/vite:test",

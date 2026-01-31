@@ -1,6 +1,8 @@
 {
-  "name": "@nasnet/features/configuration-import",
+  "name": "@nasnet/features-configuration-import",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "nx": {
+    "tags": ["type:lib", "scope:features"]
+  }
 }
-

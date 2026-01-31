@@ -1,0 +1,9 @@
+# Ignore directories that should not be treated as Nx projects
+.devcontainer
+ConnectSetupOldRepo
+Docs
+docs
+node_modules
+dist
+.git
+.github

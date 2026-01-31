@@ -1,0 +1,151 @@
+{
+  "name": "NasNetConnect Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+
+  // Use pre-built image from GHCR when available (uncomment after workflow setup)
+  // "image": "ghcr.io/stargazer5361/nasnet-devcontainer:latest",
+
+  // Features for Docker-in-Docker (CHR testing per ADR-015)
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "installDockerBuildx": true,
+      "installDockerComposeSwitch": true
+    },
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.24"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+
+  // VS Code customizations
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "golang.go",
+        "graphql.vscode-graphql",
+        "graphql.vscode-graphql-syntax",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "nrwl.angular-console",
+        "bradlc.vscode-tailwindcss",
+        "ZixuanChen.vitest-explorer",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ],
+        "go.useLanguageServer": true,
+        "go.lintTool": "golangci-lint",
+        "go.lintFlags": ["--fast"],
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "[go]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "golang.go"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+          ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+        ]
+      }
+    },
+    // JetBrains Gateway compatibility settings (AC-6)
+    "jetbrains": {
+      "backend": {
+        "plugins": [
+          "org.jetbrains.plugins.go",
+          "JavaScript",
+          "NodeJS"
+        ]
+      }
+    }
+  },
+
+  // Port forwarding for development servers (AC-3)
+  "forwardPorts": [
+    5173,  // Vite frontend dev server
+    8080,  // Go backend server
+    4173,  // Vite preview server
+    6006   // Storybook (if used)
+  ],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Backend (Go)",
+      "onAutoForward": "notify"
+    },
+    "4173": {
+      "label": "Preview",
+      "onAutoForward": "silent"
+    },
+    "6006": {
+      "label": "Storybook",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Post-create command runs after container is created
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // Post-start command runs each time container starts
+  "postStartCommand": "echo '🚀 NasNetConnect DevContainer ready! Run: npm run dev:all'",
+
+  // Environment variables
+  "containerEnv": {
+    "EDITOR": "code --wait",
+    "GIT_EDITOR": "code --wait"
+  },
+
+  // Mount options for better performance on Windows/macOS
+  "mounts": [
+    // Named volume for node_modules (faster on Windows/macOS)
+    "source=nasnet-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
+    // Named volume for Go pkg cache
+    "source=nasnet-go-pkg,target=/go/pkg,type=volume"
+  ],
+
+  // Remote user - run as vscode user for proper file permissions
+  "remoteUser": "vscode",
+
+  // Host requirements
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "16gb"
+  },
+
+  // Wait for install completion before attaching
+  "waitFor": "postCreateCommand"
+}

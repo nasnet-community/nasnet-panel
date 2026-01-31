@@ -1,0 +1,8 @@
+Flags: X - disabled, I - invalid, D - dynamic
+ #     CHAIN    ACTION    PROTOCOL   SRC-ADDRESS      DST-PORT   LOG
+ 0     input    accept    icmp                                   no
+ 1     input    accept    tcp                         22         no
+ 2     input    accept    tcp                         80,443     no
+ 3     input    drop                 0.0.0.0/0                   yes
+ 4 X   forward  accept    tcp                         8080       no
+ 5 D   forward  drop      udp        192.168.0.0/16              no

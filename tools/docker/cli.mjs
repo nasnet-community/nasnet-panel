@@ -55,7 +55,7 @@ async function buildLocal({ tag = 'nasnet:local', platform = 'linux/amd64', noCa
   const buildArgs = [
     'buildx', 'build',
     '--platform', platform,
-    '-f', 'apps/rosproxy/Dockerfile',
+    '-f', 'apps/backend/Dockerfile',
     '-t', tag,
     '--load'
   ];

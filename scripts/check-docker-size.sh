@@ -49,7 +49,7 @@ if [ $SIZE_BYTES -gt $LIMIT_BYTES ]; then
   echo "   Limit:   10 MB"
   echo ""
   echo "Optimization suggestions:"
-  echo "   - Verify UPX compression is applied to rosproxy binary"
+  echo "   - Verify UPX compression is applied to backend binary"
   echo "   - Remove unnecessary files from static build"
   echo "   - Check for duplicate dependencies"
   exit 1

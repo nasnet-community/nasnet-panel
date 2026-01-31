@@ -1,0 +1,26 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { <%= className %> } from './<%= fileName %>';
+
+describe('<%= className %>', () => {
+  it('renders successfully', () => {
+    render(<<%= className %> data-testid="<%= fileName %>" />);
+    expect(screen.getByTestId('<%= fileName %>')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    render(<<%= className %> data-testid="<%= fileName %>" className="custom-class" />);
+    expect(screen.getByTestId('<%= fileName %>')).toHaveClass('custom-class');
+  });
+
+  it('forwards ref correctly', () => {
+    const ref = { current: null };
+    render(<<%= className %> ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+  });
+
+  it('passes through additional props', () => {
+    render(<<%= className %> data-testid="<%= fileName %>" aria-label="test label" />);
+    expect(screen.getByTestId('<%= fileName %>')).toHaveAttribute('aria-label', 'test label');
+  });
+});

@@ -1,0 +1,226 @@
+# =============================================================================
+# Connection Diagnostics GraphQL Schema Extension
+# =============================================================================
+# This schema provides types and operations for diagnosing router connection
+# issues, providing actionable troubleshooting suggestions, and exposing
+# circuit breaker state.
+# Story: NAS-3.10 - Implement Connection Diagnostics
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Diagnostic Types
+# -----------------------------------------------------------------------------
+
+"""
+Severity level for diagnostic suggestions
+"""
+enum SuggestionSeverity {
+  "Informational message, no action required"
+  INFO
+  "Warning that may affect functionality"
+  WARNING
+  "Error that needs to be addressed"
+  ERROR
+  "Critical issue blocking connectivity"
+  CRITICAL
+}
+
+"""
+Category of connection error for classification
+"""
+enum ErrorCategory {
+  "Connection or response timeout"
+  TIMEOUT
+  "Connection actively refused"
+  REFUSED
+  "Authentication failed"
+  AUTH_FAILED
+  "Protocol-level error"
+  PROTOCOL_ERROR
+  "Network unreachable or DNS failure"
+  NETWORK_ERROR
+  "TLS/SSL certificate or handshake error"
+  TLS_ERROR
+}
+
+"""
+Status of a single port check
+"""
+type PortStatus {
+  "Port number checked"
+  port: Int!
+  "Service name (API, API-SSL, SSH, Telnet, HTTP, HTTPS)"
+  service: String!
+  "Whether the port is open and accepting connections"
+  open: Boolean!
+  "Response time in milliseconds (if port is open)"
+  responseTimeMs: Int
+  "Error message (if port is closed)"
+  error: String
+}
+
+"""
+TLS certificate status for secure connections
+"""
+type TLSStatus {
+  "Whether the certificate is valid"
+  valid: Boolean!
+  "Certificate issuer"
+  issuer: String
+  "Certificate subject"
+  subject: String
+  "Certificate expiration date"
+  expiresAt: DateTime
+  "Error message (if certificate is invalid)"
+  error: String
+}
+
+"""
+Authentication test status
+"""
+type AuthStatus {
+  "Whether authentication was tested"
+  tested: Boolean!
+  "Whether authentication succeeded"
+  success: Boolean!
+  "Error message (if authentication failed)"
+  error: String
+  "Error code mapped to ErrorCodes (A5xx)"
+  errorCode: String
+}
+
+"""
+Actionable diagnostic suggestion
+"""
+type DiagnosticSuggestion {
+  "Severity level of the issue"
+  severity: SuggestionSeverity!
+  "Short title describing the issue"
+  title: String!
+  "Detailed description of the issue"
+  description: String!
+  "Recommended action to resolve the issue"
+  action: String!
+  "Link to relevant documentation"
+  docsUrl: String
+}
+
+"""
+Comprehensive diagnostic report for a router
+"""
+type DiagnosticReport {
+  "Router ID being diagnosed"
+  routerId: ID!
+  "When the diagnostic was run"
+  timestamp: DateTime!
+  "Whether the router is reachable on the network"
+  networkReachable: Boolean!
+  "Status of each checked port"
+  portStatus: [PortStatus!]!
+  "TLS certificate status (if TLS ports were checked)"
+  tlsStatus: TLSStatus
+  "Authentication test status"
+  authStatus: AuthStatus!
+  "Actionable suggestions based on diagnostic results"
+  suggestions: [DiagnosticSuggestion!]!
+  "Raw text report for clipboard/export"
+  rawReport: String!
+}
+
+"""
+Record of a single protocol connection attempt
+"""
+type ConnectionAttempt {
+  "Protocol that was attempted"
+  protocol: Protocol!
+  "When the attempt started"
+  startedAt: DateTime!
+  "When the attempt ended"
+  endedAt: DateTime!
+  "Whether the attempt succeeded"
+  success: Boolean!
+  "Error code if failed"
+  errorCode: String
+  "Error message if failed"
+  errorMessage: String
+  "Error category for classification"
+  errorCategory: ErrorCategory
+}
+
+"""
+Circuit breaker status for a router
+"""
+type CircuitBreakerStatus {
+  "Router ID"
+  routerId: ID!
+  "Current circuit breaker state"
+  state: CircuitBreakerState!
+  "Number of consecutive failures"
+  failureCount: Int!
+  "Failure threshold before circuit opens"
+  failureThreshold: Int!
+  "Seconds until auto-retry (when circuit is open)"
+  cooldownRemainingSeconds: Int
+  "When the last failure occurred"
+  lastFailureAt: DateTime
+  "When the last success occurred"
+  lastSuccessAt: DateTime
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get recent connection attempts for a router.
+  Returns the most recent attempts, ordered newest first.
+  """
+  connectionAttempts(
+    "Router ID to get attempts for"
+    routerId: ID!
+    "Maximum number of attempts to return (default: 10)"
+    limit: Int = 10
+  ): [ConnectionAttempt!]!
+
+  """
+  Get circuit breaker status for a router.
+  Shows current state, failure counts, and cooldown timing.
+  """
+  circuitBreakerStatus(routerId: ID!): CircuitBreakerStatus!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Run comprehensive diagnostics on a router connection.
+  Performs network reachability check, port scanning, TLS validation,
+  and authentication testing. Rate limited to 1 request per 10 seconds per router.
+  """
+  runDiagnostics(routerId: ID!): DiagnosticReport!
+
+  """
+  Manually reset the circuit breaker for a router.
+  This allows immediate reconnection attempts even if the circuit is open.
+  Use with caution as it bypasses the backoff protection.
+  """
+  resetCircuitBreaker(routerId: ID!): CircuitBreakerStatus!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to circuit breaker state changes for a router.
+  Emits an event whenever the circuit breaker transitions between states.
+  """
+  circuitBreakerStateChanged(
+    "Router ID to monitor (optional, all routers if not specified)"
+    routerId: ID
+  ): CircuitBreakerStatus!
+}

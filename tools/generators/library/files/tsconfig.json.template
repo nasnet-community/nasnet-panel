@@ -1,0 +1,16 @@
+{
+  "extends": "<%= '../'.repeat(projectRoot.split('/').length) %>tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "types": ["vitest/globals", "node"]
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

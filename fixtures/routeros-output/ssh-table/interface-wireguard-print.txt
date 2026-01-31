@@ -1,0 +1,5 @@
+Flags: X - disabled, R - running
+ #   NAME      LISTEN-PORT   MTU    RUNNING
+ 0 R vpn-usa   51820         1420   true
+ 1 R vpn-eu    51821         1420   true
+ 2 X vpn-dev   51822         1420   false

@@ -1,0 +1,65 @@
+package <%= module %>
+
+import (
+	"context"
+	"fmt"
+)
+
+// <%= className %> represents a <%= propertyName %> resource
+type <%= className %> struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// Add additional fields as needed
+}
+
+// <%= className %>Input represents the input for creating/updating a <%= propertyName %>
+type <%= className %>Input struct {
+	Name string `json:"name"`
+	// Add additional fields as needed
+}
+
+// <%= className %>Resolver handles <%= className %> GraphQL operations
+type <%= className %>Resolver struct {
+	// Add dependencies here (e.g., database, services)
+}
+
+// New<%= className %>Resolver creates a new <%= className %> resolver instance
+func New<%= className %>Resolver() *<%= className %>Resolver {
+	return &<%= className %>Resolver{}
+}
+<% if (withQuery) { %>
+// List<%= className %>s returns all <%= propertyName %> resources
+func (r *<%= className %>Resolver) List<%= className %>s(ctx context.Context) ([]*<%= className %>, error) {
+	// TODO: Implement list logic
+	// Example: return r.service.List(ctx)
+	return nil, fmt.Errorf("not implemented: List<%= className %>s")
+}
+
+// Get<%= className %> returns a single <%= propertyName %> by ID
+func (r *<%= className %>Resolver) Get<%= className %>(ctx context.Context, id string) (*<%= className %>, error) {
+	// TODO: Implement get logic
+	// Example: return r.service.GetByID(ctx, id)
+	return nil, fmt.Errorf("not implemented: Get<%= className %>")
+}
+<% } %><% if (withMutation) { %>
+// Create<%= className %> creates a new <%= propertyName %> resource
+func (r *<%= className %>Resolver) Create<%= className %>(ctx context.Context, input <%= className %>Input) (*<%= className %>, error) {
+	// TODO: Implement create logic
+	// Example: return r.service.Create(ctx, input)
+	return nil, fmt.Errorf("not implemented: Create<%= className %>")
+}
+
+// Update<%= className %> updates an existing <%= propertyName %> resource
+func (r *<%= className %>Resolver) Update<%= className %>(ctx context.Context, id string, input <%= className %>Input) (*<%= className %>, error) {
+	// TODO: Implement update logic
+	// Example: return r.service.Update(ctx, id, input)
+	return nil, fmt.Errorf("not implemented: Update<%= className %>")
+}
+
+// Delete<%= className %> deletes a <%= propertyName %> resource
+func (r *<%= className %>Resolver) Delete<%= className %>(ctx context.Context, id string) (bool, error) {
+	// TODO: Implement delete logic
+	// Example: return r.service.Delete(ctx, id)
+	return false, fmt.Errorf("not implemented: Delete<%= className %>")
+}
+<% } %>

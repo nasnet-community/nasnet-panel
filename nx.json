@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "master",
+  "defaultBase": "main",
   "sync": {
     "applyChanges": false,
     "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"]
@@ -13,7 +13,7 @@
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/*.yml"]
   },
   "plugins": [
     {
@@ -39,6 +39,7 @@
     },
     {
       "plugin": "@nx/vite/plugin",
+      "exclude": ["ConnectSetupOldRepo/**"],
       "options": {
         "buildTargetName": "build",
         "testTargetName": "test",
@@ -110,7 +111,10 @@
         "style": "tailwind",
         "linter": "none"
       }
-    }
+    },
+    "@nasnet/tools:component": {},
+    "@nasnet/tools:library": {},
+    "@nasnet/tools:resolver": {}
   },
   "pluginsConfig": {}
 }

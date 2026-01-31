@@ -1,0 +1,2 @@
+export { <%= className %><% if (withVariants) { %>, <%= propertyName %>Variants<% } %> } from './<%= fileName %>';
+export type { <%= className %>Props } from './<%= fileName %>';

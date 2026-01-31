@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/dashboard",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/dashboard/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

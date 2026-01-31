@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/core-utils",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/utils/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:core"]
+}

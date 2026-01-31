@@ -1,0 +1,934 @@
+# =============================================================================
+# NasNetConnect GraphQL Schema
+# =============================================================================
+# This is the main schema file defining queries, mutations, and subscriptions.
+# It serves as the single source of truth for the API contract.
+#
+# Schema Structure:
+# - scalars.graphql - Custom scalar type definitions
+# - directives.graphql - Custom directive definitions
+# - schema.graphql - This file (types, queries, mutations, subscriptions)
+#
+# Code Generation:
+# - TypeScript: graphql-codegen generates types, hooks, and Zod schemas
+# - Go: gqlgen generates structs, resolvers, and validators
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Interfaces
+# -----------------------------------------------------------------------------
+
+"""
+Relay Node interface for global object identification
+"""
+interface Node {
+  "Globally unique identifier"
+  id: ID!
+}
+
+"""
+Connection interface for paginated results (Relay pagination)
+"""
+interface Connection {
+  "Pagination information"
+  pageInfo: PageInfo!
+  "Total count of items (if available)"
+  totalCount: Int
+}
+
+"""
+Edge interface for connection edges
+"""
+interface Edge {
+  "Cursor for pagination"
+  cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Pagination Types
+# -----------------------------------------------------------------------------
+
+"""
+Information about pagination in a connection
+"""
+type PageInfo {
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+  "Cursor for the first edge"
+  startCursor: String
+  "Cursor for the last edge"
+  endCursor: String
+}
+
+"""
+Standard pagination input arguments
+"""
+input PaginationInput {
+  "Number of items to fetch"
+  first: Int
+  "Cursor to fetch items after"
+  after: String
+  "Number of items to fetch from the end"
+  last: Int
+  "Cursor to fetch items before"
+  before: String
+}
+
+# -----------------------------------------------------------------------------
+# Health & System Types
+# -----------------------------------------------------------------------------
+
+"""
+Overall system health status
+"""
+type HealthStatus {
+  "Service status"
+  status: ServiceStatus!
+  "Service version"
+  version: String!
+  "Server uptime"
+  uptime: Duration
+  "Connected router count"
+  connectedRouters: Int!
+  "Last health check timestamp"
+  checkedAt: DateTime!
+}
+
+"""
+Service operational status
+"""
+enum ServiceStatus {
+  "Service is fully operational"
+  HEALTHY
+  "Service is operational with degraded performance"
+  DEGRADED
+  "Service is not operational"
+  UNHEALTHY
+}
+
+"""
+Router connection status
+"""
+enum ConnectionStatus {
+  "Actively connected and responsive"
+  CONNECTED
+  "Connection attempt in progress"
+  CONNECTING
+  "Not connected"
+  DISCONNECTED
+  "Connection failed with error"
+  ERROR
+}
+
+# -----------------------------------------------------------------------------
+# Router Types
+# -----------------------------------------------------------------------------
+
+"""
+A managed router device
+"""
+type Router implements Node {
+  "Unique router identifier"
+  id: ID!
+  "User-friendly display name"
+  name: String!
+  "Router hostname or IP address"
+  host: String!
+  "Connection port"
+  port: Int!
+  "Current connection status"
+  status: ConnectionStatus!
+  "Router platform type"
+  platform: RouterPlatform!
+  "RouterOS version (if connected)"
+  version: String @mikrotik(path: "/system/resource", field: "version")
+  "Router model"
+  model: String @mikrotik(path: "/system/routerboard", field: "model")
+  "System uptime"
+  uptime: Duration @mikrotik(path: "/system/resource", field: "uptime")
+  "Last successful connection time"
+  lastConnected: DateTime
+  "When the router was added to NasNet"
+  createdAt: DateTime!
+  "Last update timestamp"
+  updatedAt: DateTime!
+  "Detected router capabilities (requires connection)"
+  capabilities: RouterCapabilities
+}
+
+"""
+Supported router platforms
+"""
+enum RouterPlatform {
+  "MikroTik RouterOS"
+  MIKROTIK
+  "OpenWrt"
+  OPENWRT
+  "VyOS"
+  VYOS
+  "Generic/Unknown"
+  GENERIC
+}
+
+"""
+Input for creating a new router connection
+"""
+input CreateRouterInput {
+  "User-friendly display name"
+  name: String! @validate(minLength: 1, maxLength: 64)
+  "Router hostname or IP address"
+  host: String! @validate(minLength: 1, maxLength: 255)
+  "Connection port (default: 8728 for MikroTik API)"
+  port: Int @validate(min: 1, max: 65535)
+  "Username for authentication"
+  username: String! @validate(minLength: 1, maxLength: 64)
+  "Password for authentication"
+  password: String! @validate(minLength: 1, maxLength: 128)
+  "Router platform type"
+  platform: RouterPlatform
+}
+
+"""
+Input for updating router settings
+"""
+input UpdateRouterInput {
+  "Updated display name"
+  name: String @validate(minLength: 1, maxLength: 64)
+  "Updated hostname or IP address"
+  host: String @validate(minLength: 1, maxLength: 255)
+  "Updated connection port"
+  port: Int @validate(min: 1, max: 65535)
+  "Updated username"
+  username: String @validate(minLength: 1, maxLength: 64)
+  "Updated password"
+  password: String @validate(minLength: 1, maxLength: 128)
+}
+
+# -----------------------------------------------------------------------------
+# Interface Types (Network Interfaces)
+# -----------------------------------------------------------------------------
+
+"""
+A network interface on a router
+"""
+type Interface implements Node {
+  "Unique interface identifier"
+  id: ID!
+  "Interface name (e.g., ether1, wlan1)"
+  name: String! @mikrotik(path: "/interface", field: "name")
+  "Interface type"
+  type: InterfaceType! @mikrotik(path: "/interface", field: "type")
+  "Whether the interface is enabled"
+  enabled: Boolean! @mikrotik(path: "/interface", field: "disabled")
+  "Whether the interface is running (link up)"
+  running: Boolean! @mikrotik(path: "/interface", field: "running")
+  "MAC address"
+  macAddress: MAC @mikrotik(path: "/interface", field: "mac-address")
+  "MTU setting"
+  mtu: Int @mikrotik(path: "/interface", field: "mtu")
+  "User comment"
+  comment: String @mikrotik(path: "/interface", field: "comment")
+  "TX bytes"
+  txBytes: Size @mikrotik(path: "/interface", field: "tx-byte")
+  "RX bytes"
+  rxBytes: Size @mikrotik(path: "/interface", field: "rx-byte")
+}
+
+"""
+Types of network interfaces
+"""
+enum InterfaceType {
+  ETHERNET
+  VLAN
+  BRIDGE
+  WIRELESS
+  TUNNEL
+  PPP
+  BONDING
+  LOOPBACK
+  VIRTUAL
+  OTHER
+}
+
+# -----------------------------------------------------------------------------
+# Query Root
+# -----------------------------------------------------------------------------
+
+type Query {
+  "Fetch any node by its global ID"
+  node(id: ID!): Node
+
+  "Get system health status"
+  health: HealthStatus!
+
+  "Get current API version"
+  version: String!
+
+  # Router Queries
+  "Get a router by ID"
+  router(id: ID!): Router
+  "List all managed routers"
+  routers(
+    "Filter by connection status"
+    status: ConnectionStatus
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): RouterConnection!
+
+  # Interface Queries (require active router connection)
+  "Get a network interface by ID"
+  interface(
+    "Router to query"
+    routerId: ID!
+    "Interface ID"
+    id: ID!
+  ): Interface @capability(requires: ["interface"])
+
+  "List interfaces on a router"
+  interfaces(
+    "Router to query"
+    routerId: ID!
+    "Filter by interface type"
+    type: InterfaceType
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): InterfaceConnection! @capability(requires: ["interface"])
+
+  # Capability Queries
+  "Get router capabilities by router ID"
+  routerCapabilities(routerId: ID!): RouterCapabilities
+
+  # Version Compatibility Queries
+  "Check if a feature is supported on a specific router"
+  isFeatureSupported(
+    "Router to check"
+    routerId: ID!
+    "Feature identifier"
+    featureId: String!
+  ): FeatureSupport!
+
+  "Get all features supported by a router"
+  supportedFeatures(routerId: ID!): [FeatureSupport!]!
+
+  "Get features not supported by a router with upgrade guidance"
+  unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
+
+  "Get the compatibility matrix for all known features"
+  compatibilityMatrix: [FeatureCompatibilityInfo!]!
+
+  # Upgrade Recommendation Queries
+  "Get upgrade recommendation for a specific feature on a router"
+  upgradeRecommendation(
+    "Router to check"
+    routerId: ID!
+    "Feature to enable"
+    featureId: String!
+  ): UpgradeRecommendation
+
+  "Get all upgrade recommendations for a router"
+  upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!
+}
+
+"""
+Information about a feature in the compatibility matrix
+"""
+type FeatureCompatibilityInfo {
+  "Feature identifier"
+  featureId: String!
+  "Human-readable feature name"
+  name: String!
+  "Minimum RouterOS version required"
+  minVersion: String!
+  "Maximum RouterOS version supported (if any)"
+  maxVersion: String
+  "Minimum version for CHR (if different)"
+  minVersionCHR: String
+  "Required packages"
+  requiredPackages: [String!]!
+  "Feature dependencies"
+  dependsOn: [String!]!
+  "URL to MikroTik documentation"
+  upgradeUrl: String
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Root
+# -----------------------------------------------------------------------------
+
+type Mutation {
+  # Router Management
+  "Add a new router to manage"
+  createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  "Update router settings"
+  updateRouter(id: ID!, input: UpdateRouterInput!): UpdateRouterPayload!
+  "Remove a router"
+  deleteRouter(id: ID!): DeleteRouterPayload!
+  "Test connection to a router"
+  testRouterConnection(id: ID!): TestConnectionPayload!
+  "Connect to a router"
+  connectRouter(id: ID!): ConnectRouterPayload!
+  "Disconnect from a router"
+  disconnectRouter(id: ID!): DisconnectRouterPayload!
+
+  # Capability Management
+  "Force refresh router capabilities (invalidates cache)"
+  refreshCapabilities(routerId: ID!): RefreshCapabilitiesPayload!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Root
+# -----------------------------------------------------------------------------
+
+type Subscription {
+  "Subscribe to router status changes"
+  routerStatusChanged(routerId: ID): RouterStatusEvent!
+
+  "Subscribe to interface traffic updates"
+  interfaceTraffic(
+    routerId: ID!
+    interfaceId: ID
+  ): InterfaceTrafficEvent! @realtime(interval: 1000)
+
+  "Subscribe to resource updates (create, update, delete)"
+  resourceUpdated(resourceId: ID): ResourceUpdatedEvent!
+
+  "Subscribe to configuration apply progress"
+  configApplyProgress(operationId: ID!): ConfigProgress!
+}
+
+# -----------------------------------------------------------------------------
+# Connection Types (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+type RouterConnection implements Connection {
+  edges: [RouterEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type RouterEdge implements Edge {
+  node: Router!
+  cursor: String!
+}
+
+type InterfaceConnection implements Connection {
+  edges: [InterfaceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type InterfaceEdge implements Edge {
+  node: Interface!
+  cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+"""
+Standard error type for mutations
+"""
+type MutationError {
+  "Error code for programmatic handling"
+  code: String!
+  "Human-readable error message"
+  message: String!
+  "Field that caused the error (if applicable)"
+  field: String
+}
+
+"""
+Rich error extensions for detailed error diagnostics.
+Included in GraphQL error responses under the 'extensions' key.
+"""
+type ErrorExtensions {
+  "Error code for programmatic handling (e.g., 'V400', 'R200')"
+  code: String!
+  "Error category (validation, protocol, network, auth, resource, internal)"
+  category: String!
+  "Field path that caused the error (e.g., 'input.listenPort')"
+  field: String
+  "The invalid value (redacted in production for sensitive fields)"
+  value: JSON
+  "User-friendly suggestion for fixing the error"
+  suggestedFix: String
+  "Link to relevant documentation"
+  docsUrl: String
+  "Request correlation ID for support and debugging"
+  requestId: String!
+  "Whether the error is recoverable (can be retried)"
+  recoverable: Boolean!
+  "Additional troubleshooting steps for complex errors"
+  troubleshootingSteps: [String!]
+}
+
+type CreateRouterPayload {
+  "The created router"
+  router: Router
+  "Errors that occurred during creation"
+  errors: [MutationError!]
+}
+
+type UpdateRouterPayload {
+  "The updated router"
+  router: Router
+  "Errors that occurred during update"
+  errors: [MutationError!]
+}
+
+type DeleteRouterPayload {
+  "Whether deletion was successful"
+  success: Boolean!
+  "ID of the deleted router"
+  deletedRouterId: ID
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+type TestConnectionPayload {
+  "Whether the connection test succeeded"
+  success: Boolean!
+  "Response time in milliseconds"
+  responseTimeMs: Int
+  "Router version if connection succeeded"
+  version: String
+  "Error message if connection failed"
+  error: String
+}
+
+type ConnectRouterPayload {
+  "The router that was connected"
+  router: Router
+  "Errors that occurred during connection"
+  errors: [MutationError!]
+}
+
+type DisconnectRouterPayload {
+  "The router that was disconnected"
+  router: Router
+  "Errors that occurred during disconnection"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Events
+# -----------------------------------------------------------------------------
+
+type RouterStatusEvent {
+  "The router whose status changed"
+  router: Router!
+  "Previous status"
+  previousStatus: ConnectionStatus!
+  "New status"
+  newStatus: ConnectionStatus!
+  "Timestamp of the change"
+  timestamp: DateTime!
+}
+
+type InterfaceTrafficEvent {
+  "Interface ID"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "TX rate in bytes per second"
+  txRate: Size!
+  "RX rate in bytes per second"
+  rxRate: Size!
+  "Total TX bytes"
+  txTotal: Size!
+  "Total RX bytes"
+  rxTotal: Size!
+  "Timestamp"
+  timestamp: DateTime!
+}
+
+"""
+Event emitted when a router resource is updated
+"""
+type ResourceUpdatedEvent {
+  "Unique resource identifier"
+  resourceId: ID!
+  "Type of resource (interface, firewall-rule, dhcp-lease, etc.)"
+  resourceType: String!
+  "Router this resource belongs to"
+  routerId: ID!
+  "New version number after update"
+  version: Int!
+  "Fields that were changed"
+  changedFields: [String!]!
+  "Type of change (create, update, delete)"
+  changeType: ChangeType!
+  "Timestamp of the update"
+  timestamp: DateTime!
+}
+
+"""
+Type of change for resource events
+"""
+enum ChangeType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+"""
+Progress information for configuration apply operations
+"""
+type ConfigProgress {
+  "Unique operation identifier"
+  operationId: ID!
+  "Current status of the operation"
+  status: ConfigApplyStatus!
+  "Completion percentage (0-100)"
+  percentage: Int!
+  "Human-readable progress message"
+  message: String!
+  "Current step number"
+  currentStep: Int
+  "Total number of steps"
+  totalSteps: Int
+  "Timestamp of this progress update"
+  timestamp: DateTime!
+}
+
+"""
+Status of a configuration apply operation
+"""
+enum ConfigApplyStatus {
+  PENDING
+  VALIDATING
+  APPLYING
+  VERIFYING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+# -----------------------------------------------------------------------------
+# Capability Types
+# -----------------------------------------------------------------------------
+
+"""
+Feature capability categories detected on routers.
+Used to determine what features are available on a specific router.
+"""
+enum Capability {
+  "Container/Docker support"
+  CONTAINER
+  "Virtual Interface Factory support"
+  VIF
+  "Wireless/WiFi support"
+  WIRELESS
+  "Advanced routing features"
+  ROUTING
+  "Firewall features"
+  FIREWALL
+  "MPLS support"
+  MPLS
+  "IPv6 support"
+  IPV6
+  "Hotspot features"
+  HOTSPOT
+  "User Manager features"
+  USER_MANAGER
+  "Dude monitoring support"
+  DUDE
+  "WireGuard VPN support"
+  WIREGUARD
+  "ZeroTier support"
+  ZEROTIER
+}
+
+"""
+Capability support level for a feature.
+Determines how the feature appears in the UI.
+"""
+enum CapabilityLevel {
+  "Feature not supported (hide in UI)"
+  NONE
+  "Limited support (show with warnings)"
+  BASIC
+  "Full RouterOS native support"
+  ADVANCED
+  "Complete support including container-based features"
+  FULL
+}
+
+"""
+Single capability with its support level and guidance
+"""
+type CapabilityEntry {
+  "Capability category"
+  capability: Capability!
+  "Support level"
+  level: CapabilityLevel!
+  "Human-readable description of support"
+  description: String
+  "Actionable message if feature unavailable"
+  guidance: String
+}
+
+"""
+Hardware information detected from router
+"""
+type HardwareInfo {
+  "CPU architecture (arm, arm64, x86_64, etc.)"
+  architecture: String!
+  "Router model name"
+  model: String
+  "Board name"
+  boardName: String
+  "Total RAM in bytes"
+  totalMemory: Size!
+  "Available storage in bytes"
+  availableStorage: Size!
+  "Number of CPU cores"
+  cpuCount: Int!
+  "Whether wireless hardware is present"
+  hasWirelessChip: Boolean!
+  "Whether LTE/cellular hardware is present"
+  hasLTEModule: Boolean!
+}
+
+"""
+Software information detected from router
+"""
+type SoftwareInfo {
+  "RouterOS version string"
+  version: String!
+  "Parsed major version number"
+  versionMajor: Int!
+  "Parsed minor version number"
+  versionMinor: Int!
+  "Parsed patch version number"
+  versionPatch: Int
+  "List of installed packages"
+  installedPackages: [String!]!
+  "License level (0-6)"
+  licenseLevel: Int!
+  "Update channel (stable, testing, development)"
+  updateChannel: String
+}
+
+"""
+Container-specific capability information
+"""
+type ContainerInfo {
+  "Whether container package is installed"
+  packageInstalled: Boolean!
+  "Whether container feature is enabled in system settings"
+  enabled: Boolean!
+  "Whether a container registry is configured"
+  registryConfigured: Boolean!
+  "Available storage for container images in bytes"
+  storageAvailable: Size!
+  "Whether network namespace is supported"
+  supportsNetworkNamespace: Boolean!
+  "Maximum number of containers supported"
+  maxContainers: Int
+}
+
+"""
+VIF (Virtual Interface Factory) requirements check result
+"""
+type VIFRequirements {
+  "Whether all VIF requirements are satisfied"
+  met: Boolean!
+  "Whether RouterOS version is sufficient (7.13+)"
+  routerOSVersion: Boolean!
+  "Whether container package is installed"
+  containerPackage: Boolean!
+  "Whether container feature is enabled"
+  containerEnabled: Boolean!
+  "Whether there's sufficient storage (>100MB)"
+  sufficientStorage: Boolean!
+  "Whether network namespace is supported"
+  networkNamespace: Boolean!
+  "Human-readable reasons why VIF is not available"
+  missingReasons: [String!]!
+  "Step-by-step guidance for enabling VIF"
+  guidanceSteps: [VIFGuidanceStep!]!
+}
+
+"""
+Single step in VIF enablement guidance
+"""
+type VIFGuidanceStep {
+  "Step number (1-based)"
+  step: Int!
+  "Short title for the step"
+  title: String!
+  "Detailed instruction"
+  description: String!
+  "Whether this requirement is already met"
+  completed: Boolean!
+  "RouterOS command to execute (if applicable)"
+  routerCommand: String
+}
+
+"""
+Complete router capabilities detected from system inspection
+"""
+type RouterCapabilities {
+  "Hardware information"
+  hardware: HardwareInfo!
+  "Software information"
+  software: SoftwareInfo!
+  "Container-specific capabilities"
+  container: ContainerInfo!
+  "Capability entries with support levels"
+  capabilities: [CapabilityEntry!]!
+  "VIF requirements check"
+  vifRequirements: VIFRequirements!
+  "Features supported by this router's version and configuration"
+  supportedFeatures: [FeatureSupport!]!
+  "Features not supported by this router (with upgrade guidance)"
+  unsupportedFeatures: [FeatureSupport!]!
+  "Parsed RouterOS version with comparison helpers"
+  routerOSVersion: RouterOSVersion!
+  "When capabilities were detected"
+  detectedAt: DateTime!
+  "When cache expires (24h TTL)"
+  expiresAt: DateTime!
+  "Whether cache is stale and refresh is in progress"
+  isRefreshing: Boolean!
+}
+
+"""
+Parsed RouterOS version with semantic versioning
+"""
+type RouterOSVersion {
+  "Full version string (e.g., '7.13.2')"
+  raw: String!
+  "Major version number"
+  major: Int!
+  "Minor version number"
+  minor: Int!
+  "Patch version number"
+  patch: Int!
+  "Version channel (stable, beta, rc, long-term)"
+  channel: String
+  "Whether this is a Cloud Hosted Router (CHR)"
+  isCHR: Boolean!
+  "Check if this version supports a specific feature"
+  supportsFeature(featureId: String!): Boolean!
+  "Check if version is at least the given version (e.g., '7.1')"
+  isAtLeast(version: String!): Boolean!
+}
+
+"""
+Feature support information based on RouterOS version
+"""
+type FeatureSupport {
+  "Feature identifier (e.g., 'rest_api', 'container', 'wireguard')"
+  featureId: String!
+  "Human-readable feature name"
+  name: String!
+  "Whether the feature is supported on this router"
+  supported: Boolean!
+  "Capability level (none, basic, advanced, full)"
+  level: CapabilityLevel!
+  "Reason why the feature is not supported (if applicable)"
+  reason: String
+  "Minimum RouterOS version required for this feature"
+  requiredVersion: String
+  "URL to MikroTik documentation for upgrade guidance"
+  upgradeUrl: String
+  "Required packages that need to be installed"
+  requiredPackages: [String!]
+  "Missing packages (if any)"
+  missingPackages: [String!]
+}
+
+"""
+Input for checking feature compatibility
+"""
+input FeatureCompatibilityInput {
+  "Feature identifier to check"
+  featureId: String!
+  "Whether to check for CHR-specific requirements"
+  isCHR: Boolean
+}
+
+"""
+Upgrade recommendation for enabling a feature
+"""
+type UpgradeRecommendation {
+  "Feature that requires upgrade"
+  featureId: String!
+  "Human-readable feature name"
+  featureName: String!
+  "Current RouterOS version"
+  currentVersion: String!
+  "Minimum required version for this feature"
+  requiredVersion: String!
+  "Whether this is a major version upgrade (e.g., 6.x to 7.x)"
+  isMajorUpgrade: Boolean!
+  "Priority level (critical, high, medium, low)"
+  priority: UpgradePriority!
+  "Steps to complete the upgrade"
+  steps: [UpgradeStep!]!
+  "Estimated impact on router operation"
+  impact: UpgradeImpact!
+  "URL to MikroTik upgrade documentation"
+  documentationUrl: String
+  "Warnings or important notes about this upgrade"
+  warnings: [String!]!
+}
+
+"""
+Priority level for upgrade recommendations
+"""
+enum UpgradePriority {
+  "Security-related, should upgrade immediately"
+  CRITICAL
+  "Highly recommended for stability/features"
+  HIGH
+  "Recommended but not urgent"
+  MEDIUM
+  "Nice to have, optional"
+  LOW
+}
+
+"""
+Impact assessment for an upgrade
+"""
+type UpgradeImpact {
+  "Whether reboot is required"
+  requiresReboot: Boolean!
+  "Estimated downtime description"
+  estimatedDowntime: String
+  "Whether configuration backup is recommended before upgrade"
+  backupRecommended: Boolean!
+  "Potential breaking changes to be aware of"
+  breakingChanges: [String!]!
+}
+
+"""
+Single step in an upgrade process
+"""
+type UpgradeStep {
+  "Step number (1-based)"
+  step: Int!
+  "Step title"
+  title: String!
+  "Detailed instructions"
+  description: String!
+  "RouterOS command to execute (if applicable)"
+  command: String
+  "Whether this step is optional"
+  optional: Boolean!
+}
+
+"""
+Payload for refreshCapabilities mutation
+"""
+type RefreshCapabilitiesPayload {
+  "Updated capabilities after refresh"
+  capabilities: RouterCapabilities
+  "Errors during refresh"
+  errors: [MutationError!]
+}

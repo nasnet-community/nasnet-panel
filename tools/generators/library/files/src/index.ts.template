@@ -1,0 +1,11 @@
+/**
+ * <%= className %> Library
+ *
+ * <%= description %>
+ *
+ * @module <%= importPath %>
+ */
+
+// Export your public API here
+// export { MyComponent } from './my-component';
+// export type { MyComponentProps } from './my-component';

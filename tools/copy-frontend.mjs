@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 const root = resolve(process.cwd(), '.');
 const src = resolve(root, 'dist', 'apps', 'connectpoc');
-const dst = resolve(root, 'apps', 'rosproxy', 'dist');
+const dst = resolve(root, 'apps', 'backend', 'dist');
 
 if (!existsSync(src)) {
   console.error(`[copy-frontend] Source not found: ${src}. Did you run nx run connectpoc:build?`);

@@ -1,0 +1,59 @@
+# docker-compose.test.yml
+# CHR Docker configuration for integration testing
+#
+# This compose file sets up a MikroTik CHR container for integration tests.
+# CHR (Cloud Hosted Router) provides real RouterOS behavior without physical hardware.
+#
+# Usage:
+#   docker-compose -f docker-compose.test.yml up -d     # Start CHR container
+#   docker-compose -f docker-compose.test.yml down      # Stop and remove
+#   docker-compose -f docker-compose.test.yml logs      # View logs
+#
+# Testing Tiers (per ADR-015):
+#   Tier 1: MSW mocks (fast, no dependencies)
+#   Tier 2: CHR Docker (real RouterOS, CI integration) <- THIS FILE
+#   Tier 3: Physical hardware (release validation only)
+
+version: '3.8'
+
+services:
+  chr-test:
+    image: mikrotik/chr:7.12
+    container_name: nasnet-chr-test
+    hostname: chr-test
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      # RouterOS API (plain)
+      - "8728:8728"
+      # RouterOS API (SSL)
+      - "8729:8729"
+      # SSH access
+      - "2222:22"
+      # Web interface
+      - "8080:80"
+      # Winbox
+      - "8291:8291"
+    environment:
+      # CHR configuration environment variables
+      - CHR_LICENSE=free
+    volumes:
+      # Mount initialization script
+      - ./fixtures/chr-init.rsc:/chr-init.rsc:ro
+    healthcheck:
+      # Check if RouterOS API is responding
+      test: ["CMD", "nc", "-z", "localhost", "8728"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - chr-test-network
+
+networks:
+  chr-test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

@@ -6,8 +6,9 @@
 
 ### Enterprise-Grade MikroTik Router Management Platform
 
-[![CI](https://github.com/stargazer5361/nasnet/actions/workflows/ci.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/ci.yml)
-[![Docker](https://github.com/stargazer5361/nasnet/actions/workflows/docker.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/docker.yml)
+[![PR Check](https://github.com/stargazer5361/nasnet/actions/workflows/pr-check.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/pr-check.yml)
+[![Main](https://github.com/stargazer5361/nasnet/actions/workflows/main.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/main.yml)
+[![Release](https://github.com/stargazer5361/nasnet/actions/workflows/release.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](https://golang.org/)
@@ -72,13 +73,48 @@ Connect via REST API, RouterOS API (8728/8729), SSH, or Telnet with automatic fa
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: DevContainer (Recommended)
+
+The fastest way to get started is using the pre-configured DevContainer. It includes all dependencies and tools ready to go.
+
+**Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) + [VS Code](https://code.visualstudio.com/) with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+```bash
+# Clone the repository
+git clone https://github.com/stargazer5361/nasnet.git
+cd nasnet
+
+# Open in VS Code
+code .
+
+# When prompted, click "Reopen in Container"
+# Or: Ctrl+Shift+P → "Dev Containers: Reopen in Container"
+```
+
+The DevContainer automatically:
+
+- Installs Node.js 20, Go 1.24+, and all dependencies
+- Configures VS Code extensions (ESLint, Prettier, Go, GraphQL)
+- Sets up Docker-in-Docker for RouterOS testing
+- Starts in under 60 seconds with pre-built image
+
+Once inside the container:
+
+```bash
+npm run dev:all    # Start frontend (5173) + backend (8080)
+```
+
+> **Troubleshooting:** See [.devcontainer/TROUBLESHOOTING.md](.devcontainer/TROUBLESHOOTING.md) for platform-specific issues.
+
+### Option 2: Manual Setup
+
+#### Prerequisites
 
 - **Node.js 20+** and npm
-- **Go 1.22+** (for backend development)
+- **Go 1.24+** (for backend development)
 - **Git**
 
-### Installation
+#### Installation
 
 ```bash
 # Clone the repository
@@ -98,7 +134,7 @@ The application will start at `http://localhost:5173` and automatically open in 
 
 ```bash
 # Start both frontend and backend
-npm run dev:with-backend
+npm run dev:all
 ```
 
 > **Note:** The backend (ROSProxy) runs at `localhost:8080` with the frontend automatically proxying API requests.
@@ -107,48 +143,122 @@ npm run dev:with-backend
 
 ## 📁 Project Structure
 
+This is an **Nx monorepo** with strict library boundaries enforced via ESLint.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         APPLICATIONS                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
+│  │   connect   │  │  backend   │  │   star-setup-*          │ │
+│  │   (React)   │  │    (Go)     │  │   (Setup Wizards)       │ │
+│  └──────┬──────┘  └─────────────┘  └─────────────────────────┘ │
+├─────────┼───────────────────────────────────────────────────────┤
+│         │                    LIBRARIES                           │
+│  ┌──────▼──────────────────────────────────────────────────────┐│
+│  │ features/  - Feature modules (dashboard, firewall, logs...)  ││
+│  └──────┬───────────────────────────────────────────────────────┘│
+│  ┌──────▼────────┐ ┌────────────┐ ┌──────────────┐              │
+│  │     ui/       │ │ api-client/│ │   state/     │              │
+│  │ (primitives,  │ │ (core,     │ │  (stores)    │              │
+│  │  patterns,    │ │  queries)  │ │              │              │
+│  │  layouts)     │ └─────┬──────┘ └──────┬───────┘              │
+│  └───────┬───────┘       │               │                      │
+│  ┌───────▼───────────────▼───────────────▼───────┐              │
+│  │              core/ (types, utils, constants)   │              │
+│  └───────────────────────┬───────────────────────┘              │
+│  ┌───────────────────────▼───────────────────────┐              │
+│  │                    shared/                     │              │
+│  └───────────────────────────────────────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Library Dependency Rules (per ADR-003)
+
+| Layer | Can Import From |
+|-------|-----------------|
+| `apps/` | features, ui, core, api-client, state, shared |
+| `features/` | ui, core, api-client, state, shared (NOT other features) |
+| `ui/` | core, shared |
+| `api-client/` | core, shared |
+| `state/` | core, api-client, shared |
+| `core/` | shared only |
+| `shared/` | nothing (base layer) |
+
 <details>
-<summary><b>Click to expand full structure</b></summary>
+<summary><b>Click to expand full directory structure</b></summary>
 
 ```
 nasnet/
 ├── apps/
-│   ├── connect/              # Main frontend application
+│   ├── connect/              # Main React frontend (Vite)
 │   │   ├── src/
-│   │   │   ├── app/          # Pages, routes, components
-│   │   │   └── lib/          # Utilities, config
+│   │   │   ├── app/          # Pages, routes, providers
+│   │   │   └── lib/          # App-specific utilities
 │   │   └── vite.config.ts
-│   ├── rosproxy/             # Go backend service
+│   ├── backend/             # Go backend (REST proxy, scanner)
 │   │   ├── *.go              # API handlers, clients
-│   │   └── Dockerfile        # Multi-arch container
+│   │   └── Dockerfile        # Multi-arch container build
 │   ├── star-setup-web/       # Setup wizard (web)
 │   └── star-setup-docker/    # Setup wizard (container)
 │
 ├── libs/
 │   ├── api-client/
-│   │   ├── core/             # HTTP client, interceptors
-│   │   └── queries/          # React Query hooks (DHCP, VPN, etc.)
+│   │   ├── core/             # Axios HTTP client, interceptors
+│   │   └── queries/          # TanStack Query hooks per domain
 │   ├── core/
-│   │   ├── types/            # TypeScript definitions
-│   │   ├── utils/            # Formatters, validators
+│   │   ├── types/            # Shared TypeScript interfaces
+│   │   ├── utils/            # Pure utility functions
 │   │   └── constants/        # App constants
-│   ├── core-ui-qwik/         # UI component library (1700+ components)
-│   ├── features/
-│   │   ├── dashboard/        # Dashboard feature
-│   │   ├── firewall/         # Firewall management
-│   │   ├── logs/             # Log viewer
-│   │   ├── wireless/         # WiFi management
-│   │   └── router-discovery/ # Network scanner UI
-│   ├── ros-cmd-generator/    # RouterOS command builder
-│   ├── state/stores/         # Zustand state stores
-│   └── ui/                   # Base UI primitives
+│   ├── features/             # Feature modules
+│   │   ├── dashboard/        # Dashboard widgets
+│   │   ├── firewall/         # Firewall rule management
+│   │   ├── logs/             # System log viewer
+│   │   ├── wireless/         # WiFi interface management
+│   │   ├── router-discovery/ # Network scanner UI
+│   │   └── configuration-import/ # Config import wizard
+│   ├── state/
+│   │   └── stores/           # Zustand stores (theme, connection, router)
+│   └── ui/
+│       ├── primitives/       # shadcn/ui base components (~40)
+│       ├── patterns/         # Composite reusable components (~56)
+│       └── layouts/          # Page layouts and shells
 │
+├── shared/                   # Cross-cutting shared code
 ├── .github/workflows/        # CI/CD pipelines
-├── nx.json                   # Nx configuration
-└── package.json              # Root package
+├── nx.json                   # Nx workspace configuration
+└── package.json              # Root package with workspaces
 ```
 
 </details>
+
+### Import Aliases
+
+| Alias | Maps To |
+|-------|---------|
+| `@nasnet/core/*` | `libs/core/*/src` |
+| `@nasnet/ui/*` | `libs/ui/*/src` |
+| `@nasnet/features/*` | `libs/features/*/src` |
+| `@nasnet/api-client/*` | `libs/api-client/*/src` |
+| `@nasnet/state/*` | `libs/state/*/src` |
+
+### Code Generators
+
+Custom Nx generators are available for scaffolding code following project conventions:
+
+```bash
+# Generate a React component with tests and barrel export
+nx g @nasnet/tools:component MyComponent --project=connect
+
+# Generate a new library with proper scope tags
+nx g @nasnet/tools:library my-lib --directory=libs/features
+
+# Generate a Go GraphQL resolver
+nx g @nasnet/tools:resolver Interface
+```
+
+All generators support `--dry-run` for previewing changes. See [tools/generators/README.md](tools/generators/README.md) for full documentation.
 
 ---
 
@@ -317,7 +427,7 @@ curl -X POST http://localhost:8080/api/batch/jobs \
 
 </details>
 
-> 📖 **Full API Documentation:** [apps/rosproxy/README.md](apps/rosproxy/README.md)
+> 📖 **Full API Documentation:** [apps/backend/README.md](apps/backend/README.md)
 
 ---
 
@@ -353,7 +463,7 @@ npx nx run-many -t test
 
 # Run specific project tests
 npx nx test connect
-npx nx test rosproxy
+npx nx test backend
 
 # E2E tests
 npx nx e2e connect-e2e

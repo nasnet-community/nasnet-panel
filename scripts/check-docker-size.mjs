@@ -82,7 +82,7 @@ function main() {
     console.log(`   Limit:   10 MB`);
     console.log('');
     console.log('Optimization suggestions:');
-    console.log('   - Verify UPX compression is applied to rosproxy binary');
+    console.log('   - Verify UPX compression is applied to backend binary');
     console.log('   - Remove unnecessary files from static build');
     console.log('   - Check for duplicate dependencies');
     process.exit(1);

@@ -1,0 +1,145 @@
+# =============================================================================
+# Authentication Schema for NasNetConnect
+# =============================================================================
+# Defines authentication types, queries, and mutations.
+# Implements JWT-based authentication with sliding sessions.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Auth Types
+# -----------------------------------------------------------------------------
+
+"""
+Authentication payload returned on successful login
+"""
+type AuthPayload {
+  "JWT access token"
+  token: String!
+  "Authenticated user"
+  user: User!
+  "Token expiration timestamp"
+  expiresAt: DateTime!
+}
+
+"""
+User account in NasNetConnect
+"""
+type User implements Node {
+  "User ULID"
+  id: ID!
+  "Unique username"
+  username: String!
+  "User role for authorization"
+  role: UserRole!
+  "Email address (if provided)"
+  email: String
+  "Display name"
+  displayName: String
+  "Account creation timestamp"
+  createdAt: DateTime!
+  "Last successful login"
+  lastLoginAt: DateTime
+}
+
+"""
+User roles for authorization
+"""
+enum UserRole {
+  "Full administrative access"
+  ADMIN
+  "Can view and modify but not delete or manage users"
+  OPERATOR
+  "Read-only access"
+  VIEWER
+}
+
+"""
+Active user session
+"""
+type Session {
+  "Session ULID"
+  id: ID!
+  "Client IP address"
+  ipAddress: String
+  "Client user agent"
+  userAgent: String
+  "Session creation time"
+  createdAt: DateTime!
+  "Last activity time"
+  lastActivity: DateTime!
+  "Whether this is the current session"
+  isCurrent: Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# Auth Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  "Get current authenticated user"
+  me: User @auth
+
+  "Get all active sessions for the current user"
+  mySessions: [Session!]! @auth
+}
+
+# -----------------------------------------------------------------------------
+# Auth Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  "Authenticate and receive a JWT token"
+  login(
+    "Username"
+    username: String!
+    "Password"
+    password: String! @sensitive
+  ): AuthPayload!
+
+  "Invalidate current session and clear tokens"
+  logout: Boolean! @auth
+
+  "Change the current user's password"
+  changePassword(
+    "Current password for verification"
+    currentPassword: String! @sensitive
+    "New password (must meet policy requirements)"
+    newPassword: String! @sensitive
+  ): Boolean! @auth
+
+  "Revoke all sessions for a user (admin only)"
+  revokeAllSessions(
+    "User ID to revoke sessions for"
+    userId: ID!
+  ): Boolean! @auth(requires: "admin")
+
+  "Revoke a specific session"
+  revokeSession(
+    "Session ID to revoke"
+    sessionId: ID!
+  ): Boolean! @auth
+}
+
+# -----------------------------------------------------------------------------
+# Auth Errors
+# -----------------------------------------------------------------------------
+
+"""
+Authentication error codes
+"""
+enum AuthErrorCode {
+  "Invalid username or password"
+  INVALID_CREDENTIALS
+  "Session has expired"
+  SESSION_EXPIRED
+  "Token is invalid or malformed"
+  TOKEN_INVALID
+  "Token has expired"
+  TOKEN_EXPIRED
+  "Insufficient permissions"
+  INSUFFICIENT_ROLE
+  "Too many login attempts"
+  RATE_LIMITED
+  "Password does not meet requirements"
+  PASSWORD_POLICY_VIOLATION
+}

@@ -1,0 +1,9 @@
+Flags: X - disabled, R - running
+ 0 R name="vpn-usa" listen-port=51820 mtu=1420 private-key="xxxxxx"
+     running=true disabled=false
+
+ 1 R name="vpn-eu" listen-port=51821 mtu=1420 private-key="yyyyyy"
+     running=true disabled=false
+
+ 2 X name="vpn-dev" listen-port=51822 mtu=1420 private-key="zzzzzz"
+     running=false disabled=true

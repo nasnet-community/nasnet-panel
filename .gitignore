@@ -5,6 +5,8 @@ dist
 tmp
 out-tsc
 
+
+
 # dependencies
 node_modules
 
@@ -63,6 +65,12 @@ test-output
 .opencode
 .openspec
 openspec
+_bmad
+.agent 
+.gemini 
+.windsurf 
+.github/agents
+
 
 # AI/Development Tool Files
 AGENTS.md

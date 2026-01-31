@@ -1,0 +1,44 @@
+# <%= className %>
+
+<%= description %>
+
+## Installation
+
+This library is part of the NasNet monorepo and is available via the workspace alias:
+
+```typescript
+import { /* exports */ } from '<%= importPath %>';
+```
+
+## Usage
+
+```typescript
+// Add usage examples here
+```
+
+## API
+
+<!-- Document public API here -->
+
+## Scope
+
+- **Scope Tag:** `scope:<%= scopeTag %>`
+- **Type:** Library
+- **Import Path:** `<%= importPath %>`
+
+## Development
+
+```bash
+# Run tests
+nx test <%= projectName %>
+
+# Lint
+nx lint <%= projectName %>
+
+# Build
+nx build <%= projectName %>
+```
+
+## Contributing
+
+When contributing to this library, please follow the project's coding conventions and ensure all tests pass.

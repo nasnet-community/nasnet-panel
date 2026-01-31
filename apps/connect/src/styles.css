@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Import generated design tokens from token pipeline */
+@import "@nasnet/ui/tokens/variables.css";
+
 /* CSS Variables for shadcn/ui theming */
 /* Based on NasNetConnect UX Design Specification */
 /* Complete dual-theme support (light + dark modes) */

@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/api-client/queries",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api-client/queries/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:api-client"]
+}

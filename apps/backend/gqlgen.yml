@@ -1,0 +1,126 @@
+# =============================================================================
+# gqlgen Configuration for NasNetConnect
+# =============================================================================
+# This configuration generates Go code from GraphQL schema.
+# Run: cd apps/backend && go generate ./...
+#
+# Documentation: https://gqlgen.com/config/
+# =============================================================================
+
+# Schema files location (relative to this config file)
+schema:
+  - "../../schema/**/*.graphql"
+
+# Generated server code
+exec:
+  filename: graph/generated.go
+  package: graph
+
+# Generated model structs
+model:
+  filename: graph/model/models_gen.go
+  package: model
+
+# Resolver implementation
+resolver:
+  layout: follow-schema
+  dir: graph/resolver
+  package: resolver
+  filename_template: "{name}.resolvers.go"
+
+# Automatically bind Go types to GraphQL types
+autobind:
+  - "backend/graph/model"
+
+# Custom scalar mappings
+models:
+  # Core types
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+
+  # Custom scalars - map to appropriate Go types
+  DateTime:
+    model:
+      - github.com/99designs/gqlgen/graphql.Time
+  JSON:
+    model:
+      - github.com/99designs/gqlgen/graphql.Map
+  IPv4:
+    model:
+      - backend/graph/model.IPv4
+  IPv6:
+    model:
+      - backend/graph/model.IPv6
+  MAC:
+    model:
+      - backend/graph/model.MAC
+  CIDR:
+    model:
+      - backend/graph/model.CIDR
+  Port:
+    model:
+      - backend/graph/model.Port
+  PortRange:
+    model:
+      - backend/graph/model.PortRange
+  Duration:
+    model:
+      - backend/graph/model.Duration
+  Bandwidth:
+    model:
+      - backend/graph/model.Bandwidth
+  Size:
+    model:
+      - backend/graph/model.Size
+  ULID:
+    model:
+      - backend/graph/model.ULID
+
+  # Node interface - gqlgen will generate implementations
+
+# Directives configuration
+directives:
+  # Validation directive - handled at resolver level
+  validate:
+    skip_runtime: false
+  # Platform directives - metadata only, handled by resolvers
+  mikrotik:
+    skip_runtime: true
+  openwrt:
+    skip_runtime: true
+  vyos:
+    skip_runtime: true
+  capability:
+    skip_runtime: false
+  realtime:
+    skip_runtime: true
+  cache:
+    skip_runtime: true
+  migrateFrom:
+    skip_runtime: true
+  # Security directives - runtime enforcement
+  sensitive:
+    skip_runtime: false
+  auth:
+    skip_runtime: false
+
+# Omit getters for resolver fields
+omit_getters: true
+
+# Struct tag configuration
+struct_tag: json
+
+# Generate models with pointer fields for optional values
+nullable_input_omittable: true
+
+# Enable context in generated code
+enable_model_json_omitempty_tag: true

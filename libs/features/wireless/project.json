@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/wireless",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/wireless/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

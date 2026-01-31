@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "name": "tools",
+  "version": "0.0.1",
+  "generators": {
+    "component": {
+      "factory": "./component/generator",
+      "schema": "./component/schema.json",
+      "description": "Generate a React component following NasNet conventions with TypeScript, shadcn/ui patterns, test file, and barrel export"
+    },
+    "library": {
+      "factory": "./library/generator",
+      "schema": "./library/schema.json",
+      "description": "Generate a new library following ADR-003 conventions with proper scope tags and Nx configuration"
+    },
+    "resolver": {
+      "factory": "./resolver/generator",
+      "schema": "./resolver/schema.json",
+      "description": "Generate a Go GraphQL resolver following gqlgen patterns for apps/backend"
+    }
+  }
+}

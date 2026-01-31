@@ -1,5 +1,34 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
-/.nx/cache
-/.nx/workspace-data
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Nx cache
+.nx/cache
+.nx/workspace-data
+
+# Coverage
+coverage/
+
+# Generated files
+**/generated/**
+**/*.generated.*
+apps/backend/graph/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Go files (handled by gofmt)
+**/*.go
+
+# Documentation that shouldn't be formatted
+CHANGELOG.md
+
+# Old repo
+ConnectSetupOldRepo/

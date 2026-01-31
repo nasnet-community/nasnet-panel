@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/router-discovery",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/router-discovery/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

@@ -1,8 +1,62 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import checker from 'vite-plugin-checker';
 import { resolve } from 'path';
+import { spawn } from 'child_process';
+
+/**
+ * Custom plugin to watch design tokens and rebuild on changes
+ * Provides HMR for token updates without full page reload
+ */
+function designTokensHMR(): Plugin {
+  let tokenWatcher: ReturnType<typeof spawn> | null = null;
+
+  return {
+    name: 'design-tokens-hmr',
+    configureServer(server) {
+      const tokensPath = resolve(import.meta.dirname, '../../libs/ui/tokens/src/tokens.json');
+      const distPath = resolve(import.meta.dirname, '../../libs/ui/tokens/dist');
+
+      // Watch the token source file
+      server.watcher.add(tokensPath);
+      server.watcher.on('change', async (path) => {
+        if (path.includes('tokens.json')) {
+          console.log('\n🎨 Design tokens changed, rebuilding...');
+          try {
+            // Run the token build script
+            const buildProcess = spawn('node', ['libs/ui/tokens/build.js'], {
+              cwd: resolve(import.meta.dirname, '../..'),
+              stdio: 'inherit',
+            });
+
+            buildProcess.on('close', (code) => {
+              if (code === 0) {
+                // Trigger HMR for CSS files
+                const cssModule = server.moduleGraph.getModuleById(
+                  resolve(distPath, 'variables.css')
+                );
+                if (cssModule) {
+                  server.moduleGraph.invalidateModule(cssModule);
+                  server.ws.send({ type: 'full-reload' });
+                }
+              }
+            });
+          } catch (error) {
+            console.error('Failed to rebuild tokens:', error);
+          }
+        }
+      });
+    },
+    closeBundle() {
+      if (tokenWatcher) {
+        tokenWatcher.kill();
+        tokenWatcher = null;
+      }
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => ({
   root: import.meta.dirname,
@@ -18,6 +72,8 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/ui/patterns': resolve(import.meta.dirname, '../../libs/ui/patterns/src'),
       '@nasnet/ui/utils': resolve(import.meta.dirname, '../../libs/ui/primitives/src/lib/utils'), // Utils from primitives
       '@nasnet/ui/components': resolve(import.meta.dirname, '../../libs/ui/primitives/src'), // Alias for incorrect imports
+      '@nasnet/ui/tokens': resolve(import.meta.dirname, '../../libs/ui/tokens/dist'),
+      '@nasnet/ui/tokens/variables.css': resolve(import.meta.dirname, '../../libs/ui/tokens/dist/variables.css'),
 
       '@nasnet/features/router-discovery': resolve(import.meta.dirname, '../../libs/features/router-discovery/src'),
       '@nasnet/features/dashboard': resolve(import.meta.dirname, '../../libs/features/dashboard/src'),
@@ -48,7 +104,11 @@ export default defineConfig(({ mode }) => ({
     host: 'localhost',
   },
   plugins: [
+    // TanStack Router file-based routing - MUST be before react()
+    TanStackRouterVite(),
     react(),
+    // Design token HMR - watches tokens.json and rebuilds on change
+    mode !== 'production' && designTokensHMR(),
     // Only run type-checker in development mode (not during production builds)
     mode !== 'production' && checker({
       typescript: true,

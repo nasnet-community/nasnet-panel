@@ -1,0 +1,6 @@
+Flags: X - disabled, D - dynamic, B - blocked
+ #   ADDRESS         MAC-ADDRESS       HOST-NAME         SERVER      EXPIRES-AFTER
+ 0 D 192.168.88.100  AA:BB:CC:DD:EE:FF laptop-john       dhcp1       23h45m30s
+ 1 D 192.168.88.101  11:22:33:44:55:66 phone-mary        dhcp1       23h30m15s
+ 2   192.168.88.200  FF:EE:DD:CC:BB:AA server-nas        dhcp1       23h59m59s
+ 3 XB 192.168.88.50  00:11:22:33:44:55 unknown           dhcp1

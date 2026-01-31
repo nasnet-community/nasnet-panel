@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/logs",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/logs/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

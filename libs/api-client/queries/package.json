@@ -1,0 +1,8 @@
+{
+  "name": "@nasnet/api-client-queries",
+  "version": "1.0.0",
+  "type": "module",
+  "nx": {
+    "tags": ["type:lib", "scope:api-client"]
+  }
+}

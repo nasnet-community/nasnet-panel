@@ -1,0 +1,9 @@
+# jan/15/2024 10:30:00 by RouterOS 7.13.2
+# software id = XXXX-XXXX
+#
+# model = RB4011iGS+5HacQ2HnD-IN
+#
+/interface wireguard
+add listen-port=51820 mtu=1420 name=vpn-usa private-key="xxxxxx"
+add listen-port=51821 mtu=1420 name=vpn-eu private-key="yyyyyy"
+add disabled=yes listen-port=51822 mtu=1420 name=vpn-dev private-key="zzzzzz"

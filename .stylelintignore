@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Nx cache
+.nx/
+
+# Coverage
+coverage/
+
+# Generated files
+**/generated/**
+**/*.generated.*
+
+# Old repo
+ConnectSetupOldRepo/

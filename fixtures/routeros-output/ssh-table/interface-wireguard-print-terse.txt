@@ -1,0 +1,3 @@
+.id=*1;name=vpn-usa;listen-port=51820;mtu=1420;running=true;disabled=false
+.id=*2;name=vpn-eu;listen-port=51821;mtu=1420;running=true;disabled=false
+.id=*3;name=vpn-dev;listen-port=51822;mtu=1420;running=false;disabled=true

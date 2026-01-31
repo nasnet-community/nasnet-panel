@@ -20,7 +20,7 @@ Multiple deployment architectures were considered during product brief and archi
 ## Decision
 
 Deploy NasNetConnect as a **single Docker container running directly ON the MikroTik router**, containing:
-- Go backend (rosproxy) serving REST API
+- Go backend (backend) serving REST API
 - Static React frontend served by the Go backend
 - All assets bundled in the container image
 
@@ -37,7 +37,7 @@ Deploy NasNetConnect as a **single Docker container running directly ON the Mikr
 │  │                                 │    │
 │  │  ┌──────────────┐              │    │
 │  │  │  Go Backend  │              │    │
-│  │  │  (rosproxy)  │              │    │
+│  │  │  (backend)  │              │    │
 │  │  │              │              │    │
 │  │  │  - REST API  │              │    │
 │  │  │  - Serves    │              │    │
@@ -130,7 +130,7 @@ Deploy NasNetConnect as a **single Docker container running directly ON the Mikr
 ```dockerfile
 FROM golang:1.22-alpine AS builder
 # Build Go backend
-RUN go build -ldflags="-s -w" -o rosproxy
+RUN go build -ldflags="-s -w" -o backend
 
 FROM node:20-alpine AS frontend-builder
 # Build React frontend
@@ -138,10 +138,10 @@ RUN npm run build
 
 FROM alpine:latest
 # Copy Go binary
-COPY --from=builder /app/rosproxy /app/
+COPY --from=builder /app/backend /app/
 # Copy React static files
 COPY --from=frontend-builder /app/dist /app/static
-CMD ["/app/rosproxy"]
+CMD ["/app/backend"]
 ```
 
 ### Size Optimization Techniques

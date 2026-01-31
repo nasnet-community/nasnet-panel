@@ -1,0 +1,41 @@
+# Air configuration for NasNetConnect Backend
+# Hot reload development server
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Build with dev tag for development features (CORS, playground, etc.)
+  cmd = "go build -tags=dev -o ./tmp/backend.exe main.dev.go server_shared.go router_proxy.go scanner.go batch_executor.go batch_handlers.go cli_parser.go ros_client.go ssh_client.go telnet_client.go"
+  bin = "./tmp/backend.exe"
+
+  # Watch for changes in these file types
+  include_ext = ["go", "graphql"]
+
+  # Directories to exclude from watching
+  exclude_dir = ["dist", "tmp", "node_modules", ".git", "graph/generated.go"]
+
+  # Also watch GraphQL schema changes
+  include_dir = [".", "../../schema"]
+
+  # Stop old process on error
+  stop_on_error = true
+
+  # Development environment variables
+  envs = ["PORT=8080"]
+
+  # Wait for file changes to settle before rebuilding
+  delay = 1000 # ms
+
+[log]
+  time = true
+
+[color]
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+  # Clean up tmp directory on exit
+  clean_on_exit = true

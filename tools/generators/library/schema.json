@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "NasNetLibraryGenerator",
+  "title": "NasNet Library Generator",
+  "description": "Generate a new library following ADR-003 conventions with proper scope tags and Nx configuration",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the library (kebab-case recommended)",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the name of the library?"
+    },
+    "directory": {
+      "type": "string",
+      "description": "The directory where the library will be created (e.g., 'libs/features', 'libs/core', 'libs/ui')",
+      "x-prompt": "Where should the library be created?",
+      "enum": [
+        "libs/core",
+        "libs/ui",
+        "libs/features",
+        "libs/api-client",
+        "libs/state",
+        "libs/config-gen"
+      ]
+    },
+    "scope": {
+      "type": "string",
+      "description": "The scope tag for dependency boundaries (auto-detected from directory if not specified)",
+      "enum": ["core", "ui", "features", "api-client", "state", "config-gen"]
+    },
+    "description": {
+      "type": "string",
+      "description": "A short description of the library's purpose",
+      "default": ""
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Preview file changes without writing to disk",
+      "default": false,
+      "alias": "d"
+    }
+  },
+  "required": ["name", "directory"]
+}
