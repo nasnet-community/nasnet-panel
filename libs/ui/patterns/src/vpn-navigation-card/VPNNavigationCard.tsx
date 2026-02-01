@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent } from '@nasnet/ui/primitives';
+
 import { Server, Monitor, ChevronRight } from 'lucide-react';
+
+import { Card, CardContent } from '@nasnet/ui/primitives';
 
 export interface VPNNavigationCardProps {
   /** Card type - server or client */

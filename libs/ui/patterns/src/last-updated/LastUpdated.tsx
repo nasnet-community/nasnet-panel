@@ -3,8 +3,9 @@
  * Displays when data was last refreshed with relative time
  */
 
-import { useRelativeTime } from '@nasnet/core/utils';
 import { Clock } from 'lucide-react';
+
+import { useRelativeTime } from '@nasnet/core/utils';
 
 export interface LastUpdatedProps {
   /**

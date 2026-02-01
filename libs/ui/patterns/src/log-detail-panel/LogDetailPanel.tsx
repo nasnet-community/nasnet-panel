@@ -5,6 +5,10 @@
  */
 
 import * as React from 'react';
+
+import { Copy, X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+
+import type { LogEntry } from '@nasnet/core/types';
 import {
   Button,
   cn,
@@ -12,12 +16,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@nasnet/ui/primitives';
-import { Copy, X, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { useToast } from '@nasnet/ui/primitives';
-import type { LogEntry } from '@nasnet/core/types';
-import { SeverityBadge } from '../severity-badge';
+ useToast } from '@nasnet/ui/primitives';
+
+
 import { topicBadgeVariants } from '../log-entry';
+import { SeverityBadge } from '../severity-badge';
 
 export interface LogDetailPanelProps {
   /**

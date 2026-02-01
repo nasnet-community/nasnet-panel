@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/*
+ * Patterns Library Storybook Styles
+ *
+ * Imports design tokens and base styles for component previews.
+ */
+
+/* CSS Variables for shadcn/ui theming */
+@layer base {
+  :root {
+    --background: 210 40% 96.1%;
+    --foreground: 222.2 47.4% 11.2%;
+    --surface: 0 0% 100%;
+    --surface-secondary: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 47 84% 55%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217 44% 51%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 47 84% 55%;
+    --radius: 0.75rem;
+
+    /* Semantic colors */
+    --success: 142 76% 36%;
+    --success-light: 142 76% 96%;
+    --success-dark: 142 76% 26%;
+    --warning: 38 92% 50%;
+    --warning-light: 38 92% 95%;
+    --warning-dark: 38 92% 35%;
+    --error: 0 84% 60%;
+    --error-light: 0 84% 96%;
+    --error-dark: 0 84% 40%;
+    --info: 199 89% 48%;
+    --info-light: 199 89% 96%;
+    --info-dark: 199 89% 35%;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+    --surface: 217.2 32.6% 17.5%;
+    --surface-secondary: 215 25% 27%;
+    --card: 217.2 32.6% 17.5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 217.2 32.6% 17.5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 47 84% 55%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 215 25% 27%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 47 84% 55%;
+
+    /* Semantic colors - dark mode */
+    --success: 142 71% 45%;
+    --success-light: 142 76% 15%;
+    --success-dark: 142 76% 65%;
+    --warning: 38 92% 50%;
+    --warning-light: 38 92% 15%;
+    --warning-dark: 38 92% 70%;
+    --error: 0 84% 60%;
+    --error-light: 0 84% 15%;
+    --error-dark: 0 84% 75%;
+    --info: 199 89% 48%;
+    --info-light: 199 89% 15%;
+    --info-dark: 199 89% 70%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom animation for status indicators */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

@@ -1,0 +1,196 @@
+{/* @ts-nocheck - MDX file */}
+import { Meta, Canvas, Controls, Story, ArgTypes } from '@storybook/blocks';
+import * as FormFieldStories from './FormField.stories';
+import { FormField } from './form-field';
+
+<Meta of={FormFieldStories} />
+
+# FormField
+
+FormField is a wrapper component that handles form field layout, labels, descriptions, and error messages with proper accessibility attributes.
+
+## Overview
+
+The FormField component automatically:
+- Generates unique IDs for form inputs
+- Associates labels with inputs via `htmlFor`
+- Connects descriptions and errors via `aria-describedby`
+- Sets `aria-invalid` when errors are present
+- Handles required field indicators
+
+<Canvas of={FormFieldStories.Default} />
+
+## Basic Usage
+
+```tsx
+import { FormField } from '@nasnet/ui/patterns';
+import { Input } from '@nasnet/ui/primitives';
+
+<FormField label="Router Name">
+  <Input placeholder="Enter router name" />
+</FormField>
+```
+
+## With Description
+
+Add helper text below the label to provide context or guidance.
+
+<Canvas of={FormFieldStories.WithDescription} />
+
+```tsx
+<FormField
+  label="IP Address"
+  description="Enter the static IP address for this device"
+>
+  <Input placeholder="192.168.1.100" />
+</FormField>
+```
+
+## Required Fields
+
+Required fields display a red asterisk after the label.
+
+<Canvas of={FormFieldStories.Required} />
+
+```tsx
+<FormField label="Username" required>
+  <Input placeholder="admin" />
+</FormField>
+```
+
+## Error States
+
+Error messages appear below the input and the label turns red.
+
+<Canvas of={FormFieldStories.WithError} />
+
+```tsx
+<FormField
+  label="Password"
+  required
+  error="Password must be at least 8 characters"
+>
+  <Input type="password" placeholder="Enter password" />
+</FormField>
+```
+
+## Complete Form Example
+
+<Canvas of={FormFieldStories.FormExample} />
+
+## Integration with React Hook Form
+
+FormField works seamlessly with React Hook Form. Here's a pattern for integration:
+
+```tsx
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { FormField } from '@nasnet/ui/patterns';
+import { Input, Button } from '@nasnet/ui/primitives';
+
+const schema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  ip: z.string().ip('Invalid IP address'),
+});
+
+function RouterForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormField
+        label="Router Name"
+        required
+        error={errors.name?.message}
+      >
+        <Input {...register('name')} placeholder="My Router" />
+      </FormField>
+
+      <FormField
+        label="IP Address"
+        required
+        error={errors.ip?.message}
+      >
+        <Input {...register('ip')} placeholder="192.168.1.1" />
+      </FormField>
+
+      <Button type="submit">Save</Button>
+    </form>
+  );
+}
+```
+
+## Validation Patterns
+
+### Field-Level Validation
+
+For immediate feedback as users type:
+
+```tsx
+<FormField
+  label="Port"
+  description="Enter a port number (1-65535)"
+  error={port < 1 || port > 65535 ? 'Port must be 1-65535' : undefined}
+>
+  <Input
+    type="number"
+    min={1}
+    max={65535}
+    value={port}
+    onChange={(e) => setPort(e.target.value)}
+  />
+</FormField>
+```
+
+### Form-Level Validation
+
+For validation on submit:
+
+```tsx
+const onSubmit = async (data: FormData) => {
+  try {
+    await validateAndSave(data);
+  } catch (error) {
+    setErrors({
+      ip: 'This IP address is already in use',
+    });
+  }
+};
+```
+
+## Accessibility
+
+FormField provides these accessibility features automatically:
+
+| Feature | Implementation |
+|---------|---------------|
+| Label association | `htmlFor` linked to input `id` |
+| Description | `aria-describedby` for helper text |
+| Error announcement | `aria-describedby` for error messages |
+| Invalid state | `aria-invalid="true"` when error present |
+| Required indicator | Visual asterisk and semantic markup |
+
+## Do's and Don'ts
+
+### ✅ Do's
+
+- Always use labels (never placeholder-only)
+- Provide helpful descriptions for complex fields
+- Show validation errors inline, near the field
+- Use the `required` prop for mandatory fields
+- Group related fields visually
+
+### ❌ Don'ts
+
+- Don't use red for non-error states
+- Don't hide required indicators
+- Don't show errors before user interaction
+- Don't use tooltips as the only help text
+- Don't disable submit buttons without explanation
+
+## API Reference
+
+<ArgTypes of={FormField} />

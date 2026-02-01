@@ -35,9 +35,12 @@
           }
           // If theme === 'light', shouldUseDark stays false
 
-          // Apply dark class if needed
+          // Apply dark class and data-theme attribute if needed
           if (shouldUseDark) {
             document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
           }
         } catch (e) {
           // Silently fail if localStorage unavailable or parsing fails

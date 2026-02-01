@@ -5,7 +5,8 @@
  */
 
 import * as React from 'react';
-import { LucideIcon, Check, AlertTriangle, XCircle, Info, Loader2 } from 'lucide-react';
+
+import { type LucideIcon, Check, AlertTriangle, XCircle, Info, Loader2 } from 'lucide-react';
 
 /**
  * Status pill variant

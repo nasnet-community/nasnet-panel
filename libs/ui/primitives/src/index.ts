@@ -82,7 +82,26 @@ export {
 } from './table';
 
 // Skeleton
-export { Skeleton } from './skeleton';
+export {
+  Skeleton,
+  SkeletonText,
+  SkeletonCard,
+  SkeletonTable,
+  SkeletonChart,
+  SkeletonAvatar,
+} from './skeleton';
+export type {
+  SkeletonProps,
+  SkeletonTextProps,
+  SkeletonCardProps,
+  SkeletonTableProps,
+  SkeletonChartProps,
+  SkeletonAvatarProps,
+} from './skeleton';
+
+// Spinner
+export { Spinner } from './spinner';
+export type { SpinnerProps } from './spinner';
 
 // Badge
 export { Badge, badgeVariants } from './badge';
@@ -109,3 +128,69 @@ export {
 
 // Alert
 export { Alert, AlertTitle, AlertDescription, alertVariants } from './alert';
+
+// Label
+export { Label } from './label';
+
+// Checkbox
+export { Checkbox } from './checkbox';
+
+// RadioGroup
+export { RadioGroup, RadioGroupItem } from './radio-group';
+
+// Textarea
+export { Textarea } from './textarea';
+export type { TextareaProps } from './textarea';
+
+// Separator
+export { Separator } from './separator';
+
+// Tooltip
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip';
+
+// Progress
+export { Progress } from './progress';
+
+// Slider
+export { Slider } from './slider';
+
+// Avatar
+export { Avatar, AvatarImage, AvatarFallback } from './avatar';
+
+// Popover
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from './popover';
+
+// Sheet (Drawer)
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from './sheet';
+
+// ScrollArea
+export { ScrollArea, ScrollBar } from './scroll-area';
+
+// Category Accent System
+export {
+  CategoryAccentProvider,
+  useCategoryAccent,
+  getCategoryMeta,
+  isCategory,
+  CATEGORIES,
+  CATEGORY_META,
+} from './category-accent';
+export type { Category, CategoryMeta, CategoryAccentProviderProps } from './category-accent';
+
+// Drift Badge
+export { DriftBadge, driftBadgeVariants } from './drift-badge';
+export type { DriftBadgeProps, DriftBadgeStatus } from './drift-badge';
+
+// Hooks
+export { useReducedMotion } from './hooks';

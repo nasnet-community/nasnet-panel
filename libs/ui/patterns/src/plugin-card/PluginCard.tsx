@@ -5,11 +5,7 @@
  */
 
 import { useState } from 'react';
-import { 
-  Card, 
-  CardContent,
-  Button,
-} from '@nasnet/ui/primitives';
+
 import { 
   Download, 
   Trash2, 
@@ -17,8 +13,13 @@ import {
   ChevronDown, 
   ChevronUp,
 } from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
+
 import { formatBytes } from '@nasnet/core/utils';
+import { 
+  Card, 
+  CardContent,
+  Button,
+ cn } from '@nasnet/ui/primitives';
 
 export type PluginStatus = 'available' | 'installed' | 'running' | 'error';
 

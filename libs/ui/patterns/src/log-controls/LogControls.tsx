@@ -5,14 +5,7 @@
  */
 
 import * as React from 'react';
-import {
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  cn,
-} from '@nasnet/ui/primitives';
+
 import {
   Pause,
   Play,
@@ -21,8 +14,17 @@ import {
   FileSpreadsheet,
   Clock,
 } from 'lucide-react';
+
 import type { LogEntry } from '@nasnet/core/types';
 import { formatTimestamp } from '@nasnet/core/utils';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  cn,
+} from '@nasnet/ui/primitives';
 
 export interface LogControlsProps {
   /**

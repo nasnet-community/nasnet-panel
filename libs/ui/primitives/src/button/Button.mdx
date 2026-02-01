@@ -1,0 +1,146 @@
+{/* @ts-nocheck - MDX file */}
+import { Meta, Canvas, Controls, Story, Source, ArgTypes } from '@storybook/blocks';
+import * as ButtonStories from './button.stories';
+import { Button } from './button';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+The Button component is the primary interactive element for user actions. It supports multiple variants, sizes, and states to accommodate different use cases throughout the application.
+
+## Overview
+
+Buttons communicate actions that users can take. They are typically placed in forms, dialogs, modals, cards, and toolbars.
+
+<Canvas of={ButtonStories.AllVariants} />
+
+## Variants
+
+### Primary (Default)
+
+Use for the main call-to-action. There should typically be only one primary button per view.
+
+```tsx
+<Button>Connect Router</Button>
+```
+
+### Secondary
+
+For secondary actions or when paired with a primary button.
+
+```tsx
+<Button variant="secondary">Cancel</Button>
+```
+
+### Outline
+
+For lower priority actions or when you need visual variety.
+
+```tsx
+<Button variant="outline">View Details</Button>
+```
+
+### Ghost
+
+For the least prominent actions, often in toolbars or dense UIs.
+
+```tsx
+<Button variant="ghost">Edit</Button>
+```
+
+### Destructive
+
+For dangerous actions like delete or disconnect. Always pair with confirmation dialogs for irreversible actions.
+
+```tsx
+<Button variant="destructive">Delete Router</Button>
+```
+
+### Link
+
+For navigation-style buttons that look like links but have button semantics.
+
+```tsx
+<Button variant="link">Learn More</Button>
+```
+
+## Sizes
+
+<Canvas of={ButtonStories.AllSizes} />
+
+| Size | Height | Use Case |
+|------|--------|----------|
+| `sm` | 32px | Dense UIs, table actions |
+| `default` | 40px | Standard forms and dialogs |
+| `lg` | 48px | Hero sections, mobile-first views |
+| `icon` | 40x40px | Icon-only buttons |
+
+## With Icons
+
+Icons can enhance button clarity. Place icons to the left for actions and to the right for navigation.
+
+<Canvas of={ButtonStories.WithIcon} />
+
+```tsx
+import { Plus, ArrowRight } from 'lucide-react';
+
+// Icon before text (action)
+<Button>
+  <Plus className="mr-2 h-4 w-4" />
+  Add Device
+</Button>
+
+// Icon after text (navigation)
+<Button>
+  Continue
+  <ArrowRight className="ml-2 h-4 w-4" />
+</Button>
+```
+
+## Loading State
+
+Show loading state for async operations. The button is automatically disabled during loading.
+
+<Canvas of={ButtonStories.Loading} />
+
+```tsx
+<Button disabled>
+  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+  Connecting...
+</Button>
+```
+
+## Disabled State
+
+<Canvas of={ButtonStories.Disabled} />
+
+## Accessibility
+
+- **Keyboard Navigation**: Buttons are focusable via Tab and activated via Enter or Space.
+- **Focus Indicators**: 3px focus ring for WCAG AAA compliance.
+- **Touch Targets**: Minimum 44x44px for mobile (use `lg` size on mobile).
+- **Loading States**: Use `aria-busy="true"` when loading.
+- **Disabled States**: Convey disabled state via `aria-disabled` and visual styling.
+
+## Do's and Don'ts
+
+### ✅ Do's
+
+- Use verb-first labels: "Add Router", "Save Changes", "Delete"
+- Use only one primary button per view section
+- Pair destructive buttons with confirmation dialogs
+- Use loading states for async actions
+- Maintain consistent button placement (e.g., "Save" always on the right)
+
+### ❌ Don'ts
+
+- Don't use generic labels like "Click Here" or "Submit"
+- Don't disable buttons without explanation
+- Don't use destructive variant for non-destructive actions
+- Don't make buttons too wide (max 280px recommended)
+- Don't hide critical actions behind icon-only buttons
+
+## API Reference
+
+<ArgTypes of={Button} />

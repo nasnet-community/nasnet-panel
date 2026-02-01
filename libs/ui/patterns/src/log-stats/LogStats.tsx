@@ -5,9 +5,11 @@
  */
 
 import * as React from 'react';
-import { cn, Button } from '@nasnet/ui/primitives';
+
 import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+
 import type { LogEntry, LogSeverity } from '@nasnet/core/types';
+import { cn, Button } from '@nasnet/ui/primitives';
 
 export interface LogStatsProps {
   /**

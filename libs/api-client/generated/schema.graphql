@@ -1,0 +1,1896 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+"""
+Requires authentication to access this field.
+Optionally requires a specific role or permission.
+"""
+directive @auth(
+  """
+  Required role or permission level (e.g., 'admin', 'operator', 'viewer')
+  """
+  requires: String
+) on FIELD_DEFINITION | OBJECT
+
+directive @cache(
+  """Maximum age in seconds"""
+  maxAge: Int!
+  """Cache scope (PRIVATE for user-specific, PUBLIC for shared)"""
+  scope: CacheScope
+) on FIELD_DEFINITION
+
+directive @capability(
+  """List of required capability identifiers"""
+  requires: [String!]!
+) on FIELD_DEFINITION | OBJECT
+
+directive @migrateFrom(
+  """The old field/type name this replaces"""
+  field: String!
+  """Version when migration should be complete"""
+  removeInVersion: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | OBJECT
+
+"""Maps field to MikroTik RouterOS API path and command"""
+directive @mikrotik(
+  """RouterOS command (print, add, set, remove) - defaults to contextual"""
+  cmd: String
+  """Field name in RouterOS response if different from GraphQL field"""
+  field: String
+  """RouterOS API path (e.g., '/ip/address', '/interface/ethernet')"""
+  path: String!
+) on FIELD_DEFINITION | OBJECT
+
+"""Maps field to OpenWrt ubus call"""
+directive @openwrt(
+  """Field name in ubus response if different from GraphQL field"""
+  field: String
+  """Method to call (list, call, etc.)"""
+  method: String
+  """Ubus namespace and method (e.g., 'network.interface', 'system.board')"""
+  ubus: String!
+) on FIELD_DEFINITION | OBJECT
+
+directive @realtime(
+  """Update interval in milliseconds"""
+  interval: Int
+  """Topic/channel name for pub/sub"""
+  topic: String
+) on FIELD_DEFINITION
+
+"""
+Marks field as containing sensitive data (passwords, tokens, keys).
+Values are redacted in logs and error responses.
+"""
+directive @sensitive on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @validate(
+  """Predefined format validation (EMAIL, URL, UUID, IPV4, IPV6, MAC, CIDR)"""
+  format: ValidateFormat
+  """Maximum value for numeric types"""
+  max: Int
+  """Maximum length for string types"""
+  maxLength: Int
+  """Minimum value for numeric types"""
+  min: Int
+  """Minimum length for string types"""
+  minLength: Int
+  """Regular expression pattern for string validation"""
+  pattern: String
+) on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+"""Maps field to VyOS configuration path"""
+directive @vyos(
+  """Field name in VyOS response if different from GraphQL field"""
+  field: String
+  """VyOS configuration path (e.g., 'interfaces ethernet eth0')"""
+  path: String!
+) on FIELD_DEFINITION | OBJECT
+
+"""
+Input for manually adding a new router with full credentials and protocol preference.
+This is the primary input type for the addRouter mutation.
+"""
+input AddRouterInput {
+  """
+  Router hostname or IP address.
+  Can be an IPv4 address (e.g., '192.168.88.1'), IPv6 address, or hostname (e.g., 'router.local').
+  Hostnames will trigger DNS resolution with caching.
+  """
+  host: String! @validate(minLength: 1, maxLength: 253)
+  """
+  User-friendly display name for the router.
+  If not provided, a name will be generated from the host.
+  """
+  name: String @validate(maxLength: 128)
+  """
+  Password for authentication.
+  This value is encrypted before storage and never logged.
+  """
+  password: String! @sensitive
+  """
+  Connection port. If not specified, defaults to protocol-specific port:
+  - REST: 443 (or 80 for HTTP)
+  - API: 8728
+  - API_SSL: 8729
+  - SSH: 22
+  - Telnet: 23
+  """
+  port: Int @validate(min: 1, max: 65535)
+  """
+  Protocol preference for connection.
+  Defaults to AUTO which tries protocols in recommended order.
+  """
+  protocolPreference: ProtocolPreference
+  """
+  Username for authentication.
+  For MikroTik routers, this is typically 'admin' or a custom user.
+  """
+  username: String! @validate(minLength: 1, maxLength: 64)
+}
+
+"""
+Payload returned from the addRouter mutation.
+Contains either the created router or validation/connection errors.
+"""
+type AddRouterPayload {
+  """Connection test result from initial connection attempt"""
+  connectionResult: ConnectionTestResult
+  """General errors that occurred during creation"""
+  errors: [MutationError!]
+  """The newly created router (null if errors occurred)"""
+  router: Router
+  """Field-level validation errors for retry"""
+  validationErrors: [ValidationError!]
+}
+
+"""Authentication error codes"""
+enum AuthErrorCode {
+  """Insufficient permissions"""
+  INSUFFICIENT_ROLE
+  """Invalid username or password"""
+  INVALID_CREDENTIALS
+  """Password does not meet requirements"""
+  PASSWORD_POLICY_VIOLATION
+  """Too many login attempts"""
+  RATE_LIMITED
+  """Session has expired"""
+  SESSION_EXPIRED
+  """Token has expired"""
+  TOKEN_EXPIRED
+  """Token is invalid or malformed"""
+  TOKEN_INVALID
+}
+
+"""Authentication payload returned on successful login"""
+type AuthPayload {
+  """Token expiration timestamp"""
+  expiresAt: DateTime!
+  """JWT access token"""
+  token: String!
+  """Authenticated user"""
+  user: User!
+}
+
+"""Authentication test status"""
+type AuthStatus {
+  """Error message (if authentication failed)"""
+  error: String
+  """Error code mapped to ErrorCodes (A5xx)"""
+  errorCode: String
+  """Whether authentication succeeded"""
+  success: Boolean!
+  """Whether authentication was tested"""
+  tested: Boolean!
+}
+
+"""Bandwidth string with unit (e.g., "10M", "1G", "100k")"""
+scalar Bandwidth
+
+"""CIDR notation for network address (e.g., "192.168.1.0/24")"""
+scalar CIDR
+
+enum CacheScope {
+  PRIVATE
+  PUBLIC
+}
+
+type CancelScanPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The cancelled scan task"""
+  task: ScanTask
+}
+
+"""
+Feature capability categories detected on routers.
+Used to determine what features are available on a specific router.
+"""
+enum Capability {
+  """Container/Docker support"""
+  CONTAINER
+  """Dude monitoring support"""
+  DUDE
+  """Firewall features"""
+  FIREWALL
+  """Hotspot features"""
+  HOTSPOT
+  """IPv6 support"""
+  IPV6
+  """MPLS support"""
+  MPLS
+  """Advanced routing features"""
+  ROUTING
+  """User Manager features"""
+  USER_MANAGER
+  """Virtual Interface Factory support"""
+  VIF
+  """WireGuard VPN support"""
+  WIREGUARD
+  """Wireless/WiFi support"""
+  WIRELESS
+  """ZeroTier support"""
+  ZEROTIER
+}
+
+"""Single capability with its support level and guidance"""
+type CapabilityEntry {
+  """Capability category"""
+  capability: Capability!
+  """Human-readable description of support"""
+  description: String
+  """Actionable message if feature unavailable"""
+  guidance: String
+  """Support level"""
+  level: CapabilityLevel!
+}
+
+"""
+Capability support level for a feature.
+Determines how the feature appears in the UI.
+"""
+enum CapabilityLevel {
+  """Full RouterOS native support"""
+  ADVANCED
+  """Limited support (show with warnings)"""
+  BASIC
+  """Complete support including container-based features"""
+  FULL
+  """Feature not supported (hide in UI)"""
+  NONE
+}
+
+"""Type of change for resource events"""
+enum ChangeType {
+  CREATE
+  DELETE
+  UPDATE
+}
+
+"""Event emitted when circuit breaker state changes"""
+type CircuitBreakerEvent {
+  """Consecutive failures that triggered the change"""
+  consecutiveFailures: Int!
+  """New state"""
+  newState: CircuitBreakerState!
+  """Previous state"""
+  previousState: CircuitBreakerState!
+  """Router ID"""
+  routerId: ID!
+  """When the state changed"""
+  timestamp: DateTime!
+}
+
+"""Circuit breaker state"""
+enum CircuitBreakerState {
+  """Circuit is closed (normal operation)"""
+  CLOSED
+  """Circuit is half-open (testing recovery)"""
+  HALF_OPEN
+  """Circuit is open (blocking requests)"""
+  OPEN
+}
+
+"""Circuit breaker status for a router"""
+type CircuitBreakerStatus {
+  """Seconds until auto-retry (when circuit is open)"""
+  cooldownRemainingSeconds: Int
+  """Number of consecutive failures"""
+  failureCount: Int!
+  """Failure threshold before circuit opens"""
+  failureThreshold: Int!
+  """When the last failure occurred"""
+  lastFailureAt: DateTime
+  """When the last success occurred"""
+  lastSuccessAt: DateTime
+  """Router ID"""
+  routerId: ID!
+  """Current circuit breaker state"""
+  state: CircuitBreakerState!
+}
+
+"""Status of a configuration apply operation"""
+enum ConfigApplyStatus {
+  APPLYING
+  COMPLETED
+  FAILED
+  PENDING
+  ROLLED_BACK
+  VALIDATING
+  VERIFYING
+}
+
+"""Progress information for configuration apply operations"""
+type ConfigProgress {
+  """Current step number"""
+  currentStep: Int
+  """Human-readable progress message"""
+  message: String!
+  """Unique operation identifier"""
+  operationId: ID!
+  """Completion percentage (0-100)"""
+  percentage: Int!
+  """Current status of the operation"""
+  status: ConfigApplyStatus!
+  """Timestamp of this progress update"""
+  timestamp: DateTime!
+  """Total number of steps"""
+  totalSteps: Int
+}
+
+type ConnectRouterPayload {
+  """Errors that occurred during connection"""
+  errors: [MutationError!]
+  """The router that was connected"""
+  router: Router
+}
+
+"""Connection interface for paginated results (Relay pagination)"""
+interface Connection {
+  """Pagination information"""
+  pageInfo: PageInfo!
+  """Total count of items (if available)"""
+  totalCount: Int
+}
+
+"""Record of a single protocol connection attempt"""
+type ConnectionAttempt {
+  """When the attempt ended"""
+  endedAt: DateTime!
+  """Error category for classification"""
+  errorCategory: ErrorCategory
+  """Error code if failed"""
+  errorCode: String
+  """Error message if failed"""
+  errorMessage: String
+  """Protocol that was attempted"""
+  protocol: Protocol!
+  """When the attempt started"""
+  startedAt: DateTime!
+  """Whether the attempt succeeded"""
+  success: Boolean!
+}
+
+"""Detailed connection status for a router"""
+type ConnectionDetails {
+  """Current circuit breaker state"""
+  circuitBreakerState: CircuitBreakerState!
+  """When the connection was established"""
+  connectedAt: DateTime
+  """Reason for disconnection"""
+  disconnectReason: DisconnectReason
+  """When the last disconnection occurred"""
+  disconnectedAt: DateTime
+  """Consecutive failed health checks"""
+  healthChecksFailed: Int!
+  """Consecutive passed health checks"""
+  healthChecksPassed: Int!
+  """Whether the current protocol is considered legacy/insecure"""
+  isLegacyProtocol: Boolean!
+  """Most recent error message"""
+  lastError: String
+  """When the last error occurred"""
+  lastErrorTime: DateTime
+  """When the last health check was performed"""
+  lastHealthCheck: DateTime
+  """When the next reconnection attempt will be made"""
+  nextReconnectAt: DateTime
+  """User's preferred protocol (if set)"""
+  preferredProtocol: Protocol
+  """Protocol currently in use"""
+  protocol: Protocol
+  """Number of reconnection attempts made"""
+  reconnectAttempts: Int!
+  """Security warning if using insecure protocol (e.g., Telnet)"""
+  securityWarning: String
+  """Current connection state"""
+  state: ConnectionStatus!
+  """Recommendation for upgrading to a more secure protocol"""
+  upgradeRecommendation: String
+  """Connection uptime duration"""
+  uptime: Duration
+  """Router version (if connected)"""
+  version: String
+}
+
+"""
+Detailed error information for connection failures.
+Used to provide actionable feedback to the user.
+"""
+type ConnectionError {
+  """Error code for programmatic handling"""
+  code: ConnectionErrorCode!
+  """Human-readable error message"""
+  message: String!
+  """Protocol that failed (if specific to a protocol)"""
+  protocol: Protocol
+  """Whether the error is likely transient and retryable"""
+  retryable: Boolean!
+  """Suggested user action to resolve the error"""
+  suggestedAction: String
+  """Timeout in milliseconds (if timeout error)"""
+  timeoutMs: Int
+}
+
+"""
+Error codes for connection failures.
+Each code has specific meaning and recovery suggestions.
+"""
+enum ConnectionErrorCode {
+  """Authentication failed - invalid username or password"""
+  AUTH_FAILED
+  """Connection refused - port is closed or blocked"""
+  CONNECTION_REFUSED
+  """DNS resolution failed for hostname"""
+  DNS_FAILED
+  """Router with same host/port already exists"""
+  DUPLICATE_ROUTER
+  """Network unreachable - cannot reach the host"""
+  NETWORK_UNREACHABLE
+  """Router responded but is not a MikroTik device"""
+  NOT_MIKROTIK
+  """No compatible protocol found after trying all options"""
+  PROTOCOL_MISMATCH
+  """Connection or response timed out"""
+  TIMEOUT
+  """TLS/SSL handshake failed"""
+  TLS_ERROR
+  """Unknown or unexpected error"""
+  UNKNOWN
+}
+
+"""Connection manager statistics"""
+type ConnectionStats {
+  """Number of connected routers"""
+  connected: Int!
+  """Number of connecting routers"""
+  connecting: Int!
+  """Number of disconnected routers"""
+  disconnected: Int!
+  """Number of routers in error state"""
+  error: Int!
+  """Number of reconnecting routers"""
+  reconnecting: Int!
+  """Total number of connections"""
+  totalConnections: Int!
+}
+
+"""Router connection status"""
+enum ConnectionStatus {
+  """Actively connected and responsive"""
+  CONNECTED
+  """Connection attempt in progress"""
+  CONNECTING
+  """Not connected"""
+  DISCONNECTED
+  """Connection failed with error"""
+  ERROR
+}
+
+"""
+Result of a connection test attempt, including protocol detection results.
+"""
+type ConnectionTestResult {
+  """Architecture of the router (arm, arm64, x86, etc.)"""
+  architecture: String
+  """Router board name (if connection succeeded)"""
+  boardName: String
+  """Error details if connection failed"""
+  error: ConnectionError
+  """Protocol that was successfully used"""
+  protocolUsed: Protocol
+  """List of protocols that were attempted"""
+  protocolsAttempted: [Protocol!]!
+  """Response time in milliseconds"""
+  responseTimeMs: Int
+  """Router model detected (if connection succeeded)"""
+  routerModel: String
+  """RouterOS version detected (if connection succeeded)"""
+  routerVersion: String
+  """Whether the connection was successful"""
+  success: Boolean!
+  """Whether the router supports containers"""
+  supportsContainers: Boolean
+  """Uptime of the router (if connection succeeded)"""
+  uptime: Duration
+}
+
+"""Container-specific capability information"""
+type ContainerInfo {
+  """Whether container feature is enabled in system settings"""
+  enabled: Boolean!
+  """Maximum number of containers supported"""
+  maxContainers: Int
+  """Whether container package is installed"""
+  packageInstalled: Boolean!
+  """Whether a container registry is configured"""
+  registryConfigured: Boolean!
+  """Available storage for container images in bytes"""
+  storageAvailable: Size!
+  """Whether network namespace is supported"""
+  supportsNetworkNamespace: Boolean!
+}
+
+"""Input for creating a new router connection"""
+input CreateRouterInput {
+  """Router hostname or IP address"""
+  host: String! @validate(minLength: 1, maxLength: 255)
+  """User-friendly display name"""
+  name: String! @validate(minLength: 1, maxLength: 64)
+  """Password for authentication"""
+  password: String! @validate(minLength: 1, maxLength: 128)
+  """Router platform type"""
+  platform: RouterPlatform
+  """Connection port (default: 8728 for MikroTik API)"""
+  port: Int @validate(min: 1, max: 65535)
+  """Username for authentication"""
+  username: String! @validate(minLength: 1, maxLength: 64)
+}
+
+type CreateRouterPayload {
+  """Errors that occurred during creation"""
+  errors: [MutationError!]
+  """The created router"""
+  router: Router
+}
+
+"""Error codes specific to credential operations."""
+enum CredentialErrorCode {
+  """Authentication failed with new credentials"""
+  AUTH_FAILED
+  """Connection was refused"""
+  CONNECTION_REFUSED
+  """Credentials not found for router"""
+  CREDENTIALS_NOT_FOUND
+  """Decryption failed (key may have rotated)"""
+  DECRYPTION_FAILED
+  """Encryption failed"""
+  ENCRYPTION_FAILED
+  """Invalid input provided"""
+  INVALID_INPUT
+  """Router not found"""
+  ROUTER_NOT_FOUND
+  """Connection timed out when testing credentials"""
+  TIMEOUT
+}
+
+"""Result of testing a single router's credentials."""
+type CredentialTestResult {
+  """Error message if test failed"""
+  error: String
+  """Response time in milliseconds (if successful)"""
+  responseTimeMs: Int
+  """Router ID that was tested"""
+  routerId: ID!
+  """Router name for display"""
+  routerName: String!
+  """Connection status"""
+  status: CredentialTestStatus!
+  """Whether the test was successful"""
+  success: Boolean!
+}
+
+"""Status of a credential test."""
+enum CredentialTestStatus {
+  """Authentication failed"""
+  AUTH_FAILED
+  """Connection was refused"""
+  CONNECTION_REFUSED
+  """Unknown error occurred"""
+  ERROR
+  """Network unreachable"""
+  NETWORK_ERROR
+  """No credentials stored for this router"""
+  NO_CREDENTIALS
+  """Credentials are valid and connection succeeded"""
+  SUCCESS
+  """Connection timed out"""
+  TIMEOUT
+}
+
+"""Result of updating router credentials."""
+type CredentialUpdatePayload {
+  """Updated credential info (without password)"""
+  credentials: RouterCredentials
+  """Error code if update failed"""
+  errorCode: CredentialErrorCode
+  """Errors that occurred during update"""
+  errors: [MutationError!]
+  """Human-readable message about the operation"""
+  message: String!
+  """Whether the update was successful"""
+  success: Boolean!
+}
+
+"""
+Input for updating router credentials.
+Both username and password must be provided.
+"""
+input CredentialsInput {
+  """Password for router authentication"""
+  password: String! @validate(minLength: 1, maxLength: 128) @sensitive
+  """Username for router authentication"""
+  username: String! @validate(minLength: 1, maxLength: 64) @sensitive
+}
+
+"""ISO 8601 datetime string (e.g., "2024-01-15T10:30:00Z")"""
+scalar DateTime
+
+type DeleteRouterPayload {
+  """ID of the deleted router"""
+  deletedRouterId: ID
+  """Errors that occurred during deletion"""
+  errors: [MutationError!]
+  """Whether deletion was successful"""
+  success: Boolean!
+}
+
+"""Comprehensive diagnostic report for a router"""
+type DiagnosticReport {
+  """Authentication test status"""
+  authStatus: AuthStatus!
+  """Whether the router is reachable on the network"""
+  networkReachable: Boolean!
+  """Status of each checked port"""
+  portStatus: [PortStatus!]!
+  """Raw text report for clipboard/export"""
+  rawReport: String!
+  """Router ID being diagnosed"""
+  routerId: ID!
+  """Actionable suggestions based on diagnostic results"""
+  suggestions: [DiagnosticSuggestion!]!
+  """When the diagnostic was run"""
+  timestamp: DateTime!
+  """TLS certificate status (if TLS ports were checked)"""
+  tlsStatus: TLSStatus
+}
+
+"""Actionable diagnostic suggestion"""
+type DiagnosticSuggestion {
+  """Recommended action to resolve the issue"""
+  action: String!
+  """Detailed description of the issue"""
+  description: String!
+  """Link to relevant documentation"""
+  docsUrl: String
+  """Severity level of the issue"""
+  severity: SuggestionSeverity!
+  """Short title describing the issue"""
+  title: String!
+}
+
+"""Reason for router disconnection"""
+enum DisconnectReason {
+  """Authentication failed"""
+  AUTH_FAILURE
+  """Circuit breaker is open"""
+  CIRCUIT_OPEN
+  """User manually disconnected"""
+  MANUAL
+  """Network failure"""
+  NETWORK_FAILURE
+  """Application shutting down"""
+  SHUTDOWN
+  """Connection timed out"""
+  TIMEOUT
+  """Unknown reason"""
+  UNKNOWN
+}
+
+type DisconnectRouterPayload {
+  """Errors that occurred during disconnection"""
+  errors: [MutationError!]
+  """The router that was disconnected"""
+  router: Router
+}
+
+"""
+A device discovered during a network scan.
+Only confirmed MikroTik devices are returned (confidence >= 40).
+"""
+type DiscoveredDevice {
+  """Confidence score for RouterOS detection (40-100)"""
+  confidence: Int!
+  """Device type classification"""
+  deviceType: String!
+  """Hostname (if reverse DNS resolves)"""
+  hostname: String
+  """IP address of the discovered device"""
+  ip: String!
+  """Open ports found on the device"""
+  ports: [Int!]!
+  """RouterOS-specific information (version, board, architecture)"""
+  routerOSInfo: RouterOSInfo
+  """Detected services (mikrotik-api, mikrotik-winbox, mikrotik-rest, etc.)"""
+  services: [String!]!
+  """Device vendor (always 'MikroTik' for returned results)"""
+  vendor: String
+}
+
+"""Duration string in RouterOS format (e.g., "1d2h3m4s", "30s", "5m")"""
+scalar Duration
+
+"""Edge interface for connection edges"""
+interface Edge {
+  """Cursor for pagination"""
+  cursor: String!
+}
+
+"""Category of connection error for classification"""
+enum ErrorCategory {
+  """Authentication failed"""
+  AUTH_FAILED
+  """Network unreachable or DNS failure"""
+  NETWORK_ERROR
+  """Protocol-level error"""
+  PROTOCOL_ERROR
+  """Connection actively refused"""
+  REFUSED
+  """Connection or response timeout"""
+  TIMEOUT
+  """TLS/SSL certificate or handshake error"""
+  TLS_ERROR
+}
+
+"""
+Rich error extensions for detailed error diagnostics.
+Included in GraphQL error responses under the 'extensions' key.
+"""
+type ErrorExtensions {
+  """
+  Error category (validation, protocol, network, auth, resource, internal)
+  """
+  category: String!
+  """Error code for programmatic handling (e.g., 'V400', 'R200')"""
+  code: String!
+  """Link to relevant documentation"""
+  docsUrl: String
+  """Field path that caused the error (e.g., 'input.listenPort')"""
+  field: String
+  """Whether the error is recoverable (can be retried)"""
+  recoverable: Boolean!
+  """Request correlation ID for support and debugging"""
+  requestId: String!
+  """User-friendly suggestion for fixing the error"""
+  suggestedFix: String
+  """Additional troubleshooting steps for complex errors"""
+  troubleshootingSteps: [String!]
+  """The invalid value (redacted in production for sensitive fields)"""
+  value: JSON
+}
+
+"""Options for exporting router configuration."""
+input ExportConfigInput {
+  """
+  User-provided encryption key for credential export (required if includeCredentials is true)
+  """
+  encryptionKey: String @sensitive
+  """Whether to include credentials (requires encryptionKey if true)"""
+  includeCredentials: Boolean
+  """Router ID to export configuration from"""
+  routerId: ID!
+}
+
+"""Result of exporting router configuration."""
+type ExportConfigPayload {
+  """Exported configuration data (JSON format)"""
+  config: JSON
+  """Errors that occurred during export"""
+  errors: [MutationError!]
+  """Security warning message about credential handling"""
+  securityWarning: String
+  """Whether the export was successful"""
+  success: Boolean!
+}
+
+"""Information about a feature in the compatibility matrix"""
+type FeatureCompatibilityInfo {
+  """Feature dependencies"""
+  dependsOn: [String!]!
+  """Feature identifier"""
+  featureId: String!
+  """Maximum RouterOS version supported (if any)"""
+  maxVersion: String
+  """Minimum RouterOS version required"""
+  minVersion: String!
+  """Minimum version for CHR (if different)"""
+  minVersionCHR: String
+  """Human-readable feature name"""
+  name: String!
+  """Required packages"""
+  requiredPackages: [String!]!
+  """URL to MikroTik documentation"""
+  upgradeUrl: String
+}
+
+"""Input for checking feature compatibility"""
+input FeatureCompatibilityInput {
+  """Feature identifier to check"""
+  featureId: String!
+  """Whether to check for CHR-specific requirements"""
+  isCHR: Boolean
+}
+
+"""Feature support information based on RouterOS version"""
+type FeatureSupport {
+  """Feature identifier (e.g., 'rest_api', 'container', 'wireguard')"""
+  featureId: String!
+  """Capability level (none, basic, advanced, full)"""
+  level: CapabilityLevel!
+  """Missing packages (if any)"""
+  missingPackages: [String!]
+  """Human-readable feature name"""
+  name: String!
+  """Reason why the feature is not supported (if applicable)"""
+  reason: String
+  """Required packages that need to be installed"""
+  requiredPackages: [String!]
+  """Minimum RouterOS version required for this feature"""
+  requiredVersion: String
+  """Whether the feature is supported on this router"""
+  supported: Boolean!
+  """URL to MikroTik documentation for upgrade guidance"""
+  upgradeUrl: String
+}
+
+"""Hardware information detected from router"""
+type HardwareInfo {
+  """CPU architecture (arm, arm64, x86_64, etc.)"""
+  architecture: String!
+  """Available storage in bytes"""
+  availableStorage: Size!
+  """Board name"""
+  boardName: String
+  """Number of CPU cores"""
+  cpuCount: Int!
+  """Whether LTE/cellular hardware is present"""
+  hasLTEModule: Boolean!
+  """Whether wireless hardware is present"""
+  hasWirelessChip: Boolean!
+  """Router model name"""
+  model: String
+  """Total RAM in bytes"""
+  totalMemory: Size!
+}
+
+"""Health check result for a router"""
+type HealthCheckResult {
+  """When the check was performed"""
+  checkedAt: DateTime!
+  """Error message if unhealthy"""
+  error: String
+  """Whether the router is healthy"""
+  healthy: Boolean!
+  """Response time in milliseconds"""
+  responseTimeMs: Int
+  """Router ID"""
+  routerId: ID!
+}
+
+"""Overall system health status"""
+type HealthStatus {
+  """Last health check timestamp"""
+  checkedAt: DateTime!
+  """Connected router count"""
+  connectedRouters: Int!
+  """Service status"""
+  status: ServiceStatus!
+  """Server uptime"""
+  uptime: Duration
+  """Service version"""
+  version: String!
+}
+
+"""
+IPv4 address string (e.g., "192.168.1.1")
+Validated format: XXX.XXX.XXX.XXX where XXX is 0-255
+"""
+scalar IPv4
+
+"""IPv6 address string (e.g., "2001:0db8:85a3:0000:0000:8a2e:0370:7334")"""
+scalar IPv6
+
+"""A network interface on a router"""
+type Interface implements Node {
+  """User comment"""
+  comment: String @mikrotik(path: "/interface", field: "comment")
+  """Whether the interface is enabled"""
+  enabled: Boolean! @mikrotik(path: "/interface", field: "disabled")
+  """Unique interface identifier"""
+  id: ID!
+  """MAC address"""
+  macAddress: MAC @mikrotik(path: "/interface", field: "mac-address")
+  """MTU setting"""
+  mtu: Int @mikrotik(path: "/interface", field: "mtu")
+  """Interface name (e.g., ether1, wlan1)"""
+  name: String! @mikrotik(path: "/interface", field: "name")
+  """Whether the interface is running (link up)"""
+  running: Boolean! @mikrotik(path: "/interface", field: "running")
+  """RX bytes"""
+  rxBytes: Size @mikrotik(path: "/interface", field: "rx-byte")
+  """TX bytes"""
+  txBytes: Size @mikrotik(path: "/interface", field: "tx-byte")
+  """Interface type"""
+  type: InterfaceType! @mikrotik(path: "/interface", field: "type")
+}
+
+type InterfaceConnection implements Connection {
+  edges: [InterfaceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type InterfaceEdge implements Edge {
+  cursor: String!
+  node: Interface!
+}
+
+type InterfaceTrafficEvent {
+  """Interface ID"""
+  interfaceId: ID!
+  """Interface name"""
+  interfaceName: String!
+  """RX rate in bytes per second"""
+  rxRate: Size!
+  """Total RX bytes"""
+  rxTotal: Size!
+  """Timestamp"""
+  timestamp: DateTime!
+  """TX rate in bytes per second"""
+  txRate: Size!
+  """Total TX bytes"""
+  txTotal: Size!
+}
+
+"""Types of network interfaces"""
+enum InterfaceType {
+  BONDING
+  BRIDGE
+  ETHERNET
+  LOOPBACK
+  OTHER
+  PPP
+  TUNNEL
+  VIRTUAL
+  VLAN
+  WIRELESS
+}
+
+"""Arbitrary JSON data for flexible configuration"""
+scalar JSON
+
+"""MAC address string (e.g., "00:1A:2B:3C:4D:5E" or "00-1A-2B-3C-4D-5E")"""
+scalar MAC
+
+type Mutation {
+  """
+  Add a new router by entering its IP address and credentials.
+  
+  This mutation will:
+  1. Validate input fields (host format, port range, etc.)
+  2. Check for duplicate routers (same host/port)
+  3. Resolve hostname to IP if necessary (with DNS caching)
+  4. Test connection using protocol preference (or auto-detect)
+  5. Store router with encrypted credentials on success
+  6. Emit RouterAddedEvent for real-time updates
+  
+  Returns validation errors if input is invalid, or connection errors
+  if the router cannot be reached or authenticated.
+  """
+  addRouter(input: AddRouterInput!): AddRouterPayload!
+  """
+  Start an automatic gateway scan.
+  Scans common gateway IPs (192.168.0-255.1) to find MikroTik routers.
+  This is useful when the user doesn't know which subnet to scan.
+  
+  Only returns verified MikroTik RouterOS devices (confidence >= 40).
+  """
+  autoScanGateways: ScanNetworkPayload!
+  """
+  Cancel a running scan.
+  The scan will stop within 1 second and partial results are preserved.
+  """
+  cancelScan(taskId: ID!): CancelScanPayload!
+  """Change the current user's password"""
+  changePassword(
+    """Current password for verification"""
+    currentPassword: String! @sensitive
+    """New password (must meet policy requirements)"""
+    newPassword: String! @sensitive
+  ): Boolean! @auth
+  """Perform immediate health check on a router"""
+  checkRouterHealth(
+    """Router ID"""
+    routerId: ID!
+  ): HealthCheckResult!
+  """Connect to a router"""
+  connectRouter(id: ID!): ConnectRouterPayload!
+  """Add a new router to manage"""
+  createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  """Remove a router"""
+  deleteRouter(id: ID!): DeleteRouterPayload!
+  """Disconnect from a router"""
+  disconnectRouter(id: ID!): DisconnectRouterPayload!
+  """
+  Export router configuration with optional credential handling.
+  Credentials are excluded by default for security.
+  If includeCredentials is true, an encryptionKey must be provided.
+  """
+  exportRouterConfig(input: ExportConfigInput!): ExportConfigPayload! @auth
+  """Authenticate and receive a JWT token"""
+  login(
+    """Password"""
+    password: String! @sensitive
+    """Username"""
+    username: String!
+  ): AuthPayload!
+  """Invalidate current session and clear tokens"""
+  logout: Boolean! @auth
+  """Manually trigger reconnection to a router"""
+  reconnectRouter(
+    """Router ID"""
+    routerId: ID!
+  ): ReconnectRouterPayload!
+  """Force refresh router capabilities (invalidates cache)"""
+  refreshCapabilities(routerId: ID!): RefreshCapabilitiesPayload!
+  """
+  Manually reset the circuit breaker for a router.
+  This allows immediate reconnection attempts even if the circuit is open.
+  Use with caution as it bypasses the backoff protection.
+  """
+  resetCircuitBreaker(routerId: ID!): CircuitBreakerStatus!
+  """Revoke all sessions for a user (admin only)"""
+  revokeAllSessions(
+    """User ID to revoke sessions for"""
+    userId: ID!
+  ): Boolean! @auth(requires: "admin")
+  """Revoke a specific session"""
+  revokeSession(
+    """Session ID to revoke"""
+    sessionId: ID!
+  ): Boolean! @auth
+  """
+  Run comprehensive diagnostics on a router connection.
+  Performs network reachability check, port scanning, TLS validation,
+  and authentication testing. Rate limited to 1 request per 10 seconds per router.
+  """
+  runDiagnostics(routerId: ID!): DiagnosticReport!
+  """
+  Start a network scan for MikroTik routers.
+  Returns a task ID that can be used to track progress via subscription or polling.
+  
+  Supported subnet formats:
+  - CIDR: "192.168.88.0/24" (scans 254 usable IPs)
+  - Range: "192.168.1.1-192.168.1.100" (scans specified range)
+  - Single IP: "192.168.88.1" (scans one IP)
+  
+  Performance: /24 scan completes in 1-2 seconds with 20 concurrent workers.
+  """
+  scanNetwork(input: ScanNetworkInput!): ScanNetworkPayload!
+  """Set preferred protocol for a router"""
+  setPreferredProtocol(
+    """Preferred protocol"""
+    protocol: Protocol!
+    """Router ID"""
+    routerId: ID!
+  ): SetPreferredProtocolPayload!
+  """
+  Test all router credentials in parallel.
+  Returns aggregate results with per-router status.
+  """
+  testAllCredentials: TestAllCredentialsPayload! @auth
+  """Test connection to a router"""
+  testRouterConnection(id: ID!): TestConnectionPayload!
+  """
+  Test connection to a router without adding it.
+  Useful for validating credentials before committing.
+  """
+  testRouterCredentials(input: AddRouterInput!): ConnectionTestResult!
+  """Update router settings"""
+  updateRouter(id: ID!, input: UpdateRouterInput!): UpdateRouterPayload!
+  """
+  Update router credentials.
+  Tests the new credentials before saving.
+  Old credentials are preserved if the test fails.
+  """
+  updateRouterCredentials(input: CredentialsInput!, routerId: ID!): CredentialUpdatePayload! @auth
+}
+
+"""Standard error type for mutations"""
+type MutationError {
+  """Error code for programmatic handling"""
+  code: String!
+  """Field that caused the error (if applicable)"""
+  field: String
+  """Human-readable error message"""
+  message: String!
+}
+
+"""Relay Node interface for global object identification"""
+interface Node {
+  """Globally unique identifier"""
+  id: ID!
+}
+
+"""Information about pagination in a connection"""
+type PageInfo {
+  """Cursor for the last edge"""
+  endCursor: String
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+  """Cursor for the first edge"""
+  startCursor: String
+}
+
+"""Standard pagination input arguments"""
+input PaginationInput {
+  """Cursor to fetch items after"""
+  after: String
+  """Cursor to fetch items before"""
+  before: String
+  """Number of items to fetch"""
+  first: Int
+  """Number of items to fetch from the end"""
+  last: Int
+}
+
+"""TCP/UDP port number (1-65535)"""
+scalar Port
+
+"""Port range string (e.g., "80", "80-443", "80,443,8080")"""
+scalar PortRange
+
+"""Status of a single port check"""
+type PortStatus {
+  """Error message (if port is closed)"""
+  error: String
+  """Whether the port is open and accepting connections"""
+  open: Boolean!
+  """Port number checked"""
+  port: Int!
+  """Response time in milliseconds (if port is open)"""
+  responseTimeMs: Int
+  """Service name (API, API-SSL, SSH, Telnet, HTTP, HTTPS)"""
+  service: String!
+}
+
+"""Protocol used for router communication"""
+enum Protocol {
+  """Binary API protocol (port 8728)"""
+  API
+  """TLS-encrypted binary API (port 8729)"""
+  API_SSL
+  """REST API protocol (RouterOS 7.1+)"""
+  REST
+  """SSH protocol (port 22)"""
+  SSH
+  """Telnet protocol (port 23)"""
+  TELNET
+}
+
+"""
+User preference for which protocol to use when connecting to a router.
+AUTO will try protocols in the recommended fallback order.
+"""
+enum ProtocolPreference {
+  """Force Binary API protocol (port 8728)"""
+  API
+  """Force TLS-encrypted binary API (port 8729)"""
+  API_SSL
+  """
+  Automatically detect best protocol (REST -> API -> API_SSL -> SSH -> Telnet)
+  """
+  AUTO
+  """Force REST API protocol (RouterOS 7.1+)"""
+  REST
+  """Force SSH protocol (port 22)"""
+  SSH
+  """Force Telnet protocol (port 23, insecure - use only as last resort)"""
+  TELNET
+}
+
+type Query {
+  """
+  Get circuit breaker status for a router.
+  Shows current state, failure counts, and cooldown timing.
+  """
+  circuitBreakerStatus(routerId: ID!): CircuitBreakerStatus!
+  """Get the compatibility matrix for all known features"""
+  compatibilityMatrix: [FeatureCompatibilityInfo!]!
+  """
+  Get recent connection attempts for a router.
+  Returns the most recent attempts, ordered newest first.
+  """
+  connectionAttempts(
+    """Maximum number of attempts to return (default: 10)"""
+    limit: Int = 10
+    """Router ID to get attempts for"""
+    routerId: ID!
+  ): [ConnectionAttempt!]!
+  """Get detailed connection status for a router"""
+  connectionDetails(routerId: ID!): ConnectionDetails
+  """Get connection manager statistics"""
+  connectionStats: ConnectionStats!
+  """Get system health status"""
+  health: HealthStatus!
+  """Get a network interface by ID"""
+  interface(
+    """Interface ID"""
+    id: ID!
+    """Router to query"""
+    routerId: ID!
+  ): Interface @capability(requires: ["interface"])
+  """List interfaces on a router"""
+  interfaces(
+    """Pagination parameters"""
+    pagination: PaginationInput
+    """Router to query"""
+    routerId: ID!
+    """Filter by interface type"""
+    type: InterfaceType
+  ): InterfaceConnection! @capability(requires: ["interface"])
+  """Check if a feature is supported on a specific router"""
+  isFeatureSupported(
+    """Feature identifier"""
+    featureId: String!
+    """Router to check"""
+    routerId: ID!
+  ): FeatureSupport!
+  """Get current authenticated user"""
+  me: User @auth
+  """Get all active sessions for the current user"""
+  mySessions: [Session!]! @auth
+  """Fetch any node by its global ID"""
+  node(id: ID!): Node
+  """Get a router by ID"""
+  router(id: ID!): Router
+  """Get router capabilities by router ID"""
+  routerCapabilities(routerId: ID!): RouterCapabilities
+  """Get credential information for a router (password is never returned)"""
+  routerCredentials(routerId: ID!): RouterCredentials @auth
+  """Get health check result for a router"""
+  routerHealth(routerId: ID!): HealthCheckResult
+  """List all managed routers"""
+  routers(
+    """Pagination parameters"""
+    pagination: PaginationInput
+    """Filter by connection status"""
+    status: ConnectionStatus
+  ): RouterConnection!
+  """Get scan history (recent scans)"""
+  scanHistory(
+    """Maximum number of results to return"""
+    limit: Int = 10
+  ): [ScanTask!]!
+  """Get the status of a scan task by ID"""
+  scanStatus(taskId: ID!): ScanTask
+  """Get all features supported by a router"""
+  supportedFeatures(routerId: ID!): [FeatureSupport!]!
+  """Get features not supported by a router with upgrade guidance"""
+  unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
+  """Get upgrade recommendation for a specific feature on a router"""
+  upgradeRecommendation(
+    """Feature to enable"""
+    featureId: String!
+    """Router to check"""
+    routerId: ID!
+  ): UpgradeRecommendation
+  """Get all upgrade recommendations for a router"""
+  upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!
+  """Get current API version"""
+  version: String!
+}
+
+type ReconnectRouterPayload {
+  """Updated connection details"""
+  connectionDetails: ConnectionDetails
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Whether reconnection was initiated"""
+  initiated: Boolean!
+  """The router being reconnected"""
+  router: Router
+  """Rate limit wait time if rate limited"""
+  waitTimeMs: Int
+}
+
+"""Payload for refreshCapabilities mutation"""
+type RefreshCapabilitiesPayload {
+  """Updated capabilities after refresh"""
+  capabilities: RouterCapabilities
+  """Errors during refresh"""
+  errors: [MutationError!]
+}
+
+"""Event emitted when a router resource is updated"""
+type ResourceUpdatedEvent {
+  """Type of change (create, update, delete)"""
+  changeType: ChangeType!
+  """Fields that were changed"""
+  changedFields: [String!]!
+  """Unique resource identifier"""
+  resourceId: ID!
+  """Type of resource (interface, firewall-rule, dhcp-lease, etc.)"""
+  resourceType: String!
+  """Router this resource belongs to"""
+  routerId: ID!
+  """Timestamp of the update"""
+  timestamp: DateTime!
+  """New version number after update"""
+  version: Int!
+}
+
+"""A managed router device"""
+type Router implements Node {
+  """Detected router capabilities (requires connection)"""
+  capabilities: RouterCapabilities
+  """When the router was added to NasNet"""
+  createdAt: DateTime!
+  """Router hostname or IP address"""
+  host: String!
+  """Unique router identifier"""
+  id: ID!
+  """Last successful connection time"""
+  lastConnected: DateTime
+  """Router model"""
+  model: String @mikrotik(path: "/system/routerboard", field: "model")
+  """User-friendly display name"""
+  name: String!
+  """Router platform type"""
+  platform: RouterPlatform!
+  """Connection port"""
+  port: Int!
+  """Current connection status"""
+  status: ConnectionStatus!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """System uptime"""
+  uptime: Duration @mikrotik(path: "/system/resource", field: "uptime")
+  """RouterOS version (if connected)"""
+  version: String @mikrotik(path: "/system/resource", field: "version")
+}
+
+"""Event emitted when a new router is added."""
+type RouterAddedEvent {
+  """User who added the router (if authenticated)"""
+  addedBy: String
+  """Protocol used for initial connection"""
+  protocolUsed: Protocol!
+  """The newly added router"""
+  router: Router!
+  """Timestamp of addition"""
+  timestamp: DateTime!
+}
+
+"""Complete router capabilities detected from system inspection"""
+type RouterCapabilities {
+  """Capability entries with support levels"""
+  capabilities: [CapabilityEntry!]!
+  """Container-specific capabilities"""
+  container: ContainerInfo!
+  """When capabilities were detected"""
+  detectedAt: DateTime!
+  """When cache expires (24h TTL)"""
+  expiresAt: DateTime!
+  """Hardware information"""
+  hardware: HardwareInfo!
+  """Whether cache is stale and refresh is in progress"""
+  isRefreshing: Boolean!
+  """Parsed RouterOS version with comparison helpers"""
+  routerOSVersion: RouterOSVersion!
+  """Software information"""
+  software: SoftwareInfo!
+  """Features supported by this router's version and configuration"""
+  supportedFeatures: [FeatureSupport!]!
+  """Features not supported by this router (with upgrade guidance)"""
+  unsupportedFeatures: [FeatureSupport!]!
+  """VIF requirements check"""
+  vifRequirements: VIFRequirements!
+}
+
+type RouterConnection implements Connection {
+  edges: [RouterEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+Router credential information (non-sensitive).
+Password is never included - only metadata about credentials.
+"""
+type RouterCredentials {
+  """When credentials were first created"""
+  createdAt: DateTime!
+  """Encryption algorithm used (always 'AES-256-GCM')"""
+  encryptionStatus: String!
+  """Whether a password is stored"""
+  hasPassword: Boolean!
+  """Encryption key version (for rotation tracking)"""
+  keyVersion: Int!
+  """When credentials were last updated"""
+  lastUpdated: DateTime!
+  """Router ID these credentials belong to"""
+  routerId: ID!
+  """Username for router authentication"""
+  username: String!
+}
+
+type RouterEdge implements Edge {
+  cursor: String!
+  node: Router!
+}
+
+"""Information about a discovered RouterOS device"""
+type RouterOSInfo {
+  """CPU architecture (e.g., 'arm', 'x86', 'mips')"""
+  architecture: String
+  """Router board name (e.g., 'hAP ac³', 'CCR2004-1G-12S+2XS')"""
+  boardName: String
+  """Platform identifier"""
+  platform: String
+  """RouterOS version string (e.g., '7.12', '6.49.8')"""
+  version: String
+}
+
+"""Parsed RouterOS version with semantic versioning"""
+type RouterOSVersion {
+  """Version channel (stable, beta, rc, long-term)"""
+  channel: String
+  """Check if version is at least the given version (e.g., '7.1')"""
+  isAtLeast(version: String!): Boolean!
+  """Whether this is a Cloud Hosted Router (CHR)"""
+  isCHR: Boolean!
+  """Major version number"""
+  major: Int!
+  """Minor version number"""
+  minor: Int!
+  """Patch version number"""
+  patch: Int!
+  """Full version string (e.g., '7.13.2')"""
+  raw: String!
+  """Check if this version supports a specific feature"""
+  supportsFeature(featureId: String!): Boolean!
+}
+
+"""Supported router platforms"""
+enum RouterPlatform {
+  """Generic/Unknown"""
+  GENERIC
+  """MikroTik RouterOS"""
+  MIKROTIK
+  """OpenWrt"""
+  OPENWRT
+  """VyOS"""
+  VYOS
+}
+
+type RouterStatusEvent {
+  """New status"""
+  newStatus: ConnectionStatus!
+  """Previous status"""
+  previousStatus: ConnectionStatus!
+  """The router whose status changed"""
+  router: Router!
+  """Timestamp of the change"""
+  timestamp: DateTime!
+}
+
+"""Input for starting a network scan"""
+input ScanNetworkInput {
+  """
+  Target subnet in CIDR notation (e.g., '192.168.88.0/24') or IP range (e.g., '192.168.1.1-192.168.1.100')
+  """
+  subnet: String! @validate(minLength: 7, maxLength: 43)
+}
+
+type ScanNetworkPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The created scan task"""
+  task: ScanTask
+}
+
+"""Real-time progress event for scan subscriptions"""
+type ScanProgressEvent {
+  """IP address currently being scanned"""
+  currentIP: String
+  """Number of MikroTik devices found so far"""
+  devicesFound: Int!
+  """Current progress percentage (0-100)"""
+  progress: Int!
+  """Current scan status"""
+  status: ScanStatus!
+  """Task ID this event belongs to"""
+  taskId: ID!
+  """Timestamp of this progress update"""
+  timestamp: DateTime!
+}
+
+"""Status of a network scan operation"""
+enum ScanStatus {
+  """Scan was cancelled by user"""
+  CANCELLED
+  """Scan completed successfully"""
+  COMPLETED
+  """Scan failed with an error"""
+  FAILED
+  """Scan is queued and waiting to start"""
+  PENDING
+  """Scan is actively running"""
+  RUNNING
+}
+
+"""
+A network scan task that tracks scan progress and results.
+Scans are asynchronous - start with mutation, poll/subscribe for progress.
+"""
+type ScanTask {
+  """When the scan completed (null if still running)"""
+  endTime: DateTime
+  """Error message if scan failed"""
+  error: String
+  """Unique task identifier"""
+  id: ID!
+  """Scan progress percentage (0-100)"""
+  progress: Int!
+  """Discovered devices (populated as scan progresses)"""
+  results: [DiscoveredDevice!]!
+  """Number of IPs scanned so far"""
+  scannedIPs: Int
+  """When the scan was started"""
+  startTime: DateTime!
+  """Current scan status"""
+  status: ScanStatus!
+  """Target subnet (CIDR notation, IP range, or gateway scan indicator)"""
+  subnet: String!
+  """Total IPs to scan (for progress calculation)"""
+  totalIPs: Int
+}
+
+"""Service operational status"""
+enum ServiceStatus {
+  """Service is operational with degraded performance"""
+  DEGRADED
+  """Service is fully operational"""
+  HEALTHY
+  """Service is not operational"""
+  UNHEALTHY
+}
+
+"""Active user session"""
+type Session {
+  """Session creation time"""
+  createdAt: DateTime!
+  """Session ULID"""
+  id: ID!
+  """Client IP address"""
+  ipAddress: String
+  """Whether this is the current session"""
+  isCurrent: Boolean!
+  """Last activity time"""
+  lastActivity: DateTime!
+  """Client user agent"""
+  userAgent: String
+}
+
+type SetPreferredProtocolPayload {
+  """Updated connection details"""
+  connectionDetails: ConnectionDetails
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The updated router"""
+  router: Router
+}
+
+"""Size in bytes with optional unit (e.g., "1024", "1k", "1M", "1G")"""
+scalar Size
+
+"""Software information detected from router"""
+type SoftwareInfo {
+  """List of installed packages"""
+  installedPackages: [String!]!
+  """License level (0-6)"""
+  licenseLevel: Int!
+  """Update channel (stable, testing, development)"""
+  updateChannel: String
+  """RouterOS version string"""
+  version: String!
+  """Parsed major version number"""
+  versionMajor: Int!
+  """Parsed minor version number"""
+  versionMinor: Int!
+  """Parsed patch version number"""
+  versionPatch: Int
+}
+
+type Subscription {
+  """Subscribe to circuit breaker state changes"""
+  circuitBreakerChanged(
+    """Router ID to monitor"""
+    routerId: ID!
+  ): CircuitBreakerEvent!
+  """
+  Subscribe to circuit breaker state changes for a router.
+  Emits an event whenever the circuit breaker transitions between states.
+  """
+  circuitBreakerStateChanged(
+    """Router ID to monitor (optional, all routers if not specified)"""
+    routerId: ID
+  ): CircuitBreakerStatus!
+  """Subscribe to configuration apply progress"""
+  configApplyProgress(operationId: ID!): ConfigProgress!
+  """Subscribe to connection health updates"""
+  connectionHealth(
+    """Router ID to monitor (optional, all routers if not specified)"""
+    routerId: ID
+  ): HealthCheckResult!
+  """Subscribe to interface traffic updates"""
+  interfaceTraffic(interfaceId: ID, routerId: ID!): InterfaceTrafficEvent! @realtime(interval: 1000)
+  """Subscribe to resource updates (create, update, delete)"""
+  resourceUpdated(resourceId: ID): ResourceUpdatedEvent!
+  """
+  Subscribe to router addition events.
+  Emits when a new router is successfully added to the system.
+  """
+  routerAdded: RouterAddedEvent!
+  """Subscribe to router status changes"""
+  routerStatusChanged(routerId: ID): RouterStatusEvent!
+  """
+  Subscribe to real-time scan progress updates.
+  Emits events every 5% progress or every 2 seconds, whichever is sooner.
+  """
+  scanProgress(taskId: ID!): ScanProgressEvent!
+}
+
+"""Severity level for diagnostic suggestions"""
+enum SuggestionSeverity {
+  """Critical issue blocking connectivity"""
+  CRITICAL
+  """Error that needs to be addressed"""
+  ERROR
+  """Informational message, no action required"""
+  INFO
+  """Warning that may affect functionality"""
+  WARNING
+}
+
+"""TLS certificate status for secure connections"""
+type TLSStatus {
+  """Error message (if certificate is invalid)"""
+  error: String
+  """Certificate expiration date"""
+  expiresAt: DateTime
+  """Certificate issuer"""
+  issuer: String
+  """Certificate subject"""
+  subject: String
+  """Whether the certificate is valid"""
+  valid: Boolean!
+}
+
+"""Result of testing all router credentials."""
+type TestAllCredentialsPayload {
+  """Number of failed credential tests"""
+  failureCount: Int!
+  """Per-router test results"""
+  results: [CredentialTestResult!]!
+  """Number of successful credential tests"""
+  successCount: Int!
+  """Total number of routers tested"""
+  totalRouters: Int!
+}
+
+type TestConnectionPayload {
+  """Error message if connection failed"""
+  error: String
+  """Response time in milliseconds"""
+  responseTimeMs: Int
+  """Whether the connection test succeeded"""
+  success: Boolean!
+  """Router version if connection succeeded"""
+  version: String
+}
+
+"""
+ULID (Universally Unique Lexicographically Sortable Identifier)
+A 26-character string that is time-sortable and globally unique.
+Example: "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+"""
+scalar ULID
+
+"""Input for updating router settings"""
+input UpdateRouterInput {
+  """Updated hostname or IP address"""
+  host: String @validate(minLength: 1, maxLength: 255)
+  """Updated display name"""
+  name: String @validate(minLength: 1, maxLength: 64)
+  """Updated password"""
+  password: String @validate(minLength: 1, maxLength: 128)
+  """Updated connection port"""
+  port: Int @validate(min: 1, max: 65535)
+  """Updated username"""
+  username: String @validate(minLength: 1, maxLength: 64)
+}
+
+type UpdateRouterPayload {
+  """Errors that occurred during update"""
+  errors: [MutationError!]
+  """The updated router"""
+  router: Router
+}
+
+"""Impact assessment for an upgrade"""
+type UpgradeImpact {
+  """Whether configuration backup is recommended before upgrade"""
+  backupRecommended: Boolean!
+  """Potential breaking changes to be aware of"""
+  breakingChanges: [String!]!
+  """Estimated downtime description"""
+  estimatedDowntime: String
+  """Whether reboot is required"""
+  requiresReboot: Boolean!
+}
+
+"""Priority level for upgrade recommendations"""
+enum UpgradePriority {
+  """Security-related, should upgrade immediately"""
+  CRITICAL
+  """Highly recommended for stability/features"""
+  HIGH
+  """Nice to have, optional"""
+  LOW
+  """Recommended but not urgent"""
+  MEDIUM
+}
+
+"""Upgrade recommendation for enabling a feature"""
+type UpgradeRecommendation {
+  """Current RouterOS version"""
+  currentVersion: String!
+  """URL to MikroTik upgrade documentation"""
+  documentationUrl: String
+  """Feature that requires upgrade"""
+  featureId: String!
+  """Human-readable feature name"""
+  featureName: String!
+  """Estimated impact on router operation"""
+  impact: UpgradeImpact!
+  """Whether this is a major version upgrade (e.g., 6.x to 7.x)"""
+  isMajorUpgrade: Boolean!
+  """Priority level (critical, high, medium, low)"""
+  priority: UpgradePriority!
+  """Minimum required version for this feature"""
+  requiredVersion: String!
+  """Steps to complete the upgrade"""
+  steps: [UpgradeStep!]!
+  """Warnings or important notes about this upgrade"""
+  warnings: [String!]!
+}
+
+"""Single step in an upgrade process"""
+type UpgradeStep {
+  """RouterOS command to execute (if applicable)"""
+  command: String
+  """Detailed instructions"""
+  description: String!
+  """Whether this step is optional"""
+  optional: Boolean!
+  """Step number (1-based)"""
+  step: Int!
+  """Step title"""
+  title: String!
+}
+
+"""User account in NasNetConnect"""
+type User implements Node {
+  """Account creation timestamp"""
+  createdAt: DateTime!
+  """Display name"""
+  displayName: String
+  """Email address (if provided)"""
+  email: String
+  """User ULID"""
+  id: ID!
+  """Last successful login"""
+  lastLoginAt: DateTime
+  """User role for authorization"""
+  role: UserRole!
+  """Unique username"""
+  username: String!
+}
+
+"""User roles for authorization"""
+enum UserRole {
+  """Full administrative access"""
+  ADMIN
+  """Can view and modify but not delete or manage users"""
+  OPERATOR
+  """Read-only access"""
+  VIEWER
+}
+
+"""Single step in VIF enablement guidance"""
+type VIFGuidanceStep {
+  """Whether this requirement is already met"""
+  completed: Boolean!
+  """Detailed instruction"""
+  description: String!
+  """RouterOS command to execute (if applicable)"""
+  routerCommand: String
+  """Step number (1-based)"""
+  step: Int!
+  """Short title for the step"""
+  title: String!
+}
+
+"""VIF (Virtual Interface Factory) requirements check result"""
+type VIFRequirements {
+  """Whether container feature is enabled"""
+  containerEnabled: Boolean!
+  """Whether container package is installed"""
+  containerPackage: Boolean!
+  """Step-by-step guidance for enabling VIF"""
+  guidanceSteps: [VIFGuidanceStep!]!
+  """Whether all VIF requirements are satisfied"""
+  met: Boolean!
+  """Human-readable reasons why VIF is not available"""
+  missingReasons: [String!]!
+  """Whether network namespace is supported"""
+  networkNamespace: Boolean!
+  """Whether RouterOS version is sufficient (7.13+)"""
+  routerOSVersion: Boolean!
+  """Whether there's sufficient storage (>100MB)"""
+  sufficientStorage: Boolean!
+}
+
+"""Predefined validation formats for common data types"""
+enum ValidateFormat {
+  CIDR
+  EMAIL
+  FQDN
+  HOSTNAME
+  IPV4
+  IPV6
+  MAC
+  URL
+  UUID
+}
+
+"""Field-level validation error with suggestions for fixing."""
+type ValidationError {
+  """Error code for the validation failure"""
+  code: String!
+  """Field path that failed validation (e.g., 'input.host', 'input.port')"""
+  field: String!
+  """Human-readable error message"""
+  message: String!
+  """The invalid value (redacted for sensitive fields)"""
+  providedValue: String
+  """Suggestion for fixing the validation error"""
+  suggestion: String
+}

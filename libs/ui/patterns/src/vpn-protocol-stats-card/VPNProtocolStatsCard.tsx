@@ -5,10 +5,12 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent } from '@nasnet/ui/primitives';
-import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
-import { formatBytes } from '@nasnet/core/utils';
+
 import type { VPNProtocolStats } from '@nasnet/core/types';
+import { formatBytes } from '@nasnet/core/utils';
+import { Card, CardContent } from '@nasnet/ui/primitives';
+
+import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
 
 export interface VPNProtocolStatsCardProps {
   /** Protocol statistics */

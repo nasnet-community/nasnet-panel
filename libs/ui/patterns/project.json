@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/patterns/src",
   "projectType": "library",
-  "tags": ["scope:ui", "type:lib"],
+  "tags": ["scope:ui-patterns", "type:lib"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",
@@ -39,6 +39,19 @@
           "nx run ui-patterns:lint"
         ],
         "parallel": false
+      }
+    },
+    "storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "storybook dev -p 4401 -c libs/ui/patterns/.storybook"
+      }
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/storybook/ui-patterns"],
+      "options": {
+        "command": "storybook build -c libs/ui/patterns/.storybook -o dist/storybook/ui-patterns"
       }
     }
   }

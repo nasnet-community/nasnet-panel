@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
+
+import { type LucideIcon } from 'lucide-react';
+
 import { cn, Button } from '@nasnet/ui/primitives';
-import { LucideIcon } from 'lucide-react';
 
 /**
  * EmptyState Props

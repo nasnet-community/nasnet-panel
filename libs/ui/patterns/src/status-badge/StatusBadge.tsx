@@ -5,9 +5,11 @@
  */
 
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@nasnet/ui/primitives';
+
 import type { LeaseStatus, DHCPClientStatus } from '@nasnet/core/types';
+import { cn } from '@nasnet/ui/primitives';
 
 const badgeVariants = cva(
   'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset transition-colors',
@@ -43,7 +45,7 @@ export interface StatusBadgeProps
   label?: string;
 }
 
-export const StatusBadge = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
+const StatusBadgeBase = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
   ({ className, status, variant, label, ...props }, ref) => {
     // Map status to variant if status is provided
     const badgeVariant = status || variant || 'default';
@@ -63,7 +65,13 @@ export const StatusBadge = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
   }
 );
 
-StatusBadge.displayName = 'StatusBadge';
+StatusBadgeBase.displayName = 'StatusBadge';
+
+/**
+ * Memoized StatusBadge to prevent unnecessary re-renders
+ * Only re-renders when props actually change
+ */
+export const StatusBadge = React.memo(StatusBadgeBase);
 
 /**
  * Formats status enum to human-readable label

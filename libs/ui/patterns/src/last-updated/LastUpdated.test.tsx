@@ -3,8 +3,9 @@
  * Tests for the last updated timestamp display component
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { LastUpdated } from './LastUpdated';
 
 // Mock the useRelativeTime hook

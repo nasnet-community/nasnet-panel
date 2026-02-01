@@ -1,0 +1,212 @@
+{/* @ts-nocheck - MDX file */}
+import { Meta, Canvas, Controls, Story, ArgTypes } from '@storybook/blocks';
+import * as ResourceCardStories from './ResourceCard.stories';
+
+<Meta of={ResourceCardStories} />
+
+# ResourceCard
+
+ResourceCard is a versatile card component for displaying resource information with status indicators. It follows the **Headless + Platform Presenter** pattern (ADR-018), automatically adapting its presentation for mobile and desktop views.
+
+## Overview
+
+ResourceCard displays:
+- Resource icon and title
+- Status indicator (online, offline, warning, etc.)
+- Key metrics or statistics
+- Optional actions
+
+<Canvas of={ResourceCardStories.Default} />
+
+## Architecture: Headless + Platform Presenter
+
+ResourceCard implements the architectural pattern defined in ADR-018:
+
+```
+┌─────────────────────────────────────────┐
+│           ResourceCard (Headless)        │
+│  - Props handling                        │
+│  - State management                      │
+│  - Data transformation                   │
+└──────────────────┬──────────────────────┘
+                   │
+       ┌───────────┴───────────┐
+       │                       │
+       ▼                       ▼
+┌──────────────┐       ┌──────────────┐
+│ Mobile       │       │ Desktop      │
+│ Presenter    │       │ Presenter    │
+│ - Touch      │       │ - Dense      │
+│ - Large      │       │ - Hover      │
+│ - Swipe      │       │ - Context    │
+└──────────────┘       └──────────────┘
+```
+
+### Benefits
+
+1. **Single source of truth**: Logic lives in one place
+2. **Platform-optimized UX**: Mobile gets touch-friendly UI, desktop gets information density
+3. **Testability**: Presenters are pure, stateless components
+4. **Consistency**: Same data, appropriate presentation
+
+## Mobile vs Desktop
+
+### Mobile Presentation
+
+- Larger touch targets (44px minimum)
+- Stack layout for narrow screens
+- Swipe actions for common operations
+- Simplified information hierarchy
+
+### Desktop Presentation
+
+- Information-dense layout
+- Hover states for quick actions
+- Context menus for advanced options
+- Side-by-side metrics
+
+## Platform Override
+
+Force a specific platform presentation:
+
+```tsx
+// Force mobile view
+<ResourceCard
+  {...props}
+  parameters={{ platform: 'mobile' }}
+/>
+
+// Force desktop view
+<ResourceCard
+  {...props}
+  parameters={{ platform: 'desktop' }}
+/>
+```
+
+## Status Indicators
+
+ResourceCard supports semantic status colors:
+
+| Status | Color | Use Case |
+|--------|-------|----------|
+| `online` | Green | Connected, healthy, active |
+| `offline` | Gray | Disconnected, inactive |
+| `warning` | Amber | Degraded, pending, attention needed |
+| `error` | Red | Failed, critical, disconnected |
+
+```tsx
+<ResourceCard
+  status="online"
+  statusLabel="Connected"
+  ...
+/>
+```
+
+## Creating Custom Resource Cards
+
+Extend ResourceCard for domain-specific needs:
+
+```tsx
+import { ResourceCard, ResourceCardProps } from '@nasnet/ui/patterns';
+
+interface RouterCardProps extends Omit<ResourceCardProps, 'icon'> {
+  routerModel: string;
+  firmware: string;
+  uptime: string;
+}
+
+export function RouterCard({
+  routerModel,
+  firmware,
+  uptime,
+  ...props
+}: RouterCardProps) {
+  return (
+    <ResourceCard
+      icon={<Router className="h-6 w-6" />}
+      metrics={[
+        { label: 'Model', value: routerModel },
+        { label: 'Firmware', value: firmware },
+        { label: 'Uptime', value: uptime },
+      ]}
+      {...props}
+    />
+  );
+}
+```
+
+## Composition Patterns
+
+### With Actions
+
+```tsx
+<ResourceCard
+  title="MikroTik-Home"
+  status="online"
+  actions={[
+    { label: 'Configure', onClick: handleConfigure },
+    { label: 'Reboot', onClick: handleReboot, variant: 'destructive' },
+  ]}
+/>
+```
+
+### With Navigation
+
+```tsx
+<ResourceCard
+  title="Firewall Rules"
+  onClick={() => navigate('/firewall')}
+  chevron // Shows navigation indicator
+/>
+```
+
+### With Expandable Content
+
+```tsx
+<ResourceCard
+  title="VPN Server"
+  expandable
+  renderExpanded={() => (
+    <div className="space-y-2">
+      <p>Connected clients: 5</p>
+      <p>Total bandwidth: 1.2 GB</p>
+    </div>
+  )}
+/>
+```
+
+## Accessibility
+
+- Cards are keyboard navigable when clickable
+- Status is announced to screen readers
+- Actions have proper focus management
+- Expandable content uses `aria-expanded`
+
+## Responsive Behavior
+
+ResourceCard uses CSS-based responsive switching by default:
+
+```tsx
+// Default: auto-detect based on screen width
+<ResourceCard ... />
+
+// The component renders both presenters:
+<div className="sm:hidden">
+  <ResourceCardMobile {...props} />
+</div>
+<div className="hidden sm:block">
+  <ResourceCardDesktop {...props} />
+</div>
+```
+
+For SSR or testing, use the platform parameter to force a specific view.
+
+## Related Components
+
+- **StatusCard**: Simpler card for status-only display
+- **MetricDisplay**: Standalone metric component
+- **DataTable**: For list/table views of resources
+
+## API Reference
+
+<ArgTypes />

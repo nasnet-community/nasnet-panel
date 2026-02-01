@@ -4,10 +4,12 @@
  */
 
 import * as React from 'react';
+
 import { motion } from 'framer-motion';
-import { Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
-import { getStatusColor } from '@nasnet/core/utils';
+
 import type { ResourceStatus } from '@nasnet/core/types';
+import { getStatusColor } from '@nasnet/core/utils';
+import { Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
 
 /**
  * ResourceGauge Props

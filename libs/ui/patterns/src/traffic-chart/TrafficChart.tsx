@@ -8,8 +8,10 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+
 import { Activity, ArrowDown, ArrowUp, Info } from 'lucide-react';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 
 /**
  * Traffic data point

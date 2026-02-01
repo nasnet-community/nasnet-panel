@@ -1,0 +1,57 @@
+{
+  "connection": {
+    "timeout": "Connection timed out",
+    "refused": "Connection refused",
+    "lost": "Connection lost",
+    "noNetwork": "No network connection",
+    "serverUnreachable": "Server is unreachable",
+    "sslError": "Secure connection failed"
+  },
+  "auth": {
+    "invalidCredentials": "Invalid username or password",
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "accessDenied": "Access denied",
+    "unauthorized": "You are not authorized to perform this action",
+    "accountLocked": "Account is locked",
+    "tooManyAttempts": "Too many failed attempts. Please try again later."
+  },
+  "router": {
+    "notFound": "Router not found",
+    "connectionFailed": "Failed to connect to router",
+    "commandFailed": "Router command failed",
+    "incompatibleVersion": "Router version is not compatible",
+    "busy": "Router is busy. Please try again.",
+    "configurationError": "Configuration error on router"
+  },
+  "api": {
+    "general": "An error occurred. Please try again.",
+    "notFound": "The requested resource was not found",
+    "badRequest": "Invalid request",
+    "serverError": "Server error. Please try again later.",
+    "serviceUnavailable": "Service temporarily unavailable",
+    "rateLimit": "Too many requests. Please slow down.",
+    "maintenance": "System is under maintenance"
+  },
+  "operation": {
+    "failed": "Operation failed",
+    "cancelled": "Operation was cancelled",
+    "timeout": "Operation timed out",
+    "conflict": "A conflict occurred. Please refresh and try again.",
+    "rollback": "Changes were rolled back due to an error"
+  },
+  "validation": {
+    "failed": "Validation failed. Please check your input.",
+    "serverRejected": "The server rejected the data"
+  },
+  "file": {
+    "uploadFailed": "File upload failed",
+    "downloadFailed": "File download failed",
+    "parseFailed": "Failed to parse file",
+    "corrupted": "File appears to be corrupted"
+  },
+  "generic": {
+    "unknown": "An unexpected error occurred",
+    "tryAgain": "Something went wrong. Please try again.",
+    "contactSupport": "If this problem persists, please contact support."
+  }
+}

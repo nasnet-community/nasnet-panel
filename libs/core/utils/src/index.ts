@@ -24,3 +24,6 @@ export * from './hooks';
 
 // Log Export Utilities
 export * from './log-export';
+
+// Graph Utilities (Dependency Resolution)
+export * from './graph';

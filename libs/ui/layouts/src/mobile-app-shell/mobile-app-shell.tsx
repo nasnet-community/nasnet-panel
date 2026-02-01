@@ -1,7 +1,9 @@
 import * as React from 'react';
+
 import { cn } from '@nasnet/ui/primitives';
-import { MobileHeader, type MobileHeaderProps } from '../mobile-header';
+
 import { BottomNavigation, type BottomNavigationProps } from '../bottom-navigation';
+import { MobileHeader, type MobileHeaderProps } from '../mobile-header';
 import { StatusLayout, type StatusLayoutProps } from '../status-layout';
 
 export interface MobileAppShellProps {

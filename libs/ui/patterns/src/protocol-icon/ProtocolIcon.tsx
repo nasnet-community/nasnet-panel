@@ -5,6 +5,7 @@
  */
 
 import * as React from 'react';
+
 import { 
   Shield, 
   Lock, 
@@ -13,6 +14,7 @@ import {
   Globe, 
   ShieldCheck 
 } from 'lucide-react';
+
 import type { VPNProtocol } from '@nasnet/core/types';
 
 export interface ProtocolIconProps {

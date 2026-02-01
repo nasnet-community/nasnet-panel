@@ -1,0 +1,61 @@
+{
+  "form": {
+    "required": "این فیلد الزامی است",
+    "minLength": "باید حداقل {{min}} کاراکتر باشد",
+    "maxLength": "باید حداکثر {{max}} کاراکتر باشد",
+    "pattern": "فرمت نامعتبر",
+    "email": "آدرس ایمیل نامعتبر",
+    "url": "URL نامعتبر",
+    "ipAddress": {
+      "invalid": "فرمت IP Address نامعتبر",
+      "v4Required": "باید یک IPv4 معتبر باشد",
+      "v6Required": "باید یک IPv6 معتبر باشد",
+      "cidrInvalid": "نشانه‌گذاری CIDR نامعتبر"
+    },
+    "macAddress": {
+      "invalid": "فرمت MAC Address نامعتبر"
+    },
+    "port": {
+      "invalid": "شماره Port نامعتبر",
+      "outOfRange": "Port باید بین 1 و 65535 باشد"
+    },
+    "subnet": {
+      "invalid": "فرمت Subnet نامعتبر",
+      "maskOutOfRange": "Subnet mask باید بین 0 و 32 باشد"
+    },
+    "number": {
+      "invalid": "باید یک عدد معتبر باشد",
+      "integer": "باید یک عدد صحیح باشد",
+      "positive": "باید یک عدد مثبت باشد",
+      "min": "باید حداقل {{min}} باشد",
+      "max": "باید حداکثر {{max}} باشد",
+      "range": "باید بین {{min}} و {{max}} باشد"
+    },
+    "password": {
+      "tooShort": "رمز عبور باید حداقل {{min}} کاراکتر باشد",
+      "tooWeak": "رمز عبور بسیار ضعیف است",
+      "mismatch": "رمز عبور مطابقت ندارد",
+      "requiresUppercase": "باید حداقل یک حرف بزرگ داشته باشد",
+      "requiresLowercase": "باید حداقل یک حرف کوچک داشته باشد",
+      "requiresNumber": "باید حداقل یک عدد داشته باشد",
+      "requiresSpecial": "باید حداقل یک کاراکتر خاص داشته باشد"
+    },
+    "name": {
+      "invalid": "نام شامل کاراکترهای نامعتبر است",
+      "reserved": "این نام رزرو شده است",
+      "duplicate": "این نام قبلاً استفاده شده است"
+    },
+    "date": {
+      "invalid": "تاریخ نامعتبر",
+      "past": "تاریخ باید در گذشته باشد",
+      "future": "تاریخ باید در آینده باشد",
+      "beforeMin": "تاریخ باید بعد از {{min}} باشد",
+      "afterMax": "تاریخ باید قبل از {{max}} باشد"
+    },
+    "file": {
+      "tooLarge": "حجم فایل بیشتر از {{max}} است",
+      "invalidType": "نوع فایل نامعتبر",
+      "required": "لطفاً یک فایل انتخاب کنید"
+    }
+  }
+}

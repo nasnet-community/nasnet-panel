@@ -4,9 +4,10 @@
  * Epic 0.8: System Logs - Story 0.8.4
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { NewEntriesIndicator } from './NewEntriesIndicator';
 
 describe('NewEntriesIndicator', () => {

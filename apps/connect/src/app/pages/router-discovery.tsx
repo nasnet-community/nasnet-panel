@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import type { Router, RouterCredentials, ScanResult } from '@nasnet/core/types';
 import { useRouterStore } from '@nasnet/state/stores';
@@ -164,7 +164,7 @@ export function RouterDiscoveryPage() {
               setCurrentRouter(router.id, router.ipAddress);
 
               // Navigate to main app
-              navigate(`/router/${router.id}`);
+              navigate({ to: `/router/${router.id}` });
             } else {
               // Saved credentials invalid - show dialog
               updateRouter(router.id, { connectionStatus: 'offline' });
@@ -245,7 +245,7 @@ export function RouterDiscoveryPage() {
 
             // Close dialog and navigate to main app
             setCredentialDialogOpen(false);
-            navigate(`/router/${selectedRouterForAuth.id}`);
+            navigate({ to: `/router/${selectedRouterForAuth.id}` });
           } else {
             // Connection failed
             updateRouter(selectedRouterForAuth.id, {

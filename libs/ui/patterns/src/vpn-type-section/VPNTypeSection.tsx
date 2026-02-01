@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+
 import { Badge, Button } from '@nasnet/ui/primitives';
 
 export interface VPNTypeSectionProps {

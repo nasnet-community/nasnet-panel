@@ -1,6 +1,6 @@
 import { Button } from '@nasnet/ui/primitives';
 import { Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { ROUTES } from '@nasnet/core/constants';
 
 /**
@@ -36,7 +36,7 @@ export function RouterListPage() {
 
   const handleAddRouter = () => {
     // Placeholder: Will navigate to auto-scan or manual entry (Epic 0.1)
-    navigate(ROUTES.DASHBOARD);
+    navigate({ to: ROUTES.DASHBOARD });
   };
 
   return (

@@ -1,6 +1,6 @@
 import * as React from 'react';
+
 import { cn } from '@nasnet/ui/primitives';
-import { ConnectionBanner } from '@nasnet/ui/patterns';
 
 export interface AppShellProps {
   children: React.ReactNode;
@@ -9,6 +9,8 @@ export interface AppShellProps {
   sidebar?: React.ReactNode;
   sidebarPosition?: 'left' | 'right';
   sidebarCollapsed?: boolean;
+  /** Optional banner slot (e.g., ConnectionBanner) - rendered below header */
+  banner?: React.ReactNode;
   className?: string;
 }
 
@@ -21,6 +23,7 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
       sidebar,
       sidebarPosition = 'left',
       sidebarCollapsed = false,
+      banner,
       className,
     },
     ref
@@ -35,7 +38,7 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
             {header}
           </header>
         )}
-        <ConnectionBanner />
+        {banner}
         <div className="flex flex-1">
           {sidebar && sidebarPosition === 'left' && (
             <aside

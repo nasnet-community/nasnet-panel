@@ -4,10 +4,13 @@
  * Epic 0.8: System Logs - Story 0.8.1
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { LogEntry } from './LogEntry';
+import { describe, it, expect } from 'vitest';
+
 import type { LogEntry as LogEntryType } from '@nasnet/core/types/router';
+
+import { LogEntry } from './LogEntry';
+
 
 describe('LogEntry', () => {
   const mockLogEntry: LogEntryType = {

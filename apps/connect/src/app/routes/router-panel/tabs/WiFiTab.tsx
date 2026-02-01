@@ -7,6 +7,7 @@
 import { useWirelessInterfaces, useWirelessClients } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { useQueryClient } from '@tanstack/react-query';
+import { Route } from '@/routes/router/$id/wifi/index';
 import {
   WifiStatusHero,
   WifiInterfaceList,
@@ -17,6 +18,7 @@ import {
 } from '../../../pages/wifi/components';
 
 export function WiFiTab() {
+  const { id: routerId } = Route.useParams();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const queryClient = useQueryClient();
 
@@ -104,7 +106,7 @@ export function WiFiTab() {
       />
 
       {/* Wireless Interfaces List */}
-      <WifiInterfaceList />
+      <WifiInterfaceList routerId={routerId} />
     </div>
   );
 }

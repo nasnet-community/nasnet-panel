@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from '@nasnet/ui/primitives';
 
 export interface FormFieldProps {
@@ -11,7 +12,7 @@ export interface FormFieldProps {
   id?: string;
 }
 
-const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
+const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
   ({ label, description, error, required, children, className, id }, ref) => {
     const fieldId = id || React.useId();
     const descriptionId = `${fieldId}-description`;
@@ -53,6 +54,12 @@ const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   }
 );
 
-FormField.displayName = 'FormField';
+FormFieldBase.displayName = 'FormField';
+
+/**
+ * Memoized FormField to prevent unnecessary re-renders
+ * Only re-renders when props actually change
+ */
+const FormField = React.memo(FormFieldBase);
 
 export { FormField };

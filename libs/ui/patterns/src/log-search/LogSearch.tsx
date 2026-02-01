@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { Input, cn } from '@nasnet/ui/primitives';
+
 import { Search, X } from 'lucide-react';
+
+import { Input, cn } from '@nasnet/ui/primitives';
 
 export interface LogSearchProps {
   /**

@@ -1,0 +1,507 @@
+# =============================================================================
+# Universal State v2 - Resource Schema
+# =============================================================================
+# This schema defines the 8-layer Resource Model for NasNetConnect.
+# Every managed resource (VPN, Network, Firewall Rule, Feature) implements
+# this interface to provide consistent state management.
+#
+# Reference: ADR-012 - Universal State v2
+# Reference: Docs/architecture/data-architecture.md
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Resource Interface
+# -----------------------------------------------------------------------------
+
+"""
+Universal State v2 Resource Interface.
+Every managed resource implements this interface with 8 layers:
+1. configuration - User's desired config (mutable by user)
+2. validation - Pre-flight check results (computed by backend)
+3. deployment - What's on router (after Apply-Confirm)
+4. runtime - Live operational state (polled/streamed)
+5. telemetry - Time-series metrics (historical)
+6. metadata - Lifecycle info, tags, ownership
+7. relationships - Dependencies (embedded + explicit)
+8. platform - Capabilities and field mappings
+"""
+interface Resource {
+  "Globally unique identifier (ULID)"
+  uuid: ID!
+
+  "Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2')"
+  id: String!
+
+  "Resource type identifier (e.g., 'vpn.wireguard.client')"
+  type: String!
+
+  "Resource category"
+  category: ResourceCategory!
+
+  # =========================================================================
+  # 8-LAYER MODEL
+  # =========================================================================
+
+  """
+  Layer 1: CONFIGURATION - User's desired config
+  Mutable by user. Validated by Zod on client, GraphQL on server.
+  """
+  configuration: JSON!
+
+  """
+  Layer 2: VALIDATION - Pre-flight check results
+  Computed by backend. Updated on every configuration change.
+  """
+  validation: ValidationResult
+
+  """
+  Layer 3: DEPLOYMENT - What's actually on router
+  Written after Apply-Confirm. Includes router-generated fields.
+  """
+  deployment: DeploymentState
+
+  """
+  Layer 4: RUNTIME - Live operational state
+  Polled/streamed from router. Read-only.
+  """
+  runtime: RuntimeState
+
+  """
+  Layer 5: TELEMETRY - Time-series metrics
+  Historical data collected over time. Read-only.
+  """
+  telemetry: TelemetryData
+
+  """
+  Layer 6: METADATA - Resource lifecycle info
+  System-managed. Includes tags, version, ownership.
+  """
+  metadata: ResourceMetadata!
+
+  """
+  Layer 7: RELATIONSHIPS - Dependencies
+  Embedded in config (user-defined) + explicit table (system-discovered).
+  """
+  relationships: ResourceRelationships
+
+  """
+  Layer 8: PLATFORM - Capabilities and field mappings
+  From platform adapter. Router-specific behavior.
+  """
+  platform: PlatformInfo
+}
+
+# -----------------------------------------------------------------------------
+# Resource Category Enum
+# -----------------------------------------------------------------------------
+
+"""
+Categories of managed resources
+"""
+enum ResourceCategory {
+  "Network topology: WAN Links, LAN Networks, VLANs"
+  NETWORK
+
+  "VPN connectivity: WireGuard, OpenVPN, IPsec"
+  VPN
+
+  "System infrastructure: Certificates, NTP, DDNS"
+  INFRASTRUCTURE
+
+  "Application-level: Port Forwarding, Game Rules"
+  APPLICATION
+
+  "Marketplace features: Tor, AdGuard, sing-box"
+  FEATURE
+
+  "Community extensions: Third-party plugins"
+  PLUGIN
+}
+
+# -----------------------------------------------------------------------------
+# Resource Lifecycle States
+# -----------------------------------------------------------------------------
+
+"""
+Resource lifecycle states for state machine
+"""
+enum ResourceLifecycleState {
+  "Initial creation, not yet validated"
+  DRAFT
+
+  "Backend validation in progress"
+  VALIDATING
+
+  "Passed validation, ready to apply"
+  VALID
+
+  "Being applied to router"
+  APPLYING
+
+  "Successfully applied and running"
+  ACTIVE
+
+  "Running but with issues"
+  DEGRADED
+
+  "Failed state (validation or apply)"
+  ERROR
+
+  "Marked for removal"
+  DEPRECATED
+
+  "Final state, no longer active"
+  ARCHIVED
+}
+
+# -----------------------------------------------------------------------------
+# Resource Connection (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+type ResourceConnection implements Connection {
+  edges: [ResourceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ResourceEdge implements Edge {
+  cursor: String!
+  node: Resource!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get a resource by UUID
+  """
+  resource(
+    "Resource UUID"
+    uuid: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+    "Specific layers to fetch (default: all)"
+    layers: [ResourceLayer!]
+  ): Resource
+
+  """
+  List resources for a router
+  """
+  resources(
+    "Router to query"
+    routerId: ID!
+    "Filter by category"
+    category: ResourceCategory
+    "Filter by type"
+    type: String
+    "Filter by lifecycle state"
+    state: ResourceLifecycleState
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): ResourceConnection!
+
+  """
+  Get composite resource with all related sub-resources
+  """
+  compositeResource(
+    "Resource UUID"
+    uuid: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+  ): CompositeResource
+}
+
+# -----------------------------------------------------------------------------
+# Resource Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new resource (starts in DRAFT state)
+  """
+  createResource(input: CreateResourceInput!): CreateResourcePayload!
+
+  """
+  Update resource configuration (transitions to DRAFT → VALIDATING)
+  """
+  updateResource(
+    uuid: ID!
+    routerId: ID!
+    input: UpdateResourceInput!
+  ): UpdateResourcePayload!
+
+  """
+  Validate resource configuration (transitions DRAFT → VALIDATING → VALID/ERROR)
+  """
+  validateResource(uuid: ID!, routerId: ID!): ValidateResourcePayload!
+
+  """
+  Apply resource to router (transitions VALID → APPLYING → ACTIVE/ERROR)
+  Follows Apply-Confirm-Merge pattern.
+  """
+  applyResource(uuid: ID!, routerId: ID!): ApplyResourcePayload!
+
+  """
+  Deprecate a resource (transitions → DEPRECATED)
+  """
+  deprecateResource(uuid: ID!, routerId: ID!): DeprecateResourcePayload!
+
+  """
+  Archive a resource (transitions DEPRECATED → ARCHIVED)
+  """
+  archiveResource(uuid: ID!, routerId: ID!): ArchiveResourcePayload!
+
+  """
+  Delete a resource permanently
+  """
+  deleteResource(uuid: ID!, routerId: ID!): DeleteResourcePayload!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to resource runtime updates
+  """
+  resourceRuntime(
+    "Resource UUID"
+    uuid: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+  ): ResourceRuntimeEvent! @realtime(interval: 5000)
+
+  """
+  Subscribe to resource lifecycle state changes
+  """
+  resourceStateChanged(
+    "Resource UUID (optional - subscribe to all if not provided)"
+    uuid: ID
+    "Router to subscribe to"
+    routerId: ID!
+  ): ResourceStateEvent!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Layer Enum (for selective fetching)
+# -----------------------------------------------------------------------------
+
+"""
+Selectable resource layers for optimized fetching
+"""
+enum ResourceLayer {
+  CONFIGURATION
+  VALIDATION
+  DEPLOYMENT
+  RUNTIME
+  TELEMETRY
+  METADATA
+  RELATIONSHIPS
+  PLATFORM
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Input for creating a new resource
+"""
+input CreateResourceInput {
+  "Router to create resource on"
+  routerId: ID!
+
+  "Resource type (e.g., 'vpn.wireguard.client')"
+  type: String!
+
+  "Resource category"
+  category: ResourceCategory!
+
+  "Initial configuration"
+  configuration: JSON!
+
+  "User-defined relationships"
+  relationships: ResourceRelationshipsInput
+
+  "Initial tags"
+  tags: [String!]
+
+  "Resource description"
+  description: String
+}
+
+"""
+Input for updating resource configuration
+"""
+input UpdateResourceInput {
+  "Updated configuration (partial or full)"
+  configuration: JSON
+
+  "Updated relationships"
+  relationships: ResourceRelationshipsInput
+
+  "Updated tags"
+  tags: [String!]
+
+  "Updated description"
+  description: String
+}
+
+"""
+Input for resource relationships
+"""
+input ResourceRelationshipsInput {
+  "Resources this resource depends on (UUIDs)"
+  dependsOn: [ID!]
+
+  "Resources that route traffic via this resource (UUIDs)"
+  routesVia: ID
+
+  "Parent resource UUID (for hierarchical resources)"
+  parent: ID
+
+  "Custom relationship data"
+  custom: JSON
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+type CreateResourcePayload {
+  "The created resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type UpdateResourcePayload {
+  "The updated resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ValidateResourcePayload {
+  "The validated resource"
+  resource: Resource
+  "Validation result"
+  validation: ValidationResult
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ApplyResourcePayload {
+  "The applied resource"
+  resource: Resource
+  "Operation ID for progress tracking"
+  operationId: ID!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type DeprecateResourcePayload {
+  "The deprecated resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ArchiveResourcePayload {
+  "Whether archive was successful"
+  success: Boolean!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type DeleteResourcePayload {
+  "Whether deletion was successful"
+  success: Boolean!
+  "UUID of deleted resource"
+  deletedUuid: ID
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Events
+# -----------------------------------------------------------------------------
+
+"""
+Runtime update event for a resource
+"""
+type ResourceRuntimeEvent {
+  "Resource UUID"
+  uuid: ID!
+  "Resource type"
+  type: String!
+  "Updated runtime state"
+  runtime: RuntimeState!
+  "Timestamp of update"
+  timestamp: DateTime!
+}
+
+"""
+Lifecycle state change event
+"""
+type ResourceStateEvent {
+  "Resource UUID"
+  uuid: ID!
+  "Resource type"
+  type: String!
+  "Previous state"
+  previousState: ResourceLifecycleState!
+  "New state"
+  newState: ResourceLifecycleState!
+  "Error message if state is ERROR"
+  errorMessage: String
+  "Timestamp of change"
+  timestamp: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Composite Resource Type
+# -----------------------------------------------------------------------------
+
+"""
+A composite resource with all related sub-resources
+"""
+type CompositeResource {
+  "The root resource"
+  root: Resource!
+  "All child/related resources"
+  children: [Resource!]!
+  "Flattened relationship graph"
+  relationships: [ResourceRelationshipEdge!]!
+}
+
+"""
+Edge in the resource relationship graph
+"""
+type ResourceRelationshipEdge {
+  "Source resource UUID"
+  from: ID!
+  "Target resource UUID"
+  to: ID!
+  "Relationship type"
+  type: ResourceRelationshipType!
+}
+
+"""
+Types of relationships between resources
+"""
+enum ResourceRelationshipType {
+  "Child depends on parent"
+  DEPENDS_ON
+  "Traffic routes via this resource"
+  ROUTES_VIA
+  "Parent-child hierarchy"
+  PARENT_CHILD
+  "Resources are in the same group"
+  GROUP
+  "Custom relationship"
+  CUSTOM
+}

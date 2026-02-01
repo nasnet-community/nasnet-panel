@@ -1,5 +1,19 @@
+/**
+ * Theme State Store
+ * Manages theme mode (light/dark/system) with localStorage persistence
+ *
+ * Features:
+ * - Persist theme preference to localStorage
+ * - Auto-detect system theme preference
+ * - Listen for system theme changes
+ * - Sync theme class to DOM
+ * - Redux DevTools integration for debugging
+ *
+ * @see NAS-4.5: Implement UI State with Zustand
+ */
+
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 
 /**
  * Theme mode type
@@ -33,23 +47,29 @@ export interface ThemeState {
   theme: ThemeMode;
 
   /**
+   * Resolved theme after considering system preference
+   * If theme is 'system', this will be 'light' or 'dark' based on OS
+   * Otherwise, it matches the theme value
+   */
+  resolvedTheme: 'light' | 'dark';
+
+  /**
    * Set the theme mode
    * @param theme - The theme mode to set
    */
   setTheme: (theme: ThemeMode) => void;
 
   /**
+   * Toggle between light and dark themes
+   * Convenience action for quick switching
+   */
+  toggleTheme: () => void;
+
+  /**
    * Reset theme to system preference
    * Clears localStorage and reverts to default
    */
   resetTheme: () => void;
-
-  /**
-   * Resolved theme after considering system preference
-   * If theme is 'system', this will be 'light' or 'dark' based on OS
-   * Otherwise, it matches the theme value
-   */
-  resolvedTheme: 'light' | 'dark';
 
   /**
    * Internal: Update resolved theme
@@ -63,10 +83,13 @@ export interface ThemeState {
  *
  * Usage:
  * ```tsx
- * const { theme, setTheme, resetTheme, resolvedTheme } = useThemeStore();
+ * const { theme, setTheme, toggleTheme, resetTheme, resolvedTheme } = useThemeStore();
  *
  * // Toggle theme (persists automatically)
- * setTheme(theme === 'dark' ? 'light' : 'dark');
+ * toggleTheme();
+ *
+ * // Set specific theme
+ * setTheme('dark');
  *
  * // Reset to system preference
  * resetTheme();
@@ -79,26 +102,143 @@ export interface ThemeState {
  * - Automatically saves to localStorage under key: 'nasnet-theme'
  * - Hydrates state on app initialization
  * - Falls back gracefully if localStorage is unavailable
+ *
+ * DevTools:
+ * - Integrated with Redux DevTools for debugging (development only)
+ * - Store name: 'theme-store'
  */
 export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set) => ({
-      theme: 'system',
-      resolvedTheme: getSystemTheme(), // Detect system preference on initialization
-      setTheme: (theme) => set({ theme }),
-      resetTheme: () => set({ theme: 'system' }),
-      _setResolvedTheme: (resolvedTheme) => set({ resolvedTheme }),
-    }),
-    {
-      name: 'nasnet-theme', // localStorage key
-      version: 1, // For future migrations
-      onRehydrateStorage: () => {
-        return (state, error) => {
-          if (error) {
-            console.warn('Failed to hydrate theme from localStorage:', error);
+  devtools(
+    persist(
+      (set, get) => ({
+        theme: 'system',
+        resolvedTheme: getSystemTheme(), // Detect system preference on initialization
+
+        setTheme: (theme) => {
+          // Update theme and resolve it
+          if (theme === 'system') {
+            set({ theme, resolvedTheme: getSystemTheme() });
+          } else {
+            set({ theme, resolvedTheme: theme });
           }
-        };
-      },
+        },
+
+        toggleTheme: () => {
+          const current = get().resolvedTheme;
+          const newTheme = current === 'dark' ? 'light' : 'dark';
+          set({
+            theme: newTheme,
+            resolvedTheme: newTheme,
+          });
+        },
+
+        resetTheme: () => set({ theme: 'system', resolvedTheme: getSystemTheme() }),
+
+        _setResolvedTheme: (resolvedTheme) => set({ resolvedTheme }),
+      }),
+      {
+        name: 'nasnet-theme', // localStorage key
+        version: 1, // For future migrations
+        onRehydrateStorage: () => {
+          return (state, error) => {
+            if (error) {
+              console.warn('Failed to hydrate theme from localStorage:', error);
+            }
+            // After rehydration, resolve the theme if it's 'system'
+            if (state && state.theme === 'system') {
+              state._setResolvedTheme(getSystemTheme());
+            }
+          };
+        },
+      }
+    ),
+    {
+      name: 'theme-store',
+      enabled: typeof window !== 'undefined' && import.meta.env?.DEV !== false,
     }
   )
 );
+
+/**
+ * Initialize system theme change listener
+ * Call this once in app initialization to auto-update theme when OS preference changes
+ *
+ * @returns Cleanup function to remove the listener
+ *
+ * @example
+ * ```tsx
+ * // In your app initialization (e.g., main.tsx or App.tsx)
+ * useEffect(() => {
+ *   const cleanup = initThemeListener();
+ *   return cleanup;
+ * }, []);
+ * ```
+ */
+export function initThemeListener(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const handleChange = (e: MediaQueryListEvent) => {
+    const { theme, _setResolvedTheme } = useThemeStore.getState();
+    // Only update if user prefers system theme
+    if (theme === 'system') {
+      _setResolvedTheme(e.matches ? 'dark' : 'light');
+    }
+  };
+
+  mediaQuery.addEventListener('change', handleChange);
+
+  // Return cleanup function
+  return () => mediaQuery.removeEventListener('change', handleChange);
+}
+
+/**
+ * Sync theme to DOM by toggling 'dark' class on document element
+ * Call in a useEffect or app initialization to keep DOM in sync with theme state
+ *
+ * @returns Cleanup function to unsubscribe from store
+ *
+ * @example
+ * ```tsx
+ * // In your app initialization
+ * useEffect(() => {
+ *   const cleanup = syncThemeToDOM();
+ *   return cleanup;
+ * }, []);
+ * ```
+ */
+export function syncThemeToDOM(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  // Apply immediately on first call
+  const { resolvedTheme } = useThemeStore.getState();
+  document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+
+  // Subscribe to changes
+  const unsubscribe = useThemeStore.subscribe((state, prevState) => {
+    if (state.resolvedTheme !== prevState.resolvedTheme) {
+      document.documentElement.classList.toggle('dark', state.resolvedTheme === 'dark');
+    }
+  });
+
+  return unsubscribe;
+}
+
+/**
+ * Selector for resolved theme only
+ * Use for components that only need the resolved theme
+ */
+export const selectResolvedTheme = (state: ThemeState) => state.resolvedTheme;
+
+/**
+ * Selector for theme mode
+ * Use for components that need to know the user's preference
+ */
+export const selectThemeMode = (state: ThemeState) => state.theme;
+
+/**
+ * Get theme store state outside of React
+ * Useful for imperative code or testing
+ */
+export const getThemeState = () => useThemeStore.getState();

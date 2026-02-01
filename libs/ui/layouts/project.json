@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/layouts/src",
   "projectType": "library",
-  "tags": ["scope:ui", "type:lib"],
+  "tags": ["scope:ui", "scope:ui-layouts", "type:lib"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",

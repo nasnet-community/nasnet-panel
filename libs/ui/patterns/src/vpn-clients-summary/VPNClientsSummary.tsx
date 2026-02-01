@@ -6,7 +6,8 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@nasnet/ui/primitives';
+
+import { Link } from '@tanstack/react-router';
 import { 
   Shield, 
   ChevronRight, 
@@ -14,8 +15,10 @@ import {
   Loader2,
   Wifi,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
 import type { VPNProtocol } from '@nasnet/core/types';
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@nasnet/ui/primitives';
+
 import { ProtocolIconBadge } from '../protocol-icon';
 
 /**
@@ -94,7 +97,7 @@ export function VPNClientsSummary({
             </div>
           </div>
           {linkTo && (
-            <Link to={linkTo}>
+            <Link to={linkTo as '/'}>
               <Button variant="ghost" size="sm" className="gap-1">
                 See All
                 <ChevronRight className="w-4 h-4" />

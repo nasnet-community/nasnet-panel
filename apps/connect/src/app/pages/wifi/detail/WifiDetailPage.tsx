@@ -4,7 +4,8 @@
  * Implements FR0-15: View wireless interface configuration details
  */
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
+import { Route } from '@/routes/router/$id/wifi/$interfaceName';
 import { ArrowLeft } from 'lucide-react';
 import { WirelessInterfaceDetail } from '@nasnet/features/wireless';
 import { useWirelessInterfaceDetail } from '@nasnet/api-client/queries';
@@ -22,7 +23,7 @@ import { ROUTES } from '@nasnet/core/constants';
  * Route: /router/:id/wifi/:interfaceName
  */
 export function WifiDetailPage() {
-  const { interfaceName, id: routerId } = useParams<{ interfaceName: string; id: string }>();
+  const { interfaceName, id: routerId } = Route.useParams();
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: interfaceData, isLoading, error } = useWirelessInterfaceDetail(
@@ -34,7 +35,7 @@ export function WifiDetailPage() {
    * Navigate back to the router's WiFi tab
    */
   const handleBack = () => {
-    navigate(`/router/${routerId}/wifi`);
+    navigate({ to: `/router/${routerId}/wifi` });
   };
 
   // Loading state

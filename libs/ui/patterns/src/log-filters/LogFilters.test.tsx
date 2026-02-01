@@ -4,11 +4,14 @@
  * Epic 0.8: System Logs - Stories 0.8.2 & 0.8.3
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LogFilters } from './LogFilters';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import type { LogTopic, LogSeverity } from '@nasnet/core/types/router';
+
+import { LogFilters } from './LogFilters';
+
 
 describe('LogFilters', () => {
   const mockOnTopicsChange = vi.fn();

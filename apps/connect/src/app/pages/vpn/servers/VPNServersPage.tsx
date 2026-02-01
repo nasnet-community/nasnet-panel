@@ -5,7 +5,8 @@
  */
 
 import * as React from 'react';
-import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
+import { Route } from '@/routes/router/$id/vpn/servers';
 import { 
   VPNServerCard,
   VPNTypeSection,
@@ -42,9 +43,9 @@ const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 's
  */
 export function VPNServersPage() {
   const navigate = useNavigate();
-  const { id: routerId } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const initialProtocol = searchParams.get('protocol') as VPNProtocol | null;
+  const { id: routerId } = Route.useParams();
+  const search = useSearch({ from: '/router/$id/vpn/servers' });
+  const initialProtocol = (search as { protocol?: VPNProtocol }).protocol || null;
   const [activeTab, setActiveTab] = React.useState<VPNProtocol | 'all'>(initialProtocol || 'all');
   
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
@@ -147,15 +148,15 @@ export function VPNServersPage() {
                     rx={server.rx}
                     tx={server.tx}
                     onToggle={(id, enabled) => handleToggle(id, server.name, 'wireguard', enabled)}
-                    onEdit={() => navigate(`/vpn/servers/wireguard/${server.id}/edit`)}
+                    onEdit={() => navigate({ to: `/vpn/servers/wireguard/${server.id}/edit` as '/' })}
                     onDelete={() => {/* TODO: Delete confirmation */}}
-                    onViewDetails={() => navigate(`/vpn/servers/wireguard/${server.id}`)}
+                    onViewDetails={() => navigate({ to: `/vpn/servers/wireguard/${server.id}` as '/' })}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
             ) : (
-              <EmptyState protocol="wireguard" onAdd={() => navigate('/vpn/servers/wireguard/add')} />
+              <EmptyState protocol="wireguard" onAdd={() => navigate({ to: '/vpn/servers/wireguard/add' as '/' })} />
             )}
           </VPNTypeSection>
         );
@@ -181,14 +182,14 @@ export function VPNServersPage() {
                     connectedClients={getPPPConnectedCount('ovpn')}
                     comment={server.comment}
                     onToggle={(id, enabled) => handleToggle(id, server.name, 'openvpn', enabled)}
-                    onEdit={() => navigate(`/vpn/servers/openvpn/${server.id}/edit`)}
+                    onEdit={() => navigate({ to: `/vpn/servers/openvpn/${server.id}/edit` as '/' })}
                     onDelete={() => {/* TODO: Delete confirmation */}}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
             ) : (
-              <EmptyState protocol="openvpn" onAdd={() => navigate('/vpn/servers/openvpn/add')} />
+              <EmptyState protocol="openvpn" onAdd={() => navigate({ to: '/vpn/servers/openvpn/add' as '/' })} />
             )}
           </VPNTypeSection>
         );
@@ -210,11 +211,11 @@ export function VPNServersPage() {
                 connectedClients={getPPPConnectedCount('l2tp')}
                 comment={l2tpServer.comment}
                 onToggle={(id, enabled) => handleToggle(id, l2tpServer.name, 'l2tp', enabled)}
-                onEdit={() => navigate('/vpn/servers/l2tp/edit')}
+                onEdit={() => navigate({ to: '/vpn/servers/l2tp/edit' as '/' })}
                 isToggling={toggleMutation.isPending}
               />
             ) : (
-              <EmptyState protocol="l2tp" onAdd={() => navigate('/vpn/servers/l2tp/enable')} />
+              <EmptyState protocol="l2tp" onAdd={() => navigate({ to: '/vpn/servers/l2tp/enable' as '/' })} />
             )}
           </VPNTypeSection>
         );
@@ -236,11 +237,11 @@ export function VPNServersPage() {
                 connectedClients={getPPPConnectedCount('pptp')}
                 comment={pptpServer.comment}
                 onToggle={(id, enabled) => handleToggle(id, pptpServer.name, 'pptp', enabled)}
-                onEdit={() => navigate('/vpn/servers/pptp/edit')}
+                onEdit={() => navigate({ to: '/vpn/servers/pptp/edit' as '/' })}
                 isToggling={toggleMutation.isPending}
               />
             ) : (
-              <EmptyState protocol="pptp" onAdd={() => navigate('/vpn/servers/pptp/enable')} />
+              <EmptyState protocol="pptp" onAdd={() => navigate({ to: '/vpn/servers/pptp/enable' as '/' })} />
             )}
           </VPNTypeSection>
         );
@@ -263,11 +264,11 @@ export function VPNServersPage() {
                 connectedClients={getPPPConnectedCount('sstp')}
                 comment={sstpServer.comment}
                 onToggle={(id, enabled) => handleToggle(id, sstpServer.name, 'sstp', enabled)}
-                onEdit={() => navigate('/vpn/servers/sstp/edit')}
+                onEdit={() => navigate({ to: '/vpn/servers/sstp/edit' as '/' })}
                 isToggling={toggleMutation.isPending}
               />
             ) : (
-              <EmptyState protocol="sstp" onAdd={() => navigate('/vpn/servers/sstp/enable')} />
+              <EmptyState protocol="sstp" onAdd={() => navigate({ to: '/vpn/servers/sstp/enable' as '/' })} />
             )}
           </VPNTypeSection>
         );
@@ -292,14 +293,14 @@ export function VPNServersPage() {
                     port={peer.port}
                     comment={peer.comment}
                     onToggle={(id, enabled) => handleToggle(id, peer.name, 'ikev2', enabled)}
-                    onEdit={() => navigate(`/vpn/servers/ikev2/${peer.id}/edit`)}
+                    onEdit={() => navigate({ to: `/vpn/servers/ikev2/${peer.id}/edit` as '/' })}
                     onDelete={() => {/* TODO: Delete confirmation */}}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
             ) : (
-              <EmptyState protocol="ikev2" onAdd={() => navigate('/vpn/servers/ikev2/add')} />
+              <EmptyState protocol="ikev2" onAdd={() => navigate({ to: '/vpn/servers/ikev2/add' as '/' })} />
             )}
           </VPNTypeSection>
         );

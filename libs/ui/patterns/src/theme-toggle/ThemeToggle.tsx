@@ -1,6 +1,7 @@
 import { Moon, Sun, Monitor } from 'lucide-react';
-import { Button, cn } from '@nasnet/ui/primitives';
+
 import { useThemeStore, type ThemeMode } from '@nasnet/state/stores';
+import { Button, cn } from '@nasnet/ui/primitives';
 
 /**
  * ThemeToggle Props
@@ -70,13 +71,13 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       size="icon"
       onClick={handleToggle}
       className={cn(
-        'rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200',
+        'rounded-full hover:bg-accent transition-all duration-200',
         className
       )}
       aria-label={ariaLabel}
       title={ariaLabel}
     >
-      <Icon className="h-5 w-5 text-slate-700 dark:text-slate-300 transition-transform duration-300 hover:rotate-12" />
+      <Icon className="h-5 w-5 text-muted-foreground transition-transform duration-300 hover:rotate-12" />
     </Button>
   );
 }

@@ -73,10 +73,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useLayoutEffect(() => {
     const root = document.documentElement;
 
+    // Apply both .dark class (for Tailwind dark: variants) and data-theme attribute (for CSS variables)
     if (resolvedTheme === 'dark') {
       root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
     } else {
       root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
     }
   }, [resolvedTheme]);
 

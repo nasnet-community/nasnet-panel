@@ -5,10 +5,12 @@
  */
 
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@nasnet/ui/primitives';
 import { X } from 'lucide-react';
+
 import type { LogSeverity } from '@nasnet/core/types';
+import { cn } from '@nasnet/ui/primitives';
 
 /**
  * Severity badge variants with color mapping

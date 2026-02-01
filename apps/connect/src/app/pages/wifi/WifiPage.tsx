@@ -99,7 +99,7 @@ export function WifiPage() {
       />
 
       {/* Wireless Interfaces List */}
-      <WifiInterfaceList />
+      <WifiInterfaceList routerId="" />
 
       {/* Connected Clients Table */}
       <ConnectedClientsTable

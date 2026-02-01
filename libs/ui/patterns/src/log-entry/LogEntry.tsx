@@ -5,12 +5,17 @@
  */
 
 import * as React from 'react';
-import { cn } from '@nasnet/ui/primitives';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 import { Copy, Pin, Check } from 'lucide-react';
-import { SeverityBadge } from '../severity-badge';
+
 import type { LogEntry as LogEntryType, LogTopic } from '@nasnet/core/types';
 import { formatTimestamp } from '@nasnet/core/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@nasnet/ui/primitives';
+
+import { SeverityBadge } from '../severity-badge';
+
+
 
 /**
  * Topic badge styling variants

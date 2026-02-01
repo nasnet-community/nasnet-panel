@@ -3,11 +3,14 @@
  * Tests for the Hardware Details display card component
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HardwareCard } from './HardwareCard';
+import { describe, it, expect, vi } from 'vitest';
+
 import type { RouterboardInfo } from '@nasnet/core/types/router';
+
+import { HardwareCard } from './HardwareCard';
+
 
 // Mock clipboard API
 Object.assign(navigator, {

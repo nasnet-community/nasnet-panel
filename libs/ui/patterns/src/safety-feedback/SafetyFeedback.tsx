@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { cn, Button } from '@nasnet/ui/primitives';
+
 import { AlertTriangle, CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+
+import { cn, Button } from '@nasnet/ui/primitives';
 
 /**
  * Feedback action configuration

@@ -5,7 +5,8 @@
  */
 
 import * as React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
+import { Route } from '@/routes/router/$id/vpn/index';
 import { 
   VPNStatusHero,
   VPNProtocolStatsCard,
@@ -35,7 +36,7 @@ const PROTOCOL_ORDER: VPNProtocol[] = [
  */
 export function VPNDashboard() {
   const navigate = useNavigate();
-  const { id: routerId } = useParams<{ id: string }>();
+  const { id: routerId } = Route.useParams();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   
   const { 
@@ -49,13 +50,13 @@ export function VPNDashboard() {
   // Navigate to server/client pages within router context
   const handleNavigateServers = () => {
     if (routerId) {
-      navigate(`/router/${routerId}/vpn/servers`);
+      navigate({ to: `/router/${routerId}/vpn/servers` });
     }
   };
-  
+
   const handleNavigateClients = () => {
     if (routerId) {
-      navigate(`/router/${routerId}/vpn/clients`);
+      navigate({ to: `/router/${routerId}/vpn/clients` });
     }
   };
 
@@ -63,7 +64,7 @@ export function VPNDashboard() {
   const handleProtocolClick = (protocol: VPNProtocol) => {
     // Navigate to servers page with protocol filter
     if (routerId) {
-      navigate(`/router/${routerId}/vpn/servers?protocol=${protocol}`);
+      navigate({ to: `/router/${routerId}/vpn/servers`, search: { protocol } });
     }
   };
 

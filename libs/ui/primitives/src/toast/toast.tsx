@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import * as ToastPrimitives from '@radix-ui/react-toast';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
@@ -27,18 +28,18 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: 
-          'border-slate-200 bg-white text-slate-900 shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50',
+        default:
+          'border-border bg-popover text-popover-foreground shadow-lg',
         success:
-          'border-success bg-success/10 text-success-dark dark:border-success-dark dark:bg-success/20 dark:text-success-light',
+          'border-success/50 bg-success-light text-success-dark',
         warning:
-          'border-primary-400 bg-primary-50 text-primary-900 dark:border-primary-600 dark:bg-primary-900/20 dark:text-primary-300',
+          'border-warning/50 bg-warning-light text-warning-dark',
         error:
-          'border-error bg-error/10 text-error-dark dark:border-error-dark dark:bg-error/20 dark:text-error-light',
+          'border-error/50 bg-error-light text-error-dark',
         info:
-          'border-secondary-400 bg-secondary-50 text-secondary-900 dark:border-secondary-600 dark:bg-secondary-900/20 dark:text-secondary-300',
+          'border-info/50 bg-info-light text-info-dark',
         destructive:
-          'border-error bg-error/10 text-error-dark dark:border-error-dark dark:bg-error/20 dark:text-error-light',
+          'border-error/50 bg-error-light text-error-dark',
       },
     },
     defaultVariants: {
@@ -84,7 +85,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      'absolute right-2 top-2 rounded-lg p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-700 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary-500 group-hover:opacity-100',
+      'absolute right-2 top-2 rounded-lg p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-accent focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring group-hover:opacity-100',
       className
     )}
     toast-close=""

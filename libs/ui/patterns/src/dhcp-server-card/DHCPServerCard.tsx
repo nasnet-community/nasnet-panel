@@ -6,6 +6,9 @@
  */
 
 import * as React from 'react';
+
+import type { DHCPServer, DHCPPool } from '@nasnet/core/types';
+import { formatLeaseTime } from '@nasnet/core/utils';
 import {
   Card,
   CardContent,
@@ -13,8 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@nasnet/ui/primitives';
-import { formatLeaseTime } from '@nasnet/core/utils';
-import type { DHCPServer, DHCPPool } from '@nasnet/core/types';
 
 export interface DHCPServerCardProps {
   /** DHCP server configuration */

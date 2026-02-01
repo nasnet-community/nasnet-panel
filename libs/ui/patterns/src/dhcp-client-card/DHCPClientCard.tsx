@@ -6,6 +6,9 @@
  */
 
 import * as React from 'react';
+
+import type { DHCPClient } from '@nasnet/core/types';
+import { formatExpirationTime } from '@nasnet/core/utils';
 import {
   Card,
   CardContent,
@@ -13,9 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@nasnet/ui/primitives';
+
 import { StatusBadge } from '../status-badge';
-import { formatExpirationTime } from '@nasnet/core/utils';
-import type { DHCPClient } from '@nasnet/core/types';
 
 export interface DHCPClientCardProps {
   /** DHCP client configuration and status */

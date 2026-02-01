@@ -4,9 +4,10 @@
  * Story 0-4-4: Other VPN Type Viewer
  */
 
-import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
-import { StatusIndicator } from '../status-indicator';
 import type { VPNInterface } from '@nasnet/core/types';
+import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
+
+import { StatusIndicator } from '../status-indicator';
 
 export interface GenericVPNCardProps {
   /** VPN interface data */

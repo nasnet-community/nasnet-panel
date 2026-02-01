@@ -3,11 +3,14 @@
  * Tests for the System Information display card component
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SystemInfoCard } from './SystemInfoCard';
+import { describe, it, expect, vi } from 'vitest';
+
 import type { SystemInfo } from '@nasnet/core/types/router';
+
+import { SystemInfoCard } from './SystemInfoCard';
+
 
 describe('SystemInfoCard', () => {
   const mockSystemInfo: SystemInfo = {

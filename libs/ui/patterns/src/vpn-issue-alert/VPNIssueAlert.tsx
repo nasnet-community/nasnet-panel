@@ -5,10 +5,14 @@
  */
 
 import * as React from 'react';
-import { Alert, AlertTitle, AlertDescription } from '@nasnet/ui/primitives';
+
 import { AlertTriangle, XCircle, Info } from 'lucide-react';
-import { ProtocolIcon, getProtocolLabel } from '../protocol-icon';
+
 import type { VPNIssue } from '@nasnet/core/types';
+import { Alert, AlertTitle, AlertDescription } from '@nasnet/ui/primitives';
+
+import { ProtocolIcon, getProtocolLabel } from '../protocol-icon';
+
 
 export interface VPNIssueAlertProps {
   /** The issue to display */

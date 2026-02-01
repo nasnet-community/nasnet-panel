@@ -5,7 +5,9 @@
  */
 
 import * as React from 'react';
-import { Home, Shield, Activity, Settings, LucideIcon } from 'lucide-react';
+
+import { Home, Shield, Activity, Settings, type LucideIcon } from 'lucide-react';
+
 import { cn } from '@nasnet/ui/primitives';
 
 /**

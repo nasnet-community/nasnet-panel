@@ -3,9 +3,10 @@
  * Tests for the WireGuard interface display card component
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { WireGuardCard } from './WireGuardCard';
 
 // Mock the toast function

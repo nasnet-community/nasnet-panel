@@ -17,7 +17,7 @@ import React, { type ReactElement, type ReactNode } from 'react';
 import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider, createMemoryHistory, createRootRoute, createRouter } from '@tanstack/react-router';
 
 // Create a fresh QueryClient for each test to avoid state leaking between tests
 function createTestQueryClient(): QueryClient {
@@ -37,6 +37,22 @@ function createTestQueryClient(): QueryClient {
   });
 }
 
+// Create a test router for wrapping components
+function createTestRouter(children: ReactNode) {
+  const rootRoute = createRootRoute({
+    component: () => <>{children}</>,
+  });
+
+  const memoryHistory = createMemoryHistory({
+    initialEntries: ['/'],
+  });
+
+  return createRouter({
+    routeTree: rootRoute,
+    history: memoryHistory,
+  });
+}
+
 interface AllProvidersProps {
   children: ReactNode;
 }
@@ -47,12 +63,11 @@ interface AllProvidersProps {
  */
 function AllProviders({ children }: AllProvidersProps): ReactElement {
   const queryClient = createTestQueryClient();
+  const router = createTestRouter(children);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }
@@ -96,4 +111,4 @@ export { customRender as render, renderWithUser };
 export { userEvent };
 
 // Export test utilities
-export { createTestQueryClient };
+export { createTestQueryClient, createTestRouter };

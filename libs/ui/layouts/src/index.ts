@@ -32,3 +32,9 @@ export type { StatusLayoutProps } from './status-layout';
 // MobileAppShell - Mobile-first responsive application shell
 export { MobileAppShell } from './mobile-app-shell';
 export type { MobileAppShellProps } from './mobile-app-shell';
+
+// ResponsiveShell - Auto-switching layout based on platform (ADR-018)
+export * from './responsive-shell';
+
+// CollapsibleSidebar - Sidebar with collapse/expand behavior
+export * from './sidebar';

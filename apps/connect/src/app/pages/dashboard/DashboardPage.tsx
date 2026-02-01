@@ -16,7 +16,7 @@ import {
 import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
 import { Wifi, Network, Shield, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { useConnectionStore } from '@nasnet/state/stores';
 
 /**
@@ -140,22 +140,22 @@ export function DashboardPage() {
           <QuickActionButton
             icon={Wifi}
             label="WiFi"
-            onClick={() => navigate('/wifi')}
+            onClick={() => navigate({ to: '/wifi' })}
           />
           <QuickActionButton
             icon={Network}
             label="Network"
-            onClick={() => navigate('/network')}
+            onClick={() => navigate({ to: '/network' })}
           />
           <QuickActionButton
             icon={Shield}
             label="Firewall"
-            onClick={() => navigate('/firewall')}
+            onClick={() => navigate({ to: '/firewall' as '/' })}
           />
           <QuickActionButton
             icon={Settings}
             label="Settings"
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate({ to: '/settings' as '/' })}
           />
         </div>
       </div>

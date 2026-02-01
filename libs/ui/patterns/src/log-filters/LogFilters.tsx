@@ -5,11 +5,14 @@
  */
 
 import * as React from 'react';
+
 import { X, Filter } from 'lucide-react';
+
+import type { LogTopic, LogSeverity } from '@nasnet/core/types';
 import { Button, cn } from '@nasnet/ui/primitives';
+
 import { topicBadgeVariants } from '../log-entry';
 import { SeverityBadge } from '../severity-badge';
-import type { LogTopic, LogSeverity } from '@nasnet/core/types';
 
 const ALL_TOPICS: LogTopic[] = [
   'system',

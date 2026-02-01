@@ -1,20 +1,21 @@
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
 const cardVariants = cva(
-  'rounded-2xl md:rounded-3xl border bg-white text-slate-900 transition-all duration-200 dark:bg-slate-800 dark:text-slate-50 dark:border-slate-700',
+  'rounded-card border bg-card text-card-foreground transition-all duration-200',
   {
     variants: {
       variant: {
-        default: 'border-slate-200 shadow-sm dark:border-slate-700',
-        elevated: 
-          'border-slate-100 shadow-lg hover:shadow-xl dark:border-slate-700 dark:shadow-slate-900/50',
-        interactive: 
-          'border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 cursor-pointer dark:border-slate-700 dark:hover:border-slate-600',
-        flat: 
-          'border-slate-100 bg-slate-50 shadow-none dark:bg-slate-900 dark:border-slate-800',
+        default: 'border-border shadow-card',
+        elevated:
+          'border-border shadow-lg hover:shadow-xl',
+        interactive:
+          'border-border shadow-sm hover:shadow-md hover:border-border cursor-pointer',
+        flat:
+          'border-border bg-muted shadow-none',
       },
     },
     defaultVariants: {
@@ -68,7 +69,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('text-sm text-slate-500 dark:text-slate-400', className)}
+    className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 ));

@@ -1,0 +1,61 @@
+{
+  "form": {
+    "required": "This field is required",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be at most {{max}} characters",
+    "pattern": "Invalid format",
+    "email": "Invalid email address",
+    "url": "Invalid URL",
+    "ipAddress": {
+      "invalid": "Invalid IP address format",
+      "v4Required": "Must be a valid IPv4 address",
+      "v6Required": "Must be a valid IPv6 address",
+      "cidrInvalid": "Invalid CIDR notation"
+    },
+    "macAddress": {
+      "invalid": "Invalid MAC address format"
+    },
+    "port": {
+      "invalid": "Invalid port number",
+      "outOfRange": "Port must be between 1 and 65535"
+    },
+    "subnet": {
+      "invalid": "Invalid subnet format",
+      "maskOutOfRange": "Subnet mask must be between 0 and 32"
+    },
+    "number": {
+      "invalid": "Must be a valid number",
+      "integer": "Must be a whole number",
+      "positive": "Must be a positive number",
+      "min": "Must be at least {{min}}",
+      "max": "Must be at most {{max}}",
+      "range": "Must be between {{min}} and {{max}}"
+    },
+    "password": {
+      "tooShort": "Password must be at least {{min}} characters",
+      "tooWeak": "Password is too weak",
+      "mismatch": "Passwords do not match",
+      "requiresUppercase": "Must contain at least one uppercase letter",
+      "requiresLowercase": "Must contain at least one lowercase letter",
+      "requiresNumber": "Must contain at least one number",
+      "requiresSpecial": "Must contain at least one special character"
+    },
+    "name": {
+      "invalid": "Name contains invalid characters",
+      "reserved": "This name is reserved",
+      "duplicate": "This name is already in use"
+    },
+    "date": {
+      "invalid": "Invalid date",
+      "past": "Date must be in the past",
+      "future": "Date must be in the future",
+      "beforeMin": "Date must be after {{min}}",
+      "afterMax": "Date must be before {{max}}"
+    },
+    "file": {
+      "tooLarge": "File size exceeds {{max}}",
+      "invalidType": "Invalid file type",
+      "required": "Please select a file"
+    }
+  }
+}

@@ -2,10 +2,19 @@
  * WireGuard Card Component
  * Displays WireGuard interface with name, status, port, public key, and peer count
  * Expandable to show peer details with Framer Motion animation
+ *
+ * @see NAS-4.23 - Refactored to use useClipboard hook
  */
 
 import * as React from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
+import { Copy, Check, ChevronDown } from 'lucide-react';
+
+import { useWireGuardPeers } from '@nasnet/api-client/queries';
+import type { WireGuardInterface } from '@nasnet/core/types';
+import { formatPublicKey, formatBytes, formatLastHandshake } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
 import {
   Card,
   CardHeader,
@@ -13,16 +22,14 @@ import {
   CardContent,
   Badge,
   Button,
-  useToast,
   Skeleton,
 } from '@nasnet/ui/primitives';
-import { Copy, Check, ChevronDown } from 'lucide-react';
+
+import { useClipboard } from '../hooks';
+import { useToast } from '../hooks/useToast';
 import { StatusIndicator } from '../status-indicator';
-import { formatPublicKey, formatBytes, formatLastHandshake } from '@nasnet/core/utils';
-import { useWireGuardPeers } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
 import { PeerListItem } from './PeerListItem';
-import type { WireGuardInterface } from '@nasnet/core/types';
+
 
 /**
  * WireGuardCard Props
@@ -47,9 +54,25 @@ export function WireGuardCard({
   onClick,
 }: WireGuardCardProps) {
   const { toast } = useToast();
-  const [copied, setCopied] = React.useState(false);
   const [isExpanded, setIsExpanded] = React.useState(false);
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
+
+  // Use shared clipboard hook with standardized 2000ms timeout (NAS-4.23)
+  const { copy, copied } = useClipboard({
+    onSuccess: () => {
+      toast({
+        title: 'Public key copied',
+        description: 'The full public key has been copied to clipboard',
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Failed to copy',
+        description: 'Could not copy public key to clipboard',
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Fetch peers when expanded (lazy loading)
   const { data: peers, isLoading: isLoadingPeers, isError: isPeersError } = useWireGuardPeers(
@@ -60,28 +83,9 @@ export function WireGuardCard({
   /**
    * Handle copy public key to clipboard
    */
-  const handleCopyPublicKey = async (e: React.MouseEvent) => {
+  const handleCopyPublicKey = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click if card has onClick
-
-    try {
-      await navigator.clipboard.writeText(wgInterface.publicKey);
-
-      // Show success state
-      setCopied(true);
-      toast({
-        title: 'Public key copied',
-        description: 'The full public key has been copied to clipboard',
-      });
-
-      // Reset after 1 second
-      setTimeout(() => setCopied(false), 1000);
-    } catch (error) {
-      toast({
-        title: 'Failed to copy',
-        description: 'Could not copy public key to clipboard',
-        variant: 'destructive',
-      });
-    }
+    copy(wgInterface.publicKey);
   };
 
   /**

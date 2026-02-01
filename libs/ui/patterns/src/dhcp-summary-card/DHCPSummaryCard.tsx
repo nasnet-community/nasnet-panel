@@ -5,9 +5,11 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+
+import { Link } from '@tanstack/react-router';
 import { Network, Users, ChevronRight, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 
 /**
  * DHCPSummaryCard Props
@@ -96,7 +98,8 @@ export function DHCPSummaryCard({
   );
 
   if (linkTo) {
-    return <Link to={linkTo} className="block">{content}</Link>;
+    // Use type assertion for dynamic link props
+    return <Link to={linkTo as '/'} className="block">{content}</Link>;
   }
 
   return content;

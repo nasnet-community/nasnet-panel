@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent } from '@nasnet/ui/primitives';
+
 import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
+
+import { Card, CardContent } from '@nasnet/ui/primitives';
 
 /**
  * Network health status types

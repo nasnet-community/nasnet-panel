@@ -6,6 +6,9 @@
  */
 
 import * as React from 'react';
+
+import type { DHCPLease, LeaseStatus } from '@nasnet/core/types';
+import { formatMACAddress, formatExpirationTime } from '@nasnet/core/utils';
 import {
   Table,
   TableBody,
@@ -15,11 +18,9 @@ import {
   TableRow,
   Input,
   Skeleton,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
+
 import { StatusBadge } from '../status-badge';
-import { formatMACAddress, formatExpirationTime } from '@nasnet/core/utils';
-import type { DHCPLease, LeaseStatus } from '@nasnet/core/types';
 
 // Sort direction type
 type SortDirection = 'asc' | 'desc' | null;

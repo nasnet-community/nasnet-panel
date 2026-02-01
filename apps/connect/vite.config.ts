@@ -67,13 +67,19 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/core/types': resolve(import.meta.dirname, '../../libs/core/types/src'),
       '@nasnet/core/utils': resolve(import.meta.dirname, '../../libs/core/utils/src'),
       '@nasnet/core/constants': resolve(import.meta.dirname, '../../libs/core/constants/src'),
+      '@nasnet/core/forms': resolve(import.meta.dirname, '../../libs/core/forms/src'),
+      '@nasnet/core/i18n': resolve(import.meta.dirname, '../../libs/core/i18n/src'),
       '@nasnet/ui/layouts': resolve(import.meta.dirname, '../../libs/ui/layouts/src'),
       '@nasnet/ui/primitives': resolve(import.meta.dirname, '../../libs/ui/primitives/src'),
       '@nasnet/ui/patterns': resolve(import.meta.dirname, '../../libs/ui/patterns/src'),
       '@nasnet/ui/utils': resolve(import.meta.dirname, '../../libs/ui/primitives/src/lib/utils'), // Utils from primitives
       '@nasnet/ui/components': resolve(import.meta.dirname, '../../libs/ui/primitives/src'), // Alias for incorrect imports
-      '@nasnet/ui/tokens': resolve(import.meta.dirname, '../../libs/ui/tokens/dist'),
+      // CSS design tokens - compiled from tokens.json (MUST come before @nasnet/ui/tokens for proper resolution)
       '@nasnet/ui/tokens/variables.css': resolve(import.meta.dirname, '../../libs/ui/tokens/dist/variables.css'),
+      // Animation tokens - TypeScript source files (NAS-4.18)
+      '@nasnet/ui/tokens': resolve(import.meta.dirname, '../../libs/ui/tokens/src'),
+      // Motion pattern components (NAS-4.18)
+      '@nasnet/ui/patterns/motion': resolve(import.meta.dirname, '../../libs/ui/patterns/src/motion'),
 
       '@nasnet/features/router-discovery': resolve(import.meta.dirname, '../../libs/features/router-discovery/src'),
       '@nasnet/features/dashboard': resolve(import.meta.dirname, '../../libs/features/dashboard/src'),
@@ -82,6 +88,7 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/features/logs': resolve(import.meta.dirname, '../../libs/features/logs/src'),
       '@nasnet/features/configuration-import': resolve(import.meta.dirname, '../../libs/features/configuration-import/src'),
       '@nasnet/api-client/core': resolve(import.meta.dirname, '../../libs/api-client/core/src'),
+      '@nasnet/api-client/generated': resolve(import.meta.dirname, '../../libs/api-client/generated'),
       '@nasnet/api-client/queries': resolve(import.meta.dirname, '../../libs/api-client/queries/src'),
       '@nasnet/state/stores': resolve(import.meta.dirname, '../../libs/state/stores/src'),
     },
@@ -137,15 +144,32 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: [
+          // Core React - essential for app to function
+          'vendor-react': ['react', 'react-dom', 'scheduler'],
+          // Router - loaded immediately for navigation
+          'vendor-router': ['@tanstack/react-router'],
+          // GraphQL - required for data fetching
+          'vendor-graphql': ['@apollo/client', 'graphql'],
+          // State management - UI and complex flows
+          'vendor-state': ['zustand', 'xstate', '@xstate/react'],
+          // Animation library - Framer Motion
+          'vendor-animation': ['framer-motion'],
+          // UI primitives - Radix components
+          'vendor-ui': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-tabs',
             '@radix-ui/react-toast',
             '@radix-ui/react-switch',
             '@radix-ui/react-select',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-popover',
           ],
-          query: ['@tanstack/react-query'],
+          // Table & virtualization - lazy loaded for data-heavy pages
+          'vendor-table': ['@tanstack/react-table', '@tanstack/react-virtual'],
+          // Forms - React Hook Form with validation
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          // Internationalization - i18next
+          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-http-backend', 'i18next-browser-languagedetector'],
         },
       },
     },

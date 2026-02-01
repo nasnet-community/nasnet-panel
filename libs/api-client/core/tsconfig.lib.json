@@ -12,12 +12,14 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
     "types": ["node", "vite/client"],
     "paths": {
-      "@nasnet/state/*": ["../../state/*/src"]
+      "@nasnet/state/*": ["../../state/*/src"],
+      "@nasnet/api-client/generated": ["../generated/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
@@ -26,6 +28,9 @@
   "references": [
     {
       "path": "../../state/stores/tsconfig.lib.json"
+    },
+    {
+      "path": "../generated/tsconfig.lib.json"
     }
   ]
 }

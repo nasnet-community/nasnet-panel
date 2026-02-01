@@ -34,6 +34,7 @@ module.exports = {
           // shadcn/ui HSL format (for opacity modifiers)
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          hover: 'var(--semantic-color-primary-hover)',
           // Direct color values (for legacy components)
           50: 'var(--color-brand-amber-50)',
           100: 'var(--color-brand-amber-100)',
@@ -50,6 +51,7 @@ module.exports = {
           ...tokenConfig.colors.secondary,
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
+          hover: 'var(--semantic-color-secondary-hover)',
           50: 'var(--color-brand-blue-50)',
           100: 'var(--color-brand-blue-100)',
           200: 'var(--color-brand-blue-200)',
@@ -84,6 +86,52 @@ module.exports = {
           ...tokenConfig.colors.card,
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        // Additional semantic colors needed by primitives
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        // Semantic status colors (from design tokens)
+        success: {
+          DEFAULT: 'var(--semantic-color-success-DEFAULT)',
+          light: 'var(--semantic-color-success-light)',
+          dark: 'var(--semantic-color-success-dark)',
+          foreground: '#FFFFFF',
+        },
+        warning: {
+          DEFAULT: 'var(--semantic-color-warning-DEFAULT)',
+          light: 'var(--semantic-color-warning-light)',
+          dark: 'var(--semantic-color-warning-dark)',
+          foreground: '#0F172A',
+        },
+        error: {
+          DEFAULT: 'var(--semantic-color-error-DEFAULT)',
+          light: 'var(--semantic-color-error-light)',
+          dark: 'var(--semantic-color-error-dark)',
+          foreground: '#FFFFFF',
+          hover: 'var(--semantic-color-error-hover)',
+        },
+        info: {
+          DEFAULT: 'var(--semantic-color-info-DEFAULT)',
+          light: 'var(--semantic-color-info-light)',
+          dark: 'var(--semantic-color-info-dark)',
+          foreground: '#FFFFFF',
+        },
+        // Category accent colors (14 feature categories)
+        category: {
+          security: 'var(--semantic-color-category-security)',
+          monitoring: 'var(--semantic-color-category-monitoring)',
+          networking: 'var(--semantic-color-category-networking)',
+          vpn: 'var(--semantic-color-category-vpn)',
+          wifi: 'var(--semantic-color-category-wifi)',
+          firewall: 'var(--semantic-color-category-firewall)',
+          system: 'var(--semantic-color-category-system)',
+          dhcp: 'var(--semantic-color-category-dhcp)',
+          routing: 'var(--semantic-color-category-routing)',
+          tunnels: 'var(--semantic-color-category-tunnels)',
+          qos: 'var(--semantic-color-category-qos)',
+          hotspot: 'var(--semantic-color-category-hotspot)',
+          logging: 'var(--semantic-color-category-logging)',
+          backup: 'var(--semantic-color-category-backup)',
         },
       },
       // Generated border radius tokens

@@ -1,0 +1,637 @@
+# =============================================================================
+# Universal State v2 - Resource Layers Schema
+# =============================================================================
+# This schema defines the layer-specific types for the 8-layer Resource Model.
+#
+# Reference: ADR-012 - Universal State v2
+# Reference: Docs/architecture/data-architecture.md
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Layer 2: Validation Result
+# -----------------------------------------------------------------------------
+
+"""
+Layer 2: Validation result from 7-stage backend validation pipeline.
+Computed on every configuration change.
+"""
+type ValidationResult {
+  "Whether the resource can be applied"
+  canApply: Boolean!
+
+  "Current validation stage"
+  stage: ValidationStage!
+
+  "Validation errors (blocking)"
+  errors: [ValidationIssue!]!
+
+  "Validation warnings (non-blocking)"
+  warnings: [ValidationIssue!]!
+
+  "Resource conflicts detected"
+  conflicts: [ResourceConflict!]!
+
+  "Required dependencies that must be active"
+  requiredDependencies: [DependencyStatus!]!
+
+  "When validation was performed"
+  validatedAt: DateTime!
+
+  "Duration of validation in milliseconds"
+  validationDurationMs: Int!
+}
+
+"""
+Validation pipeline stages
+"""
+enum ValidationStage {
+  "Schema validation (Zod/GraphQL)"
+  SCHEMA
+
+  "Semantic validation (business rules)"
+  SEMANTIC
+
+  "Dependency validation (required resources exist)"
+  DEPENDENCY
+
+  "Conflict detection (port/IP/route conflicts)"
+  CONFLICT
+
+  "Platform validation (capability checks)"
+  PLATFORM
+
+  "Quota validation (resource limits)"
+  QUOTA
+
+  "Pre-flight simulation"
+  SIMULATION
+
+  "All stages complete"
+  COMPLETE
+}
+
+"""
+A validation issue (error or warning)
+"""
+type ValidationIssue {
+  "Error code for programmatic handling"
+  code: String!
+
+  "Human-readable message"
+  message: String!
+
+  "Field path that caused the issue (e.g., 'configuration.listenPort')"
+  field: String
+
+  "Severity level"
+  severity: ValidationSeverity!
+
+  "Suggested fix"
+  suggestedFix: String
+
+  "Link to documentation"
+  docsUrl: String
+}
+
+"""
+Validation issue severity
+"""
+enum ValidationSeverity {
+  "Blocks apply, must be fixed"
+  ERROR
+
+  "Does not block, but recommended to address"
+  WARNING
+
+  "Informational notice"
+  INFO
+}
+
+"""
+Conflict with another resource
+"""
+type ResourceConflict {
+  "Type of conflict"
+  type: ConflictType!
+
+  "The conflicting resource"
+  conflictingResource: Resource
+
+  "Conflicting resource UUID (if resource is not loaded)"
+  conflictingResourceUuid: ID!
+
+  "Description of the conflict"
+  description: String!
+
+  "Suggested resolution"
+  resolution: String
+}
+
+"""
+Types of resource conflicts
+"""
+enum ConflictType {
+  "Port number conflict"
+  PORT
+
+  "IP address conflict"
+  IP_ADDRESS
+
+  "Route overlap"
+  ROUTE
+
+  "Interface conflict"
+  INTERFACE
+
+  "Name collision"
+  NAME
+
+  "Configuration incompatibility"
+  CONFIGURATION
+}
+
+"""
+Status of a required dependency
+"""
+type DependencyStatus {
+  "Dependency resource UUID"
+  resourceUuid: ID!
+
+  "Dependency resource type"
+  resourceType: String!
+
+  "Whether the dependency is active"
+  isActive: Boolean!
+
+  "Current state of the dependency"
+  state: ResourceLifecycleState!
+
+  "Why this dependency is required"
+  reason: String!
+}
+
+# -----------------------------------------------------------------------------
+# Layer 3: Deployment State
+# -----------------------------------------------------------------------------
+
+"""
+Layer 3: What's actually on router after Apply-Confirm.
+Includes router-generated fields like IDs and computed values.
+"""
+type DeploymentState {
+  "Router-generated resource ID (e.g., '*1A' in MikroTik)"
+  routerResourceId: String
+
+  "When the resource was applied"
+  appliedAt: DateTime!
+
+  "User who applied the resource"
+  appliedBy: String
+
+  "Version number on router"
+  routerVersion: Int
+
+  "Router-generated fields (public key, computed values, etc.)"
+  generatedFields: JSON
+
+  "Whether deployment matches configuration (no drift)"
+  isInSync: Boolean!
+
+  "Detected drift from configuration"
+  drift: DriftInfo
+
+  "Apply operation ID for audit trail"
+  applyOperationId: ID
+}
+
+"""
+Information about configuration drift
+"""
+type DriftInfo {
+  "When drift was detected"
+  detectedAt: DateTime!
+
+  "Fields that have drifted"
+  driftedFields: [DriftField!]!
+
+  "Suggested action to resolve drift"
+  suggestedAction: DriftAction!
+}
+
+"""
+A field that has drifted from configuration
+"""
+type DriftField {
+  "Field path"
+  path: String!
+
+  "Expected value (from configuration)"
+  expected: JSON
+
+  "Actual value (from router)"
+  actual: JSON
+}
+
+"""
+Actions to resolve drift
+"""
+enum DriftAction {
+  "Re-apply configuration to router"
+  REAPPLY
+
+  "Update configuration to match router"
+  ACCEPT
+
+  "Manual review required"
+  REVIEW
+}
+
+# -----------------------------------------------------------------------------
+# Layer 4: Runtime State
+# -----------------------------------------------------------------------------
+
+"""
+Layer 4: Live operational state polled/streamed from router.
+Updated via polling (5-60s interval) or WebSocket push.
+"""
+type RuntimeState {
+  "Whether the resource is currently running/active"
+  isRunning: Boolean!
+
+  "Health status of the resource"
+  health: RuntimeHealth!
+
+  "Error message if resource is unhealthy"
+  errorMessage: String
+
+  "Resource-specific runtime metrics"
+  metrics: RuntimeMetrics
+
+  "Last time runtime was updated"
+  lastUpdated: DateTime!
+
+  "Time since last successful operation"
+  lastSuccessfulOperation: DateTime
+
+  "Current peers/connections (for VPN, etc.)"
+  activeConnections: Int
+
+  "Resource uptime"
+  uptime: Duration
+}
+
+"""
+Runtime health status
+"""
+enum RuntimeHealth {
+  "Resource is healthy and operating normally"
+  HEALTHY
+
+  "Resource is running but with warnings"
+  WARNING
+
+  "Resource is running but degraded"
+  DEGRADED
+
+  "Resource has failed"
+  FAILED
+
+  "Health status unknown"
+  UNKNOWN
+}
+
+"""
+Resource-specific runtime metrics
+"""
+type RuntimeMetrics {
+  "Bytes received"
+  bytesIn: Size
+
+  "Bytes transmitted"
+  bytesOut: Size
+
+  "Packets received"
+  packetsIn: Int
+
+  "Packets transmitted"
+  packetsOut: Int
+
+  "Error count"
+  errors: Int
+
+  "Drops count"
+  drops: Int
+
+  "Current throughput in (bytes/sec)"
+  throughputIn: Size
+
+  "Current throughput out (bytes/sec)"
+  throughputOut: Size
+
+  "Resource-specific custom metrics"
+  custom: JSON
+}
+
+# -----------------------------------------------------------------------------
+# Layer 5: Telemetry Data
+# -----------------------------------------------------------------------------
+
+"""
+Layer 5: Time-series metrics and historical data.
+Collected over time for analytics and trending.
+"""
+type TelemetryData {
+  "Bandwidth history (last 24h)"
+  bandwidthHistory: [BandwidthDataPoint!]
+
+  "Uptime history (availability)"
+  uptimeHistory: [UptimeDataPoint!]
+
+  "Hourly statistics"
+  hourlyStats: [HourlyStats!]
+
+  "Daily statistics"
+  dailyStats: [DailyStats!]
+
+  "First data point timestamp"
+  dataStartedAt: DateTime
+
+  "Last data point timestamp"
+  lastUpdatedAt: DateTime
+
+  "Data retention period"
+  retentionDays: Int!
+}
+
+"""
+A bandwidth data point
+"""
+type BandwidthDataPoint {
+  "Timestamp"
+  timestamp: DateTime!
+
+  "Bytes in during this period"
+  bytesIn: Size!
+
+  "Bytes out during this period"
+  bytesOut: Size!
+
+  "Period duration in seconds"
+  periodSeconds: Int!
+}
+
+"""
+An uptime data point
+"""
+type UptimeDataPoint {
+  "Timestamp"
+  timestamp: DateTime!
+
+  "Whether resource was up during this period"
+  isUp: Boolean!
+
+  "Period duration in seconds"
+  periodSeconds: Int!
+}
+
+"""
+Hourly statistics
+"""
+type HourlyStats {
+  "Hour start timestamp"
+  hour: DateTime!
+
+  "Total bytes in"
+  totalBytesIn: Size!
+
+  "Total bytes out"
+  totalBytesOut: Size!
+
+  "Uptime percentage (0-100)"
+  uptimePercent: Float!
+
+  "Error count"
+  errorCount: Int!
+}
+
+"""
+Daily statistics
+"""
+type DailyStats {
+  "Date (UTC)"
+  date: DateTime!
+
+  "Total bytes in"
+  totalBytesIn: Size!
+
+  "Total bytes out"
+  totalBytesOut: Size!
+
+  "Uptime percentage (0-100)"
+  uptimePercent: Float!
+
+  "Error count"
+  errorCount: Int!
+
+  "Peak throughput in (bytes/sec)"
+  peakThroughputIn: Size!
+
+  "Peak throughput out (bytes/sec)"
+  peakThroughputOut: Size!
+}
+
+# -----------------------------------------------------------------------------
+# Layer 6: Resource Metadata
+# -----------------------------------------------------------------------------
+
+"""
+Layer 6: Resource lifecycle info, tags, ownership.
+System-managed with some user-editable fields.
+"""
+type ResourceMetadata {
+  "Resource creation timestamp"
+  createdAt: DateTime!
+
+  "User who created the resource"
+  createdBy: String!
+
+  "Last update timestamp"
+  updatedAt: DateTime!
+
+  "User who last updated the resource"
+  updatedBy: String
+
+  "Current lifecycle state"
+  state: ResourceLifecycleState!
+
+  "Optimistic locking version"
+  version: Int!
+
+  "User-defined tags for organization"
+  tags: [String!]!
+
+  "Resource description"
+  description: String
+
+  "Whether resource is marked as favorite"
+  isFavorite: Boolean!
+
+  "Whether resource is pinned"
+  isPinned: Boolean!
+
+  "Custom user notes"
+  notes: String
+
+  "Audit trail of recent changes"
+  recentChanges: [ChangeLogEntry!]
+}
+
+"""
+An entry in the change log
+"""
+type ChangeLogEntry {
+  "Change timestamp"
+  timestamp: DateTime!
+
+  "User who made the change"
+  user: String!
+
+  "Type of change"
+  changeType: ChangeType!
+
+  "Changed fields"
+  changedFields: [String!]!
+
+  "Brief description of the change"
+  summary: String
+}
+
+# -----------------------------------------------------------------------------
+# Layer 7: Resource Relationships
+# -----------------------------------------------------------------------------
+
+"""
+Layer 7: Dependencies and relationships between resources.
+Combines user-defined relationships and system-discovered dependencies.
+"""
+type ResourceRelationships {
+  "Resources this resource depends on"
+  dependsOn: [ResourceReference!]!
+
+  "Resources that depend on this resource"
+  dependents: [ResourceReference!]!
+
+  "Resource this routes traffic via"
+  routesVia: ResourceReference
+
+  "Resources that route traffic via this resource"
+  routedBy: [ResourceReference!]!
+
+  "Parent resource (for hierarchical resources)"
+  parent: ResourceReference
+
+  "Child resources (for hierarchical resources)"
+  children: [ResourceReference!]!
+
+  "Custom relationships"
+  custom: JSON
+}
+
+"""
+Reference to another resource
+"""
+type ResourceReference {
+  "Resource UUID"
+  uuid: ID!
+
+  "Resource scoped ID"
+  id: String!
+
+  "Resource type"
+  type: String!
+
+  "Resource category"
+  category: ResourceCategory!
+
+  "Current lifecycle state"
+  state: ResourceLifecycleState!
+}
+
+# -----------------------------------------------------------------------------
+# Layer 8: Platform Info
+# -----------------------------------------------------------------------------
+
+"""
+Layer 8: Platform-specific capabilities and field mappings.
+From platform adapter (MikroTik, OpenWrt, VyOS).
+"""
+type PlatformInfo {
+  "Current platform"
+  current: RouterPlatform!
+
+  "Platform-specific capabilities for this resource type"
+  capabilities: PlatformCapabilities!
+
+  "Field mappings between GraphQL and platform-native names"
+  fieldMappings: JSON
+
+  "Platform-specific limitations or constraints"
+  limitations: [PlatformLimitation!]
+
+  "Platform-specific features available"
+  features: [PlatformFeature!]
+}
+
+"""
+Platform capabilities for a resource type
+"""
+type PlatformCapabilities {
+  "Whether this resource type is supported"
+  isSupported: Boolean!
+
+  "Capability level"
+  level: CapabilityLevel!
+
+  "Minimum platform version required"
+  minVersion: String
+
+  "Required packages"
+  requiredPackages: [String!]
+
+  "Capability-specific details"
+  details: JSON
+}
+
+"""
+A platform-specific limitation
+"""
+type PlatformLimitation {
+  "Limitation identifier"
+  code: String!
+
+  "Human-readable description"
+  description: String!
+
+  "Affected fields"
+  affectedFields: [String!]
+
+  "Workaround if available"
+  workaround: String
+}
+
+"""
+A platform-specific feature
+"""
+type PlatformFeature {
+  "Feature identifier"
+  id: String!
+
+  "Feature name"
+  name: String!
+
+  "Whether feature is enabled"
+  enabled: Boolean!
+
+  "Feature description"
+  description: String
+}

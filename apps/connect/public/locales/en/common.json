@@ -1,0 +1,122 @@
+{
+  "app": {
+    "name": "NasNetConnect",
+    "tagline": "MikroTik Router Management"
+  },
+  "header": {
+    "navigation": {
+      "dashboard": "Dashboard",
+      "network": "Network",
+      "security": "Security",
+      "wifi": "WiFi",
+      "vpn": "VPN",
+      "system": "System",
+      "settings": "Settings"
+    },
+    "user": {
+      "profile": "Profile",
+      "logout": "Log out"
+    }
+  },
+  "sidebar": {
+    "section": {
+      "overview": "Overview",
+      "monitoring": "Monitoring",
+      "configuration": "Configuration",
+      "advanced": "Advanced"
+    }
+  },
+  "button": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "add": "Add",
+    "remove": "Remove",
+    "apply": "Apply",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "copy": "Copy",
+    "paste": "Paste",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All"
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Connecting",
+    "disconnected": "Disconnected",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "error": "Error",
+    "warning": "Warning",
+    "success": "Success",
+    "unknown": "Unknown",
+    "loading": "Loading..."
+  },
+  "time": {
+    "now": "Just now",
+    "ago": "{{time}} ago",
+    "in": "in {{time}}",
+    "seconds": "{{count}} second",
+    "seconds_other": "{{count}} seconds",
+    "minutes": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "hours": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "days": "{{count}} day",
+    "days_other": "{{count}} days"
+  },
+  "table": {
+    "noData": "No data available",
+    "loading": "Loading data...",
+    "error": "Failed to load data",
+    "rowsPerPage": "Rows per page",
+    "of": "of",
+    "page": "Page"
+  },
+  "dialog": {
+    "confirm": {
+      "title": "Confirm Action",
+      "message": "Are you sure you want to proceed?"
+    },
+    "delete": {
+      "title": "Confirm Delete",
+      "message": "This action cannot be undone. Are you sure?"
+    }
+  },
+  "settings": {
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language",
+      "changeWarning": "Changing language will reload the page"
+    },
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  }
+}

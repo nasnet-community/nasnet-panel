@@ -3,9 +3,9 @@
  * Displays information about a single WireGuard peer
  */
 
-import { Badge } from '@nasnet/ui/primitives';
-import { formatLastHandshake } from '@nasnet/core/utils';
 import type { WireGuardPeer } from '@nasnet/core/types';
+import { formatLastHandshake } from '@nasnet/core/utils';
+import { Badge } from '@nasnet/ui/primitives';
 
 export interface PeerListItemProps {
   peer: WireGuardPeer;

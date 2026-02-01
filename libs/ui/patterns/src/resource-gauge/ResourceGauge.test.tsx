@@ -3,8 +3,9 @@
  * Tests for resource usage gauge component
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+
 import { ResourceGauge } from './ResourceGauge';
 
 describe('ResourceGauge', () => {

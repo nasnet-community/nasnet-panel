@@ -12,7 +12,7 @@
  * - VPN clients summary with expandable list
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import {
   SystemInfoCard,
   ResourceGauge,
@@ -152,7 +152,7 @@ export function OverviewTab() {
       icon: Shield,
       label: vpnConnectedCount > 0 ? 'VPN Active' : 'Connect VPN',
       sublabel: vpnConnectedCount > 0 ? `${vpnConnectedCount} connected` : 'Manage connections',
-      onClick: () => navigate('vpn'),
+      onClick: () => navigate({ to: 'vpn' as '/' }),
       variant: vpnConnectedCount > 0 ? 'primary' : 'default',
     },
     {
@@ -160,7 +160,7 @@ export function OverviewTab() {
       icon: Wifi,
       label: 'WiFi',
       sublabel: 'Manage networks',
-      onClick: () => navigate('wifi'),
+      onClick: () => navigate({ to: 'wifi' as '/' }),
     },
     {
       id: 'restart',
@@ -177,7 +177,7 @@ export function OverviewTab() {
       icon: ShieldCheck,
       label: 'Firewall',
       sublabel: 'Active',
-      onClick: () => navigate('firewall'),
+      onClick: () => navigate({ to: 'firewall' as '/' }),
     },
   ];
 

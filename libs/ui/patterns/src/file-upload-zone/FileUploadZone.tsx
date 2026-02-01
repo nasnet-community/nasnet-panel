@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { cn, Button } from '@nasnet/ui/primitives';
+
 import { Upload, File, Loader2, AlertCircle } from 'lucide-react';
+
+import { cn, Button } from '@nasnet/ui/primitives';
 
 /**
  * FileUploadZone Props

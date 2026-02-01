@@ -1,0 +1,492 @@
+# =============================================================================
+# Universal State v2 - Composite Resources Schema
+# =============================================================================
+# This schema defines composite resources that group related sub-resources.
+# Examples: LANNetwork (bridge + DHCP + firewall), VPNClient (interface + routes)
+#
+# Reference: ADR-012 - Universal State v2
+# Reference: Docs/architecture/data-architecture.md
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Concrete Resource Types
+# -----------------------------------------------------------------------------
+
+"""
+WireGuard VPN Client resource implementing 8-layer model
+"""
+type WireGuardClient implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+
+  # Typed configuration (not generic JSON)
+  configuration: WireGuardClientConfig!
+
+  # Other layers
+  validation: ValidationResult
+  deployment: WireGuardDeployment
+  runtime: WireGuardRuntime
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+}
+
+"""
+WireGuard client configuration
+"""
+type WireGuardClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "WireGuard private key"
+  privateKey: String! @sensitive
+
+  "Peer public key"
+  peerPublicKey: String!
+
+  "Peer endpoint (IP:port)"
+  peerEndpoint: String!
+
+  "Allowed IPs (CIDR notation)"
+  allowedIPs: [CIDR!]!
+
+  "Persistent keepalive interval"
+  persistentKeepalive: Duration
+
+  "Listen port (0 for auto)"
+  listenPort: Port
+
+  "WAN interface to use"
+  wanInterface: ID
+
+  "Enable kill switch"
+  killSwitch: Boolean
+
+  "DNS servers to use"
+  dnsServers: [IPv4!]
+}
+
+"""
+WireGuard deployment state (router-generated)
+"""
+type WireGuardDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # WireGuard-specific generated fields
+  "Generated public key"
+  publicKey: String
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+WireGuard runtime state
+"""
+type WireGuardRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # WireGuard-specific runtime
+  "Whether connected to peer"
+  isConnected: Boolean!
+  "Last handshake time"
+  lastHandshake: DateTime
+  "Current endpoint (may differ from configured)"
+  currentEndpoint: String
+  "Bytes transferred in"
+  bytesIn: Size!
+  "Bytes transferred out"
+  bytesOut: Size!
+  "Current active peers count"
+  activePeers: Int!
+}
+
+# -----------------------------------------------------------------------------
+# LAN Network (Composite)
+# -----------------------------------------------------------------------------
+
+"""
+LAN Network composite resource - groups bridge, DHCP, firewall, routing
+"""
+type LANNetwork implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+
+  configuration: LANNetworkConfig!
+  validation: ValidationResult
+  deployment: LANNetworkDeployment
+  runtime: LANNetworkRuntime
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Composite sub-resources
+  "Bridge interface"
+  bridge: BridgeResource
+  "DHCP server configuration"
+  dhcpServer: DHCPServerResource
+  "Firewall rules for this LAN"
+  firewallRules: [FirewallRuleResource!]!
+  "Static routes"
+  routes: [RouteResource!]!
+}
+
+"""
+LAN Network configuration
+"""
+type LANNetworkConfig {
+  "Network name"
+  name: String!
+
+  "IP address for the LAN"
+  ipAddress: IPv4!
+
+  "Subnet mask in CIDR notation"
+  subnetMask: Int! @validate(min: 1, max: 32)
+
+  "Interfaces to include in bridge"
+  interfaces: [String!]!
+
+  "Enable DHCP server"
+  dhcpEnabled: Boolean!
+
+  "DHCP pool start"
+  dhcpPoolStart: IPv4
+
+  "DHCP pool end"
+  dhcpPoolEnd: IPv4
+
+  "DHCP lease time"
+  dhcpLeaseTime: Duration
+
+  "DNS servers for DHCP"
+  dnsServers: [IPv4!]
+
+  "Enable NAT masquerading"
+  enableNat: Boolean!
+
+  "VLAN ID (optional)"
+  vlanId: Int @validate(min: 1, max: 4094)
+}
+
+"""
+LAN Network deployment state
+"""
+type LANNetworkDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # Composite deployment
+  "Bridge interface ID on router"
+  bridgeId: String
+  "DHCP server ID on router"
+  dhcpServerId: String
+  "IP address ID on router"
+  ipAddressId: String
+}
+
+"""
+LAN Network runtime state
+"""
+type LANNetworkRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # LAN-specific runtime
+  "Number of active clients"
+  activeClients: Int!
+  "Active DHCP leases"
+  dhcpLeases: Int!
+  "Total traffic in"
+  totalBytesIn: Size!
+  "Total traffic out"
+  totalBytesOut: Size!
+}
+
+# -----------------------------------------------------------------------------
+# Sub-Resource Types
+# -----------------------------------------------------------------------------
+
+"""
+Bridge resource (part of LANNetwork)
+"""
+type BridgeResource implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Bridge name"
+  name: String!
+  "Ports in this bridge"
+  ports: [String!]!
+  "Protocol mode (rstp, stp, none)"
+  protocolMode: String
+}
+
+"""
+DHCP Server resource
+"""
+type DHCPServerResource implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Server name"
+  name: String!
+  "Interface serving DHCP"
+  interface: String!
+  "Address pool name"
+  addressPool: String!
+  "Lease time"
+  leaseTime: Duration!
+  "Number of active leases"
+  activeLeases: Int
+}
+
+"""
+Firewall Rule resource
+"""
+type FirewallRuleResource implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Rule chain (input, forward, output)"
+  chain: String!
+  "Rule action (accept, drop, reject)"
+  action: String!
+  "Source address/network"
+  srcAddress: String
+  "Destination address/network"
+  dstAddress: String
+  "Source port(s)"
+  srcPort: String
+  "Destination port(s)"
+  dstPort: String
+  "Protocol (tcp, udp, icmp, etc.)"
+  protocol: String
+  "Rule comment"
+  comment: String
+  "Whether rule is enabled"
+  enabled: Boolean!
+  "Hit counter"
+  hitCount: Int
+}
+
+"""
+Route resource
+"""
+type RouteResource implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Destination network"
+  dstAddress: CIDR!
+  "Gateway address"
+  gateway: IPv4
+  "Outgoing interface"
+  interface: String
+  "Route distance/metric"
+  distance: Int
+  "Whether route is active"
+  active: Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# WAN Link Resource
+# -----------------------------------------------------------------------------
+
+"""
+WAN Link resource for internet connectivity
+"""
+type WANLink implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: WANLinkRuntime
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Interface name"
+  interface: String!
+  "Connection type (static, dhcp, pppoe)"
+  connectionType: WANConnectionType!
+  "Whether this is the primary WAN"
+  isPrimary: Boolean!
+  "Failover priority (lower = higher priority)"
+  failoverPriority: Int
+}
+
+"""
+WAN connection types
+"""
+enum WANConnectionType {
+  STATIC
+  DHCP
+  PPPOE
+  LTE
+  PPTP
+}
+
+"""
+WAN Link runtime state
+"""
+type WANLinkRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # WAN-specific
+  "Current IP address"
+  currentIP: IPv4
+  "Gateway address"
+  gateway: IPv4
+  "Public IP (may differ due to NAT)"
+  publicIP: IPv4
+  "DNS servers received"
+  dnsServers: [IPv4!]
+  "Current uplink speed (bytes/sec)"
+  uplinkSpeed: Size
+  "Current downlink speed (bytes/sec)"
+  downlinkSpeed: Size
+  "Total uptime"
+  uptime: Duration
+  "Last connection change"
+  lastStateChange: DateTime
+}
+
+# -----------------------------------------------------------------------------
+# Feature Resource (Marketplace)
+# -----------------------------------------------------------------------------
+
+"""
+Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)
+"""
+type FeatureResource implements Resource & Node {
+  uuid: ID!
+  id: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: FeatureDeployment
+  runtime: FeatureRuntime
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Feature identifier"
+  featureId: String!
+  "Feature name"
+  name: String!
+  "Feature version"
+  version: String!
+  "Virtual interface assigned"
+  virtualInterface: String
+}
+
+"""
+Feature deployment state
+"""
+type FeatureDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # Feature-specific
+  "Container ID (if containerized)"
+  containerId: String
+  "Container image used"
+  containerImage: String
+  "Assigned ports"
+  assignedPorts: [Port!]
+  "Assigned IP address"
+  assignedIP: IPv4
+}
+
+"""
+Feature runtime state
+"""
+type FeatureRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # Feature-specific
+  "Container status"
+  containerStatus: String
+  "Memory usage"
+  memoryUsage: Size
+  "CPU usage percentage"
+  cpuUsagePercent: Float
+  "Devices routed through this feature"
+  routedDevices: Int
+}

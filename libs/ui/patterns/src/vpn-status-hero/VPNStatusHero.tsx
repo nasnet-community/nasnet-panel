@@ -5,7 +5,7 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent } from '@nasnet/ui/primitives';
+
 import { 
   Shield, 
   ShieldAlert, 
@@ -16,7 +16,9 @@ import {
   Activity,
   ArrowDownUp
 } from 'lucide-react';
+
 import { formatBytes } from '@nasnet/core/utils';
+import { Card, CardContent } from '@nasnet/ui/primitives';
 
 export type VPNHealthStatus = 'healthy' | 'warning' | 'critical' | 'loading';
 

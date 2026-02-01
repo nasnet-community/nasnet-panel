@@ -114,6 +114,130 @@ export const getDHCPLeasesHandler = graphqlEndpoint.query(
 );
 
 /**
+ * Router Query Handler
+ * Returns a single router by ID
+ */
+export const getRouterHandler = graphqlEndpoint.query(
+  'GetRouter',
+  ({ variables }) => {
+    const { id } = variables as { id: string };
+    return HttpResponse.json({
+      data: {
+        router: {
+          id,
+          name: 'Main Router',
+          host: '192.168.88.1',
+          status: 'CONNECTED',
+          identity: 'MikroTik',
+          model: 'hAP ac3',
+          version: '7.12',
+          lastConnectedAt: new Date().toISOString(),
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+  }
+);
+
+/**
+ * Routers Query Handler
+ * Returns paginated list of routers
+ */
+export const getRoutersHandler = graphqlEndpoint.query('GetRouters', () => {
+  return HttpResponse.json({
+    data: {
+      routers: {
+        edges: [
+          {
+            node: {
+              id: 'router-1',
+              name: 'Main Router',
+              host: '192.168.88.1',
+              status: 'CONNECTED',
+              identity: 'MikroTik-Main',
+              model: 'hAP ac3',
+              version: '7.12',
+            },
+            cursor: 'cursor-1',
+          },
+          {
+            node: {
+              id: 'router-2',
+              name: 'Office Router',
+              host: '192.168.1.1',
+              status: 'DISCONNECTED',
+              identity: 'MikroTik-Office',
+              model: 'RB4011',
+              version: '7.11',
+            },
+            cursor: 'cursor-2',
+          },
+        ],
+        pageInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          startCursor: 'cursor-1',
+          endCursor: 'cursor-2',
+        },
+        totalCount: 2,
+      },
+    },
+  });
+});
+
+/**
+ * Connect Router Mutation Handler
+ * Simulates connecting to a router
+ */
+export const connectRouterHandler = graphqlEndpoint.mutation(
+  'ConnectRouter',
+  ({ variables }) => {
+    const { id } = variables as { id: string };
+    return HttpResponse.json({
+      data: {
+        connectRouter: {
+          success: true,
+          router: {
+            id,
+            name: 'Main Router',
+            host: '192.168.88.1',
+            status: 'CONNECTED',
+            identity: 'MikroTik',
+            lastConnectedAt: new Date().toISOString(),
+          },
+          errors: null,
+        },
+      },
+    });
+  }
+);
+
+/**
+ * Disconnect Router Mutation Handler
+ * Simulates disconnecting from a router
+ */
+export const disconnectRouterHandler = graphqlEndpoint.mutation(
+  'DisconnectRouter',
+  ({ variables }) => {
+    const { id } = variables as { id: string };
+    return HttpResponse.json({
+      data: {
+        disconnectRouter: {
+          success: true,
+          router: {
+            id,
+            name: 'Main Router',
+            status: 'DISCONNECTED',
+          },
+          errors: null,
+        },
+      },
+    });
+  }
+);
+
+/**
  * Error handler example for testing error states
  */
 export const errorHandler = graphqlEndpoint.query('GetSystemInfo', () => {
@@ -137,4 +261,8 @@ export const graphqlHandlers = [
   getSystemInfoHandler,
   getInterfacesHandler,
   getDHCPLeasesHandler,
+  getRouterHandler,
+  getRoutersHandler,
+  connectRouterHandler,
+  disconnectRouterHandler,
 ];

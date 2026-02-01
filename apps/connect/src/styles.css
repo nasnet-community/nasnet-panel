@@ -428,8 +428,191 @@
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ========================================
+   * TOUCH TARGET UTILITIES (WCAG AAA)
+   * Minimum 44x44px touch targets for mobile/tablet
+   * @see AC 3.5: Accessibility - Touch Targets
+   * ======================================== */
+
+  /* Minimum touch target size - 44x44px */
+  .touch-target-min {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ensure clickable area even for smaller visual elements */
+  .touch-target {
+    position: relative;
+  }
+
+  .touch-target::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Touch-friendly padding for inline elements */
+  .touch-padding {
+    padding: 10px;
+  }
+
+  @media (min-width: 1024px) {
+    .touch-padding {
+      padding: 8px;
+    }
+  }
+
+  /* Larger touch target for primary actions */
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* ========================================
+   * SCREEN READER ONLY UTILITIES (WCAG AAA)
+   * Hide content visually but keep accessible to screen readers
+   * @see NAS-4.17: Implement Accessibility (a11y) Foundation
+   * ======================================== */
+
+  /* Screen reader only - visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Show element when focused within (for skip links) */
+  .focus-within\:not-sr-only:focus-within {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: revert;
+    margin: revert;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Show element when focused (for individual skip links) */
+  .focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: revert;
+    margin: revert;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* ========================================
+   * FOCUS VISIBLE UTILITIES (WCAG AAA)
+   * Clear focus indicators for keyboard navigation
+   * @see NAS-4.17: Implement Accessibility (a11y) Foundation
+   * ======================================== */
+
+  /* Default focus-visible styles - applied globally */
+  *:focus-visible {
+    outline: none;
+    --tw-ring-color: hsl(var(--ring));
+    --tw-ring-offset-width: 2px;
+    --tw-ring-offset-color: hsl(var(--background));
+    --tw-ring-width: 2px;
+    box-shadow:
+      0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color),
+      0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  }
+
+  /* Exclude elements that handle their own focus styles */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible {
+    box-shadow: none;
+  }
+
+  /* Keyboard-only focus styles via data attribute */
+  [data-keyboard-user="true"] :focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* ========================================
+   * REDUCED MOTION UTILITIES (WCAG AAA)
+   * Respect user's prefers-reduced-motion preference
+   * @see AC 3.6: Reduced Motion Support
+   * ======================================== */
+
+  /* Disable all transitions when reduced motion is preferred */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Utility to force instant transitions */
+  .motion-safe\:transition-all {
+    transition-property: all;
+    transition-timing-function: ease-out;
+    transition-duration: 200ms;
+  }
+
+  .motion-safe\:duration-150 {
+    transition-duration: 150ms;
+  }
+
+  .motion-safe\:duration-200 {
+    transition-duration: 200ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe\:transition-all,
+    .motion-safe\:duration-150,
+    .motion-safe\:duration-200 {
+      transition-duration: 0ms;
+    }
+  }
+
+  /* Animation durations per design spec */
+  .duration-sidebar {
+    transition-duration: 200ms;
+  }
+
+  .duration-layout {
+    transition-duration: 150ms;
+  }
+
+  .duration-drawer {
+    transition-duration: 200ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .duration-sidebar,
+    .duration-layout,
+    .duration-drawer {
+      transition-duration: 0ms;
+    }
   }
 }

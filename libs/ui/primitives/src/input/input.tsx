@@ -1,17 +1,18 @@
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
 
 const inputVariants = cva(
-  'flex w-full rounded-xl border bg-white px-4 py-3 text-base transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:placeholder:text-slate-500',
+  'flex w-full rounded-input border bg-card px-4 py-3 text-base text-foreground transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 
-          'border-slate-200 text-slate-900 shadow-sm dark:border-slate-700 dark:text-slate-50',
-        error: 
-          'border-red-300 text-slate-900 shadow-sm focus-visible:ring-red-500 dark:border-red-700 dark:text-slate-50',
+        default:
+          'border-input shadow-sm',
+        error:
+          'border-error shadow-sm focus-visible:ring-error',
       },
       inputSize: {
         default: 'h-11',

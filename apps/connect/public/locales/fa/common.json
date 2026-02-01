@@ -1,0 +1,122 @@
+{
+  "app": {
+    "name": "NasNetConnect",
+    "tagline": "مدیریت روتر MikroTik"
+  },
+  "header": {
+    "navigation": {
+      "dashboard": "داشبورد",
+      "network": "شبکه",
+      "security": "امنیت",
+      "wifi": "WiFi",
+      "vpn": "VPN",
+      "system": "سیستم",
+      "settings": "تنظیمات"
+    },
+    "user": {
+      "profile": "پروفایل",
+      "logout": "خروج"
+    }
+  },
+  "sidebar": {
+    "section": {
+      "overview": "نمای کلی",
+      "monitoring": "نظارت",
+      "configuration": "پیکربندی",
+      "advanced": "پیشرفته"
+    }
+  },
+  "button": {
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "create": "ایجاد",
+    "add": "افزودن",
+    "remove": "حذف",
+    "apply": "اعمال",
+    "discard": "صرف‌نظر",
+    "confirm": "تأیید",
+    "close": "بستن",
+    "back": "بازگشت",
+    "next": "بعدی",
+    "finish": "پایان",
+    "retry": "تلاش مجدد",
+    "refresh": "بازنشانی",
+    "search": "جستجو",
+    "filter": "فیلتر",
+    "export": "صادرات",
+    "import": "واردات",
+    "copy": "کپی",
+    "paste": "چسباندن",
+    "selectAll": "انتخاب همه",
+    "deselectAll": "لغو انتخاب همه"
+  },
+  "status": {
+    "online": "آنلاین",
+    "offline": "آفلاین",
+    "connecting": "در حال اتصال",
+    "disconnected": "قطع شده",
+    "enabled": "فعال",
+    "disabled": "غیرفعال",
+    "active": "فعال",
+    "inactive": "غیرفعال",
+    "pending": "در انتظار",
+    "error": "خطا",
+    "warning": "هشدار",
+    "success": "موفق",
+    "unknown": "نامشخص",
+    "loading": "در حال بارگذاری..."
+  },
+  "time": {
+    "now": "همین الان",
+    "ago": "{{time}} پیش",
+    "in": "در {{time}}",
+    "seconds": "{{count}} ثانیه",
+    "seconds_other": "{{count}} ثانیه",
+    "minutes": "{{count}} دقیقه",
+    "minutes_other": "{{count}} دقیقه",
+    "hours": "{{count}} ساعت",
+    "hours_other": "{{count}} ساعت",
+    "days": "{{count}} روز",
+    "days_other": "{{count}} روز"
+  },
+  "table": {
+    "noData": "داده‌ای موجود نیست",
+    "loading": "در حال بارگذاری داده‌ها...",
+    "error": "خطا در بارگذاری داده‌ها",
+    "rowsPerPage": "ردیف در صفحه",
+    "of": "از",
+    "page": "صفحه"
+  },
+  "dialog": {
+    "confirm": {
+      "title": "تأیید عملیات",
+      "message": "آیا از ادامه اطمینان دارید؟"
+    },
+    "delete": {
+      "title": "تأیید حذف",
+      "message": "این عملیات قابل بازگشت نیست. آیا اطمینان دارید؟"
+    }
+  },
+  "settings": {
+    "language": {
+      "title": "زبان",
+      "description": "زبان مورد نظر خود را انتخاب کنید",
+      "changeWarning": "تغییر زبان باعث بارگذاری مجدد صفحه می‌شود"
+    },
+    "theme": {
+      "title": "پوسته",
+      "light": "روشن",
+      "dark": "تاریک",
+      "system": "سیستم"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "رفتن به محتوای اصلی",
+    "openMenu": "باز کردن منو",
+    "closeMenu": "بستن منو",
+    "expand": "گسترش",
+    "collapse": "جمع کردن"
+  }
+}

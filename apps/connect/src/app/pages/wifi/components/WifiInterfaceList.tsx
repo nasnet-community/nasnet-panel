@@ -6,11 +6,15 @@
 import { WirelessInterfaceList } from '@nasnet/features/wireless';
 import { SectionHeader } from '../../network/components/SectionHeader';
 
-export function WifiInterfaceList() {
+interface WifiInterfaceListProps {
+  routerId: string;
+}
+
+export function WifiInterfaceList({ routerId }: WifiInterfaceListProps) {
   return (
     <section>
       <SectionHeader title="Wireless Interfaces" />
-      <WirelessInterfaceList />
+      <WirelessInterfaceList routerId={routerId} />
     </section>
   );
 }

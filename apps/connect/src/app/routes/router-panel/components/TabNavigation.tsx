@@ -1,15 +1,24 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Wifi, 
-  Shield, 
-  ShieldAlert, 
-  Network, 
-  Cable, 
+import { useNavigate, useRouterState } from '@tanstack/react-router';
+import { Route } from '@/routes/router/$id/route';
+import {
+  LayoutDashboard,
+  Wifi,
+  Shield,
+  ShieldAlert,
+  Network,
+  Cable,
   ScrollText,
   Store
 } from 'lucide-react';
 import { cn } from '@nasnet/ui/primitives';
+import { useEffect, useCallback } from 'react';
+import {
+  preloadFirewallTab,
+  preloadLogsTab,
+  preloadDHCPTab,
+  preloadPluginStoreTab,
+  preloadAllHeavyTabs,
+} from '@/app/routes/router-panel/tabs/lazy';
 
 /**
  * Tab definition interface
@@ -20,10 +29,20 @@ interface TabDefinition {
   mobileLabel?: string; // Shorter label for mobile
   icon: React.ElementType;
   ariaLabel: string;
+  /** Optional preload function for lazy-loaded tabs */
+  preload?: () => void;
 }
 
 /**
  * Tab configuration
+ */
+/**
+ * Tab configuration with preload functions for lazy-loaded tabs
+ *
+ * Heavy tabs (firewall, logs, dhcp, plugins) are code-split and
+ * their components are preloaded on hover for instant navigation.
+ *
+ * @see NAS-4.12: Performance Optimization
  */
 const tabs: TabDefinition[] = [
   {
@@ -50,12 +69,14 @@ const tabs: TabDefinition[] = [
     mobileLabel: 'FW',
     icon: ShieldAlert,
     ariaLabel: 'Firewall settings',
+    preload: preloadFirewallTab,
   },
   {
     value: 'dhcp',
     label: 'DHCP',
     icon: Network,
     ariaLabel: 'DHCP server configuration',
+    preload: preloadDHCPTab,
   },
   {
     value: 'network',
@@ -69,12 +90,14 @@ const tabs: TabDefinition[] = [
     label: 'Logs',
     icon: ScrollText,
     ariaLabel: 'System logs',
+    preload: preloadLogsTab,
   },
   {
     value: 'plugins',
     label: 'Store',
     icon: Store,
     ariaLabel: 'Plugin store',
+    preload: preloadPluginStoreTab,
   },
 ];
 
@@ -103,17 +126,24 @@ const tabs: TabDefinition[] = [
  * ```
  */
 export function TabNavigation() {
-  const location = useLocation();
+  const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
 
   // Determine active tab from URL path
-  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const pathSegments = pathname.split('/').filter(Boolean);
   const lastSegment = pathSegments[pathSegments.length - 1];
 
   // If last segment is router ID, we're on overview (index route)
   const activeTab =
     lastSegment === id || !lastSegment ? 'overview' : lastSegment;
+
+  // Preload all heavy tabs when entering router panel
+  // This ensures fast tab switches after initial load
+  useEffect(() => {
+    preloadAllHeavyTabs();
+  }, []);
 
   /**
    * Handle tab change - navigate to new tab URL
@@ -121,7 +151,7 @@ export function TabNavigation() {
   const handleTabClick = (tabValue: string) => {
     const basePath = `/router/${id}`;
     const targetPath = tabValue === 'overview' ? basePath : `${basePath}/${tabValue}`;
-    navigate(targetPath);
+    navigate({ to: targetPath });
   };
 
   /**
@@ -133,6 +163,16 @@ export function TabNavigation() {
       handleTabClick(tabValue);
     }
   };
+
+  /**
+   * Handle hover - preload the tab's component
+   * Uses mouseenter for instant feedback on hover intent
+   */
+  const handleMouseEnter = useCallback((preload?: () => void) => {
+    if (preload) {
+      preload();
+    }
+  }, []);
 
   return (
     <>
@@ -152,6 +192,8 @@ export function TabNavigation() {
                 key={tab.value}
                 onClick={() => handleTabClick(tab.value)}
                 onKeyDown={(e) => handleKeyDown(e, tab.value)}
+                onMouseEnter={() => handleMouseEnter(tab.preload)}
+                onFocus={() => handleMouseEnter(tab.preload)}
                 role="tab"
                 aria-selected={isActive}
                 aria-label={tab.ariaLabel}
@@ -189,6 +231,7 @@ export function TabNavigation() {
                 key={tab.value}
                 onClick={() => handleTabClick(tab.value)}
                 onKeyDown={(e) => handleKeyDown(e, tab.value)}
+                onTouchStart={() => handleMouseEnter(tab.preload)}
                 role="tab"
                 aria-selected={isActive}
                 aria-label={tab.ariaLabel}
@@ -201,12 +244,12 @@ export function TabNavigation() {
                     : 'text-slate-600 dark:text-slate-400'
                 )}
               >
-                <Icon 
+                <Icon
                   className={cn(
                     'h-5 w-5 transition-transform',
                     isActive && 'scale-110'
-                  )} 
-                  aria-hidden="true" 
+                  )}
+                  aria-hidden="true"
                 />
                 <span className="text-[10px] font-medium leading-none">
                   {displayLabel}

@@ -1,5 +1,5 @@
-import { Outlet, useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState, type ReactNode } from 'react';
 import { TabNavigation } from './components/TabNavigation';
 import { RouterHeader } from './components/RouterHeader';
 import { ROUTES } from '@nasnet/core/constants';
@@ -15,6 +15,11 @@ import {
   ConfigurationImportWizard,
   useConfigurationCheck,
 } from '@nasnet/features/configuration-import';
+
+interface RouterPanelProps {
+  routerId: string;
+  children?: ReactNode;
+}
 
 /**
  * RouterPanel Layout Component
@@ -47,17 +52,17 @@ import {
  * - Responsive spacing (p-4 md:p-6)
  * - Safe area support for mobile
  *
- * Usage:
+ * Usage (TanStack Router):
  * ```tsx
- * <Route path="/router/:id" element={<RouterPanel />}>
- *   <Route index element={<OverviewTab />} />
- *   <Route path="wifi" element={<WiFiTab />} />
- *   // ... other tabs
- * </Route>
+ * // In routes/router/$id/route.tsx
+ * function RouterPanelLayout() {
+ *   const { id } = Route.useParams();
+ *   return <RouterPanel routerId={id}><Outlet /></RouterPanel>;
+ * }
  * ```
  */
-export function RouterPanel() {
-  const { id } = useParams<{ id: string }>();
+export function RouterPanel({ routerId, children }: RouterPanelProps) {
+  const id = routerId;
   const navigate = useNavigate();
 
   // Get router info from store
@@ -87,7 +92,7 @@ export function RouterPanel() {
       // If router doesn't exist, navigate back to router list
       if (!routerData) {
         console.warn(`Router ${id} not found, redirecting to router list`);
-        navigate(ROUTES.ROUTER_LIST);
+        navigate({ to: ROUTES.ROUTER_LIST });
         return;
       }
       
@@ -149,7 +154,7 @@ export function RouterPanel() {
   const handleCredentialCancel = () => {
     setShowCredentialDialog(false);
     // Navigate back to router list since we can't proceed without credentials
-    navigate(ROUTES.ROUTER_LIST);
+    navigate({ to: ROUTES.ROUTER_LIST });
   };
 
   // Keyboard shortcut: Escape key returns to router list
@@ -161,7 +166,7 @@ export function RouterPanel() {
       const hasOpenAlertDialog = document.querySelector('[role="alertdialog"]');
 
       if (e.key === 'Escape' && !hasOpenModal && !hasOpenAlertDialog) {
-        navigate(ROUTES.ROUTER_LIST);
+        navigate({ to: ROUTES.ROUTER_LIST });
       }
     };
 
@@ -185,7 +190,7 @@ export function RouterPanel() {
 
       {/* Tab content area - with bottom padding on mobile for bottom nav */}
       <div className="flex-1 overflow-auto pb-20 md:pb-0">
-        <Outlet />
+        {children}
       </div>
 
       {/* Credential Dialog - shows when no saved credentials exist */}

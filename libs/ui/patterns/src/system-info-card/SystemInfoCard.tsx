@@ -4,6 +4,11 @@
  */
 
 import * as React from 'react';
+
+import { AlertCircle, RefreshCw } from 'lucide-react';
+
+import type { SystemInfo } from '@nasnet/core/types';
+import { parseRouterOSUptime } from '@nasnet/core/utils';
 import {
   Card,
   CardHeader,
@@ -12,9 +17,6 @@ import {
   Skeleton,
   Button,
 } from '@nasnet/ui/primitives';
-import { AlertCircle, RefreshCw } from 'lucide-react';
-import { parseRouterOSUptime } from '@nasnet/core/utils';
-import type { SystemInfo } from '@nasnet/core/types';
 
 /**
  * SystemInfoCard Props

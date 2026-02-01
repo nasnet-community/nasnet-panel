@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
+
+import { type LucideIcon } from 'lucide-react';
+
 import { Card, CardContent } from '@nasnet/ui/primitives';
-import { LucideIcon } from 'lucide-react';
 
 /**
  * Quick action item configuration

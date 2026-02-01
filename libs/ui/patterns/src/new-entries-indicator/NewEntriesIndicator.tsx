@@ -5,9 +5,10 @@
  */
 
 import * as React from 'react';
-import { Button } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+
 import { ChevronDown } from 'lucide-react';
+
+import { Button , cn } from '@nasnet/ui/primitives';
 
 export interface NewEntriesIndicatorProps extends React.HTMLAttributes<HTMLButtonElement> {
   /**

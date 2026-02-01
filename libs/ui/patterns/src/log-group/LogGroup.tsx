@@ -5,12 +5,16 @@
  */
 
 import * as React from 'react';
-import { cn, Button } from '@nasnet/ui/primitives';
+
 import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
+
 import type { LogEntry } from '@nasnet/core/types';
+import { formatTimestamp } from '@nasnet/core/utils';
+import { cn, Button } from '@nasnet/ui/primitives';
+
 import { LogEntry as LogEntryComponent } from '../log-entry';
 import { SeverityBadge } from '../severity-badge';
-import { formatTimestamp } from '@nasnet/core/utils';
+
 
 export interface LogGroupData {
   id: string;

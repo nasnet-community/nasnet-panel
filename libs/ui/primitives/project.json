@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/primitives/src",
   "projectType": "library",
-  "tags": ["scope:ui", "type:lib"],
+  "tags": ["scope:ui", "scope:ui-primitives", "type:lib"],
   "targets": {
     "build": {
       "executor": "@nx/vite:build",
@@ -40,6 +40,19 @@
           "nx run ui-primitives:lint"
         ],
         "parallel": false
+      }
+    },
+    "storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "storybook dev -p 4400 -c libs/ui/primitives/.storybook"
+      }
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/storybook/ui-primitives"],
+      "options": {
+        "command": "storybook build -c libs/ui/primitives/.storybook -o dist/storybook/ui-primitives"
       }
     }
   }

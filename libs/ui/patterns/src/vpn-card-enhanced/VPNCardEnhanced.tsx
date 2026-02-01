@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
-import { Card, CardContent, Switch } from '@nasnet/ui/primitives';
+
 import { Shield, Loader2 } from 'lucide-react';
+
+import { Card, CardContent, Switch } from '@nasnet/ui/primitives';
 
 /**
  * VPN connection status

@@ -5,6 +5,18 @@
  */
 
 import * as React from 'react';
+
+import { 
+  MoreVertical, 
+  Edit, 
+  Trash2, 
+  Users, 
+  Activity,
+  Settings,
+} from 'lucide-react';
+
+import type { VPNProtocol } from '@nasnet/core/types';
+import { formatBytes } from '@nasnet/core/utils';
 import { 
   Card, 
   CardContent, 
@@ -19,18 +31,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@nasnet/ui/primitives';
-import { 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Users, 
-  Activity,
-  Settings,
-} from 'lucide-react';
-import { StatusIndicator } from '../status-indicator';
+
 import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
-import { formatBytes } from '@nasnet/core/utils';
-import type { VPNProtocol } from '@nasnet/core/types';
+import { StatusIndicator } from '../status-indicator';
+
 
 export interface VPNServerCardProps {
   /** Server ID */

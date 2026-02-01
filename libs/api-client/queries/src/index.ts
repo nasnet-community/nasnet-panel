@@ -11,3 +11,5 @@ export * from './vpn';
 export * from './system';
 export * from './discovery';
 export * from './batch';
+export * from './resources';
+export * from './change-set';

@@ -1,12 +1,16 @@
 /**
  * Hardware Card Component
  * Displays routerboard hardware details with copy-to-clipboard functionality
+ *
+ * @see NAS-4.23 - Refactored to use useClipboard hook
  */
 
-import { Card, CardContent, CardHeader, CardTitle, Button, Skeleton } from '@nasnet/ui/primitives';
 import { Copy, Check } from 'lucide-react';
-import { useState } from 'react';
+
 import type { RouterboardInfo } from '@nasnet/core/types';
+import { Card, CardContent, CardHeader, CardTitle, Button, Skeleton } from '@nasnet/ui/primitives';
+
+import { useClipboard } from '../hooks';
 
 export interface HardwareCardProps {
   /**
@@ -75,18 +79,13 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 /**
  * Serial number row with copy-to-clipboard button
+ * Refactored to use useClipboard hook (NAS-4.23)
  */
 function SerialNumberRow({ serialNumber }: { serialNumber: string }) {
-  const [copied, setCopied] = useState(false);
+  const { copy, copied } = useClipboard();
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(serialNumber);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy serial number:', err);
-    }
+  const handleCopy = () => {
+    copy(serialNumber);
   };
 
   return (
@@ -99,7 +98,7 @@ function SerialNumberRow({ serialNumber }: { serialNumber: string }) {
           size="icon"
           className="h-8 w-8 rounded-button hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           onClick={handleCopy}
-          aria-label="Copy serial number"
+          aria-label={copied ? 'Copied' : 'Copy serial number'}
         >
           {copied ? (
             <Check className="h-4 w-4 text-success" />

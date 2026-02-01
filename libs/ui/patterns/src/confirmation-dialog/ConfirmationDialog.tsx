@@ -5,6 +5,7 @@
  */
 
 import * as React from 'react';
+
 import {
   Dialog,
   DialogContent,
@@ -12,9 +13,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ Button , cn } from '@nasnet/ui/primitives';
 
 export interface ConfirmationDialogProps {
   /** Dialog open state */

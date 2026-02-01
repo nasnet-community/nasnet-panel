@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@nasnet/ui/primitives';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
+
+import { Button } from '@nasnet/ui/primitives';
 
 export interface BackButtonProps {
   /**
@@ -48,7 +49,8 @@ export function BackButton({
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(to);
+    // Use type assertion to allow dynamic paths from props
+    navigate({ to: to as '/' });
   };
 
   return (
