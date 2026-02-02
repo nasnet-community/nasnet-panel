@@ -1,0 +1,71 @@
+/**
+ * ConfigPreview Syntax Highlighting Styles
+ *
+ * Uses semantic design tokens for proper theming in light and dark modes.
+ * Applied to elements with the .config-preview-syntax class.
+ *
+ * @see NAS-4A.21 - Build Config Preview Component
+ */
+
+/* RouterOS command paths (/interface, /ip, /system) */
+.config-preview-syntax .hljs-command {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+
+/* Keywords (add, set, remove, print, etc.) */
+.config-preview-syntax .hljs-keyword {
+  color: hsl(var(--secondary));
+}
+
+/* String values (quoted text) */
+.config-preview-syntax .hljs-string {
+  color: hsl(var(--success));
+}
+
+/* Comments (# lines) */
+.config-preview-syntax .hljs-comment {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Variables ($variableName) */
+.config-preview-syntax .hljs-variable {
+  color: #a855f7; /* Purple - TODO: consider adding --color-variable token */
+}
+
+/* IP addresses, MAC addresses, numbers */
+.config-preview-syntax .hljs-number {
+  color: #06b6d4; /* Cyan - TODO: consider adding --color-network token */
+}
+
+/* Property names (key=value patterns) */
+.config-preview-syntax .hljs-property {
+  color: hsl(var(--foreground));
+}
+
+/* Interface types (ethernet, wireless, etc.) */
+.config-preview-syntax .hljs-type {
+  color: hsl(var(--info));
+}
+
+/* Boolean literals (yes, no, true, false) */
+.config-preview-syntax .hljs-literal {
+  color: hsl(var(--warning));
+}
+
+/* Bracket expressions [ find ... ] */
+.config-preview-syntax .hljs-meta {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Dark mode adjustments - CSS variables handle this automatically */
+/* These are fallbacks for any edge cases */
+
+.dark .config-preview-syntax .hljs-variable {
+  color: #c084fc; /* Lighter purple for dark mode */
+}
+
+.dark .config-preview-syntax .hljs-number {
+  color: #22d3ee; /* Lighter cyan for dark mode */
+}

@@ -83,6 +83,7 @@ export {
   port,
   portString,
   portRange,
+  multiPort,
   vlanId,
   vlanIdString,
   wgKey,
@@ -92,7 +93,62 @@ export {
   comment,
   duration,
   bandwidth,
+  // Extended validators (NAS-4A.3)
+  subnetMask,
+  ipWithPort,
+  ipRange,
+  privateIp,
+  publicIp,
+  multicastIp,
+  loopbackIp,
 } from './network-validators';
+
+// Network Utilities (NAS-4A.3)
+export {
+  // IP manipulation functions
+  ipToLong,
+  longToIp,
+  isInSubnet,
+  getNetworkAddress,
+  getBroadcastAddress,
+  getSubnetMask,
+  cidrToSubnetMask,
+  subnetMaskToCidr,
+  getUsableHostCount,
+  getTotalAddressCount,
+  getFirstUsableHost,
+  getLastUsableHost,
+  getSubnetInfo,
+  doSubnetsOverlap,
+  // IP classification functions
+  isPrivateIp,
+  isLoopbackIp,
+  isMulticastIp,
+  isLinkLocalIp,
+  isPublicIp,
+  classifyIp,
+  // Network generation functions
+  hasDomesticLink,
+  getAvailableBaseNetworks,
+  getForeignNetworkNames,
+  getDomesticNetworkNames,
+  getVPNClientNetworks,
+  generateNetworks,
+} from './network-utils';
+
+// Network Utility Types (NAS-4A.3)
+export type {
+  WANLinkType,
+  BaseNetworks,
+  VPNClientNetworks,
+  Networks,
+  WANConfig,
+  WANLinkGroup,
+  WANLinks,
+  VPNClientConfig,
+  VPNClient,
+  SubnetInfo,
+} from './network-utils';
 
 // Schema Utilities
 export {

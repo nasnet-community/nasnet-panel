@@ -424,6 +424,48 @@ function generateTailwindConfig(tokens) {
       backup: `var(--semantic-color-category-backup)`,
     };
 
+    // Network interface type colors (AC1)
+    colors.network = {
+      wan: `var(--semantic-color-network-wan)`,
+      lan: `var(--semantic-color-network-lan)`,
+      vpn: `var(--semantic-color-network-vpn)`,
+      wireless: `var(--semantic-color-network-wireless)`,
+    };
+
+    // Network status colors (AC1)
+    colors.networkStatus = {
+      connected: `var(--semantic-color-networkStatus-connected)`,
+      disconnected: `var(--semantic-color-networkStatus-disconnected)`,
+      pending: `var(--semantic-color-networkStatus-pending)`,
+      error: `var(--semantic-color-networkStatus-error)`,
+    };
+
+    // Confidence indicator colors (AC5)
+    colors.confidence = {
+      high: `var(--semantic-confidence-high)`,
+      highBg: `var(--semantic-confidence-highBg)`,
+      highText: `var(--semantic-confidence-highText)`,
+      medium: `var(--semantic-confidence-medium)`,
+      mediumBg: `var(--semantic-confidence-mediumBg)`,
+      mediumText: `var(--semantic-confidence-mediumText)`,
+      low: `var(--semantic-confidence-low)`,
+      lowBg: `var(--semantic-confidence-lowBg)`,
+      lowText: `var(--semantic-confidence-lowText)`,
+    };
+
+    // Stepper component colors (AC4)
+    colors.stepper = {
+      connector: `var(--component-stepper-connectorColor)`,
+      active: `var(--component-stepper-activeColor)`,
+      activeBg: `var(--component-stepper-activeBg)`,
+      completed: `var(--component-stepper-completedColor)`,
+      completedBg: `var(--component-stepper-completedBg)`,
+      pending: `var(--component-stepper-pendingColor)`,
+      pendingBg: `var(--component-stepper-pendingBg)`,
+      error: `var(--component-stepper-errorColor)`,
+      errorBg: `var(--component-stepper-errorBg)`,
+    };
+
     return colors;
   };
 
@@ -460,6 +502,34 @@ function generateTailwindConfig(tokens) {
       card: 'var(--semantic-shadow-card)',
       dropdown: 'var(--semantic-shadow-dropdown)',
       modal: 'var(--semantic-shadow-modal)',
+    },
+    // Wizard spacing utilities (AC2)
+    spacing: {
+      'wizard-sidebar': 'var(--semantic-wizard-sidebarWidth)',
+      'wizard-preview': 'var(--semantic-wizard-previewWidth)',
+      'wizard-step-gap': 'var(--semantic-wizard-stepGap)',
+      'wizard-content-max': 'var(--semantic-wizard-contentMaxWidth)',
+      'wizard-mobile-header': 'var(--semantic-wizard-mobileHeaderHeight)',
+      'wizard-mobile-stepper': 'var(--semantic-wizard-mobileStepper)',
+      'stepper-item': 'var(--component-stepper-itemSize)',
+      'stepper-item-mobile': 'var(--component-stepper-itemSizeMobile)',
+    },
+    // Wizard max-width utilities
+    maxWidth: {
+      'wizard-content': 'var(--semantic-wizard-contentMaxWidth)',
+    },
+    // Wizard width utilities
+    width: {
+      'wizard-sidebar': 'var(--semantic-wizard-sidebarWidth)',
+      'wizard-preview': 'var(--semantic-wizard-previewWidth)',
+    },
+    // Animation timing utilities (AC6)
+    transitionDuration: {
+      'step': 'var(--semantic-animation-wizard-stepTransition)',
+      'validation': 'var(--semantic-animation-wizard-validationFeedback)',
+    },
+    transitionTimingFunction: {
+      'step': 'var(--semantic-animation-wizard-easing)',
     },
   };
 

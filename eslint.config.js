@@ -6,6 +6,7 @@ const nxPlugin = require('@nx/eslint-plugin');
 const reactHooksPlugin = require('eslint-plugin-react-hooks');
 const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
 const importPlugin = require('eslint-plugin-import');
+const i18nextPlugin = require('eslint-plugin-i18next');
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
@@ -48,6 +49,7 @@ module.exports = [
       'react-hooks': reactHooksPlugin,
       'jsx-a11y': jsxA11yPlugin,
       import: importPlugin,
+      i18next: i18nextPlugin,
     },
     settings: {
       react: {
@@ -179,10 +181,33 @@ module.exports = [
                 'scope:shared',
               ],
             },
-            // UI can depend on core and shared only
+            // UI can depend on core, shared, and other UI libs
             {
               sourceTag: 'scope:ui',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:ui'],
+            },
+            // Three-Layer Component Architecture (ADR-017)
+            // ui-primitives: Foundation layer (Layer 1), no UI dependencies
+            {
+              sourceTag: 'scope:ui-primitives',
               onlyDependOnLibsWithTags: ['scope:core', 'scope:shared'],
+            },
+            // ui-patterns: Can depend on primitives, layouts, and state (Layer 2)
+            // State access is needed for composite UI components (command palette, auth, connection status)
+            {
+              sourceTag: 'scope:ui-patterns',
+              onlyDependOnLibsWithTags: [
+                'scope:core',
+                'scope:shared',
+                'scope:ui-primitives',
+                'scope:ui-layouts',
+                'scope:state',
+              ],
+            },
+            // ui-layouts: Can depend on primitives only
+            {
+              sourceTag: 'scope:ui-layouts',
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:shared', 'scope:ui-primitives'],
             },
             // API client can depend on core and shared only
             {

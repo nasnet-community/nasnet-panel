@@ -1,0 +1,265 @@
+{
+  "inputs": {
+    "ipAddress": {
+      "label": "آدرس IP",
+      "placeholder": "مثال: 192.168.1.1",
+      "help": "یک آدرس IPv4 یا IPv6 معتبر وارد کنید"
+    },
+    "subnet": {
+      "label": "ماسک زیرشبکه",
+      "cidrLabel": "نماد CIDR",
+      "placeholder": "مثال: 255.255.255.0 یا /24",
+      "help": "محدوده شبکه را مشخص کنید"
+    },
+    "macAddress": {
+      "label": "آدرس MAC",
+      "placeholder": "مثال: AA:BB:CC:DD:EE:FF",
+      "help": "آدرس سخت‌افزاری رابط شبکه"
+    },
+    "port": {
+      "label": "پورت",
+      "rangeLabel": "محدوده پورت",
+      "placeholder": "مثال: 80 یا 8080-8090",
+      "help": "شماره پورت شبکه (1-65535)"
+    },
+    "interface": {
+      "label": "رابط",
+      "placeholder": "رابط را انتخاب کنید",
+      "help": "رابط شبکه فیزیکی یا مجازی"
+    },
+    "gateway": {
+      "label": "Gateway",
+      "placeholder": "مثال: 192.168.1.1",
+      "help": "آدرس Gateway پیش‌فرض"
+    },
+    "dns": {
+      "label": "سرور DNS",
+      "placeholder": "مثال: 8.8.8.8",
+      "help": "آدرس سرور نام دامنه"
+    },
+    "vlan": {
+      "label": "شناسه VLAN",
+      "placeholder": "مثال: 100",
+      "help": "شناسه شبکه محلی مجازی (1-4094)"
+    }
+  },
+  "validation": {
+    "ipAddress": {
+      "invalid": "فرمت آدرس IP نامعتبر است",
+      "v4Required": "آدرس IPv4 الزامی است",
+      "v6Required": "آدرس IPv6 الزامی است",
+      "private": "باید یک آدرس IP خصوصی باشد",
+      "public": "باید یک آدرس IP عمومی باشد",
+      "reserved": "این آدرس IP رزرو شده است",
+      "inUse": "این آدرس IP در حال استفاده است"
+    },
+    "subnet": {
+      "invalid": "ماسک زیرشبکه نامعتبر است",
+      "cidrOutOfRange": "پیشوند CIDR باید بین 0 و 32 باشد",
+      "maskOutOfRange": "ماسک زیرشبکه خارج از محدوده معتبر است",
+      "overlap": "این زیرشبکه با {{existing}} همپوشانی دارد"
+    },
+    "macAddress": {
+      "invalid": "فرمت آدرس MAC نامعتبر است",
+      "broadcast": "نمی‌توان از آدرس MAC پخش استفاده کرد",
+      "multicast": "نمی‌توان از آدرس MAC چندپخشی استفاده کرد"
+    },
+    "port": {
+      "invalid": "شماره پورت نامعتبر است",
+      "outOfRange": "پورت باید بین 1 و 65535 باشد",
+      "rangeInvalid": "پورت پایانی باید بزرگتر از پورت شروع باشد",
+      "privileged": "پورت‌های 1-1024 ممتاز هستند",
+      "inUse": "این پورت در حال استفاده است"
+    },
+    "vlan": {
+      "invalid": "شناسه VLAN نامعتبر است",
+      "outOfRange": "شناسه VLAN باید بین 1 و 4094 باشد",
+      "reserved": "شناسه VLAN {{id}} رزرو شده است"
+    },
+    "interface": {
+      "required": "لطفاً یک رابط انتخاب کنید",
+      "notFound": "رابط یافت نشد",
+      "disabled": "رابط انتخاب شده غیرفعال است"
+    }
+  },
+  "status": {
+    "online": "آنلاین",
+    "offline": "آفلاین",
+    "connecting": "در حال اتصال...",
+    "disconnected": "قطع شده",
+    "up": "فعال",
+    "down": "غیرفعال",
+    "unknown": "نامشخص"
+  },
+  "help": {
+    "ip": {
+      "title": {
+        "simple": "آدرس IP",
+        "technical": "آدرس IPv4/IPv6"
+      },
+      "description": {
+        "simple": "آدرس یکتایی که این دستگاه را در شبکه شناسایی می‌کند",
+        "technical": "آدرس لایه شبکه ۳۲ بیتی (IPv4) یا ۱۲۸ بیتی (IPv6)"
+      },
+      "examples": ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Address"
+    },
+    "gateway": {
+      "title": {
+        "simple": "Gateway",
+        "technical": "مسیر پیش‌فرض"
+      },
+      "description": {
+        "simple": "روتری که شبکه شما را به اینترنت متصل می‌کند",
+        "technical": "آدرس next-hop برای بسته‌هایی که مقصدشان خارج از زیرشبکه محلی است"
+      },
+      "examples": ["192.168.1.1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Route"
+    },
+    "subnet": {
+      "title": {
+        "simple": "اندازه شبکه",
+        "technical": "نماد CIDR"
+      },
+      "description": {
+        "simple": "تعداد دستگاه‌هایی که می‌توانند در این شبکه باشند",
+        "technical": "طول پیشوند CIDR که ماسک شبکه را تعریف می‌کند"
+      },
+      "examples": ["192.168.1.0/24 (254 میزبان)", "10.0.0.0/8 (16M میزبان)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Address#Network_prefix"
+    },
+    "mac": {
+      "title": {
+        "simple": "آدرس سخت‌افزاری",
+        "technical": "آدرس MAC"
+      },
+      "description": {
+        "simple": "شناسه یکتایی که در سخت‌افزار دستگاه شبکه شما ثبت شده است",
+        "technical": "آدرس ۴۸ بیتی کنترل دسترسی رسانه که توسط سازنده اختصاص داده شده"
+      },
+      "examples": ["AA:BB:CC:DD:EE:FF", "00:50:56:00:00:01"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface"
+    },
+    "port": {
+      "title": {
+        "simple": "شماره پورت",
+        "technical": "پورت TCP/UDP"
+      },
+      "description": {
+        "simple": "«شماره درب» که برنامه‌ها برای ارتباط استفاده می‌کنند",
+        "technical": "شناسه نقطه پایانی لایه ۴ (۱-۶۵۵۳۵) برای پروتکل‌های انتقال"
+      },
+      "examples": ["80 (HTTP)", "443 (HTTPS)", "22 (SSH)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/Filter"
+    },
+    "interface": {
+      "title": {
+        "simple": "پورت شبکه",
+        "technical": "رابط"
+      },
+      "description": {
+        "simple": "پورت فیزیکی یا مجازی که دستگاه‌ها به آن متصل می‌شوند",
+        "technical": "رابط شبکه برای ارسال/دریافت بسته‌ها"
+      },
+      "examples": ["ether1", "bridge-lan", "wlan1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface"
+    },
+    "dns": {
+      "title": {
+        "simple": "سرور DNS",
+        "technical": "سرور سیستم نام دامنه"
+      },
+      "description": {
+        "simple": "سروری که نام وب‌سایت‌ها را به آدرس IP ترجمه می‌کند",
+        "technical": "حل‌کننده بازگشتی برای ترجمه نام دامنه به آدرس IP"
+      },
+      "examples": ["8.8.8.8 (Google)", "1.1.1.1 (Cloudflare)", "9.9.9.9 (Quad9)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/DNS"
+    },
+    "vlan": {
+      "title": {
+        "simple": "شناسه شبکه مجازی",
+        "technical": "شناسه VLAN (802.1Q)"
+      },
+      "description": {
+        "simple": "عددی که شبکه‌های مجازی مختلف را روی یک شبکه فیزیکی جدا می‌کند",
+        "technical": "شناسه تگ IEEE 802.1Q برای تقسیم‌بندی شبکه لایه ۲ (۱-۴۰۹۴)"
+      },
+      "examples": ["10 (مدیریت)", "20 (مهمان)", "100 (IoT)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface/VLAN"
+    },
+    "dhcp": {
+      "title": {
+        "simple": "تخصیص خودکار IP",
+        "technical": "DHCP (پروتکل پیکربندی میزبان پویا)"
+      },
+      "description": {
+        "simple": "به صورت خودکار آدرس IP را به دستگاه‌ها هنگام اتصال اختصاص می‌دهد",
+        "technical": "پروتکلی برای پیکربندی خودکار IP شامل آدرس، gateway، DNS و زمان اجاره"
+      },
+      "examples": ["Pool: 192.168.1.100-192.168.1.200", "اجاره: ۲۴ ساعت"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/DHCP_Server"
+    },
+    "firewall": {
+      "title": {
+        "simple": "قانون فایروال",
+        "technical": "قانون فیلتر بسته"
+      },
+      "description": {
+        "simple": "قانونی که تصمیم می‌گیرد کدام ترافیک شبکه مجاز یا مسدود شود",
+        "technical": "قانون بازرسی بسته وضعیت‌دار مبتنی بر Netfilter با زنجیره، عمل و معیار تطبیق"
+      },
+      "examples": ["قبول پورت 80", "رد پورت 23", "هدایت به VPN"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/Filter"
+    },
+    "nat": {
+      "title": {
+        "simple": "ترجمه آدرس",
+        "technical": "NAT (ترجمه آدرس شبکه)"
+      },
+      "description": {
+        "simple": "آدرس‌های IP خصوصی را به عمومی برای دسترسی به اینترنت ترجمه می‌کند",
+        "technical": "تغییر آدرس‌های هدر IP (مبدأ یا مقصد) هنگام عبور بسته‌ها از روتر"
+      },
+      "examples": ["Masquerade (خروجی)", "Port forward (ورودی)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/NAT"
+    },
+    "mtu": {
+      "title": {
+        "simple": "اندازه بسته",
+        "technical": "MTU (حداکثر واحد انتقال)"
+      },
+      "description": {
+        "simple": "حداکثر اندازه داده‌ای که می‌تواند در یک قطعه ارسال شود",
+        "technical": "حداکثر اندازه بسته IP به بایت که رابط می‌تواند بدون تکه‌تکه شدن ارسال کند"
+      },
+      "examples": ["1500 (Ethernet)", "1492 (PPPoE)", "1400 (تونل‌های VPN)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface#Common_parameters"
+    },
+    "legacy": {
+      "ipAddress": "شناسه منحصر به فرد برای دستگاه‌ها در یک شبکه",
+      "cidr": "نماد CIDR آدرس IP را با طول پیشوند شبکه ترکیب می‌کند (مثال: /24)",
+      "privateRanges": "محدوده‌های خصوصی: 10.0.0.0/8، 172.16.0.0/12، 192.168.0.0/16",
+      "gateway": "روتری که ترافیک را به شبکه‌های دیگر هدایت می‌کند",
+      "broadcast": "آدرس ویژه‌ای که به همه دستگاه‌های شبکه می‌رسد",
+      "mtu": "حداکثر واحد انتقال - بزرگترین اندازه بسته به بایت"
+    }
+  },
+  "units": {
+    "bps": "bps",
+    "kbps": "Kbps",
+    "mbps": "Mbps",
+    "gbps": "Gbps",
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "gigabytes": "GB"
+  },
+  "protocols": {
+    "tcp": "TCP",
+    "udp": "UDP",
+    "icmp": "ICMP",
+    "gre": "GRE",
+    "any": "همه"
+  }
+}

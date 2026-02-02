@@ -539,3 +539,220 @@ export type { PastePreviewModalProps } from './paste-preview-modal';
 // - useClipboard: Basic clipboard copy with visual feedback
 // - useBulkCopy: Multi-item copy with format selection (CSV, JSON, text)
 // - usePasteImport: Paste detection and validation for imports
+
+// ============================================================================
+// Form Section Component (NAS-4A.13)
+// ============================================================================
+
+// FormSection - Consistent form section wrapper with collapsibility
+export {
+  FormSection,
+  FormSectionHeader,
+  FormSectionErrors,
+  useFormSection,
+  slugify,
+} from './form-section';
+export type {
+  FormSectionProps,
+  FormSectionHeaderProps,
+  FormSectionErrorsProps,
+  UseFormSectionConfig,
+  UseFormSectionReturn,
+} from './form-section';
+
+// ============================================================================
+// Safety Confirmation (NAS-4A.11)
+// ============================================================================
+
+// SafetyConfirmation - Multi-step confirmation for dangerous operations
+// Implements type-to-confirm + countdown timer pattern
+export * from './feedback/safety-confirmation';
+
+// ============================================================================
+// Network Input Components (NAS-4A.5+)
+// ============================================================================
+
+// IP Address Input - Segmented input with auto-advance, validation, type classification
+export * from './network-inputs';
+
+// ============================================================================
+// Stepper System (NAS-4A.14)
+// ============================================================================
+
+// Headless stepper hook, context, and ARIA helpers
+// Provides all business logic for step navigation, validation, and state management
+// Consumed by stepper UI variants (Vertical, Horizontal, Content, Mini)
+export * from './stepper';
+
+// ============================================================================
+// Confidence Indicator (NAS-4A.10)
+// ============================================================================
+
+// ConfidenceIndicator - Visual confidence level display for auto-detected values
+export {
+  ConfidenceIndicator,
+  ConfidenceIndicatorMobile,
+  ConfidenceIndicatorMobileCompact,
+  ConfidenceIndicatorDesktop,
+  ConfidenceIndicatorDesktopExtended,
+  ConfidenceIndicatorBase,
+  ConfidenceIndicatorDot,
+  ConfidenceLevelLabel,
+  ConfidenceTooltipContent,
+  ConfidenceTooltipCompact,
+  ConfidenceTooltipFull,
+  useConfidenceIndicator,
+  confidenceIndicatorVariants,
+  CONFIDENCE_THRESHOLDS,
+  LEVEL_COLORS,
+  LEVEL_ICONS,
+  LEVEL_LABELS,
+} from './confidence-indicator';
+export type {
+  ConfidenceLevel,
+  ConfidenceIndicatorSize,
+  ConfidenceIndicatorVariant,
+  ConfidenceIndicatorProps,
+  ConfidenceIndicatorPresenterProps,
+  UseConfidenceIndicatorConfig,
+  UseConfidenceIndicatorReturn,
+} from './confidence-indicator';
+
+// ============================================================================
+// Help System (NAS-4A.12)
+// ============================================================================
+
+// FieldHelp - Contextual help with Simple/Technical mode toggle
+// Headless hook + Platform Presenters pattern (Popover for desktop, Sheet for mobile)
+export * from './help';
+
+// ============================================================================
+// Config Preview (NAS-4A.21)
+// ============================================================================
+
+// ConfigPreview - RouterOS config preview with syntax highlighting and diff view
+// Headless hook + Platform Presenters pattern (Card for desktop, simplified for mobile)
+export * from './config-preview';
+
+// ============================================================================
+// Device Discovery Card (NAS-4A.20)
+// ============================================================================
+
+// DeviceCard - Discovered network device display with type detection and actions
+// Headless hook + Platform Presenters pattern (Dropdown for desktop, Sheet for mobile)
+export {
+  DeviceCard,
+  DeviceCardDesktop,
+  DeviceCardMobile,
+  DeviceCardCompact,
+  DeviceCardBase,
+  useDeviceCard,
+  useDeviceStatusSubscription,
+  withDeviceStatusSubscription,
+  DEVICE_ICON_MAP,
+  CONNECTION_ICON_MAP,
+  DEVICE_TYPE_LABELS,
+  CONNECTION_TYPE_LABELS,
+  CONFIDENCE_THRESHOLD,
+  formatMacAddress,
+  DEVICE_STATUS_SUBSCRIPTION,
+  statusDotVariants,
+  statusBadgeVariants,
+  connectionBadgeVariants,
+  cardVariants,
+} from './network/device-card';
+export type {
+  DeviceType,
+  ConnectionType,
+  DeviceStatus,
+  DiscoveredDevice,
+  DeviceCardProps,
+  UseDeviceCardConfig,
+  UseDeviceCardReturn,
+  DeviceCardPresenterProps,
+  DeviceCardBaseProps,
+  DeviceStatusUpdate,
+  UseDeviceStatusSubscriptionConfig,
+  UseDeviceStatusSubscriptionReturn,
+} from './network/device-card';
+
+// ============================================================================
+// Router Status (NAS-4A.22)
+// ============================================================================
+
+// RouterStatus - Real-time router connection status display
+// Headless hook + Platform Presenters pattern (Card for desktop, Badge + Sheet for mobile)
+export {
+  RouterStatus,
+  RouterStatusDesktop,
+  RouterStatusMobile,
+  StatusIndicator,
+  STATUS_TEXT_COLORS,
+  STATUS_BG_COLORS,
+  useRouterStatus,
+  useRouterStatusSubscription,
+  ROUTER_STATUS_CHANGED_SUBSCRIPTION,
+  STATUS_LABELS,
+  DEFAULT_MAX_RECONNECT_ATTEMPTS,
+} from './network/router-status';
+export type {
+  ConnectionStatus,
+  ConnectionProtocol,
+  RouterStatusProps,
+  RouterStatusData,
+  UseRouterStatusReturn,
+  UseRouterStatusConfig,
+  RouterStatusPresenterProps,
+  StatusIndicatorProps,
+  StatusIndicatorSize,
+  RouterStatusEvent,
+  SubscriptionRouter,
+  UseRouterStatusSubscriptionReturn,
+} from './network/router-status';
+
+// ============================================================================
+// Network Topology Visualization (NAS-4A.19)
+// ============================================================================
+
+// NetworkTopology - Simple SVG network diagram visualization
+// Headless hook + Platform Presenters pattern (SVG for desktop, Card list for mobile)
+export {
+  NetworkTopology,
+  NetworkTopologyDesktop,
+  NetworkTopologyMobile,
+  useNetworkTopology,
+  ConnectionPath,
+  ConnectionPathStatic,
+  TopologyTooltip,
+  TopologyTooltipContent,
+  RouterIcon,
+  WanIcon,
+  LanIcon,
+  DeviceIcon,
+} from './network-topology';
+export type {
+  NetworkTopologyProps,
+  ExtendedNetworkTopologyProps,
+  NetworkTopologyDesktopProps,
+  NetworkTopologyMobileProps,
+  UseNetworkTopologyResult,
+  UseNetworkTopologyOptions,
+  ConnectionPathProps,
+  TopologyTooltipProps,
+  RouterIconProps,
+  WanIconProps,
+  LanIconProps,
+  DeviceIconProps,
+  DeviceType as TopologyDeviceType,
+  RouterInfo,
+  WanInterface,
+  LanNetwork,
+  Device as TopologyDevice,
+  TopologyNode,
+  TopologyConnection,
+  ConnectionPathData,
+  TooltipContent as TopologyTooltipContent,
+  LayoutConfig,
+  NodePosition,
+  ContainerDimensions,
+} from './network-topology';

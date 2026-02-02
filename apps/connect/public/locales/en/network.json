@@ -1,0 +1,265 @@
+{
+  "inputs": {
+    "ipAddress": {
+      "label": "IP Address",
+      "placeholder": "e.g., 192.168.1.1",
+      "help": "Enter a valid IPv4 or IPv6 address"
+    },
+    "subnet": {
+      "label": "Subnet Mask",
+      "cidrLabel": "CIDR Notation",
+      "placeholder": "e.g., 255.255.255.0 or /24",
+      "help": "Define the network boundary"
+    },
+    "macAddress": {
+      "label": "MAC Address",
+      "placeholder": "e.g., AA:BB:CC:DD:EE:FF",
+      "help": "Hardware address of the network interface"
+    },
+    "port": {
+      "label": "Port",
+      "rangeLabel": "Port Range",
+      "placeholder": "e.g., 80 or 8080-8090",
+      "help": "Network port number (1-65535)"
+    },
+    "interface": {
+      "label": "Interface",
+      "placeholder": "Select interface",
+      "help": "Physical or virtual network interface"
+    },
+    "gateway": {
+      "label": "Gateway",
+      "placeholder": "e.g., 192.168.1.1",
+      "help": "Default gateway address"
+    },
+    "dns": {
+      "label": "DNS Server",
+      "placeholder": "e.g., 8.8.8.8",
+      "help": "Domain Name Server address"
+    },
+    "vlan": {
+      "label": "VLAN ID",
+      "placeholder": "e.g., 100",
+      "help": "Virtual LAN identifier (1-4094)"
+    }
+  },
+  "validation": {
+    "ipAddress": {
+      "invalid": "Invalid IP address format",
+      "v4Required": "IPv4 address required",
+      "v6Required": "IPv6 address required",
+      "private": "Must be a private IP address",
+      "public": "Must be a public IP address",
+      "reserved": "This IP address is reserved",
+      "inUse": "This IP address is already in use"
+    },
+    "subnet": {
+      "invalid": "Invalid subnet mask",
+      "cidrOutOfRange": "CIDR prefix must be between 0 and 32",
+      "maskOutOfRange": "Subnet mask is out of valid range",
+      "overlap": "This subnet overlaps with {{existing}}"
+    },
+    "macAddress": {
+      "invalid": "Invalid MAC address format",
+      "broadcast": "Cannot use broadcast MAC address",
+      "multicast": "Cannot use multicast MAC address"
+    },
+    "port": {
+      "invalid": "Invalid port number",
+      "outOfRange": "Port must be between 1 and 65535",
+      "rangeInvalid": "End port must be greater than start port",
+      "privileged": "Ports 1-1024 are privileged",
+      "inUse": "This port is already in use"
+    },
+    "vlan": {
+      "invalid": "Invalid VLAN ID",
+      "outOfRange": "VLAN ID must be between 1 and 4094",
+      "reserved": "VLAN ID {{id}} is reserved"
+    },
+    "interface": {
+      "required": "Please select an interface",
+      "notFound": "Interface not found",
+      "disabled": "Selected interface is disabled"
+    }
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Connecting...",
+    "disconnected": "Disconnected",
+    "up": "Up",
+    "down": "Down",
+    "unknown": "Unknown"
+  },
+  "help": {
+    "ip": {
+      "title": {
+        "simple": "IP Address",
+        "technical": "IPv4/IPv6 Address"
+      },
+      "description": {
+        "simple": "The unique address that identifies this device on the network",
+        "technical": "A 32-bit (IPv4) or 128-bit (IPv6) network layer address"
+      },
+      "examples": ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Address"
+    },
+    "gateway": {
+      "title": {
+        "simple": "Gateway",
+        "technical": "Default Route"
+      },
+      "description": {
+        "simple": "The router that connects your network to the internet",
+        "technical": "The next-hop address for packets destined outside the local subnet"
+      },
+      "examples": ["192.168.1.1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Route"
+    },
+    "subnet": {
+      "title": {
+        "simple": "Network Size",
+        "technical": "CIDR Notation"
+      },
+      "description": {
+        "simple": "How many devices can be on this network",
+        "technical": "Classless Inter-Domain Routing prefix length defining the network mask"
+      },
+      "examples": ["192.168.1.0/24 (254 hosts)", "10.0.0.0/8 (16M hosts)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Address#Network_prefix"
+    },
+    "mac": {
+      "title": {
+        "simple": "Hardware Address",
+        "technical": "MAC Address"
+      },
+      "description": {
+        "simple": "The unique identifier burned into your network device's hardware",
+        "technical": "48-bit Media Access Control address assigned by the manufacturer"
+      },
+      "examples": ["AA:BB:CC:DD:EE:FF", "00:50:56:00:00:01"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface"
+    },
+    "port": {
+      "title": {
+        "simple": "Port Number",
+        "technical": "TCP/UDP Port"
+      },
+      "description": {
+        "simple": "The 'door number' that applications use to communicate",
+        "technical": "Layer 4 endpoint identifier (1-65535) for transport protocols"
+      },
+      "examples": ["80 (HTTP)", "443 (HTTPS)", "22 (SSH)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/Filter"
+    },
+    "interface": {
+      "title": {
+        "simple": "Network Port",
+        "technical": "Interface"
+      },
+      "description": {
+        "simple": "The physical or virtual port where devices connect",
+        "technical": "Network interface for packet transmission/reception"
+      },
+      "examples": ["ether1", "bridge-lan", "wlan1"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface"
+    },
+    "dns": {
+      "title": {
+        "simple": "DNS Server",
+        "technical": "Domain Name System Server"
+      },
+      "description": {
+        "simple": "The server that translates website names into IP addresses",
+        "technical": "Recursive resolver for domain name to IP address resolution"
+      },
+      "examples": ["8.8.8.8 (Google)", "1.1.1.1 (Cloudflare)", "9.9.9.9 (Quad9)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/DNS"
+    },
+    "vlan": {
+      "title": {
+        "simple": "Virtual Network ID",
+        "technical": "VLAN ID (802.1Q)"
+      },
+      "description": {
+        "simple": "A number that separates different virtual networks on the same physical network",
+        "technical": "IEEE 802.1Q tag identifier for Layer 2 network segmentation (1-4094)"
+      },
+      "examples": ["10 (Management)", "20 (Guest)", "100 (IoT)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface/VLAN"
+    },
+    "dhcp": {
+      "title": {
+        "simple": "Automatic IP Assignment",
+        "technical": "DHCP (Dynamic Host Configuration Protocol)"
+      },
+      "description": {
+        "simple": "Automatically assigns IP addresses to devices when they connect",
+        "technical": "Protocol for automatic IP configuration including address, gateway, DNS, and lease time"
+      },
+      "examples": ["Pool: 192.168.1.100-192.168.1.200", "Lease: 24h"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/DHCP_Server"
+    },
+    "firewall": {
+      "title": {
+        "simple": "Firewall Rule",
+        "technical": "Packet Filter Rule"
+      },
+      "description": {
+        "simple": "A rule that decides which network traffic to allow or block",
+        "technical": "Netfilter-based stateful packet inspection rule with chain, action, and match criteria"
+      },
+      "examples": ["Accept port 80", "Drop port 23", "Forward to VPN"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/Filter"
+    },
+    "nat": {
+      "title": {
+        "simple": "Address Translation",
+        "technical": "NAT (Network Address Translation)"
+      },
+      "description": {
+        "simple": "Translates private IP addresses to public ones for internet access",
+        "technical": "Modification of IP header addresses (source or destination) as packets traverse the router"
+      },
+      "examples": ["Masquerade (outbound)", "Port forward (inbound)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/NAT"
+    },
+    "mtu": {
+      "title": {
+        "simple": "Packet Size",
+        "technical": "MTU (Maximum Transmission Unit)"
+      },
+      "description": {
+        "simple": "The maximum size of data that can be sent in one piece",
+        "technical": "Maximum IP packet size in bytes that the interface can transmit without fragmentation"
+      },
+      "examples": ["1500 (Ethernet)", "1492 (PPPoE)", "1400 (VPN tunnels)"],
+      "link": "https://wiki.mikrotik.com/wiki/Manual:Interface#Common_parameters"
+    },
+    "legacy": {
+      "ipAddress": "A unique identifier for devices on a network",
+      "cidr": "CIDR notation combines IP address with network prefix length (e.g., /24)",
+      "privateRanges": "Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+      "gateway": "The router that forwards traffic to other networks",
+      "broadcast": "Special address that reaches all devices on the network",
+      "mtu": "Maximum Transmission Unit - largest packet size in bytes"
+    }
+  },
+  "units": {
+    "bps": "bps",
+    "kbps": "Kbps",
+    "mbps": "Mbps",
+    "gbps": "Gbps",
+    "bytes": "B",
+    "kilobytes": "KB",
+    "megabytes": "MB",
+    "gigabytes": "GB"
+  },
+  "protocols": {
+    "tcp": "TCP",
+    "udp": "UDP",
+    "icmp": "ICMP",
+    "gre": "GRE",
+    "any": "Any"
+  }
+}

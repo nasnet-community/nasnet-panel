@@ -615,4 +615,40 @@
       transition-duration: 0ms;
     }
   }
+
+  /* ========================================
+   * RTL TECHNICAL INPUT UTILITIES (NAS-4A.4)
+   * Ensures technical data (IP, MAC, ports) remains LTR in RTL layouts
+   * @see Docs/brainstorming-sessions/localization-2026-01-03/
+   * ======================================== */
+
+  /* Technical inputs must remain LTR even in RTL layouts */
+  /* Use on inputs for IP addresses, MAC addresses, port numbers, etc. */
+  .technical-input {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+  }
+
+  /* Technical data container - isolates LTR content in RTL flow */
+  .technical-data {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+
+  /* For inline technical terms that should stay LTR */
+  .technical-term {
+    direction: ltr;
+    unicode-bidi: embed;
+  }
+
+  /* RTL-aware layout helpers */
+  [dir="rtl"] .flip-rtl {
+    transform: scaleX(-1);
+  }
+
+  /* Mirror padding/margin for RTL */
+  [dir="rtl"] .rtl-flip-horizontal {
+    transform: scaleX(-1);
+  }
 }

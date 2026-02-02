@@ -20,8 +20,11 @@
     "paths": {
       "@nasnet/core/*": ["libs/core/*/src"],
       "@nasnet/ui/*": ["libs/ui/*/src"],
+      "@nasnet/ui/tokens": ["libs/ui/tokens/src/index.ts"],
+      "@nasnet/ui/patterns/motion": ["libs/ui/patterns/src/motion/index.ts"],
       "@nasnet/features/*": ["libs/features/*/src"],
       "@nasnet/api-client/*": ["libs/api-client/*/src"],
+      "@nasnet/api-client/generated": ["libs/api-client/generated/index.ts"],
       "@nasnet/state/*": ["libs/state/*/src"],
       "@nasnet/config-gen/*": ["libs/config-gen/*/src"]
     }

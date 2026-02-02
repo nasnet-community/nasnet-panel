@@ -5,9 +5,11 @@
  * - English bundled (always available as fallback)
  * - Other languages lazy-loaded via HTTP backend
  * - RTL support for Persian (fa), Arabic (ar), Hebrew (he)
- * - Namespace strategy: common + validation + errors
+ * - Namespace strategy: default (common, validation, errors) + feature (wizard, network)
+ * - Feature namespaces load on-demand for efficient bundle splitting
  *
  * @see Docs/architecture/implementation-patterns/17-localization-patterns.md
+ * @see NAS-4A.4: Set Up i18n Namespace Structure for Ported Components
  */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -27,9 +29,25 @@ export const languageNames: Record<SupportedLanguage, string> = {
   fa: 'فارسی',
 };
 
-// Namespaces - organized by domain
+// Default namespaces - loaded on app initialization
 export const defaultNamespaces = ['common', 'validation', 'errors'] as const;
-export type TranslationNamespace = (typeof defaultNamespaces)[number];
+
+// Feature namespaces - loaded on-demand when components use them
+// wizard: Setup wizard shell, navigation, steps (choose, wan, lan, extra, show)
+// network: Network input components (IP, subnet, MAC, port, interface)
+export const featureNamespaces = ['wizard', 'network'] as const;
+
+// All available namespaces
+export const allNamespaces = [...defaultNamespaces, ...featureNamespaces] as const;
+
+// Type for all namespaces
+export type TranslationNamespace = (typeof allNamespaces)[number];
+
+// Type for default namespaces only
+export type DefaultNamespace = (typeof defaultNamespaces)[number];
+
+// Type for feature namespaces only
+export type FeatureNamespace = (typeof featureNamespaces)[number];
 
 /**
  * Check if a language is RTL

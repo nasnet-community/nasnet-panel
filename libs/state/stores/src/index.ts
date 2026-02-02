@@ -30,6 +30,10 @@ export * from './ui/modal.store';
 // Notification/toast queue with deduplication
 export * from './ui/notification.store';
 
+// Help mode (Simple/Technical) for contextual help
+// @see NAS-4A.12: Build Help System Components
+export * from './ui/help-mode.store';
+
 // Consolidated selectors for optimized re-renders
 export * from './ui/selectors';
 

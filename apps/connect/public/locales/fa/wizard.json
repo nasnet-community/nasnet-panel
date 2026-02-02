@@ -1,0 +1,111 @@
+{
+  "shell": {
+    "header": {
+      "title": "ویزارد راه‌اندازی",
+      "subtitle": "پیکربندی روتر MikroTik شما"
+    },
+    "navigation": {
+      "back": "قبلی",
+      "next": "بعدی",
+      "finish": "پایان راه‌اندازی",
+      "skip": "رد شدن از این مرحله"
+    },
+    "progress": {
+      "step": "مرحله {{current}} از {{total}}",
+      "complete": "{{percent}}% کامل شده"
+    }
+  },
+  "steps": {
+    "choose": {
+      "title": "انتخاب حالت",
+      "description": "نحوه پیکربندی روتر خود را انتخاب کنید",
+      "options": {
+        "easy": "حالت آسان",
+        "easyDesc": "راه‌اندازی راهنما برای مبتدیان",
+        "advanced": "حالت پیشرفته",
+        "advancedDesc": "کنترل کامل برای کاربران حرفه‌ای"
+      }
+    },
+    "wan": {
+      "title": "پیکربندی WAN",
+      "description": "اتصال اینترنت خود را پیکربندی کنید",
+      "connectionType": {
+        "label": "نوع اتصال",
+        "dhcp": "خودکار (DHCP)",
+        "static": "IP ثابت",
+        "pppoe": "PPPoE"
+      },
+      "autoDetect": {
+        "button": "تشخیص خودکار",
+        "detecting": "در حال تشخیص نوع اتصال...",
+        "found": "تشخیص داده شد: {{type}}",
+        "failed": "تشخیص خودکار نوع اتصال امکان‌پذیر نبود"
+      },
+      "staticConfig": {
+        "ipAddress": "آدرس IP",
+        "gateway": "Gateway",
+        "dns": "سرور DNS"
+      },
+      "pppoeConfig": {
+        "username": "نام کاربری",
+        "password": "رمز عبور"
+      }
+    },
+    "lan": {
+      "title": "پیکربندی LAN",
+      "description": "شبکه محلی خود را پیکربندی کنید",
+      "ipRange": {
+        "label": "محدوده IP",
+        "description": "محدوده آدرس شبکه محلی خود را تعریف کنید"
+      },
+      "dhcpServer": {
+        "enable": "فعال‌سازی سرور DHCP",
+        "description": "اختصاص خودکار آدرس IP به دستگاه‌ها"
+      }
+    },
+    "extra": {
+      "title": "ویژگی‌های اضافی",
+      "description": "ویژگی‌های اختیاری را پیکربندی کنید",
+      "features": {
+        "firewall": {
+          "title": "فایروال پایه",
+          "description": "محافظت از شبکه در برابر دسترسی غیرمجاز"
+        },
+        "dns": {
+          "title": "تنظیمات DNS",
+          "description": "پیکربندی سرورهای DNS سفارشی"
+        },
+        "ntp": {
+          "title": "همگام‌سازی زمان",
+          "description": "همگام‌سازی خودکار زمان از اینترنت"
+        }
+      }
+    },
+    "show": {
+      "title": "بررسی و اعمال",
+      "description": "پیکربندی خود را قبل از اعمال بررسی کنید",
+      "summary": {
+        "title": "خلاصه پیکربندی",
+        "wanType": "نوع WAN",
+        "lanRange": "محدوده LAN",
+        "features": "ویژگی‌ها"
+      },
+      "apply": {
+        "button": "اعمال پیکربندی",
+        "applying": "در حال اعمال پیکربندی...",
+        "success": "پیکربندی با موفقیت اعمال شد",
+        "failed": "اعمال پیکربندی ناموفق بود"
+      },
+      "warning": "تغییرات بلافاصله اعمال می‌شوند. ممکن است اتصال شما به طور موقت قطع شود."
+    }
+  },
+  "validation": {
+    "required": "این فیلد الزامی است",
+    "invalidFormat": "فرمت نامعتبر"
+  },
+  "errors": {
+    "connectionFailed": "اتصال به روتر ناموفق بود",
+    "applyFailed": "اعمال پیکربندی ناموفق بود",
+    "retry": "لطفاً دوباره تلاش کنید"
+  }
+}

@@ -63,11 +63,7 @@ const config: CodegenConfig = {
 
     // TypeScript operations (queries/mutations/subscriptions) with React Apollo hooks
     './libs/api-client/generated/operations.ts': {
-      preset: 'client',
       plugins: ['typescript-operations', 'typescript-react-apollo'],
-      presetConfig: {
-        gqlTagName: 'gql',
-      },
       config: {
         // Generate React hooks for operations
         withHooks: true,
@@ -93,41 +89,12 @@ const config: CodegenConfig = {
       },
     },
 
-    // Zod validation schemas generated from @validate directives
-    './libs/api-client/generated/validation.ts': {
-      plugins: ['typescript-validation-schema'],
-      config: {
-        // Use Zod as the validation library
-        schema: 'zod',
-        // Import path for Zod
-        importFrom: 'zod',
-        // Use custom directive for validation
-        directives: {
-          validate: {
-            min: ['min', '$1'],
-            max: ['max', '$1'],
-            minLength: ['min', '$1'],
-            maxLength: ['max', '$1'],
-            pattern: ['regex', 'new RegExp($1)'],
-            format: {
-              EMAIL: 'email',
-              URL: 'url',
-              UUID: 'uuid',
-              IPV4: ['regex', '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/'],
-              IPV6: ['regex', '/^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$/'],
-              MAC: ['regex', '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/'],
-              CIDR: ['regex', '/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\/(?:3[0-2]|[12]?[0-9])$/'],
-              HOSTNAME: ['regex', '/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/'],
-              FQDN: ['regex', '/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}$/'],
-            },
-          },
-        },
-        // Skip generating schema for types without @validate
-        withObjectType: false,
-        // Generate input types validation
-        enumsAsTypes: true,
-      },
-    },
+    // TODO: Zod validation schemas - requires @graphql-codegen/typescript-validation-schema plugin
+    // Uncomment when plugin is installed:
+    // './libs/api-client/generated/validation.ts': {
+    //   plugins: ['typescript-validation-schema'],
+    //   config: { ... }
+    // },
 
     // GraphQL Schema AST for introspection
     './libs/api-client/generated/schema.graphql': {

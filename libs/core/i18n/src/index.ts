@@ -41,10 +41,14 @@ export {
   rtlLanguages,
   languageNames,
   defaultNamespaces,
+  featureNamespaces,
+  allNamespaces,
   isRTLLanguage,
   getLanguageDirection,
   type SupportedLanguage,
   type TranslationNamespace,
+  type DefaultNamespace,
+  type FeatureNamespace,
 } from './i18n';
 
 // Providers

@@ -1,0 +1,111 @@
+{
+  "shell": {
+    "header": {
+      "title": "Setup Wizard",
+      "subtitle": "Configure your MikroTik router"
+    },
+    "navigation": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish Setup",
+      "skip": "Skip this step"
+    },
+    "progress": {
+      "step": "Step {{current}} of {{total}}",
+      "complete": "{{percent}}% complete"
+    }
+  },
+  "steps": {
+    "choose": {
+      "title": "Choose Mode",
+      "description": "Select how you want to configure your router",
+      "options": {
+        "easy": "Easy Mode",
+        "easyDesc": "Guided setup for beginners",
+        "advanced": "Advanced Mode",
+        "advancedDesc": "Full control for power users"
+      }
+    },
+    "wan": {
+      "title": "WAN Configuration",
+      "description": "Configure your internet connection",
+      "connectionType": {
+        "label": "Connection Type",
+        "dhcp": "Automatic (DHCP)",
+        "static": "Static IP",
+        "pppoe": "PPPoE"
+      },
+      "autoDetect": {
+        "button": "Auto-Detect",
+        "detecting": "Detecting connection type...",
+        "found": "Detected: {{type}}",
+        "failed": "Could not auto-detect connection type"
+      },
+      "staticConfig": {
+        "ipAddress": "IP Address",
+        "gateway": "Gateway",
+        "dns": "DNS Server"
+      },
+      "pppoeConfig": {
+        "username": "Username",
+        "password": "Password"
+      }
+    },
+    "lan": {
+      "title": "LAN Configuration",
+      "description": "Configure your local network",
+      "ipRange": {
+        "label": "IP Range",
+        "description": "Define the address range for your local network"
+      },
+      "dhcpServer": {
+        "enable": "Enable DHCP Server",
+        "description": "Automatically assign IP addresses to devices"
+      }
+    },
+    "extra": {
+      "title": "Additional Features",
+      "description": "Configure optional features",
+      "features": {
+        "firewall": {
+          "title": "Basic Firewall",
+          "description": "Protect your network from unauthorized access"
+        },
+        "dns": {
+          "title": "DNS Settings",
+          "description": "Configure custom DNS servers"
+        },
+        "ntp": {
+          "title": "Time Synchronization",
+          "description": "Automatically sync time from the internet"
+        }
+      }
+    },
+    "show": {
+      "title": "Review & Apply",
+      "description": "Review your configuration before applying",
+      "summary": {
+        "title": "Configuration Summary",
+        "wanType": "WAN Type",
+        "lanRange": "LAN Range",
+        "features": "Features"
+      },
+      "apply": {
+        "button": "Apply Configuration",
+        "applying": "Applying configuration...",
+        "success": "Configuration applied successfully",
+        "failed": "Failed to apply configuration"
+      },
+      "warning": "Changes will take effect immediately. Your connection may be briefly interrupted."
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidFormat": "Invalid format"
+  },
+  "errors": {
+    "connectionFailed": "Failed to connect to router",
+    "applyFailed": "Failed to apply configuration",
+    "retry": "Please try again"
+  }
+}
