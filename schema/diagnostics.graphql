@@ -224,3 +224,712 @@ extend type Subscription {
     routerId: ID
   ): CircuitBreakerStatus!
 }
+
+# =============================================================================
+# Internet Troubleshooting (No Internet Wizard)
+# =============================================================================
+# This schema provides types and operations for diagnosing internet connectivity
+# issues on routers, running automated diagnostics, and applying fixes.
+# Story: NAS-5.11 - Implement No Internet Troubleshooting Wizard
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Internet Troubleshooting Types
+# -----------------------------------------------------------------------------
+
+"""
+Diagnostic step identifier for internet troubleshooting
+"""
+enum TroubleshootStepType {
+  "Check WAN interface status"
+  WAN
+  "Ping default gateway"
+  GATEWAY
+  "Ping external internet server"
+  INTERNET
+  "Test DNS resolution"
+  DNS
+  "Verify NAT/masquerade rules"
+  NAT
+}
+
+"""
+Status of a diagnostic step
+"""
+enum TroubleshootStepStatus {
+  "Step not yet started"
+  PENDING
+  "Step currently executing"
+  RUNNING
+  "Step completed successfully"
+  PASSED
+  "Step failed"
+  FAILED
+  "Step skipped"
+  SKIPPED
+}
+
+"""
+Confidence level for a fix suggestion
+"""
+enum FixConfidence {
+  "High confidence this fix will resolve the issue"
+  HIGH
+  "Medium confidence, may resolve the issue"
+  MEDIUM
+  "Low confidence, worth trying as last resort"
+  LOW
+}
+
+"""
+Status of a fix application
+"""
+enum FixApplicationStatus {
+  "Fix is available but not yet applied"
+  AVAILABLE
+  "Fix is being applied"
+  APPLYING
+  "Fix was applied successfully"
+  APPLIED
+  "Fix application failed"
+  FAILED
+  "Fix was applied but issue persists"
+  ISSUE_PERSISTS
+}
+
+"""
+Result of a single diagnostic step
+"""
+type TroubleshootStepResult {
+  "Whether the check passed"
+  success: Boolean!
+  "User-friendly message about the result"
+  message: String!
+  "Technical details for debugging"
+  details: String
+  "Execution time in milliseconds"
+  executionTimeMs: Int!
+  "Detected error code"
+  issueCode: String
+  "Target that was checked (IP, interface name, etc.)"
+  target: String
+}
+
+"""
+Suggested fix for a failed diagnostic step
+"""
+type TroubleshootFixSuggestion {
+  "Unique issue code (e.g., WAN_DISABLED, NO_DEFAULT_ROUTE)"
+  issueCode: String!
+  "User-friendly fix title"
+  title: String!
+  "Detailed explanation of what will be fixed"
+  explanation: String!
+  "Confidence level for this fix"
+  confidence: FixConfidence!
+  "Whether user confirmation is required before applying"
+  requiresConfirmation: Boolean!
+  "Whether this is a manual fix (requires user action)"
+  isManualFix: Boolean!
+  "Manual steps if this cannot be automated"
+  manualSteps: [String!]
+  "RouterOS command that will be executed"
+  command: String
+  "Rollback command if fix needs to be reverted"
+  rollbackCommand: String
+}
+
+"""
+ISP contact information
+"""
+type ISPInfo {
+  "ISP name"
+  name: String!
+  "ISP support phone number"
+  phone: String
+  "ISP support website URL"
+  url: String
+}
+
+"""
+A single step in the troubleshooting wizard
+"""
+type TroubleshootStep {
+  "Step type/ID"
+  id: TroubleshootStepType!
+  "Step display name"
+  name: String!
+  "Step description"
+  description: String!
+  "Current status of this step"
+  status: TroubleshootStepStatus!
+  "Result of executing this step"
+  result: TroubleshootStepResult
+  "Suggested fix if step failed"
+  fix: TroubleshootFixSuggestion
+  "When the step started"
+  startedAt: DateTime
+  "When the step completed"
+  completedAt: DateTime
+}
+
+"""
+Complete troubleshooting session
+"""
+type TroubleshootSession {
+  "Unique session identifier"
+  id: ID!
+  "Router being diagnosed"
+  routerId: ID!
+  "All diagnostic steps"
+  steps: [TroubleshootStep!]!
+  "Current step index (0-based)"
+  currentStepIndex: Int!
+  "Overall session status"
+  status: TroubleshootSessionStatus!
+  "Detected WAN interface name"
+  wanInterface: String
+  "Detected default gateway IP"
+  gateway: String
+  "Detected ISP information"
+  ispInfo: ISPInfo
+  "Fixes that have been applied"
+  appliedFixes: [String!]!
+  "When the session started"
+  startedAt: DateTime!
+  "When the session completed"
+  completedAt: DateTime
+}
+
+"""
+Overall status of a troubleshooting session
+"""
+enum TroubleshootSessionStatus {
+  "Session created but not started"
+  IDLE
+  "Detecting network configuration"
+  INITIALIZING
+  "Running diagnostic steps"
+  RUNNING
+  "Waiting for user decision on fix"
+  AWAITING_FIX_DECISION
+  "Applying a fix"
+  APPLYING_FIX
+  "Verifying fix worked"
+  VERIFYING_FIX
+  "Session completed"
+  COMPLETED
+  "Session was cancelled"
+  CANCELLED
+}
+
+"""
+Result of starting a troubleshooting session
+"""
+type StartTroubleshootPayload {
+  "The created session"
+  session: TroubleshootSession
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Result of running a diagnostic step
+"""
+type RunTroubleshootStepPayload {
+  "Updated step with result"
+  step: TroubleshootStep!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Result of applying a fix
+"""
+type ApplyFixPayload {
+  "Whether fix was applied successfully"
+  success: Boolean!
+  "User-friendly message"
+  message: String!
+  "Fix application status"
+  status: FixApplicationStatus!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Network configuration detection result
+"""
+type NetworkConfigDetection {
+  "Detected WAN interface name"
+  wanInterface: String!
+  "Detected default gateway IP"
+  gateway: String
+  "Detected ISP information"
+  ispInfo: ISPInfo
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get a troubleshooting session by ID
+  """
+  troubleshootSession(id: ID!): TroubleshootSession
+
+  """
+  Detect WAN interface from default route
+  """
+  detectWanInterface(routerId: ID!): String!
+
+  """
+  Detect default gateway from DHCP client or static route
+  """
+  detectGateway(routerId: ID!): String
+
+  """
+  Detect ISP information from WAN IP
+  """
+  detectISP(routerId: ID!): ISPInfo
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Start a new troubleshooting session for a router.
+  Automatically detects network configuration and begins diagnostics.
+  """
+  startTroubleshoot(routerId: ID!): StartTroubleshootPayload!
+
+  """
+  Run a specific diagnostic step in a session
+  """
+  runTroubleshootStep(
+    "Session ID"
+    sessionId: ID!
+    "Step to run"
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
+
+  """
+  Apply a suggested fix for a failed diagnostic step
+  """
+  applyTroubleshootFix(
+    "Session ID"
+    sessionId: ID!
+    "Issue code to fix"
+    issueCode: String!
+  ): ApplyFixPayload!
+
+  """
+  Verify a fix by re-running the diagnostic step
+  """
+  verifyTroubleshootFix(
+    "Session ID"
+    sessionId: ID!
+    "Step to verify"
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
+
+  """
+  Cancel a troubleshooting session
+  """
+  cancelTroubleshoot(sessionId: ID!): TroubleshootSession!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to troubleshooting session progress.
+  Emits events as steps are executed, fixes are applied, and results are updated.
+  """
+  troubleshootProgress(sessionId: ID!): TroubleshootSession!
+}
+
+# =============================================================================
+# Traceroute Diagnostic Tool
+# =============================================================================
+# This schema provides types and operations for running traceroute diagnostics
+# from the router to discover network paths and identify latency issues.
+# Story: NAS-5.8 - Implement Traceroute Diagnostic Tool
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Traceroute Types
+# -----------------------------------------------------------------------------
+
+"""
+Status of a single hop in a traceroute
+"""
+enum HopStatus {
+  "Hop responded successfully"
+  SUCCESS
+  "Hop did not respond (timeout)"
+  TIMEOUT
+  "Destination unreachable at this hop"
+  UNREACHABLE
+  "Access prohibited (firewall/ACL)"
+  PROHIBITED
+}
+
+"""
+Protocol to use for traceroute probes
+"""
+enum TracerouteProtocol {
+  "ICMP echo request (default)"
+  ICMP
+  "UDP probes"
+  UDP
+  "TCP SYN probes"
+  TCP
+}
+
+"""
+A single probe result within a hop
+"""
+type HopProbe {
+  "Probe number (1-3 typically)"
+  probeNumber: Int!
+  "Latency in milliseconds (null for timeout)"
+  latencyMs: Float
+  "Whether the probe succeeded"
+  success: Boolean!
+  "ICMP error code if probe failed"
+  icmpCode: String
+}
+
+"""
+A single hop in the traceroute path
+"""
+type TracerouteHop {
+  "Hop number (1-based)"
+  hopNumber: Int!
+  "IP address of the hop (null for timeout)"
+  address: String
+  "Reverse DNS hostname (if available)"
+  hostname: String
+  "Individual probe results for this hop"
+  probes: [HopProbe!]!
+  "Status of this hop"
+  status: HopStatus!
+  "Average latency across successful probes"
+  avgLatencyMs: Float
+  "Packet loss percentage for this hop (0-100)"
+  packetLoss: Float!
+}
+
+"""
+Complete traceroute result
+"""
+type TracerouteResult {
+  "Target hostname or IP address"
+  target: String!
+  "Resolved target IP address"
+  targetIp: String!
+  "Protocol used for probes"
+  protocol: TracerouteProtocol!
+  "Maximum hops configured"
+  maxHops: Int!
+  "Discovered hops in order"
+  hops: [TracerouteHop!]!
+  "Whether traceroute completed"
+  completed: Boolean!
+  "Whether destination was reached"
+  reachedDestination: Boolean!
+  "Total time from start to completion (ms)"
+  totalTimeMs: Float!
+  "When the traceroute started"
+  startedAt: DateTime!
+  "When the traceroute completed (if finished)"
+  completedAt: DateTime
+}
+
+"""
+Input parameters for starting a traceroute
+"""
+input TracerouteInput {
+  "Target hostname or IP address"
+  target: String!
+  "Maximum number of hops (default: 30, max: 64)"
+  maxHops: Int = 30
+  "Timeout per hop in milliseconds (default: 3000)"
+  timeout: Int = 3000
+  "Number of probes per hop (default: 3)"
+  probeCount: Int = 3
+  "Protocol to use for probes (default: ICMP)"
+  protocol: TracerouteProtocol = ICMP
+}
+
+"""
+Job status for async traceroute execution
+"""
+enum JobStatus {
+  "Job has been created"
+  STARTED
+  "Job is currently running"
+  RUNNING
+  "Job completed successfully"
+  COMPLETE
+  "Job was cancelled by user"
+  CANCELLED
+  "Job encountered an error"
+  ERROR
+}
+
+"""
+Traceroute job reference for subscription tracking
+"""
+type TracerouteJob {
+  "Unique job identifier"
+  jobId: ID!
+  "Current job status"
+  status: JobStatus!
+}
+
+"""
+Event type for traceroute progress updates
+"""
+enum TracerouteEventType {
+  "A new hop was discovered"
+  HOP_DISCOVERED
+  "Traceroute completed"
+  COMPLETE
+  "Traceroute encountered an error"
+  ERROR
+  "Traceroute was cancelled"
+  CANCELLED
+}
+
+"""
+Progress event emitted during traceroute execution
+"""
+type TracerouteProgressEvent {
+  "Job identifier"
+  jobId: ID!
+  "Type of event"
+  eventType: TracerouteEventType!
+  "Newly discovered hop (for HOP_DISCOVERED events)"
+  hop: TracerouteHop
+  "Final result (for COMPLETE events)"
+  result: TracerouteResult
+  "Error message (for ERROR events)"
+  error: String
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (Traceroute)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Start a traceroute from the router to the target.
+  Returns a job ID for subscription tracking.
+  """
+  runTraceroute(
+    "Device/router ID to run traceroute from"
+    deviceId: ID!
+    "Traceroute parameters"
+    input: TracerouteInput!
+  ): TracerouteJob!
+
+  """
+  Cancel a running traceroute job.
+  """
+  cancelTraceroute(
+    "Job ID to cancel"
+    jobId: ID!
+  ): Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions (Traceroute)
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to traceroute progress updates.
+  Emits an event for each hop discovered and when traceroute completes.
+  """
+  tracerouteProgress(
+    "Job ID to monitor"
+    jobId: ID!
+  ): TracerouteProgressEvent!
+}
+
+# =============================================================================
+# DNS Lookup Tool
+# =============================================================================
+# This schema provides types and operations for DNS lookups, supporting
+# multiple record types and server comparisons for troubleshooting.
+# Story: NAS-5.9 - Implement DNS Lookup Tool
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DNS Lookup Types
+# -----------------------------------------------------------------------------
+
+"""
+DNS lookup status codes
+"""
+enum DnsLookupStatus {
+  "Query completed successfully"
+  SUCCESS
+  "Domain does not exist (NXDOMAIN)"
+  NXDOMAIN
+  "DNS server failure (SERVFAIL)"
+  SERVFAIL
+  "Query timed out"
+  TIMEOUT
+  "Query refused by server"
+  REFUSED
+  "Network error occurred"
+  NETWORK_ERROR
+}
+
+"""
+DNS record types supported
+"""
+enum DnsRecordType {
+  "IPv4 address record"
+  A
+  "IPv6 address record"
+  AAAA
+  "Mail exchange record"
+  MX
+  "Text record"
+  TXT
+  "Canonical name record"
+  CNAME
+  "Name server record"
+  NS
+  "Pointer record (reverse DNS)"
+  PTR
+  "Start of authority record"
+  SOA
+  "Service record"
+  SRV
+}
+
+"""
+Single DNS record
+"""
+type DnsRecord {
+  "Record name (query hostname)"
+  name: String!
+  "Record type"
+  type: DnsRecordType!
+  "Time to live in seconds"
+  ttl: Int!
+  "Record data (IP, hostname, text, etc.)"
+  data: String!
+  "Priority (for MX/SRV records)"
+  priority: Int
+  "Weight (for SRV records)"
+  weight: Int
+  "Port (for SRV records)"
+  port: Int
+}
+
+"""
+Result of a DNS lookup operation
+"""
+type DnsLookupResult {
+  "Hostname that was queried"
+  hostname: String!
+  "Record type that was queried"
+  recordType: DnsRecordType!
+  "Query status"
+  status: DnsLookupStatus!
+  "Resolved records"
+  records: [DnsRecord!]!
+  "DNS server used"
+  server: String!
+  "Query time in milliseconds"
+  queryTime: Int!
+  "Whether response was authoritative"
+  authoritative: Boolean!
+  "Error message (if query failed)"
+  error: String
+  "When the query was executed"
+  timestamp: DateTime!
+}
+
+"""
+DNS server configuration
+"""
+type DnsServer {
+  "Server IP address"
+  address: String!
+  "Whether this is the primary DNS server"
+  isPrimary: Boolean!
+  "Whether this is the secondary DNS server"
+  isSecondary: Boolean!
+}
+
+"""
+Collection of DNS servers
+"""
+type DnsServers {
+  "All configured DNS servers"
+  servers: [DnsServer!]!
+  "Primary DNS server address"
+  primary: String!
+  "Secondary DNS server address (if configured)"
+  secondary: String
+}
+
+"""
+Input for DNS lookup operation
+"""
+input DnsLookupInput {
+  "Device/router ID to run lookup from"
+  deviceId: String!
+  "Hostname or IP address to look up"
+  hostname: String!
+  "DNS record type to query"
+  recordType: DnsRecordType!
+  "DNS server to use (defaults to router's configured DNS)"
+  server: String
+  "Query timeout in seconds (default: 5)"
+  timeout: Int
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions (DNS Lookup)
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get configured DNS servers for a device.
+  Returns primary and secondary DNS servers configured on the router.
+  """
+  dnsServers(
+    "Device/router ID"
+    deviceId: String!
+  ): DnsServers!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (DNS Lookup)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Perform DNS lookup (synchronous request-response).
+  Queries the specified DNS server for the hostname and record type.
+  Uses RouterOS native DNS lookup for A/AAAA records when possible,
+  falls back to Go resolver for other record types.
+  """
+  runDnsLookup(
+    "DNS lookup parameters"
+    input: DnsLookupInput!
+  ): DnsLookupResult!
+}

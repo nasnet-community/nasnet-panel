@@ -90,6 +90,22 @@ directive @vyos(
   path: String!
 ) on FIELD_DEFINITION | OBJECT
 
+input AddBridgePortInput {
+  frameTypes: FrameTypes
+  ingressFiltering: Boolean
+  interfaceId: ID!
+  pvid: Int @validate(min: 1, max: 4094)
+}
+
+type AddChangeSetItemPayload {
+  """The updated change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The added item ID"""
+  itemId: ID
+}
+
 """
 Input for manually adding a new router with full credentials and protocol preference.
 This is the primary input type for the addRouter mutation.
@@ -147,6 +163,206 @@ type AddRouterPayload {
   validationErrors: [ValidationError!]
 }
 
+"""Resource affected by a configuration change"""
+type AffectedResource {
+  """Resource ID"""
+  id: ID!
+  """How the resource will be affected (modified, disabled, removed)"""
+  impact: ResourceImpact!
+  """Resource name or description"""
+  name: String!
+  """Resource type (ip-address, dhcp-server, firewall-rule, etc.)"""
+  type: String!
+}
+
+"""Individual alert instance triggered when rule conditions are met"""
+type Alert implements Node {
+  """When alert was acknowledged"""
+  acknowledgedAt: DateTime
+  """User who acknowledged the alert"""
+  acknowledgedBy: String
+  """Event data and context information"""
+  data: JSON
+  """Delivery status per channel"""
+  deliveryStatus: JSON
+  """Device ID that triggered this alert"""
+  deviceId: ID
+  """Event type that triggered this alert"""
+  eventType: String!
+  """Globally unique identifier"""
+  id: ID!
+  """Detailed alert message"""
+  message: String!
+  """Alert rule that triggered this alert"""
+  rule: AlertRule!
+  """Alert severity level"""
+  severity: AlertSeverity!
+  """Alert title/summary"""
+  title: String!
+  """When alert was triggered"""
+  triggeredAt: DateTime!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""Alert action types for subscriptions"""
+enum AlertAction {
+  """Alert was acknowledged"""
+  ACKNOWLEDGED
+  """Alert was created/triggered"""
+  CREATED
+  """Alert was resolved"""
+  RESOLVED
+}
+
+"""Condition for event matching in alert rules"""
+type AlertCondition {
+  """Field name to evaluate"""
+  field: String!
+  """Comparison operator"""
+  operator: ConditionOperator!
+  """Value to compare against"""
+  value: String!
+}
+
+"""Alert condition input"""
+input AlertConditionInput {
+  """Field name to evaluate"""
+  field: String!
+  """Comparison operator"""
+  operator: ConditionOperator!
+  """Value to compare against"""
+  value: String!
+}
+
+"""Paginated alert connection"""
+type AlertConnection implements Connection {
+  """Alert edges"""
+  edges: [AlertEdge!]!
+  """Pagination information"""
+  pageInfo: PageInfo!
+  """Total count of alerts"""
+  totalCount: Int!
+}
+
+"""Alert edge for pagination"""
+type AlertEdge implements Edge {
+  """Pagination cursor"""
+  cursor: String!
+  """Alert node"""
+  node: Alert!
+}
+
+"""Alert event for real-time subscriptions"""
+type AlertEvent {
+  """Type of action that occurred"""
+  action: AlertAction!
+  """The alert that changed"""
+  alert: Alert!
+}
+
+"""Alert mutation payload"""
+type AlertPayload {
+  """Modified alert"""
+  alert: Alert
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
+"""Alert rule defines conditions that trigger notifications when met"""
+type AlertRule implements Node {
+  """Alerts triggered by this rule"""
+  alerts(
+    """Filter by acknowledged status"""
+    acknowledged: Boolean
+    """Limit number of results"""
+    limit: Int = 50
+  ): [Alert!]!
+  """Notification channels to use"""
+  channels: [String!]!
+  """Array of conditions for event matching"""
+  conditions: [AlertCondition!]!
+  """Record creation timestamp"""
+  createdAt: DateTime!
+  """Optional description of what this rule monitors"""
+  description: String
+  """Optional device ID filter - rule only applies to this device"""
+  deviceId: ID
+  """Whether this alert rule is enabled"""
+  enabled: Boolean!
+  """
+  Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high')
+  """
+  eventType: String!
+  """Globally unique identifier"""
+  id: ID!
+  """Human-readable alert rule name"""
+  name: String!
+  """Quiet hours configuration for non-critical alerts"""
+  quietHours: QuietHoursConfig
+  """Alert severity level"""
+  severity: AlertSeverity!
+  """Throttle configuration to prevent alert spam"""
+  throttle: ThrottleConfig
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""Alert rule mutation payload"""
+type AlertRulePayload {
+  """Created/updated alert rule"""
+  alertRule: AlertRule
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
+"""Alert severity levels"""
+enum AlertSeverity {
+  """Critical - requires immediate attention"""
+  CRITICAL
+  """Info - informational only"""
+  INFO
+  """Warning - attention needed soon"""
+  WARNING
+}
+
+type ApplyChangeSetPayload {
+  """Change set ID"""
+  changeSetId: ID!
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Current status"""
+  status: ChangeSetStatus!
+}
+
+"""Result of applying a fix"""
+type ApplyFixPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """User-friendly message"""
+  message: String!
+  """Fix application status"""
+  status: FixApplicationStatus!
+  """Whether fix was applied successfully"""
+  success: Boolean!
+}
+
+type ApplyResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Operation ID for progress tracking"""
+  operationId: ID!
+  """The applied resource"""
+  resource: Resource
+}
+
+type ArchiveResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Whether archive was successful"""
+  success: Boolean!
+}
+
 """Authentication error codes"""
 enum AuthErrorCode {
   """Insufficient permissions"""
@@ -190,12 +406,216 @@ type AuthStatus {
 """Bandwidth string with unit (e.g., "10M", "1G", "100k")"""
 scalar Bandwidth
 
+"""A bandwidth data point"""
+type BandwidthDataPoint {
+  """Bytes in during this period"""
+  bytesIn: Size!
+  """Bytes out during this period"""
+  bytesOut: Size!
+  """Period duration in seconds"""
+  periodSeconds: Int!
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+"""Actions available for batch interface operations"""
+enum BatchInterfaceAction {
+  DISABLE
+  ENABLE
+  UPDATE
+}
+
+"""Input for batch interface operations"""
+input BatchInterfaceInput {
+  """Action to perform"""
+  action: BatchInterfaceAction!
+  """Optional input for UPDATE action"""
+  input: UpdateInterfaceInput
+  """Interface IDs to operate on"""
+  interfaceIds: [ID!]!
+}
+
+"""Payload returned by batchInterfaceOperation mutation"""
+type BatchInterfacePayload {
+  """General errors that occurred"""
+  errors: [MutationError!]
+  """Interfaces that failed with reasons"""
+  failed: [InterfaceOperationError!]!
+  """Interfaces that were successfully updated"""
+  succeeded: [Interface!]!
+}
+
+type Bridge implements Node {
+  comment: String @mikrotik(path: "/interface/bridge", field: "comment")
+  dependentDhcpServers: [DhcpServer!]!
+  dependentRoutes: [Route!]!
+  disabled: Boolean! @mikrotik(path: "/interface/bridge", field: "disabled")
+  id: ID!
+  ipAddresses: [IpAddress!]!
+  macAddress: MAC @mikrotik(path: "/interface/bridge", field: "mac-address")
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/bridge", field: "mtu")
+  name: String!
+  ports: [BridgePort!]!
+  priority: Int @validate(min: 0, max: 61440) @mikrotik(path: "/interface/bridge", field: "priority")
+  protocol: StpProtocol! @mikrotik(path: "/interface/bridge", field: "protocol")
+  pvid: Int @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge", field: "pvid")
+  running: Boolean!
+  stpStatus: BridgeStpStatus
+  vlanFiltering: Boolean! @mikrotik(path: "/interface/bridge", field: "vlan-filtering")
+  vlans: [BridgeVlan!]!
+}
+
+type BridgeMutationResult {
+  bridge: Bridge
+  errors: [MutationError!]
+  """Unique operation ID for undo within 10-second window"""
+  operationId: ID
+  """Previous state for undo functionality"""
+  previousState: JSON
+  success: Boolean!
+}
+
+type BridgePort implements Node {
+  bridge: Bridge!
+  edge: Boolean! @mikrotik(path: "/interface/bridge/port", field: "edge")
+  frameTypes: FrameTypes! @mikrotik(path: "/interface/bridge/port", field: "frame-types")
+  id: ID!
+  ingressFiltering: Boolean! @mikrotik(path: "/interface/bridge/port", field: "ingress-filtering")
+  interface: Interface!
+  pathCost: Int!
+  pvid: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge/port", field: "pvid")
+  role: StpPortRole!
+  state: StpPortState!
+  taggedVlans: [Int!]!
+  untaggedVlans: [Int!]!
+}
+
+"""Frame types that can be admitted on a bridge port"""
+enum BridgePortFrameTypes {
+  """Accept all frames (tagged and untagged)"""
+  ADMIT_ALL
+  """Accept only untagged and priority-tagged frames"""
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY_TAGGED
+  """Accept only VLAN-tagged frames"""
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+type BridgePortMutationResult {
+  errors: [MutationError!]
+  operationId: ID
+  port: BridgePort
+  previousState: JSON
+  success: Boolean!
+}
+
+"""VLAN configuration for a bridge port (trunk/access port setup)"""
+type BridgePortVlanConfig {
+  """Frame types allowed on this port"""
+  frameTypes: BridgePortFrameTypes!
+  """Port mode (trunk or access)"""
+  mode: PortMode!
+  """Bridge port ID"""
+  portId: ID!
+  """Port VLAN ID (PVID) for untagged traffic"""
+  pvid: Int! @validate(min: 1, max: 4094)
+  """Tagged VLANs allowed on this port (trunk mode)"""
+  taggedVlans: [Int!]! @validate(min: 1, max: 4094)
+  """Untagged VLANs on this port (typically just PVID)"""
+  untaggedVlans: [Int!]! @validate(min: 1, max: 4094)
+}
+
+"""Input for configuring bridge port VLAN settings"""
+input BridgePortVlanInput {
+  """Frame types allowed on this port"""
+  frameTypes: BridgePortFrameTypes!
+  """Port mode (trunk or access)"""
+  mode: PortMode!
+  """Port VLAN ID (PVID) for untagged traffic"""
+  pvid: Int! @validate(min: 1, max: 4094)
+  """Tagged VLANs (for trunk ports)"""
+  taggedVlans: [Int!] @validate(min: 1, max: 4094)
+}
+
+"""Bridge resource (part of LANNetwork)"""
+type BridgeResource implements Node & Resource {
+  category: ResourceCategory!
+  configuration: JSON!
+  deployment: DeploymentState
+  id: ID!
+  metadata: ResourceMetadata!
+  """Bridge name"""
+  name: String!
+  platform: PlatformInfo
+  """Ports in this bridge"""
+  ports: [String!]!
+  """Protocol mode (rstp, stp, none)"""
+  protocolMode: String
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+}
+
+type BridgeStpStatus {
+  lastTopologyChange: DateTime
+  rootBridge: Boolean!
+  rootBridgeId: String
+  rootPathCost: Int!
+  rootPort: String
+  topologyChangeCount: Int!
+}
+
+type BridgeVlan {
+  bridge: Bridge!
+  taggedPorts: [BridgePort!]!
+  untaggedPorts: [BridgePort!]!
+  uuid: ID!
+  vlanId: Int! @validate(min: 1, max: 4094)
+}
+
+type BridgeVlanMutationResult {
+  errors: [MutationError!]
+  success: Boolean!
+  vlan: BridgeVlan
+}
+
+"""Bulk alert mutation payload"""
+type BulkAlertPayload {
+  """Number of alerts acknowledged"""
+  acknowledgedCount: Int!
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
 """CIDR notation for network address (e.g., "192.168.1.0/24")"""
 scalar CIDR
+
+"""CPU utilization metrics"""
+type CPUMetrics {
+  """Number of CPU cores"""
+  cores: Int!
+  """CPU frequency in MHz (optional)"""
+  frequency: Float
+  """Per-core usage percentages (one per core)"""
+  perCore: [Float!]!
+  """Overall CPU usage percentage (0-100)"""
+  usage: Float!
+}
 
 enum CacheScope {
   PRIVATE
   PUBLIC
+}
+
+type CancelChangeSetPayload {
+  """The cancelled change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Whether cancel was successful"""
+  success: Boolean!
 }
 
 type CancelScanPayload {
@@ -263,6 +683,278 @@ enum CapabilityLevel {
   NONE
 }
 
+"""An entry in the change log"""
+type ChangeLogEntry {
+  """Type of change"""
+  changeType: ChangeType!
+  """Changed fields"""
+  changedFields: [String!]!
+  """Brief description of the change"""
+  summary: String
+  """Change timestamp"""
+  timestamp: DateTime!
+  """User who made the change"""
+  user: String!
+}
+
+"""Type of operation to perform on a resource"""
+enum ChangeOperation {
+  """Create a new resource"""
+  CREATE
+  """Delete an existing resource"""
+  DELETE
+  """Update an existing resource"""
+  UPDATE
+}
+
+"""A change set representing an atomic multi-resource operation"""
+type ChangeSet {
+  """Apply started timestamp"""
+  applyStartedAt: DateTime
+  """Completed timestamp"""
+  completedAt: DateTime
+  """Created timestamp"""
+  createdAt: DateTime!
+  """User who created the change set"""
+  createdBy: String
+  """Optional description"""
+  description: String
+  """Error information (if failed)"""
+  error: ChangeSetError
+  """Unique identifier (ULID)"""
+  id: ID!
+  """Items in this change set"""
+  items: [ChangeSetItem!]!
+  """Human-readable name"""
+  name: String!
+  """Rollback plan"""
+  rollbackPlan: [RollbackStep!]!
+  """Router ID this change set applies to"""
+  routerId: ID!
+  """Source wizard/feature"""
+  source: String
+  """Current status"""
+  status: ChangeSetStatus!
+  """Validation result"""
+  validation: ChangeSetValidationResult
+  """Version for optimistic concurrency"""
+  version: Int!
+}
+
+"""Conflict between change set items"""
+type ChangeSetConflict {
+  """Description of the conflict"""
+  description: String!
+  """Whether conflict is with existing resource"""
+  isExternalConflict: Boolean!
+  """First conflicting item ID"""
+  itemId1: ID!
+  """Second conflicting item ID or resource UUID"""
+  itemId2OrResourceUuid: ID!
+  """Suggested resolution"""
+  resolution: String
+}
+
+"""Detailed error for failed change sets"""
+type ChangeSetError {
+  """Error code"""
+  code: String
+  """Item ID that caused the failure"""
+  failedItemId: ID!
+  """Items that failed rollback"""
+  failedRollbackItemIds: [ID!]!
+  """Error message"""
+  message: String!
+  """Items applied before failure"""
+  partiallyAppliedItemIds: [ID!]!
+  """Whether manual intervention is required"""
+  requiresManualIntervention: Boolean!
+}
+
+"""Individual item within a change set"""
+type ChangeSetItem {
+  """Apply completed timestamp"""
+  applyCompletedAt: DateTime
+  """Order in which this item will be applied"""
+  applyOrder: Int!
+  """Apply started timestamp"""
+  applyStartedAt: DateTime
+  """New/updated configuration"""
+  configuration: JSON!
+  """Item IDs this depends on"""
+  dependencies: [ID!]!
+  """Optional description"""
+  description: String
+  """Error message if failed"""
+  error: String
+  """Unique identifier for this item"""
+  id: ID!
+  """User-friendly name"""
+  name: String!
+  """Operation to perform"""
+  operation: ChangeOperation!
+  """Previous state (for rollback)"""
+  previousState: JSON
+  """Resource category"""
+  resourceCategory: ResourceCategory!
+  """Resource type identifier"""
+  resourceType: String!
+  """Existing resource UUID (null for create operations)"""
+  resourceUuid: ID
+  """Current status"""
+  status: ChangeSetItemStatus!
+}
+
+"""Input for adding an item to a change set"""
+input ChangeSetItemInput {
+  """Configuration"""
+  configuration: JSON!
+  """Item IDs this depends on"""
+  dependencies: [ID!]
+  """Optional description"""
+  description: String
+  """User-friendly name"""
+  name: String!
+  """Operation to perform"""
+  operation: ChangeOperation!
+  """Previous state (for rollback on update/delete)"""
+  previousState: JSON
+  """Resource category"""
+  resourceCategory: ResourceCategory!
+  """Resource type identifier"""
+  resourceType: String!
+  """Existing resource UUID (for update/delete)"""
+  resourceUuid: ID
+}
+
+"""Status of individual items within a change set"""
+enum ChangeSetItemStatus {
+  """Successfully applied"""
+  APPLIED
+  """Currently being applied"""
+  APPLYING
+  """Application failed"""
+  FAILED
+  """Waiting to be applied"""
+  PENDING
+  """Rollback failed - manual intervention needed"""
+  ROLLBACK_FAILED
+  """Successfully rolled back"""
+  ROLLED_BACK
+  """Skipped due to dependency failure"""
+  SKIPPED
+}
+
+"""Progress event for real-time updates during apply"""
+type ChangeSetProgressEvent {
+  """Number of items applied"""
+  appliedCount: Int!
+  """Change set ID"""
+  changeSetId: ID!
+  """Currently processing item"""
+  currentItem: CurrentItemInfo
+  """Error if failed"""
+  error: ChangeSetError
+  """Estimated time remaining in milliseconds"""
+  estimatedRemainingMs: Int
+  """Progress percentage (0-100)"""
+  progressPercent: Float!
+  """Current status"""
+  status: ChangeSetStatus!
+  """Timestamp of this event"""
+  timestamp: DateTime!
+  """Total number of items"""
+  totalCount: Int!
+}
+
+"""Change set lifecycle status"""
+enum ChangeSetStatus {
+  """Applying resources in dependency order"""
+  APPLYING
+  """User cancelled the operation"""
+  CANCELLED
+  """All resources applied successfully"""
+  COMPLETED
+  """Initial state - adding items, not yet validated"""
+  DRAFT
+  """Apply failed, may have partial application"""
+  FAILED
+  """Rollback partially failed - manual intervention needed"""
+  PARTIAL_FAILURE
+  """All items validated, ready to apply"""
+  READY
+  """Rollback completed successfully"""
+  ROLLED_BACK
+  """Rolling back applied changes"""
+  ROLLING_BACK
+  """Running validation on all items"""
+  VALIDATING
+}
+
+"""Change set status change event"""
+type ChangeSetStatusEvent {
+  """Change set ID"""
+  changeSetId: ID!
+  """Error if failed"""
+  error: ChangeSetError
+  """New status"""
+  newStatus: ChangeSetStatus!
+  """Previous status"""
+  previousStatus: ChangeSetStatus!
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+"""Summary of a change set for list displays"""
+type ChangeSetSummary {
+  """Created timestamp"""
+  createdAt: DateTime!
+  """Has validation errors"""
+  hasErrors: Boolean!
+  """Has validation warnings"""
+  hasWarnings: Boolean!
+  """Change set ID"""
+  id: ID!
+  """Name"""
+  name: String!
+  """Operation counts"""
+  operationCounts: OperationCounts!
+  """Current status"""
+  status: ChangeSetStatus!
+  """Total items"""
+  totalItems: Int!
+}
+
+"""Validation error for a change set item"""
+type ChangeSetValidationError {
+  """Error code"""
+  code: String
+  """Field path within the item configuration"""
+  field: String!
+  """Item ID with validation error"""
+  itemId: ID!
+  """Error message"""
+  message: String!
+  """Severity level"""
+  severity: ValidationSeverity!
+}
+
+"""Validation result for a change set"""
+type ChangeSetValidationResult {
+  """Whether the change set can be applied"""
+  canApply: Boolean!
+  """Circular dependencies (if any)"""
+  circularDependencies: [[ID!]!]
+  """Detected conflicts"""
+  conflicts: [ChangeSetConflict!]!
+  """Validation errors (blocking)"""
+  errors: [ChangeSetValidationError!]!
+  """Missing dependencies"""
+  missingDependencies: [MissingDependency!]!
+  """Validation warnings (non-blocking)"""
+  warnings: [ChangeSetValidationError!]!
+}
+
 """Type of change for resource events"""
 enum ChangeType {
   CREATE
@@ -312,6 +1004,32 @@ type CircuitBreakerStatus {
   state: CircuitBreakerState!
 }
 
+"""A composite resource with all related sub-resources"""
+type CompositeResource {
+  """All child/related resources"""
+  children: [Resource!]!
+  """Flattened relationship graph"""
+  relationships: [ResourceRelationshipEdge!]!
+  """The root resource"""
+  root: Resource!
+}
+
+"""Condition comparison operators"""
+enum ConditionOperator {
+  """String contains"""
+  CONTAINS
+  """Exact match"""
+  EQUALS
+  """Numeric greater than"""
+  GREATER_THAN
+  """Numeric less than"""
+  LESS_THAN
+  """Not equal"""
+  NOT_EQUALS
+  """Regular expression match"""
+  REGEX
+}
+
 """Status of a configuration apply operation"""
 enum ConfigApplyStatus {
   APPLYING
@@ -321,6 +1039,16 @@ enum ConfigApplyStatus {
   ROLLED_BACK
   VALIDATING
   VERIFYING
+}
+
+"""Preview of RouterOS configuration commands"""
+type ConfigPreview {
+  """Resources that will be affected"""
+  affectedResources: [AffectedResource!]
+  """RouterOS commands to be executed"""
+  commands: [String!]!
+  """Warnings about the configuration changes"""
+  warnings: [String!]
 }
 
 """Progress information for configuration apply operations"""
@@ -339,6 +1067,30 @@ type ConfigProgress {
   timestamp: DateTime!
   """Total number of steps"""
   totalSteps: Int
+}
+
+"""Severity level for confirmation dialogs"""
+enum ConfirmationSeverity {
+  """Critical operation requiring explicit confirmation"""
+  CRITICAL
+  """Standard operation with brief confirmation"""
+  STANDARD
+}
+
+"""Types of resource conflicts"""
+enum ConflictType {
+  """Configuration incompatibility"""
+  CONFIGURATION
+  """Interface conflict"""
+  INTERFACE
+  """IP address conflict"""
+  IP_ADDRESS
+  """Name collision"""
+  NAME
+  """Port number conflict"""
+  PORT
+  """Route overlap"""
+  ROUTE
 }
 
 type ConnectRouterPayload {
@@ -534,6 +1286,90 @@ type ContainerInfo {
   supportsNetworkNamespace: Boolean!
 }
 
+"""Input for creating an alert rule"""
+input CreateAlertRuleInput {
+  """Notification channels"""
+  channels: [String!]!
+  """Array of conditions"""
+  conditions: [AlertConditionInput!]
+  """Optional description"""
+  description: String
+  """Optional device ID filter"""
+  deviceId: ID
+  """Whether rule is enabled (default: true)"""
+  enabled: Boolean = true
+  """Event type to match"""
+  eventType: String!
+  """Human-readable alert rule name"""
+  name: String!
+  """Quiet hours configuration"""
+  quietHours: QuietHoursConfigInput
+  """Alert severity level"""
+  severity: AlertSeverity!
+  """Throttle configuration"""
+  throttle: ThrottleConfigInput
+}
+
+input CreateBridgeInput {
+  comment: String
+  mtu: Int @validate(min: 68, max: 65535)
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$")
+  priority: Int @validate(min: 0, max: 61440)
+  protocol: StpProtocol
+  pvid: Int @validate(min: 1, max: 4094)
+  vlanFiltering: Boolean
+}
+
+input CreateBridgeVlanInput {
+  taggedPortIds: [ID!]
+  untaggedPortIds: [ID!]
+  vlanId: Int! @validate(min: 1, max: 4094)
+}
+
+"""Input for creating a new change set"""
+input CreateChangeSetInput {
+  """Optional description"""
+  description: String
+  """Human-readable name"""
+  name: String!
+  """Router to apply changes to"""
+  routerId: ID!
+  """Source wizard/feature"""
+  source: String
+}
+
+type CreateChangeSetPayload {
+  """The created change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+}
+
+"""Input for creating a new resource"""
+input CreateResourceInput {
+  """Resource category"""
+  category: ResourceCategory!
+  """Initial configuration"""
+  configuration: JSON!
+  """Resource description"""
+  description: String
+  """User-defined relationships"""
+  relationships: ResourceRelationshipsInput
+  """Router to create resource on"""
+  routerId: ID!
+  """Initial tags"""
+  tags: [String!]
+  """Resource type (e.g., 'vpn.wireguard.client')"""
+  type: String!
+}
+
+type CreateResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The created resource"""
+  resource: Resource
+}
+
 """Input for creating a new router connection"""
 input CreateRouterInput {
   """Router hostname or IP address"""
@@ -636,8 +1472,96 @@ input CredentialsInput {
   username: String! @validate(minLength: 1, maxLength: 64) @sensitive
 }
 
+"""Current item information in progress event"""
+type CurrentItemInfo {
+  id: ID!
+  name: String!
+  operation: ChangeOperation!
+  status: ChangeSetItemStatus!
+}
+
+"""DHCP Server resource"""
+type DHCPServerResource implements Node & Resource {
+  """Number of active leases"""
+  activeLeases: Int
+  """Address pool name"""
+  addressPool: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  deployment: DeploymentState
+  id: ID!
+  """Interface serving DHCP"""
+  interface: String!
+  """Lease time"""
+  leaseTime: Duration!
+  metadata: ResourceMetadata!
+  """Server name"""
+  name: String!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+}
+
+"""Daily statistics"""
+type DailyStats {
+  """Date (UTC)"""
+  date: DateTime!
+  """Error count"""
+  errorCount: Int!
+  """Peak throughput in (bytes/sec)"""
+  peakThroughputIn: Size!
+  """Peak throughput out (bytes/sec)"""
+  peakThroughputOut: Size!
+  """Total bytes in"""
+  totalBytesIn: Size!
+  """Total bytes out"""
+  totalBytesOut: Size!
+  """Uptime percentage (0-100)"""
+  uptimePercent: Float!
+}
+
 """ISO 8601 datetime string (e.g., "2024-01-15T10:30:00Z")"""
 scalar DateTime
+
+type DeleteChangeSetPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Whether deletion was successful"""
+  success: Boolean!
+}
+
+"""Delete operation payload"""
+type DeletePayload {
+  """ID of deleted item"""
+  deletedId: ID
+  """Errors encountered during deletion"""
+  errors: [MutationError!]
+  """Whether deletion was successful"""
+  success: Boolean!
+}
+
+type DeleteResourcePayload {
+  """ID of deleted resource"""
+  deletedId: ID
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Whether deletion was successful"""
+  success: Boolean!
+}
+
+"""Result of a delete operation"""
+type DeleteResult {
+  """Errors that occurred during deletion"""
+  errors: [MutationError!]
+  """Success or error message"""
+  message: String
+  """Whether the deletion succeeded"""
+  success: Boolean!
+}
 
 type DeleteRouterPayload {
   """ID of the deleted router"""
@@ -646,6 +1570,112 @@ type DeleteRouterPayload {
   errors: [MutationError!]
   """Whether deletion was successful"""
   success: Boolean!
+}
+
+"""Status of a required dependency"""
+type DependencyStatus {
+  """Whether the dependency is active"""
+  isActive: Boolean!
+  """Why this dependency is required"""
+  reason: String!
+  """Dependency resource type"""
+  resourceType: String!
+  """Dependency resource UUID"""
+  resourceUuid: ID!
+  """Current state of the dependency"""
+  state: ResourceLifecycleState!
+}
+
+"""
+Layer 3: What's actually on router after Apply-Confirm.
+Includes router-generated fields like IDs and computed values.
+"""
+type DeploymentState {
+  """When the resource was applied"""
+  appliedAt: DateTime!
+  """User who applied the resource"""
+  appliedBy: String
+  """Apply operation ID for audit trail"""
+  applyOperationId: ID
+  """Detected drift from configuration"""
+  drift: DriftInfo
+  """Router-generated fields (public key, computed values, etc.)"""
+  generatedFields: JSON
+  """Whether deployment matches configuration (no drift)"""
+  isInSync: Boolean!
+  """Router-generated resource ID (e.g., '*1A' in MikroTik)"""
+  routerResourceId: String
+  """Version number on router"""
+  routerVersion: Int
+}
+
+type DeprecateResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The deprecated resource"""
+  resource: Resource
+}
+
+"""Device (router) for querying resource metrics"""
+type Device {
+  """Device identifier"""
+  id: ID!
+  """Current resource utilization metrics"""
+  resourceMetrics: ResourceMetrics!
+}
+
+"""DHCP client configuration for dynamic WAN IP"""
+type DhcpClient implements Node {
+  """Add default route from DHCP"""
+  addDefaultRoute: Boolean! @mikrotik(path: "/ip/dhcp-client", field: "add-default-route")
+  """Assigned IP address"""
+  address: IPv4 @mikrotik(path: "/ip/dhcp-client", field: "address")
+  """User comment"""
+  comment: String @mikrotik(path: "/ip/dhcp-client", field: "comment")
+  """DHCP server address"""
+  dhcpServer: IPv4 @mikrotik(path: "/ip/dhcp-client", field: "dhcp-server")
+  """Whether DHCP client is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/dhcp-client", field: "disabled")
+  """Lease expiry time"""
+  expiresAfter: Duration @mikrotik(path: "/ip/dhcp-client", field: "expires-after")
+  """Gateway from DHCP"""
+  gateway: IPv4 @mikrotik(path: "/ip/dhcp-client", field: "gateway")
+  """Unique identifier"""
+  id: ID!
+  """Interface name"""
+  interface: String! @mikrotik(path: "/ip/dhcp-client", field: "interface")
+  """Current DHCP status"""
+  status: String! @mikrotik(path: "/ip/dhcp-client", field: "status")
+  """Use DNS servers from DHCP"""
+  usePeerDNS: Boolean! @mikrotik(path: "/ip/dhcp-client", field: "use-peer-dns")
+  """Use NTP servers from DHCP"""
+  usePeerNTP: Boolean! @mikrotik(path: "/ip/dhcp-client", field: "use-peer-ntp")
+}
+
+"""Input for creating/updating DHCP client"""
+input DhcpClientInput {
+  """Add default route (default: true)"""
+  addDefaultRoute: Boolean
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Interface to enable DHCP client on"""
+  interface: String! @validate(minLength: 1, maxLength: 100)
+  """Use peer DNS (default: true)"""
+  usePeerDNS: Boolean
+  """Use peer NTP (default: true)"""
+  usePeerNTP: Boolean
+}
+
+"""DHCP server (minimal type for dependencies)"""
+type DhcpServer {
+  """Whether the DHCP server is disabled"""
+  disabled: Boolean!
+  """DHCP server ID"""
+  id: ID!
+  """Interface the DHCP server is bound to"""
+  interface: Interface!
+  """DHCP server name"""
+  name: String!
 }
 
 """Comprehensive diagnostic report for a router"""
@@ -728,6 +1758,148 @@ type DiscoveredDevice {
   services: [String!]!
   """Device vendor (always 'MikroTik' for returned results)"""
   vendor: String
+}
+
+"""Input for DNS lookup operation"""
+input DnsLookupInput {
+  """Device/router ID to run lookup from"""
+  deviceId: String!
+  """Hostname or IP address to look up"""
+  hostname: String!
+  """DNS record type to query"""
+  recordType: DnsRecordType!
+  """DNS server to use (defaults to router's configured DNS)"""
+  server: String
+  """Query timeout in seconds (default: 5)"""
+  timeout: Int
+}
+
+"""Result of a DNS lookup operation"""
+type DnsLookupResult {
+  """Whether response was authoritative"""
+  authoritative: Boolean!
+  """Error message (if query failed)"""
+  error: String
+  """Hostname that was queried"""
+  hostname: String!
+  """Query time in milliseconds"""
+  queryTime: Int!
+  """Record type that was queried"""
+  recordType: DnsRecordType!
+  """Resolved records"""
+  records: [DnsRecord!]!
+  """DNS server used"""
+  server: String!
+  """Query status"""
+  status: DnsLookupStatus!
+  """When the query was executed"""
+  timestamp: DateTime!
+}
+
+"""DNS lookup status codes"""
+enum DnsLookupStatus {
+  """Network error occurred"""
+  NETWORK_ERROR
+  """Domain does not exist (NXDOMAIN)"""
+  NXDOMAIN
+  """Query refused by server"""
+  REFUSED
+  """DNS server failure (SERVFAIL)"""
+  SERVFAIL
+  """Query completed successfully"""
+  SUCCESS
+  """Query timed out"""
+  TIMEOUT
+}
+
+"""Single DNS record"""
+type DnsRecord {
+  """Record data (IP, hostname, text, etc.)"""
+  data: String!
+  """Record name (query hostname)"""
+  name: String!
+  """Port (for SRV records)"""
+  port: Int
+  """Priority (for MX/SRV records)"""
+  priority: Int
+  """Time to live in seconds"""
+  ttl: Int!
+  """Record type"""
+  type: DnsRecordType!
+  """Weight (for SRV records)"""
+  weight: Int
+}
+
+"""DNS record types supported"""
+enum DnsRecordType {
+  """IPv4 address record"""
+  A
+  """IPv6 address record"""
+  AAAA
+  """Canonical name record"""
+  CNAME
+  """Mail exchange record"""
+  MX
+  """Name server record"""
+  NS
+  """Pointer record (reverse DNS)"""
+  PTR
+  """Start of authority record"""
+  SOA
+  """Service record"""
+  SRV
+  """Text record"""
+  TXT
+}
+
+"""DNS server configuration"""
+type DnsServer {
+  """Server IP address"""
+  address: String!
+  """Whether this is the primary DNS server"""
+  isPrimary: Boolean!
+  """Whether this is the secondary DNS server"""
+  isSecondary: Boolean!
+}
+
+"""Collection of DNS servers"""
+type DnsServers {
+  """Primary DNS server address"""
+  primary: String!
+  """Secondary DNS server address (if configured)"""
+  secondary: String
+  """All configured DNS servers"""
+  servers: [DnsServer!]!
+}
+
+"""Actions to resolve drift"""
+enum DriftAction {
+  """Update configuration to match router"""
+  ACCEPT
+  """Re-apply configuration to router"""
+  REAPPLY
+  """Manual review required"""
+  REVIEW
+}
+
+"""A field that has drifted from configuration"""
+type DriftField {
+  """Actual value (from router)"""
+  actual: JSON
+  """Expected value (from configuration)"""
+  expected: JSON
+  """Field path"""
+  path: String!
+}
+
+"""Information about configuration drift"""
+type DriftInfo {
+  """When drift was detected"""
+  detectedAt: DateTime!
+  """Fields that have drifted"""
+  driftedFields: [DriftField!]!
+  """Suggested action to resolve drift"""
+  suggestedAction: DriftAction!
 }
 
 """Duration string in RouterOS format (e.g., "1d2h3m4s", "30s", "5m")"""
@@ -834,6 +2006,66 @@ input FeatureCompatibilityInput {
   isCHR: Boolean
 }
 
+"""Feature deployment state"""
+type FeatureDeployment {
+  appliedAt: DateTime!
+  appliedBy: String
+  """Assigned IP address"""
+  assignedIP: IPv4
+  """Assigned ports"""
+  assignedPorts: [Port!]
+  """Container ID (if containerized)"""
+  containerId: String
+  """Container image used"""
+  containerImage: String
+  drift: DriftInfo
+  isInSync: Boolean!
+  routerResourceId: String
+  routerVersion: Int
+}
+
+"""Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)"""
+type FeatureResource implements Node & Resource {
+  category: ResourceCategory!
+  configuration: JSON
+  deployment: DeploymentState
+  featureDeployment: FeatureDeployment
+  """Feature identifier"""
+  featureId: String!
+  featureRuntime: FeatureRuntime
+  id: ID!
+  metadata: ResourceMetadata!
+  """Feature name"""
+  name: String!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+  """Feature version"""
+  version: String!
+  """Virtual interface assigned"""
+  virtualInterface: String
+}
+
+"""Feature runtime state"""
+type FeatureRuntime {
+  """Container status"""
+  containerStatus: String
+  """CPU usage percentage"""
+  cpuUsagePercent: Float
+  errorMessage: String
+  health: RuntimeHealth!
+  isRunning: Boolean!
+  lastUpdated: DateTime!
+  """Memory usage"""
+  memoryUsage: Size
+  """Devices routed through this feature"""
+  routedDevices: Int
+}
+
 """Feature support information based on RouterOS version"""
 type FeatureSupport {
   """Feature identifier (e.g., 'rest_api', 'container', 'wireguard')"""
@@ -854,6 +2086,100 @@ type FeatureSupport {
   supported: Boolean!
   """URL to MikroTik documentation for upgrade guidance"""
   upgradeUrl: String
+}
+
+"""Firewall rule (minimal type for dependencies)"""
+type FirewallRule {
+  """Rule action"""
+  action: String!
+  """Rule chain"""
+  chain: String!
+  """Whether the rule is disabled"""
+  disabled: Boolean!
+  """Firewall rule ID"""
+  id: ID!
+  """Input interface filter"""
+  inInterface: String
+  """Output interface filter"""
+  outInterface: String
+}
+
+"""Firewall Rule resource"""
+type FirewallRuleResource implements Node & Resource {
+  """Rule action (accept, drop, reject)"""
+  action: String!
+  category: ResourceCategory!
+  """Rule chain (input, forward, output)"""
+  chain: String!
+  """Rule comment"""
+  comment: String
+  configuration: JSON!
+  deployment: DeploymentState
+  """Destination address/network"""
+  dstAddress: String
+  """Destination port(s)"""
+  dstPort: String
+  """Whether rule is enabled"""
+  enabled: Boolean!
+  """Hit counter"""
+  hitCount: Int
+  id: ID!
+  metadata: ResourceMetadata!
+  platform: PlatformInfo
+  """Protocol (tcp, udp, icmp, etc.)"""
+  protocol: String
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  """Source address/network"""
+  srcAddress: String
+  """Source port(s)"""
+  srcPort: String
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+}
+
+"""Status of a fix application"""
+enum FixApplicationStatus {
+  """Fix was applied successfully"""
+  APPLIED
+  """Fix is being applied"""
+  APPLYING
+  """Fix is available but not yet applied"""
+  AVAILABLE
+  """Fix application failed"""
+  FAILED
+  """Fix was applied but issue persists"""
+  ISSUE_PERSISTS
+}
+
+"""Confidence level for a fix suggestion"""
+enum FixConfidence {
+  """High confidence this fix will resolve the issue"""
+  HIGH
+  """Low confidence, worth trying as last resort"""
+  LOW
+  """Medium confidence, may resolve the issue"""
+  MEDIUM
+}
+
+enum FrameTypes {
+  ADMIT_ALL
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+"""Result of checking gateway reachability"""
+type GatewayReachabilityResult {
+  """Interface through which gateway is reachable (null if unreachable)"""
+  interface: String
+  """Ping latency in milliseconds (null if unreachable)"""
+  latency: Int
+  """Human-readable message about reachability"""
+  message: String!
+  """Whether the gateway is reachable"""
+  reachable: Boolean!
 }
 
 """Hardware information detected from router"""
@@ -890,6 +2216,18 @@ type HealthCheckResult {
   routerId: ID!
 }
 
+"""Health check status"""
+enum HealthCheckStatus {
+  """Health check is disabled"""
+  DISABLED
+  """Target is reachable (healthy)"""
+  HEALTHY
+  """Target is unreachable (unhealthy)"""
+  UNHEALTHY
+  """Health check is starting"""
+  UNKNOWN
+}
+
 """Overall system health status"""
 type HealthStatus {
   """Last health check timestamp"""
@@ -904,6 +2242,44 @@ type HealthStatus {
   version: String!
 }
 
+"""A single probe result within a hop"""
+type HopProbe {
+  """ICMP error code if probe failed"""
+  icmpCode: String
+  """Latency in milliseconds (null for timeout)"""
+  latencyMs: Float
+  """Probe number (1-3 typically)"""
+  probeNumber: Int!
+  """Whether the probe succeeded"""
+  success: Boolean!
+}
+
+"""Status of a single hop in a traceroute"""
+enum HopStatus {
+  """Access prohibited (firewall/ACL)"""
+  PROHIBITED
+  """Hop responded successfully"""
+  SUCCESS
+  """Hop did not respond (timeout)"""
+  TIMEOUT
+  """Destination unreachable at this hop"""
+  UNREACHABLE
+}
+
+"""Hourly statistics"""
+type HourlyStats {
+  """Error count"""
+  errorCount: Int!
+  """Hour start timestamp"""
+  hour: DateTime!
+  """Total bytes in"""
+  totalBytesIn: Size!
+  """Total bytes out"""
+  totalBytesOut: Size!
+  """Uptime percentage (0-100)"""
+  uptimePercent: Float!
+}
+
 """
 IPv4 address string (e.g., "192.168.1.1")
 Validated format: XXX.XXX.XXX.XXX where XXX is 0-255
@@ -913,6 +2289,24 @@ scalar IPv4
 """IPv6 address string (e.g., "2001:0db8:85a3:0000:0000:8a2e:0370:7334")"""
 scalar IPv6
 
+"""ISP contact information"""
+type ISPInfo {
+  """ISP name"""
+  name: String!
+  """ISP support phone number"""
+  phone: String
+  """ISP support website URL"""
+  url: String
+}
+
+"""Integer range for filtering"""
+input IntRange {
+  """Maximum value (inclusive)"""
+  max: Int
+  """Minimum value (inclusive)"""
+  min: Int
+}
+
 """A network interface on a router"""
 type Interface implements Node {
   """User comment"""
@@ -921,6 +2315,14 @@ type Interface implements Node {
   enabled: Boolean! @mikrotik(path: "/interface", field: "disabled")
   """Unique interface identifier"""
   id: ID!
+  """IP address assigned to this interface"""
+  ip: IPv4 @mikrotik(path: "/ip/address", field: "address")
+  """Last time this interface was seen/queried"""
+  lastSeen: DateTime
+  """Connected device information from LLDP"""
+  linkPartner: String
+  """Link speed (e.g., 1Gbps, 100Mbps)"""
+  linkSpeed: String @mikrotik(path: "/interface/ethernet", field: "rate")
   """MAC address"""
   macAddress: MAC @mikrotik(path: "/interface", field: "mac-address")
   """MTU setting"""
@@ -931,10 +2333,18 @@ type Interface implements Node {
   running: Boolean! @mikrotik(path: "/interface", field: "running")
   """RX bytes"""
   rxBytes: Size @mikrotik(path: "/interface", field: "rx-byte")
+  """Current receive rate in bytes per second"""
+  rxRate: Size @mikrotik(path: "/interface", field: "rx-bits-per-second")
+  """Operational status of the interface"""
+  status: InterfaceStatus!
   """TX bytes"""
   txBytes: Size @mikrotik(path: "/interface", field: "tx-byte")
+  """Current transmit rate in bytes per second"""
+  txRate: Size @mikrotik(path: "/interface", field: "tx-bits-per-second")
   """Interface type"""
   type: InterfaceType! @mikrotik(path: "/interface", field: "type")
+  """Services using this interface (bridge, VPN, etc.)"""
+  usedBy: [String!]
 }
 
 type InterfaceConnection implements Connection {
@@ -946,6 +2356,62 @@ type InterfaceConnection implements Connection {
 type InterfaceEdge implements Edge {
   cursor: String!
   node: Interface!
+}
+
+"""Error information for a single interface operation in a batch"""
+type InterfaceOperationError {
+  """Error message describing why the operation failed"""
+  error: String!
+  """Interface ID that failed"""
+  interfaceId: ID!
+  """Interface name"""
+  interfaceName: String!
+}
+
+"""Interface traffic statistics"""
+type InterfaceStats {
+  """Total bytes received"""
+  rxBytes: Size!
+  """Receive drops"""
+  rxDrops: Int!
+  """Receive errors"""
+  rxErrors: Int!
+  """Total packets received"""
+  rxPackets: Size!
+  """Total bytes transmitted"""
+  txBytes: Size!
+  """Transmission drops"""
+  txDrops: Int!
+  """Transmission errors"""
+  txErrors: Int!
+  """Total packets transmitted"""
+  txPackets: Size!
+}
+
+"""Operational status of a network interface"""
+enum InterfaceStatus {
+  """Interface is disabled"""
+  DISABLED
+  """Interface is down"""
+  DOWN
+  """Status unknown or error"""
+  UNKNOWN
+  """Interface is up and running"""
+  UP
+}
+
+"""Event emitted when an interface status changes"""
+type InterfaceStatusEvent {
+  """Interface ID"""
+  interfaceId: ID!
+  """Interface name"""
+  interfaceName: String!
+  """Previous status"""
+  previousStatus: InterfaceStatus!
+  """New status"""
+  status: InterfaceStatus!
+  """Event timestamp"""
+  timestamp: DateTime!
 }
 
 type InterfaceTrafficEvent {
@@ -979,13 +2445,324 @@ enum InterfaceType {
   WIRELESS
 }
 
+"""An IP address assigned to an interface"""
+type IpAddress implements Node {
+  """IP address with CIDR notation (e.g., 192.168.10.1/24)"""
+  address: String! @validate(format: CIDR) @mikrotik(path: "/ip/address", field: "address")
+  """Broadcast address (calculated from address and netmask)"""
+  broadcast: String
+  """User comment"""
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/address", field: "comment")
+  """Whether this IP is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/address", field: "disabled")
+  """Whether this IP was dynamically assigned (via DHCP client)"""
+  dynamic: Boolean! @mikrotik(path: "/ip/address", field: "dynamic")
+  """Unique IP address identifier"""
+  id: ID!
+  """Interface this IP is assigned to"""
+  interface: Interface! @mikrotik(path: "/ip/address", field: "interface")
+  """Whether this IP is invalid (conflicting or error state)"""
+  invalid: Boolean! @mikrotik(path: "/ip/address", field: "invalid")
+  """Network address (calculated from address and netmask)"""
+  network: String
+}
+
+"""Event emitted when an IP address changes"""
+type IpAddressChangeEvent {
+  """Type of change (CREATED, UPDATED, DELETED)"""
+  changeType: ChangeType!
+  """The IP address that changed"""
+  ipAddress: IpAddress
+  """IP address ID (for deletions)"""
+  ipAddressId: ID!
+  """Timestamp of the change"""
+  timestamp: DateTime!
+}
+
+"""Result of an IP address deletion with dependency checking"""
+type IpAddressDeleteResult {
+  """Errors that occurred during deletion"""
+  errors: [MutationError!]
+  """Impact analysis for this IP address deletion"""
+  impactAnalysis: IpAddressImpactAnalysis
+  """Success or error message"""
+  message: String
+  """Whether the deletion succeeded"""
+  success: Boolean!
+}
+
+"""Dependencies for an IP address"""
+type IpAddressDependencies {
+  """DHCP servers using this IP as gateway"""
+  dhcpServers: [DhcpServer!]!
+  """Firewall rules referencing this IP"""
+  firewallRules: [FirewallRule!]!
+  """Whether the IP has any dependencies"""
+  hasDependencies: Boolean!
+  """IP address ID"""
+  ipAddressId: ID!
+  """NAT rules referencing this IP"""
+  natRules: [NatRule!]!
+  """Static routes using this IP"""
+  routes: [Route!]!
+}
+
+"""Analysis of the impact of deleting an IP address"""
+type IpAddressImpactAnalysis {
+  """Number of active connections using this IP"""
+  activeConnections: Int!
+  """Whether the IP can be safely deleted"""
+  canDelete: Boolean!
+  """List of consequences of deleting this IP"""
+  consequences: [String!]!
+  """Human-readable impact message"""
+  message: String!
+  """Severity of the deletion"""
+  severity: ConfirmationSeverity!
+  """Whether this IP is used as a gateway by DHCP servers"""
+  usedByDhcpServers: [DhcpServer!]!
+  """Whether this IP is referenced in firewall rules"""
+  usedInFirewallRules: [FirewallRule!]!
+  """Whether this IP is used in NAT rules"""
+  usedInNatRules: [NatRule!]!
+}
+
+"""Input for creating or updating an IP address"""
+input IpAddressInput {
+  """IP address with CIDR notation (e.g., 192.168.10.1/24)"""
+  address: String! @validate(format: CIDR)
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Whether this IP is disabled"""
+  disabled: Boolean
+  """Interface ID to assign this IP to"""
+  interfaceId: ID!
+}
+
+"""Result of an IP address mutation (create, update)"""
+type IpAddressMutationResult {
+  """Errors that occurred during the operation"""
+  errors: [MutationError!]
+  """The created or updated IP address (if successful)"""
+  ipAddress: IpAddress
+  """Configuration preview (RouterOS commands)"""
+  preview: ConfigPreview
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
+"""Details about an IP address conflict"""
+type IpConflict {
+  """Conflicting IP address"""
+  address: String!
+  """Type of conflict"""
+  conflictType: IpConflictType!
+  """Explanation of the conflict"""
+  explanation: String!
+  """Conflicting IP address ID"""
+  id: ID!
+  """Interface where conflict exists"""
+  interface: Interface!
+}
+
+"""Result of checking IP address conflicts"""
+type IpConflictResult {
+  """List of conflicting IP addresses"""
+  conflicts: [IpConflict!]!
+  """Whether the IP conflicts with existing assignments"""
+  hasConflict: Boolean!
+  """Human-readable message"""
+  message: String!
+}
+
+"""Type of IP address conflict"""
+enum IpConflictType {
+  """IP is the broadcast address of another subnet"""
+  BROADCAST
+  """Exact IP address match on different interface"""
+  EXACT
+  """IP is the network address of another subnet"""
+  NETWORK
+  """IP addresses are in overlapping subnets"""
+  SUBNET_OVERLAP
+}
+
 """Arbitrary JSON data for flexible configuration"""
 scalar JSON
+
+"""Job status for async traceroute execution"""
+enum JobStatus {
+  """Job was cancelled by user"""
+  CANCELLED
+  """Job completed successfully"""
+  COMPLETE
+  """Job encountered an error"""
+  ERROR
+  """Job is currently running"""
+  RUNNING
+  """Job has been created"""
+  STARTED
+}
+
+"""
+LAN Network composite resource - groups bridge, DHCP, firewall, routing
+"""
+type LANNetwork implements Node & Resource {
+  """Bridge interface"""
+  bridge: BridgeResource
+  category: ResourceCategory!
+  config: LANNetworkConfig!
+  configuration: JSON
+  deployment: DeploymentState
+  """DHCP server configuration"""
+  dhcpServer: DHCPServerResource
+  """Firewall rules for this LAN"""
+  firewallRules: [FirewallRuleResource!]!
+  id: ID!
+  lanDeployment: LANNetworkDeployment
+  lanRuntime: LANNetworkRuntime
+  metadata: ResourceMetadata!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  """Static routes"""
+  routes: [RouteResource!]!
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+}
+
+"""LAN Network configuration"""
+type LANNetworkConfig {
+  """Enable DHCP server"""
+  dhcpEnabled: Boolean!
+  """DHCP lease time"""
+  dhcpLeaseTime: Duration
+  """DHCP pool end"""
+  dhcpPoolEnd: IPv4
+  """DHCP pool start"""
+  dhcpPoolStart: IPv4
+  """DNS servers for DHCP"""
+  dnsServers: [IPv4!]
+  """Enable NAT masquerading"""
+  enableNat: Boolean!
+  """Interfaces to include in bridge"""
+  interfaces: [String!]!
+  """IP address for the LAN"""
+  ipAddress: IPv4!
+  """Network name"""
+  name: String!
+  """Subnet mask in CIDR notation"""
+  subnetMask: Int! @validate(min: 1, max: 32)
+  """VLAN ID (optional)"""
+  vlanId: Int @validate(min: 1, max: 4094)
+}
+
+"""LAN Network deployment state"""
+type LANNetworkDeployment {
+  appliedAt: DateTime!
+  appliedBy: String
+  """Bridge interface ID on router"""
+  bridgeId: String
+  """DHCP server ID on router"""
+  dhcpServerId: String
+  drift: DriftInfo
+  """IP address ID on router"""
+  ipAddressId: String
+  isInSync: Boolean!
+  routerResourceId: String
+  routerVersion: Int
+}
+
+"""LAN Network runtime state"""
+type LANNetworkRuntime {
+  """Number of active clients"""
+  activeClients: Int!
+  """Active DHCP leases"""
+  dhcpLeases: Int!
+  errorMessage: String
+  health: RuntimeHealth!
+  isRunning: Boolean!
+  lastUpdated: DateTime!
+  """Total traffic in"""
+  totalBytesIn: Size!
+  """Total traffic out"""
+  totalBytesOut: Size!
+}
+
+"""LTE/cellular modem configuration"""
+type LteModem implements Node {
+  """APN (Access Point Name)"""
+  apn: String! @mikrotik(path: "/interface/lte", field: "apn")
+  """User comment"""
+  comment: String @mikrotik(path: "/interface/lte", field: "comment")
+  """Unique identifier"""
+  id: ID!
+  """LTE interface name"""
+  name: String! @mikrotik(path: "/interface/lte", field: "name")
+  """Network type (LTE, 3G, etc.)"""
+  networkType: String @mikrotik(path: "/interface/lte", field: "current-cellid")
+  """Operator name"""
+  operator: String @mikrotik(path: "/interface/lte", field: "current-operator")
+  """PIN code configured"""
+  pinConfigured: Boolean!
+  """Connection status"""
+  running: Boolean! @mikrotik(path: "/interface/lte", field: "running")
+  """Signal strength (RSSI in dBm)"""
+  signalStrength: Int @mikrotik(path: "/interface/lte", field: "rssi")
+}
+
+"""Input for configuring LTE modem"""
+input LteModemInput {
+  """APN (Access Point Name)"""
+  apn: String! @validate(minLength: 1, maxLength: 100)
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """LTE interface name"""
+  name: String! @validate(minLength: 1, maxLength: 100)
+  """PIN code (optional, for SIM card)"""
+  pin: String @validate(minLength: 4, maxLength: 8, pattern: "^[0-9]+$")
+}
 
 """MAC address string (e.g., "00:1A:2B:3C:4D:5E" or "00-1A-2B-3C-4D-5E")"""
 scalar MAC
 
+"""Memory utilization metrics"""
+type MemoryMetrics {
+  """Memory usage percentage (0-100)"""
+  percentage: Float!
+  """Total memory in bytes"""
+  total: Float!
+  """Used memory in bytes"""
+  used: Float!
+}
+
+"""Missing dependency information"""
+type MissingDependency {
+  """Item ID with missing dependency"""
+  itemId: ID!
+  """Missing resource ID"""
+  missingResourceId: ID!
+  """Missing resource type"""
+  missingResourceType: String!
+}
+
 type Mutation {
+  """Acknowledge a single alert"""
+  acknowledgeAlert(
+    """Alert ID"""
+    alertId: ID!
+  ): AlertPayload!
+  """Acknowledge multiple alerts"""
+  acknowledgeAlerts(
+    """Array of alert IDs"""
+    alertIds: [ID!]!
+  ): BulkAlertPayload!
+  """Add a port to a bridge"""
+  addBridgePort(bridgeId: ID!, input: AddBridgePortInput!): BridgePortMutationResult!
+  """Add an item to a change set"""
+  addChangeSetItem(changeSetId: ID!, input: ChangeSetItemInput!): AddChangeSetItemPayload!
   """
   Add a new router by entering its IP address and credentials.
   
@@ -1001,6 +2778,22 @@ type Mutation {
   if the router cannot be reached or authenticated.
   """
   addRouter(input: AddRouterInput!): AddRouterPayload!
+  """Apply a change set atomically to the router"""
+  applyChangeSet(changeSetId: ID!): ApplyChangeSetPayload!
+  """
+  Apply resource to router (transitions VALID → APPLYING → ACTIVE/ERROR)
+  Follows Apply-Confirm-Merge pattern.
+  """
+  applyResource(id: ID!, routerId: ID!): ApplyResourcePayload!
+  """Apply a suggested fix for a failed diagnostic step"""
+  applyTroubleshootFix(
+    """Issue code to fix"""
+    issueCode: String!
+    """Session ID"""
+    sessionId: ID!
+  ): ApplyFixPayload!
+  """Archive a resource (transitions DEPRECATED → ARCHIVED)"""
+  archiveResource(id: ID!, routerId: ID!): ArchiveResourcePayload!
   """
   Start an automatic gateway scan.
   Scans common gateway IPs (192.168.0-255.1) to find MikroTik routers.
@@ -1009,11 +2802,22 @@ type Mutation {
   Only returns verified MikroTik RouterOS devices (confidence >= 40).
   """
   autoScanGateways: ScanNetworkPayload!
+  """Batch operation on multiple interfaces"""
+  batchInterfaceOperation(input: BatchInterfaceInput!, routerId: ID!): BatchInterfacePayload!
+  """Cancel an in-progress change set application"""
+  cancelChangeSet(changeSetId: ID!): CancelChangeSetPayload!
   """
   Cancel a running scan.
   The scan will stop within 1 second and partial results are preserved.
   """
   cancelScan(taskId: ID!): CancelScanPayload!
+  """Cancel a running traceroute job."""
+  cancelTraceroute(
+    """Job ID to cancel"""
+    jobId: ID!
+  ): Boolean!
+  """Cancel a troubleshooting session"""
+  cancelTroubleshoot(sessionId: ID!): TroubleshootSession!
   """Change the current user's password"""
   changePassword(
     """Current password for verification"""
@@ -1026,14 +2830,139 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): HealthCheckResult!
+  """Configure VLAN settings on a bridge port (trunk/access)"""
+  configureBridgePortVlan(
+    """VLAN configuration"""
+    input: BridgePortVlanInput!
+    """Bridge port ID"""
+    portId: ID!
+    """Router ID"""
+    routerId: ID!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+  """Configure DHCP client on a WAN interface"""
+  configureDhcpWAN(
+    """DHCP configuration"""
+    input: DhcpClientInput!
+    """Router ID"""
+    routerId: ID!
+  ): WANMutationResult! @capability(requires: ["interface"])
+  """Configure LTE modem"""
+  configureLteWAN(
+    """LTE configuration"""
+    input: LteModemInput!
+    """Router ID"""
+    routerId: ID!
+  ): WANMutationResult! @capability(requires: ["interface"])
+  """Configure PPPoE client on a WAN interface"""
+  configurePppoeWAN(
+    """PPPoE configuration"""
+    input: PppoeClientInput!
+    """Router ID"""
+    routerId: ID!
+  ): WANMutationResult! @capability(requires: ["interface"])
+  """Configure static IP on a WAN interface"""
+  configureStaticWAN(
+    """Static IP configuration"""
+    input: StaticIPInput!
+    """Router ID"""
+    routerId: ID!
+  ): WANMutationResult! @capability(requires: ["interface"])
+  """Configure health check for WAN interface"""
+  configureWANHealthCheck(
+    """Health check configuration"""
+    input: WANHealthCheckInput!
+    """Router ID"""
+    routerId: ID!
+    """WAN interface ID"""
+    wanInterfaceId: ID!
+  ): WANMutationResult! @capability(requires: ["interface"])
   """Connect to a router"""
   connectRouter(id: ID!): ConnectRouterPayload!
+  """Create a new alert rule"""
+  createAlertRule(
+    """Alert rule input"""
+    input: CreateAlertRuleInput!
+  ): AlertRulePayload!
+  """Create a new bridge"""
+  createBridge(input: CreateBridgeInput!, routerId: ID!): BridgeMutationResult!
+  """Create a bridge VLAN entry"""
+  createBridgeVlan(bridgeId: ID!, input: CreateBridgeVlanInput!): BridgeVlanMutationResult!
+  """Create a new change set"""
+  createChangeSet(input: CreateChangeSetInput!): CreateChangeSetPayload!
+  """Assign a new IP address to an interface"""
+  createIpAddress(
+    """IP address input"""
+    input: IpAddressInput!
+    """Router ID"""
+    routerId: ID!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+  """Create a new resource (starts in DRAFT state)"""
+  createResource(input: CreateResourceInput!): CreateResourcePayload!
+  """Create a new static route"""
+  createRoute(
+    """Route input data"""
+    input: RouteInput!
+    """Router ID"""
+    routerId: ID!
+  ): RouteMutationResult! @capability(requires: ["routing"])
   """Add a new router to manage"""
   createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  """Create a new VLAN interface"""
+  createVlan(
+    """VLAN input data"""
+    input: VlanInput!
+    """Router ID"""
+    routerId: ID!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+  """Delete an alert rule"""
+  deleteAlertRule(
+    """Alert rule ID"""
+    id: ID!
+  ): DeletePayload!
+  """Delete a bridge"""
+  deleteBridge(uuid: ID!): DeleteResult!
+  """Delete a bridge VLAN entry"""
+  deleteBridgeVlan(uuid: ID!): DeleteResult!
+  """Delete a change set (only if not applying)"""
+  deleteChangeSet(changeSetId: ID!): DeleteChangeSetPayload!
+  """Remove an IP address from an interface"""
+  deleteIpAddress(
+    """IP address ID to delete"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): IpAddressDeleteResult! @capability(requires: ["interface"])
+  """Delete a resource permanently"""
+  deleteResource(id: ID!, routerId: ID!): DeleteResourcePayload!
+  """Delete a route with impact analysis"""
+  deleteRoute(
+    """Route ID to delete"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): RouteDeleteResult! @capability(requires: ["routing"])
   """Remove a router"""
   deleteRouter(id: ID!): DeleteRouterPayload!
+  """Delete a VLAN interface"""
+  deleteVlan(
+    """VLAN ID to delete"""
+    id: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+  """Delete WAN configuration (revert to unconfigured)"""
+  deleteWANConfiguration(
+    """Router ID"""
+    routerId: ID!
+    """WAN interface ID"""
+    wanInterfaceId: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+  """Deprecate a resource (transitions → DEPRECATED)"""
+  deprecateResource(id: ID!, routerId: ID!): DeprecateResourcePayload!
+  """Disable an interface"""
+  disableInterface(interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
   """Disconnect from a router"""
   disconnectRouter(id: ID!): DisconnectRouterPayload!
+  """Enable an interface"""
+  enableInterface(interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
   """
   Export router configuration with optional credential handling.
   Credentials are excluded by default for security.
@@ -1056,6 +2985,10 @@ type Mutation {
   ): ReconnectRouterPayload!
   """Force refresh router capabilities (invalidates cache)"""
   refreshCapabilities(routerId: ID!): RefreshCapabilitiesPayload!
+  """Remove a port from a bridge"""
+  removeBridgePort(portId: ID!): DeleteResult!
+  """Remove an item from a change set"""
+  removeChangeSetItem(changeSetId: ID!, itemId: ID!): RemoveChangeSetItemPayload!
   """
   Manually reset the circuit breaker for a router.
   This allows immediate reconnection attempts even if the circuit is open.
@@ -1072,12 +3005,41 @@ type Mutation {
     """Session ID to revoke"""
     sessionId: ID!
   ): Boolean! @auth
+  """Force rollback of a failed change set"""
+  rollbackChangeSet(changeSetId: ID!): RollbackChangeSetPayload!
   """
   Run comprehensive diagnostics on a router connection.
   Performs network reachability check, port scanning, TLS validation,
   and authentication testing. Rate limited to 1 request per 10 seconds per router.
   """
   runDiagnostics(routerId: ID!): DiagnosticReport!
+  """
+  Perform DNS lookup (synchronous request-response).
+  Queries the specified DNS server for the hostname and record type.
+  Uses RouterOS native DNS lookup for A/AAAA records when possible,
+  falls back to Go resolver for other record types.
+  """
+  runDnsLookup(
+    """DNS lookup parameters"""
+    input: DnsLookupInput!
+  ): DnsLookupResult!
+  """
+  Start a traceroute from the router to the target.
+  Returns a job ID for subscription tracking.
+  """
+  runTraceroute(
+    """Device/router ID to run traceroute from"""
+    deviceId: ID!
+    """Traceroute parameters"""
+    input: TracerouteInput!
+  ): TracerouteJob!
+  """Run a specific diagnostic step in a session"""
+  runTroubleshootStep(
+    """Session ID"""
+    sessionId: ID!
+    """Step to run"""
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
   """
   Start a network scan for MikroTik routers.
   Returns a task ID that can be used to track progress via subscription or polling.
@@ -1098,10 +3060,22 @@ type Mutation {
     routerId: ID!
   ): SetPreferredProtocolPayload!
   """
+  Start a new troubleshooting session for a router.
+  Automatically detects network configuration and begins diagnostics.
+  """
+  startTroubleshoot(routerId: ID!): StartTroubleshootPayload!
+  """
   Test all router credentials in parallel.
   Returns aggregate results with per-router status.
   """
   testAllCredentials: TestAllCredentialsPayload! @auth
+  """Test a notification channel"""
+  testNotificationChannel(
+    """Channel type (email, telegram, pushover, webhook)"""
+    channel: String!
+    """Channel configuration"""
+    config: JSON!
+  ): TestNotificationPayload!
   """Test connection to a router"""
   testRouterConnection(id: ID!): TestConnectionPayload!
   """
@@ -1109,6 +3083,43 @@ type Mutation {
   Useful for validating credentials before committing.
   """
   testRouterCredentials(input: AddRouterInput!): ConnectionTestResult!
+  """Undo a bridge operation (within 10-second window)"""
+  undoBridgeOperation(operationId: ID!): BridgeMutationResult!
+  """Update an existing alert rule"""
+  updateAlertRule(
+    """Alert rule ID"""
+    id: ID!
+    """Update input"""
+    input: UpdateAlertRuleInput!
+  ): AlertRulePayload!
+  """Update an existing bridge"""
+  updateBridge(input: UpdateBridgeInput!, uuid: ID!): BridgeMutationResult!
+  """Update bridge port settings"""
+  updateBridgePort(input: UpdateBridgePortInput!, portId: ID!): BridgePortMutationResult!
+  """Update an item in a change set"""
+  updateChangeSetItem(changeSetId: ID!, input: UpdateChangeSetItemInput!, itemId: ID!): UpdateChangeSetItemPayload!
+  """Update interface settings (MTU, comment, ARP mode)"""
+  updateInterface(input: UpdateInterfaceInput!, interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
+  """Update an existing IP address"""
+  updateIpAddress(
+    """IP address ID"""
+    id: ID!
+    """Updated IP address data"""
+    input: IpAddressInput!
+    """Router ID"""
+    routerId: ID!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+  """Update resource configuration (transitions to DRAFT → VALIDATING)"""
+  updateResource(id: ID!, input: UpdateResourceInput!, routerId: ID!): UpdateResourcePayload!
+  """Update an existing route"""
+  updateRoute(
+    """Route ID"""
+    id: ID!
+    """Updated route data"""
+    input: RouteInput!
+    """Router ID"""
+    routerId: ID!
+  ): RouteMutationResult! @capability(requires: ["routing"])
   """Update router settings"""
   updateRouter(id: ID!, input: UpdateRouterInput!): UpdateRouterPayload!
   """
@@ -1117,6 +3128,26 @@ type Mutation {
   Old credentials are preserved if the test fails.
   """
   updateRouterCredentials(input: CredentialsInput!, routerId: ID!): CredentialUpdatePayload! @auth
+  """Update an existing VLAN interface"""
+  updateVlan(
+    """VLAN ID"""
+    id: ID!
+    """Updated VLAN data"""
+    input: VlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+  """Validate a change set (all items)"""
+  validateChangeSet(changeSetId: ID!): ValidateChangeSetPayload!
+  """
+  Validate resource configuration (transitions DRAFT → VALIDATING → VALID/ERROR)
+  """
+  validateResource(id: ID!, routerId: ID!): ValidateResourcePayload!
+  """Verify a fix by re-running the diagnostic step"""
+  verifyTroubleshootFix(
+    """Session ID"""
+    sessionId: ID!
+    """Step to verify"""
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
 }
 
 """Standard error type for mutations"""
@@ -1129,10 +3160,45 @@ type MutationError {
   message: String!
 }
 
+"""NAT rule reference type"""
+type NatRule {
+  """Action (masquerade, dst-nat, src-nat)"""
+  action: String!
+  """Rule chain (srcnat, dstnat)"""
+  chain: String!
+  """Whether the rule is disabled"""
+  disabled: Boolean!
+  """Destination address"""
+  dstAddress: String
+  """NAT rule ID"""
+  id: ID!
+  """Source address"""
+  srcAddress: String
+  """To address (for dst-nat)"""
+  toAddress: String
+}
+
+"""Network configuration detection result"""
+type NetworkConfigDetection {
+  """Detected default gateway IP"""
+  gateway: String
+  """Detected ISP information"""
+  ispInfo: ISPInfo
+  """Detected WAN interface name"""
+  wanInterface: String!
+}
+
 """Relay Node interface for global object identification"""
 interface Node {
   """Globally unique identifier"""
   id: ID!
+}
+
+"""Operation counts by type"""
+type OperationCounts {
+  create: Int!
+  delete: Int!
+  update: Int!
 }
 
 """Information about pagination in a connection"""
@@ -1159,8 +3225,71 @@ input PaginationInput {
   last: Int
 }
 
+"""Platform capabilities for a resource type"""
+type PlatformCapabilities {
+  """Capability-specific details"""
+  details: JSON
+  """Whether this resource type is supported"""
+  isSupported: Boolean!
+  """Capability level"""
+  level: CapabilityLevel!
+  """Minimum platform version required"""
+  minVersion: String
+  """Required packages"""
+  requiredPackages: [String!]
+}
+
+"""A platform-specific feature"""
+type PlatformFeature {
+  """Feature description"""
+  description: String
+  """Whether feature is enabled"""
+  enabled: Boolean!
+  """Feature identifier"""
+  id: String!
+  """Feature name"""
+  name: String!
+}
+
+"""
+Layer 8: Platform-specific capabilities and field mappings.
+From platform adapter (MikroTik, OpenWrt, VyOS).
+"""
+type PlatformInfo {
+  """Platform-specific capabilities for this resource type"""
+  capabilities: PlatformCapabilities!
+  """Current platform"""
+  current: RouterPlatform!
+  """Platform-specific features available"""
+  features: [PlatformFeature!]
+  """Field mappings between GraphQL and platform-native names"""
+  fieldMappings: JSON
+  """Platform-specific limitations or constraints"""
+  limitations: [PlatformLimitation!]
+}
+
+"""A platform-specific limitation"""
+type PlatformLimitation {
+  """Affected fields"""
+  affectedFields: [String!]
+  """Limitation identifier"""
+  code: String!
+  """Human-readable description"""
+  description: String!
+  """Workaround if available"""
+  workaround: String
+}
+
 """TCP/UDP port number (1-65535)"""
 scalar Port
+
+"""Port mode for VLAN configuration"""
+enum PortMode {
+  """Access port (single VLAN, untagged)"""
+  ACCESS
+  """Trunk port (carries multiple VLANs with tagging)"""
+  TRUNK
+}
 
 """Port range string (e.g., "80", "80-443", "80,443,8080")"""
 scalar PortRange
@@ -1177,6 +3306,58 @@ type PortStatus {
   responseTimeMs: Int
   """Service name (API, API-SSL, SSH, Telnet, HTTP, HTTPS)"""
   service: String!
+}
+
+"""PPPoE client configuration for dial-up WAN"""
+type PppoeClient implements Node {
+  """Add default route"""
+  addDefaultRoute: Boolean! @mikrotik(path: "/interface/pppoe-client", field: "add-default-route")
+  """User comment"""
+  comment: String @mikrotik(path: "/interface/pppoe-client", field: "comment")
+  """Whether PPPoE is disabled"""
+  disabled: Boolean! @mikrotik(path: "/interface/pppoe-client", field: "disabled")
+  """Unique identifier"""
+  id: ID!
+  """Underlying interface (ethernet/bridge)"""
+  interface: String! @mikrotik(path: "/interface/pppoe-client", field: "interface")
+  """MRU setting"""
+  mru: Int @mikrotik(path: "/interface/pppoe-client", field: "mru")
+  """MTU setting"""
+  mtu: Int @mikrotik(path: "/interface/pppoe-client", field: "mtu")
+  """PPPoE interface name"""
+  name: String! @mikrotik(path: "/interface/pppoe-client", field: "name")
+  """Current connection status"""
+  running: Boolean! @mikrotik(path: "/interface/pppoe-client", field: "running")
+  """Service name (optional)"""
+  serviceName: String @mikrotik(path: "/interface/pppoe-client", field: "service-name")
+  """Use peer DNS"""
+  usePeerDNS: Boolean! @mikrotik(path: "/interface/pppoe-client", field: "use-peer-dns")
+  """Username for authentication"""
+  username: String! @mikrotik(path: "/interface/pppoe-client", field: "user")
+}
+
+"""Input for creating/updating PPPoE client"""
+input PppoeClientInput {
+  """Add default route (default: true)"""
+  addDefaultRoute: Boolean
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Physical interface (ether1, bridge, etc.)"""
+  interface: String! @validate(minLength: 1, maxLength: 100)
+  """MRU (default: auto)"""
+  mru: Int @validate(min: 576, max: 1500)
+  """MTU (default: auto)"""
+  mtu: Int @validate(min: 576, max: 1500)
+  """PPPoE interface name"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """Password for ISP authentication"""
+  password: String! @validate(minLength: 1, maxLength: 128)
+  """Service name (optional, ISP-specific)"""
+  serviceName: String @validate(maxLength: 100)
+  """Use peer DNS (default: true)"""
+  usePeerDNS: Boolean
+  """Username for ISP authentication"""
+  username: String! @validate(minLength: 1, maxLength: 128)
 }
 
 """Protocol used for router communication"""
@@ -1215,6 +3396,84 @@ enum ProtocolPreference {
 }
 
 type Query {
+  """Get a single alert rule by ID"""
+  alertRule(
+    """Alert rule ID"""
+    id: ID!
+  ): AlertRule
+  """Get all alert rules, optionally filtered by device"""
+  alertRules(
+    """Filter by device ID"""
+    deviceId: ID
+  ): [AlertRule!]!
+  """Get alerts with filtering and pagination"""
+  alerts(
+    """Filter by acknowledged status"""
+    acknowledged: Boolean
+    """Filter by device ID"""
+    deviceId: ID
+    """Pagination limit"""
+    limit: Int = 50
+    """Pagination offset"""
+    offset: Int = 0
+    """Filter by severity"""
+    severity: AlertSeverity
+  ): AlertConnection!
+  """
+  Get interfaces available to add to a bridge (not already in any bridge)
+  """
+  availableInterfacesForBridge(routerId: ID!): [Interface!]!
+  """Get a single bridge by UUID"""
+  bridge(uuid: ID!): Bridge
+  """Get bridge ports"""
+  bridgePorts(bridgeId: ID!): [BridgePort!]!
+  """Get bridge VLANs"""
+  bridgeVlans(bridgeId: ID!): [BridgeVlan!]!
+  """List all bridges on a router"""
+  bridges(routerId: ID!): [Bridge!]!
+  """Get a change set by ID"""
+  changeSet(
+    """Change set ID"""
+    id: ID!
+    """Router the change set belongs to"""
+    routerId: ID!
+  ): ChangeSet
+  """List change sets for a router"""
+  changeSets(
+    """Include completed/failed (default: false)"""
+    includeCompleted: Boolean = false
+    """Router to query"""
+    routerId: ID!
+    """Filter by status"""
+    status: ChangeSetStatus
+  ): [ChangeSetSummary!]!
+  """Check if a gateway address is reachable from the router"""
+  checkGatewayReachability(
+    """Gateway IP address to check"""
+    gateway: IPv4!
+    """Router ID"""
+    routerId: ID!
+  ): GatewayReachabilityResult! @capability(requires: ["routing"])
+  """Check if an IP address conflicts with existing assignments"""
+  checkIpConflict(
+    """IP address to check (CIDR notation)"""
+    address: String!
+    """Exclude this IP ID from conflict check (for updates)"""
+    excludeId: ID
+    """Interface ID (optional, for scoped check)"""
+    interfaceId: ID
+    """Router ID"""
+    routerId: ID!
+  ): IpConflictResult! @capability(requires: ["interface"])
+  """Check if a VLAN ID is available on a parent interface"""
+  checkVlanIdAvailable(
+    """Parent interface ID"""
+    parentInterface: ID!
+    """Router ID"""
+    routerId: ID!
+    """VLAN ID to check"""
+    vlanId: Int!
+  ): Boolean! @capability(requires: ["interface"])
   """
   Get circuit breaker status for a router.
   Shows current state, failure counts, and cooldown timing.
@@ -1222,6 +3481,13 @@ type Query {
   circuitBreakerStatus(routerId: ID!): CircuitBreakerStatus!
   """Get the compatibility matrix for all known features"""
   compatibilityMatrix: [FeatureCompatibilityInfo!]!
+  """Get composite resource with all related sub-resources"""
+  compositeResource(
+    """Resource ID (ULID)"""
+    id: ID!
+    """Router the resource belongs to"""
+    routerId: ID!
+  ): CompositeResource
   """
   Get recent connection attempts for a router.
   Returns the most recent attempts, ordered newest first.
@@ -1236,6 +3502,22 @@ type Query {
   connectionDetails(routerId: ID!): ConnectionDetails
   """Get connection manager statistics"""
   connectionStats: ConnectionStats!
+  """Detect default gateway from DHCP client or static route"""
+  detectGateway(routerId: ID!): String
+  """Detect ISP information from WAN IP"""
+  detectISP(routerId: ID!): ISPInfo
+  """Detect WAN interface from default route"""
+  detectWanInterface(routerId: ID!): String!
+  """Get a device by ID for resource metrics"""
+  device(id: ID!): Device
+  """
+  Get configured DNS servers for a device.
+  Returns primary and secondary DNS servers configured on the router.
+  """
+  dnsServers(
+    """Device/router ID"""
+    deviceId: String!
+  ): DnsServers!
   """Get system health status"""
   health: HealthStatus!
   """Get a network interface by ID"""
@@ -1254,6 +3536,27 @@ type Query {
     """Filter by interface type"""
     type: InterfaceType
   ): InterfaceConnection! @capability(requires: ["interface"])
+  """Get a specific IP address by ID"""
+  ipAddress(
+    """IP address ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): IpAddress @capability(requires: ["interface"])
+  """Get dependencies for an IP address (DHCP servers, routes, etc.)"""
+  ipAddressDependencies(
+    """IP address ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): IpAddressDependencies! @capability(requires: ["interface"])
+  """Get all IP addresses on a router with optional filtering"""
+  ipAddresses(
+    """Optional: filter by interface ID"""
+    interfaceId: ID
+    """Router ID to query"""
+    routerId: ID!
+  ): [IpAddress!]! @capability(requires: ["interface"])
   """Check if a feature is supported on a specific router"""
   isFeatureSupported(
     """Feature identifier"""
@@ -1267,6 +3570,35 @@ type Query {
   mySessions: [Session!]! @auth
   """Fetch any node by its global ID"""
   node(id: ID!): Node
+  """Get a resource by ID"""
+  resource(
+    """Resource ID (ULID)"""
+    id: ID!
+    """Specific layers to fetch (default: all)"""
+    layers: [ResourceLayer!]
+    """Router the resource belongs to"""
+    routerId: ID!
+  ): Resource
+  """List resources for a router"""
+  resources(
+    """Filter by category"""
+    category: ResourceCategory
+    """Pagination parameters"""
+    pagination: PaginationInput
+    """Router to query"""
+    routerId: ID!
+    """Filter by lifecycle state"""
+    state: ResourceLifecycleState
+    """Filter by type"""
+    type: String
+  ): ResourceConnection!
+  """Get a specific route by ID"""
+  route(
+    """Route ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): Route @capability(requires: ["routing"])
   """Get a router by ID"""
   router(id: ID!): Router
   """Get router capabilities by router ID"""
@@ -1282,6 +3614,15 @@ type Query {
     """Filter by connection status"""
     status: ConnectionStatus
   ): RouterConnection!
+  """Get all routes on a router with optional filtering"""
+  routes(
+    """Router ID to query"""
+    routerId: ID!
+    """Filter by routing table name (main, vpn, etc.)"""
+    table: String
+    """Filter by route type (STATIC, CONNECTED, DYNAMIC, etc.)"""
+    type: RouteType
+  ): [Route!]! @capability(requires: ["routing"])
   """Get scan history (recent scans)"""
   scanHistory(
     """Maximum number of results to return"""
@@ -1291,6 +3632,8 @@ type Query {
   scanStatus(taskId: ID!): ScanTask
   """Get all features supported by a router"""
   supportedFeatures(routerId: ID!): [FeatureSupport!]!
+  """Get a troubleshooting session by ID"""
+  troubleshootSession(id: ID!): TroubleshootSession
   """Get features not supported by a router with upgrade guidance"""
   unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
   """Get upgrade recommendation for a specific feature on a router"""
@@ -1304,6 +3647,75 @@ type Query {
   upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!
   """Get current API version"""
   version: String!
+  """Get a specific VLAN by ID"""
+  vlan(
+    """VLAN ID"""
+    id: ID!
+  ): Vlan @capability(requires: ["interface"])
+  """Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.)"""
+  vlanDependencies(
+    """VLAN ID"""
+    id: ID!
+  ): VlanDependencies @capability(requires: ["interface"])
+  """Get VLAN topology for a bridge"""
+  vlanTopology(
+    """Bridge ID"""
+    bridgeId: ID!
+    """Router ID"""
+    routerId: ID!
+  ): VlanTopology @capability(requires: ["interface"])
+  """Get all VLANs on a router with optional filtering"""
+  vlans(
+    """Optional filters"""
+    filter: VlanFilter
+    """Router ID to query"""
+    routerId: ID!
+  ): [Vlan!]! @capability(requires: ["interface"])
+  """Get connection history for a WAN interface"""
+  wanConnectionHistory(
+    """Pagination"""
+    pagination: PaginationInput
+    """Router ID"""
+    routerId: ID!
+    """WAN interface ID"""
+    wanInterfaceId: ID!
+  ): WANConnectionEventConnection! @capability(requires: ["interface"])
+  """Get a specific WAN interface by ID"""
+  wanInterface(
+    """WAN interface ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): WANInterface @capability(requires: ["interface"])
+  """Get all WAN interfaces on a router"""
+  wanInterfaces(
+    """Router ID"""
+    routerId: ID!
+  ): [WANInterface!]! @capability(requires: ["interface"])
+}
+
+"""Quiet hours configuration"""
+type QuietHoursConfig {
+  """Whether critical alerts bypass quiet hours"""
+  bypassCritical: Boolean!
+  """End time in HH:MM format"""
+  endTime: String!
+  """Start time in HH:MM format"""
+  startTime: String!
+  """Timezone (IANA timezone database name)"""
+  timezone: String!
+}
+
+"""Quiet hours configuration input"""
+input QuietHoursConfigInput {
+  """Whether critical alerts bypass quiet hours (default: true)"""
+  bypassCritical: Boolean = true
+  """End time in HH:MM format"""
+  endTime: String!
+  """Start time in HH:MM format"""
+  startTime: String!
+  """Timezone (default: UTC)"""
+  timezone: String = "UTC"
 }
 
 type ReconnectRouterPayload {
@@ -1327,6 +3739,312 @@ type RefreshCapabilitiesPayload {
   errors: [MutationError!]
 }
 
+type RemoveChangeSetItemPayload {
+  """The updated change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+}
+
+"""
+Universal State v2 Resource Interface.
+Every managed resource implements this interface with 8 layers:
+1. configuration - User's desired config (mutable by user)
+2. validation - Pre-flight check results (computed by backend)
+3. deployment - What's on router (after Apply-Confirm)
+4. runtime - Live operational state (polled/streamed)
+5. telemetry - Time-series metrics (historical)
+6. metadata - Lifecycle info, tags, ownership
+7. relationships - Dependencies (embedded + explicit)
+8. platform - Capabilities and field mappings
+"""
+interface Resource {
+  """Resource category"""
+  category: ResourceCategory!
+  """
+  Layer 1: CONFIGURATION - User's desired config
+  Mutable by user. Validated by Zod on client, GraphQL on server.
+  Implementations can provide strongly-typed configs.
+  """
+  configuration: JSON
+  """
+  Layer 3: DEPLOYMENT - What's actually on router
+  Written after Apply-Confirm. Includes router-generated fields.
+  Implementations can provide strongly-typed deployment states.
+  """
+  deployment: DeploymentState
+  """
+  Globally unique identifier (ULID) - also serves as Node.id for Relay compatibility
+  """
+  id: ID!
+  """
+  Layer 6: METADATA - Resource lifecycle info
+  System-managed. Includes tags, version, ownership.
+  """
+  metadata: ResourceMetadata!
+  """
+  Layer 8: PLATFORM - Capabilities and field mappings
+  From platform adapter. Router-specific behavior.
+  """
+  platform: PlatformInfo
+  """
+  Layer 7: RELATIONSHIPS - Dependencies
+  Embedded in config (user-defined) + explicit table (system-discovered).
+  """
+  relationships: ResourceRelationships
+  """
+  Layer 4: RUNTIME - Live operational state
+  Polled/streamed from router. Read-only.
+  Implementations can provide strongly-typed runtime states.
+  """
+  runtime: RuntimeState
+  """Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2')"""
+  scopedId: String!
+  """
+  Layer 5: TELEMETRY - Time-series metrics
+  Historical data collected over time. Read-only.
+  """
+  telemetry: TelemetryData
+  """Resource type identifier (e.g., 'vpn.wireguard.client')"""
+  type: String!
+  """
+  Layer 2: VALIDATION - Pre-flight check results
+  Computed by backend. Updated on every configuration change.
+  """
+  validation: ValidationResult
+}
+
+"""Categories of managed resources"""
+enum ResourceCategory {
+  """Application-level: Port Forwarding, Game Rules"""
+  APPLICATION
+  """Marketplace features: Tor, AdGuard, sing-box"""
+  FEATURE
+  """System infrastructure: Certificates, NTP, DDNS"""
+  INFRASTRUCTURE
+  """Network topology: WAN Links, LAN Networks, VLANs"""
+  NETWORK
+  """Community extensions: Third-party plugins"""
+  PLUGIN
+  """VPN connectivity: WireGuard, OpenVPN, IPsec"""
+  VPN
+}
+
+"""Conflict with another resource"""
+type ResourceConflict {
+  """The conflicting resource"""
+  conflictingResource: Resource
+  """Conflicting resource UUID (if resource is not loaded)"""
+  conflictingResourceUuid: ID!
+  """Description of the conflict"""
+  description: String!
+  """Suggested resolution"""
+  resolution: String
+  """Type of conflict"""
+  type: ConflictType!
+}
+
+type ResourceConnection implements Connection {
+  edges: [ResourceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ResourceEdge implements Edge {
+  cursor: String!
+  node: Resource!
+}
+
+"""Impact level for affected resources"""
+enum ResourceImpact {
+  """Connections will be dropped"""
+  CONNECTION_DROP
+  """Resource will be disabled"""
+  DISABLED
+  """Resource will be modified"""
+  MODIFIED
+  """Resource will be removed"""
+  REMOVED
+}
+
+"""Selectable resource layers for optimized fetching"""
+enum ResourceLayer {
+  CONFIGURATION
+  DEPLOYMENT
+  METADATA
+  PLATFORM
+  RELATIONSHIPS
+  RUNTIME
+  TELEMETRY
+  VALIDATION
+}
+
+"""Resource lifecycle states for state machine"""
+enum ResourceLifecycleState {
+  """Successfully applied and running"""
+  ACTIVE
+  """Being applied to router"""
+  APPLYING
+  """Final state, no longer active"""
+  ARCHIVED
+  """Running but with issues"""
+  DEGRADED
+  """Marked for removal"""
+  DEPRECATED
+  """Initial creation, not yet validated"""
+  DRAFT
+  """Failed state (validation or apply)"""
+  ERROR
+  """Passed validation, ready to apply"""
+  VALID
+  """Backend validation in progress"""
+  VALIDATING
+}
+
+"""
+Layer 6: Resource lifecycle info, tags, ownership.
+System-managed with some user-editable fields.
+"""
+type ResourceMetadata {
+  """Resource creation timestamp"""
+  createdAt: DateTime!
+  """User who created the resource"""
+  createdBy: String!
+  """Resource description"""
+  description: String
+  """Whether resource is marked as favorite"""
+  isFavorite: Boolean!
+  """Whether resource is pinned"""
+  isPinned: Boolean!
+  """Custom user notes"""
+  notes: String
+  """Audit trail of recent changes"""
+  recentChanges: [ChangeLogEntry!]
+  """Current lifecycle state"""
+  state: ResourceLifecycleState!
+  """User-defined tags for organization"""
+  tags: [String!]!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """User who last updated the resource"""
+  updatedBy: String
+  """Optimistic locking version"""
+  version: Int!
+}
+
+"""Real-time resource utilization metrics for a device"""
+type ResourceMetrics {
+  """CPU utilization metrics"""
+  cpu: CPUMetrics!
+  """Memory utilization metrics"""
+  memory: MemoryMetrics!
+  """Storage utilization metrics"""
+  storage: StorageMetrics!
+  """Temperature in Celsius (null if not supported)"""
+  temperature: Float
+  """Timestamp when metrics were collected"""
+  timestamp: DateTime!
+}
+
+"""Reference to another resource"""
+type ResourceReference {
+  """Resource category"""
+  category: ResourceCategory!
+  """Resource scoped ID"""
+  id: String!
+  """Current lifecycle state"""
+  state: ResourceLifecycleState!
+  """Resource type"""
+  type: String!
+  """Resource UUID"""
+  uuid: ID!
+}
+
+"""Edge in the resource relationship graph"""
+type ResourceRelationshipEdge {
+  """Source resource ID"""
+  from: ID!
+  """Target resource ID"""
+  to: ID!
+  """Relationship type"""
+  type: ResourceRelationshipType!
+}
+
+"""Types of relationships between resources"""
+enum ResourceRelationshipType {
+  """Custom relationship"""
+  CUSTOM
+  """Child depends on parent"""
+  DEPENDS_ON
+  """Resources are in the same group"""
+  GROUP
+  """Parent-child hierarchy"""
+  PARENT_CHILD
+  """Traffic routes via this resource"""
+  ROUTES_VIA
+}
+
+"""
+Layer 7: Dependencies and relationships between resources.
+Combines user-defined relationships and system-discovered dependencies.
+"""
+type ResourceRelationships {
+  """Child resources (for hierarchical resources)"""
+  children: [ResourceReference!]!
+  """Custom relationships"""
+  custom: JSON
+  """Resources that depend on this resource"""
+  dependents: [ResourceReference!]!
+  """Resources this resource depends on"""
+  dependsOn: [ResourceReference!]!
+  """Parent resource (for hierarchical resources)"""
+  parent: ResourceReference
+  """Resources that route traffic via this resource"""
+  routedBy: [ResourceReference!]!
+  """Resource this routes traffic via"""
+  routesVia: ResourceReference
+}
+
+"""Input for resource relationships"""
+input ResourceRelationshipsInput {
+  """Custom relationship data"""
+  custom: JSON
+  """Resources this resource depends on (IDs)"""
+  dependsOn: [ID!]
+  """Parent resource ID (for hierarchical resources)"""
+  parent: ID
+  """Resources that route traffic via this resource (ID)"""
+  routesVia: ID
+}
+
+"""Runtime update event for a resource"""
+type ResourceRuntimeEvent {
+  """Resource ID (ULID)"""
+  id: ID!
+  """Updated runtime state"""
+  runtime: RuntimeState!
+  """Timestamp of update"""
+  timestamp: DateTime!
+  """Resource type"""
+  type: String!
+}
+
+"""Lifecycle state change event"""
+type ResourceStateEvent {
+  """Error message if state is ERROR"""
+  errorMessage: String
+  """Resource ID (ULID)"""
+  id: ID!
+  """New state"""
+  newState: ResourceLifecycleState!
+  """Previous state"""
+  previousState: ResourceLifecycleState!
+  """Timestamp of change"""
+  timestamp: DateTime!
+  """Resource type"""
+  type: String!
+}
+
 """Event emitted when a router resource is updated"""
 type ResourceUpdatedEvent {
   """Type of change (create, update, delete)"""
@@ -1343,6 +4061,177 @@ type ResourceUpdatedEvent {
   timestamp: DateTime!
   """New version number after update"""
   version: Int!
+}
+
+type RollbackChangeSetPayload {
+  """The rolled back change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Items that failed to rollback"""
+  failedItems: [ID!]
+  """Whether rollback was successful"""
+  success: Boolean!
+}
+
+"""Rollback operation type"""
+enum RollbackOperation {
+  """Delete a created resource"""
+  DELETE
+  """Restore a deleted resource"""
+  RESTORE
+  """Revert an updated resource"""
+  REVERT
+}
+
+"""Rollback step for recovery"""
+type RollbackStep {
+  """Error message if failed"""
+  error: String
+  """Item ID being rolled back"""
+  itemId: ID!
+  """Rollback operation"""
+  operation: RollbackOperation!
+  """Resource UUID on router"""
+  resourceUuid: ID
+  """State to restore"""
+  restoreState: JSON
+  """Order in rollback sequence"""
+  rollbackOrder: Int!
+  """Whether rollback succeeded"""
+  success: Boolean!
+}
+
+"""Route type for static and dynamic routing"""
+type Route implements Node {
+  """Whether the route is active"""
+  active: Boolean!
+  """User comment"""
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/route", field: "comment")
+  """Destination network in CIDR notation"""
+  destination: CIDR! @mikrotik(path: "/ip/route", field: "dst-address")
+  """Whether the route is disabled"""
+  disabled: Boolean @mikrotik(path: "/ip/route", field: "disabled")
+  """Route distance/metric (1-255)"""
+  distance: Int! @validate(min: 1, max: 255) @mikrotik(path: "/ip/route", field: "distance")
+  """Gateway address"""
+  gateway: IPv4 @mikrotik(path: "/ip/route", field: "gateway")
+  """Route ID"""
+  id: ID!
+  """Interface used for this route"""
+  interface: String @mikrotik(path: "/ip/route", field: "interface")
+  """Routing mark for policy routing"""
+  routingMark: String @mikrotik(path: "/ip/route", field: "routing-mark")
+  """Routing table name (main, vpn, etc.)"""
+  routingTable: String @mikrotik(path: "/ip/route", field: "routing-table")
+  """Route scope"""
+  scope: RouteScope!
+  """Route type (static, connected, dynamic, BGP, OSPF)"""
+  type: RouteType!
+}
+
+"""Result of a route deletion with impact analysis"""
+type RouteDeleteResult {
+  """Impact analysis for this route deletion"""
+  impactAnalysis: RouteImpactAnalysis!
+  """Success or error message"""
+  message: String
+  """Whether the deletion succeeded"""
+  success: Boolean!
+}
+
+"""Analysis of the impact of deleting a route"""
+type RouteImpactAnalysis {
+  """Description of affected traffic"""
+  affectedTraffic: String!
+  """List of consequences of deleting this route"""
+  consequences: [String!]!
+  """Whether this is the default route (0.0.0.0/0)"""
+  isDefaultRoute: Boolean!
+  """Human-readable message about the impact"""
+  message: String!
+  """
+  Severity of the deletion (CRITICAL for default route, STANDARD for others)
+  """
+  severity: ConfirmationSeverity!
+}
+
+"""Input for creating or updating a route"""
+input RouteInput {
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Destination network in CIDR notation"""
+  destination: CIDR!
+  """Route distance/metric (1-255, default: 1)"""
+  distance: Int @validate(min: 1, max: 255)
+  """Gateway address (optional if interface is provided)"""
+  gateway: IPv4
+  """Interface used for this route (optional if gateway is provided)"""
+  interface: String
+  """Routing mark for policy routing"""
+  routingMark: String
+  """Routing table name (default: main)"""
+  routingTable: String
+}
+
+"""Result of a route mutation (create, update)"""
+type RouteMutationResult {
+  """Success or error message"""
+  message: String
+  """The created or updated route (if successful)"""
+  route: Route
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
+"""Route resource"""
+type RouteResource implements Node & Resource {
+  """Whether route is active"""
+  active: Boolean!
+  category: ResourceCategory!
+  configuration: JSON!
+  deployment: DeploymentState
+  """Route distance/metric"""
+  distance: Int
+  """Destination network"""
+  dstAddress: CIDR!
+  """Gateway address"""
+  gateway: IPv4
+  id: ID!
+  """Outgoing interface"""
+  interface: String
+  metadata: ResourceMetadata!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+}
+
+"""Route scope"""
+enum RouteScope {
+  """Global route (forwarded between interfaces)"""
+  GLOBAL
+  """Host-local route"""
+  HOST
+  """Link-local route (not forwarded)"""
+  LINK
+}
+
+"""Route type classification"""
+enum RouteType {
+  """BGP route"""
+  BGP
+  """Connected route (directly connected network)"""
+  CONNECTED
+  """Dynamic route (learned via routing protocol)"""
+  DYNAMIC
+  """OSPF route"""
+  OSPF
+  """Static route (manually configured)"""
+  STATIC
 }
 
 """A managed router device"""
@@ -1500,6 +4389,73 @@ type RouterStatusEvent {
   timestamp: DateTime!
 }
 
+"""Result of running a diagnostic step"""
+type RunTroubleshootStepPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Updated step with result"""
+  step: TroubleshootStep!
+}
+
+"""Runtime health status"""
+enum RuntimeHealth {
+  """Resource is running but degraded"""
+  DEGRADED
+  """Resource has failed"""
+  FAILED
+  """Resource is healthy and operating normally"""
+  HEALTHY
+  """Health status unknown"""
+  UNKNOWN
+  """Resource is running but with warnings"""
+  WARNING
+}
+
+"""Resource-specific runtime metrics"""
+type RuntimeMetrics {
+  """Bytes received"""
+  bytesIn: Size
+  """Bytes transmitted"""
+  bytesOut: Size
+  """Resource-specific custom metrics"""
+  custom: JSON
+  """Drops count"""
+  drops: Int
+  """Error count"""
+  errors: Int
+  """Packets received"""
+  packetsIn: Int
+  """Packets transmitted"""
+  packetsOut: Int
+  """Current throughput in (bytes/sec)"""
+  throughputIn: Size
+  """Current throughput out (bytes/sec)"""
+  throughputOut: Size
+}
+
+"""
+Layer 4: Live operational state polled/streamed from router.
+Updated via polling (5-60s interval) or WebSocket push.
+"""
+type RuntimeState {
+  """Current peers/connections (for VPN, etc.)"""
+  activeConnections: Int
+  """Error message if resource is unhealthy"""
+  errorMessage: String
+  """Health status of the resource"""
+  health: RuntimeHealth!
+  """Whether the resource is currently running/active"""
+  isRunning: Boolean!
+  """Time since last successful operation"""
+  lastSuccessfulOperation: DateTime
+  """Last time runtime was updated"""
+  lastUpdated: DateTime!
+  """Resource-specific runtime metrics"""
+  metrics: RuntimeMetrics
+  """Resource uptime"""
+  uptime: Duration
+}
+
 """Input for starting a network scan"""
 input ScanNetworkInput {
   """
@@ -1628,7 +4584,101 @@ type SoftwareInfo {
   versionPatch: Int
 }
 
+"""Result of starting a troubleshooting session"""
+type StartTroubleshootPayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The created session"""
+  session: TroubleshootSession
+}
+
+"""Static IP WAN configuration"""
+type StaticIPConfig implements Node {
+  """Static IP address with CIDR"""
+  address: CIDR! @mikrotik(path: "/ip/address", field: "address")
+  """User comment"""
+  comment: String
+  """Gateway IP address"""
+  gateway: IPv4! @mikrotik(path: "/ip/route", field: "gateway")
+  """Unique identifier"""
+  id: ID!
+  """Interface name"""
+  interface: String!
+  """Primary DNS server"""
+  primaryDNS: IPv4
+  """Secondary DNS server"""
+  secondaryDNS: IPv4
+}
+
+"""Input for configuring static IP WAN"""
+input StaticIPInput {
+  """Static IP address with CIDR (e.g., 203.0.113.5/30)"""
+  address: CIDR!
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Gateway IP address"""
+  gateway: IPv4!
+  """Interface to configure"""
+  interface: String! @validate(minLength: 1, maxLength: 100)
+  """Primary DNS server"""
+  primaryDNS: IPv4
+  """Secondary DNS server"""
+  secondaryDNS: IPv4
+}
+
+"""Storage utilization metrics"""
+type StorageMetrics {
+  """Storage usage percentage (0-100)"""
+  percentage: Float!
+  """Total storage in bytes"""
+  total: Float!
+  """Used storage in bytes"""
+  used: Float!
+}
+
+enum StpPortRole {
+  ALTERNATE
+  BACKUP
+  DESIGNATED
+  DISABLED
+  ROOT
+}
+
+enum StpPortState {
+  BLOCKING
+  DISABLED
+  FORWARDING
+  LEARNING
+  LISTENING
+}
+
+enum StpProtocol {
+  MSTP
+  NONE
+  RSTP
+  STP
+}
+
 type Subscription {
+  """Subscribe to alert events for real-time updates"""
+  alertEvents(
+    """Filter by device ID"""
+    deviceId: ID
+  ): AlertEvent!
+  """Subscribe to bridge port changes"""
+  bridgePortsChanged(bridgeId: ID!): [BridgePort!]!
+  """Subscribe to STP status changes for a bridge"""
+  bridgeStpStatusChanged(bridgeId: ID!): BridgeStpStatus!
+  """Subscribe to change set application progress"""
+  changeSetProgress(
+    """Change set ID"""
+    changeSetId: ID!
+  ): ChangeSetProgressEvent!
+  """Subscribe to change set status changes"""
+  changeSetStatusChanged(
+    """Router to subscribe to"""
+    routerId: ID!
+  ): ChangeSetStatusEvent!
   """Subscribe to circuit breaker state changes"""
   circuitBreakerChanged(
     """Router ID to monitor"""
@@ -1649,8 +4699,41 @@ type Subscription {
     """Router ID to monitor (optional, all routers if not specified)"""
     routerId: ID
   ): HealthCheckResult!
+  """Subscribe to interface status changes for real-time updates"""
+  interfaceStatusChanged(
+    """
+    Optional interface ID to filter events (if not provided, all interfaces)
+    """
+    interfaceId: ID
+    """Router ID to monitor"""
+    routerId: ID!
+  ): InterfaceStatusEvent!
   """Subscribe to interface traffic updates"""
   interfaceTraffic(interfaceId: ID, routerId: ID!): InterfaceTrafficEvent! @realtime(interval: 1000)
+  """Subscribe to IP address changes (create, update, delete)"""
+  ipAddressChanged(
+    """Router ID to monitor"""
+    routerId: ID!
+  ): IpAddressChangeEvent! @capability(requires: ["interface"])
+  """Subscribe to real-time resource metrics updates"""
+  resourceMetrics(
+    """Device ID to monitor"""
+    deviceId: ID!
+  ): ResourceMetrics! @realtime(interval: 2000)
+  """Subscribe to resource runtime updates"""
+  resourceRuntime(
+    """Resource ID (ULID)"""
+    id: ID!
+    """Router the resource belongs to"""
+    routerId: ID!
+  ): ResourceRuntimeEvent! @realtime(interval: 5000)
+  """Subscribe to resource lifecycle state changes"""
+  resourceStateChanged(
+    """Resource ID (optional - subscribe to all if not provided)"""
+    id: ID
+    """Router to subscribe to"""
+    routerId: ID!
+  ): ResourceStateEvent!
   """Subscribe to resource updates (create, update, delete)"""
   resourceUpdated(resourceId: ID): ResourceUpdatedEvent!
   """
@@ -1665,6 +4748,38 @@ type Subscription {
   Emits events every 5% progress or every 2 seconds, whichever is sooner.
   """
   scanProgress(taskId: ID!): ScanProgressEvent!
+  """
+  Subscribe to traceroute progress updates.
+  Emits an event for each hop discovered and when traceroute completes.
+  """
+  tracerouteProgress(
+    """Job ID to monitor"""
+    jobId: ID!
+  ): TracerouteProgressEvent!
+  """
+  Subscribe to troubleshooting session progress.
+  Emits events as steps are executed, fixes are applied, and results are updated.
+  """
+  troubleshootProgress(sessionId: ID!): TroubleshootSession!
+  """Subscribe to VLAN interface changes (create, update, delete)"""
+  vlanChanged(
+    """Router ID to monitor"""
+    routerId: ID!
+  ): Vlan! @capability(requires: ["interface"])
+  """Subscribe to WAN health check updates"""
+  wanHealthChanged(
+    """Router ID"""
+    routerId: ID!
+    """WAN interface ID"""
+    wanInterfaceId: ID!
+  ): WANHealthStatus! @capability(requires: ["interface"])
+  """Subscribe to WAN status changes"""
+  wanStatusChanged(
+    """Router ID"""
+    routerId: ID!
+    """Optional WAN interface ID filter"""
+    wanInterfaceId: ID
+  ): WANInterface! @capability(requires: ["interface"])
 }
 
 """Severity level for diagnostic suggestions"""
@@ -1693,6 +4808,27 @@ type TLSStatus {
   valid: Boolean!
 }
 
+"""
+Layer 5: Time-series metrics and historical data.
+Collected over time for analytics and trending.
+"""
+type TelemetryData {
+  """Bandwidth history (last 24h)"""
+  bandwidthHistory: [BandwidthDataPoint!]
+  """Daily statistics"""
+  dailyStats: [DailyStats!]
+  """First data point timestamp"""
+  dataStartedAt: DateTime
+  """Hourly statistics"""
+  hourlyStats: [HourlyStats!]
+  """Last data point timestamp"""
+  lastUpdatedAt: DateTime
+  """Data retention period"""
+  retentionDays: Int!
+  """Uptime history (availability)"""
+  uptimeHistory: [UptimeDataPoint!]
+}
+
 """Result of testing all router credentials."""
 type TestAllCredentialsPayload {
   """Number of failed credential tests"""
@@ -1716,12 +4852,448 @@ type TestConnectionPayload {
   version: String
 }
 
+"""Test notification payload"""
+type TestNotificationPayload {
+  """Errors encountered during test"""
+  errors: [MutationError!]
+  """Test result message"""
+  message: String
+  """Whether test was successful"""
+  success: Boolean!
+}
+
+"""Throttle configuration to prevent alert spam"""
+type ThrottleConfig {
+  """Optional field to group alerts by"""
+  groupByField: String
+  """Maximum number of alerts allowed"""
+  maxAlerts: Int!
+  """Time period in seconds"""
+  periodSeconds: Int!
+}
+
+"""Throttle configuration input"""
+input ThrottleConfigInput {
+  """Optional field to group alerts by"""
+  groupByField: String
+  """Maximum number of alerts allowed"""
+  maxAlerts: Int!
+  """Time period in seconds"""
+  periodSeconds: Int!
+}
+
+"""Edge connecting nodes in a topology"""
+type TopologyEdge {
+  """Additional edge data"""
+  data: JSON
+  """Edge ID"""
+  id: ID!
+  """Edge label (optional)"""
+  label: String
+  """Source node ID"""
+  source: ID!
+  """Edge styling"""
+  style: TopologyEdgeStyle
+  """Target node ID"""
+  target: ID!
+}
+
+"""Styling for topology edges"""
+type TopologyEdgeStyle {
+  """Stroke color (CSS color)"""
+  stroke: String
+  """Stroke dash array (for dashed lines)"""
+  strokeDasharray: String
+  """Stroke width in pixels"""
+  strokeWidth: Float
+}
+
+"""Node in a VLAN network topology diagram"""
+type TopologyNode {
+  """Additional node data"""
+  data: JSON
+  """Node ID"""
+  id: ID!
+  """Display label"""
+  label: String!
+  """Node position in the diagram"""
+  position: TopologyPosition!
+  """Node styling"""
+  style: TopologyNodeStyle
+  """Sub-label (optional)"""
+  sublabel: String
+  """Node type (bridge, vlan, port)"""
+  type: TopologyNodeType!
+}
+
+"""Styling for topology nodes"""
+type TopologyNodeStyle {
+  """Fill color (CSS color)"""
+  fill: String
+  """Stroke color (CSS color)"""
+  stroke: String
+  """Stroke width in pixels"""
+  strokeWidth: Float
+}
+
+"""Type of topology node"""
+enum TopologyNodeType {
+  """Bridge interface"""
+  BRIDGE
+  """Physical port"""
+  PORT
+  """VLAN interface"""
+  VLAN
+}
+
+"""Position of a node in the topology"""
+type TopologyPosition {
+  """X coordinate"""
+  x: Float!
+  """Y coordinate"""
+  y: Float!
+}
+
+"""Event type for traceroute progress updates"""
+enum TracerouteEventType {
+  """Traceroute was cancelled"""
+  CANCELLED
+  """Traceroute completed"""
+  COMPLETE
+  """Traceroute encountered an error"""
+  ERROR
+  """A new hop was discovered"""
+  HOP_DISCOVERED
+}
+
+"""A single hop in the traceroute path"""
+type TracerouteHop {
+  """IP address of the hop (null for timeout)"""
+  address: String
+  """Average latency across successful probes"""
+  avgLatencyMs: Float
+  """Hop number (1-based)"""
+  hopNumber: Int!
+  """Reverse DNS hostname (if available)"""
+  hostname: String
+  """Packet loss percentage for this hop (0-100)"""
+  packetLoss: Float!
+  """Individual probe results for this hop"""
+  probes: [HopProbe!]!
+  """Status of this hop"""
+  status: HopStatus!
+}
+
+"""Input parameters for starting a traceroute"""
+input TracerouteInput {
+  """Maximum number of hops (default: 30, max: 64)"""
+  maxHops: Int = 30
+  """Number of probes per hop (default: 3)"""
+  probeCount: Int = 3
+  """Protocol to use for probes (default: ICMP)"""
+  protocol: TracerouteProtocol = ICMP
+  """Target hostname or IP address"""
+  target: String!
+  """Timeout per hop in milliseconds (default: 3000)"""
+  timeout: Int = 3000
+}
+
+"""Traceroute job reference for subscription tracking"""
+type TracerouteJob {
+  """Unique job identifier"""
+  jobId: ID!
+  """Current job status"""
+  status: JobStatus!
+}
+
+"""Progress event emitted during traceroute execution"""
+type TracerouteProgressEvent {
+  """Error message (for ERROR events)"""
+  error: String
+  """Type of event"""
+  eventType: TracerouteEventType!
+  """Newly discovered hop (for HOP_DISCOVERED events)"""
+  hop: TracerouteHop
+  """Job identifier"""
+  jobId: ID!
+  """Final result (for COMPLETE events)"""
+  result: TracerouteResult
+}
+
+"""Protocol to use for traceroute probes"""
+enum TracerouteProtocol {
+  """ICMP echo request (default)"""
+  ICMP
+  """TCP SYN probes"""
+  TCP
+  """UDP probes"""
+  UDP
+}
+
+"""Complete traceroute result"""
+type TracerouteResult {
+  """Whether traceroute completed"""
+  completed: Boolean!
+  """When the traceroute completed (if finished)"""
+  completedAt: DateTime
+  """Discovered hops in order"""
+  hops: [TracerouteHop!]!
+  """Maximum hops configured"""
+  maxHops: Int!
+  """Protocol used for probes"""
+  protocol: TracerouteProtocol!
+  """Whether destination was reached"""
+  reachedDestination: Boolean!
+  """When the traceroute started"""
+  startedAt: DateTime!
+  """Target hostname or IP address"""
+  target: String!
+  """Resolved target IP address"""
+  targetIp: String!
+  """Total time from start to completion (ms)"""
+  totalTimeMs: Float!
+}
+
+"""Suggested fix for a failed diagnostic step"""
+type TroubleshootFixSuggestion {
+  """RouterOS command that will be executed"""
+  command: String
+  """Confidence level for this fix"""
+  confidence: FixConfidence!
+  """Detailed explanation of what will be fixed"""
+  explanation: String!
+  """Whether this is a manual fix (requires user action)"""
+  isManualFix: Boolean!
+  """Unique issue code (e.g., WAN_DISABLED, NO_DEFAULT_ROUTE)"""
+  issueCode: String!
+  """Manual steps if this cannot be automated"""
+  manualSteps: [String!]
+  """Whether user confirmation is required before applying"""
+  requiresConfirmation: Boolean!
+  """Rollback command if fix needs to be reverted"""
+  rollbackCommand: String
+  """User-friendly fix title"""
+  title: String!
+}
+
+"""Complete troubleshooting session"""
+type TroubleshootSession {
+  """Fixes that have been applied"""
+  appliedFixes: [String!]!
+  """When the session completed"""
+  completedAt: DateTime
+  """Current step index (0-based)"""
+  currentStepIndex: Int!
+  """Detected default gateway IP"""
+  gateway: String
+  """Unique session identifier"""
+  id: ID!
+  """Detected ISP information"""
+  ispInfo: ISPInfo
+  """Router being diagnosed"""
+  routerId: ID!
+  """When the session started"""
+  startedAt: DateTime!
+  """Overall session status"""
+  status: TroubleshootSessionStatus!
+  """All diagnostic steps"""
+  steps: [TroubleshootStep!]!
+  """Detected WAN interface name"""
+  wanInterface: String
+}
+
+"""Overall status of a troubleshooting session"""
+enum TroubleshootSessionStatus {
+  """Applying a fix"""
+  APPLYING_FIX
+  """Waiting for user decision on fix"""
+  AWAITING_FIX_DECISION
+  """Session was cancelled"""
+  CANCELLED
+  """Session completed"""
+  COMPLETED
+  """Session created but not started"""
+  IDLE
+  """Detecting network configuration"""
+  INITIALIZING
+  """Running diagnostic steps"""
+  RUNNING
+  """Verifying fix worked"""
+  VERIFYING_FIX
+}
+
+"""A single step in the troubleshooting wizard"""
+type TroubleshootStep {
+  """When the step completed"""
+  completedAt: DateTime
+  """Step description"""
+  description: String!
+  """Suggested fix if step failed"""
+  fix: TroubleshootFixSuggestion
+  """Step type/ID"""
+  id: TroubleshootStepType!
+  """Step display name"""
+  name: String!
+  """Result of executing this step"""
+  result: TroubleshootStepResult
+  """When the step started"""
+  startedAt: DateTime
+  """Current status of this step"""
+  status: TroubleshootStepStatus!
+}
+
+"""Result of a single diagnostic step"""
+type TroubleshootStepResult {
+  """Technical details for debugging"""
+  details: String
+  """Execution time in milliseconds"""
+  executionTimeMs: Int!
+  """Detected error code"""
+  issueCode: String
+  """User-friendly message about the result"""
+  message: String!
+  """Whether the check passed"""
+  success: Boolean!
+  """Target that was checked (IP, interface name, etc.)"""
+  target: String
+}
+
+"""Status of a diagnostic step"""
+enum TroubleshootStepStatus {
+  """Step failed"""
+  FAILED
+  """Step completed successfully"""
+  PASSED
+  """Step not yet started"""
+  PENDING
+  """Step currently executing"""
+  RUNNING
+  """Step skipped"""
+  SKIPPED
+}
+
+"""Diagnostic step identifier for internet troubleshooting"""
+enum TroubleshootStepType {
+  """Test DNS resolution"""
+  DNS
+  """Ping default gateway"""
+  GATEWAY
+  """Ping external internet server"""
+  INTERNET
+  """Verify NAT/masquerade rules"""
+  NAT
+  """Check WAN interface status"""
+  WAN
+}
+
 """
 ULID (Universally Unique Lexicographically Sortable Identifier)
 A 26-character string that is time-sortable and globally unique.
 Example: "01ARZ3NDEKTSV4RRFFQ69G5FAV"
 """
 scalar ULID
+
+"""Input for updating an alert rule"""
+input UpdateAlertRuleInput {
+  """Notification channels"""
+  channels: [String!]
+  """Array of conditions"""
+  conditions: [AlertConditionInput!]
+  """Optional description"""
+  description: String
+  """Optional device ID filter"""
+  deviceId: ID
+  """Whether rule is enabled"""
+  enabled: Boolean
+  """Event type to match"""
+  eventType: String
+  """Human-readable alert rule name"""
+  name: String
+  """Quiet hours configuration"""
+  quietHours: QuietHoursConfigInput
+  """Alert severity level"""
+  severity: AlertSeverity
+  """Throttle configuration"""
+  throttle: ThrottleConfigInput
+}
+
+input UpdateBridgeInput {
+  comment: String
+  disabled: Boolean
+  mtu: Int @validate(min: 68, max: 65535)
+  priority: Int @validate(min: 0, max: 61440)
+  protocol: StpProtocol
+  pvid: Int @validate(min: 1, max: 4094)
+  vlanFiltering: Boolean
+}
+
+input UpdateBridgePortInput {
+  edge: Boolean
+  frameTypes: FrameTypes
+  ingressFiltering: Boolean
+  pathCost: Int @validate(min: 1, max: 65535)
+  pvid: Int @validate(min: 1, max: 4094)
+  taggedVlans: [Int!]
+  untaggedVlans: [Int!]
+}
+
+"""Input for updating an item in a change set"""
+input UpdateChangeSetItemInput {
+  """Updated configuration"""
+  configuration: JSON
+  """Updated dependencies"""
+  dependencies: [ID!]
+  """Updated description"""
+  description: String
+  """Updated name"""
+  name: String
+}
+
+type UpdateChangeSetItemPayload {
+  """The updated change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+}
+
+"""Input for updating interface settings"""
+input UpdateInterfaceInput {
+  """Interface comment"""
+  comment: String @validate(maxLength: 255)
+  """Enable or disable the interface"""
+  enabled: Boolean
+  """MTU size (68-9000 bytes)"""
+  mtu: Int @validate(min: 68, max: 9000)
+}
+
+"""
+Payload returned by updateInterface, enableInterface, and disableInterface mutations
+"""
+type UpdateInterfacePayload {
+  """Errors that occurred during the operation"""
+  errors: [MutationError!]
+  """Updated interface"""
+  interface: Interface
+}
+
+"""Input for updating resource configuration"""
+input UpdateResourceInput {
+  """Updated configuration (partial or full)"""
+  configuration: JSON
+  """Updated description"""
+  description: String
+  """Updated relationships"""
+  relationships: ResourceRelationshipsInput
+  """Updated tags"""
+  tags: [String!]
+}
+
+type UpdateResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The updated resource"""
+  resource: Resource
+}
 
 """Input for updating router settings"""
 input UpdateRouterInput {
@@ -1806,6 +5378,16 @@ type UpgradeStep {
   title: String!
 }
 
+"""An uptime data point"""
+type UptimeDataPoint {
+  """Whether resource was up during this period"""
+  isUp: Boolean!
+  """Period duration in seconds"""
+  periodSeconds: Int!
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
 """User account in NasNetConnect"""
 type User implements Node {
   """Account creation timestamp"""
@@ -1868,6 +5450,15 @@ type VIFRequirements {
   sufficientStorage: Boolean!
 }
 
+type ValidateChangeSetPayload {
+  """The validated change set"""
+  changeSet: ChangeSet
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Validation result"""
+  validation: ChangeSetValidationResult
+}
+
 """Predefined validation formats for common data types"""
 enum ValidateFormat {
   CIDR
@@ -1879,6 +5470,15 @@ enum ValidateFormat {
   MAC
   URL
   UUID
+}
+
+type ValidateResourcePayload {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """The validated resource"""
+  resource: Resource
+  """Validation result"""
+  validation: ValidationResult
 }
 
 """Field-level validation error with suggestions for fixing."""
@@ -1893,4 +5493,449 @@ type ValidationError {
   providedValue: String
   """Suggestion for fixing the validation error"""
   suggestion: String
+}
+
+"""A validation issue (error or warning)"""
+type ValidationIssue {
+  """Error code for programmatic handling"""
+  code: String!
+  """Link to documentation"""
+  docsUrl: String
+  """Field path that caused the issue (e.g., 'configuration.listenPort')"""
+  field: String
+  """Human-readable message"""
+  message: String!
+  """Severity level"""
+  severity: ValidationSeverity!
+  """Suggested fix"""
+  suggestedFix: String
+}
+
+"""
+Layer 2: Validation result from 7-stage backend validation pipeline.
+Computed on every configuration change.
+"""
+type ValidationResult {
+  """Whether the resource can be applied"""
+  canApply: Boolean!
+  """Resource conflicts detected"""
+  conflicts: [ResourceConflict!]!
+  """Validation errors (blocking)"""
+  errors: [ValidationIssue!]!
+  """Required dependencies that must be active"""
+  requiredDependencies: [DependencyStatus!]!
+  """Current validation stage"""
+  stage: ValidationStage!
+  """When validation was performed"""
+  validatedAt: DateTime!
+  """Duration of validation in milliseconds"""
+  validationDurationMs: Int!
+  """Validation warnings (non-blocking)"""
+  warnings: [ValidationIssue!]!
+}
+
+"""Validation issue severity"""
+enum ValidationSeverity {
+  """Blocks apply, must be fixed"""
+  ERROR
+  """Informational notice"""
+  INFO
+  """Does not block, but recommended to address"""
+  WARNING
+}
+
+"""Validation pipeline stages"""
+enum ValidationStage {
+  """All stages complete"""
+  COMPLETE
+  """Conflict detection (port/IP/route conflicts)"""
+  CONFLICT
+  """Dependency validation (required resources exist)"""
+  DEPENDENCY
+  """Platform validation (capability checks)"""
+  PLATFORM
+  """Quota validation (resource limits)"""
+  QUOTA
+  """Schema validation (Zod/GraphQL)"""
+  SCHEMA
+  """Semantic validation (business rules)"""
+  SEMANTIC
+  """Pre-flight simulation"""
+  SIMULATION
+}
+
+"""
+A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
+"""
+type Vlan implements Node {
+  """User comment"""
+  comment: String @mikrotik(path: "/interface/vlan", field: "comment")
+  """Whether the VLAN interface is disabled"""
+  disabled: Boolean! @mikrotik(path: "/interface/vlan", field: "disabled")
+  """Unique VLAN identifier"""
+  id: ID!
+  """Parent interface (bridge or physical interface)"""
+  interface: Interface! @mikrotik(path: "/interface/vlan", field: "interface")
+  """IP addresses assigned to this VLAN"""
+  ipAddresses: [IpAddress!]!
+  """MAC address of the VLAN interface"""
+  macAddress: MAC @mikrotik(path: "/interface/vlan", field: "mac-address")
+  """MTU setting (optional, inherits from parent if not set)"""
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/vlan", field: "mtu")
+  """VLAN interface name (e.g., vlan10, vlan-guest)"""
+  name: String! @validate(minLength: 1, maxLength: 100) @mikrotik(path: "/interface/vlan", field: "name")
+  """Whether the VLAN interface is running (link up)"""
+  running: Boolean! @mikrotik(path: "/interface/vlan", field: "running")
+  """Traffic statistics for this VLAN"""
+  statistics: InterfaceStats
+  """802.1Q VLAN ID (1-4094)"""
+  vlanId: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/vlan", field: "vlan-id")
+}
+
+"""Resources that depend on a VLAN interface"""
+type VlanDependencies {
+  """Number of active connections on this VLAN"""
+  activeConnections: Int!
+  """DHCP servers using this VLAN"""
+  dhcpServers: [DhcpServer!]!
+  """Firewall rules referencing this VLAN"""
+  firewallRules: [FirewallRule!]!
+  """Whether the VLAN has any dependencies"""
+  hasDependencies: Boolean!
+  """IP addresses assigned to this VLAN"""
+  ipAddresses: [IpAddress!]!
+  """Routes using this VLAN interface"""
+  routes: [Route!]!
+  """VLAN interface ID"""
+  vlanId: ID!
+}
+
+"""Filter options for querying VLANs"""
+input VlanFilter {
+  """Filter by name containing this string"""
+  nameContains: String
+  """Filter by parent interface ID"""
+  parentInterface: ID
+  """Filter by VLAN ID range"""
+  vlanIdRange: IntRange
+}
+
+"""Input for creating a new VLAN interface"""
+input VlanInput {
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Parent interface ID (bridge or physical interface)"""
+  interface: ID!
+  """MTU setting (optional, inherits from parent if not set)"""
+  mtu: Int @validate(min: 68, max: 65535)
+  """VLAN interface name (alphanumeric, hyphens, underscores)"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """802.1Q VLAN ID (1-4094)"""
+  vlanId: Int! @validate(min: 1, max: 4094)
+}
+
+"""Result of a VLAN mutation (create, update)"""
+type VlanMutationResult {
+  """Errors that occurred during the operation"""
+  errors: [MutationError!]
+  """Configuration preview (RouterOS commands that will be executed)"""
+  preview: ConfigPreview
+  """Whether the operation succeeded"""
+  success: Boolean!
+  """The created or updated VLAN (if successful)"""
+  vlan: Vlan
+}
+
+"""VLAN topology data (nodes and edges)"""
+type VlanTopology {
+  """Topology edges (connections)"""
+  edges: [TopologyEdge!]!
+  """Topology nodes (bridges, VLANs, ports)"""
+  nodes: [TopologyNode!]!
+}
+
+"""WAN connection history entry"""
+type WANConnectionEvent {
+  """Connection duration (for disconnect events)"""
+  duration: Duration
+  """Event type"""
+  eventType: WANEventType!
+  """Gateway IP"""
+  gateway: IPv4
+  """Event ID"""
+  id: ID!
+  """Public IP at the time (if applicable)"""
+  publicIP: IPv4
+  """Reason/error message (if applicable)"""
+  reason: String
+  """Event timestamp"""
+  timestamp: DateTime!
+  """WAN interface ID"""
+  wanInterfaceId: ID!
+}
+
+"""Connection history pagination"""
+type WANConnectionEventConnection implements Connection {
+  edges: [WANConnectionEventEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type WANConnectionEventEdge implements Edge {
+  cursor: String!
+  node: WANConnectionEvent!
+}
+
+"""WAN connection type classification"""
+enum WANConnectionType {
+  """DHCP client (dynamic IP)"""
+  DHCP
+  """LTE/cellular connection"""
+  LTE
+  """Not configured"""
+  NONE
+  """PPPoE dial-up connection"""
+  PPPOE
+  """Static IP configuration"""
+  STATIC
+}
+
+"""WAN event types for history tracking"""
+enum WANEventType {
+  """Authentication failed"""
+  AUTH_FAILED
+  """Connection established"""
+  CONNECTED
+  """Connection lost"""
+  DISCONNECTED
+  """Gateway changed"""
+  GATEWAY_CHANGED
+  """Health check failed"""
+  HEALTH_FAILED
+  """Health check recovered"""
+  HEALTH_RECOVERED
+  """IP address changed"""
+  IP_CHANGED
+}
+
+"""Input for configuring WAN health check"""
+input WANHealthCheckInput {
+  """Enable health check"""
+  enabled: Boolean!
+  """Check interval in seconds"""
+  interval: Int! @validate(min: 5, max: 300)
+  """Target host to ping (IP or hostname)"""
+  target: String! @validate(minLength: 1, maxLength: 255)
+}
+
+"""WAN health check status"""
+type WANHealthStatus {
+  """Whether health check is enabled"""
+  enabled: Boolean!
+  """Consecutive failed checks"""
+  failureCount: Int!
+  """Check interval"""
+  interval: Duration!
+  """Last check timestamp"""
+  lastCheck: DateTime!
+  """Current latency (if reachable)"""
+  latency: Int
+  """Packet loss percentage (0-100)"""
+  packetLoss: Int!
+  """Overall health status"""
+  status: HealthCheckStatus!
+  """Consecutive successful checks"""
+  successCount: Int!
+  """Target host being monitored"""
+  target: String!
+}
+
+"""WAN interface status with connection details"""
+type WANInterface implements Node {
+  """DHCP client configuration (if type is DHCP)"""
+  dhcpClient: DhcpClient
+  """Gateway IP address"""
+  gateway: IPv4
+  """Health check status"""
+  health: WANHealthStatus
+  """Unique identifier"""
+  id: ID!
+  """Underlying network interface"""
+  interface: Interface! @mikrotik(path: "/interface", field: "name")
+  """Whether this is the default route"""
+  isDefaultRoute: Boolean!
+  """Last connection time"""
+  lastConnected: DateTime
+  """LTE modem configuration (if type is LTE)"""
+  lteModem: LteModem
+  """PPPoE client configuration (if type is PPPOE)"""
+  pppoeClient: PppoeClient
+  """Primary DNS server"""
+  primaryDNS: IPv4
+  """Public IP address (if connected)"""
+  publicIP: IPv4 @mikrotik(path: "/ip/address", field: "address")
+  """Secondary DNS server"""
+  secondaryDNS: IPv4
+  """Static IP configuration (if type is STATIC)"""
+  staticConfig: StaticIPConfig
+  """Traffic statistics"""
+  statistics: InterfaceStats
+  """Current connection status"""
+  status: WANStatus!
+  """WAN connection type"""
+  type: WANConnectionType!
+  """Connection uptime"""
+  uptime: Duration
+}
+
+"""WAN Link resource for internet connectivity"""
+type WANLink implements Node & Resource {
+  category: ResourceCategory!
+  configuration: JSON
+  """Connection type (static, dhcp, pppoe)"""
+  connectionType: WANConnectionType!
+  deployment: DeploymentState
+  """Failover priority (lower = higher priority)"""
+  failoverPriority: Int
+  id: ID!
+  """Interface name"""
+  interface: String!
+  """Whether this is the primary WAN"""
+  isPrimary: Boolean!
+  metadata: ResourceMetadata!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+  wanRuntime: WANLinkRuntime
+}
+
+"""WAN Link runtime state"""
+type WANLinkRuntime {
+  """Current IP address"""
+  currentIP: IPv4
+  """DNS servers received"""
+  dnsServers: [IPv4!]
+  """Current downlink speed (bytes/sec)"""
+  downlinkSpeed: Size
+  errorMessage: String
+  """Gateway address"""
+  gateway: IPv4
+  health: RuntimeHealth!
+  isRunning: Boolean!
+  """Last connection change"""
+  lastStateChange: DateTime
+  lastUpdated: DateTime!
+  """Public IP (may differ due to NAT)"""
+  publicIP: IPv4
+  """Current uplink speed (bytes/sec)"""
+  uplinkSpeed: Size
+  """Total uptime"""
+  uptime: Duration
+}
+
+"""Result of WAN configuration mutation"""
+type WANMutationResult {
+  """Errors that occurred"""
+  errors: [MutationError!]
+  """Configuration preview (RouterOS commands)"""
+  preview: ConfigPreview
+  """Whether the operation succeeded"""
+  success: Boolean!
+  """The configured WAN interface"""
+  wanInterface: WANInterface
+}
+
+"""WAN connection status"""
+enum WANStatus {
+  """Connected and online"""
+  CONNECTED
+  """Connecting/authenticating"""
+  CONNECTING
+  """Disabled"""
+  DISABLED
+  """Disconnected"""
+  DISCONNECTED
+  """Connection failed"""
+  ERROR
+}
+
+"""WireGuard VPN Client resource implementing 8-layer model"""
+type WireGuardClient implements Node & Resource {
+  category: ResourceCategory!
+  config: WireGuardClientConfig!
+  configuration: JSON
+  deployment: DeploymentState
+  id: ID!
+  metadata: ResourceMetadata!
+  platform: PlatformInfo
+  relationships: ResourceRelationships
+  runtime: RuntimeState
+  scopedId: String!
+  telemetry: TelemetryData
+  type: String!
+  validation: ValidationResult
+  wireguardDeployment: WireGuardDeployment
+  wireguardRuntime: WireGuardRuntime
+}
+
+"""WireGuard client configuration"""
+type WireGuardClientConfig {
+  """Allowed IPs (CIDR notation)"""
+  allowedIPs: [CIDR!]!
+  """DNS servers to use"""
+  dnsServers: [IPv4!]
+  """Enable kill switch"""
+  killSwitch: Boolean
+  """Listen port (0 for auto)"""
+  listenPort: Port
+  """User-friendly name"""
+  name: String!
+  """Peer endpoint (IP:port)"""
+  peerEndpoint: String!
+  """Peer public key"""
+  peerPublicKey: String!
+  """Persistent keepalive interval"""
+  persistentKeepalive: Duration
+  """WireGuard private key"""
+  privateKey: String! @sensitive
+  """WAN interface to use"""
+  wanInterface: ID
+}
+
+"""WireGuard deployment state (router-generated)"""
+type WireGuardDeployment {
+  appliedAt: DateTime!
+  appliedBy: String
+  drift: DriftInfo
+  """Assigned interface name"""
+  interfaceName: String
+  isInSync: Boolean!
+  """Generated public key"""
+  publicKey: String
+  routerResourceId: String
+  routerVersion: Int
+}
+
+"""WireGuard runtime state"""
+type WireGuardRuntime {
+  """Current active peers count"""
+  activePeers: Int!
+  """Bytes transferred in"""
+  bytesIn: Size!
+  """Bytes transferred out"""
+  bytesOut: Size!
+  """Current endpoint (may differ from configured)"""
+  currentEndpoint: String
+  errorMessage: String
+  health: RuntimeHealth!
+  """Whether connected to peer"""
+  isConnected: Boolean!
+  isRunning: Boolean!
+  """Last handshake time"""
+  lastHandshake: DateTime
+  lastUpdated: DateTime!
 }

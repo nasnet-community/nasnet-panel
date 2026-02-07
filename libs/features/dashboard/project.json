@@ -3,5 +3,16 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/features/dashboard/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:features"]
+  "tags": ["type:lib", "scope:features"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/libs/features/dashboard"],
+      "options": {
+        "config": "libs/features/dashboard/vitest.config.ts",
+        "passWithNoTests": false,
+        "reportsDirectory": "coverage/libs/features/dashboard"
+      }
+    }
+  }
 }

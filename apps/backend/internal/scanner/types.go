@@ -14,6 +14,7 @@ type ScanStatus string
 const (
 	ScanStatusPending   ScanStatus = "PENDING"
 	ScanStatusRunning   ScanStatus = "RUNNING"
+	ScanStatusScanning  ScanStatus = "SCANNING" // Alias for RUNNING, used by ARP scanner
 	ScanStatusCompleted ScanStatus = "COMPLETED"
 	ScanStatusCancelled ScanStatus = "CANCELLED"
 	ScanStatusFailed    ScanStatus = "FAILED"

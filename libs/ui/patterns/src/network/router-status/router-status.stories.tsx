@@ -231,12 +231,15 @@ export const Error: Story = {
  * Mobile compact badge view
  */
 export const MobileCompact: Story = {
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
-  },
   render: () => {
     const state = createMockState('CONNECTED');
     return <RouterStatusMobile state={state} />;
+  },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -244,9 +247,6 @@ export const MobileCompact: Story = {
  * Mobile disconnected badge
  */
 export const MobileDisconnected: Story = {
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
-  },
   render: () => {
     const state = createMockState('DISCONNECTED', {
       data: createMockRouterData('DISCONNECTED', {
@@ -256,15 +256,18 @@ export const MobileDisconnected: Story = {
     });
     return <RouterStatusMobile state={state} />;
   },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  },
 };
 
 /**
  * Mobile reconnecting badge
  */
 export const MobileReconnecting: Story = {
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
-  },
   render: () => {
     const state = createMockState('CONNECTING', {
       data: createMockRouterData('CONNECTING', {
@@ -273,15 +276,18 @@ export const MobileReconnecting: Story = {
     });
     return <RouterStatusMobile state={state} />;
   },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  },
 };
 
 /**
  * Dark mode variant (desktop)
  */
 export const DarkMode: Story = {
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   decorators: [
     (Story) => (
       <div className="dark bg-gray-900 p-4 rounded-lg">
@@ -292,6 +298,11 @@ export const DarkMode: Story = {
   render: () => {
     const state = createMockState('CONNECTED');
     return <RouterStatusDesktop state={state} />;
+  },
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
   },
 };
 

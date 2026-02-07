@@ -1,0 +1,18 @@
+// Network feature module exports
+// Interface Management (NAS-6.1)
+export * from './components/interface-list';
+export * from './components/interface-detail';
+export * from './components/interface-edit';
+export * from './pages';
+
+// Bridge Configuration (NAS-6.6)
+export * from './bridges';
+
+// Static Route Management (NAS-6.5)
+export * from './components/routes';
+
+// DHCP components will be exported here as they are created
+export * from './dhcp';
+
+// VLAN Management (NAS-6.7)
+export * from './vlans';

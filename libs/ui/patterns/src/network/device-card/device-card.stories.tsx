@@ -404,18 +404,26 @@ export const DesktopPresenter: Story = {
       />
     );
   },
+
   args: {
     device: createMockDevice(),
     showActions: true,
   },
+
   parameters: {
-    viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
         story: 'Desktop presenter with hover-reveal actions and dropdown menu.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'desktop',
+      isRotated: false
+    }
+  }
 };
 
 /**
@@ -441,18 +449,26 @@ export const MobilePresenter: Story = {
       />
     );
   },
+
   args: {
     device: createMockDevice(),
     showActions: true,
   },
+
   parameters: {
-    viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
         story: 'Mobile presenter with tap-to-open bottom sheet for details and actions.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  }
 };
 
 /**
@@ -500,10 +516,16 @@ export const DarkTheme: Story = {
     device: createMockDevice(),
     showActions: true,
   },
+
   parameters: {
-    backgrounds: { default: 'dark' },
-    themes: { default: 'dark' },
+    themes: { default: 'dark' }
   },
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };
 
 // ============================================================================

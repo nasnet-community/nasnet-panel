@@ -23,6 +23,10 @@ const config: CodegenConfig = {
     'libs/**/*.tsx',
     // Exclude generated files
     '!libs/api-client/generated/**/*',
+    // Exclude Qwik components (incompatible with Babel parser)
+    '!libs/core-ui-qwik/**/*',
+    // Exclude setup wizard (separate app)
+    '!libs/star-setup/**/*',
   ],
 
   // Ignore validation for build performance

@@ -15,7 +15,7 @@ import {
 } from '@nasnet/ui/patterns';
 import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
-import { Wifi, Network, Shield, Settings } from 'lucide-react';
+import { Wifi, Network, Shield, Settings, AlertCircle } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useConnectionStore } from '@nasnet/state/stores';
 
@@ -136,7 +136,7 @@ export function DashboardPage() {
       {/* Quick Actions Grid */}
       <div>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Quick Actions</p>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           <QuickActionButton
             icon={Wifi}
             label="WiFi"
@@ -156,6 +156,12 @@ export function DashboardPage() {
             icon={Settings}
             label="Settings"
             onClick={() => navigate({ to: '/settings' as '/' })}
+          />
+          <QuickActionButton
+            icon={AlertCircle}
+            label="Troubleshoot"
+            onClick={() => navigate({ to: '/dashboard/troubleshoot', search: { routerId: routerIp, autoStart: false } })}
+            variant="secondary"
           />
         </div>
       </div>

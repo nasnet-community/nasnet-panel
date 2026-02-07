@@ -294,9 +294,6 @@ export const DarkTheme: Story = {
     defaultOpen: true,
     errors: ['Source address is required'],
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   render: (args) => (
     <div className="dark">
       <FormSection {...args}>
@@ -306,6 +303,11 @@ export const DarkTheme: Story = {
       </FormSection>
     </div>
   ),
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  },
 };
 
 /**
@@ -320,10 +322,11 @@ export const MobileViewport: Story = {
     defaultOpen: true,
     helpId: 'wifi-settings',
   },
+
   parameters: {
-    viewport: { defaultViewport: 'mobile' },
-    platform: 'mobile',
+    platform: 'mobile'
   },
+
   render: (args) => (
     <FormSection {...args}>
       <MockFormField label="Network Name (SSID)" placeholder="MyNetwork" />
@@ -331,6 +334,13 @@ export const MobileViewport: Story = {
       <MockFormField label="Security Mode" placeholder="WPA2" />
     </FormSection>
   ),
+
+  globals: {
+    viewport: {
+      value: 'mobile',
+      isRotated: false
+    }
+  }
 };
 
 /**

@@ -287,3 +287,84 @@ func convertConfigApplyStatus(stage string) model.ConfigApplyStatus {
 		return model.ConfigApplyStatusPending
 	}
 }
+
+// InterfaceStatusChanged subscribes to interface status change events.
+// If interfaceID is provided, only events for that interface are streamed.
+// If interfaceID is nil, all interface status changes for the router are streamed.
+func (r *subscriptionResolver) InterfaceStatusChanged(ctx context.Context, routerID string, interfaceID *string) (<-chan *model.InterfaceStatusEvent, error) {
+	// Create a buffered channel for events
+	ch := make(chan *model.InterfaceStatusEvent, 10)
+
+	// Subscribe to the event bus
+	if r.EventBus != nil {
+		handler := func(eventCtx context.Context, event events.Event) error {
+			// Type assert to InterfaceStatusChangedEvent
+			statusEvent, ok := event.(*events.InterfaceStatusChangedEvent)
+			if !ok {
+				return nil // Skip non-matching events
+			}
+
+			// Filter by routerID
+			if statusEvent.RouterID != routerID {
+				return nil
+			}
+
+			// Filter by interfaceID if specified
+			if interfaceID != nil && statusEvent.InterfaceID != *interfaceID {
+				return nil
+			}
+
+			// Convert status to GraphQL enum
+			status := convertInterfaceStatusString(statusEvent.Status)
+			previousStatus := convertInterfaceStatusString(statusEvent.PreviousStatus)
+
+			// Convert to GraphQL model
+			graphQLEvent := &model.InterfaceStatusEvent{
+				InterfaceID:    statusEvent.InterfaceID,
+				InterfaceName:  statusEvent.InterfaceName,
+				Status:         status,
+				PreviousStatus: previousStatus,
+				Timestamp:      statusEvent.GetTimestamp(),
+			}
+
+			// Non-blocking send with context check
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case ch <- graphQLEvent:
+				return nil
+			default:
+				// Channel full, log warning but don't block
+				log.Printf("[SUBSCRIPTION] InterfaceStatusChanged channel full, dropping event for interface %s", statusEvent.InterfaceName)
+				return nil
+			}
+		}
+
+		if err := r.EventBus.Subscribe(events.EventTypeInterfaceStatusChanged, handler); err != nil {
+			close(ch)
+			return nil, err
+		}
+	}
+
+	// Clean up when context is cancelled
+	go func() {
+		<-ctx.Done()
+		close(ch)
+	}()
+
+	return ch, nil
+}
+
+// convertInterfaceStatusString converts status string to GraphQL InterfaceStatus enum.
+func convertInterfaceStatusString(status string) model.InterfaceStatus {
+	switch status {
+	case "UP":
+		return model.InterfaceStatusUp
+	case "DOWN":
+		return model.InterfaceStatusDown
+	case "DISABLED":
+		return model.InterfaceStatusDisabled
+	default:
+		return model.InterfaceStatusUnknown
+	}
+}

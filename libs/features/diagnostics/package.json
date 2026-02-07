@@ -1,0 +1,6 @@
+{
+  "name": "@nasnet/features/diagnostics",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./src/index.ts"
+}

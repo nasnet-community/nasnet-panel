@@ -61,6 +61,122 @@ var (
 			},
 		},
 	}
+	// AlertsColumns holds the columns for the "alerts" table.
+	AlertsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "event_type", Type: field.TypeString, Size: 128},
+		{Name: "severity", Type: field.TypeEnum, Enums: []string{"CRITICAL", "WARNING", "INFO"}},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "message", Type: field.TypeString, Size: 2000},
+		{Name: "data", Type: field.TypeJSON, Nullable: true},
+		{Name: "device_id", Type: field.TypeString, Nullable: true, Size: 26},
+		{Name: "acknowledged_at", Type: field.TypeTime, Nullable: true},
+		{Name: "acknowledged_by", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "delivery_status", Type: field.TypeJSON, Nullable: true},
+		{Name: "triggered_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "rule_id", Type: field.TypeString, Size: 26},
+	}
+	// AlertsTable holds the schema information for the "alerts" table.
+	AlertsTable = &schema.Table{
+		Name:       "alerts",
+		Columns:    AlertsColumns,
+		PrimaryKey: []*schema.Column{AlertsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "alerts_alert_rules_alerts",
+				Columns:    []*schema.Column{AlertsColumns[12]},
+				RefColumns: []*schema.Column{AlertRulesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alert_rule_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[12]},
+			},
+			{
+				Name:    "alert_severity",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[2]},
+			},
+			{
+				Name:    "alert_device_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[6]},
+			},
+			{
+				Name:    "alert_acknowledged_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[7]},
+			},
+			{
+				Name:    "alert_device_id_acknowledged_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[6], AlertsColumns[7]},
+			},
+			{
+				Name:    "alert_triggered_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[10]},
+			},
+			{
+				Name:    "alert_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[1]},
+			},
+		},
+	}
+	// AlertRulesColumns holds the columns for the "alert_rules" table.
+	AlertRulesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "event_type", Type: field.TypeString, Size: 128},
+		{Name: "conditions", Type: field.TypeJSON, Nullable: true},
+		{Name: "severity", Type: field.TypeEnum, Enums: []string{"CRITICAL", "WARNING", "INFO"}, Default: "WARNING"},
+		{Name: "channels", Type: field.TypeJSON},
+		{Name: "throttle", Type: field.TypeJSON, Nullable: true},
+		{Name: "quiet_hours", Type: field.TypeJSON, Nullable: true},
+		{Name: "device_id", Type: field.TypeString, Nullable: true, Size: 26},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// AlertRulesTable holds the schema information for the "alert_rules" table.
+	AlertRulesTable = &schema.Table{
+		Name:       "alert_rules",
+		Columns:    AlertRulesColumns,
+		PrimaryKey: []*schema.Column{AlertRulesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alertrule_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRulesColumns[3]},
+			},
+			{
+				Name:    "alertrule_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRulesColumns[10]},
+			},
+			{
+				Name:    "alertrule_severity",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRulesColumns[5]},
+			},
+			{
+				Name:    "alertrule_device_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRulesColumns[9]},
+			},
+			{
+				Name:    "alertrule_enabled_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRulesColumns[10], AlertRulesColumns[3]},
+			},
+		},
+	}
 	// ConfigSnapshotsColumns holds the columns for the "config_snapshots" table.
 	ConfigSnapshotsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -146,6 +262,42 @@ var (
 				Name:    "globalsettings_namespace",
 				Unique:  false,
 				Columns: []*schema.Column{GlobalSettingsColumns[1]},
+			},
+		},
+	}
+	// NotificationSettingsColumns holds the columns for the "notification_settings" table.
+	NotificationSettingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"email", "telegram", "pushover", "webhook"}},
+		{Name: "credentials_encrypted", Type: field.TypeBytes},
+		{Name: "nonce", Type: field.TypeBytes},
+		{Name: "enabled", Type: field.TypeBool, Default: false},
+		{Name: "test_status", Type: field.TypeEnum, Enums: []string{"untested", "success", "failed"}, Default: "untested"},
+		{Name: "test_message", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "tested_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// NotificationSettingsTable holds the schema information for the "notification_settings" table.
+	NotificationSettingsTable = &schema.Table{
+		Name:       "notification_settings",
+		Columns:    NotificationSettingsColumns,
+		PrimaryKey: []*schema.Column{NotificationSettingsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationsettings_channel",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationSettingsColumns[1]},
+			},
+			{
+				Name:    "notificationsettings_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationSettingsColumns[4]},
+			},
+			{
+				Name:    "notificationsettings_test_status",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationSettingsColumns[5]},
 			},
 		},
 	}
@@ -531,8 +683,11 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		APIKeysTable,
+		AlertsTable,
+		AlertRulesTable,
 		ConfigSnapshotsTable,
 		GlobalSettingsTable,
+		NotificationSettingsTable,
 		ResourcesTable,
 		ResourceEventsTable,
 		RoutersTable,
@@ -546,6 +701,7 @@ var (
 
 func init() {
 	APIKeysTable.ForeignKeys[0].RefTable = UsersTable
+	AlertsTable.ForeignKeys[0].RefTable = AlertRulesTable
 	ResourceEventsTable.ForeignKeys[0].RefTable = ResourcesTable
 	RouterSecretsTable.ForeignKeys[0].RefTable = RoutersTable
 	SessionsTable.ForeignKeys[0].RefTable = UsersTable

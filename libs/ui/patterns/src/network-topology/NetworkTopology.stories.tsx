@@ -268,10 +268,11 @@ export const DesktopView: Story = {
     presenter: 'desktop',
     showDevices: true,
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'desktop',
-    },
+      value: 'desktop',
+      isRotated: false
+    }
   },
 };
 
@@ -286,10 +287,11 @@ export const MobileView: Story = {
     devices: sampleDevices,
     presenter: 'mobile',
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -304,9 +306,6 @@ export const DarkMode: Story = {
     devices: sampleDevices,
     showDevices: true,
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   decorators: [
     (Story) => (
       <div className="dark bg-background p-4 rounded-lg">
@@ -314,6 +313,11 @@ export const DarkMode: Story = {
       </div>
     ),
   ],
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  },
 };
 
 /**

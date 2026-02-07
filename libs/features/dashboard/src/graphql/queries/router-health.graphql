@@ -1,0 +1,34 @@
+# Router Health Query
+# Epic 5 - Story 5.1: Dashboard Layout with Router Health Summary
+#
+# Query for initial load of router health data.
+# Uses cache-and-network fetch policy for best UX:
+# - Returns cached data immediately (if available)
+# - Fetches fresh data in background
+# - Updates UI when fresh data arrives
+
+#import "../fragments/router-fields.graphql"
+
+query GetRouterHealthSummary($routerId: ID!) {
+  router(id: $routerId) {
+    ...RouterHealthSummary
+  }
+}
+
+# Batch query for multiple routers (for dashboard with multiple cards)
+query GetMultipleRouterHealthSummaries($status: ConnectionStatus, $pagination: PaginationInput) {
+  routers(status: $status, pagination: $pagination) {
+    edges {
+      node {
+        ...RouterHealthSummary
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}

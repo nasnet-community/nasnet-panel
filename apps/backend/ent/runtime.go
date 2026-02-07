@@ -3,9 +3,12 @@
 package ent
 
 import (
+	"backend/ent/alert"
+	"backend/ent/alertrule"
 	"backend/ent/apikey"
 	"backend/ent/configsnapshot"
 	"backend/ent/globalsettings"
+	"backend/ent/notificationsettings"
 	"backend/ent/resource"
 	"backend/ent/resourceevent"
 	"backend/ent/router"
@@ -119,6 +122,194 @@ func init() {
 	// apikey.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	apikey.IDValidator = func() func(string) error {
 		validators := apikeyDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	alertFields := schema.Alert{}.Fields()
+	_ = alertFields
+	// alertDescRuleID is the schema descriptor for rule_id field.
+	alertDescRuleID := alertFields[1].Descriptor()
+	// alert.RuleIDValidator is a validator for the "rule_id" field. It is called by the builders before save.
+	alert.RuleIDValidator = func() func(string) error {
+		validators := alertDescRuleID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(rule string) error {
+			for _, fn := range fns {
+				if err := fn(rule); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertDescEventType is the schema descriptor for event_type field.
+	alertDescEventType := alertFields[2].Descriptor()
+	// alert.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
+	alert.EventTypeValidator = func() func(string) error {
+		validators := alertDescEventType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_type string) error {
+			for _, fn := range fns {
+				if err := fn(event_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertDescTitle is the schema descriptor for title field.
+	alertDescTitle := alertFields[4].Descriptor()
+	// alert.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	alert.TitleValidator = func() func(string) error {
+		validators := alertDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertDescMessage is the schema descriptor for message field.
+	alertDescMessage := alertFields[5].Descriptor()
+	// alert.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	alert.MessageValidator = func() func(string) error {
+		validators := alertDescMessage.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(message string) error {
+			for _, fn := range fns {
+				if err := fn(message); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertDescDeviceID is the schema descriptor for device_id field.
+	alertDescDeviceID := alertFields[7].Descriptor()
+	// alert.DeviceIDValidator is a validator for the "device_id" field. It is called by the builders before save.
+	alert.DeviceIDValidator = alertDescDeviceID.Validators[0].(func(string) error)
+	// alertDescAcknowledgedBy is the schema descriptor for acknowledged_by field.
+	alertDescAcknowledgedBy := alertFields[9].Descriptor()
+	// alert.AcknowledgedByValidator is a validator for the "acknowledged_by" field. It is called by the builders before save.
+	alert.AcknowledgedByValidator = alertDescAcknowledgedBy.Validators[0].(func(string) error)
+	// alertDescTriggeredAt is the schema descriptor for triggered_at field.
+	alertDescTriggeredAt := alertFields[11].Descriptor()
+	// alert.DefaultTriggeredAt holds the default value on creation for the triggered_at field.
+	alert.DefaultTriggeredAt = alertDescTriggeredAt.Default.(func() time.Time)
+	// alertDescUpdatedAt is the schema descriptor for updated_at field.
+	alertDescUpdatedAt := alertFields[12].Descriptor()
+	// alert.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	alert.DefaultUpdatedAt = alertDescUpdatedAt.Default.(func() time.Time)
+	// alert.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	alert.UpdateDefaultUpdatedAt = alertDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// alertDescID is the schema descriptor for id field.
+	alertDescID := alertFields[0].Descriptor()
+	// alert.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	alert.IDValidator = func() func(string) error {
+		validators := alertDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	alertruleFields := schema.AlertRule{}.Fields()
+	_ = alertruleFields
+	// alertruleDescName is the schema descriptor for name field.
+	alertruleDescName := alertruleFields[1].Descriptor()
+	// alertrule.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	alertrule.NameValidator = func() func(string) error {
+		validators := alertruleDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertruleDescDescription is the schema descriptor for description field.
+	alertruleDescDescription := alertruleFields[2].Descriptor()
+	// alertrule.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	alertrule.DescriptionValidator = alertruleDescDescription.Validators[0].(func(string) error)
+	// alertruleDescEventType is the schema descriptor for event_type field.
+	alertruleDescEventType := alertruleFields[3].Descriptor()
+	// alertrule.EventTypeValidator is a validator for the "event_type" field. It is called by the builders before save.
+	alertrule.EventTypeValidator = func() func(string) error {
+		validators := alertruleDescEventType.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(event_type string) error {
+			for _, fn := range fns {
+				if err := fn(event_type); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// alertruleDescDeviceID is the schema descriptor for device_id field.
+	alertruleDescDeviceID := alertruleFields[9].Descriptor()
+	// alertrule.DeviceIDValidator is a validator for the "device_id" field. It is called by the builders before save.
+	alertrule.DeviceIDValidator = alertruleDescDeviceID.Validators[0].(func(string) error)
+	// alertruleDescEnabled is the schema descriptor for enabled field.
+	alertruleDescEnabled := alertruleFields[10].Descriptor()
+	// alertrule.DefaultEnabled holds the default value on creation for the enabled field.
+	alertrule.DefaultEnabled = alertruleDescEnabled.Default.(bool)
+	// alertruleDescCreatedAt is the schema descriptor for created_at field.
+	alertruleDescCreatedAt := alertruleFields[11].Descriptor()
+	// alertrule.DefaultCreatedAt holds the default value on creation for the created_at field.
+	alertrule.DefaultCreatedAt = alertruleDescCreatedAt.Default.(func() time.Time)
+	// alertruleDescUpdatedAt is the schema descriptor for updated_at field.
+	alertruleDescUpdatedAt := alertruleFields[12].Descriptor()
+	// alertrule.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	alertrule.DefaultUpdatedAt = alertruleDescUpdatedAt.Default.(func() time.Time)
+	// alertrule.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	alertrule.UpdateDefaultUpdatedAt = alertruleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// alertruleDescID is the schema descriptor for id field.
+	alertruleDescID := alertruleFields[0].Descriptor()
+	// alertrule.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	alertrule.IDValidator = func() func(string) error {
+		validators := alertruleDescID.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
@@ -269,6 +460,44 @@ func init() {
 	// globalsettings.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	globalsettings.IDValidator = func() func(string) error {
 		validators := globalsettingsDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	notificationsettingsFields := schema.NotificationSettings{}.Fields()
+	_ = notificationsettingsFields
+	// notificationsettingsDescEnabled is the schema descriptor for enabled field.
+	notificationsettingsDescEnabled := notificationsettingsFields[4].Descriptor()
+	// notificationsettings.DefaultEnabled holds the default value on creation for the enabled field.
+	notificationsettings.DefaultEnabled = notificationsettingsDescEnabled.Default.(bool)
+	// notificationsettingsDescTestMessage is the schema descriptor for test_message field.
+	notificationsettingsDescTestMessage := notificationsettingsFields[6].Descriptor()
+	// notificationsettings.TestMessageValidator is a validator for the "test_message" field. It is called by the builders before save.
+	notificationsettings.TestMessageValidator = notificationsettingsDescTestMessage.Validators[0].(func(string) error)
+	// notificationsettingsDescCreatedAt is the schema descriptor for created_at field.
+	notificationsettingsDescCreatedAt := notificationsettingsFields[8].Descriptor()
+	// notificationsettings.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notificationsettings.DefaultCreatedAt = notificationsettingsDescCreatedAt.Default.(func() time.Time)
+	// notificationsettingsDescUpdatedAt is the schema descriptor for updated_at field.
+	notificationsettingsDescUpdatedAt := notificationsettingsFields[9].Descriptor()
+	// notificationsettings.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	notificationsettings.DefaultUpdatedAt = notificationsettingsDescUpdatedAt.Default.(func() time.Time)
+	// notificationsettings.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	notificationsettings.UpdateDefaultUpdatedAt = notificationsettingsDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// notificationsettingsDescID is the schema descriptor for id field.
+	notificationsettingsDescID := notificationsettingsFields[0].Descriptor()
+	// notificationsettings.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	notificationsettings.IDValidator = func() func(string) error {
+		validators := notificationsettingsDescID.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),

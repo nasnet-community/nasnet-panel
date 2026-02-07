@@ -12,7 +12,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, expect, waitFor } from '@storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@nasnet/ui/primitives';
 import { useStepper } from './use-stepper';
@@ -779,7 +779,9 @@ export const DarkTheme: Story = {
 
     return <DarkWizard />;
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
   },
 };

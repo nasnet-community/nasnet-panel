@@ -3,9 +3,12 @@
 package ent
 
 import (
+	"backend/ent/alert"
+	"backend/ent/alertrule"
 	"backend/ent/apikey"
 	"backend/ent/configsnapshot"
 	"backend/ent/globalsettings"
+	"backend/ent/notificationsettings"
 	"backend/ent/resource"
 	"backend/ent/resourceevent"
 	"backend/ent/router"
@@ -83,17 +86,20 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			apikey.Table:           apikey.ValidColumn,
-			configsnapshot.Table:   configsnapshot.ValidColumn,
-			globalsettings.Table:   globalsettings.ValidColumn,
-			resource.Table:         resource.ValidColumn,
-			resourceevent.Table:    resourceevent.ValidColumn,
-			router.Table:           router.ValidColumn,
-			routercapability.Table: routercapability.ValidColumn,
-			routersecret.Table:     routersecret.ValidColumn,
-			schemaversion.Table:    schemaversion.ValidColumn,
-			session.Table:          session.ValidColumn,
-			user.Table:             user.ValidColumn,
+			apikey.Table:               apikey.ValidColumn,
+			alert.Table:                alert.ValidColumn,
+			alertrule.Table:            alertrule.ValidColumn,
+			configsnapshot.Table:       configsnapshot.ValidColumn,
+			globalsettings.Table:       globalsettings.ValidColumn,
+			notificationsettings.Table: notificationsettings.ValidColumn,
+			resource.Table:             resource.ValidColumn,
+			resourceevent.Table:        resourceevent.ValidColumn,
+			router.Table:               router.ValidColumn,
+			routercapability.Table:     routercapability.ValidColumn,
+			routersecret.Table:         routersecret.ValidColumn,
+			schemaversion.Table:        schemaversion.ValidColumn,
+			session.Table:              session.ValidColumn,
+			user.Table:                 user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

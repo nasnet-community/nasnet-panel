@@ -232,10 +232,11 @@ export const MobileVariant: Story = {
     presenter: 'mobile',
     showLineNumbers: false,
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -286,9 +287,6 @@ export const DarkTheme: Story = {
     collapsible: true,
     showLineNumbers: true,
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   decorators: [
     (Story) => (
       <div className="dark bg-background p-4 rounded-lg">
@@ -296,6 +294,11 @@ export const DarkTheme: Story = {
       </div>
     ),
   ],
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  },
 };
 
 /**

@@ -329,20 +329,26 @@ export const DesktopPresenter: Story = {
  */
 export const MobilePresenter: Story = {
   render: (args) => <ControlledMobileIPInput {...args} />,
+
   args: {
     showType: true,
     placeholder: '192.168.1.1',
   },
+
   parameters: {
-    viewport: {
-      defaultViewport: 'mobile1',
-    },
     docs: {
       description: {
         story: 'Mobile presenter with single input, smart parsing, and 44px touch targets.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  }
 };
 
 // ============================================================================

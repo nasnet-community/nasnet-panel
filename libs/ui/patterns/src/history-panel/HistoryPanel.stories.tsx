@@ -175,10 +175,11 @@ export const Desktop: Story = {
 export const Mobile: Story = {
   render: (args) => <HistoryPanelMobile {...args} />,
   decorators: [withSampleHistory],
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 

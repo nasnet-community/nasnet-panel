@@ -178,24 +178,6 @@ enum ConnectionErrorCode {
 # -----------------------------------------------------------------------------
 
 """
-Payload returned from the addRouter mutation.
-Contains either the created router or validation/connection errors.
-"""
-type AddRouterPayload {
-  "The newly created router (null if errors occurred)"
-  router: Router
-
-  "Connection test result from initial connection attempt"
-  connectionResult: ConnectionTestResult
-
-  "Field-level validation errors for retry"
-  validationErrors: [ValidationError!]
-
-  "General errors that occurred during creation"
-  errors: [MutationError!]
-}
-
-"""
 Field-level validation error with suggestions for fixing.
 """
 type ValidationError {
@@ -213,6 +195,24 @@ type ValidationError {
 
   "The invalid value (redacted for sensitive fields)"
   providedValue: String
+}
+
+"""
+Payload returned from the addRouter mutation.
+Contains either the created router or validation/connection errors.
+"""
+type AddRouterPayload {
+  "The newly created router (null if errors occurred)"
+  router: Router
+
+  "Connection test result from initial connection attempt"
+  connectionResult: ConnectionTestResult
+
+  "Field-level validation errors for retry"
+  validationErrors: [ValidationError!]
+
+  "General errors that occurred during creation"
+  errors: [MutationError!]
 }
 
 # -----------------------------------------------------------------------------

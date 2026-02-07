@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+
+	"backend/oui"
 )
 
 // Shared scanner pool types and helpers (used by dev and prod)
@@ -151,6 +153,84 @@ func echoRouterProxyHandler(c echo.Context) error {
 func echoBatchJobsHandler(c echo.Context) error {
 	handleBatchJobs(c.Response(), c.Request())
 	return nil
+}
+
+// echoOUILookupHandler handles GET /api/oui/:mac (Echo version)
+func echoOUILookupHandler(c echo.Context) error {
+	macAddress := c.Param("mac")
+	if macAddress == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "MAC address is required",
+		})
+	}
+
+	// Get OUI database and lookup vendor
+	db := oui.GetDatabase()
+	vendor, found := db.Lookup(macAddress)
+
+	response := map[string]interface{}{
+		"mac":    macAddress,
+		"vendor": vendor,
+		"found":  found,
+	}
+
+	// Cache for 24 hours
+	c.Response().Header().Set("Cache-Control", "public, max-age=86400")
+	return c.JSON(http.StatusOK, response)
+}
+
+// echoOUIBatchHandler handles POST /api/oui/batch (Echo version)
+func echoOUIBatchHandler(c echo.Context) error {
+	var request struct {
+		MacAddresses []string `json:"macAddresses"`
+	}
+
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body",
+		})
+	}
+
+	if len(request.MacAddresses) == 0 {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "macAddresses array is required",
+		})
+	}
+
+	if len(request.MacAddresses) > 100 {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Maximum 100 MAC addresses per request",
+		})
+	}
+
+	// Get OUI database and perform batch lookup
+	db := oui.GetDatabase()
+	results := db.LookupBatch(request.MacAddresses)
+
+	response := map[string]interface{}{
+		"results": results,
+		"count":   len(results),
+	}
+
+	// Cache for 24 hours
+	c.Response().Header().Set("Cache-Control", "public, max-age=86400")
+	return c.JSON(http.StatusOK, response)
+}
+
+// echoOUIStatsHandler handles GET /api/oui/stats (Echo version)
+func echoOUIStatsHandler(c echo.Context) error {
+	// Get OUI database size
+	db := oui.GetDatabase()
+	size := db.Size()
+
+	response := map[string]interface{}{
+		"entries": size,
+		"loaded":  size > 0,
+	}
+
+	// Cache for 1 hour
+	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
+	return c.JSON(http.StatusOK, response)
 }
 
 // =============================================================================

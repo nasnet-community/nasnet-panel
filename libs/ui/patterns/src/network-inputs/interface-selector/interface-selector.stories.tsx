@@ -269,10 +269,11 @@ export const MobilePresenter: Story = {
     label: 'Interface (Mobile)',
     placeholder: 'Select interface...',
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 

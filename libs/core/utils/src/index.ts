@@ -27,3 +27,9 @@ export * from './log-export';
 
 // Graph Utilities (Dependency Resolution)
 export * from './graph';
+
+// Device Utilities
+export * from './device';
+
+// MAC Vendor Lookup
+export * from './mac-vendor';

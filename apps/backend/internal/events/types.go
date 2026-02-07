@@ -502,3 +502,71 @@ func NewCapabilitiesUpdatedEvent(
 		Architecture:      architecture,
 	}
 }
+
+// -----------------------------------------------------------------------------
+// Interface Events
+// -----------------------------------------------------------------------------
+
+// InterfaceStatusChangedEvent is emitted when an interface's operational status changes.
+type InterfaceStatusChangedEvent struct {
+	BaseEvent
+	RouterID       string `json:"routerId"`
+	InterfaceID    string `json:"interfaceId"`
+	InterfaceName  string `json:"interfaceName"`
+	Status         string `json:"status"`
+	PreviousStatus string `json:"previousStatus"`
+}
+
+// Payload returns the JSON-serialized event payload.
+func (e *InterfaceStatusChangedEvent) Payload() ([]byte, error) {
+	return json.Marshal(e)
+}
+
+// NewInterfaceStatusChangedEvent creates a new InterfaceStatusChangedEvent.
+func NewInterfaceStatusChangedEvent(
+	routerID, interfaceID, interfaceName, status, previousStatus, source string,
+) *InterfaceStatusChangedEvent {
+	return &InterfaceStatusChangedEvent{
+		BaseEvent:      NewBaseEvent(EventTypeInterfaceStatusChanged, PriorityNormal, source),
+		RouterID:       routerID,
+		InterfaceID:    interfaceID,
+		InterfaceName:  interfaceName,
+		Status:         status,
+		PreviousStatus: previousStatus,
+	}
+}
+
+// InterfaceTrafficUpdateEvent is emitted periodically with interface traffic statistics.
+type InterfaceTrafficUpdateEvent struct {
+	BaseEvent
+	RouterID      string `json:"routerId"`
+	InterfaceID   string `json:"interfaceId"`
+	InterfaceName string `json:"interfaceName"`
+	TxRate        uint64 `json:"txRate"`
+	RxRate        uint64 `json:"rxRate"`
+	TxTotal       uint64 `json:"txTotal"`
+	RxTotal       uint64 `json:"rxTotal"`
+}
+
+// Payload returns the JSON-serialized event payload.
+func (e *InterfaceTrafficUpdateEvent) Payload() ([]byte, error) {
+	return json.Marshal(e)
+}
+
+// NewInterfaceTrafficUpdateEvent creates a new InterfaceTrafficUpdateEvent.
+func NewInterfaceTrafficUpdateEvent(
+	routerID, interfaceID, interfaceName string,
+	txRate, rxRate, txTotal, rxTotal uint64,
+	source string,
+) *InterfaceTrafficUpdateEvent {
+	return &InterfaceTrafficUpdateEvent{
+		BaseEvent:     NewBaseEvent(EventTypeInterfaceTrafficUpdate, PriorityBackground, source),
+		RouterID:      routerID,
+		InterfaceID:   interfaceID,
+		InterfaceName: interfaceName,
+		TxRate:        txRate,
+		RxRate:        rxRate,
+		TxTotal:       txTotal,
+		RxTotal:       rxTotal,
+	}
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/alerts",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/alerts/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

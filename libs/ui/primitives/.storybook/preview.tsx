@@ -14,14 +14,13 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'light',
-      values: [
-        { name: 'light', value: '#F1F5F9' },
-        { name: 'dark', value: '#0F172A' },
-      ],
+      options: {
+        light: { name: 'light', value: '#F1F5F9' },
+        dark: { name: 'dark', value: '#0F172A' }
+      }
     },
     viewport: {
-      viewports: {
+      options: {
         mobile: {
           name: 'Mobile',
           styles: { width: '375px', height: '667px' },
@@ -45,6 +44,7 @@ const preview: Preview = {
       },
     },
   },
+
   decorators: [
     (Story, context) => {
       const isDark = context.globals.theme === 'dark';
@@ -58,6 +58,7 @@ const preview: Preview = {
       );
     },
   ],
+
   globalTypes: {
     theme: {
       name: 'Theme',
@@ -73,6 +74,12 @@ const preview: Preview = {
       },
     },
   },
+
+  initialGlobals: {
+    backgrounds: {
+      value: 'light'
+    }
+  }
 };
 
 export default preview;

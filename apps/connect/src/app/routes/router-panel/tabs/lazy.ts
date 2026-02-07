@@ -54,6 +54,14 @@ export const [LazyDHCPTab, preloadDHCPTab] = createLazyWithPreload(
 );
 
 /**
+ * DNS Tab - Heavy due to server list, static entries table, and forms
+ * Estimated chunk size: ~30KB
+ */
+export const [LazyDnsTab, preloadDnsTab] = createLazyWithPreload(
+  () => import('./DnsTab').then((m) => ({ default: m.DnsTab }))
+);
+
+/**
  * VPN Tab - Heavy due to protocol-specific components
  * Estimated chunk size: ~45KB
  */
@@ -89,6 +97,7 @@ export function preloadAllHeavyTabs(): void {
     preloadFirewallTab();
     preloadLogsTab();
     preloadDHCPTab();
+    preloadDnsTab();
     preloadVPNTab();
   };
 

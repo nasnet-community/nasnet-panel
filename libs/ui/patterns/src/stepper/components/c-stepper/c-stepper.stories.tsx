@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 
-import { within, userEvent, expect, waitFor } from '@storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Card, CardContent, CardHeader, CardTitle, Input, Label } from '@nasnet/ui/primitives';
 
@@ -593,18 +593,25 @@ export const DarkTheme: Story = {
       </StepperWrapper>
     </div>
   ),
+
   args: {
     previewTitle: 'Preview',
     defaultShowPreview: true,
   },
+
   parameters: {
-    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'CStepper in dark theme using semantic color tokens.',
       },
-    },
+    }
   },
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };
 
 /**
@@ -747,18 +754,24 @@ export const ResponsiveBehavior: Story = {
       )}
     </StepperWrapper>
   ),
+
   args: {
     previewTitle: 'Preview',
     defaultShowPreview: true,
   },
+
   parameters: {
-    viewport: {
-      defaultViewport: 'desktop',
-    },
     docs: {
       description: {
         story: 'Preview panel auto-collapses when viewport width is below 1280px.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'desktop',
+      isRotated: false
+    }
+  }
 };

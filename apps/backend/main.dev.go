@@ -31,8 +31,11 @@ import (
 	"backend/internal/encryption"
 	"backend/internal/events"
 	"backend/internal/graphql/loaders"
+	"backend/internal/dns"
+	"backend/internal/router"
 	scannerPkg "backend/internal/scanner"
 	"backend/internal/services"
+	troubleshootPkg "backend/internal/troubleshoot"
 )
 
 // Development MikroTik RouterOS Management Server
@@ -53,12 +56,15 @@ func init() {
 func init() { ServerVersion = "development-v2.0" }
 
 // createGraphQLServer creates and configures the gqlgen GraphQL server
-func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService) *handler.Server {
-	// Create resolver with event bus and scanner service
+func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService) *handler.Server {
+	// Create resolver with event bus and services
 	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
-		EventBus:       eventBus,
-		ScannerService: scannerSvc,
-		RouterService:  routerSvc,
+		EventBus:            eventBus,
+		ScannerService:      scannerSvc,
+		RouterService:       routerSvc,
+		TroubleshootService: troubleshootSvc,
+		DnsService:          dnsService,
+		InterfaceService:    interfaceSvc,
 	})
 
 	// Create executable schema
@@ -99,9 +105,9 @@ func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.Scanne
 }
 
 // setupRoutes configures all HTTP routes with proper middleware
-func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService) {
+func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService) {
 	// Create GraphQL server with scanner service and router service
-	graphqlServer := createGraphQLServer(eventBus, scannerSvc, routerSvc)
+	graphqlServer := createGraphQLServer(eventBus, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc)
 
 	// Wrap GraphQL server with DataLoader middleware
 	// This ensures DataLoaders are request-scoped and available to all resolvers
@@ -139,6 +145,11 @@ func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, scanner
 	// Batch job endpoints for bulk command execution
 	api.Any("/batch/jobs", echoBatchJobsHandler)
 	api.Any("/batch/jobs/*", echoBatchJobsHandler)
+
+	// OUI (MAC vendor lookup) endpoints
+	api.GET("/oui/:mac", echoOUILookupHandler)
+	api.POST("/oui/batch", echoOUIBatchHandler)
+	api.GET("/oui/stats", echoOUIStatsHandler)
 }
 
 // performHealthCheck performs a health check and exits with appropriate code
@@ -228,6 +239,25 @@ func main() {
 	})
 	log.Printf("Router service initialized")
 
+	// Initialize Troubleshoot Service for internet diagnostics (NAS-5.11)
+	// Using mock adapter until ClientFactory is implemented
+	mockRouterPort := router.NewMockAdapter("dev-router")
+	troubleshootSvc := troubleshootPkg.NewService(mockRouterPort)
+	log.Printf("Troubleshoot service initialized (mock adapter)")
+
+	// Initialize DNS Service for DNS lookup diagnostics (NAS-5.9)
+	// Using same mock adapter until ClientFactory is implemented
+	dnsService := dns.NewService(mockRouterPort)
+	log.Printf("DNS service initialized (mock adapter)")
+
+	// Initialize Interface Service for interface status monitoring (NAS-5.3)
+	// Using same mock adapter until ClientFactory is implemented
+	interfaceSvc := services.NewInterfaceService(services.InterfaceServiceConfig{
+		RouterPort: mockRouterPort,
+		EventBus:   eventBus,
+	})
+	log.Printf("Interface service initialized (mock adapter)")
+
 	// Create Echo instance
 	e := echo.New()
 	e.HideBanner = true
@@ -246,8 +276,8 @@ func main() {
 		MaxAge:           3600,
 	}))
 
-	// Setup routes with DataLoader middleware, scanner service, and router service
-	setupRoutes(e, eventBus, systemDB, scannerSvc, routerSvc)
+	// Setup routes with DataLoader middleware, scanner service, router service, troubleshoot service, DNS service, and interface service
+	setupRoutes(e, eventBus, systemDB, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc)
 
 	// Configure server timeouts
 	e.Server.ReadTimeout = 60 * time.Second

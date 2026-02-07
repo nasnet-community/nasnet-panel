@@ -26,11 +26,11 @@ Every managed resource implements this interface with 8 layers:
 8. platform - Capabilities and field mappings
 """
 interface Resource {
-  "Globally unique identifier (ULID)"
-  uuid: ID!
+  "Globally unique identifier (ULID) - also serves as Node.id for Relay compatibility"
+  id: ID!
 
   "Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2')"
-  id: String!
+  scopedId: String!
 
   "Resource type identifier (e.g., 'vpn.wireguard.client')"
   type: String!
@@ -45,8 +45,9 @@ interface Resource {
   """
   Layer 1: CONFIGURATION - User's desired config
   Mutable by user. Validated by Zod on client, GraphQL on server.
+  Implementations can provide strongly-typed configs.
   """
-  configuration: JSON!
+  configuration: JSON
 
   """
   Layer 2: VALIDATION - Pre-flight check results
@@ -57,12 +58,14 @@ interface Resource {
   """
   Layer 3: DEPLOYMENT - What's actually on router
   Written after Apply-Confirm. Includes router-generated fields.
+  Implementations can provide strongly-typed deployment states.
   """
   deployment: DeploymentState
 
   """
   Layer 4: RUNTIME - Live operational state
   Polled/streamed from router. Read-only.
+  Implementations can provide strongly-typed runtime states.
   """
   runtime: RuntimeState
 
@@ -175,11 +178,11 @@ type ResourceEdge implements Edge {
 
 extend type Query {
   """
-  Get a resource by UUID
+  Get a resource by ID
   """
   resource(
-    "Resource UUID"
-    uuid: ID!
+    "Resource ID (ULID)"
+    id: ID!
     "Router the resource belongs to"
     routerId: ID!
     "Specific layers to fetch (default: all)"
@@ -206,8 +209,8 @@ extend type Query {
   Get composite resource with all related sub-resources
   """
   compositeResource(
-    "Resource UUID"
-    uuid: ID!
+    "Resource ID (ULID)"
+    id: ID!
     "Router the resource belongs to"
     routerId: ID!
   ): CompositeResource
@@ -227,7 +230,7 @@ extend type Mutation {
   Update resource configuration (transitions to DRAFT → VALIDATING)
   """
   updateResource(
-    uuid: ID!
+    id: ID!
     routerId: ID!
     input: UpdateResourceInput!
   ): UpdateResourcePayload!
@@ -235,28 +238,28 @@ extend type Mutation {
   """
   Validate resource configuration (transitions DRAFT → VALIDATING → VALID/ERROR)
   """
-  validateResource(uuid: ID!, routerId: ID!): ValidateResourcePayload!
+  validateResource(id: ID!, routerId: ID!): ValidateResourcePayload!
 
   """
   Apply resource to router (transitions VALID → APPLYING → ACTIVE/ERROR)
   Follows Apply-Confirm-Merge pattern.
   """
-  applyResource(uuid: ID!, routerId: ID!): ApplyResourcePayload!
+  applyResource(id: ID!, routerId: ID!): ApplyResourcePayload!
 
   """
   Deprecate a resource (transitions → DEPRECATED)
   """
-  deprecateResource(uuid: ID!, routerId: ID!): DeprecateResourcePayload!
+  deprecateResource(id: ID!, routerId: ID!): DeprecateResourcePayload!
 
   """
   Archive a resource (transitions DEPRECATED → ARCHIVED)
   """
-  archiveResource(uuid: ID!, routerId: ID!): ArchiveResourcePayload!
+  archiveResource(id: ID!, routerId: ID!): ArchiveResourcePayload!
 
   """
   Delete a resource permanently
   """
-  deleteResource(uuid: ID!, routerId: ID!): DeleteResourcePayload!
+  deleteResource(id: ID!, routerId: ID!): DeleteResourcePayload!
 }
 
 # -----------------------------------------------------------------------------
@@ -268,8 +271,8 @@ extend type Subscription {
   Subscribe to resource runtime updates
   """
   resourceRuntime(
-    "Resource UUID"
-    uuid: ID!
+    "Resource ID (ULID)"
+    id: ID!
     "Router the resource belongs to"
     routerId: ID!
   ): ResourceRuntimeEvent! @realtime(interval: 5000)
@@ -278,8 +281,8 @@ extend type Subscription {
   Subscribe to resource lifecycle state changes
   """
   resourceStateChanged(
-    "Resource UUID (optional - subscribe to all if not provided)"
-    uuid: ID
+    "Resource ID (optional - subscribe to all if not provided)"
+    id: ID
     "Router to subscribe to"
     routerId: ID!
   ): ResourceStateEvent!
@@ -354,13 +357,13 @@ input UpdateResourceInput {
 Input for resource relationships
 """
 input ResourceRelationshipsInput {
-  "Resources this resource depends on (UUIDs)"
+  "Resources this resource depends on (IDs)"
   dependsOn: [ID!]
 
-  "Resources that route traffic via this resource (UUIDs)"
+  "Resources that route traffic via this resource (ID)"
   routesVia: ID
 
-  "Parent resource UUID (for hierarchical resources)"
+  "Parent resource ID (for hierarchical resources)"
   parent: ID
 
   "Custom relationship data"
@@ -420,8 +423,8 @@ type ArchiveResourcePayload {
 type DeleteResourcePayload {
   "Whether deletion was successful"
   success: Boolean!
-  "UUID of deleted resource"
-  deletedUuid: ID
+  "ID of deleted resource"
+  deletedId: ID
   "Errors that occurred"
   errors: [MutationError!]
 }
@@ -434,8 +437,8 @@ type DeleteResourcePayload {
 Runtime update event for a resource
 """
 type ResourceRuntimeEvent {
-  "Resource UUID"
-  uuid: ID!
+  "Resource ID (ULID)"
+  id: ID!
   "Resource type"
   type: String!
   "Updated runtime state"
@@ -448,8 +451,8 @@ type ResourceRuntimeEvent {
 Lifecycle state change event
 """
 type ResourceStateEvent {
-  "Resource UUID"
-  uuid: ID!
+  "Resource ID (ULID)"
+  id: ID!
   "Resource type"
   type: String!
   "Previous state"
@@ -482,9 +485,9 @@ type CompositeResource {
 Edge in the resource relationship graph
 """
 type ResourceRelationshipEdge {
-  "Source resource UUID"
+  "Source resource ID"
   from: ID!
-  "Target resource UUID"
+  "Target resource ID"
   to: ID!
   "Relationship type"
   type: ResourceRelationshipType!

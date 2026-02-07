@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, expect, waitFor } from '@storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { VStepper } from './v-stepper';
 import { useStepper } from '../../hooks/use-stepper';
@@ -517,17 +517,24 @@ export const DarkTheme: Story = {
       </StepperWrapper>
     </div>
   ),
+
   args: {
     showDescriptions: true,
   },
+
   parameters: {
-    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'VStepper in dark theme using semantic color tokens.',
       },
-    },
+    }
   },
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };
 
 /**

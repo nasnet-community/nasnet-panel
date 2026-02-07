@@ -20,6 +20,30 @@ func (f APIKeyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.APIKeyMutation", m)
 }
 
+// The AlertFunc type is an adapter to allow the use of ordinary
+// function as Alert mutator.
+type AlertFunc func(context.Context, *ent.AlertMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertMutation", m)
+}
+
+// The AlertRuleFunc type is an adapter to allow the use of ordinary
+// function as AlertRule mutator.
+type AlertRuleFunc func(context.Context, *ent.AlertRuleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertRuleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertRuleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertRuleMutation", m)
+}
+
 // The ConfigSnapshotFunc type is an adapter to allow the use of ordinary
 // function as ConfigSnapshot mutator.
 type ConfigSnapshotFunc func(context.Context, *ent.ConfigSnapshotMutation) (ent.Value, error)
@@ -42,6 +66,18 @@ func (f GlobalSettingsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GlobalSettingsMutation", m)
+}
+
+// The NotificationSettingsFunc type is an adapter to allow the use of ordinary
+// function as NotificationSettings mutator.
+type NotificationSettingsFunc func(context.Context, *ent.NotificationSettingsMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationSettingsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationSettingsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationSettingsMutation", m)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary

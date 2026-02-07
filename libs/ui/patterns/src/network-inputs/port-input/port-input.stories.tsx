@@ -374,10 +374,11 @@ export const MobileVariant: Story = {
     value: 443,
     showService: true,
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -396,10 +397,11 @@ export const MobileRangeMode: Story = {
     value: '8080-8090',
     protocol: 'tcp',
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -418,10 +420,11 @@ export const MobileMultiMode: Story = {
     value: '80,443,8080',
     protocol: 'tcp',
   },
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
-    },
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 

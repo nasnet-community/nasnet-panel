@@ -9,11 +9,20 @@ import (
 // APIKey is the predicate function for apikey builders.
 type APIKey func(*sql.Selector)
 
+// Alert is the predicate function for alert builders.
+type Alert func(*sql.Selector)
+
+// AlertRule is the predicate function for alertrule builders.
+type AlertRule func(*sql.Selector)
+
 // ConfigSnapshot is the predicate function for configsnapshot builders.
 type ConfigSnapshot func(*sql.Selector)
 
 // GlobalSettings is the predicate function for globalsettings builders.
 type GlobalSettings func(*sql.Selector)
+
+// NotificationSettings is the predicate function for notificationsettings builders.
+type NotificationSettings func(*sql.Selector)
 
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)

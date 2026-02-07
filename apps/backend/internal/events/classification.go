@@ -35,6 +35,18 @@ const (
 	EventTypeAuthPasswordChanged   = "auth.password.changed"
 	EventTypeCredentialChanged     = "credential.changed"
 
+	// Device scan events
+	EventTypeDeviceScanStarted   = "device.scan.started"
+	EventTypeDeviceScanProgress  = "device.scan.progress"
+	EventTypeDeviceScanCompleted = "device.scan.completed"
+	EventTypeDeviceScanFailed    = "device.scan.failed"
+	EventTypeDeviceScanCancelled = "device.scan.cancelled"
+
+	// Interface events
+	EventTypeInterfaceStatusChanged = "interface.status.changed"
+	EventTypeInterfaceTrafficUpdate = "interface.traffic.update"
+	EventTypeInterfaceStatsUpdated  = "interface.stats.updated"
+
 	// Telemetry events
 	EventTypeMetricUpdated = "metric.updated"
 	EventTypeLogAppended   = "log.appended"
@@ -70,6 +82,11 @@ var NormalEventTypes = []string{
 	EventTypeConfigApplyProgress,
 	EventTypeAuth,
 	EventTypeCapabilitiesUpdated,
+	EventTypeDeviceScanStarted,
+	EventTypeDeviceScanCompleted,
+	EventTypeDeviceScanFailed,
+	EventTypeDeviceScanCancelled,
+	EventTypeInterfaceStatusChanged, // Interface status changes are auditable
 }
 
 // LowValueEventTypes are events that stay in hot tier only (memory/tmpfs).
@@ -79,6 +96,9 @@ var LowValueEventTypes = []string{
 	EventTypeLogAppended,
 	EventTypeRuntimePolled,
 	EventTypeHealthChecked,
+	EventTypeDeviceScanProgress,     // High-volume progress updates
+	EventTypeInterfaceTrafficUpdate, // High-volume traffic metrics
+	EventTypeInterfaceStatsUpdated,  // High-volume stats updates (NAS-6.9)
 }
 
 // IsCriticalEvent returns true if the event type requires immediate persistence.

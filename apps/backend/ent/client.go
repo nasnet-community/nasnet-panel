@@ -11,9 +11,12 @@ import (
 
 	"backend/ent/migrate"
 
+	"backend/ent/alert"
+	"backend/ent/alertrule"
 	"backend/ent/apikey"
 	"backend/ent/configsnapshot"
 	"backend/ent/globalsettings"
+	"backend/ent/notificationsettings"
 	"backend/ent/resource"
 	"backend/ent/resourceevent"
 	"backend/ent/router"
@@ -39,10 +42,16 @@ type Client struct {
 	Schema *migrate.Schema
 	// APIKey is the client for interacting with the APIKey builders.
 	APIKey *APIKeyClient
+	// Alert is the client for interacting with the Alert builders.
+	Alert *AlertClient
+	// AlertRule is the client for interacting with the AlertRule builders.
+	AlertRule *AlertRuleClient
 	// ConfigSnapshot is the client for interacting with the ConfigSnapshot builders.
 	ConfigSnapshot *ConfigSnapshotClient
 	// GlobalSettings is the client for interacting with the GlobalSettings builders.
 	GlobalSettings *GlobalSettingsClient
+	// NotificationSettings is the client for interacting with the NotificationSettings builders.
+	NotificationSettings *NotificationSettingsClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// ResourceEvent is the client for interacting with the ResourceEvent builders.
@@ -71,8 +80,11 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.APIKey = NewAPIKeyClient(c.config)
+	c.Alert = NewAlertClient(c.config)
+	c.AlertRule = NewAlertRuleClient(c.config)
 	c.ConfigSnapshot = NewConfigSnapshotClient(c.config)
 	c.GlobalSettings = NewGlobalSettingsClient(c.config)
+	c.NotificationSettings = NewNotificationSettingsClient(c.config)
 	c.Resource = NewResourceClient(c.config)
 	c.ResourceEvent = NewResourceEventClient(c.config)
 	c.Router = NewRouterClient(c.config)
@@ -173,19 +185,22 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		APIKey:           NewAPIKeyClient(cfg),
-		ConfigSnapshot:   NewConfigSnapshotClient(cfg),
-		GlobalSettings:   NewGlobalSettingsClient(cfg),
-		Resource:         NewResourceClient(cfg),
-		ResourceEvent:    NewResourceEventClient(cfg),
-		Router:           NewRouterClient(cfg),
-		RouterCapability: NewRouterCapabilityClient(cfg),
-		RouterSecret:     NewRouterSecretClient(cfg),
-		SchemaVersion:    NewSchemaVersionClient(cfg),
-		Session:          NewSessionClient(cfg),
-		User:             NewUserClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		APIKey:               NewAPIKeyClient(cfg),
+		Alert:                NewAlertClient(cfg),
+		AlertRule:            NewAlertRuleClient(cfg),
+		ConfigSnapshot:       NewConfigSnapshotClient(cfg),
+		GlobalSettings:       NewGlobalSettingsClient(cfg),
+		NotificationSettings: NewNotificationSettingsClient(cfg),
+		Resource:             NewResourceClient(cfg),
+		ResourceEvent:        NewResourceEventClient(cfg),
+		Router:               NewRouterClient(cfg),
+		RouterCapability:     NewRouterCapabilityClient(cfg),
+		RouterSecret:         NewRouterSecretClient(cfg),
+		SchemaVersion:        NewSchemaVersionClient(cfg),
+		Session:              NewSessionClient(cfg),
+		User:                 NewUserClient(cfg),
 	}, nil
 }
 
@@ -203,19 +218,22 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		APIKey:           NewAPIKeyClient(cfg),
-		ConfigSnapshot:   NewConfigSnapshotClient(cfg),
-		GlobalSettings:   NewGlobalSettingsClient(cfg),
-		Resource:         NewResourceClient(cfg),
-		ResourceEvent:    NewResourceEventClient(cfg),
-		Router:           NewRouterClient(cfg),
-		RouterCapability: NewRouterCapabilityClient(cfg),
-		RouterSecret:     NewRouterSecretClient(cfg),
-		SchemaVersion:    NewSchemaVersionClient(cfg),
-		Session:          NewSessionClient(cfg),
-		User:             NewUserClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		APIKey:               NewAPIKeyClient(cfg),
+		Alert:                NewAlertClient(cfg),
+		AlertRule:            NewAlertRuleClient(cfg),
+		ConfigSnapshot:       NewConfigSnapshotClient(cfg),
+		GlobalSettings:       NewGlobalSettingsClient(cfg),
+		NotificationSettings: NewNotificationSettingsClient(cfg),
+		Resource:             NewResourceClient(cfg),
+		ResourceEvent:        NewResourceEventClient(cfg),
+		Router:               NewRouterClient(cfg),
+		RouterCapability:     NewRouterCapabilityClient(cfg),
+		RouterSecret:         NewRouterSecretClient(cfg),
+		SchemaVersion:        NewSchemaVersionClient(cfg),
+		Session:              NewSessionClient(cfg),
+		User:                 NewUserClient(cfg),
 	}, nil
 }
 
@@ -245,9 +263,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.APIKey, c.ConfigSnapshot, c.GlobalSettings, c.Resource, c.ResourceEvent,
-		c.Router, c.RouterCapability, c.RouterSecret, c.SchemaVersion, c.Session,
-		c.User,
+		c.APIKey, c.Alert, c.AlertRule, c.ConfigSnapshot, c.GlobalSettings,
+		c.NotificationSettings, c.Resource, c.ResourceEvent, c.Router,
+		c.RouterCapability, c.RouterSecret, c.SchemaVersion, c.Session, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -257,9 +275,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.APIKey, c.ConfigSnapshot, c.GlobalSettings, c.Resource, c.ResourceEvent,
-		c.Router, c.RouterCapability, c.RouterSecret, c.SchemaVersion, c.Session,
-		c.User,
+		c.APIKey, c.Alert, c.AlertRule, c.ConfigSnapshot, c.GlobalSettings,
+		c.NotificationSettings, c.Resource, c.ResourceEvent, c.Router,
+		c.RouterCapability, c.RouterSecret, c.SchemaVersion, c.Session, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -270,10 +288,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *APIKeyMutation:
 		return c.APIKey.mutate(ctx, m)
+	case *AlertMutation:
+		return c.Alert.mutate(ctx, m)
+	case *AlertRuleMutation:
+		return c.AlertRule.mutate(ctx, m)
 	case *ConfigSnapshotMutation:
 		return c.ConfigSnapshot.mutate(ctx, m)
 	case *GlobalSettingsMutation:
 		return c.GlobalSettings.mutate(ctx, m)
+	case *NotificationSettingsMutation:
+		return c.NotificationSettings.mutate(ctx, m)
 	case *ResourceMutation:
 		return c.Resource.mutate(ctx, m)
 	case *ResourceEventMutation:
@@ -444,6 +468,310 @@ func (c *APIKeyClient) mutate(ctx context.Context, m *APIKeyMutation) (Value, er
 		return (&APIKeyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown APIKey mutation op: %q", m.Op())
+	}
+}
+
+// AlertClient is a client for the Alert schema.
+type AlertClient struct {
+	config
+}
+
+// NewAlertClient returns a client for the Alert from the given config.
+func NewAlertClient(c config) *AlertClient {
+	return &AlertClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `alert.Hooks(f(g(h())))`.
+func (c *AlertClient) Use(hooks ...Hook) {
+	c.hooks.Alert = append(c.hooks.Alert, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `alert.Intercept(f(g(h())))`.
+func (c *AlertClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Alert = append(c.inters.Alert, interceptors...)
+}
+
+// Create returns a builder for creating a Alert entity.
+func (c *AlertClient) Create() *AlertCreate {
+	mutation := newAlertMutation(c.config, OpCreate)
+	return &AlertCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Alert entities.
+func (c *AlertClient) CreateBulk(builders ...*AlertCreate) *AlertCreateBulk {
+	return &AlertCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AlertClient) MapCreateBulk(slice any, setFunc func(*AlertCreate, int)) *AlertCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AlertCreateBulk{err: fmt.Errorf("calling to AlertClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AlertCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AlertCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Alert.
+func (c *AlertClient) Update() *AlertUpdate {
+	mutation := newAlertMutation(c.config, OpUpdate)
+	return &AlertUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AlertClient) UpdateOne(_m *Alert) *AlertUpdateOne {
+	mutation := newAlertMutation(c.config, OpUpdateOne, withAlert(_m))
+	return &AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AlertClient) UpdateOneID(id string) *AlertUpdateOne {
+	mutation := newAlertMutation(c.config, OpUpdateOne, withAlertID(id))
+	return &AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Alert.
+func (c *AlertClient) Delete() *AlertDelete {
+	mutation := newAlertMutation(c.config, OpDelete)
+	return &AlertDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AlertClient) DeleteOne(_m *Alert) *AlertDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AlertClient) DeleteOneID(id string) *AlertDeleteOne {
+	builder := c.Delete().Where(alert.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AlertDeleteOne{builder}
+}
+
+// Query returns a query builder for Alert.
+func (c *AlertClient) Query() *AlertQuery {
+	return &AlertQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAlert},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Alert entity by its id.
+func (c *AlertClient) Get(ctx context.Context, id string) (*Alert, error) {
+	return c.Query().Where(alert.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AlertClient) GetX(ctx context.Context, id string) *Alert {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRule queries the rule edge of a Alert.
+func (c *AlertClient) QueryRule(_m *Alert) *AlertRuleQuery {
+	query := (&AlertRuleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(alertrule.Table, alertrule.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, alert.RuleTable, alert.RuleColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.AlertRule
+		step.Edge.Schema = schemaConfig.Alert
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AlertClient) Hooks() []Hook {
+	return c.hooks.Alert
+}
+
+// Interceptors returns the client interceptors.
+func (c *AlertClient) Interceptors() []Interceptor {
+	return c.inters.Alert
+}
+
+func (c *AlertClient) mutate(ctx context.Context, m *AlertMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AlertCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AlertUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AlertDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Alert mutation op: %q", m.Op())
+	}
+}
+
+// AlertRuleClient is a client for the AlertRule schema.
+type AlertRuleClient struct {
+	config
+}
+
+// NewAlertRuleClient returns a client for the AlertRule from the given config.
+func NewAlertRuleClient(c config) *AlertRuleClient {
+	return &AlertRuleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `alertrule.Hooks(f(g(h())))`.
+func (c *AlertRuleClient) Use(hooks ...Hook) {
+	c.hooks.AlertRule = append(c.hooks.AlertRule, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `alertrule.Intercept(f(g(h())))`.
+func (c *AlertRuleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AlertRule = append(c.inters.AlertRule, interceptors...)
+}
+
+// Create returns a builder for creating a AlertRule entity.
+func (c *AlertRuleClient) Create() *AlertRuleCreate {
+	mutation := newAlertRuleMutation(c.config, OpCreate)
+	return &AlertRuleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AlertRule entities.
+func (c *AlertRuleClient) CreateBulk(builders ...*AlertRuleCreate) *AlertRuleCreateBulk {
+	return &AlertRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AlertRuleClient) MapCreateBulk(slice any, setFunc func(*AlertRuleCreate, int)) *AlertRuleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AlertRuleCreateBulk{err: fmt.Errorf("calling to AlertRuleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AlertRuleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AlertRuleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AlertRule.
+func (c *AlertRuleClient) Update() *AlertRuleUpdate {
+	mutation := newAlertRuleMutation(c.config, OpUpdate)
+	return &AlertRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AlertRuleClient) UpdateOne(_m *AlertRule) *AlertRuleUpdateOne {
+	mutation := newAlertRuleMutation(c.config, OpUpdateOne, withAlertRule(_m))
+	return &AlertRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AlertRuleClient) UpdateOneID(id string) *AlertRuleUpdateOne {
+	mutation := newAlertRuleMutation(c.config, OpUpdateOne, withAlertRuleID(id))
+	return &AlertRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AlertRule.
+func (c *AlertRuleClient) Delete() *AlertRuleDelete {
+	mutation := newAlertRuleMutation(c.config, OpDelete)
+	return &AlertRuleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AlertRuleClient) DeleteOne(_m *AlertRule) *AlertRuleDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AlertRuleClient) DeleteOneID(id string) *AlertRuleDeleteOne {
+	builder := c.Delete().Where(alertrule.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AlertRuleDeleteOne{builder}
+}
+
+// Query returns a query builder for AlertRule.
+func (c *AlertRuleClient) Query() *AlertRuleQuery {
+	return &AlertRuleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAlertRule},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AlertRule entity by its id.
+func (c *AlertRuleClient) Get(ctx context.Context, id string) (*AlertRule, error) {
+	return c.Query().Where(alertrule.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AlertRuleClient) GetX(ctx context.Context, id string) *AlertRule {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAlerts queries the alerts edge of a AlertRule.
+func (c *AlertRuleClient) QueryAlerts(_m *AlertRule) *AlertQuery {
+	query := (&AlertClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alertrule.Table, alertrule.FieldID, id),
+			sqlgraph.To(alert.Table, alert.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alertrule.AlertsTable, alertrule.AlertsColumn),
+		)
+		schemaConfig := _m.schemaConfig
+		step.To.Schema = schemaConfig.Alert
+		step.Edge.Schema = schemaConfig.Alert
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AlertRuleClient) Hooks() []Hook {
+	return c.hooks.AlertRule
+}
+
+// Interceptors returns the client interceptors.
+func (c *AlertRuleClient) Interceptors() []Interceptor {
+	return c.inters.AlertRule
+}
+
+func (c *AlertRuleClient) mutate(ctx context.Context, m *AlertRuleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AlertRuleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AlertRuleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AlertRuleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AlertRuleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AlertRule mutation op: %q", m.Op())
 	}
 }
 
@@ -710,6 +1038,139 @@ func (c *GlobalSettingsClient) mutate(ctx context.Context, m *GlobalSettingsMuta
 		return (&GlobalSettingsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown GlobalSettings mutation op: %q", m.Op())
+	}
+}
+
+// NotificationSettingsClient is a client for the NotificationSettings schema.
+type NotificationSettingsClient struct {
+	config
+}
+
+// NewNotificationSettingsClient returns a client for the NotificationSettings from the given config.
+func NewNotificationSettingsClient(c config) *NotificationSettingsClient {
+	return &NotificationSettingsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationsettings.Hooks(f(g(h())))`.
+func (c *NotificationSettingsClient) Use(hooks ...Hook) {
+	c.hooks.NotificationSettings = append(c.hooks.NotificationSettings, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationsettings.Intercept(f(g(h())))`.
+func (c *NotificationSettingsClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationSettings = append(c.inters.NotificationSettings, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationSettings entity.
+func (c *NotificationSettingsClient) Create() *NotificationSettingsCreate {
+	mutation := newNotificationSettingsMutation(c.config, OpCreate)
+	return &NotificationSettingsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationSettings entities.
+func (c *NotificationSettingsClient) CreateBulk(builders ...*NotificationSettingsCreate) *NotificationSettingsCreateBulk {
+	return &NotificationSettingsCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationSettingsClient) MapCreateBulk(slice any, setFunc func(*NotificationSettingsCreate, int)) *NotificationSettingsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationSettingsCreateBulk{err: fmt.Errorf("calling to NotificationSettingsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationSettingsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationSettingsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationSettings.
+func (c *NotificationSettingsClient) Update() *NotificationSettingsUpdate {
+	mutation := newNotificationSettingsMutation(c.config, OpUpdate)
+	return &NotificationSettingsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationSettingsClient) UpdateOne(_m *NotificationSettings) *NotificationSettingsUpdateOne {
+	mutation := newNotificationSettingsMutation(c.config, OpUpdateOne, withNotificationSettings(_m))
+	return &NotificationSettingsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationSettingsClient) UpdateOneID(id string) *NotificationSettingsUpdateOne {
+	mutation := newNotificationSettingsMutation(c.config, OpUpdateOne, withNotificationSettingsID(id))
+	return &NotificationSettingsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationSettings.
+func (c *NotificationSettingsClient) Delete() *NotificationSettingsDelete {
+	mutation := newNotificationSettingsMutation(c.config, OpDelete)
+	return &NotificationSettingsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationSettingsClient) DeleteOne(_m *NotificationSettings) *NotificationSettingsDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationSettingsClient) DeleteOneID(id string) *NotificationSettingsDeleteOne {
+	builder := c.Delete().Where(notificationsettings.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationSettingsDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationSettings.
+func (c *NotificationSettingsClient) Query() *NotificationSettingsQuery {
+	return &NotificationSettingsQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationSettings},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationSettings entity by its id.
+func (c *NotificationSettingsClient) Get(ctx context.Context, id string) (*NotificationSettings, error) {
+	return c.Query().Where(notificationsettings.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationSettingsClient) GetX(ctx context.Context, id string) *NotificationSettings {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationSettingsClient) Hooks() []Hook {
+	return c.hooks.NotificationSettings
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationSettingsClient) Interceptors() []Interceptor {
+	return c.inters.NotificationSettings
+}
+
+func (c *NotificationSettingsClient) mutate(ctx context.Context, m *NotificationSettingsMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationSettingsCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationSettingsUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationSettingsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationSettingsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationSettings mutation op: %q", m.Op())
 	}
 }
 
@@ -1913,12 +2374,14 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		APIKey, ConfigSnapshot, GlobalSettings, Resource, ResourceEvent, Router,
-		RouterCapability, RouterSecret, SchemaVersion, Session, User []ent.Hook
+		APIKey, Alert, AlertRule, ConfigSnapshot, GlobalSettings, NotificationSettings,
+		Resource, ResourceEvent, Router, RouterCapability, RouterSecret, SchemaVersion,
+		Session, User []ent.Hook
 	}
 	inters struct {
-		APIKey, ConfigSnapshot, GlobalSettings, Resource, ResourceEvent, Router,
-		RouterCapability, RouterSecret, SchemaVersion, Session, User []ent.Interceptor
+		APIKey, Alert, AlertRule, ConfigSnapshot, GlobalSettings, NotificationSettings,
+		Resource, ResourceEvent, Router, RouterCapability, RouterSecret, SchemaVersion,
+		Session, User []ent.Interceptor
 	}
 )
 

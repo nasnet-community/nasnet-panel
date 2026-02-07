@@ -1,0 +1,544 @@
+# =============================================================================
+# Alert Rules and Notifications Schema
+# =============================================================================
+# Defines alert rules, alerts, notification channels, and real-time subscriptions
+# for the NasNetConnect monitoring and alerting system.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Alert Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert rule defines conditions that trigger notifications when met
+"""
+type AlertRule implements Node {
+  """Globally unique identifier"""
+  id: ID!
+
+  """Human-readable alert rule name"""
+  name: String!
+
+  """Optional description of what this rule monitors"""
+  description: String
+
+  """Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high')"""
+  eventType: String!
+
+  """Array of conditions for event matching"""
+  conditions: [AlertCondition!]!
+
+  """Alert severity level"""
+  severity: AlertSeverity!
+
+  """Notification channels to use"""
+  channels: [String!]!
+
+  """Throttle configuration to prevent alert spam"""
+  throttle: ThrottleConfig
+
+  """Quiet hours configuration for non-critical alerts"""
+  quietHours: QuietHoursConfig
+
+  """Optional device ID filter - rule only applies to this device"""
+  deviceId: ID
+
+  """Whether this alert rule is enabled"""
+  enabled: Boolean!
+
+  """Record creation timestamp"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+
+  """Alerts triggered by this rule"""
+  alerts(
+    """Filter by acknowledged status"""
+    acknowledged: Boolean
+    """Limit number of results"""
+    limit: Int = 50
+  ): [Alert!]!
+}
+
+"""
+Individual alert instance triggered when rule conditions are met
+"""
+type Alert implements Node {
+  """Globally unique identifier"""
+  id: ID!
+
+  """Alert rule that triggered this alert"""
+  rule: AlertRule!
+
+  """Event type that triggered this alert"""
+  eventType: String!
+
+  """Alert severity level"""
+  severity: AlertSeverity!
+
+  """Alert title/summary"""
+  title: String!
+
+  """Detailed alert message"""
+  message: String!
+
+  """Event data and context information"""
+  data: JSON
+
+  """Device ID that triggered this alert"""
+  deviceId: ID
+
+  """When alert was triggered"""
+  triggeredAt: DateTime!
+
+  """When alert was acknowledged"""
+  acknowledgedAt: DateTime
+
+  """User who acknowledged the alert"""
+  acknowledgedBy: String
+
+  """Delivery status per channel"""
+  deliveryStatus: JSON
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""
+Condition for event matching in alert rules
+"""
+type AlertCondition {
+  """Field name to evaluate"""
+  field: String!
+
+  """Comparison operator"""
+  operator: ConditionOperator!
+
+  """Value to compare against"""
+  value: String!
+}
+
+"""
+Throttle configuration to prevent alert spam
+"""
+type ThrottleConfig {
+  """Maximum number of alerts allowed"""
+  maxAlerts: Int!
+
+  """Time period in seconds"""
+  periodSeconds: Int!
+
+  """Optional field to group alerts by"""
+  groupByField: String
+}
+
+"""
+Quiet hours configuration
+"""
+type QuietHoursConfig {
+  """Start time in HH:MM format"""
+  startTime: String!
+
+  """End time in HH:MM format"""
+  endTime: String!
+
+  """Timezone (IANA timezone database name)"""
+  timezone: String!
+
+  """Whether critical alerts bypass quiet hours"""
+  bypassCritical: Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# Enums
+# -----------------------------------------------------------------------------
+
+"""
+Alert severity levels
+"""
+enum AlertSeverity {
+  """Critical - requires immediate attention"""
+  CRITICAL
+
+  """Warning - attention needed soon"""
+  WARNING
+
+  """Info - informational only"""
+  INFO
+}
+
+"""
+Condition comparison operators
+"""
+enum ConditionOperator {
+  """Exact match"""
+  EQUALS
+
+  """Not equal"""
+  NOT_EQUALS
+
+  """Numeric greater than"""
+  GREATER_THAN
+
+  """Numeric less than"""
+  LESS_THAN
+
+  """String contains"""
+  CONTAINS
+
+  """Regular expression match"""
+  REGEX
+}
+
+"""
+Alert action types for subscriptions
+"""
+enum AlertAction {
+  """Alert was created/triggered"""
+  CREATED
+
+  """Alert was acknowledged"""
+  ACKNOWLEDGED
+
+  """Alert was resolved"""
+  RESOLVED
+}
+
+# -----------------------------------------------------------------------------
+# Input Types
+# -----------------------------------------------------------------------------
+
+"""
+Input for creating an alert rule
+"""
+input CreateAlertRuleInput {
+  """Human-readable alert rule name"""
+  name: String!
+
+  """Optional description"""
+  description: String
+
+  """Event type to match"""
+  eventType: String!
+
+  """Array of conditions"""
+  conditions: [AlertConditionInput!]
+
+  """Alert severity level"""
+  severity: AlertSeverity!
+
+  """Notification channels"""
+  channels: [String!]!
+
+  """Throttle configuration"""
+  throttle: ThrottleConfigInput
+
+  """Quiet hours configuration"""
+  quietHours: QuietHoursConfigInput
+
+  """Optional device ID filter"""
+  deviceId: ID
+
+  """Whether rule is enabled (default: true)"""
+  enabled: Boolean = true
+}
+
+"""
+Input for updating an alert rule
+"""
+input UpdateAlertRuleInput {
+  """Human-readable alert rule name"""
+  name: String
+
+  """Optional description"""
+  description: String
+
+  """Event type to match"""
+  eventType: String
+
+  """Array of conditions"""
+  conditions: [AlertConditionInput!]
+
+  """Alert severity level"""
+  severity: AlertSeverity
+
+  """Notification channels"""
+  channels: [String!]
+
+  """Throttle configuration"""
+  throttle: ThrottleConfigInput
+
+  """Quiet hours configuration"""
+  quietHours: QuietHoursConfigInput
+
+  """Optional device ID filter"""
+  deviceId: ID
+
+  """Whether rule is enabled"""
+  enabled: Boolean
+}
+
+"""
+Alert condition input
+"""
+input AlertConditionInput {
+  """Field name to evaluate"""
+  field: String!
+
+  """Comparison operator"""
+  operator: ConditionOperator!
+
+  """Value to compare against"""
+  value: String!
+}
+
+"""
+Throttle configuration input
+"""
+input ThrottleConfigInput {
+  """Maximum number of alerts allowed"""
+  maxAlerts: Int!
+
+  """Time period in seconds"""
+  periodSeconds: Int!
+
+  """Optional field to group alerts by"""
+  groupByField: String
+}
+
+"""
+Quiet hours configuration input
+"""
+input QuietHoursConfigInput {
+  """Start time in HH:MM format"""
+  startTime: String!
+
+  """End time in HH:MM format"""
+  endTime: String!
+
+  """Timezone (default: UTC)"""
+  timezone: String = "UTC"
+
+  """Whether critical alerts bypass quiet hours (default: true)"""
+  bypassCritical: Boolean = true
+}
+
+# -----------------------------------------------------------------------------
+# Connection Types (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+"""
+Paginated alert connection
+"""
+type AlertConnection implements Connection {
+  """Alert edges"""
+  edges: [AlertEdge!]!
+
+  """Pagination information"""
+  pageInfo: PageInfo!
+
+  """Total count of alerts"""
+  totalCount: Int!
+}
+
+"""
+Alert edge for pagination
+"""
+type AlertEdge implements Edge {
+  """Alert node"""
+  node: Alert!
+
+  """Pagination cursor"""
+  cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Payload Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert rule mutation payload
+"""
+type AlertRulePayload {
+  """Created/updated alert rule"""
+  alertRule: AlertRule
+
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
+"""
+Alert mutation payload
+"""
+type AlertPayload {
+  """Modified alert"""
+  alert: Alert
+
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
+"""
+Bulk alert mutation payload
+"""
+type BulkAlertPayload {
+  """Number of alerts acknowledged"""
+  acknowledgedCount: Int!
+
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+}
+
+"""
+Test notification payload
+"""
+type TestNotificationPayload {
+  """Whether test was successful"""
+  success: Boolean!
+
+  """Test result message"""
+  message: String
+
+  """Errors encountered during test"""
+  errors: [MutationError!]
+}
+
+"""
+Delete operation payload
+"""
+type DeletePayload {
+  """Whether deletion was successful"""
+  success: Boolean!
+
+  """ID of deleted item"""
+  deletedId: ID
+
+  """Errors encountered during deletion"""
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Event Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert event for real-time subscriptions
+"""
+type AlertEvent {
+  """The alert that changed"""
+  alert: Alert!
+
+  """Type of action that occurred"""
+  action: AlertAction!
+}
+
+# -----------------------------------------------------------------------------
+# Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all alert rules, optionally filtered by device
+  """
+  alertRules(
+    """Filter by device ID"""
+    deviceId: ID
+  ): [AlertRule!]!
+
+  """
+  Get a single alert rule by ID
+  """
+  alertRule(
+    """Alert rule ID"""
+    id: ID!
+  ): AlertRule
+
+  """
+  Get alerts with filtering and pagination
+  """
+  alerts(
+    """Filter by device ID"""
+    deviceId: ID
+    """Filter by severity"""
+    severity: AlertSeverity
+    """Filter by acknowledged status"""
+    acknowledged: Boolean
+    """Pagination limit"""
+    limit: Int = 50
+    """Pagination offset"""
+    offset: Int = 0
+  ): AlertConnection!
+}
+
+# -----------------------------------------------------------------------------
+# Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new alert rule
+  """
+  createAlertRule(
+    """Alert rule input"""
+    input: CreateAlertRuleInput!
+  ): AlertRulePayload!
+
+  """
+  Update an existing alert rule
+  """
+  updateAlertRule(
+    """Alert rule ID"""
+    id: ID!
+    """Update input"""
+    input: UpdateAlertRuleInput!
+  ): AlertRulePayload!
+
+  """
+  Delete an alert rule
+  """
+  deleteAlertRule(
+    """Alert rule ID"""
+    id: ID!
+  ): DeletePayload!
+
+  """
+  Acknowledge a single alert
+  """
+  acknowledgeAlert(
+    """Alert ID"""
+    alertId: ID!
+  ): AlertPayload!
+
+  """
+  Acknowledge multiple alerts
+  """
+  acknowledgeAlerts(
+    """Array of alert IDs"""
+    alertIds: [ID!]!
+  ): BulkAlertPayload!
+
+  """
+  Test a notification channel
+  """
+  testNotificationChannel(
+    """Channel type (email, telegram, pushover, webhook)"""
+    channel: String!
+    """Channel configuration"""
+    config: JSON!
+  ): TestNotificationPayload!
+}
+
+# -----------------------------------------------------------------------------
+# Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to alert events for real-time updates
+  """
+  alertEvents(
+    """Filter by device ID"""
+    deviceId: ID
+  ): AlertEvent!
+}

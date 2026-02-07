@@ -7,17 +7,20 @@ import "context"
 // SchemaConfig represents alternative schema names for all tables
 // that can be passed at runtime.
 type SchemaConfig struct {
-	APIKey           string // APIKey table.
-	ConfigSnapshot   string // ConfigSnapshot table.
-	GlobalSettings   string // GlobalSettings table.
-	Resource         string // Resource table.
-	ResourceEvent    string // ResourceEvent table.
-	Router           string // Router table.
-	RouterCapability string // RouterCapability table.
-	RouterSecret     string // RouterSecret table.
-	SchemaVersion    string // SchemaVersion table.
-	Session          string // Session table.
-	User             string // User table.
+	APIKey               string // APIKey table.
+	Alert                string // Alert table.
+	AlertRule            string // AlertRule table.
+	ConfigSnapshot       string // ConfigSnapshot table.
+	GlobalSettings       string // GlobalSettings table.
+	NotificationSettings string // NotificationSettings table.
+	Resource             string // Resource table.
+	ResourceEvent        string // ResourceEvent table.
+	Router               string // Router table.
+	RouterCapability     string // RouterCapability table.
+	RouterSecret         string // RouterSecret table.
+	SchemaVersion        string // SchemaVersion table.
+	Session              string // Session table.
+	User                 string // User table.
 }
 
 type schemaCtxKey struct{}

@@ -43,6 +43,7 @@ export default defineConfig({
     alias: {
       '@nasnet/ui/primitives': path.resolve(__dirname, '../primitives/src'),
       '@nasnet/ui/layouts': path.resolve(__dirname, '../layouts/src'),
+      '@nasnet/ui/tokens': path.resolve(__dirname, '../tokens/dist'),
       '@nasnet/core/types': path.resolve(__dirname, '../../core/types/src'),
       '@nasnet/core/utils': path.resolve(__dirname, '../../core/utils/src'),
       '@nasnet/core/constants': path.resolve(

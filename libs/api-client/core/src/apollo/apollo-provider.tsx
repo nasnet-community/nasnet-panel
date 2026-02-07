@@ -8,8 +8,9 @@
  */
 
 import { ApolloProvider as BaseApolloProvider } from '@apollo/client';
-import { Suspense, lazy, ReactNode } from 'react';
-import { apolloClient } from './apollo-client';
+import { Suspense, lazy, ReactNode, useEffect, useState } from 'react';
+import { apolloClient, apolloCache } from './apollo-client';
+import { initializeCachePersistence } from './apollo-cache-persist';
 
 /**
  * Lazy load Apollo DevTools only in development.
@@ -39,10 +40,13 @@ interface ApolloProviderProps {
 }
 
 /**
- * Apollo Provider with integrated DevTools.
+ * Apollo Provider with integrated DevTools and cache persistence.
  *
- * Wraps children with Apollo Client context and optionally renders
- * DevTools panel in development mode.
+ * Wraps children with Apollo Client context, initializes cache persistence
+ * for offline support, and optionally renders DevTools panel in development mode.
+ *
+ * Cache persistence is initialized before rendering children to ensure
+ * the cache is hydrated from IndexedDB/localStorage before any queries run.
  *
  * Usage:
  * ```tsx
@@ -61,6 +65,25 @@ interface ApolloProviderProps {
  * ErrorBoundary → ApolloProvider → QueryClientProvider → I18nextProvider → ThemeProvider → ToastProvider
  */
 export function ApolloProvider({ children }: ApolloProviderProps) {
+  const [isCacheRestored, setIsCacheRestored] = useState(false);
+
+  useEffect(() => {
+    // Initialize cache persistence on mount
+    initializeCachePersistence(apolloCache, {
+      maxSize: 5 * 1024 * 1024, // 5MB
+      debounce: 1000, // 1 second
+      debug: import.meta.env.DEV,
+    }).then(() => {
+      setIsCacheRestored(true);
+    });
+  }, []);
+
+  // Wait for cache to be restored before rendering
+  // This ensures offline data is available before any queries run
+  if (!isCacheRestored) {
+    return null;
+  }
+
   return (
     <BaseApolloProvider client={apolloClient}>
       {children}

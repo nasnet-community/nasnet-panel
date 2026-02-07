@@ -133,3 +133,15 @@ func (p *Publisher) PublishCredentialChanged(ctx context.Context, routerID, user
 	event := NewCredentialChangedEvent(routerID, userID, ipAddress, p.source)
 	return p.bus.Publish(ctx, event)
 }
+
+// PublishInterfaceStatusChanged publishes an interface status change event.
+func (p *Publisher) PublishInterfaceStatusChanged(ctx context.Context, routerID, interfaceID, interfaceName, status, previousStatus string) error {
+	event := NewInterfaceStatusChangedEvent(routerID, interfaceID, interfaceName, status, previousStatus, p.source)
+	return p.bus.Publish(ctx, event)
+}
+
+// PublishInterfaceTrafficUpdate publishes an interface traffic update event.
+func (p *Publisher) PublishInterfaceTrafficUpdate(ctx context.Context, routerID, interfaceID, interfaceName string, txRate, rxRate, txTotal, rxTotal uint64) error {
+	event := NewInterfaceTrafficUpdateEvent(routerID, interfaceID, interfaceName, txRate, rxRate, txTotal, rxTotal, p.source)
+	return p.bus.Publish(ctx, event)
+}

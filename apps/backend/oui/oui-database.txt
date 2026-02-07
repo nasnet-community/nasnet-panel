@@ -1,0 +1,192 @@
+# MAC Address OUI Database (Sample)
+# Format: MAC_PREFIX\tVendor_Name
+# Full database: https://standards.ieee.org/products-programs/regauth/
+
+# Apple Inc.
+00:03:93	Apple, Inc.
+00:05:02	Apple, Inc.
+00:0A:27	Apple, Inc.
+00:0A:95	Apple, Inc.
+00:0D:93	Apple, Inc.
+00:10:FA	Apple, Inc.
+00:11:24	Apple, Inc.
+00:14:51	Apple, Inc.
+00:16:CB	Apple, Inc.
+00:17:F2	Apple, Inc.
+00:19:E3	Apple, Inc.
+00:1B:63	Apple, Inc.
+00:1C:B3	Apple, Inc.
+00:1D:4F	Apple, Inc.
+00:1E:52	Apple, Inc.
+00:1F:5B	Apple, Inc.
+00:1F:F3	Apple, Inc.
+00:21:E9	Apple, Inc.
+00:22:41	Apple, Inc.
+00:23:12	Apple, Inc.
+00:23:32	Apple, Inc.
+00:23:6C	Apple, Inc.
+00:23:DF	Apple, Inc.
+00:24:36	Apple, Inc.
+00:25:00	Apple, Inc.
+00:25:4B	Apple, Inc.
+00:25:BC	Apple, Inc.
+00:26:08	Apple, Inc.
+00:26:4A	Apple, Inc.
+00:26:B0	Apple, Inc.
+00:26:BB	Apple, Inc.
+A4:83:E7	Apple, Inc.
+AC:87:A3	Apple, Inc.
+BC:92:6B	Apple, Inc.
+D0:E1:40	Apple, Inc.
+E0:F8:47	Apple, Inc.
+F0:DB:E2	Apple, Inc.
+
+# Samsung Electronics
+00:00:F0	Samsung Electronics Co.,Ltd
+00:12:FB	Samsung Electronics Co.,Ltd
+00:13:77	Samsung Electronics Co.,Ltd
+00:15:B9	Samsung Electronics Co.,Ltd
+00:16:32	Samsung Electronics Co.,Ltd
+00:16:6B	Samsung Electronics Co.,Ltd
+00:17:C9	Samsung Electronics Co.,Ltd
+00:18:AF	Samsung Electronics Co.,Ltd
+00:1A:8A	Samsung Electronics Co.,Ltd
+00:1B:98	Samsung Electronics Co.,Ltd
+00:1C:43	Samsung Electronics Co.,Ltd
+00:1D:25	Samsung Electronics Co.,Ltd
+00:1E:7D	Samsung Electronics Co.,Ltd
+00:1F:CC	Samsung Electronics Co.,Ltd
+00:21:19	Samsung Electronics Co.,Ltd
+00:23:39	Samsung Electronics Co.,Ltd
+00:23:D6	Samsung Electronics Co.,Ltd
+00:24:90	Samsung Electronics Co.,Ltd
+00:24:E9	Samsung Electronics Co.,Ltd
+00:25:38	Samsung Electronics Co.,Ltd
+00:26:5D	Samsung Electronics Co.,Ltd
+50:32:37	Samsung Electronics Co.,Ltd
+70:F9:27	Samsung Electronics Co.,Ltd
+D4:E8:B2	Samsung Electronics Co.,Ltd
+
+# Google, Inc.
+3C:5A:B4	Google, Inc.
+54:60:09	Google, Inc.
+6C:AD:F8	Google, Inc.
+74:E5:43	Google, Inc.
+84:1B:5E	Google, Inc.
+98:0C:82	Google, Inc.
+A4:77:33	Google, Inc.
+F4:F5:D8	Google, Inc.
+
+# Dell Inc.
+00:06:5B	Dell Inc.
+00:08:74	Dell Inc.
+00:0B:DB	Dell Inc.
+00:0D:56	Dell Inc.
+00:11:43	Dell Inc.
+00:12:3F	Dell Inc.
+00:13:72	Dell Inc.
+00:14:22	Dell Inc.
+00:15:C5	Dell Inc.
+00:18:8B	Dell Inc.
+00:19:B9	Dell Inc.
+00:1A:A0	Dell Inc.
+00:1C:23	Dell Inc.
+00:1D:09	Dell Inc.
+00:1E:4F	Dell Inc.
+00:21:70	Dell Inc.
+00:21:9B	Dell Inc.
+00:22:19	Dell Inc.
+00:23:AE	Dell Inc.
+00:24:E8	Dell Inc.
+00:25:64	Dell Inc.
+00:26:B9	Dell Inc.
+
+# Hewlett Packard
+00:01:E6	Hewlett Packard
+00:01:E7	Hewlett Packard
+00:04:EA	Hewlett Packard
+00:08:02	Hewlett Packard
+00:0A:57	Hewlett Packard
+00:0E:7F	Hewlett Packard
+00:10:83	Hewlett Packard
+00:11:0A	Hewlett Packard
+00:12:79	Hewlett Packard
+00:13:21	Hewlett Packard
+00:14:38	Hewlett Packard
+00:14:C2	Hewlett Packard
+00:15:60	Hewlett Packard
+00:16:35	Hewlett Packard
+00:17:08	Hewlett Packard
+00:17:A4	Hewlett Packard
+00:18:71	Hewlett Packard
+00:18:FE	Hewlett Packard
+00:19:BB	Hewlett Packard
+00:1A:4B	Hewlett Packard
+
+# Raspberry Pi Trading Ltd
+B8:27:EB	Raspberry Pi Foundation
+DC:A6:32	Raspberry Pi Trading Ltd
+E4:5F:01	Raspberry Pi Trading Ltd
+
+# Espressif Inc.
+24:0A:C4	Espressif Inc.
+30:AE:A4	Espressif Inc.
+84:CC:A8	Espressif Inc.
+A4:CF:12	Espressif Inc.
+B4:E6:2D	Espressif Inc.
+C4:4F:33	Espressif Inc.
+CC:50:E3	Espressif Inc.
+
+# TP-Link Technologies Co.,Ltd.
+00:27:19	TP-LINK TECHNOLOGIES CO.,LTD.
+14:CC:20	TP-LINK TECHNOLOGIES CO.,LTD.
+50:C7:BF	TP-LINK TECHNOLOGIES CO.,LTD.
+A0:F3:C1	TP-LINK TECHNOLOGIES CO.,LTD.
+B0:4E:26	TP-LINK TECHNOLOGIES CO.,LTD.
+C0:4A:00	TP-LINK TECHNOLOGIES CO.,LTD.
+
+# Ubiquiti Networks Inc.
+00:15:6D	Ubiquiti Networks Inc.
+04:18:D6	Ubiquiti Networks Inc.
+24:A4:3C	Ubiquiti Networks Inc.
+68:D7:9A	Ubiquiti Networks Inc.
+74:83:C2	Ubiquiti Networks Inc.
+80:2A:A8	Ubiquiti Networks Inc.
+B4:FB:E4	Ubiquiti Networks Inc.
+DC:9F:DB	Ubiquiti Networks Inc.
+E4:38:83	Ubiquiti Networks Inc.
+FC:EC:DA	Ubiquiti Networks Inc.
+
+# MikroTik
+00:0C:42	MikroTik
+08:55:31	MikroTik
+4C:5E:0C	MikroTik
+6C:3B:6B	MikroTik
+D4:CA:6D	MikroTik
+
+# Intel Corporate
+00:02:B3	Intel Corporate
+00:03:47	Intel Corporate
+00:04:23	Intel Corporate
+00:07:E9	Intel Corporate
+00:0E:0C	Intel Corporate
+00:13:02	Intel Corporate
+00:13:E8	Intel Corporate
+00:15:00	Intel Corporate
+00:16:76	Intel Corporate
+00:19:D1	Intel Corporate
+00:1B:21	Intel Corporate
+00:1C:BF	Intel Corporate
+00:1E:67	Intel Corporate
+00:21:6A	Intel Corporate
+00:22:FB	Intel Corporate
+
+# Microsoft Corporation
+00:03:FF	Microsoft Corporation
+00:0D:3A	Microsoft Corporation
+00:12:5A	Microsoft Corporation
+00:15:5D	Microsoft Corporation
+00:17:FA	Microsoft Corporation
+00:1D:D8	Microsoft Corporation
+00:22:48	Microsoft Corporation
+00:25:AE	Microsoft Corporation

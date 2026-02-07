@@ -34,6 +34,9 @@ import (
 	"backend/internal/database"
 	"backend/internal/events"
 	"backend/internal/graphql/loaders"
+	"backend/internal/router"
+	"backend/internal/services"
+	troubleshootPkg "backend/internal/troubleshoot"
 )
 
 // Production NasNetConnect Server
@@ -62,10 +65,12 @@ func init() {
 func init() { ServerVersion = "production-v2.0" }
 
 // createGraphQLServer creates and configures the gqlgen GraphQL server for production
-func createGraphQLServer(eventBus events.EventBus) *handler.Server {
+func createGraphQLServer(eventBus events.EventBus, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService) *handler.Server {
 	// Create resolver with event bus
 	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
-		EventBus: eventBus,
+		EventBus:            eventBus,
+		TroubleshootService: troubleshootSvc,
+		InterfaceService:    interfaceSvc,
 	})
 
 	// Create executable schema
@@ -189,9 +194,9 @@ func setCacheHeaders(w http.ResponseWriter, path string) {
 }
 
 // setupRoutes configures all HTTP routes with proper middleware
-func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client) {
+func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService) {
 	// Create GraphQL server
-	graphqlServer := createGraphQLServer(eventBus)
+	graphqlServer := createGraphQLServer(eventBus, troubleshootSvc, interfaceSvc)
 
 	// Wrap GraphQL server with DataLoader middleware
 	// Production mode: no stats logging for performance
@@ -228,6 +233,11 @@ func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client) {
 	// Batch job endpoints for bulk command execution
 	api.Any("/batch/jobs", echoBatchJobsHandler)
 	api.Any("/batch/jobs/*", echoBatchJobsHandler)
+
+	// OUI (MAC vendor lookup) endpoints
+	api.GET("/oui/:mac", echoOUILookupHandler)
+	api.POST("/oui/batch", echoOUIBatchHandler)
+	api.GET("/oui/stats", echoOUIStatsHandler)
 
 	// Serve frontend files (catch-all route) - must be last
 	e.GET("/*", frontendHandler)
@@ -298,6 +308,19 @@ func main() {
 	// Get system database client for DataLoaders
 	systemDB := dbManager.SystemDB()
 
+	// Initialize Troubleshoot Service for internet diagnostics (NAS-5.11)
+	// Using mock adapter until ClientFactory is implemented
+	mockRouterPort := router.NewMockAdapter("prod-router")
+	troubleshootSvc := troubleshootPkg.NewService(mockRouterPort)
+
+	// Initialize Interface Service for interface status monitoring (NAS-5.3)
+	// Using same mock adapter until ClientFactory is implemented
+	interfaceSvc := services.NewInterfaceService(services.InterfaceServiceConfig{
+		RouterPort: mockRouterPort,
+		EventBus:   eventBus,
+	})
+	log.Printf("Interface service initialized (mock adapter)")
+
 	// Create Echo instance
 	e := echo.New()
 	e.HideBanner = true
@@ -312,8 +335,8 @@ func main() {
 		e.Use(middleware.Logger())
 	}
 
-	// Setup routes with DataLoader middleware
-	setupRoutes(e, eventBus, systemDB)
+	// Setup routes with DataLoader middleware, troubleshoot service, and interface service
+	setupRoutes(e, eventBus, systemDB, troubleshootSvc, interfaceSvc)
 
 	// Configure server timeouts (shorter for production)
 	e.Server.ReadTimeout = 30 * time.Second

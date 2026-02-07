@@ -234,6 +234,24 @@ type Interface implements Node {
   txBytes: Size @mikrotik(path: "/interface", field: "tx-byte")
   "RX bytes"
   rxBytes: Size @mikrotik(path: "/interface", field: "rx-byte")
+
+  # Dashboard-specific fields
+  "IP address assigned to this interface"
+  ip: IPv4 @mikrotik(path: "/ip/address", field: "address")
+  "Operational status of the interface"
+  status: InterfaceStatus!
+  "Current transmit rate in bytes per second"
+  txRate: Size @mikrotik(path: "/interface", field: "tx-bits-per-second")
+  "Current receive rate in bytes per second"
+  rxRate: Size @mikrotik(path: "/interface", field: "rx-bits-per-second")
+  "Link speed (e.g., 1Gbps, 100Mbps)"
+  linkSpeed: String @mikrotik(path: "/interface/ethernet", field: "rate")
+  "Last time this interface was seen/queried"
+  lastSeen: DateTime
+  "Connected device information from LLDP"
+  linkPartner: String
+  "Services using this interface (bridge, VPN, etc.)"
+  usedBy: [String!]
 }
 
 """
@@ -252,6 +270,120 @@ enum InterfaceType {
   OTHER
 }
 
+"""
+Operational status of a network interface
+"""
+enum InterfaceStatus {
+  "Interface is up and running"
+  UP
+  "Interface is down"
+  DOWN
+  "Interface is disabled"
+  DISABLED
+  "Status unknown or error"
+  UNKNOWN
+}
+
+"""
+Event emitted when an interface status changes
+"""
+type InterfaceStatusEvent {
+  "Interface ID"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "New status"
+  status: InterfaceStatus!
+  "Previous status"
+  previousStatus: InterfaceStatus!
+  "Event timestamp"
+  timestamp: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Interface Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to interface status changes for real-time updates
+  """
+  interfaceStatusChanged(
+    "Router ID to monitor"
+    routerId: ID!
+    "Optional interface ID to filter events (if not provided, all interfaces)"
+    interfaceId: ID
+  ): InterfaceStatusEvent!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Metrics Types (System Resources)
+# -----------------------------------------------------------------------------
+
+"""
+Device (router) for querying resource metrics
+"""
+type Device {
+  "Device identifier"
+  id: ID!
+  "Current resource utilization metrics"
+  resourceMetrics: ResourceMetrics!
+}
+
+"""
+Real-time resource utilization metrics for a device
+"""
+type ResourceMetrics {
+  "CPU utilization metrics"
+  cpu: CPUMetrics!
+  "Memory utilization metrics"
+  memory: MemoryMetrics!
+  "Storage utilization metrics"
+  storage: StorageMetrics!
+  "Temperature in Celsius (null if not supported)"
+  temperature: Float
+  "Timestamp when metrics were collected"
+  timestamp: DateTime!
+}
+
+"""
+CPU utilization metrics
+"""
+type CPUMetrics {
+  "Overall CPU usage percentage (0-100)"
+  usage: Float!
+  "Number of CPU cores"
+  cores: Int!
+  "Per-core usage percentages (one per core)"
+  perCore: [Float!]!
+  "CPU frequency in MHz (optional)"
+  frequency: Float
+}
+
+"""
+Memory utilization metrics
+"""
+type MemoryMetrics {
+  "Used memory in bytes"
+  used: Float!
+  "Total memory in bytes"
+  total: Float!
+  "Memory usage percentage (0-100)"
+  percentage: Float!
+}
+
+"""
+Storage utilization metrics
+"""
+type StorageMetrics {
+  "Used storage in bytes"
+  used: Float!
+  "Total storage in bytes"
+  total: Float!
+  "Storage usage percentage (0-100)"
+  percentage: Float!
+}
+
 # -----------------------------------------------------------------------------
 # Query Root
 # -----------------------------------------------------------------------------
@@ -265,6 +397,10 @@ type Query {
 
   "Get current API version"
   version: String!
+
+  # Device Queries (Resource Metrics)
+  "Get a device by ID for resource metrics"
+  device(id: ID!): Device
 
   # Router Queries
   "Get a router by ID"
@@ -375,6 +511,34 @@ type Mutation {
   # Capability Management
   "Force refresh router capabilities (invalidates cache)"
   refreshCapabilities(routerId: ID!): RefreshCapabilitiesPayload!
+
+  # Interface Management
+  "Update interface settings (MTU, comment, ARP mode)"
+  updateInterface(
+    routerId: ID!
+    interfaceId: ID!
+    input: UpdateInterfaceInput!
+  ): UpdateInterfacePayload!
+
+  "Enable an interface"
+  enableInterface(
+    routerId: ID!
+    interfaceId: ID!
+  ): UpdateInterfacePayload!
+
+  "Disable an interface"
+  disableInterface(
+    routerId: ID!
+    interfaceId: ID!
+  ): UpdateInterfacePayload!
+
+  "Batch operation on multiple interfaces"
+  batchInterfaceOperation(
+    routerId: ID!
+    input: BatchInterfaceInput!
+  ): BatchInterfacePayload!
+
+  # Device Scanning mutations are defined in scanner.graphql
 }
 
 # -----------------------------------------------------------------------------
@@ -384,6 +548,12 @@ type Mutation {
 type Subscription {
   "Subscribe to router status changes"
   routerStatusChanged(routerId: ID): RouterStatusEvent!
+
+  "Subscribe to real-time resource metrics updates"
+  resourceMetrics(
+    "Device ID to monitor"
+    deviceId: ID!
+  ): ResourceMetrics! @realtime(interval: 2000)
 
   "Subscribe to interface traffic updates"
   interfaceTraffic(
@@ -396,6 +566,8 @@ type Subscription {
 
   "Subscribe to configuration apply progress"
   configApplyProgress(operationId: ID!): ConfigProgress!
+
+  # Device scan subscriptions are defined in scanner.graphql
 }
 
 # -----------------------------------------------------------------------------
@@ -422,6 +594,77 @@ type InterfaceConnection implements Connection {
 type InterfaceEdge implements Edge {
   node: Interface!
   cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Interface Management Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Input for updating interface settings
+"""
+input UpdateInterfaceInput {
+  "Enable or disable the interface"
+  enabled: Boolean
+  "MTU size (68-9000 bytes)"
+  mtu: Int @validate(min: 68, max: 9000)
+  "Interface comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Input for batch interface operations
+"""
+input BatchInterfaceInput {
+  "Interface IDs to operate on"
+  interfaceIds: [ID!]!
+  "Action to perform"
+  action: BatchInterfaceAction!
+  "Optional input for UPDATE action"
+  input: UpdateInterfaceInput
+}
+
+"""
+Actions available for batch interface operations
+"""
+enum BatchInterfaceAction {
+  ENABLE
+  DISABLE
+  UPDATE
+}
+
+"""
+Payload returned by updateInterface, enableInterface, and disableInterface mutations
+"""
+type UpdateInterfacePayload {
+  "Updated interface"
+  interface: Interface
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Payload returned by batchInterfaceOperation mutation
+"""
+type BatchInterfacePayload {
+  "Interfaces that were successfully updated"
+  succeeded: [Interface!]!
+  "Interfaces that failed with reasons"
+  failed: [InterfaceOperationError!]!
+  "General errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Error information for a single interface operation in a batch
+"""
+type InterfaceOperationError {
+  "Interface ID that failed"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "Error message describing why the operation failed"
+  error: String!
 }
 
 # -----------------------------------------------------------------------------
@@ -932,3 +1175,8 @@ type RefreshCapabilitiesPayload {
   "Errors during refresh"
   errors: [MutationError!]
 }
+
+# -----------------------------------------------------------------------------
+# Device Scan Types
+# -----------------------------------------------------------------------------
+# All device scan types are defined in scanner.graphql

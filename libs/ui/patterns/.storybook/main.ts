@@ -1,6 +1,13 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
+import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import { join, dirname } from 'path';
 
 import type { StorybookConfig } from '@storybook/react-vite';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const require = createRequire(import.meta.url);
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -11,15 +18,17 @@ function getAbsolutePath(value: string): string {
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+
   addons: [
-    getAbsolutePath('@storybook/addon-essentials'),
     getAbsolutePath('@storybook/addon-a11y'),
-    getAbsolutePath('@storybook/addon-interactions'),
+    getAbsolutePath("@storybook/addon-docs")
   ],
+
   framework: {
     name: getAbsolutePath('@storybook/react-vite') as '@storybook/react-vite',
     options: {},
   },
+
   viteFinal: async (config) => {
     return {
       ...config,
@@ -34,6 +43,8 @@ const config: StorybookConfig = {
           '@nasnet/ui/layouts': join(__dirname, '../../layouts/src'),
           '@nasnet/core/types': join(__dirname, '../../../core/types/src'),
           '@nasnet/core/utils': join(__dirname, '../../../core/utils/src'),
+          '@nasnet/core/constants': join(__dirname, '../../../core/constants/src'),
+          '@nasnet/core/i18n': join(__dirname, '../../../core/i18n/src'),
           '@nasnet/core/forms': join(__dirname, '../../../core/forms/src'),
           '@nasnet/state/stores': join(__dirname, '../../../state/stores/src'),
           '@nasnet/api-client/core': join(__dirname, '../../../api-client/core/src'),
@@ -42,10 +53,7 @@ const config: StorybookConfig = {
         },
       },
     };
-  },
-  docs: {
-    autodocs: 'tag',
-  },
+  }
 };
 
 export default config;

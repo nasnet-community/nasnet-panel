@@ -686,7 +686,6 @@ export {
   RouterStatus,
   RouterStatusDesktop,
   RouterStatusMobile,
-  StatusIndicator,
   STATUS_TEXT_COLORS,
   STATUS_BG_COLORS,
   useRouterStatus,
@@ -756,3 +755,12 @@ export type {
   NodePosition,
   ContainerDimensions,
 } from './network-topology';
+
+// Device List Item - Connected device list item for DHCP leases
+export { DeviceListItem } from './device-list-item';
+export type {
+  DeviceListItemProps,
+  DeviceListItemPresenterProps,
+  UseDeviceListItemConfig,
+  UseDeviceListItemReturn,
+} from './device-list-item';

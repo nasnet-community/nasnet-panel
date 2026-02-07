@@ -372,14 +372,15 @@ export const ReducedMotion: Story = {
 
 export const DarkMode: Story = {
   render: () => <DefaultMiniStepper />,
+
   parameters: {
-    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'Mini Stepper in dark mode. Uses semantic color tokens for automatic theming.',
       },
-    },
+    }
   },
+
   decorators: [
     (Story) => (
       <div className="h-screen bg-background dark">
@@ -387,4 +388,10 @@ export const DarkMode: Story = {
       </div>
     ),
   ],
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };

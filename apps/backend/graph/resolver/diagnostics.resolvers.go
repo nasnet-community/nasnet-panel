@@ -21,6 +21,171 @@ func (r *mutationResolver) ResetCircuitBreaker(ctx context.Context, routerID str
 	panic(fmt.Errorf("not implemented: ResetCircuitBreaker - resetCircuitBreaker"))
 }
 
+// StartTroubleshoot creates a new troubleshooting session.
+func (r *mutationResolver) StartTroubleshoot(ctx context.Context, routerID string) (*model.StartTroubleshootPayload, error) {
+	if r.TroubleshootService == nil {
+		return &model.StartTroubleshootPayload{
+			Errors: []*model.MutationError{{
+				Code:    "SERVICE_NOT_INITIALIZED",
+				Message: "Troubleshoot service not initialized",
+			}},
+		}, nil
+	}
+
+	session, err := r.TroubleshootService.StartTroubleshoot(ctx, routerID)
+	if err != nil {
+		return &model.StartTroubleshootPayload{
+			Errors: []*model.MutationError{{
+				Code:    "START_FAILED",
+				Message: err.Error(),
+			}},
+		}, nil
+	}
+
+	return &model.StartTroubleshootPayload{
+		Session: mapTroubleshootSession(session),
+	}, nil
+}
+
+// RunTroubleshootStep executes a specific diagnostic step.
+func (r *mutationResolver) RunTroubleshootStep(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
+	if r.TroubleshootService == nil {
+		return &model.RunTroubleshootStepPayload{
+			Errors: []*model.MutationError{{
+				Code:    "SERVICE_NOT_INITIALIZED",
+				Message: "Troubleshoot service not initialized",
+			}},
+		}, nil
+	}
+
+	step, err := r.TroubleshootService.RunTroubleshootStep(ctx, sessionID, mapStepTypeToInternal(stepType))
+	if err != nil {
+		return &model.RunTroubleshootStepPayload{
+			Errors: []*model.MutationError{{
+				Code:    "STEP_EXECUTION_FAILED",
+				Message: err.Error(),
+			}},
+		}, nil
+	}
+
+	return &model.RunTroubleshootStepPayload{
+		Step: mapTroubleshootStep(step),
+	}, nil
+}
+
+// ApplyTroubleshootFix applies a suggested fix.
+func (r *mutationResolver) ApplyTroubleshootFix(ctx context.Context, sessionID string, issueCode string) (*model.ApplyFixPayload, error) {
+	if r.TroubleshootService == nil {
+		return &model.ApplyFixPayload{
+			Errors: []*model.MutationError{{
+				Code:    "SERVICE_NOT_INITIALIZED",
+				Message: "Troubleshoot service not initialized",
+			}},
+		}, nil
+	}
+
+	success, message, status, err := r.TroubleshootService.ApplyTroubleshootFix(ctx, sessionID, issueCode)
+	if err != nil {
+		return &model.ApplyFixPayload{
+			Success: false,
+			Message: message,
+			Status:  mapFixApplicationStatus(status),
+			Errors: []*model.MutationError{{
+				Code:    "FIX_APPLICATION_FAILED",
+				Message: err.Error(),
+			}},
+		}, nil
+	}
+
+	return &model.ApplyFixPayload{
+		Success: success,
+		Message: message,
+		Status:  mapFixApplicationStatus(status),
+	}, nil
+}
+
+// VerifyTroubleshootFix verifies a fix by re-running the diagnostic step.
+func (r *mutationResolver) VerifyTroubleshootFix(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
+	// Verification is the same as running the step again
+	return r.RunTroubleshootStep(ctx, sessionID, stepType)
+}
+
+// CancelTroubleshoot cancels an ongoing troubleshooting session.
+func (r *mutationResolver) CancelTroubleshoot(ctx context.Context, sessionID string) (*model.TroubleshootSession, error) {
+	if r.TroubleshootService == nil {
+		return nil, fmt.Errorf("troubleshoot service not initialized")
+	}
+
+	session, err := r.TroubleshootService.CancelTroubleshoot(ctx, sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapTroubleshootSession(session), nil
+}
+
+// RunTraceroute starts a new traceroute job.
+func (r *mutationResolver) RunTraceroute(ctx context.Context, deviceID string, input model.TracerouteInput) (*model.TracerouteJob, error) {
+	if r.TracerouteService == nil {
+		return nil, fmt.Errorf("traceroute service not initialized")
+	}
+
+	// Map input
+	tracerouteInput := traceroute.Input{
+		Target:     input.Target,
+		MaxHops:    30,
+		Timeout:    3000,
+		ProbeCount: 3,
+		Protocol:   traceroute.ProtocolICMP,
+	}
+
+	if input.MaxHops.IsSet() && input.MaxHops.Value() != nil {
+		tracerouteInput.MaxHops = *input.MaxHops.Value()
+	}
+
+	if input.Timeout.IsSet() && input.Timeout.Value() != nil {
+		tracerouteInput.Timeout = *input.Timeout.Value()
+	}
+
+	if input.ProbeCount.IsSet() && input.ProbeCount.Value() != nil {
+		tracerouteInput.ProbeCount = *input.ProbeCount.Value()
+	}
+
+	if input.Protocol.IsSet() && input.Protocol.Value() != nil {
+		tracerouteInput.Protocol = mapProtocolToInternal(*input.Protocol.Value())
+	}
+
+	// Start traceroute
+	jobID, err := r.TracerouteService.Run(ctx, deviceID, tracerouteInput)
+	if err != nil {
+		return nil, fmt.Errorf("failed to start traceroute: %w", err)
+	}
+
+	return &model.TracerouteJob{
+		JobID:  jobID,
+		Status: model.JobStatusRunning,
+	}, nil
+}
+
+// CancelTraceroute cancels a running traceroute job.
+func (r *mutationResolver) CancelTraceroute(ctx context.Context, jobID string) (bool, error) {
+	if r.TracerouteService == nil {
+		return false, fmt.Errorf("traceroute service not initialized")
+	}
+
+	err := r.TracerouteService.Cancel(ctx, jobID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// RunDNSLookup is the resolver for the runDnsLookup field.
+func (r *mutationResolver) RunDNSLookup(ctx context.Context, input model.DNSLookupInput) (*model.DNSLookupResult, error) {
+	panic(fmt.Errorf("not implemented: RunDNSLookup - runDnsLookup"))
+}
+
 // ConnectionAttempts is the resolver for the connectionAttempts field.
 func (r *queryResolver) ConnectionAttempts(ctx context.Context, routerID string, limit *int) ([]*model.ConnectionAttempt, error) {
 	panic(fmt.Errorf("not implemented: ConnectionAttempts - connectionAttempts"))
@@ -31,9 +196,121 @@ func (r *queryResolver) CircuitBreakerStatus(ctx context.Context, routerID strin
 	panic(fmt.Errorf("not implemented: CircuitBreakerStatus - circuitBreakerStatus"))
 }
 
+// TroubleshootSession retrieves a troubleshooting session by ID.
+func (r *queryResolver) TroubleshootSession(ctx context.Context, id string) (*model.TroubleshootSession, error) {
+	if r.TroubleshootService == nil {
+		return nil, fmt.Errorf("troubleshoot service not initialized")
+	}
+
+	session, err := r.TroubleshootService.GetSession(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapTroubleshootSession(session), nil
+}
+
+// DetectWanInterface detects the WAN interface from the default route.
+func (r *queryResolver) DetectWanInterface(ctx context.Context, routerID string) (string, error) {
+	if r.TroubleshootService == nil {
+		return "", fmt.Errorf("troubleshoot service not initialized")
+	}
+
+	return r.TroubleshootService.DetectWanInterface(ctx, routerID)
+}
+
+// DetectGateway detects the default gateway.
+func (r *queryResolver) DetectGateway(ctx context.Context, routerID string) (*string, error) {
+	if r.TroubleshootService == nil {
+		return nil, fmt.Errorf("troubleshoot service not initialized")
+	}
+
+	gateway, err := r.TroubleshootService.DetectGateway(ctx, routerID)
+	if err != nil || gateway == "" {
+		return nil, nil // Return nil for no gateway (not an error)
+	}
+
+	return &gateway, nil
+}
+
+// DetectIsp is the resolver for the detectISP field.
+func (r *queryResolver) DetectIsp(ctx context.Context, routerID string) (*model.ISPInfo, error) {
+	panic(fmt.Errorf("not implemented: DetectIsp - detectISP"))
+}
+
+// DNSServers is the resolver for the dnsServers field.
+func (r *queryResolver) DNSServers(ctx context.Context, deviceID string) (*model.DNSServers, error) {
+	panic(fmt.Errorf("not implemented: DNSServers - dnsServers"))
+}
+
 // CircuitBreakerStateChanged is the resolver for the circuitBreakerStateChanged field.
 func (r *subscriptionResolver) CircuitBreakerStateChanged(ctx context.Context, routerID *string) (<-chan *model.CircuitBreakerStatus, error) {
 	panic(fmt.Errorf("not implemented: CircuitBreakerStateChanged - circuitBreakerStateChanged"))
+}
+
+// TroubleshootProgress subscribes to session progress updates.
+func (r *subscriptionResolver) TroubleshootProgress(ctx context.Context, sessionID string) (<-chan *model.TroubleshootSession, error) {
+	// TODO: Implement real-time subscription using WebSocket
+	// For now, return a placeholder channel
+	ch := make(chan *model.TroubleshootSession, 1)
+
+	// Get initial session state
+	if r.TroubleshootService != nil {
+		session, err := r.TroubleshootService.GetSession(ctx, sessionID)
+		if err == nil {
+			ch <- mapTroubleshootSession(session)
+		}
+	}
+
+	close(ch)
+	return ch, nil
+}
+
+// TracerouteProgress subscribes to traceroute progress events.
+func (r *subscriptionResolver) TracerouteProgress(ctx context.Context, jobID string) (<-chan *model.TracerouteProgressEvent, error) {
+	if r.TracerouteService == nil {
+		return nil, fmt.Errorf("traceroute service not initialized")
+	}
+
+	// Subscribe to service events
+	eventChan := r.TracerouteService.Subscribe(jobID)
+
+	// Create output channel for GraphQL
+	out := make(chan *model.TracerouteProgressEvent, 10)
+
+	// Transform internal events to GraphQL events
+	go func() {
+		defer close(out)
+		defer r.TracerouteService.Unsubscribe(jobID, eventChan)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case event, ok := <-eventChan:
+				if !ok {
+					return
+				}
+
+				// Map event to GraphQL model
+				graphqlEvent := &model.TracerouteProgressEvent{
+					JobID:     event.JobID,
+					EventType: mapEventTypeToModel(event.EventType),
+					Hop:       mapHopToModel(event.Hop),
+					Result:    mapResultToModel(event.Result),
+					Error:     event.Error,
+				}
+
+				select {
+				case out <- graphqlEvent:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+
+	return out, nil
 }
 
 // !!! WARNING !!!

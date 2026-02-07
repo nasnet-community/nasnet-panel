@@ -202,8 +202,11 @@ export const MobileVariant: Story = {
       presenter="mobile"
     />
   ),
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 
@@ -245,10 +248,16 @@ export const DarkTheme: Story = {
       countdownSeconds={5}
     />
   ),
+
   parameters: {
-    backgrounds: { default: 'dark' },
-    themes: { default: 'dark' },
+    themes: { default: 'dark' }
   },
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };
 
 /**

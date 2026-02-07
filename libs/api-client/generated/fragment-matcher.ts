@@ -7,17 +7,53 @@
       const result: PossibleTypesResultData = {
   "possibleTypes": {
     "Connection": [
+      "AlertConnection",
       "InterfaceConnection",
-      "RouterConnection"
+      "ResourceConnection",
+      "RouterConnection",
+      "WANConnectionEventConnection"
     ],
     "Edge": [
+      "AlertEdge",
       "InterfaceEdge",
-      "RouterEdge"
+      "ResourceEdge",
+      "RouterEdge",
+      "WANConnectionEventEdge"
     ],
     "Node": [
+      "Alert",
+      "AlertRule",
+      "Bridge",
+      "BridgePort",
+      "BridgeResource",
+      "DHCPServerResource",
+      "DhcpClient",
+      "FeatureResource",
+      "FirewallRuleResource",
       "Interface",
+      "IpAddress",
+      "LANNetwork",
+      "LteModem",
+      "PppoeClient",
+      "Route",
+      "RouteResource",
       "Router",
-      "User"
+      "StaticIPConfig",
+      "User",
+      "Vlan",
+      "WANInterface",
+      "WANLink",
+      "WireGuardClient"
+    ],
+    "Resource": [
+      "BridgeResource",
+      "DHCPServerResource",
+      "FeatureResource",
+      "FirewallRuleResource",
+      "LANNetwork",
+      "RouteResource",
+      "WANLink",
+      "WireGuardClient"
     ]
   }
 };

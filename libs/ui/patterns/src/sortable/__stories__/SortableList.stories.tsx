@@ -253,9 +253,6 @@ export const Desktop: Story = {
  * Mobile-optimized list with move buttons.
  */
 export const Mobile: Story = {
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
-  },
   render: () => {
     const [items, setItems] = useState<SimpleItem[]>(createSimpleItems(5));
 
@@ -294,6 +291,12 @@ export const Mobile: Story = {
         />
       </div>
     );
+  },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 

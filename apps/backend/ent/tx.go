@@ -16,10 +16,16 @@ type Tx struct {
 	config
 	// APIKey is the client for interacting with the APIKey builders.
 	APIKey *APIKeyClient
+	// Alert is the client for interacting with the Alert builders.
+	Alert *AlertClient
+	// AlertRule is the client for interacting with the AlertRule builders.
+	AlertRule *AlertRuleClient
 	// ConfigSnapshot is the client for interacting with the ConfigSnapshot builders.
 	ConfigSnapshot *ConfigSnapshotClient
 	// GlobalSettings is the client for interacting with the GlobalSettings builders.
 	GlobalSettings *GlobalSettingsClient
+	// NotificationSettings is the client for interacting with the NotificationSettings builders.
+	NotificationSettings *NotificationSettingsClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// ResourceEvent is the client for interacting with the ResourceEvent builders.
@@ -168,8 +174,11 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.APIKey = NewAPIKeyClient(tx.config)
+	tx.Alert = NewAlertClient(tx.config)
+	tx.AlertRule = NewAlertRuleClient(tx.config)
 	tx.ConfigSnapshot = NewConfigSnapshotClient(tx.config)
 	tx.GlobalSettings = NewGlobalSettingsClient(tx.config)
+	tx.NotificationSettings = NewNotificationSettingsClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.ResourceEvent = NewResourceEventClient(tx.config)
 	tx.Router = NewRouterClient(tx.config)

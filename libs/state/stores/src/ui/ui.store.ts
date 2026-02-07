@@ -41,6 +41,13 @@ export interface UIState {
    * Default duration for notifications in ms
    */
   defaultNotificationDuration: number;
+
+  /**
+   * Hide hostnames in device lists (privacy mode)
+   * When enabled, shows masked names like "Device-XXXX"
+   * @see NAS-5.4: Connected Devices Privacy Controls
+   */
+  hideHostnames: boolean;
 }
 
 /**
@@ -96,6 +103,16 @@ export interface UIActions {
    * Reset all preferences to defaults
    */
   resetPreferences: () => void;
+
+  /**
+   * Set hide hostnames (privacy mode)
+   */
+  setHideHostnames: (hide: boolean) => void;
+
+  /**
+   * Toggle hide hostnames
+   */
+  toggleHideHostnames: () => void;
 }
 
 /**
@@ -115,6 +132,7 @@ const defaultState: UIState = {
   compactMode: false,
   animationsEnabled: !prefersReducedMotion(),
   defaultNotificationDuration: 4000,
+  hideHostnames: false,
 };
 
 /**
@@ -177,11 +195,17 @@ export const useUIStore = create<UIState & UIActions>()(
         setDefaultNotificationDuration: (duration) =>
           set({ defaultNotificationDuration: Math.max(1000, Math.min(30000, duration)) }),
 
+        setHideHostnames: (hide) => set({ hideHostnames: hide }),
+
+        toggleHideHostnames: () =>
+          set((state) => ({ hideHostnames: !state.hideHostnames })),
+
         resetPreferences: () =>
           set({
             compactMode: defaultState.compactMode,
             animationsEnabled: !prefersReducedMotion(),
             defaultNotificationDuration: defaultState.defaultNotificationDuration,
+            hideHostnames: defaultState.hideHostnames,
           }),
       }),
       {
@@ -193,6 +217,7 @@ export const useUIStore = create<UIState & UIActions>()(
           compactMode: state.compactMode,
           animationsEnabled: state.animationsEnabled,
           defaultNotificationDuration: state.defaultNotificationDuration,
+          hideHostnames: state.hideHostnames,
         }),
         onRehydrateStorage: () => {
           return (state, error) => {

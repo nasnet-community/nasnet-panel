@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, expect, waitFor } from '@storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { HStepper } from './h-stepper';
 import { useStepper } from '../../hooks/use-stepper';
@@ -425,16 +425,21 @@ export const Responsive: Story = {
       )}
     </StepperWrapper>
   ),
+
   parameters: {
-    viewport: {
-      defaultViewport: 'responsive',
-    },
     docs: {
       description: {
         story: 'Use the viewport addon to test at different screen sizes. Step titles collapse on mobile.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'responsive',
+      isRotated: false
+    }
+  }
 };
 
 /**
@@ -564,17 +569,24 @@ export const DarkTheme: Story = {
       </StepperWrapper>
     </div>
   ),
+
   args: {
     showTitles: true,
   },
+
   parameters: {
-    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'HStepper in dark theme. All colors adapt via CSS variables.',
       },
-    },
+    }
   },
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };
 
 /**

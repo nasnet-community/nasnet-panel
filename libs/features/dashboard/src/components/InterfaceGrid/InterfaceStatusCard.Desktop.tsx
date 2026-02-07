@@ -1,0 +1,149 @@
+/**
+ * InterfaceStatusCard Desktop Presenter
+ *
+ * Desktop-optimized card showing interface status with full details.
+ * Features:
+ * - 4-column responsive grid layout
+ * - Full traffic rate display with icons
+ * - Link speed indicator
+ * - Status pulse animation (respects reduced motion)
+ */
+
+import { Card, CardContent } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/primitives';
+import { InterfaceTypeIcon } from '@nasnet/ui/patterns/network-inputs/interface-selector';
+import {
+  ArrowUp,
+  ArrowDown,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { useInterfaceStatusCard } from './useInterfaceStatusCard';
+import { formatTrafficRate, formatLinkSpeed } from './utils';
+import type { InterfaceStatusCardProps, InterfaceStatus } from './types';
+
+// Status configuration - MUST match AC spec (down=red, disabled=gray)
+const STATUS_CONFIG: Record<
+  InterfaceStatus,
+  {
+    icon: LucideIcon;
+    label: string;
+    bgClass: string;
+    iconClass: string;
+  }
+> = {
+  up: {
+    icon: CheckCircle2,
+    label: 'Up',
+    bgClass: 'bg-success/10 dark:bg-success/20',
+    iconClass: 'text-success',
+  },
+  down: {
+    icon: XCircle,
+    label: 'Down',
+    bgClass: 'bg-destructive/10 dark:bg-destructive/20',
+    iconClass: 'text-destructive',
+  },
+  disabled: {
+    icon: MinusCircle,
+    label: 'Disabled',
+    bgClass: 'bg-muted',
+    iconClass: 'text-muted-foreground',
+  },
+};
+
+/**
+ * Desktop presenter for InterfaceStatusCard.
+ * Optimized for larger screens with full information display.
+ */
+export function InterfaceStatusCardDesktop({
+  interface: iface,
+  onSelect,
+  className,
+}: InterfaceStatusCardProps) {
+  const {
+    handleClick,
+    handleKeyDown,
+    isStatusChanged,
+    prefersReducedMotion,
+    ariaLabel,
+    detailsId,
+  } = useInterfaceStatusCard({ interface: iface, onSelect });
+
+  const status = STATUS_CONFIG[iface.status];
+  const StatusIcon = status.icon;
+
+  return (
+    <Card
+      role="article"
+      aria-label={ariaLabel}
+      aria-describedby={detailsId}
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className={cn(
+        'cursor-pointer transition-all min-w-[200px]',
+        'hover:shadow-md hover:border-primary/50',
+        'focus:outline-none focus:ring-3 focus:ring-primary focus:ring-offset-2',
+        status.bgClass,
+        !prefersReducedMotion && isStatusChanged && 'animate-pulse',
+        className
+      )}
+    >
+      <CardContent className="p-4">
+        {/* Header: Icon + Name + Status */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <InterfaceTypeIcon type={iface.type} className="h-5 w-5" />
+            <span className="font-medium truncate">{iface.name}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <StatusIcon
+              className={cn('h-4 w-4', status.iconClass)}
+              aria-hidden="true"
+            />
+            <span className={cn('text-xs', status.iconClass)}>
+              {status.label}
+            </span>
+          </div>
+        </div>
+
+        {/* Traffic rates */}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+          <span className="flex items-center gap-1">
+            <ArrowUp className="h-3 w-3" aria-hidden="true" />
+            <span>{formatTrafficRate(iface.txRate)}</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <ArrowDown className="h-3 w-3" aria-hidden="true" />
+            <span>{formatTrafficRate(iface.rxRate)}</span>
+          </span>
+        </div>
+
+        {/* Footer: IP + Link Speed */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="font-mono truncate">{iface.ip || 'No IP'}</span>
+          {iface.linkSpeed && (
+            <span className="shrink-0">{formatLinkSpeed(iface.linkSpeed)}</span>
+          )}
+        </div>
+
+        {/* Last seen for down interfaces */}
+        {iface.status === 'down' && iface.lastSeen && (
+          <div className="text-xs text-muted-foreground mt-1">
+            Last seen: {new Date(iface.lastSeen).toLocaleString()}
+          </div>
+        )}
+
+        {/* Screen reader details */}
+        <span id={detailsId} className="sr-only">
+          TX: {formatTrafficRate(iface.txRate)}, RX:{' '}
+          {formatTrafficRate(iface.rxRate)}
+          {iface.linkSpeed && `, Link speed: ${iface.linkSpeed}`}
+        </span>
+      </CardContent>
+    </Card>
+  );
+}

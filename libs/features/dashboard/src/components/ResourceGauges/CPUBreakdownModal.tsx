@@ -1,0 +1,105 @@
+/**
+ * CPUBreakdownModal Component
+ * Displays per-core CPU usage in a modal dialog
+ *
+ * AC 5.2.4: Click CPU gauge to see breakdown of usage per core
+ * - Shows horizontal bar chart for each core
+ * - Displays core frequency if available
+ * - Accessible modal with focus trap and ESC to close
+ */
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
+
+/**
+ * CPUBreakdownModal props
+ */
+export interface CPUBreakdownModalProps {
+  /** Whether modal is open */
+  open: boolean;
+  /** Callback to close modal */
+  onOpenChange: (open: boolean) => void;
+  /** Array of per-core usage percentages */
+  perCoreUsage: number[];
+  /** Overall CPU usage percentage */
+  overallUsage: number;
+  /** CPU frequency in MHz (optional) */
+  frequency?: number;
+}
+
+/**
+ * CPUBreakdownModal Component
+ *
+ * Renders a dialog showing:
+ * - Per-core CPU usage as horizontal bars
+ * - Overall CPU usage summary
+ * - CPU frequency if available
+ */
+export function CPUBreakdownModal({
+  open,
+  onOpenChange,
+  perCoreUsage,
+  overallUsage,
+  frequency,
+}: CPUBreakdownModalProps) {
+  const coreCount = perCoreUsage.length;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>CPU Core Breakdown</DialogTitle>
+        </DialogHeader>
+
+        {/* Overall CPU usage summary */}
+        <div className="mb-4 p-4 rounded-lg bg-muted">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-sm font-medium">Overall Usage</span>
+            <span className="text-2xl font-bold">{overallUsage}%</span>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {coreCount} core{coreCount > 1 ? 's' : ''}
+            {frequency && ` @ ${(frequency / 1000).toFixed(2)} GHz`}
+          </div>
+        </div>
+
+        {/* Per-core usage bars */}
+        <div className="space-y-3">
+          {perCoreUsage.map((usage, index) => (
+            <div key={index} className="space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium">Core {index + 1}</span>
+                <span className="text-muted-foreground">{usage}%</span>
+              </div>
+
+              {/* Horizontal bar */}
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all duration-500',
+                    usage >= 90
+                      ? 'bg-error'
+                      : usage >= 70
+                      ? 'bg-warning'
+                      : 'bg-success'
+                  )}
+                  style={{ width: `${Math.min(100, Math.max(0, usage))}%` }}
+                  role="meter"
+                  aria-valuenow={usage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`Core ${index + 1} usage: ${usage}%`}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Accessibility note */}
+        <p className="text-xs text-muted-foreground mt-4">
+          Press ESC or click outside to close
+        </p>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -296,7 +296,12 @@ func (r *queryResolver) RouterCredentials(ctx context.Context, routerID string) 
 	}, nil
 }
 
-// testRouterCredentials tests credentials for a single router.
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 func (r *mutationResolver) testRouterCredentials(ctx context.Context, routerID, routerName, host string, port int) *model.CredentialTestResult {
 	result := &model.CredentialTestResult{
 		RouterID:   routerID,
@@ -338,8 +343,6 @@ func (r *mutationResolver) testRouterCredentials(ctx context.Context, routerID, 
 
 	return result
 }
-
-// mapStringToCredTestStatus converts a string status to a model CredentialTestStatus.
 func mapStringToCredTestStatus(status string) model.CredentialTestStatus {
 	switch status {
 	case "SUCCESS":
@@ -358,8 +361,6 @@ func mapStringToCredTestStatus(status string) model.CredentialTestStatus {
 		return model.CredentialTestStatusError
 	}
 }
-
-// mapTestStatusToCredErrorCode maps a status string to CredentialErrorCode.
 func mapTestStatusToCredErrorCode(status string) model.CredentialErrorCode {
 	switch status {
 	case "AUTH_FAILED":
@@ -372,8 +373,6 @@ func mapTestStatusToCredErrorCode(status string) model.CredentialErrorCode {
 		return model.CredentialErrorCodeInvalidInput
 	}
 }
-
-// credPtr is a helper function to get a pointer to a CredentialErrorCode value.
 func credPtr(v model.CredentialErrorCode) *model.CredentialErrorCode {
 	return &v
 }

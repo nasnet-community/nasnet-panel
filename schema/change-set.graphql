@@ -172,14 +172,6 @@ type ChangeSetValidationError {
 }
 
 """
-Validation severity levels
-"""
-enum ValidationSeverity {
-  ERROR
-  WARNING
-}
-
-"""
 Conflict between change set items
 """
 type ChangeSetConflict {

@@ -6,6 +6,7 @@ import {
   Shield,
   ShieldAlert,
   Network,
+  Globe,
   Cable,
   ScrollText,
   Store
@@ -16,6 +17,7 @@ import {
   preloadFirewallTab,
   preloadLogsTab,
   preloadDHCPTab,
+  preloadDnsTab,
   preloadPluginStoreTab,
   preloadAllHeavyTabs,
 } from '@/app/routes/router-panel/tabs/lazy';
@@ -77,6 +79,13 @@ const tabs: TabDefinition[] = [
     icon: Network,
     ariaLabel: 'DHCP server configuration',
     preload: preloadDHCPTab,
+  },
+  {
+    value: 'dns',
+    label: 'DNS',
+    icon: Globe,
+    ariaLabel: 'DNS configuration and servers',
+    preload: preloadDnsTab,
   },
   {
     value: 'network',

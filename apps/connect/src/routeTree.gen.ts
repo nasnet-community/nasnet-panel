@@ -16,13 +16,22 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardTroubleshootRouteImport } from './routes/dashboard.troubleshoot'
+import { Route as DashboardRoutesRouteImport } from './routes/dashboard.routes'
+import { Route as DashboardNetworkRouteImport } from './routes/dashboard.network'
+import { Route as DashboardDnsLookupRouteImport } from './routes/dashboard.dns-lookup'
 import { Route as RouterIdRouteRouteImport } from './routes/router/$id/route'
 import { Route as RouterIdIndexRouteImport } from './routes/router/$id/index'
+import { Route as NetworkDhcpIndexRouteImport } from './routes/network/dhcp/index'
+import { Route as RouterIdVlansRouteImport } from './routes/router/$id/vlans'
 import { Route as RouterIdPluginsRouteImport } from './routes/router/$id/plugins'
 import { Route as RouterIdNetworkRouteImport } from './routes/router/$id/network'
 import { Route as RouterIdLogsRouteImport } from './routes/router/$id/logs'
 import { Route as RouterIdFirewallRouteImport } from './routes/router/$id/firewall'
+import { Route as RouterIdDnsRouteImport } from './routes/router/$id/dns'
 import { Route as RouterIdDhcpRouteImport } from './routes/router/$id/dhcp'
+import { Route as NetworkDhcpNewRouteImport } from './routes/network/dhcp/new'
+import { Route as NetworkDhcpServerIdRouteImport } from './routes/network/dhcp/$serverId'
 import { Route as RouterIdWifiIndexRouteImport } from './routes/router/$id/wifi/index'
 import { Route as RouterIdVpnIndexRouteImport } from './routes/router/$id/vpn/index'
 import { Route as RouterIdWifiInterfaceNameRouteImport } from './routes/router/$id/wifi/$interfaceName'
@@ -64,6 +73,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardTroubleshootRoute = DashboardTroubleshootRouteImport.update({
+  id: '/troubleshoot',
+  path: '/troubleshoot',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRoutesRoute = DashboardRoutesRouteImport.update({
+  id: '/routes',
+  path: '/routes',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardNetworkRoute = DashboardNetworkRouteImport.update({
+  id: '/network',
+  path: '/network',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDnsLookupRoute = DashboardDnsLookupRouteImport.update({
+  id: '/dns-lookup',
+  path: '/dns-lookup',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const RouterIdRouteRoute = RouterIdRouteRouteImport.update({
   id: '/router/$id',
   path: '/router/$id',
@@ -72,6 +101,16 @@ const RouterIdRouteRoute = RouterIdRouteRouteImport.update({
 const RouterIdIndexRoute = RouterIdIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => RouterIdRouteRoute,
+} as any)
+const NetworkDhcpIndexRoute = NetworkDhcpIndexRouteImport.update({
+  id: '/dhcp/',
+  path: '/dhcp/',
+  getParentRoute: () => NetworkRoute,
+} as any)
+const RouterIdVlansRoute = RouterIdVlansRouteImport.update({
+  id: '/vlans',
+  path: '/vlans',
   getParentRoute: () => RouterIdRouteRoute,
 } as any)
 const RouterIdPluginsRoute = RouterIdPluginsRouteImport.update({
@@ -94,10 +133,25 @@ const RouterIdFirewallRoute = RouterIdFirewallRouteImport.update({
   path: '/firewall',
   getParentRoute: () => RouterIdRouteRoute,
 } as any)
+const RouterIdDnsRoute = RouterIdDnsRouteImport.update({
+  id: '/dns',
+  path: '/dns',
+  getParentRoute: () => RouterIdRouteRoute,
+} as any)
 const RouterIdDhcpRoute = RouterIdDhcpRouteImport.update({
   id: '/dhcp',
   path: '/dhcp',
   getParentRoute: () => RouterIdRouteRoute,
+} as any)
+const NetworkDhcpNewRoute = NetworkDhcpNewRouteImport.update({
+  id: '/dhcp/new',
+  path: '/dhcp/new',
+  getParentRoute: () => NetworkRoute,
+} as any)
+const NetworkDhcpServerIdRoute = NetworkDhcpServerIdRouteImport.update({
+  id: '/dhcp/$serverId',
+  path: '/dhcp/$serverId',
+  getParentRoute: () => NetworkRoute,
 } as any)
 const RouterIdWifiIndexRoute = RouterIdWifiIndexRouteImport.update({
   id: '/wifi/',
@@ -128,18 +182,27 @@ const RouterIdVpnClientsRoute = RouterIdVpnClientsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/routers': typeof RoutersRoute
   '/wifi': typeof WifiRoute
   '/router/$id': typeof RouterIdRouteRouteWithChildren
+  '/dashboard/dns-lookup': typeof DashboardDnsLookupRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/troubleshoot': typeof DashboardTroubleshootRoute
+  '/network/dhcp/$serverId': typeof NetworkDhcpServerIdRoute
+  '/network/dhcp/new': typeof NetworkDhcpNewRoute
   '/router/$id/dhcp': typeof RouterIdDhcpRoute
+  '/router/$id/dns': typeof RouterIdDnsRoute
   '/router/$id/firewall': typeof RouterIdFirewallRoute
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/vlans': typeof RouterIdVlansRoute
+  '/network/dhcp/': typeof NetworkDhcpIndexRoute
   '/router/$id/': typeof RouterIdIndexRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -149,17 +212,26 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/routers': typeof RoutersRoute
   '/wifi': typeof WifiRoute
+  '/dashboard/dns-lookup': typeof DashboardDnsLookupRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/troubleshoot': typeof DashboardTroubleshootRoute
+  '/network/dhcp/$serverId': typeof NetworkDhcpServerIdRoute
+  '/network/dhcp/new': typeof NetworkDhcpNewRoute
   '/router/$id/dhcp': typeof RouterIdDhcpRoute
+  '/router/$id/dns': typeof RouterIdDnsRoute
   '/router/$id/firewall': typeof RouterIdFirewallRoute
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/vlans': typeof RouterIdVlansRoute
+  '/network/dhcp': typeof NetworkDhcpIndexRoute
   '/router/$id': typeof RouterIdIndexRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -170,18 +242,27 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
-  '/network': typeof NetworkRoute
+  '/network': typeof NetworkRouteWithChildren
   '/routers': typeof RoutersRoute
   '/wifi': typeof WifiRoute
   '/router/$id': typeof RouterIdRouteRouteWithChildren
+  '/dashboard/dns-lookup': typeof DashboardDnsLookupRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/troubleshoot': typeof DashboardTroubleshootRoute
+  '/network/dhcp/$serverId': typeof NetworkDhcpServerIdRoute
+  '/network/dhcp/new': typeof NetworkDhcpNewRoute
   '/router/$id/dhcp': typeof RouterIdDhcpRoute
+  '/router/$id/dns': typeof RouterIdDnsRoute
   '/router/$id/firewall': typeof RouterIdFirewallRoute
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/vlans': typeof RouterIdVlansRoute
+  '/network/dhcp/': typeof NetworkDhcpIndexRoute
   '/router/$id/': typeof RouterIdIndexRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
@@ -200,11 +281,20 @@ export interface FileRouteTypes {
     | '/routers'
     | '/wifi'
     | '/router/$id'
+    | '/dashboard/dns-lookup'
+    | '/dashboard/network'
+    | '/dashboard/routes'
+    | '/dashboard/troubleshoot'
+    | '/network/dhcp/$serverId'
+    | '/network/dhcp/new'
     | '/router/$id/dhcp'
+    | '/router/$id/dns'
     | '/router/$id/firewall'
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/vlans'
+    | '/network/dhcp/'
     | '/router/$id/'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -220,11 +310,20 @@ export interface FileRouteTypes {
     | '/network'
     | '/routers'
     | '/wifi'
+    | '/dashboard/dns-lookup'
+    | '/dashboard/network'
+    | '/dashboard/routes'
+    | '/dashboard/troubleshoot'
+    | '/network/dhcp/$serverId'
+    | '/network/dhcp/new'
     | '/router/$id/dhcp'
+    | '/router/$id/dns'
     | '/router/$id/firewall'
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/vlans'
+    | '/network/dhcp'
     | '/router/$id'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -241,11 +340,20 @@ export interface FileRouteTypes {
     | '/routers'
     | '/wifi'
     | '/router/$id'
+    | '/dashboard/dns-lookup'
+    | '/dashboard/network'
+    | '/dashboard/routes'
+    | '/dashboard/troubleshoot'
+    | '/network/dhcp/$serverId'
+    | '/network/dhcp/new'
     | '/router/$id/dhcp'
+    | '/router/$id/dns'
     | '/router/$id/firewall'
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/vlans'
+    | '/network/dhcp/'
     | '/router/$id/'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
@@ -256,10 +364,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DiscoverRoute: typeof DiscoverRoute
   HomeRoute: typeof HomeRoute
-  NetworkRoute: typeof NetworkRoute
+  NetworkRoute: typeof NetworkRouteWithChildren
   RoutersRoute: typeof RoutersRoute
   WifiRoute: typeof WifiRoute
   RouterIdRouteRoute: typeof RouterIdRouteRouteWithChildren
@@ -316,6 +424,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/troubleshoot': {
+      id: '/dashboard/troubleshoot'
+      path: '/troubleshoot'
+      fullPath: '/dashboard/troubleshoot'
+      preLoaderRoute: typeof DashboardTroubleshootRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/routes': {
+      id: '/dashboard/routes'
+      path: '/routes'
+      fullPath: '/dashboard/routes'
+      preLoaderRoute: typeof DashboardRoutesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/network': {
+      id: '/dashboard/network'
+      path: '/network'
+      fullPath: '/dashboard/network'
+      preLoaderRoute: typeof DashboardNetworkRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/dns-lookup': {
+      id: '/dashboard/dns-lookup'
+      path: '/dns-lookup'
+      fullPath: '/dashboard/dns-lookup'
+      preLoaderRoute: typeof DashboardDnsLookupRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/router/$id': {
       id: '/router/$id'
       path: '/router/$id'
@@ -328,6 +464,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/router/$id/'
       preLoaderRoute: typeof RouterIdIndexRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
+    '/network/dhcp/': {
+      id: '/network/dhcp/'
+      path: '/dhcp'
+      fullPath: '/network/dhcp/'
+      preLoaderRoute: typeof NetworkDhcpIndexRouteImport
+      parentRoute: typeof NetworkRoute
+    }
+    '/router/$id/vlans': {
+      id: '/router/$id/vlans'
+      path: '/vlans'
+      fullPath: '/router/$id/vlans'
+      preLoaderRoute: typeof RouterIdVlansRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
     '/router/$id/plugins': {
@@ -358,12 +508,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterIdFirewallRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
+    '/router/$id/dns': {
+      id: '/router/$id/dns'
+      path: '/dns'
+      fullPath: '/router/$id/dns'
+      preLoaderRoute: typeof RouterIdDnsRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
     '/router/$id/dhcp': {
       id: '/router/$id/dhcp'
       path: '/dhcp'
       fullPath: '/router/$id/dhcp'
       preLoaderRoute: typeof RouterIdDhcpRouteImport
       parentRoute: typeof RouterIdRouteRoute
+    }
+    '/network/dhcp/new': {
+      id: '/network/dhcp/new'
+      path: '/dhcp/new'
+      fullPath: '/network/dhcp/new'
+      preLoaderRoute: typeof NetworkDhcpNewRouteImport
+      parentRoute: typeof NetworkRoute
+    }
+    '/network/dhcp/$serverId': {
+      id: '/network/dhcp/$serverId'
+      path: '/dhcp/$serverId'
+      fullPath: '/network/dhcp/$serverId'
+      preLoaderRoute: typeof NetworkDhcpServerIdRouteImport
+      parentRoute: typeof NetworkRoute
     }
     '/router/$id/wifi/': {
       id: '/router/$id/wifi/'
@@ -403,12 +574,47 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardDnsLookupRoute: typeof DashboardDnsLookupRoute
+  DashboardNetworkRoute: typeof DashboardNetworkRoute
+  DashboardRoutesRoute: typeof DashboardRoutesRoute
+  DashboardTroubleshootRoute: typeof DashboardTroubleshootRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardDnsLookupRoute: DashboardDnsLookupRoute,
+  DashboardNetworkRoute: DashboardNetworkRoute,
+  DashboardRoutesRoute: DashboardRoutesRoute,
+  DashboardTroubleshootRoute: DashboardTroubleshootRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
+interface NetworkRouteChildren {
+  NetworkDhcpServerIdRoute: typeof NetworkDhcpServerIdRoute
+  NetworkDhcpNewRoute: typeof NetworkDhcpNewRoute
+  NetworkDhcpIndexRoute: typeof NetworkDhcpIndexRoute
+}
+
+const NetworkRouteChildren: NetworkRouteChildren = {
+  NetworkDhcpServerIdRoute: NetworkDhcpServerIdRoute,
+  NetworkDhcpNewRoute: NetworkDhcpNewRoute,
+  NetworkDhcpIndexRoute: NetworkDhcpIndexRoute,
+}
+
+const NetworkRouteWithChildren =
+  NetworkRoute._addFileChildren(NetworkRouteChildren)
+
 interface RouterIdRouteRouteChildren {
   RouterIdDhcpRoute: typeof RouterIdDhcpRoute
+  RouterIdDnsRoute: typeof RouterIdDnsRoute
   RouterIdFirewallRoute: typeof RouterIdFirewallRoute
   RouterIdLogsRoute: typeof RouterIdLogsRoute
   RouterIdNetworkRoute: typeof RouterIdNetworkRoute
   RouterIdPluginsRoute: typeof RouterIdPluginsRoute
+  RouterIdVlansRoute: typeof RouterIdVlansRoute
   RouterIdIndexRoute: typeof RouterIdIndexRoute
   RouterIdVpnClientsRoute: typeof RouterIdVpnClientsRoute
   RouterIdVpnServersRoute: typeof RouterIdVpnServersRoute
@@ -419,10 +625,12 @@ interface RouterIdRouteRouteChildren {
 
 const RouterIdRouteRouteChildren: RouterIdRouteRouteChildren = {
   RouterIdDhcpRoute: RouterIdDhcpRoute,
+  RouterIdDnsRoute: RouterIdDnsRoute,
   RouterIdFirewallRoute: RouterIdFirewallRoute,
   RouterIdLogsRoute: RouterIdLogsRoute,
   RouterIdNetworkRoute: RouterIdNetworkRoute,
   RouterIdPluginsRoute: RouterIdPluginsRoute,
+  RouterIdVlansRoute: RouterIdVlansRoute,
   RouterIdIndexRoute: RouterIdIndexRoute,
   RouterIdVpnClientsRoute: RouterIdVpnClientsRoute,
   RouterIdVpnServersRoute: RouterIdVpnServersRoute,
@@ -437,10 +645,10 @@ const RouterIdRouteRouteWithChildren = RouterIdRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DiscoverRoute: DiscoverRoute,
   HomeRoute: HomeRoute,
-  NetworkRoute: NetworkRoute,
+  NetworkRoute: NetworkRouteWithChildren,
   RoutersRoute: RoutersRoute,
   WifiRoute: WifiRoute,
   RouterIdRouteRoute: RouterIdRouteRouteWithChildren,

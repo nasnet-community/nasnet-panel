@@ -1,0 +1,38 @@
+# Router Status Subscription
+# Epic 5 - Story 5.1: Dashboard Layout with Router Health Summary
+#
+# Real-time subscription for router status changes via WebSocket.
+# Delivers updates within 2 seconds end-to-end per performance SLA.
+#
+# Subscription activates when:
+# - Router status changes (online/offline/degraded)
+# - CPU or memory usage changes
+# - Active connections change
+# - Any runtime metric updates
+#
+# @see Story 2.6: GraphQL Subscriptions (Backend)
+
+#import "../fragments/router-fields.graphql"
+
+subscription OnRouterStatusChanged($routerId: ID!) {
+  routerStatusChanged(routerId: $routerId) {
+    router {
+      ...RouterHealthSummary
+    }
+    previousStatus
+    newStatus
+    timestamp
+  }
+}
+
+# Subscription for all routers (for dashboard with multiple cards)
+subscription OnAnyRouterStatusChanged {
+  routerStatusChanged {
+    router {
+      ...RouterHealthSummary
+    }
+    previousStatus
+    newStatus
+    timestamp
+  }
+}

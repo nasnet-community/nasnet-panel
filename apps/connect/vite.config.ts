@@ -87,6 +87,7 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/features/firewall': resolve(import.meta.dirname, '../../libs/features/firewall/src'),
       '@nasnet/features/logs': resolve(import.meta.dirname, '../../libs/features/logs/src'),
       '@nasnet/features/configuration-import': resolve(import.meta.dirname, '../../libs/features/configuration-import/src'),
+      '@nasnet/features/network': resolve(import.meta.dirname, '../../libs/features/network/src'),
       '@nasnet/api-client/core': resolve(import.meta.dirname, '../../libs/api-client/core/src'),
       '@nasnet/api-client/generated': resolve(import.meta.dirname, '../../libs/api-client/generated'),
       '@nasnet/api-client/queries': resolve(import.meta.dirname, '../../libs/api-client/queries/src'),

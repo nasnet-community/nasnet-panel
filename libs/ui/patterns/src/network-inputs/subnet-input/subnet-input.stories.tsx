@@ -198,18 +198,19 @@ export const Required: Story = {
  */
 export const DesktopVariant: Story = {
   parameters: {
-    viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
         story: 'Desktop layout with inline calculations panel',
       },
-    },
+    }
   },
+
   args: {
     label: 'Network Subnet',
     value: '172.16.0.0/12',
     showCalculations: true,
   },
+
   render: (args) => {
     const [value, setValue] = React.useState(args.value || '');
     // Import the hook directly for desktop-specific story
@@ -228,6 +229,13 @@ export const DesktopVariant: Story = {
       />
     );
   },
+
+  globals: {
+    viewport: {
+      value: 'desktop',
+      isRotated: false
+    }
+  }
 };
 
 /**
@@ -235,18 +243,19 @@ export const DesktopVariant: Story = {
  */
 export const MobileVariant: Story = {
   parameters: {
-    viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
         story: 'Mobile layout with bottom sheet calculations',
       },
-    },
+    }
   },
+
   args: {
     label: 'Network Subnet',
     value: '192.168.10.0/24',
     showCalculations: true,
   },
+
   render: (args) => {
     const [value, setValue] = React.useState(args.value || '');
     // Import the hook directly for mobile-specific story
@@ -267,6 +276,13 @@ export const MobileVariant: Story = {
       </div>
     );
   },
+
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  }
 };
 
 /**
@@ -309,21 +325,28 @@ export const PrefixExamples: Story = {
  */
 export const DarkMode: Story = {
   parameters: {
-    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'Component in dark mode theme',
       },
-    },
+    }
   },
+
   args: {
     label: 'Network Subnet',
     value: '192.168.1.0/24',
     showCalculations: true,
   },
+
   render: (args) => (
     <div className="dark bg-background p-4 rounded-lg">
       <ControlledSubnetInput {...args} />
     </div>
   ),
+
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  }
 };

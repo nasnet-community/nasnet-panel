@@ -298,14 +298,6 @@ func toGraphQLLevel(level capability.Level) model.CapabilityLevel {
 	}
 }
 
-// strPtr returns a pointer to the string, or nil if empty.
-func strPtr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
-
 // intPtrCap returns a pointer to the int, or nil if zero.
 // Named differently from intPtr in scanner.resolvers.go to avoid redeclaration.
 func intPtrCap(i int) *int {

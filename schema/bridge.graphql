@@ -1,0 +1,251 @@
+# =============================================================================
+# Bridge Configuration Schema
+# =============================================================================
+# Reference: Epic 6 - Network Management
+# RouterOS Commands: /interface/bridge/*
+# Story: NAS-6.6 - Implement Bridge Configuration
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Enums
+# -----------------------------------------------------------------------------
+
+enum StpProtocol {
+  NONE
+  STP
+  RSTP
+  MSTP
+}
+
+enum FrameTypes {
+  ADMIT_ALL
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+enum StpPortRole {
+  ROOT
+  DESIGNATED
+  ALTERNATE
+  BACKUP
+  DISABLED
+}
+
+enum StpPortState {
+  DISABLED
+  BLOCKING
+  LISTENING
+  LEARNING
+  FORWARDING
+}
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+type Bridge implements Node {
+  id: ID!
+  name: String!
+  comment: String @mikrotik(path: "/interface/bridge", field: "comment")
+  disabled: Boolean! @mikrotik(path: "/interface/bridge", field: "disabled")
+  running: Boolean!
+  macAddress: MAC @mikrotik(path: "/interface/bridge", field: "mac-address")
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/bridge", field: "mtu")
+
+  # STP Configuration
+  protocol: StpProtocol! @mikrotik(path: "/interface/bridge", field: "protocol")
+  priority: Int @validate(min: 0, max: 61440) @mikrotik(path: "/interface/bridge", field: "priority")
+
+  # VLAN Configuration
+  vlanFiltering: Boolean! @mikrotik(path: "/interface/bridge", field: "vlan-filtering")
+  pvid: Int @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge", field: "pvid")
+
+  # Relationships
+  ports: [BridgePort!]!
+  vlans: [BridgeVlan!]!
+  ipAddresses: [IpAddress!]!
+
+  # STP Status (real-time)
+  stpStatus: BridgeStpStatus
+
+  # Impact analysis for deletion
+  dependentDhcpServers: [DhcpServer!]!
+  dependentRoutes: [Route!]!
+}
+
+type BridgePort implements Node {
+  id: ID!
+  bridge: Bridge!
+  interface: Interface!
+
+  # VLAN Configuration
+  pvid: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge/port", field: "pvid")
+  frameTypes: FrameTypes! @mikrotik(path: "/interface/bridge/port", field: "frame-types")
+  ingressFiltering: Boolean! @mikrotik(path: "/interface/bridge/port", field: "ingress-filtering")
+  taggedVlans: [Int!]!
+  untaggedVlans: [Int!]!
+
+  # STP Per-Port Status
+  role: StpPortRole!
+  state: StpPortState!
+  pathCost: Int!
+  edge: Boolean! @mikrotik(path: "/interface/bridge/port", field: "edge")
+}
+
+type BridgeStpStatus {
+  rootBridge: Boolean!
+  rootBridgeId: String
+  rootPort: String
+  rootPathCost: Int!
+  topologyChangeCount: Int!
+  lastTopologyChange: DateTime
+}
+
+type BridgeVlan {
+  uuid: ID!
+  bridge: Bridge!
+  vlanId: Int! @validate(min: 1, max: 4094)
+  taggedPorts: [BridgePort!]!
+  untaggedPorts: [BridgePort!]!
+}
+
+# -----------------------------------------------------------------------------
+# Input Types
+# -----------------------------------------------------------------------------
+
+input CreateBridgeInput {
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$")
+  comment: String
+  protocol: StpProtocol
+  priority: Int @validate(min: 0, max: 61440)
+  vlanFiltering: Boolean
+  pvid: Int @validate(min: 1, max: 4094)
+  mtu: Int @validate(min: 68, max: 65535)
+}
+
+input UpdateBridgeInput {
+  comment: String
+  protocol: StpProtocol
+  priority: Int @validate(min: 0, max: 61440)
+  vlanFiltering: Boolean
+  pvid: Int @validate(min: 1, max: 4094)
+  mtu: Int @validate(min: 68, max: 65535)
+  disabled: Boolean
+}
+
+input AddBridgePortInput {
+  interfaceId: ID!
+  pvid: Int @validate(min: 1, max: 4094)
+  frameTypes: FrameTypes
+  ingressFiltering: Boolean
+}
+
+input UpdateBridgePortInput {
+  pvid: Int @validate(min: 1, max: 4094)
+  frameTypes: FrameTypes
+  ingressFiltering: Boolean
+  taggedVlans: [Int!]
+  untaggedVlans: [Int!]
+  edge: Boolean
+  pathCost: Int @validate(min: 1, max: 65535)
+}
+
+input CreateBridgeVlanInput {
+  vlanId: Int! @validate(min: 1, max: 4094)
+  taggedPortIds: [ID!]
+  untaggedPortIds: [ID!]
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Results
+# -----------------------------------------------------------------------------
+
+type BridgeMutationResult {
+  success: Boolean!
+  bridge: Bridge
+  errors: [MutationError!]
+  "Previous state for undo functionality"
+  previousState: JSON
+  "Unique operation ID for undo within 10-second window"
+  operationId: ID
+}
+
+type BridgePortMutationResult {
+  success: Boolean!
+  port: BridgePort
+  errors: [MutationError!]
+  previousState: JSON
+  operationId: ID
+}
+
+type BridgeVlanMutationResult {
+  success: Boolean!
+  vlan: BridgeVlan
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  "List all bridges on a router"
+  bridges(routerId: ID!): [Bridge!]!
+
+  "Get a single bridge by UUID"
+  bridge(uuid: ID!): Bridge
+
+  "Get bridge ports"
+  bridgePorts(bridgeId: ID!): [BridgePort!]!
+
+  "Get bridge VLANs"
+  bridgeVlans(bridgeId: ID!): [BridgeVlan!]!
+
+  "Get interfaces available to add to a bridge (not already in any bridge)"
+  availableInterfacesForBridge(routerId: ID!): [Interface!]!
+}
+
+# -----------------------------------------------------------------------------
+# Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  "Create a new bridge"
+  createBridge(routerId: ID!, input: CreateBridgeInput!): BridgeMutationResult!
+
+  "Update an existing bridge"
+  updateBridge(uuid: ID!, input: UpdateBridgeInput!): BridgeMutationResult!
+
+  "Delete a bridge"
+  deleteBridge(uuid: ID!): DeleteResult!
+
+  "Undo a bridge operation (within 10-second window)"
+  undoBridgeOperation(operationId: ID!): BridgeMutationResult!
+
+  "Add a port to a bridge"
+  addBridgePort(bridgeId: ID!, input: AddBridgePortInput!): BridgePortMutationResult!
+
+  "Update bridge port settings"
+  updateBridgePort(portId: ID!, input: UpdateBridgePortInput!): BridgePortMutationResult!
+
+  "Remove a port from a bridge"
+  removeBridgePort(portId: ID!): DeleteResult!
+
+  "Create a bridge VLAN entry"
+  createBridgeVlan(bridgeId: ID!, input: CreateBridgeVlanInput!): BridgeVlanMutationResult!
+
+  "Delete a bridge VLAN entry"
+  deleteBridgeVlan(uuid: ID!): DeleteResult!
+}
+
+# -----------------------------------------------------------------------------
+# Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  "Subscribe to STP status changes for a bridge"
+  bridgeStpStatusChanged(bridgeId: ID!): BridgeStpStatus!
+
+  "Subscribe to bridge port changes"
+  bridgePortsChanged(bridgeId: ID!): [BridgePort!]!
+}

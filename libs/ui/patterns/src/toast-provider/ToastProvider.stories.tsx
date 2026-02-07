@@ -501,17 +501,22 @@ export const WithActionButton: Story = {
 // Mobile positioning
 export const MobilePositioning: Story = {
   render: () => <ToastDemo />,
+
   parameters: {
-    viewport: {
-      defaultViewport: 'mobile1',
-    },
     docs: {
       description: {
         story:
           'On mobile devices (< 640px), toasts appear at bottom-center with offset to avoid bottom navigation.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  }
 };
 
 // Interactive playground

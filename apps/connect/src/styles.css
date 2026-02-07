@@ -651,4 +651,29 @@
   [dir="rtl"] .rtl-flip-horizontal {
     transform: scaleX(-1);
   }
+
+  /* ========================================
+   * LOG ENTRY HIGHLIGHT ANIMATION
+   * Subtle highlight for new log entries (Story NAS-5.6)
+   * Respects prefers-reduced-motion preference
+   * ======================================== */
+
+  @keyframes highlight {
+    0% {
+      background-color: hsl(var(--primary) / 0.15);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .animate-highlight {
+    animation: highlight 2s ease-out forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-highlight {
+      animation: none;
+    }
+  }
 }

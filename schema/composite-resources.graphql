@@ -16,22 +16,27 @@
 WireGuard VPN Client resource implementing 8-layer model
 """
 type WireGuardClient implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
 
-  # Typed configuration (not generic JSON)
-  configuration: WireGuardClientConfig!
+  # Generic configuration (interface requirement)
+  configuration: JSON
 
   # Other layers
   validation: ValidationResult
-  deployment: WireGuardDeployment
-  runtime: WireGuardRuntime
+  deployment: DeploymentState
+  runtime: RuntimeState
   telemetry: TelemetryData
   metadata: ResourceMetadata!
   relationships: ResourceRelationships
   platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  config: WireGuardClientConfig!
+  wireguardDeployment: WireGuardDeployment
+  wireguardRuntime: WireGuardRuntime
 }
 
 """
@@ -119,19 +124,25 @@ type WireGuardRuntime {
 LAN Network composite resource - groups bridge, DHCP, firewall, routing
 """
 type LANNetwork implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
 
-  configuration: LANNetworkConfig!
+  # Generic fields (interface requirement)
+  configuration: JSON
   validation: ValidationResult
-  deployment: LANNetworkDeployment
-  runtime: LANNetworkRuntime
+  deployment: DeploymentState
+  runtime: RuntimeState
   telemetry: TelemetryData
   metadata: ResourceMetadata!
   relationships: ResourceRelationships
   platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  config: LANNetworkConfig!
+  lanDeployment: LANNetworkDeployment
+  lanRuntime: LANNetworkRuntime
 
   # Composite sub-resources
   "Bridge interface"
@@ -230,8 +241,8 @@ type LANNetworkRuntime {
 Bridge resource (part of LANNetwork)
 """
 type BridgeResource implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
   configuration: JSON!
@@ -255,8 +266,8 @@ type BridgeResource implements Resource & Node {
 DHCP Server resource
 """
 type DHCPServerResource implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
   configuration: JSON!
@@ -284,8 +295,8 @@ type DHCPServerResource implements Resource & Node {
 Firewall Rule resource
 """
 type FirewallRuleResource implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
   configuration: JSON!
@@ -323,8 +334,8 @@ type FirewallRuleResource implements Resource & Node {
 Route resource
 """
 type RouteResource implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
   configuration: JSON!
@@ -356,18 +367,21 @@ type RouteResource implements Resource & Node {
 WAN Link resource for internet connectivity
 """
 type WANLink implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
-  configuration: JSON!
+  configuration: JSON
   validation: ValidationResult
   deployment: DeploymentState
-  runtime: WANLinkRuntime
+  runtime: RuntimeState
   telemetry: TelemetryData
   metadata: ResourceMetadata!
   relationships: ResourceRelationships
   platform: PlatformInfo
+
+  # Typed runtime (additional to interface)
+  wanRuntime: WANLinkRuntime
 
   "Interface name"
   interface: String!
@@ -379,16 +393,7 @@ type WANLink implements Resource & Node {
   failoverPriority: Int
 }
 
-"""
-WAN connection types
-"""
-enum WANConnectionType {
-  STATIC
-  DHCP
-  PPPOE
-  LTE
-  PPTP
-}
+# Note: WANConnectionType enum is defined in wan.graphql
 
 """
 WAN Link runtime state
@@ -426,18 +431,22 @@ type WANLinkRuntime {
 Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)
 """
 type FeatureResource implements Resource & Node {
-  uuid: ID!
-  id: String!
+  id: ID!
+  scopedId: String!
   type: String!
   category: ResourceCategory!
-  configuration: JSON!
+  configuration: JSON
   validation: ValidationResult
-  deployment: FeatureDeployment
-  runtime: FeatureRuntime
+  deployment: DeploymentState
+  runtime: RuntimeState
   telemetry: TelemetryData
   metadata: ResourceMetadata!
   relationships: ResourceRelationships
   platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  featureDeployment: FeatureDeployment
+  featureRuntime: FeatureRuntime
 
   "Feature identifier"
   featureId: String!

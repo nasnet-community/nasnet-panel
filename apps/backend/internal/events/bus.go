@@ -444,6 +444,41 @@ func ParseEvent(msg *message.Message) (Event, error) {
 		}
 		event = &e
 
+	case EventTypeDeviceScanStarted:
+		var e DeviceScanStartedEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DeviceScanStartedEvent: %w", err)
+		}
+		event = &e
+
+	case EventTypeDeviceScanProgress:
+		var e DeviceScanProgressEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DeviceScanProgressEvent: %w", err)
+		}
+		event = &e
+
+	case EventTypeDeviceScanCompleted:
+		var e DeviceScanCompletedEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DeviceScanCompletedEvent: %w", err)
+		}
+		event = &e
+
+	case EventTypeDeviceScanFailed:
+		var e DeviceScanFailedEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DeviceScanFailedEvent: %w", err)
+		}
+		event = &e
+
+	case EventTypeDeviceScanCancelled:
+		var e DeviceScanCancelledEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DeviceScanCancelledEvent: %w", err)
+		}
+		event = &e
+
 	default:
 		// For unknown types, return a generic event
 		log.Printf("[EVENTS] Unknown event type: %s", eventType)

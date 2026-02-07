@@ -10,7 +10,7 @@
 import * as React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import { Input } from '@nasnet/ui/primitives';
 
@@ -245,9 +245,6 @@ export const DarkTheme: Story = {
     variant: 'desktop',
     onOverride: fn(),
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   decorators: [
     (Story) => (
       <div className="dark bg-gray-900 p-8 rounded-lg">
@@ -255,6 +252,11 @@ export const DarkTheme: Story = {
       </div>
     ),
   ],
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  },
 };
 
 // ============================================================================

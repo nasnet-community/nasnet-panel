@@ -190,8 +190,11 @@ export const MobilePresenter: Story = {
     trend: 'up',
     trendValue: '+5%',
   },
-  parameters: {
-    viewport: { defaultViewport: 'mobile1' },
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
   },
 };
 

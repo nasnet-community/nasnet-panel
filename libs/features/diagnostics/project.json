@@ -1,0 +1,7 @@
+{
+  "name": "@nasnet/features/diagnostics",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/diagnostics/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"]
+}

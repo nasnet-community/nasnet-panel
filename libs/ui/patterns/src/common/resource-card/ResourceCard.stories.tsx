@@ -229,20 +229,26 @@ export const WithCustomContent: Story = {
 // Platform-specific stories
 export const MobilePresenter: Story = {
   render: (args) => <ResourceCardMobile {...args} />,
+
   args: {
     resource: onlineResource,
     actions: sampleActions,
   },
+
   parameters: {
-    viewport: {
-      defaultViewport: 'mobile1',
-    },
     docs: {
       description: {
         story: 'Mobile-optimized presenter with large touch targets and full-width actions.',
       },
-    },
+    }
   },
+
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  }
 };
 
 export const DesktopPresenter: Story = {

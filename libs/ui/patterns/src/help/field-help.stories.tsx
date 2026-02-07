@@ -231,11 +231,6 @@ export const MobileVariant: Story = {
   args: {
     field: 'gateway',
   },
-  parameters: {
-    viewport: {
-      defaultViewport: 'mobile1',
-    },
-  },
   render: (args) => (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
@@ -247,6 +242,12 @@ export const MobileVariant: Story = {
       </div>
     </div>
   ),
+  globals: {
+    viewport: {
+      value: 'mobile1',
+      isRotated: false
+    }
+  },
 };
 
 // ============================================================================
@@ -374,9 +375,6 @@ export const DarkTheme: Story = {
   args: {
     field: 'ip',
   },
-  parameters: {
-    backgrounds: { default: 'dark' },
-  },
   decorators: [
     (Story) => (
       <div className="dark bg-background p-8 rounded-lg">
@@ -387,6 +385,11 @@ export const DarkTheme: Story = {
       </div>
     ),
   ],
+  globals: {
+    backgrounds: {
+      value: "dark"
+    }
+  },
 };
 
 // ============================================================================

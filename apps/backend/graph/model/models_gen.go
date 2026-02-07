@@ -26,6 +26,36 @@ type Node interface {
 	IsNode()
 }
 
+// Universal State v2 Resource Interface.
+// Every managed resource implements this interface with 8 layers:
+// 1. configuration - User's desired config (mutable by user)
+// 2. validation - Pre-flight check results (computed by backend)
+// 3. deployment - What's on router (after Apply-Confirm)
+// 4. runtime - Live operational state (polled/streamed)
+// 5. telemetry - Time-series metrics (historical)
+// 6. metadata - Lifecycle info, tags, ownership
+// 7. relationships - Dependencies (embedded + explicit)
+// 8. platform - Capabilities and field mappings
+type Resource interface {
+	IsResource()
+}
+
+type AddBridgePortInput struct {
+	InterfaceID      string                         `json:"interfaceId"`
+	Pvid             graphql.Omittable[*int]        `json:"pvid,omitempty"`
+	FrameTypes       graphql.Omittable[*FrameTypes] `json:"frameTypes,omitempty"`
+	IngressFiltering graphql.Omittable[*bool]       `json:"ingressFiltering,omitempty"`
+}
+
+type AddChangeSetItemPayload struct {
+	// The updated change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// The added item ID
+	ItemID *string `json:"itemId,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Input for manually adding a new router with full credentials and protocol preference.
 // This is the primary input type for the addRouter mutation.
 type AddRouterInput struct {
@@ -67,6 +97,187 @@ type AddRouterPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Resource affected by a configuration change
+type AffectedResource struct {
+	// Resource type (ip-address, dhcp-server, firewall-rule, etc.)
+	Type string `json:"type"`
+	// Resource ID
+	ID string `json:"id"`
+	// Resource name or description
+	Name string `json:"name"`
+	// How the resource will be affected (modified, disabled, removed)
+	Impact ResourceImpact `json:"impact"`
+}
+
+// Individual alert instance triggered when rule conditions are met
+type Alert struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Alert rule that triggered this alert
+	Rule *AlertRule `json:"rule"`
+	// Event type that triggered this alert
+	EventType string `json:"eventType"`
+	// Alert severity level
+	Severity AlertSeverity `json:"severity"`
+	// Alert title/summary
+	Title string `json:"title"`
+	// Detailed alert message
+	Message string `json:"message"`
+	// Event data and context information
+	Data map[string]interface{} `json:"data,omitempty"`
+	// Device ID that triggered this alert
+	DeviceID *string `json:"deviceId,omitempty"`
+	// When alert was triggered
+	TriggeredAt time.Time `json:"triggeredAt"`
+	// When alert was acknowledged
+	AcknowledgedAt *time.Time `json:"acknowledgedAt,omitempty"`
+	// User who acknowledged the alert
+	AcknowledgedBy *string `json:"acknowledgedBy,omitempty"`
+	// Delivery status per channel
+	DeliveryStatus map[string]interface{} `json:"deliveryStatus,omitempty"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (Alert) IsNode() {}
+
+// Condition for event matching in alert rules
+type AlertCondition struct {
+	// Field name to evaluate
+	Field string `json:"field"`
+	// Comparison operator
+	Operator ConditionOperator `json:"operator"`
+	// Value to compare against
+	Value string `json:"value"`
+}
+
+// Alert condition input
+type AlertConditionInput struct {
+	// Field name to evaluate
+	Field string `json:"field"`
+	// Comparison operator
+	Operator ConditionOperator `json:"operator"`
+	// Value to compare against
+	Value string `json:"value"`
+}
+
+// Paginated alert connection
+type AlertConnection struct {
+	// Alert edges
+	Edges []*AlertEdge `json:"edges"`
+	// Pagination information
+	PageInfo *PageInfo `json:"pageInfo"`
+	// Total count of alerts
+	TotalCount int `json:"totalCount"`
+}
+
+func (AlertConnection) IsConnection() {}
+
+// Alert edge for pagination
+type AlertEdge struct {
+	// Alert node
+	Node *Alert `json:"node"`
+	// Pagination cursor
+	Cursor string `json:"cursor"`
+}
+
+func (AlertEdge) IsEdge() {}
+
+// Alert event for real-time subscriptions
+type AlertEvent struct {
+	// The alert that changed
+	Alert *Alert `json:"alert"`
+	// Type of action that occurred
+	Action AlertAction `json:"action"`
+}
+
+// Alert mutation payload
+type AlertPayload struct {
+	// Modified alert
+	Alert *Alert `json:"alert,omitempty"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Alert rule defines conditions that trigger notifications when met
+type AlertRule struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Human-readable alert rule name
+	Name string `json:"name"`
+	// Optional description of what this rule monitors
+	Description *string `json:"description,omitempty"`
+	// Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high')
+	EventType string `json:"eventType"`
+	// Array of conditions for event matching
+	Conditions []*AlertCondition `json:"conditions"`
+	// Alert severity level
+	Severity AlertSeverity `json:"severity"`
+	// Notification channels to use
+	Channels []string `json:"channels"`
+	// Throttle configuration to prevent alert spam
+	Throttle *ThrottleConfig `json:"throttle,omitempty"`
+	// Quiet hours configuration for non-critical alerts
+	QuietHours *QuietHoursConfig `json:"quietHours,omitempty"`
+	// Optional device ID filter - rule only applies to this device
+	DeviceID *string `json:"deviceId,omitempty"`
+	// Whether this alert rule is enabled
+	Enabled bool `json:"enabled"`
+	// Record creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+	// Alerts triggered by this rule
+	Alerts []*Alert `json:"alerts"`
+}
+
+func (AlertRule) IsNode() {}
+
+// Alert rule mutation payload
+type AlertRulePayload struct {
+	// Created/updated alert rule
+	AlertRule *AlertRule `json:"alertRule,omitempty"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type ApplyChangeSetPayload struct {
+	// Change set ID
+	ChangeSetID string `json:"changeSetId"`
+	// Current status
+	Status ChangeSetStatus `json:"status"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Result of applying a fix
+type ApplyFixPayload struct {
+	// Whether fix was applied successfully
+	Success bool `json:"success"`
+	// User-friendly message
+	Message string `json:"message"`
+	// Fix application status
+	Status FixApplicationStatus `json:"status"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type ApplyResourcePayload struct {
+	// The applied resource
+	Resource Resource `json:"resource,omitempty"`
+	// Operation ID for progress tracking
+	OperationID string `json:"operationId"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type ArchiveResourcePayload struct {
+	// Whether archive was successful
+	Success bool `json:"success"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Authentication test status
 type AuthStatus struct {
 	// Whether authentication was tested
@@ -77,6 +288,201 @@ type AuthStatus struct {
 	Error *string `json:"error,omitempty"`
 	// Error code mapped to ErrorCodes (A5xx)
 	ErrorCode *string `json:"errorCode,omitempty"`
+}
+
+// A bandwidth data point
+type BandwidthDataPoint struct {
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+	// Bytes in during this period
+	BytesIn Size `json:"bytesIn"`
+	// Bytes out during this period
+	BytesOut Size `json:"bytesOut"`
+	// Period duration in seconds
+	PeriodSeconds int `json:"periodSeconds"`
+}
+
+// Input for batch interface operations
+type BatchInterfaceInput struct {
+	// Interface IDs to operate on
+	InterfaceIds []string `json:"interfaceIds"`
+	// Action to perform
+	Action BatchInterfaceAction `json:"action"`
+	// Optional input for UPDATE action
+	Input graphql.Omittable[*UpdateInterfaceInput] `json:"input,omitempty"`
+}
+
+// Payload returned by batchInterfaceOperation mutation
+type BatchInterfacePayload struct {
+	// Interfaces that were successfully updated
+	Succeeded []*Interface `json:"succeeded"`
+	// Interfaces that failed with reasons
+	Failed []*InterfaceOperationError `json:"failed"`
+	// General errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type Bridge struct {
+	ID                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	Comment              *string          `json:"comment,omitempty"`
+	Disabled             bool             `json:"disabled"`
+	Running              bool             `json:"running"`
+	MacAddress           *MAC             `json:"macAddress,omitempty"`
+	Mtu                  *int             `json:"mtu,omitempty"`
+	Protocol             StpProtocol      `json:"protocol"`
+	Priority             *int             `json:"priority,omitempty"`
+	VlanFiltering        bool             `json:"vlanFiltering"`
+	Pvid                 *int             `json:"pvid,omitempty"`
+	Ports                []*BridgePort    `json:"ports"`
+	Vlans                []*BridgeVlan    `json:"vlans"`
+	IPAddresses          []*IPAddress     `json:"ipAddresses"`
+	StpStatus            *BridgeStpStatus `json:"stpStatus,omitempty"`
+	DependentDhcpServers []*DhcpServer    `json:"dependentDhcpServers"`
+	DependentRoutes      []*Route         `json:"dependentRoutes"`
+}
+
+func (Bridge) IsNode() {}
+
+type BridgeMutationResult struct {
+	Success bool             `json:"success"`
+	Bridge  *Bridge          `json:"bridge,omitempty"`
+	Errors  []*MutationError `json:"errors,omitempty"`
+	// Previous state for undo functionality
+	PreviousState map[string]interface{} `json:"previousState,omitempty"`
+	// Unique operation ID for undo within 10-second window
+	OperationID *string `json:"operationId,omitempty"`
+}
+
+type BridgePort struct {
+	ID               string       `json:"id"`
+	Bridge           *Bridge      `json:"bridge"`
+	Interface        *Interface   `json:"interface"`
+	Pvid             int          `json:"pvid"`
+	FrameTypes       FrameTypes   `json:"frameTypes"`
+	IngressFiltering bool         `json:"ingressFiltering"`
+	TaggedVlans      []int        `json:"taggedVlans"`
+	UntaggedVlans    []int        `json:"untaggedVlans"`
+	Role             StpPortRole  `json:"role"`
+	State            StpPortState `json:"state"`
+	PathCost         int          `json:"pathCost"`
+	Edge             bool         `json:"edge"`
+}
+
+func (BridgePort) IsNode() {}
+
+type BridgePortMutationResult struct {
+	Success       bool                   `json:"success"`
+	Port          *BridgePort            `json:"port,omitempty"`
+	Errors        []*MutationError       `json:"errors,omitempty"`
+	PreviousState map[string]interface{} `json:"previousState,omitempty"`
+	OperationID   *string                `json:"operationId,omitempty"`
+}
+
+// VLAN configuration for a bridge port (trunk/access port setup)
+type BridgePortVlanConfig struct {
+	// Bridge port ID
+	PortID string `json:"portId"`
+	// Port VLAN ID (PVID) for untagged traffic
+	Pvid int `json:"pvid"`
+	// Frame types allowed on this port
+	FrameTypes BridgePortFrameTypes `json:"frameTypes"`
+	// Tagged VLANs allowed on this port (trunk mode)
+	TaggedVlans []int `json:"taggedVlans"`
+	// Untagged VLANs on this port (typically just PVID)
+	UntaggedVlans []int `json:"untaggedVlans"`
+	// Port mode (trunk or access)
+	Mode PortMode `json:"mode"`
+}
+
+// Input for configuring bridge port VLAN settings
+type BridgePortVlanInput struct {
+	// Port VLAN ID (PVID) for untagged traffic
+	Pvid int `json:"pvid"`
+	// Frame types allowed on this port
+	FrameTypes BridgePortFrameTypes `json:"frameTypes"`
+	// Tagged VLANs (for trunk ports)
+	TaggedVlans graphql.Omittable[[]int] `json:"taggedVlans,omitempty"`
+	// Port mode (trunk or access)
+	Mode PortMode `json:"mode"`
+}
+
+// Bridge resource (part of LANNetwork)
+type BridgeResource struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	// Bridge name
+	Name string `json:"name"`
+	// Ports in this bridge
+	Ports []string `json:"ports"`
+	// Protocol mode (rstp, stp, none)
+	ProtocolMode *string `json:"protocolMode,omitempty"`
+}
+
+func (BridgeResource) IsResource() {}
+
+func (BridgeResource) IsNode() {}
+
+type BridgeStpStatus struct {
+	RootBridge          bool       `json:"rootBridge"`
+	RootBridgeID        *string    `json:"rootBridgeId,omitempty"`
+	RootPort            *string    `json:"rootPort,omitempty"`
+	RootPathCost        int        `json:"rootPathCost"`
+	TopologyChangeCount int        `json:"topologyChangeCount"`
+	LastTopologyChange  *time.Time `json:"lastTopologyChange,omitempty"`
+}
+
+type BridgeVlan struct {
+	UUID          string        `json:"uuid"`
+	Bridge        *Bridge       `json:"bridge"`
+	VlanID        int           `json:"vlanId"`
+	TaggedPorts   []*BridgePort `json:"taggedPorts"`
+	UntaggedPorts []*BridgePort `json:"untaggedPorts"`
+}
+
+type BridgeVlanMutationResult struct {
+	Success bool             `json:"success"`
+	Vlan    *BridgeVlan      `json:"vlan,omitempty"`
+	Errors  []*MutationError `json:"errors,omitempty"`
+}
+
+// Bulk alert mutation payload
+type BulkAlertPayload struct {
+	// Number of alerts acknowledged
+	AcknowledgedCount int `json:"acknowledgedCount"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// CPU utilization metrics
+type CPUMetrics struct {
+	// Overall CPU usage percentage (0-100)
+	Usage float64 `json:"usage"`
+	// Number of CPU cores
+	Cores int `json:"cores"`
+	// Per-core usage percentages (one per core)
+	PerCore []float64 `json:"perCore"`
+	// CPU frequency in MHz (optional)
+	Frequency *float64 `json:"frequency,omitempty"`
+}
+
+type CancelChangeSetPayload struct {
+	// The cancelled change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Whether cancel was successful
+	Success bool `json:"success"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
 }
 
 type CancelScanPayload struct {
@@ -96,6 +502,226 @@ type CapabilityEntry struct {
 	Description *string `json:"description,omitempty"`
 	// Actionable message if feature unavailable
 	Guidance *string `json:"guidance,omitempty"`
+}
+
+// An entry in the change log
+type ChangeLogEntry struct {
+	// Change timestamp
+	Timestamp time.Time `json:"timestamp"`
+	// User who made the change
+	User string `json:"user"`
+	// Type of change
+	ChangeType ChangeType `json:"changeType"`
+	// Changed fields
+	ChangedFields []string `json:"changedFields"`
+	// Brief description of the change
+	Summary *string `json:"summary,omitempty"`
+}
+
+// A change set representing an atomic multi-resource operation
+type ChangeSet struct {
+	// Unique identifier (ULID)
+	ID string `json:"id"`
+	// Human-readable name
+	Name string `json:"name"`
+	// Optional description
+	Description *string `json:"description,omitempty"`
+	// Router ID this change set applies to
+	RouterID string `json:"routerId"`
+	// Items in this change set
+	Items []*ChangeSetItem `json:"items"`
+	// Current status
+	Status ChangeSetStatus `json:"status"`
+	// Validation result
+	Validation *ChangeSetValidationResult `json:"validation,omitempty"`
+	// Rollback plan
+	RollbackPlan []*RollbackStep `json:"rollbackPlan"`
+	// Error information (if failed)
+	Error *ChangeSetError `json:"error,omitempty"`
+	// Created timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Apply started timestamp
+	ApplyStartedAt *time.Time `json:"applyStartedAt,omitempty"`
+	// Completed timestamp
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+	// User who created the change set
+	CreatedBy *string `json:"createdBy,omitempty"`
+	// Source wizard/feature
+	Source *string `json:"source,omitempty"`
+	// Version for optimistic concurrency
+	Version int `json:"version"`
+}
+
+// Conflict between change set items
+type ChangeSetConflict struct {
+	// First conflicting item ID
+	ItemID1 string `json:"itemId1"`
+	// Second conflicting item ID or resource UUID
+	ItemID2OrResourceUUID string `json:"itemId2OrResourceUuid"`
+	// Whether conflict is with existing resource
+	IsExternalConflict bool `json:"isExternalConflict"`
+	// Description of the conflict
+	Description string `json:"description"`
+	// Suggested resolution
+	Resolution *string `json:"resolution,omitempty"`
+}
+
+// Detailed error for failed change sets
+type ChangeSetError struct {
+	// Error message
+	Message string `json:"message"`
+	// Item ID that caused the failure
+	FailedItemID string `json:"failedItemId"`
+	// Error code
+	Code *string `json:"code,omitempty"`
+	// Items applied before failure
+	PartiallyAppliedItemIds []string `json:"partiallyAppliedItemIds"`
+	// Items that failed rollback
+	FailedRollbackItemIds []string `json:"failedRollbackItemIds"`
+	// Whether manual intervention is required
+	RequiresManualIntervention bool `json:"requiresManualIntervention"`
+}
+
+// Individual item within a change set
+type ChangeSetItem struct {
+	// Unique identifier for this item
+	ID string `json:"id"`
+	// Resource type identifier
+	ResourceType string `json:"resourceType"`
+	// Resource category
+	ResourceCategory ResourceCategory `json:"resourceCategory"`
+	// Existing resource UUID (null for create operations)
+	ResourceUUID *string `json:"resourceUuid,omitempty"`
+	// User-friendly name
+	Name string `json:"name"`
+	// Optional description
+	Description *string `json:"description,omitempty"`
+	// Operation to perform
+	Operation ChangeOperation `json:"operation"`
+	// New/updated configuration
+	Configuration map[string]interface{} `json:"configuration"`
+	// Previous state (for rollback)
+	PreviousState map[string]interface{} `json:"previousState,omitempty"`
+	// Item IDs this depends on
+	Dependencies []string `json:"dependencies"`
+	// Current status
+	Status ChangeSetItemStatus `json:"status"`
+	// Error message if failed
+	Error *string `json:"error,omitempty"`
+	// Apply started timestamp
+	ApplyStartedAt *time.Time `json:"applyStartedAt,omitempty"`
+	// Apply completed timestamp
+	ApplyCompletedAt *time.Time `json:"applyCompletedAt,omitempty"`
+	// Order in which this item will be applied
+	ApplyOrder int `json:"applyOrder"`
+}
+
+// Input for adding an item to a change set
+type ChangeSetItemInput struct {
+	// Resource type identifier
+	ResourceType string `json:"resourceType"`
+	// Resource category
+	ResourceCategory ResourceCategory `json:"resourceCategory"`
+	// Existing resource UUID (for update/delete)
+	ResourceUUID graphql.Omittable[*string] `json:"resourceUuid,omitempty"`
+	// User-friendly name
+	Name string `json:"name"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Operation to perform
+	Operation ChangeOperation `json:"operation"`
+	// Configuration
+	Configuration map[string]interface{} `json:"configuration"`
+	// Previous state (for rollback on update/delete)
+	PreviousState graphql.Omittable[map[string]interface{}] `json:"previousState,omitempty"`
+	// Item IDs this depends on
+	Dependencies graphql.Omittable[[]string] `json:"dependencies,omitempty"`
+}
+
+// Progress event for real-time updates during apply
+type ChangeSetProgressEvent struct {
+	// Change set ID
+	ChangeSetID string `json:"changeSetId"`
+	// Current status
+	Status ChangeSetStatus `json:"status"`
+	// Currently processing item
+	CurrentItem *CurrentItemInfo `json:"currentItem,omitempty"`
+	// Number of items applied
+	AppliedCount int `json:"appliedCount"`
+	// Total number of items
+	TotalCount int `json:"totalCount"`
+	// Progress percentage (0-100)
+	ProgressPercent float64 `json:"progressPercent"`
+	// Estimated time remaining in milliseconds
+	EstimatedRemainingMs *int `json:"estimatedRemainingMs,omitempty"`
+	// Error if failed
+	Error *ChangeSetError `json:"error,omitempty"`
+	// Timestamp of this event
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Change set status change event
+type ChangeSetStatusEvent struct {
+	// Change set ID
+	ChangeSetID string `json:"changeSetId"`
+	// Previous status
+	PreviousStatus ChangeSetStatus `json:"previousStatus"`
+	// New status
+	NewStatus ChangeSetStatus `json:"newStatus"`
+	// Error if failed
+	Error *ChangeSetError `json:"error,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Summary of a change set for list displays
+type ChangeSetSummary struct {
+	// Change set ID
+	ID string `json:"id"`
+	// Name
+	Name string `json:"name"`
+	// Current status
+	Status ChangeSetStatus `json:"status"`
+	// Operation counts
+	OperationCounts *OperationCounts `json:"operationCounts"`
+	// Total items
+	TotalItems int `json:"totalItems"`
+	// Created timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Has validation errors
+	HasErrors bool `json:"hasErrors"`
+	// Has validation warnings
+	HasWarnings bool `json:"hasWarnings"`
+}
+
+// Validation error for a change set item
+type ChangeSetValidationError struct {
+	// Item ID with validation error
+	ItemID string `json:"itemId"`
+	// Field path within the item configuration
+	Field string `json:"field"`
+	// Error message
+	Message string `json:"message"`
+	// Severity level
+	Severity ValidationSeverity `json:"severity"`
+	// Error code
+	Code *string `json:"code,omitempty"`
+}
+
+// Validation result for a change set
+type ChangeSetValidationResult struct {
+	// Whether the change set can be applied
+	CanApply bool `json:"canApply"`
+	// Validation errors (blocking)
+	Errors []*ChangeSetValidationError `json:"errors"`
+	// Validation warnings (non-blocking)
+	Warnings []*ChangeSetValidationError `json:"warnings"`
+	// Detected conflicts
+	Conflicts []*ChangeSetConflict `json:"conflicts"`
+	// Missing dependencies
+	MissingDependencies []*MissingDependency `json:"missingDependencies"`
+	// Circular dependencies (if any)
+	CircularDependencies [][]string `json:"circularDependencies,omitempty"`
 }
 
 // Event emitted when circuit breaker state changes
@@ -128,6 +754,26 @@ type CircuitBreakerStatus struct {
 	LastFailureAt *time.Time `json:"lastFailureAt,omitempty"`
 	// When the last success occurred
 	LastSuccessAt *time.Time `json:"lastSuccessAt,omitempty"`
+}
+
+// A composite resource with all related sub-resources
+type CompositeResource struct {
+	// The root resource
+	Root Resource `json:"root"`
+	// All child/related resources
+	Children []Resource `json:"children"`
+	// Flattened relationship graph
+	Relationships []*ResourceRelationshipEdge `json:"relationships"`
+}
+
+// Preview of RouterOS configuration commands
+type ConfigPreview struct {
+	// RouterOS commands to be executed
+	Commands []string `json:"commands"`
+	// Warnings about the configuration changes
+	Warnings []string `json:"warnings,omitempty"`
+	// Resources that will be affected
+	AffectedResources []*AffectedResource `json:"affectedResources,omitempty"`
 }
 
 // Progress information for configuration apply operations
@@ -290,6 +936,90 @@ type ContainerInfo struct {
 	MaxContainers *int `json:"maxContainers,omitempty"`
 }
 
+// Input for creating an alert rule
+type CreateAlertRuleInput struct {
+	// Human-readable alert rule name
+	Name string `json:"name"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Event type to match
+	EventType string `json:"eventType"`
+	// Array of conditions
+	Conditions graphql.Omittable[[]*AlertConditionInput] `json:"conditions,omitempty"`
+	// Alert severity level
+	Severity AlertSeverity `json:"severity"`
+	// Notification channels
+	Channels []string `json:"channels"`
+	// Throttle configuration
+	Throttle graphql.Omittable[*ThrottleConfigInput] `json:"throttle,omitempty"`
+	// Quiet hours configuration
+	QuietHours graphql.Omittable[*QuietHoursConfigInput] `json:"quietHours,omitempty"`
+	// Optional device ID filter
+	DeviceID graphql.Omittable[*string] `json:"deviceId,omitempty"`
+	// Whether rule is enabled (default: true)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
+type CreateBridgeInput struct {
+	Name          string                          `json:"name"`
+	Comment       graphql.Omittable[*string]      `json:"comment,omitempty"`
+	Protocol      graphql.Omittable[*StpProtocol] `json:"protocol,omitempty"`
+	Priority      graphql.Omittable[*int]         `json:"priority,omitempty"`
+	VlanFiltering graphql.Omittable[*bool]        `json:"vlanFiltering,omitempty"`
+	Pvid          graphql.Omittable[*int]         `json:"pvid,omitempty"`
+	Mtu           graphql.Omittable[*int]         `json:"mtu,omitempty"`
+}
+
+type CreateBridgeVlanInput struct {
+	VlanID          int                         `json:"vlanId"`
+	TaggedPortIds   graphql.Omittable[[]string] `json:"taggedPortIds,omitempty"`
+	UntaggedPortIds graphql.Omittable[[]string] `json:"untaggedPortIds,omitempty"`
+}
+
+// Input for creating a new change set
+type CreateChangeSetInput struct {
+	// Router to apply changes to
+	RouterID string `json:"routerId"`
+	// Human-readable name
+	Name string `json:"name"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Source wizard/feature
+	Source graphql.Omittable[*string] `json:"source,omitempty"`
+}
+
+type CreateChangeSetPayload struct {
+	// The created change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for creating a new resource
+type CreateResourceInput struct {
+	// Router to create resource on
+	RouterID string `json:"routerId"`
+	// Resource type (e.g., 'vpn.wireguard.client')
+	Type string `json:"type"`
+	// Resource category
+	Category ResourceCategory `json:"category"`
+	// Initial configuration
+	Configuration map[string]interface{} `json:"configuration"`
+	// User-defined relationships
+	Relationships graphql.Omittable[*ResourceRelationshipsInput] `json:"relationships,omitempty"`
+	// Initial tags
+	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
+	// Resource description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+}
+
+type CreateResourcePayload struct {
+	// The created resource
+	Resource Resource `json:"resource,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Input for creating a new router connection
 type CreateRouterInput struct {
 	// User-friendly display name
@@ -352,6 +1082,98 @@ type CredentialsInput struct {
 	Password string `json:"password"`
 }
 
+// Current item information in progress event
+type CurrentItemInfo struct {
+	ID        string              `json:"id"`
+	Name      string              `json:"name"`
+	Operation ChangeOperation     `json:"operation"`
+	Status    ChangeSetItemStatus `json:"status"`
+}
+
+// DHCP Server resource
+type DHCPServerResource struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	// Server name
+	Name string `json:"name"`
+	// Interface serving DHCP
+	Interface string `json:"interface"`
+	// Address pool name
+	AddressPool string `json:"addressPool"`
+	// Lease time
+	LeaseTime Duration `json:"leaseTime"`
+	// Number of active leases
+	ActiveLeases *int `json:"activeLeases,omitempty"`
+}
+
+func (DHCPServerResource) IsResource() {}
+
+func (DHCPServerResource) IsNode() {}
+
+// Daily statistics
+type DailyStats struct {
+	// Date (UTC)
+	Date time.Time `json:"date"`
+	// Total bytes in
+	TotalBytesIn Size `json:"totalBytesIn"`
+	// Total bytes out
+	TotalBytesOut Size `json:"totalBytesOut"`
+	// Uptime percentage (0-100)
+	UptimePercent float64 `json:"uptimePercent"`
+	// Error count
+	ErrorCount int `json:"errorCount"`
+	// Peak throughput in (bytes/sec)
+	PeakThroughputIn Size `json:"peakThroughputIn"`
+	// Peak throughput out (bytes/sec)
+	PeakThroughputOut Size `json:"peakThroughputOut"`
+}
+
+type DeleteChangeSetPayload struct {
+	// Whether deletion was successful
+	Success bool `json:"success"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Delete operation payload
+type DeletePayload struct {
+	// Whether deletion was successful
+	Success bool `json:"success"`
+	// ID of deleted item
+	DeletedID *string `json:"deletedId,omitempty"`
+	// Errors encountered during deletion
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type DeleteResourcePayload struct {
+	// Whether deletion was successful
+	Success bool `json:"success"`
+	// ID of deleted resource
+	DeletedID *string `json:"deletedId,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Result of a delete operation
+type DeleteResult struct {
+	// Whether the deletion succeeded
+	Success bool `json:"success"`
+	// Success or error message
+	Message *string `json:"message,omitempty"`
+	// Errors that occurred during deletion
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 type DeleteRouterPayload struct {
 	// Whether deletion was successful
 	Success bool `json:"success"`
@@ -359,6 +1181,112 @@ type DeleteRouterPayload struct {
 	DeletedRouterID *string `json:"deletedRouterId,omitempty"`
 	// Errors that occurred during deletion
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Status of a required dependency
+type DependencyStatus struct {
+	// Dependency resource UUID
+	ResourceUUID string `json:"resourceUuid"`
+	// Dependency resource type
+	ResourceType string `json:"resourceType"`
+	// Whether the dependency is active
+	IsActive bool `json:"isActive"`
+	// Current state of the dependency
+	State ResourceLifecycleState `json:"state"`
+	// Why this dependency is required
+	Reason string `json:"reason"`
+}
+
+// Layer 3: What's actually on router after Apply-Confirm.
+// Includes router-generated fields like IDs and computed values.
+type DeploymentState struct {
+	// Router-generated resource ID (e.g., '*1A' in MikroTik)
+	RouterResourceID *string `json:"routerResourceId,omitempty"`
+	// When the resource was applied
+	AppliedAt time.Time `json:"appliedAt"`
+	// User who applied the resource
+	AppliedBy *string `json:"appliedBy,omitempty"`
+	// Version number on router
+	RouterVersion *int `json:"routerVersion,omitempty"`
+	// Router-generated fields (public key, computed values, etc.)
+	GeneratedFields map[string]interface{} `json:"generatedFields,omitempty"`
+	// Whether deployment matches configuration (no drift)
+	IsInSync bool `json:"isInSync"`
+	// Detected drift from configuration
+	Drift *DriftInfo `json:"drift,omitempty"`
+	// Apply operation ID for audit trail
+	ApplyOperationID *string `json:"applyOperationId,omitempty"`
+}
+
+type DeprecateResourcePayload struct {
+	// The deprecated resource
+	Resource Resource `json:"resource,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Device (router) for querying resource metrics
+type Device struct {
+	// Device identifier
+	ID string `json:"id"`
+	// Current resource utilization metrics
+	ResourceMetrics *ResourceMetrics `json:"resourceMetrics"`
+}
+
+// DHCP client configuration for dynamic WAN IP
+type DhcpClient struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// Interface name
+	Interface string `json:"interface"`
+	// Whether DHCP client is disabled
+	Disabled bool `json:"disabled"`
+	// Add default route from DHCP
+	AddDefaultRoute bool `json:"addDefaultRoute"`
+	// Use DNS servers from DHCP
+	UsePeerDNS bool `json:"usePeerDNS"`
+	// Use NTP servers from DHCP
+	UsePeerNtp bool `json:"usePeerNTP"`
+	// Current DHCP status
+	Status string `json:"status"`
+	// Assigned IP address
+	Address *IPv4 `json:"address,omitempty"`
+	// DHCP server address
+	DhcpServer *IPv4 `json:"dhcpServer,omitempty"`
+	// Gateway from DHCP
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Lease expiry time
+	ExpiresAfter *Duration `json:"expiresAfter,omitempty"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+func (DhcpClient) IsNode() {}
+
+// Input for creating/updating DHCP client
+type DhcpClientInput struct {
+	// Interface to enable DHCP client on
+	Interface string `json:"interface"`
+	// Add default route (default: true)
+	AddDefaultRoute graphql.Omittable[*bool] `json:"addDefaultRoute,omitempty"`
+	// Use peer DNS (default: true)
+	UsePeerDNS graphql.Omittable[*bool] `json:"usePeerDNS,omitempty"`
+	// Use peer NTP (default: true)
+	UsePeerNtp graphql.Omittable[*bool] `json:"usePeerNTP,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// DHCP server (minimal type for dependencies)
+type DhcpServer struct {
+	// DHCP server ID
+	ID string `json:"id"`
+	// DHCP server name
+	Name string `json:"name"`
+	// Interface the DHCP server is bound to
+	Interface *Interface `json:"interface"`
+	// Whether the DHCP server is disabled
+	Disabled bool `json:"disabled"`
 }
 
 // Comprehensive diagnostic report for a router
@@ -421,6 +1349,100 @@ type DiscoveredDevice struct {
 	Confidence int `json:"confidence"`
 	// Detected services (mikrotik-api, mikrotik-winbox, mikrotik-rest, etc.)
 	Services []string `json:"services"`
+}
+
+// Input for DNS lookup operation
+type DNSLookupInput struct {
+	// Device/router ID to run lookup from
+	DeviceID string `json:"deviceId"`
+	// Hostname or IP address to look up
+	Hostname string `json:"hostname"`
+	// DNS record type to query
+	RecordType DNSRecordType `json:"recordType"`
+	// DNS server to use (defaults to router's configured DNS)
+	Server graphql.Omittable[*string] `json:"server,omitempty"`
+	// Query timeout in seconds (default: 5)
+	Timeout graphql.Omittable[*int] `json:"timeout,omitempty"`
+}
+
+// Result of a DNS lookup operation
+type DNSLookupResult struct {
+	// Hostname that was queried
+	Hostname string `json:"hostname"`
+	// Record type that was queried
+	RecordType DNSRecordType `json:"recordType"`
+	// Query status
+	Status DNSLookupStatus `json:"status"`
+	// Resolved records
+	Records []*DNSRecord `json:"records"`
+	// DNS server used
+	Server string `json:"server"`
+	// Query time in milliseconds
+	QueryTime int `json:"queryTime"`
+	// Whether response was authoritative
+	Authoritative bool `json:"authoritative"`
+	// Error message (if query failed)
+	Error *string `json:"error,omitempty"`
+	// When the query was executed
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Single DNS record
+type DNSRecord struct {
+	// Record name (query hostname)
+	Name string `json:"name"`
+	// Record type
+	Type DNSRecordType `json:"type"`
+	// Time to live in seconds
+	TTL int `json:"ttl"`
+	// Record data (IP, hostname, text, etc.)
+	Data string `json:"data"`
+	// Priority (for MX/SRV records)
+	Priority *int `json:"priority,omitempty"`
+	// Weight (for SRV records)
+	Weight *int `json:"weight,omitempty"`
+	// Port (for SRV records)
+	Port *int `json:"port,omitempty"`
+}
+
+// DNS server configuration
+type DNSServer struct {
+	// Server IP address
+	Address string `json:"address"`
+	// Whether this is the primary DNS server
+	IsPrimary bool `json:"isPrimary"`
+	// Whether this is the secondary DNS server
+	IsSecondary bool `json:"isSecondary"`
+}
+
+// Collection of DNS servers
+type DNSServers struct {
+	// All configured DNS servers
+	Servers []*DNSServer `json:"servers"`
+	// Primary DNS server address
+	Primary string `json:"primary"`
+	// Secondary DNS server address (if configured)
+	Secondary *string `json:"secondary,omitempty"`
+}
+
+// A field that has drifted from configuration
+type DriftField struct {
+	// Field path
+	Path string `json:"path"`
+	// Expected value (from configuration)
+	Expected map[string]interface{} `json:"expected,omitempty"`
+	// Actual value (from router)
+	Actual map[string]interface{} `json:"actual,omitempty"`
+}
+
+// Information about configuration drift
+type DriftInfo struct {
+	// When drift was detected
+	DetectedAt time.Time `json:"detectedAt"`
+	// Fields that have drifted
+	DriftedFields []*DriftField `json:"driftedFields"`
+	// Suggested action to resolve drift
+	SuggestedAction DriftAction `json:"suggestedAction"`
 }
 
 // Rich error extensions for detailed error diagnostics.
@@ -496,6 +1518,70 @@ type FeatureCompatibilityInput struct {
 	IsChr graphql.Omittable[*bool] `json:"isCHR,omitempty"`
 }
 
+// Feature deployment state
+type FeatureDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Container ID (if containerized)
+	ContainerID *string `json:"containerId,omitempty"`
+	// Container image used
+	ContainerImage *string `json:"containerImage,omitempty"`
+	// Assigned ports
+	AssignedPorts []Port `json:"assignedPorts,omitempty"`
+	// Assigned IP address
+	AssignedIP *IPv4 `json:"assignedIP,omitempty"`
+}
+
+// Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)
+type FeatureResource struct {
+	ID                string                 `json:"id"`
+	ScopedID          string                 `json:"scopedId"`
+	Type              string                 `json:"type"`
+	Category          ResourceCategory       `json:"category"`
+	Configuration     map[string]interface{} `json:"configuration,omitempty"`
+	Validation        *ValidationResult      `json:"validation,omitempty"`
+	Deployment        *DeploymentState       `json:"deployment,omitempty"`
+	Runtime           *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry         *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata          *ResourceMetadata      `json:"metadata"`
+	Relationships     *ResourceRelationships `json:"relationships,omitempty"`
+	Platform          *PlatformInfo          `json:"platform,omitempty"`
+	FeatureDeployment *FeatureDeployment     `json:"featureDeployment,omitempty"`
+	FeatureRuntime    *FeatureRuntime        `json:"featureRuntime,omitempty"`
+	// Feature identifier
+	FeatureID string `json:"featureId"`
+	// Feature name
+	Name string `json:"name"`
+	// Feature version
+	Version string `json:"version"`
+	// Virtual interface assigned
+	VirtualInterface *string `json:"virtualInterface,omitempty"`
+}
+
+func (FeatureResource) IsResource() {}
+
+func (FeatureResource) IsNode() {}
+
+// Feature runtime state
+type FeatureRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Container status
+	ContainerStatus *string `json:"containerStatus,omitempty"`
+	// Memory usage
+	MemoryUsage *Size `json:"memoryUsage,omitempty"`
+	// CPU usage percentage
+	CPUUsagePercent *float64 `json:"cpuUsagePercent,omitempty"`
+	// Devices routed through this feature
+	RoutedDevices *int `json:"routedDevices,omitempty"`
+}
+
 // Feature support information based on RouterOS version
 type FeatureSupport struct {
 	// Feature identifier (e.g., 'rest_api', 'container', 'wireguard')
@@ -516,6 +1602,74 @@ type FeatureSupport struct {
 	RequiredPackages []string `json:"requiredPackages,omitempty"`
 	// Missing packages (if any)
 	MissingPackages []string `json:"missingPackages,omitempty"`
+}
+
+// Firewall rule (minimal type for dependencies)
+type FirewallRule struct {
+	// Firewall rule ID
+	ID string `json:"id"`
+	// Rule chain
+	Chain string `json:"chain"`
+	// Rule action
+	Action string `json:"action"`
+	// Input interface filter
+	InInterface *string `json:"inInterface,omitempty"`
+	// Output interface filter
+	OutInterface *string `json:"outInterface,omitempty"`
+	// Whether the rule is disabled
+	Disabled bool `json:"disabled"`
+}
+
+// Firewall Rule resource
+type FirewallRuleResource struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	// Rule chain (input, forward, output)
+	Chain string `json:"chain"`
+	// Rule action (accept, drop, reject)
+	Action string `json:"action"`
+	// Source address/network
+	SrcAddress *string `json:"srcAddress,omitempty"`
+	// Destination address/network
+	DstAddress *string `json:"dstAddress,omitempty"`
+	// Source port(s)
+	SrcPort *string `json:"srcPort,omitempty"`
+	// Destination port(s)
+	DstPort *string `json:"dstPort,omitempty"`
+	// Protocol (tcp, udp, icmp, etc.)
+	Protocol *string `json:"protocol,omitempty"`
+	// Rule comment
+	Comment *string `json:"comment,omitempty"`
+	// Whether rule is enabled
+	Enabled bool `json:"enabled"`
+	// Hit counter
+	HitCount *int `json:"hitCount,omitempty"`
+}
+
+func (FirewallRuleResource) IsResource() {}
+
+func (FirewallRuleResource) IsNode() {}
+
+// Result of checking gateway reachability
+type GatewayReachabilityResult struct {
+	// Whether the gateway is reachable
+	Reachable bool `json:"reachable"`
+	// Ping latency in milliseconds (null if unreachable)
+	Latency *int `json:"latency,omitempty"`
+	// Interface through which gateway is reachable (null if unreachable)
+	Interface *string `json:"interface,omitempty"`
+	// Human-readable message about reachability
+	Message string `json:"message"`
 }
 
 // Hardware information detected from router
@@ -566,6 +1720,50 @@ type HealthStatus struct {
 	CheckedAt time.Time `json:"checkedAt"`
 }
 
+// A single probe result within a hop
+type HopProbe struct {
+	// Probe number (1-3 typically)
+	ProbeNumber int `json:"probeNumber"`
+	// Latency in milliseconds (null for timeout)
+	LatencyMs *float64 `json:"latencyMs,omitempty"`
+	// Whether the probe succeeded
+	Success bool `json:"success"`
+	// ICMP error code if probe failed
+	ICMPCode *string `json:"icmpCode,omitempty"`
+}
+
+// Hourly statistics
+type HourlyStats struct {
+	// Hour start timestamp
+	Hour time.Time `json:"hour"`
+	// Total bytes in
+	TotalBytesIn Size `json:"totalBytesIn"`
+	// Total bytes out
+	TotalBytesOut Size `json:"totalBytesOut"`
+	// Uptime percentage (0-100)
+	UptimePercent float64 `json:"uptimePercent"`
+	// Error count
+	ErrorCount int `json:"errorCount"`
+}
+
+// ISP contact information
+type ISPInfo struct {
+	// ISP name
+	Name string `json:"name"`
+	// ISP support phone number
+	Phone *string `json:"phone,omitempty"`
+	// ISP support website URL
+	URL *string `json:"url,omitempty"`
+}
+
+// Integer range for filtering
+type IntRange struct {
+	// Minimum value (inclusive)
+	Min graphql.Omittable[*int] `json:"min,omitempty"`
+	// Maximum value (inclusive)
+	Max graphql.Omittable[*int] `json:"max,omitempty"`
+}
+
 // A network interface on a router
 type Interface struct {
 	// Unique interface identifier
@@ -588,6 +1786,22 @@ type Interface struct {
 	TxBytes *Size `json:"txBytes,omitempty"`
 	// RX bytes
 	RxBytes *Size `json:"rxBytes,omitempty"`
+	// IP address assigned to this interface
+	IP *IPv4 `json:"ip,omitempty"`
+	// Operational status of the interface
+	Status InterfaceStatus `json:"status"`
+	// Current transmit rate in bytes per second
+	TxRate *Size `json:"txRate,omitempty"`
+	// Current receive rate in bytes per second
+	RxRate *Size `json:"rxRate,omitempty"`
+	// Link speed (e.g., 1Gbps, 100Mbps)
+	LinkSpeed *string `json:"linkSpeed,omitempty"`
+	// Last time this interface was seen/queried
+	LastSeen *time.Time `json:"lastSeen,omitempty"`
+	// Connected device information from LLDP
+	LinkPartner *string `json:"linkPartner,omitempty"`
+	// Services using this interface (bridge, VPN, etc.)
+	UsedBy []string `json:"usedBy,omitempty"`
 }
 
 func (Interface) IsNode() {}
@@ -607,6 +1821,64 @@ type InterfaceEdge struct {
 
 func (InterfaceEdge) IsEdge() {}
 
+// Error information for a single interface operation in a batch
+type InterfaceOperationError struct {
+	// Interface ID that failed
+	InterfaceID string `json:"interfaceId"`
+	// Interface name
+	InterfaceName string `json:"interfaceName"`
+	// Error message describing why the operation failed
+	Error string `json:"error"`
+}
+
+// Interface traffic statistics
+type InterfaceStats struct {
+	// Total bytes transmitted
+	TxBytes Size `json:"txBytes"`
+	// Total bytes received
+	RxBytes Size `json:"rxBytes"`
+	// Total packets transmitted
+	TxPackets Size `json:"txPackets"`
+	// Total packets received
+	RxPackets Size `json:"rxPackets"`
+	// Transmission errors
+	TxErrors int `json:"txErrors"`
+	// Receive errors
+	RxErrors int `json:"rxErrors"`
+	// Transmission drops
+	TxDrops int `json:"txDrops"`
+	// Receive drops
+	RxDrops int `json:"rxDrops"`
+}
+
+// Historical interface statistics with time-series data
+type InterfaceStatsHistory struct {
+	// Interface ID
+	InterfaceID string `json:"interfaceId"`
+	// Time-series data points
+	DataPoints []*StatsDataPoint `json:"dataPoints"`
+	// Aggregation interval (e.g., 5m, 1h)
+	Interval Duration `json:"interval"`
+	// Start of the time range
+	StartTime time.Time `json:"startTime"`
+	// End of the time range
+	EndTime time.Time `json:"endTime"`
+}
+
+// Event emitted when an interface status changes
+type InterfaceStatusEvent struct {
+	// Interface ID
+	InterfaceID string `json:"interfaceId"`
+	// Interface name
+	InterfaceName string `json:"interfaceName"`
+	// New status
+	Status InterfaceStatus `json:"status"`
+	// Previous status
+	PreviousStatus InterfaceStatus `json:"previousStatus"`
+	// Event timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
 type InterfaceTrafficEvent struct {
 	// Interface ID
 	InterfaceID string `json:"interfaceId"`
@@ -624,6 +1896,283 @@ type InterfaceTrafficEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// An IP address assigned to an interface
+type IPAddress struct {
+	// Unique IP address identifier
+	ID string `json:"id"`
+	// IP address with CIDR notation (e.g., 192.168.10.1/24)
+	Address string `json:"address"`
+	// Network address (calculated from address and netmask)
+	Network *string `json:"network,omitempty"`
+	// Broadcast address (calculated from address and netmask)
+	Broadcast *string `json:"broadcast,omitempty"`
+	// Interface this IP is assigned to
+	Interface *Interface `json:"interface"`
+	// Whether this IP is disabled
+	Disabled bool `json:"disabled"`
+	// Whether this IP was dynamically assigned (via DHCP client)
+	Dynamic bool `json:"dynamic"`
+	// Whether this IP is invalid (conflicting or error state)
+	Invalid bool `json:"invalid"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+func (IPAddress) IsNode() {}
+
+// Event emitted when an IP address changes
+type IPAddressChangeEvent struct {
+	// Type of change (CREATED, UPDATED, DELETED)
+	ChangeType ChangeType `json:"changeType"`
+	// The IP address that changed
+	IPAddress *IPAddress `json:"ipAddress,omitempty"`
+	// IP address ID (for deletions)
+	IPAddressID string `json:"ipAddressId"`
+	// Timestamp of the change
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Result of an IP address deletion with dependency checking
+type IPAddressDeleteResult struct {
+	// Whether the deletion succeeded
+	Success bool `json:"success"`
+	// Success or error message
+	Message *string `json:"message,omitempty"`
+	// Impact analysis for this IP address deletion
+	ImpactAnalysis *IPAddressImpactAnalysis `json:"impactAnalysis,omitempty"`
+	// Errors that occurred during deletion
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Dependencies for an IP address
+type IPAddressDependencies struct {
+	// IP address ID
+	IPAddressID string `json:"ipAddressId"`
+	// DHCP servers using this IP as gateway
+	DhcpServers []*DhcpServer `json:"dhcpServers"`
+	// Static routes using this IP
+	Routes []*Route `json:"routes"`
+	// NAT rules referencing this IP
+	NatRules []*NatRule `json:"natRules"`
+	// Firewall rules referencing this IP
+	FirewallRules []*FirewallRule `json:"firewallRules"`
+	// Whether the IP has any dependencies
+	HasDependencies bool `json:"hasDependencies"`
+}
+
+// Analysis of the impact of deleting an IP address
+type IPAddressImpactAnalysis struct {
+	// Whether this IP is used as a gateway by DHCP servers
+	UsedByDhcpServers []*DhcpServer `json:"usedByDhcpServers"`
+	// Whether this IP is referenced in firewall rules
+	UsedInFirewallRules []*FirewallRule `json:"usedInFirewallRules"`
+	// Whether this IP is used in NAT rules
+	UsedInNatRules []*NatRule `json:"usedInNatRules"`
+	// Number of active connections using this IP
+	ActiveConnections int `json:"activeConnections"`
+	// Severity of the deletion
+	Severity ConfirmationSeverity `json:"severity"`
+	// Human-readable impact message
+	Message string `json:"message"`
+	// List of consequences of deleting this IP
+	Consequences []string `json:"consequences"`
+	// Whether the IP can be safely deleted
+	CanDelete bool `json:"canDelete"`
+}
+
+// Input for creating or updating an IP address
+type IPAddressInput struct {
+	// IP address with CIDR notation (e.g., 192.168.10.1/24)
+	Address string `json:"address"`
+	// Interface ID to assign this IP to
+	InterfaceID string `json:"interfaceId"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+	// Whether this IP is disabled
+	Disabled graphql.Omittable[*bool] `json:"disabled,omitempty"`
+}
+
+// Result of an IP address mutation (create, update)
+type IPAddressMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// The created or updated IP address (if successful)
+	IPAddress *IPAddress `json:"ipAddress,omitempty"`
+	// Configuration preview (RouterOS commands)
+	Preview *ConfigPreview `json:"preview,omitempty"`
+	// Errors that occurred during the operation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Details about an IP address conflict
+type IPConflict struct {
+	// Conflicting IP address ID
+	ID string `json:"id"`
+	// Conflicting IP address
+	Address string `json:"address"`
+	// Interface where conflict exists
+	Interface *Interface `json:"interface"`
+	// Type of conflict
+	ConflictType IPConflictType `json:"conflictType"`
+	// Explanation of the conflict
+	Explanation string `json:"explanation"`
+}
+
+// Result of checking IP address conflicts
+type IPConflictResult struct {
+	// Whether the IP conflicts with existing assignments
+	HasConflict bool `json:"hasConflict"`
+	// List of conflicting IP addresses
+	Conflicts []*IPConflict `json:"conflicts"`
+	// Human-readable message
+	Message string `json:"message"`
+}
+
+// LAN Network composite resource - groups bridge, DHCP, firewall, routing
+type LANNetwork struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration,omitempty"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	Config        *LANNetworkConfig      `json:"config"`
+	LanDeployment *LANNetworkDeployment  `json:"lanDeployment,omitempty"`
+	LanRuntime    *LANNetworkRuntime     `json:"lanRuntime,omitempty"`
+	// Bridge interface
+	Bridge *BridgeResource `json:"bridge,omitempty"`
+	// DHCP server configuration
+	DhcpServer *DHCPServerResource `json:"dhcpServer,omitempty"`
+	// Firewall rules for this LAN
+	FirewallRules []*FirewallRuleResource `json:"firewallRules"`
+	// Static routes
+	Routes []*RouteResource `json:"routes"`
+}
+
+func (LANNetwork) IsResource() {}
+
+func (LANNetwork) IsNode() {}
+
+// LAN Network configuration
+type LANNetworkConfig struct {
+	// Network name
+	Name string `json:"name"`
+	// IP address for the LAN
+	IPAddress IPv4 `json:"ipAddress"`
+	// Subnet mask in CIDR notation
+	SubnetMask int `json:"subnetMask"`
+	// Interfaces to include in bridge
+	Interfaces []string `json:"interfaces"`
+	// Enable DHCP server
+	DhcpEnabled bool `json:"dhcpEnabled"`
+	// DHCP pool start
+	DhcpPoolStart *IPv4 `json:"dhcpPoolStart,omitempty"`
+	// DHCP pool end
+	DhcpPoolEnd *IPv4 `json:"dhcpPoolEnd,omitempty"`
+	// DHCP lease time
+	DhcpLeaseTime *Duration `json:"dhcpLeaseTime,omitempty"`
+	// DNS servers for DHCP
+	DNSServers []IPv4 `json:"dnsServers,omitempty"`
+	// Enable NAT masquerading
+	EnableNat bool `json:"enableNat"`
+	// VLAN ID (optional)
+	VlanID *int `json:"vlanId,omitempty"`
+}
+
+// LAN Network deployment state
+type LANNetworkDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Bridge interface ID on router
+	BridgeID *string `json:"bridgeId,omitempty"`
+	// DHCP server ID on router
+	DhcpServerID *string `json:"dhcpServerId,omitempty"`
+	// IP address ID on router
+	IPAddressID *string `json:"ipAddressId,omitempty"`
+}
+
+// LAN Network runtime state
+type LANNetworkRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Number of active clients
+	ActiveClients int `json:"activeClients"`
+	// Active DHCP leases
+	DhcpLeases int `json:"dhcpLeases"`
+	// Total traffic in
+	TotalBytesIn Size `json:"totalBytesIn"`
+	// Total traffic out
+	TotalBytesOut Size `json:"totalBytesOut"`
+}
+
+// LTE/cellular modem configuration
+type LteModem struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// LTE interface name
+	Name string `json:"name"`
+	// APN (Access Point Name)
+	Apn string `json:"apn"`
+	// Signal strength (RSSI in dBm)
+	SignalStrength *int `json:"signalStrength,omitempty"`
+	// Connection status
+	Running bool `json:"running"`
+	// Operator name
+	Operator *string `json:"operator,omitempty"`
+	// Network type (LTE, 3G, etc.)
+	NetworkType *string `json:"networkType,omitempty"`
+	// PIN code configured
+	PinConfigured bool `json:"pinConfigured"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+func (LteModem) IsNode() {}
+
+// Input for configuring LTE modem
+type LteModemInput struct {
+	// LTE interface name
+	Name string `json:"name"`
+	// APN (Access Point Name)
+	Apn string `json:"apn"`
+	// PIN code (optional, for SIM card)
+	Pin graphql.Omittable[*string] `json:"pin,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// Memory utilization metrics
+type MemoryMetrics struct {
+	// Used memory in bytes
+	Used float64 `json:"used"`
+	// Total memory in bytes
+	Total float64 `json:"total"`
+	// Memory usage percentage (0-100)
+	Percentage float64 `json:"percentage"`
+}
+
+// Missing dependency information
+type MissingDependency struct {
+	// Item ID with missing dependency
+	ItemID string `json:"itemId"`
+	// Missing resource type
+	MissingResourceType string `json:"missingResourceType"`
+	// Missing resource ID
+	MissingResourceID string `json:"missingResourceId"`
+}
+
 type Mutation struct {
 }
 
@@ -635,6 +2184,41 @@ type MutationError struct {
 	Message string `json:"message"`
 	// Field that caused the error (if applicable)
 	Field *string `json:"field,omitempty"`
+}
+
+// NAT rule reference type
+type NatRule struct {
+	// NAT rule ID
+	ID string `json:"id"`
+	// Rule chain (srcnat, dstnat)
+	Chain string `json:"chain"`
+	// Action (masquerade, dst-nat, src-nat)
+	Action string `json:"action"`
+	// Source address
+	SrcAddress *string `json:"srcAddress,omitempty"`
+	// Destination address
+	DstAddress *string `json:"dstAddress,omitempty"`
+	// To address (for dst-nat)
+	ToAddress *string `json:"toAddress,omitempty"`
+	// Whether the rule is disabled
+	Disabled bool `json:"disabled"`
+}
+
+// Network configuration detection result
+type NetworkConfigDetection struct {
+	// Detected WAN interface name
+	WanInterface string `json:"wanInterface"`
+	// Detected default gateway IP
+	Gateway *string `json:"gateway,omitempty"`
+	// Detected ISP information
+	IspInfo *ISPInfo `json:"ispInfo,omitempty"`
+}
+
+// Operation counts by type
+type OperationCounts struct {
+	Create int `json:"create"`
+	Update int `json:"update"`
+	Delete int `json:"delete"`
 }
 
 // Information about pagination in a connection
@@ -661,6 +2245,59 @@ type PaginationInput struct {
 	Before graphql.Omittable[*string] `json:"before,omitempty"`
 }
 
+// Platform capabilities for a resource type
+type PlatformCapabilities struct {
+	// Whether this resource type is supported
+	IsSupported bool `json:"isSupported"`
+	// Capability level
+	Level CapabilityLevel `json:"level"`
+	// Minimum platform version required
+	MinVersion *string `json:"minVersion,omitempty"`
+	// Required packages
+	RequiredPackages []string `json:"requiredPackages,omitempty"`
+	// Capability-specific details
+	Details map[string]interface{} `json:"details,omitempty"`
+}
+
+// A platform-specific feature
+type PlatformFeature struct {
+	// Feature identifier
+	ID string `json:"id"`
+	// Feature name
+	Name string `json:"name"`
+	// Whether feature is enabled
+	Enabled bool `json:"enabled"`
+	// Feature description
+	Description *string `json:"description,omitempty"`
+}
+
+// Layer 8: Platform-specific capabilities and field mappings.
+// From platform adapter (MikroTik, OpenWrt, VyOS).
+type PlatformInfo struct {
+	// Current platform
+	Current RouterPlatform `json:"current"`
+	// Platform-specific capabilities for this resource type
+	Capabilities *PlatformCapabilities `json:"capabilities"`
+	// Field mappings between GraphQL and platform-native names
+	FieldMappings map[string]interface{} `json:"fieldMappings,omitempty"`
+	// Platform-specific limitations or constraints
+	Limitations []*PlatformLimitation `json:"limitations,omitempty"`
+	// Platform-specific features available
+	Features []*PlatformFeature `json:"features,omitempty"`
+}
+
+// A platform-specific limitation
+type PlatformLimitation struct {
+	// Limitation identifier
+	Code string `json:"code"`
+	// Human-readable description
+	Description string `json:"description"`
+	// Affected fields
+	AffectedFields []string `json:"affectedFields,omitempty"`
+	// Workaround if available
+	Workaround *string `json:"workaround,omitempty"`
+}
+
 // Status of a single port check
 type PortStatus struct {
 	// Port number checked
@@ -675,7 +2312,85 @@ type PortStatus struct {
 	Error *string `json:"error,omitempty"`
 }
 
+// PPPoE client configuration for dial-up WAN
+type PppoeClient struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// PPPoE interface name
+	Name string `json:"name"`
+	// Underlying interface (ethernet/bridge)
+	Interface string `json:"interface"`
+	// Whether PPPoE is disabled
+	Disabled bool `json:"disabled"`
+	// Username for authentication
+	Username string `json:"username"`
+	// Service name (optional)
+	ServiceName *string `json:"serviceName,omitempty"`
+	// Add default route
+	AddDefaultRoute bool `json:"addDefaultRoute"`
+	// Use peer DNS
+	UsePeerDNS bool `json:"usePeerDNS"`
+	// Current connection status
+	Running bool `json:"running"`
+	// MTU setting
+	Mtu *int `json:"mtu,omitempty"`
+	// MRU setting
+	Mru *int `json:"mru,omitempty"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+func (PppoeClient) IsNode() {}
+
+// Input for creating/updating PPPoE client
+type PppoeClientInput struct {
+	// PPPoE interface name
+	Name string `json:"name"`
+	// Physical interface (ether1, bridge, etc.)
+	Interface string `json:"interface"`
+	// Username for ISP authentication
+	Username string `json:"username"`
+	// Password for ISP authentication
+	Password string `json:"password"`
+	// Service name (optional, ISP-specific)
+	ServiceName graphql.Omittable[*string] `json:"serviceName,omitempty"`
+	// Add default route (default: true)
+	AddDefaultRoute graphql.Omittable[*bool] `json:"addDefaultRoute,omitempty"`
+	// Use peer DNS (default: true)
+	UsePeerDNS graphql.Omittable[*bool] `json:"usePeerDNS,omitempty"`
+	// MTU (default: auto)
+	Mtu graphql.Omittable[*int] `json:"mtu,omitempty"`
+	// MRU (default: auto)
+	Mru graphql.Omittable[*int] `json:"mru,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
 type Query struct {
+}
+
+// Quiet hours configuration
+type QuietHoursConfig struct {
+	// Start time in HH:MM format
+	StartTime string `json:"startTime"`
+	// End time in HH:MM format
+	EndTime string `json:"endTime"`
+	// Timezone (IANA timezone database name)
+	Timezone string `json:"timezone"`
+	// Whether critical alerts bypass quiet hours
+	BypassCritical bool `json:"bypassCritical"`
+}
+
+// Quiet hours configuration input
+type QuietHoursConfigInput struct {
+	// Start time in HH:MM format
+	StartTime string `json:"startTime"`
+	// End time in HH:MM format
+	EndTime string `json:"endTime"`
+	// Timezone (default: UTC)
+	Timezone graphql.Omittable[*string] `json:"timezone,omitempty"`
+	// Whether critical alerts bypass quiet hours (default: true)
+	BypassCritical graphql.Omittable[*bool] `json:"bypassCritical,omitempty"`
 }
 
 type ReconnectRouterPayload struct {
@@ -699,6 +2414,168 @@ type RefreshCapabilitiesPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+type RemoveChangeSetItemPayload struct {
+	// The updated change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Conflict with another resource
+type ResourceConflict struct {
+	// Type of conflict
+	Type ConflictType `json:"type"`
+	// The conflicting resource
+	ConflictingResource Resource `json:"conflictingResource,omitempty"`
+	// Conflicting resource UUID (if resource is not loaded)
+	ConflictingResourceUUID string `json:"conflictingResourceUuid"`
+	// Description of the conflict
+	Description string `json:"description"`
+	// Suggested resolution
+	Resolution *string `json:"resolution,omitempty"`
+}
+
+type ResourceConnection struct {
+	Edges      []*ResourceEdge `json:"edges"`
+	PageInfo   *PageInfo       `json:"pageInfo"`
+	TotalCount *int            `json:"totalCount,omitempty"`
+}
+
+func (ResourceConnection) IsConnection() {}
+
+type ResourceEdge struct {
+	Cursor string   `json:"cursor"`
+	Node   Resource `json:"node"`
+}
+
+func (ResourceEdge) IsEdge() {}
+
+// Layer 6: Resource lifecycle info, tags, ownership.
+// System-managed with some user-editable fields.
+type ResourceMetadata struct {
+	// Resource creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// User who created the resource
+	CreatedBy string `json:"createdBy"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+	// User who last updated the resource
+	UpdatedBy *string `json:"updatedBy,omitempty"`
+	// Current lifecycle state
+	State ResourceLifecycleState `json:"state"`
+	// Optimistic locking version
+	Version int `json:"version"`
+	// User-defined tags for organization
+	Tags []string `json:"tags"`
+	// Resource description
+	Description *string `json:"description,omitempty"`
+	// Whether resource is marked as favorite
+	IsFavorite bool `json:"isFavorite"`
+	// Whether resource is pinned
+	IsPinned bool `json:"isPinned"`
+	// Custom user notes
+	Notes *string `json:"notes,omitempty"`
+	// Audit trail of recent changes
+	RecentChanges []*ChangeLogEntry `json:"recentChanges,omitempty"`
+}
+
+// Real-time resource utilization metrics for a device
+type ResourceMetrics struct {
+	// CPU utilization metrics
+	CPU *CPUMetrics `json:"cpu"`
+	// Memory utilization metrics
+	Memory *MemoryMetrics `json:"memory"`
+	// Storage utilization metrics
+	Storage *StorageMetrics `json:"storage"`
+	// Temperature in Celsius (null if not supported)
+	Temperature *float64 `json:"temperature,omitempty"`
+	// Timestamp when metrics were collected
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Reference to another resource
+type ResourceReference struct {
+	// Resource UUID
+	UUID string `json:"uuid"`
+	// Resource scoped ID
+	ID string `json:"id"`
+	// Resource type
+	Type string `json:"type"`
+	// Resource category
+	Category ResourceCategory `json:"category"`
+	// Current lifecycle state
+	State ResourceLifecycleState `json:"state"`
+}
+
+// Edge in the resource relationship graph
+type ResourceRelationshipEdge struct {
+	// Source resource ID
+	From string `json:"from"`
+	// Target resource ID
+	To string `json:"to"`
+	// Relationship type
+	Type ResourceRelationshipType `json:"type"`
+}
+
+// Layer 7: Dependencies and relationships between resources.
+// Combines user-defined relationships and system-discovered dependencies.
+type ResourceRelationships struct {
+	// Resources this resource depends on
+	DependsOn []*ResourceReference `json:"dependsOn"`
+	// Resources that depend on this resource
+	Dependents []*ResourceReference `json:"dependents"`
+	// Resource this routes traffic via
+	RoutesVia *ResourceReference `json:"routesVia,omitempty"`
+	// Resources that route traffic via this resource
+	RoutedBy []*ResourceReference `json:"routedBy"`
+	// Parent resource (for hierarchical resources)
+	Parent *ResourceReference `json:"parent,omitempty"`
+	// Child resources (for hierarchical resources)
+	Children []*ResourceReference `json:"children"`
+	// Custom relationships
+	Custom map[string]interface{} `json:"custom,omitempty"`
+}
+
+// Input for resource relationships
+type ResourceRelationshipsInput struct {
+	// Resources this resource depends on (IDs)
+	DependsOn graphql.Omittable[[]string] `json:"dependsOn,omitempty"`
+	// Resources that route traffic via this resource (ID)
+	RoutesVia graphql.Omittable[*string] `json:"routesVia,omitempty"`
+	// Parent resource ID (for hierarchical resources)
+	Parent graphql.Omittable[*string] `json:"parent,omitempty"`
+	// Custom relationship data
+	Custom graphql.Omittable[map[string]interface{}] `json:"custom,omitempty"`
+}
+
+// Runtime update event for a resource
+type ResourceRuntimeEvent struct {
+	// Resource ID (ULID)
+	ID string `json:"id"`
+	// Resource type
+	Type string `json:"type"`
+	// Updated runtime state
+	Runtime *RuntimeState `json:"runtime"`
+	// Timestamp of update
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Lifecycle state change event
+type ResourceStateEvent struct {
+	// Resource ID (ULID)
+	ID string `json:"id"`
+	// Resource type
+	Type string `json:"type"`
+	// Previous state
+	PreviousState ResourceLifecycleState `json:"previousState"`
+	// New state
+	NewState ResourceLifecycleState `json:"newState"`
+	// Error message if state is ERROR
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Timestamp of change
+	Timestamp time.Time `json:"timestamp"`
+}
+
 // Event emitted when a router resource is updated
 type ResourceUpdatedEvent struct {
 	// Unique resource identifier
@@ -716,6 +2593,147 @@ type ResourceUpdatedEvent struct {
 	// Timestamp of the update
 	Timestamp time.Time `json:"timestamp"`
 }
+
+type RollbackChangeSetPayload struct {
+	// The rolled back change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Whether rollback was successful
+	Success bool `json:"success"`
+	// Items that failed to rollback
+	FailedItems []string `json:"failedItems,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Rollback step for recovery
+type RollbackStep struct {
+	// Item ID being rolled back
+	ItemID string `json:"itemId"`
+	// Rollback operation
+	Operation RollbackOperation `json:"operation"`
+	// State to restore
+	RestoreState map[string]interface{} `json:"restoreState,omitempty"`
+	// Resource UUID on router
+	ResourceUUID *string `json:"resourceUuid,omitempty"`
+	// Whether rollback succeeded
+	Success bool `json:"success"`
+	// Error message if failed
+	Error *string `json:"error,omitempty"`
+	// Order in rollback sequence
+	RollbackOrder int `json:"rollbackOrder"`
+}
+
+// Route type for static and dynamic routing
+type Route struct {
+	// Route ID
+	ID string `json:"id"`
+	// Destination network in CIDR notation
+	Destination CIDR `json:"destination"`
+	// Gateway address
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Interface used for this route
+	Interface *string `json:"interface,omitempty"`
+	// Route distance/metric (1-255)
+	Distance int `json:"distance"`
+	// Routing mark for policy routing
+	RoutingMark *string `json:"routingMark,omitempty"`
+	// Routing table name (main, vpn, etc.)
+	RoutingTable *string `json:"routingTable,omitempty"`
+	// Route type (static, connected, dynamic, BGP, OSPF)
+	Type RouteType `json:"type"`
+	// Route scope
+	Scope RouteScope `json:"scope"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+	// Whether the route is active
+	Active bool `json:"active"`
+	// Whether the route is disabled
+	Disabled *bool `json:"disabled,omitempty"`
+}
+
+func (Route) IsNode() {}
+
+// Result of a route deletion with impact analysis
+type RouteDeleteResult struct {
+	// Whether the deletion succeeded
+	Success bool `json:"success"`
+	// Success or error message
+	Message *string `json:"message,omitempty"`
+	// Impact analysis for this route deletion
+	ImpactAnalysis *RouteImpactAnalysis `json:"impactAnalysis"`
+}
+
+// Analysis of the impact of deleting a route
+type RouteImpactAnalysis struct {
+	// Whether this is the default route (0.0.0.0/0)
+	IsDefaultRoute bool `json:"isDefaultRoute"`
+	// Description of affected traffic
+	AffectedTraffic string `json:"affectedTraffic"`
+	// Severity of the deletion (CRITICAL for default route, STANDARD for others)
+	Severity ConfirmationSeverity `json:"severity"`
+	// Human-readable message about the impact
+	Message string `json:"message"`
+	// List of consequences of deleting this route
+	Consequences []string `json:"consequences"`
+}
+
+// Input for creating or updating a route
+type RouteInput struct {
+	// Destination network in CIDR notation
+	Destination CIDR `json:"destination"`
+	// Gateway address (optional if interface is provided)
+	Gateway graphql.Omittable[*IPv4] `json:"gateway,omitempty"`
+	// Interface used for this route (optional if gateway is provided)
+	Interface graphql.Omittable[*string] `json:"interface,omitempty"`
+	// Route distance/metric (1-255, default: 1)
+	Distance graphql.Omittable[*int] `json:"distance,omitempty"`
+	// Routing mark for policy routing
+	RoutingMark graphql.Omittable[*string] `json:"routingMark,omitempty"`
+	// Routing table name (default: main)
+	RoutingTable graphql.Omittable[*string] `json:"routingTable,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// Result of a route mutation (create, update)
+type RouteMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Success or error message
+	Message *string `json:"message,omitempty"`
+	// The created or updated route (if successful)
+	Route *Route `json:"route,omitempty"`
+}
+
+// Route resource
+type RouteResource struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	// Destination network
+	DstAddress CIDR `json:"dstAddress"`
+	// Gateway address
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Outgoing interface
+	Interface *string `json:"interface,omitempty"`
+	// Route distance/metric
+	Distance *int `json:"distance,omitempty"`
+	// Whether route is active
+	Active bool `json:"active"`
+}
+
+func (RouteResource) IsResource() {}
+
+func (RouteResource) IsNode() {}
 
 // A managed router device
 type Router struct {
@@ -864,6 +2882,57 @@ type RouterStatusEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Result of running a diagnostic step
+type RunTroubleshootStepPayload struct {
+	// Updated step with result
+	Step *TroubleshootStep `json:"step"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Resource-specific runtime metrics
+type RuntimeMetrics struct {
+	// Bytes received
+	BytesIn *Size `json:"bytesIn,omitempty"`
+	// Bytes transmitted
+	BytesOut *Size `json:"bytesOut,omitempty"`
+	// Packets received
+	PacketsIn *int `json:"packetsIn,omitempty"`
+	// Packets transmitted
+	PacketsOut *int `json:"packetsOut,omitempty"`
+	// Error count
+	Errors *int `json:"errors,omitempty"`
+	// Drops count
+	Drops *int `json:"drops,omitempty"`
+	// Current throughput in (bytes/sec)
+	ThroughputIn *Size `json:"throughputIn,omitempty"`
+	// Current throughput out (bytes/sec)
+	ThroughputOut *Size `json:"throughputOut,omitempty"`
+	// Resource-specific custom metrics
+	Custom map[string]interface{} `json:"custom,omitempty"`
+}
+
+// Layer 4: Live operational state polled/streamed from router.
+// Updated via polling (5-60s interval) or WebSocket push.
+type RuntimeState struct {
+	// Whether the resource is currently running/active
+	IsRunning bool `json:"isRunning"`
+	// Health status of the resource
+	Health RuntimeHealth `json:"health"`
+	// Error message if resource is unhealthy
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Resource-specific runtime metrics
+	Metrics *RuntimeMetrics `json:"metrics,omitempty"`
+	// Last time runtime was updated
+	LastUpdated time.Time `json:"lastUpdated"`
+	// Time since last successful operation
+	LastSuccessfulOperation *time.Time `json:"lastSuccessfulOperation,omitempty"`
+	// Current peers/connections (for VPN, etc.)
+	ActiveConnections *int `json:"activeConnections,omitempty"`
+	// Resource uptime
+	Uptime *Duration `json:"uptime,omitempty"`
+}
+
 // Input for starting a network scan
 type ScanNetworkInput struct {
 	// Target subnet in CIDR notation (e.g., '192.168.88.0/24') or IP range (e.g., '192.168.1.1-192.168.1.100')
@@ -945,6 +3014,86 @@ type SoftwareInfo struct {
 	UpdateChannel *string `json:"updateChannel,omitempty"`
 }
 
+// Result of starting a troubleshooting session
+type StartTroubleshootPayload struct {
+	// The created session
+	Session *TroubleshootSession `json:"session,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Static IP WAN configuration
+type StaticIPConfig struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// Interface name
+	Interface string `json:"interface"`
+	// Static IP address with CIDR
+	Address CIDR `json:"address"`
+	// Gateway IP address
+	Gateway IPv4 `json:"gateway"`
+	// Primary DNS server
+	PrimaryDNS *IPv4 `json:"primaryDNS,omitempty"`
+	// Secondary DNS server
+	SecondaryDNS *IPv4 `json:"secondaryDNS,omitempty"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+func (StaticIPConfig) IsNode() {}
+
+// Input for configuring static IP WAN
+type StaticIPInput struct {
+	// Interface to configure
+	Interface string `json:"interface"`
+	// Static IP address with CIDR (e.g., 203.0.113.5/30)
+	Address CIDR `json:"address"`
+	// Gateway IP address
+	Gateway IPv4 `json:"gateway"`
+	// Primary DNS server
+	PrimaryDNS graphql.Omittable[*IPv4] `json:"primaryDNS,omitempty"`
+	// Secondary DNS server
+	SecondaryDNS graphql.Omittable[*IPv4] `json:"secondaryDNS,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// A single data point in interface statistics history
+type StatsDataPoint struct {
+	// Timestamp of the data point
+	Timestamp time.Time `json:"timestamp"`
+	// Transmit rate in bytes per second
+	TxBytesPerSec float64 `json:"txBytesPerSec"`
+	// Receive rate in bytes per second
+	RxBytesPerSec float64 `json:"rxBytesPerSec"`
+	// Transmit rate in packets per second
+	TxPacketsPerSec float64 `json:"txPacketsPerSec"`
+	// Receive rate in packets per second
+	RxPacketsPerSec float64 `json:"rxPacketsPerSec"`
+	// Transmission errors in this interval
+	TxErrors int `json:"txErrors"`
+	// Receive errors in this interval
+	RxErrors int `json:"rxErrors"`
+}
+
+// Input for specifying a time range
+type StatsTimeRangeInput struct {
+	// Start of the time range
+	Start time.Time `json:"start"`
+	// End of the time range
+	End time.Time `json:"end"`
+}
+
+// Storage utilization metrics
+type StorageMetrics struct {
+	// Used storage in bytes
+	Used float64 `json:"used"`
+	// Total storage in bytes
+	Total float64 `json:"total"`
+	// Storage usage percentage (0-100)
+	Percentage float64 `json:"percentage"`
+}
+
 type Subscription struct {
 }
 
@@ -960,6 +3109,25 @@ type TLSStatus struct {
 	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
 	// Error message (if certificate is invalid)
 	Error *string `json:"error,omitempty"`
+}
+
+// Layer 5: Time-series metrics and historical data.
+// Collected over time for analytics and trending.
+type TelemetryData struct {
+	// Bandwidth history (last 24h)
+	BandwidthHistory []*BandwidthDataPoint `json:"bandwidthHistory,omitempty"`
+	// Uptime history (availability)
+	UptimeHistory []*UptimeDataPoint `json:"uptimeHistory,omitempty"`
+	// Hourly statistics
+	HourlyStats []*HourlyStats `json:"hourlyStats,omitempty"`
+	// Daily statistics
+	DailyStats []*DailyStats `json:"dailyStats,omitempty"`
+	// First data point timestamp
+	DataStartedAt *time.Time `json:"dataStartedAt,omitempty"`
+	// Last data point timestamp
+	LastUpdatedAt *time.Time `json:"lastUpdatedAt,omitempty"`
+	// Data retention period
+	RetentionDays int `json:"retentionDays"`
 }
 
 // Result of testing all router credentials.
@@ -983,6 +3151,360 @@ type TestConnectionPayload struct {
 	Version *string `json:"version,omitempty"`
 	// Error message if connection failed
 	Error *string `json:"error,omitempty"`
+}
+
+// Test notification payload
+type TestNotificationPayload struct {
+	// Whether test was successful
+	Success bool `json:"success"`
+	// Test result message
+	Message *string `json:"message,omitempty"`
+	// Errors encountered during test
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Throttle configuration to prevent alert spam
+type ThrottleConfig struct {
+	// Maximum number of alerts allowed
+	MaxAlerts int `json:"maxAlerts"`
+	// Time period in seconds
+	PeriodSeconds int `json:"periodSeconds"`
+	// Optional field to group alerts by
+	GroupByField *string `json:"groupByField,omitempty"`
+}
+
+// Throttle configuration input
+type ThrottleConfigInput struct {
+	// Maximum number of alerts allowed
+	MaxAlerts int `json:"maxAlerts"`
+	// Time period in seconds
+	PeriodSeconds int `json:"periodSeconds"`
+	// Optional field to group alerts by
+	GroupByField graphql.Omittable[*string] `json:"groupByField,omitempty"`
+}
+
+// Edge connecting nodes in a topology
+type TopologyEdge struct {
+	// Edge ID
+	ID string `json:"id"`
+	// Source node ID
+	Source string `json:"source"`
+	// Target node ID
+	Target string `json:"target"`
+	// Edge label (optional)
+	Label *string `json:"label,omitempty"`
+	// Additional edge data
+	Data map[string]interface{} `json:"data,omitempty"`
+	// Edge styling
+	Style *TopologyEdgeStyle `json:"style,omitempty"`
+}
+
+// Styling for topology edges
+type TopologyEdgeStyle struct {
+	// Stroke color (CSS color)
+	Stroke *string `json:"stroke,omitempty"`
+	// Stroke width in pixels
+	StrokeWidth *float64 `json:"strokeWidth,omitempty"`
+	// Stroke dash array (for dashed lines)
+	StrokeDasharray *string `json:"strokeDasharray,omitempty"`
+}
+
+// Node in a VLAN network topology diagram
+type TopologyNode struct {
+	// Node ID
+	ID string `json:"id"`
+	// Node type (bridge, vlan, port)
+	Type TopologyNodeType `json:"type"`
+	// Display label
+	Label string `json:"label"`
+	// Sub-label (optional)
+	Sublabel *string `json:"sublabel,omitempty"`
+	// Node position in the diagram
+	Position *TopologyPosition `json:"position"`
+	// Additional node data
+	Data map[string]interface{} `json:"data,omitempty"`
+	// Node styling
+	Style *TopologyNodeStyle `json:"style,omitempty"`
+}
+
+// Styling for topology nodes
+type TopologyNodeStyle struct {
+	// Fill color (CSS color)
+	Fill *string `json:"fill,omitempty"`
+	// Stroke color (CSS color)
+	Stroke *string `json:"stroke,omitempty"`
+	// Stroke width in pixels
+	StrokeWidth *float64 `json:"strokeWidth,omitempty"`
+}
+
+// Position of a node in the topology
+type TopologyPosition struct {
+	// X coordinate
+	X float64 `json:"x"`
+	// Y coordinate
+	Y float64 `json:"y"`
+}
+
+// A single hop in the traceroute path
+type TracerouteHop struct {
+	// Hop number (1-based)
+	HopNumber int `json:"hopNumber"`
+	// IP address of the hop (null for timeout)
+	Address *string `json:"address,omitempty"`
+	// Reverse DNS hostname (if available)
+	Hostname *string `json:"hostname,omitempty"`
+	// Individual probe results for this hop
+	Probes []*HopProbe `json:"probes"`
+	// Status of this hop
+	Status HopStatus `json:"status"`
+	// Average latency across successful probes
+	AvgLatencyMs *float64 `json:"avgLatencyMs,omitempty"`
+	// Packet loss percentage for this hop (0-100)
+	PacketLoss float64 `json:"packetLoss"`
+}
+
+// Input parameters for starting a traceroute
+type TracerouteInput struct {
+	// Target hostname or IP address
+	Target string `json:"target"`
+	// Maximum number of hops (default: 30, max: 64)
+	MaxHops graphql.Omittable[*int] `json:"maxHops,omitempty"`
+	// Timeout per hop in milliseconds (default: 3000)
+	Timeout graphql.Omittable[*int] `json:"timeout,omitempty"`
+	// Number of probes per hop (default: 3)
+	ProbeCount graphql.Omittable[*int] `json:"probeCount,omitempty"`
+	// Protocol to use for probes (default: ICMP)
+	Protocol graphql.Omittable[*TracerouteProtocol] `json:"protocol,omitempty"`
+}
+
+// Traceroute job reference for subscription tracking
+type TracerouteJob struct {
+	// Unique job identifier
+	JobID string `json:"jobId"`
+	// Current job status
+	Status JobStatus `json:"status"`
+}
+
+// Progress event emitted during traceroute execution
+type TracerouteProgressEvent struct {
+	// Job identifier
+	JobID string `json:"jobId"`
+	// Type of event
+	EventType TracerouteEventType `json:"eventType"`
+	// Newly discovered hop (for HOP_DISCOVERED events)
+	Hop *TracerouteHop `json:"hop,omitempty"`
+	// Final result (for COMPLETE events)
+	Result *TracerouteResult `json:"result,omitempty"`
+	// Error message (for ERROR events)
+	Error *string `json:"error,omitempty"`
+}
+
+// Complete traceroute result
+type TracerouteResult struct {
+	// Target hostname or IP address
+	Target string `json:"target"`
+	// Resolved target IP address
+	TargetIP string `json:"targetIp"`
+	// Protocol used for probes
+	Protocol TracerouteProtocol `json:"protocol"`
+	// Maximum hops configured
+	MaxHops int `json:"maxHops"`
+	// Discovered hops in order
+	Hops []*TracerouteHop `json:"hops"`
+	// Whether traceroute completed
+	Completed bool `json:"completed"`
+	// Whether destination was reached
+	ReachedDestination bool `json:"reachedDestination"`
+	// Total time from start to completion (ms)
+	TotalTimeMs float64 `json:"totalTimeMs"`
+	// When the traceroute started
+	StartedAt time.Time `json:"startedAt"`
+	// When the traceroute completed (if finished)
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// Suggested fix for a failed diagnostic step
+type TroubleshootFixSuggestion struct {
+	// Unique issue code (e.g., WAN_DISABLED, NO_DEFAULT_ROUTE)
+	IssueCode string `json:"issueCode"`
+	// User-friendly fix title
+	Title string `json:"title"`
+	// Detailed explanation of what will be fixed
+	Explanation string `json:"explanation"`
+	// Confidence level for this fix
+	Confidence FixConfidence `json:"confidence"`
+	// Whether user confirmation is required before applying
+	RequiresConfirmation bool `json:"requiresConfirmation"`
+	// Whether this is a manual fix (requires user action)
+	IsManualFix bool `json:"isManualFix"`
+	// Manual steps if this cannot be automated
+	ManualSteps []string `json:"manualSteps,omitempty"`
+	// RouterOS command that will be executed
+	Command *string `json:"command,omitempty"`
+	// Rollback command if fix needs to be reverted
+	RollbackCommand *string `json:"rollbackCommand,omitempty"`
+}
+
+// Complete troubleshooting session
+type TroubleshootSession struct {
+	// Unique session identifier
+	ID string `json:"id"`
+	// Router being diagnosed
+	RouterID string `json:"routerId"`
+	// All diagnostic steps
+	Steps []*TroubleshootStep `json:"steps"`
+	// Current step index (0-based)
+	CurrentStepIndex int `json:"currentStepIndex"`
+	// Overall session status
+	Status TroubleshootSessionStatus `json:"status"`
+	// Detected WAN interface name
+	WanInterface *string `json:"wanInterface,omitempty"`
+	// Detected default gateway IP
+	Gateway *string `json:"gateway,omitempty"`
+	// Detected ISP information
+	IspInfo *ISPInfo `json:"ispInfo,omitempty"`
+	// Fixes that have been applied
+	AppliedFixes []string `json:"appliedFixes"`
+	// When the session started
+	StartedAt time.Time `json:"startedAt"`
+	// When the session completed
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// A single step in the troubleshooting wizard
+type TroubleshootStep struct {
+	// Step type/ID
+	ID TroubleshootStepType `json:"id"`
+	// Step display name
+	Name string `json:"name"`
+	// Step description
+	Description string `json:"description"`
+	// Current status of this step
+	Status TroubleshootStepStatus `json:"status"`
+	// Result of executing this step
+	Result *TroubleshootStepResult `json:"result,omitempty"`
+	// Suggested fix if step failed
+	Fix *TroubleshootFixSuggestion `json:"fix,omitempty"`
+	// When the step started
+	StartedAt *time.Time `json:"startedAt,omitempty"`
+	// When the step completed
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// Result of a single diagnostic step
+type TroubleshootStepResult struct {
+	// Whether the check passed
+	Success bool `json:"success"`
+	// User-friendly message about the result
+	Message string `json:"message"`
+	// Technical details for debugging
+	Details *string `json:"details,omitempty"`
+	// Execution time in milliseconds
+	ExecutionTimeMs int `json:"executionTimeMs"`
+	// Detected error code
+	IssueCode *string `json:"issueCode,omitempty"`
+	// Target that was checked (IP, interface name, etc.)
+	Target *string `json:"target,omitempty"`
+}
+
+// Input for updating an alert rule
+type UpdateAlertRuleInput struct {
+	// Human-readable alert rule name
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Event type to match
+	EventType graphql.Omittable[*string] `json:"eventType,omitempty"`
+	// Array of conditions
+	Conditions graphql.Omittable[[]*AlertConditionInput] `json:"conditions,omitempty"`
+	// Alert severity level
+	Severity graphql.Omittable[*AlertSeverity] `json:"severity,omitempty"`
+	// Notification channels
+	Channels graphql.Omittable[[]string] `json:"channels,omitempty"`
+	// Throttle configuration
+	Throttle graphql.Omittable[*ThrottleConfigInput] `json:"throttle,omitempty"`
+	// Quiet hours configuration
+	QuietHours graphql.Omittable[*QuietHoursConfigInput] `json:"quietHours,omitempty"`
+	// Optional device ID filter
+	DeviceID graphql.Omittable[*string] `json:"deviceId,omitempty"`
+	// Whether rule is enabled
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
+type UpdateBridgeInput struct {
+	Comment       graphql.Omittable[*string]      `json:"comment,omitempty"`
+	Protocol      graphql.Omittable[*StpProtocol] `json:"protocol,omitempty"`
+	Priority      graphql.Omittable[*int]         `json:"priority,omitempty"`
+	VlanFiltering graphql.Omittable[*bool]        `json:"vlanFiltering,omitempty"`
+	Pvid          graphql.Omittable[*int]         `json:"pvid,omitempty"`
+	Mtu           graphql.Omittable[*int]         `json:"mtu,omitempty"`
+	Disabled      graphql.Omittable[*bool]        `json:"disabled,omitempty"`
+}
+
+type UpdateBridgePortInput struct {
+	Pvid             graphql.Omittable[*int]        `json:"pvid,omitempty"`
+	FrameTypes       graphql.Omittable[*FrameTypes] `json:"frameTypes,omitempty"`
+	IngressFiltering graphql.Omittable[*bool]       `json:"ingressFiltering,omitempty"`
+	TaggedVlans      graphql.Omittable[[]int]       `json:"taggedVlans,omitempty"`
+	UntaggedVlans    graphql.Omittable[[]int]       `json:"untaggedVlans,omitempty"`
+	Edge             graphql.Omittable[*bool]       `json:"edge,omitempty"`
+	PathCost         graphql.Omittable[*int]        `json:"pathCost,omitempty"`
+}
+
+// Input for updating an item in a change set
+type UpdateChangeSetItemInput struct {
+	// Updated name
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// Updated description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Updated configuration
+	Configuration graphql.Omittable[map[string]interface{}] `json:"configuration,omitempty"`
+	// Updated dependencies
+	Dependencies graphql.Omittable[[]string] `json:"dependencies,omitempty"`
+}
+
+type UpdateChangeSetItemPayload struct {
+	// The updated change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for updating interface settings
+type UpdateInterfaceInput struct {
+	// Enable or disable the interface
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	// MTU size (68-9000 bytes)
+	Mtu graphql.Omittable[*int] `json:"mtu,omitempty"`
+	// Interface comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// Payload returned by updateInterface, enableInterface, and disableInterface mutations
+type UpdateInterfacePayload struct {
+	// Updated interface
+	Interface *Interface `json:"interface,omitempty"`
+	// Errors that occurred during the operation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for updating resource configuration
+type UpdateResourceInput struct {
+	// Updated configuration (partial or full)
+	Configuration graphql.Omittable[map[string]interface{}] `json:"configuration,omitempty"`
+	// Updated relationships
+	Relationships graphql.Omittable[*ResourceRelationshipsInput] `json:"relationships,omitempty"`
+	// Updated tags
+	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
+	// Updated description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+}
+
+type UpdateResourcePayload struct {
+	// The updated resource
+	Resource Resource `json:"resource,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
 }
 
 // Input for updating router settings
@@ -1056,6 +3578,16 @@ type UpgradeStep struct {
 	Optional bool `json:"optional"`
 }
 
+// An uptime data point
+type UptimeDataPoint struct {
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+	// Whether resource was up during this period
+	IsUp bool `json:"isUp"`
+	// Period duration in seconds
+	PeriodSeconds int `json:"periodSeconds"`
+}
+
 // Single step in VIF enablement guidance
 type VIFGuidanceStep struct {
 	// Step number (1-based)
@@ -1090,6 +3622,24 @@ type VIFRequirements struct {
 	GuidanceSteps []*VIFGuidanceStep `json:"guidanceSteps"`
 }
 
+type ValidateChangeSetPayload struct {
+	// The validated change set
+	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
+	// Validation result
+	Validation *ChangeSetValidationResult `json:"validation,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+type ValidateResourcePayload struct {
+	// The validated resource
+	Resource Resource `json:"resource,omitempty"`
+	// Validation result
+	Validation *ValidationResult `json:"validation,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Field-level validation error with suggestions for fixing.
 type ValidationError struct {
 	// Field path that failed validation (e.g., 'input.host', 'input.port')
@@ -1102,6 +3652,572 @@ type ValidationError struct {
 	Suggestion *string `json:"suggestion,omitempty"`
 	// The invalid value (redacted for sensitive fields)
 	ProvidedValue *string `json:"providedValue,omitempty"`
+}
+
+// A validation issue (error or warning)
+type ValidationIssue struct {
+	// Error code for programmatic handling
+	Code string `json:"code"`
+	// Human-readable message
+	Message string `json:"message"`
+	// Field path that caused the issue (e.g., 'configuration.listenPort')
+	Field *string `json:"field,omitempty"`
+	// Severity level
+	Severity ValidationSeverity `json:"severity"`
+	// Suggested fix
+	SuggestedFix *string `json:"suggestedFix,omitempty"`
+	// Link to documentation
+	DocsURL *string `json:"docsUrl,omitempty"`
+}
+
+// Layer 2: Validation result from 7-stage backend validation pipeline.
+// Computed on every configuration change.
+type ValidationResult struct {
+	// Whether the resource can be applied
+	CanApply bool `json:"canApply"`
+	// Current validation stage
+	Stage ValidationStage `json:"stage"`
+	// Validation errors (blocking)
+	Errors []*ValidationIssue `json:"errors"`
+	// Validation warnings (non-blocking)
+	Warnings []*ValidationIssue `json:"warnings"`
+	// Resource conflicts detected
+	Conflicts []*ResourceConflict `json:"conflicts"`
+	// Required dependencies that must be active
+	RequiredDependencies []*DependencyStatus `json:"requiredDependencies"`
+	// When validation was performed
+	ValidatedAt time.Time `json:"validatedAt"`
+	// Duration of validation in milliseconds
+	ValidationDurationMs int `json:"validationDurationMs"`
+}
+
+// A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
+type Vlan struct {
+	// Unique VLAN identifier
+	ID string `json:"id"`
+	// VLAN interface name (e.g., vlan10, vlan-guest)
+	Name string `json:"name"`
+	// 802.1Q VLAN ID (1-4094)
+	VlanID int `json:"vlanId"`
+	// Parent interface (bridge or physical interface)
+	Interface *Interface `json:"interface"`
+	// MTU setting (optional, inherits from parent if not set)
+	Mtu *int `json:"mtu,omitempty"`
+	// MAC address of the VLAN interface
+	MacAddress *MAC `json:"macAddress,omitempty"`
+	// Whether the VLAN interface is disabled
+	Disabled bool `json:"disabled"`
+	// Whether the VLAN interface is running (link up)
+	Running bool `json:"running"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+	// IP addresses assigned to this VLAN
+	IPAddresses []*IPAddress `json:"ipAddresses"`
+	// Traffic statistics for this VLAN
+	Statistics *InterfaceStats `json:"statistics,omitempty"`
+}
+
+func (Vlan) IsNode() {}
+
+// Resources that depend on a VLAN interface
+type VlanDependencies struct {
+	// VLAN interface ID
+	VlanID string `json:"vlanId"`
+	// IP addresses assigned to this VLAN
+	IPAddresses []*IPAddress `json:"ipAddresses"`
+	// DHCP servers using this VLAN
+	DhcpServers []*DhcpServer `json:"dhcpServers"`
+	// Firewall rules referencing this VLAN
+	FirewallRules []*FirewallRule `json:"firewallRules"`
+	// Routes using this VLAN interface
+	Routes []*Route `json:"routes"`
+	// Number of active connections on this VLAN
+	ActiveConnections int `json:"activeConnections"`
+	// Whether the VLAN has any dependencies
+	HasDependencies bool `json:"hasDependencies"`
+}
+
+// Filter options for querying VLANs
+type VlanFilter struct {
+	// Filter by parent interface ID
+	ParentInterface graphql.Omittable[*string] `json:"parentInterface,omitempty"`
+	// Filter by VLAN ID range
+	VlanIDRange graphql.Omittable[*IntRange] `json:"vlanIdRange,omitempty"`
+	// Filter by name containing this string
+	NameContains graphql.Omittable[*string] `json:"nameContains,omitempty"`
+}
+
+// Input for creating a new VLAN interface
+type VlanInput struct {
+	// VLAN interface name (alphanumeric, hyphens, underscores)
+	Name string `json:"name"`
+	// 802.1Q VLAN ID (1-4094)
+	VlanID int `json:"vlanId"`
+	// Parent interface ID (bridge or physical interface)
+	Interface string `json:"interface"`
+	// MTU setting (optional, inherits from parent if not set)
+	Mtu graphql.Omittable[*int] `json:"mtu,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// Result of a VLAN mutation (create, update)
+type VlanMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// The created or updated VLAN (if successful)
+	Vlan *Vlan `json:"vlan,omitempty"`
+	// Configuration preview (RouterOS commands that will be executed)
+	Preview *ConfigPreview `json:"preview,omitempty"`
+	// Errors that occurred during the operation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// VLAN topology data (nodes and edges)
+type VlanTopology struct {
+	// Topology nodes (bridges, VLANs, ports)
+	Nodes []*TopologyNode `json:"nodes"`
+	// Topology edges (connections)
+	Edges []*TopologyEdge `json:"edges"`
+}
+
+// WAN connection history entry
+type WANConnectionEvent struct {
+	// Event ID
+	ID string `json:"id"`
+	// WAN interface ID
+	WanInterfaceID string `json:"wanInterfaceId"`
+	// Event type
+	EventType WANEventType `json:"eventType"`
+	// Event timestamp
+	Timestamp time.Time `json:"timestamp"`
+	// Public IP at the time (if applicable)
+	PublicIP *IPv4 `json:"publicIP,omitempty"`
+	// Gateway IP
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Reason/error message (if applicable)
+	Reason *string `json:"reason,omitempty"`
+	// Connection duration (for disconnect events)
+	Duration *Duration `json:"duration,omitempty"`
+}
+
+// Connection history pagination
+type WANConnectionEventConnection struct {
+	Edges      []*WANConnectionEventEdge `json:"edges"`
+	PageInfo   *PageInfo                 `json:"pageInfo"`
+	TotalCount *int                      `json:"totalCount,omitempty"`
+}
+
+func (WANConnectionEventConnection) IsConnection() {}
+
+type WANConnectionEventEdge struct {
+	Node   *WANConnectionEvent `json:"node"`
+	Cursor string              `json:"cursor"`
+}
+
+func (WANConnectionEventEdge) IsEdge() {}
+
+// Input for configuring WAN health check
+type WANHealthCheckInput struct {
+	// Target host to ping (IP or hostname)
+	Target string `json:"target"`
+	// Check interval in seconds
+	Interval int `json:"interval"`
+	// Enable health check
+	Enabled bool `json:"enabled"`
+}
+
+// WAN health check status
+type WANHealthStatus struct {
+	// Overall health status
+	Status HealthCheckStatus `json:"status"`
+	// Target host being monitored
+	Target string `json:"target"`
+	// Check interval
+	Interval Duration `json:"interval"`
+	// Current latency (if reachable)
+	Latency *int `json:"latency,omitempty"`
+	// Packet loss percentage (0-100)
+	PacketLoss int `json:"packetLoss"`
+	// Consecutive successful checks
+	SuccessCount int `json:"successCount"`
+	// Consecutive failed checks
+	FailureCount int `json:"failureCount"`
+	// Last check timestamp
+	LastCheck time.Time `json:"lastCheck"`
+	// Whether health check is enabled
+	Enabled bool `json:"enabled"`
+}
+
+// WAN interface status with connection details
+type WANInterface struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// Underlying network interface
+	Interface *Interface `json:"interface"`
+	// WAN connection type
+	Type WANConnectionType `json:"type"`
+	// Current connection status
+	Status WANStatus `json:"status"`
+	// Public IP address (if connected)
+	PublicIP *IPv4 `json:"publicIP,omitempty"`
+	// Gateway IP address
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Primary DNS server
+	PrimaryDNS *IPv4 `json:"primaryDNS,omitempty"`
+	// Secondary DNS server
+	SecondaryDNS *IPv4 `json:"secondaryDNS,omitempty"`
+	// Connection uptime
+	Uptime *Duration `json:"uptime,omitempty"`
+	// Last connection time
+	LastConnected *time.Time `json:"lastConnected,omitempty"`
+	// Health check status
+	Health *WANHealthStatus `json:"health,omitempty"`
+	// DHCP client configuration (if type is DHCP)
+	DhcpClient *DhcpClient `json:"dhcpClient,omitempty"`
+	// PPPoE client configuration (if type is PPPOE)
+	PppoeClient *PppoeClient `json:"pppoeClient,omitempty"`
+	// Static IP configuration (if type is STATIC)
+	StaticConfig *StaticIPConfig `json:"staticConfig,omitempty"`
+	// LTE modem configuration (if type is LTE)
+	LteModem *LteModem `json:"lteModem,omitempty"`
+	// Whether this is the default route
+	IsDefaultRoute bool `json:"isDefaultRoute"`
+	// Traffic statistics
+	Statistics *InterfaceStats `json:"statistics,omitempty"`
+}
+
+func (WANInterface) IsNode() {}
+
+// WAN Link resource for internet connectivity
+type WANLink struct {
+	ID            string                 `json:"id"`
+	ScopedID      string                 `json:"scopedId"`
+	Type          string                 `json:"type"`
+	Category      ResourceCategory       `json:"category"`
+	Configuration map[string]interface{} `json:"configuration,omitempty"`
+	Validation    *ValidationResult      `json:"validation,omitempty"`
+	Deployment    *DeploymentState       `json:"deployment,omitempty"`
+	Runtime       *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry     *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata      *ResourceMetadata      `json:"metadata"`
+	Relationships *ResourceRelationships `json:"relationships,omitempty"`
+	Platform      *PlatformInfo          `json:"platform,omitempty"`
+	WanRuntime    *WANLinkRuntime        `json:"wanRuntime,omitempty"`
+	// Interface name
+	Interface string `json:"interface"`
+	// Connection type (static, dhcp, pppoe)
+	ConnectionType WANConnectionType `json:"connectionType"`
+	// Whether this is the primary WAN
+	IsPrimary bool `json:"isPrimary"`
+	// Failover priority (lower = higher priority)
+	FailoverPriority *int `json:"failoverPriority,omitempty"`
+}
+
+func (WANLink) IsResource() {}
+
+func (WANLink) IsNode() {}
+
+// WAN Link runtime state
+type WANLinkRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Current IP address
+	CurrentIP *IPv4 `json:"currentIP,omitempty"`
+	// Gateway address
+	Gateway *IPv4 `json:"gateway,omitempty"`
+	// Public IP (may differ due to NAT)
+	PublicIP *IPv4 `json:"publicIP,omitempty"`
+	// DNS servers received
+	DNSServers []IPv4 `json:"dnsServers,omitempty"`
+	// Current uplink speed (bytes/sec)
+	UplinkSpeed *Size `json:"uplinkSpeed,omitempty"`
+	// Current downlink speed (bytes/sec)
+	DownlinkSpeed *Size `json:"downlinkSpeed,omitempty"`
+	// Total uptime
+	Uptime *Duration `json:"uptime,omitempty"`
+	// Last connection change
+	LastStateChange *time.Time `json:"lastStateChange,omitempty"`
+}
+
+// Result of WAN configuration mutation
+type WANMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// The configured WAN interface
+	WanInterface *WANInterface `json:"wanInterface,omitempty"`
+	// Configuration preview (RouterOS commands)
+	Preview *ConfigPreview `json:"preview,omitempty"`
+	// Errors that occurred
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// WireGuard VPN Client resource implementing 8-layer model
+type WireGuardClient struct {
+	ID                  string                 `json:"id"`
+	ScopedID            string                 `json:"scopedId"`
+	Type                string                 `json:"type"`
+	Category            ResourceCategory       `json:"category"`
+	Configuration       map[string]interface{} `json:"configuration,omitempty"`
+	Validation          *ValidationResult      `json:"validation,omitempty"`
+	Deployment          *DeploymentState       `json:"deployment,omitempty"`
+	Runtime             *RuntimeState          `json:"runtime,omitempty"`
+	Telemetry           *TelemetryData         `json:"telemetry,omitempty"`
+	Metadata            *ResourceMetadata      `json:"metadata"`
+	Relationships       *ResourceRelationships `json:"relationships,omitempty"`
+	Platform            *PlatformInfo          `json:"platform,omitempty"`
+	Config              *WireGuardClientConfig `json:"config"`
+	WireguardDeployment *WireGuardDeployment   `json:"wireguardDeployment,omitempty"`
+	WireguardRuntime    *WireGuardRuntime      `json:"wireguardRuntime,omitempty"`
+}
+
+func (WireGuardClient) IsResource() {}
+
+func (WireGuardClient) IsNode() {}
+
+// WireGuard client configuration
+type WireGuardClientConfig struct {
+	// User-friendly name
+	Name string `json:"name"`
+	// WireGuard private key
+	PrivateKey string `json:"privateKey"`
+	// Peer public key
+	PeerPublicKey string `json:"peerPublicKey"`
+	// Peer endpoint (IP:port)
+	PeerEndpoint string `json:"peerEndpoint"`
+	// Allowed IPs (CIDR notation)
+	AllowedIPs []CIDR `json:"allowedIPs"`
+	// Persistent keepalive interval
+	PersistentKeepalive *Duration `json:"persistentKeepalive,omitempty"`
+	// Listen port (0 for auto)
+	ListenPort *Port `json:"listenPort,omitempty"`
+	// WAN interface to use
+	WanInterface *string `json:"wanInterface,omitempty"`
+	// Enable kill switch
+	KillSwitch *bool `json:"killSwitch,omitempty"`
+	// DNS servers to use
+	DNSServers []IPv4 `json:"dnsServers,omitempty"`
+}
+
+// WireGuard deployment state (router-generated)
+type WireGuardDeployment struct {
+	RouterResourceID *string    `json:"routerResourceId,omitempty"`
+	AppliedAt        time.Time  `json:"appliedAt"`
+	AppliedBy        *string    `json:"appliedBy,omitempty"`
+	RouterVersion    *int       `json:"routerVersion,omitempty"`
+	IsInSync         bool       `json:"isInSync"`
+	Drift            *DriftInfo `json:"drift,omitempty"`
+	// Generated public key
+	PublicKey *string `json:"publicKey,omitempty"`
+	// Assigned interface name
+	InterfaceName *string `json:"interfaceName,omitempty"`
+}
+
+// WireGuard runtime state
+type WireGuardRuntime struct {
+	IsRunning    bool          `json:"isRunning"`
+	Health       RuntimeHealth `json:"health"`
+	ErrorMessage *string       `json:"errorMessage,omitempty"`
+	LastUpdated  time.Time     `json:"lastUpdated"`
+	// Whether connected to peer
+	IsConnected bool `json:"isConnected"`
+	// Last handshake time
+	LastHandshake *time.Time `json:"lastHandshake,omitempty"`
+	// Current endpoint (may differ from configured)
+	CurrentEndpoint *string `json:"currentEndpoint,omitempty"`
+	// Bytes transferred in
+	BytesIn Size `json:"bytesIn"`
+	// Bytes transferred out
+	BytesOut Size `json:"bytesOut"`
+	// Current active peers count
+	ActivePeers int `json:"activePeers"`
+}
+
+// Alert action types for subscriptions
+type AlertAction string
+
+const (
+	// Alert was created/triggered
+	AlertActionCreated AlertAction = "CREATED"
+	// Alert was acknowledged
+	AlertActionAcknowledged AlertAction = "ACKNOWLEDGED"
+	// Alert was resolved
+	AlertActionResolved AlertAction = "RESOLVED"
+)
+
+var AllAlertAction = []AlertAction{
+	AlertActionCreated,
+	AlertActionAcknowledged,
+	AlertActionResolved,
+}
+
+func (e AlertAction) IsValid() bool {
+	switch e {
+	case AlertActionCreated, AlertActionAcknowledged, AlertActionResolved:
+		return true
+	}
+	return false
+}
+
+func (e AlertAction) String() string {
+	return string(e)
+}
+
+func (e *AlertAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertAction", str)
+	}
+	return nil
+}
+
+func (e AlertAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Alert severity levels
+type AlertSeverity string
+
+const (
+	// Critical - requires immediate attention
+	AlertSeverityCritical AlertSeverity = "CRITICAL"
+	// Warning - attention needed soon
+	AlertSeverityWarning AlertSeverity = "WARNING"
+	// Info - informational only
+	AlertSeverityInfo AlertSeverity = "INFO"
+)
+
+var AllAlertSeverity = []AlertSeverity{
+	AlertSeverityCritical,
+	AlertSeverityWarning,
+	AlertSeverityInfo,
+}
+
+func (e AlertSeverity) IsValid() bool {
+	switch e {
+	case AlertSeverityCritical, AlertSeverityWarning, AlertSeverityInfo:
+		return true
+	}
+	return false
+}
+
+func (e AlertSeverity) String() string {
+	return string(e)
+}
+
+func (e *AlertSeverity) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertSeverity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertSeverity", str)
+	}
+	return nil
+}
+
+func (e AlertSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Actions available for batch interface operations
+type BatchInterfaceAction string
+
+const (
+	BatchInterfaceActionEnable  BatchInterfaceAction = "ENABLE"
+	BatchInterfaceActionDisable BatchInterfaceAction = "DISABLE"
+	BatchInterfaceActionUpdate  BatchInterfaceAction = "UPDATE"
+)
+
+var AllBatchInterfaceAction = []BatchInterfaceAction{
+	BatchInterfaceActionEnable,
+	BatchInterfaceActionDisable,
+	BatchInterfaceActionUpdate,
+}
+
+func (e BatchInterfaceAction) IsValid() bool {
+	switch e {
+	case BatchInterfaceActionEnable, BatchInterfaceActionDisable, BatchInterfaceActionUpdate:
+		return true
+	}
+	return false
+}
+
+func (e BatchInterfaceAction) String() string {
+	return string(e)
+}
+
+func (e *BatchInterfaceAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BatchInterfaceAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BatchInterfaceAction", str)
+	}
+	return nil
+}
+
+func (e BatchInterfaceAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Frame types that can be admitted on a bridge port
+type BridgePortFrameTypes string
+
+const (
+	// Accept all frames (tagged and untagged)
+	BridgePortFrameTypesAdmitAll BridgePortFrameTypes = "ADMIT_ALL"
+	// Accept only untagged and priority-tagged frames
+	BridgePortFrameTypesAdmitOnlyUntaggedAndPriorityTagged BridgePortFrameTypes = "ADMIT_ONLY_UNTAGGED_AND_PRIORITY_TAGGED"
+	// Accept only VLAN-tagged frames
+	BridgePortFrameTypesAdmitOnlyVlanTagged BridgePortFrameTypes = "ADMIT_ONLY_VLAN_TAGGED"
+)
+
+var AllBridgePortFrameTypes = []BridgePortFrameTypes{
+	BridgePortFrameTypesAdmitAll,
+	BridgePortFrameTypesAdmitOnlyUntaggedAndPriorityTagged,
+	BridgePortFrameTypesAdmitOnlyVlanTagged,
+}
+
+func (e BridgePortFrameTypes) IsValid() bool {
+	switch e {
+	case BridgePortFrameTypesAdmitAll, BridgePortFrameTypesAdmitOnlyUntaggedAndPriorityTagged, BridgePortFrameTypesAdmitOnlyVlanTagged:
+		return true
+	}
+	return false
+}
+
+func (e BridgePortFrameTypes) String() string {
+	return string(e)
+}
+
+func (e *BridgePortFrameTypes) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BridgePortFrameTypes(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BridgePortFrameTypes", str)
+	}
+	return nil
+}
+
+func (e BridgePortFrameTypes) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type CacheScope string
@@ -1271,6 +4387,180 @@ func (e CapabilityLevel) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Type of operation to perform on a resource
+type ChangeOperation string
+
+const (
+	// Create a new resource
+	ChangeOperationCreate ChangeOperation = "CREATE"
+	// Update an existing resource
+	ChangeOperationUpdate ChangeOperation = "UPDATE"
+	// Delete an existing resource
+	ChangeOperationDelete ChangeOperation = "DELETE"
+)
+
+var AllChangeOperation = []ChangeOperation{
+	ChangeOperationCreate,
+	ChangeOperationUpdate,
+	ChangeOperationDelete,
+}
+
+func (e ChangeOperation) IsValid() bool {
+	switch e {
+	case ChangeOperationCreate, ChangeOperationUpdate, ChangeOperationDelete:
+		return true
+	}
+	return false
+}
+
+func (e ChangeOperation) String() string {
+	return string(e)
+}
+
+func (e *ChangeOperation) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChangeOperation(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChangeOperation", str)
+	}
+	return nil
+}
+
+func (e ChangeOperation) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of individual items within a change set
+type ChangeSetItemStatus string
+
+const (
+	// Waiting to be applied
+	ChangeSetItemStatusPending ChangeSetItemStatus = "PENDING"
+	// Currently being applied
+	ChangeSetItemStatusApplying ChangeSetItemStatus = "APPLYING"
+	// Successfully applied
+	ChangeSetItemStatusApplied ChangeSetItemStatus = "APPLIED"
+	// Application failed
+	ChangeSetItemStatusFailed ChangeSetItemStatus = "FAILED"
+	// Successfully rolled back
+	ChangeSetItemStatusRolledBack ChangeSetItemStatus = "ROLLED_BACK"
+	// Rollback failed - manual intervention needed
+	ChangeSetItemStatusRollbackFailed ChangeSetItemStatus = "ROLLBACK_FAILED"
+	// Skipped due to dependency failure
+	ChangeSetItemStatusSkipped ChangeSetItemStatus = "SKIPPED"
+)
+
+var AllChangeSetItemStatus = []ChangeSetItemStatus{
+	ChangeSetItemStatusPending,
+	ChangeSetItemStatusApplying,
+	ChangeSetItemStatusApplied,
+	ChangeSetItemStatusFailed,
+	ChangeSetItemStatusRolledBack,
+	ChangeSetItemStatusRollbackFailed,
+	ChangeSetItemStatusSkipped,
+}
+
+func (e ChangeSetItemStatus) IsValid() bool {
+	switch e {
+	case ChangeSetItemStatusPending, ChangeSetItemStatusApplying, ChangeSetItemStatusApplied, ChangeSetItemStatusFailed, ChangeSetItemStatusRolledBack, ChangeSetItemStatusRollbackFailed, ChangeSetItemStatusSkipped:
+		return true
+	}
+	return false
+}
+
+func (e ChangeSetItemStatus) String() string {
+	return string(e)
+}
+
+func (e *ChangeSetItemStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChangeSetItemStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChangeSetItemStatus", str)
+	}
+	return nil
+}
+
+func (e ChangeSetItemStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Change set lifecycle status
+type ChangeSetStatus string
+
+const (
+	// Initial state - adding items, not yet validated
+	ChangeSetStatusDraft ChangeSetStatus = "DRAFT"
+	// Running validation on all items
+	ChangeSetStatusValidating ChangeSetStatus = "VALIDATING"
+	// All items validated, ready to apply
+	ChangeSetStatusReady ChangeSetStatus = "READY"
+	// Applying resources in dependency order
+	ChangeSetStatusApplying ChangeSetStatus = "APPLYING"
+	// All resources applied successfully
+	ChangeSetStatusCompleted ChangeSetStatus = "COMPLETED"
+	// Apply failed, may have partial application
+	ChangeSetStatusFailed ChangeSetStatus = "FAILED"
+	// Rolling back applied changes
+	ChangeSetStatusRollingBack ChangeSetStatus = "ROLLING_BACK"
+	// Rollback completed successfully
+	ChangeSetStatusRolledBack ChangeSetStatus = "ROLLED_BACK"
+	// Rollback partially failed - manual intervention needed
+	ChangeSetStatusPartialFailure ChangeSetStatus = "PARTIAL_FAILURE"
+	// User cancelled the operation
+	ChangeSetStatusCancelled ChangeSetStatus = "CANCELLED"
+)
+
+var AllChangeSetStatus = []ChangeSetStatus{
+	ChangeSetStatusDraft,
+	ChangeSetStatusValidating,
+	ChangeSetStatusReady,
+	ChangeSetStatusApplying,
+	ChangeSetStatusCompleted,
+	ChangeSetStatusFailed,
+	ChangeSetStatusRollingBack,
+	ChangeSetStatusRolledBack,
+	ChangeSetStatusPartialFailure,
+	ChangeSetStatusCancelled,
+}
+
+func (e ChangeSetStatus) IsValid() bool {
+	switch e {
+	case ChangeSetStatusDraft, ChangeSetStatusValidating, ChangeSetStatusReady, ChangeSetStatusApplying, ChangeSetStatusCompleted, ChangeSetStatusFailed, ChangeSetStatusRollingBack, ChangeSetStatusRolledBack, ChangeSetStatusPartialFailure, ChangeSetStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e ChangeSetStatus) String() string {
+	return string(e)
+}
+
+func (e *ChangeSetStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChangeSetStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChangeSetStatus", str)
+	}
+	return nil
+}
+
+func (e ChangeSetStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Type of change for resource events
 type ChangeType string
 
@@ -1362,6 +4652,62 @@ func (e CircuitBreakerState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Condition comparison operators
+type ConditionOperator string
+
+const (
+	// Exact match
+	ConditionOperatorEquals ConditionOperator = "EQUALS"
+	// Not equal
+	ConditionOperatorNotEquals ConditionOperator = "NOT_EQUALS"
+	// Numeric greater than
+	ConditionOperatorGreaterThan ConditionOperator = "GREATER_THAN"
+	// Numeric less than
+	ConditionOperatorLessThan ConditionOperator = "LESS_THAN"
+	// String contains
+	ConditionOperatorContains ConditionOperator = "CONTAINS"
+	// Regular expression match
+	ConditionOperatorRegex ConditionOperator = "REGEX"
+)
+
+var AllConditionOperator = []ConditionOperator{
+	ConditionOperatorEquals,
+	ConditionOperatorNotEquals,
+	ConditionOperatorGreaterThan,
+	ConditionOperatorLessThan,
+	ConditionOperatorContains,
+	ConditionOperatorRegex,
+}
+
+func (e ConditionOperator) IsValid() bool {
+	switch e {
+	case ConditionOperatorEquals, ConditionOperatorNotEquals, ConditionOperatorGreaterThan, ConditionOperatorLessThan, ConditionOperatorContains, ConditionOperatorRegex:
+		return true
+	}
+	return false
+}
+
+func (e ConditionOperator) String() string {
+	return string(e)
+}
+
+func (e *ConditionOperator) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConditionOperator(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConditionOperator", str)
+	}
+	return nil
+}
+
+func (e ConditionOperator) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Status of a configuration apply operation
 type ConfigApplyStatus string
 
@@ -1411,6 +4757,106 @@ func (e *ConfigApplyStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ConfigApplyStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Severity level for confirmation dialogs
+type ConfirmationSeverity string
+
+const (
+	// Critical operation requiring explicit confirmation
+	ConfirmationSeverityCritical ConfirmationSeverity = "CRITICAL"
+	// Standard operation with brief confirmation
+	ConfirmationSeverityStandard ConfirmationSeverity = "STANDARD"
+)
+
+var AllConfirmationSeverity = []ConfirmationSeverity{
+	ConfirmationSeverityCritical,
+	ConfirmationSeverityStandard,
+}
+
+func (e ConfirmationSeverity) IsValid() bool {
+	switch e {
+	case ConfirmationSeverityCritical, ConfirmationSeverityStandard:
+		return true
+	}
+	return false
+}
+
+func (e ConfirmationSeverity) String() string {
+	return string(e)
+}
+
+func (e *ConfirmationSeverity) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConfirmationSeverity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConfirmationSeverity", str)
+	}
+	return nil
+}
+
+func (e ConfirmationSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Types of resource conflicts
+type ConflictType string
+
+const (
+	// Port number conflict
+	ConflictTypePort ConflictType = "PORT"
+	// IP address conflict
+	ConflictTypeIPAddress ConflictType = "IP_ADDRESS"
+	// Route overlap
+	ConflictTypeRoute ConflictType = "ROUTE"
+	// Interface conflict
+	ConflictTypeInterface ConflictType = "INTERFACE"
+	// Name collision
+	ConflictTypeName ConflictType = "NAME"
+	// Configuration incompatibility
+	ConflictTypeConfiguration ConflictType = "CONFIGURATION"
+)
+
+var AllConflictType = []ConflictType{
+	ConflictTypePort,
+	ConflictTypeIPAddress,
+	ConflictTypeRoute,
+	ConflictTypeInterface,
+	ConflictTypeName,
+	ConflictTypeConfiguration,
+}
+
+func (e ConflictType) IsValid() bool {
+	switch e {
+	case ConflictTypePort, ConflictTypeIPAddress, ConflictTypeRoute, ConflictTypeInterface, ConflictTypeName, ConflictTypeConfiguration:
+		return true
+	}
+	return false
+}
+
+func (e ConflictType) String() string {
+	return string(e)
+}
+
+func (e *ConflictType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConflictType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConflictType", str)
+	}
+	return nil
+}
+
+func (e ConflictType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1713,6 +5159,174 @@ func (e DisconnectReason) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// DNS lookup status codes
+type DNSLookupStatus string
+
+const (
+	// Query completed successfully
+	DNSLookupStatusSuccess DNSLookupStatus = "SUCCESS"
+	// Domain does not exist (NXDOMAIN)
+	DNSLookupStatusNxdomain DNSLookupStatus = "NXDOMAIN"
+	// DNS server failure (SERVFAIL)
+	DNSLookupStatusServfail DNSLookupStatus = "SERVFAIL"
+	// Query timed out
+	DNSLookupStatusTimeout DNSLookupStatus = "TIMEOUT"
+	// Query refused by server
+	DNSLookupStatusRefused DNSLookupStatus = "REFUSED"
+	// Network error occurred
+	DNSLookupStatusNetworkError DNSLookupStatus = "NETWORK_ERROR"
+)
+
+var AllDNSLookupStatus = []DNSLookupStatus{
+	DNSLookupStatusSuccess,
+	DNSLookupStatusNxdomain,
+	DNSLookupStatusServfail,
+	DNSLookupStatusTimeout,
+	DNSLookupStatusRefused,
+	DNSLookupStatusNetworkError,
+}
+
+func (e DNSLookupStatus) IsValid() bool {
+	switch e {
+	case DNSLookupStatusSuccess, DNSLookupStatusNxdomain, DNSLookupStatusServfail, DNSLookupStatusTimeout, DNSLookupStatusRefused, DNSLookupStatusNetworkError:
+		return true
+	}
+	return false
+}
+
+func (e DNSLookupStatus) String() string {
+	return string(e)
+}
+
+func (e *DNSLookupStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DNSLookupStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DnsLookupStatus", str)
+	}
+	return nil
+}
+
+func (e DNSLookupStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// DNS record types supported
+type DNSRecordType string
+
+const (
+	// IPv4 address record
+	DNSRecordTypeA DNSRecordType = "A"
+	// IPv6 address record
+	DNSRecordTypeAaaa DNSRecordType = "AAAA"
+	// Mail exchange record
+	DNSRecordTypeMx DNSRecordType = "MX"
+	// Text record
+	DNSRecordTypeTxt DNSRecordType = "TXT"
+	// Canonical name record
+	DNSRecordTypeCname DNSRecordType = "CNAME"
+	// Name server record
+	DNSRecordTypeNs DNSRecordType = "NS"
+	// Pointer record (reverse DNS)
+	DNSRecordTypePtr DNSRecordType = "PTR"
+	// Start of authority record
+	DNSRecordTypeSoa DNSRecordType = "SOA"
+	// Service record
+	DNSRecordTypeSrv DNSRecordType = "SRV"
+)
+
+var AllDNSRecordType = []DNSRecordType{
+	DNSRecordTypeA,
+	DNSRecordTypeAaaa,
+	DNSRecordTypeMx,
+	DNSRecordTypeTxt,
+	DNSRecordTypeCname,
+	DNSRecordTypeNs,
+	DNSRecordTypePtr,
+	DNSRecordTypeSoa,
+	DNSRecordTypeSrv,
+}
+
+func (e DNSRecordType) IsValid() bool {
+	switch e {
+	case DNSRecordTypeA, DNSRecordTypeAaaa, DNSRecordTypeMx, DNSRecordTypeTxt, DNSRecordTypeCname, DNSRecordTypeNs, DNSRecordTypePtr, DNSRecordTypeSoa, DNSRecordTypeSrv:
+		return true
+	}
+	return false
+}
+
+func (e DNSRecordType) String() string {
+	return string(e)
+}
+
+func (e *DNSRecordType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DNSRecordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DnsRecordType", str)
+	}
+	return nil
+}
+
+func (e DNSRecordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Actions to resolve drift
+type DriftAction string
+
+const (
+	// Re-apply configuration to router
+	DriftActionReapply DriftAction = "REAPPLY"
+	// Update configuration to match router
+	DriftActionAccept DriftAction = "ACCEPT"
+	// Manual review required
+	DriftActionReview DriftAction = "REVIEW"
+)
+
+var AllDriftAction = []DriftAction{
+	DriftActionReapply,
+	DriftActionAccept,
+	DriftActionReview,
+}
+
+func (e DriftAction) IsValid() bool {
+	switch e {
+	case DriftActionReapply, DriftActionAccept, DriftActionReview:
+		return true
+	}
+	return false
+}
+
+func (e DriftAction) String() string {
+	return string(e)
+}
+
+func (e *DriftAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DriftAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DriftAction", str)
+	}
+	return nil
+}
+
+func (e DriftAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Category of connection error for classification
 type ErrorCategory string
 
@@ -1766,6 +5380,299 @@ func (e *ErrorCategory) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ErrorCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of a fix application
+type FixApplicationStatus string
+
+const (
+	// Fix is available but not yet applied
+	FixApplicationStatusAvailable FixApplicationStatus = "AVAILABLE"
+	// Fix is being applied
+	FixApplicationStatusApplying FixApplicationStatus = "APPLYING"
+	// Fix was applied successfully
+	FixApplicationStatusApplied FixApplicationStatus = "APPLIED"
+	// Fix application failed
+	FixApplicationStatusFailed FixApplicationStatus = "FAILED"
+	// Fix was applied but issue persists
+	FixApplicationStatusIssuePersists FixApplicationStatus = "ISSUE_PERSISTS"
+)
+
+var AllFixApplicationStatus = []FixApplicationStatus{
+	FixApplicationStatusAvailable,
+	FixApplicationStatusApplying,
+	FixApplicationStatusApplied,
+	FixApplicationStatusFailed,
+	FixApplicationStatusIssuePersists,
+}
+
+func (e FixApplicationStatus) IsValid() bool {
+	switch e {
+	case FixApplicationStatusAvailable, FixApplicationStatusApplying, FixApplicationStatusApplied, FixApplicationStatusFailed, FixApplicationStatusIssuePersists:
+		return true
+	}
+	return false
+}
+
+func (e FixApplicationStatus) String() string {
+	return string(e)
+}
+
+func (e *FixApplicationStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FixApplicationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FixApplicationStatus", str)
+	}
+	return nil
+}
+
+func (e FixApplicationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Confidence level for a fix suggestion
+type FixConfidence string
+
+const (
+	// High confidence this fix will resolve the issue
+	FixConfidenceHigh FixConfidence = "HIGH"
+	// Medium confidence, may resolve the issue
+	FixConfidenceMedium FixConfidence = "MEDIUM"
+	// Low confidence, worth trying as last resort
+	FixConfidenceLow FixConfidence = "LOW"
+)
+
+var AllFixConfidence = []FixConfidence{
+	FixConfidenceHigh,
+	FixConfidenceMedium,
+	FixConfidenceLow,
+}
+
+func (e FixConfidence) IsValid() bool {
+	switch e {
+	case FixConfidenceHigh, FixConfidenceMedium, FixConfidenceLow:
+		return true
+	}
+	return false
+}
+
+func (e FixConfidence) String() string {
+	return string(e)
+}
+
+func (e *FixConfidence) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FixConfidence(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FixConfidence", str)
+	}
+	return nil
+}
+
+func (e FixConfidence) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type FrameTypes string
+
+const (
+	FrameTypesAdmitAll                     FrameTypes = "ADMIT_ALL"
+	FrameTypesAdmitOnlyUntaggedAndPriority FrameTypes = "ADMIT_ONLY_UNTAGGED_AND_PRIORITY"
+	FrameTypesAdmitOnlyVlanTagged          FrameTypes = "ADMIT_ONLY_VLAN_TAGGED"
+)
+
+var AllFrameTypes = []FrameTypes{
+	FrameTypesAdmitAll,
+	FrameTypesAdmitOnlyUntaggedAndPriority,
+	FrameTypesAdmitOnlyVlanTagged,
+}
+
+func (e FrameTypes) IsValid() bool {
+	switch e {
+	case FrameTypesAdmitAll, FrameTypesAdmitOnlyUntaggedAndPriority, FrameTypesAdmitOnlyVlanTagged:
+		return true
+	}
+	return false
+}
+
+func (e FrameTypes) String() string {
+	return string(e)
+}
+
+func (e *FrameTypes) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FrameTypes(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FrameTypes", str)
+	}
+	return nil
+}
+
+func (e FrameTypes) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Health check status
+type HealthCheckStatus string
+
+const (
+	// Target is reachable (healthy)
+	HealthCheckStatusHealthy HealthCheckStatus = "HEALTHY"
+	// Target is unreachable (unhealthy)
+	HealthCheckStatusUnhealthy HealthCheckStatus = "UNHEALTHY"
+	// Health check is disabled
+	HealthCheckStatusDisabled HealthCheckStatus = "DISABLED"
+	// Health check is starting
+	HealthCheckStatusUnknown HealthCheckStatus = "UNKNOWN"
+)
+
+var AllHealthCheckStatus = []HealthCheckStatus{
+	HealthCheckStatusHealthy,
+	HealthCheckStatusUnhealthy,
+	HealthCheckStatusDisabled,
+	HealthCheckStatusUnknown,
+}
+
+func (e HealthCheckStatus) IsValid() bool {
+	switch e {
+	case HealthCheckStatusHealthy, HealthCheckStatusUnhealthy, HealthCheckStatusDisabled, HealthCheckStatusUnknown:
+		return true
+	}
+	return false
+}
+
+func (e HealthCheckStatus) String() string {
+	return string(e)
+}
+
+func (e *HealthCheckStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HealthCheckStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HealthCheckStatus", str)
+	}
+	return nil
+}
+
+func (e HealthCheckStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of a single hop in a traceroute
+type HopStatus string
+
+const (
+	// Hop responded successfully
+	HopStatusSuccess HopStatus = "SUCCESS"
+	// Hop did not respond (timeout)
+	HopStatusTimeout HopStatus = "TIMEOUT"
+	// Destination unreachable at this hop
+	HopStatusUnreachable HopStatus = "UNREACHABLE"
+	// Access prohibited (firewall/ACL)
+	HopStatusProhibited HopStatus = "PROHIBITED"
+)
+
+var AllHopStatus = []HopStatus{
+	HopStatusSuccess,
+	HopStatusTimeout,
+	HopStatusUnreachable,
+	HopStatusProhibited,
+}
+
+func (e HopStatus) IsValid() bool {
+	switch e {
+	case HopStatusSuccess, HopStatusTimeout, HopStatusUnreachable, HopStatusProhibited:
+		return true
+	}
+	return false
+}
+
+func (e HopStatus) String() string {
+	return string(e)
+}
+
+func (e *HopStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HopStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HopStatus", str)
+	}
+	return nil
+}
+
+func (e HopStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Operational status of a network interface
+type InterfaceStatus string
+
+const (
+	// Interface is up and running
+	InterfaceStatusUp InterfaceStatus = "UP"
+	// Interface is down
+	InterfaceStatusDown InterfaceStatus = "DOWN"
+	// Interface is disabled
+	InterfaceStatusDisabled InterfaceStatus = "DISABLED"
+	// Status unknown or error
+	InterfaceStatusUnknown InterfaceStatus = "UNKNOWN"
+)
+
+var AllInterfaceStatus = []InterfaceStatus{
+	InterfaceStatusUp,
+	InterfaceStatusDown,
+	InterfaceStatusDisabled,
+	InterfaceStatusUnknown,
+}
+
+func (e InterfaceStatus) IsValid() bool {
+	switch e {
+	case InterfaceStatusUp, InterfaceStatusDown, InterfaceStatusDisabled, InterfaceStatusUnknown:
+		return true
+	}
+	return false
+}
+
+func (e InterfaceStatus) String() string {
+	return string(e)
+}
+
+func (e *InterfaceStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InterfaceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InterfaceStatus", str)
+	}
+	return nil
+}
+
+func (e InterfaceStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1824,6 +5731,153 @@ func (e *InterfaceType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e InterfaceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Type of IP address conflict
+type IPConflictType string
+
+const (
+	// Exact IP address match on different interface
+	IPConflictTypeExact IPConflictType = "EXACT"
+	// IP addresses are in overlapping subnets
+	IPConflictTypeSubnetOverlap IPConflictType = "SUBNET_OVERLAP"
+	// IP is the broadcast address of another subnet
+	IPConflictTypeBroadcast IPConflictType = "BROADCAST"
+	// IP is the network address of another subnet
+	IPConflictTypeNetwork IPConflictType = "NETWORK"
+)
+
+var AllIPConflictType = []IPConflictType{
+	IPConflictTypeExact,
+	IPConflictTypeSubnetOverlap,
+	IPConflictTypeBroadcast,
+	IPConflictTypeNetwork,
+}
+
+func (e IPConflictType) IsValid() bool {
+	switch e {
+	case IPConflictTypeExact, IPConflictTypeSubnetOverlap, IPConflictTypeBroadcast, IPConflictTypeNetwork:
+		return true
+	}
+	return false
+}
+
+func (e IPConflictType) String() string {
+	return string(e)
+}
+
+func (e *IPConflictType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IPConflictType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IpConflictType", str)
+	}
+	return nil
+}
+
+func (e IPConflictType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Job status for async traceroute execution
+type JobStatus string
+
+const (
+	// Job has been created
+	JobStatusStarted JobStatus = "STARTED"
+	// Job is currently running
+	JobStatusRunning JobStatus = "RUNNING"
+	// Job completed successfully
+	JobStatusComplete JobStatus = "COMPLETE"
+	// Job was cancelled by user
+	JobStatusCancelled JobStatus = "CANCELLED"
+	// Job encountered an error
+	JobStatusError JobStatus = "ERROR"
+)
+
+var AllJobStatus = []JobStatus{
+	JobStatusStarted,
+	JobStatusRunning,
+	JobStatusComplete,
+	JobStatusCancelled,
+	JobStatusError,
+}
+
+func (e JobStatus) IsValid() bool {
+	switch e {
+	case JobStatusStarted, JobStatusRunning, JobStatusComplete, JobStatusCancelled, JobStatusError:
+		return true
+	}
+	return false
+}
+
+func (e JobStatus) String() string {
+	return string(e)
+}
+
+func (e *JobStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobStatus", str)
+	}
+	return nil
+}
+
+func (e JobStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Port mode for VLAN configuration
+type PortMode string
+
+const (
+	// Trunk port (carries multiple VLANs with tagging)
+	PortModeTrunk PortMode = "TRUNK"
+	// Access port (single VLAN, untagged)
+	PortModeAccess PortMode = "ACCESS"
+)
+
+var AllPortMode = []PortMode{
+	PortModeTrunk,
+	PortModeAccess,
+}
+
+func (e PortMode) IsValid() bool {
+	switch e {
+	case PortModeTrunk, PortModeAccess:
+		return true
+	}
+	return false
+}
+
+func (e PortMode) String() string {
+	return string(e)
+}
+
+func (e *PortMode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PortMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PortMode", str)
+	}
+	return nil
+}
+
+func (e PortMode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -1937,6 +5991,431 @@ func (e ProtocolPreference) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Categories of managed resources
+type ResourceCategory string
+
+const (
+	// Network topology: WAN Links, LAN Networks, VLANs
+	ResourceCategoryNetwork ResourceCategory = "NETWORK"
+	// VPN connectivity: WireGuard, OpenVPN, IPsec
+	ResourceCategoryVpn ResourceCategory = "VPN"
+	// System infrastructure: Certificates, NTP, DDNS
+	ResourceCategoryInfrastructure ResourceCategory = "INFRASTRUCTURE"
+	// Application-level: Port Forwarding, Game Rules
+	ResourceCategoryApplication ResourceCategory = "APPLICATION"
+	// Marketplace features: Tor, AdGuard, sing-box
+	ResourceCategoryFeature ResourceCategory = "FEATURE"
+	// Community extensions: Third-party plugins
+	ResourceCategoryPlugin ResourceCategory = "PLUGIN"
+)
+
+var AllResourceCategory = []ResourceCategory{
+	ResourceCategoryNetwork,
+	ResourceCategoryVpn,
+	ResourceCategoryInfrastructure,
+	ResourceCategoryApplication,
+	ResourceCategoryFeature,
+	ResourceCategoryPlugin,
+}
+
+func (e ResourceCategory) IsValid() bool {
+	switch e {
+	case ResourceCategoryNetwork, ResourceCategoryVpn, ResourceCategoryInfrastructure, ResourceCategoryApplication, ResourceCategoryFeature, ResourceCategoryPlugin:
+		return true
+	}
+	return false
+}
+
+func (e ResourceCategory) String() string {
+	return string(e)
+}
+
+func (e *ResourceCategory) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceCategory(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceCategory", str)
+	}
+	return nil
+}
+
+func (e ResourceCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Impact level for affected resources
+type ResourceImpact string
+
+const (
+	// Resource will be modified
+	ResourceImpactModified ResourceImpact = "MODIFIED"
+	// Resource will be disabled
+	ResourceImpactDisabled ResourceImpact = "DISABLED"
+	// Resource will be removed
+	ResourceImpactRemoved ResourceImpact = "REMOVED"
+	// Connections will be dropped
+	ResourceImpactConnectionDrop ResourceImpact = "CONNECTION_DROP"
+)
+
+var AllResourceImpact = []ResourceImpact{
+	ResourceImpactModified,
+	ResourceImpactDisabled,
+	ResourceImpactRemoved,
+	ResourceImpactConnectionDrop,
+}
+
+func (e ResourceImpact) IsValid() bool {
+	switch e {
+	case ResourceImpactModified, ResourceImpactDisabled, ResourceImpactRemoved, ResourceImpactConnectionDrop:
+		return true
+	}
+	return false
+}
+
+func (e ResourceImpact) String() string {
+	return string(e)
+}
+
+func (e *ResourceImpact) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceImpact(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceImpact", str)
+	}
+	return nil
+}
+
+func (e ResourceImpact) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Selectable resource layers for optimized fetching
+type ResourceLayer string
+
+const (
+	ResourceLayerConfiguration ResourceLayer = "CONFIGURATION"
+	ResourceLayerValidation    ResourceLayer = "VALIDATION"
+	ResourceLayerDeployment    ResourceLayer = "DEPLOYMENT"
+	ResourceLayerRuntime       ResourceLayer = "RUNTIME"
+	ResourceLayerTelemetry     ResourceLayer = "TELEMETRY"
+	ResourceLayerMetadata      ResourceLayer = "METADATA"
+	ResourceLayerRelationships ResourceLayer = "RELATIONSHIPS"
+	ResourceLayerPlatform      ResourceLayer = "PLATFORM"
+)
+
+var AllResourceLayer = []ResourceLayer{
+	ResourceLayerConfiguration,
+	ResourceLayerValidation,
+	ResourceLayerDeployment,
+	ResourceLayerRuntime,
+	ResourceLayerTelemetry,
+	ResourceLayerMetadata,
+	ResourceLayerRelationships,
+	ResourceLayerPlatform,
+}
+
+func (e ResourceLayer) IsValid() bool {
+	switch e {
+	case ResourceLayerConfiguration, ResourceLayerValidation, ResourceLayerDeployment, ResourceLayerRuntime, ResourceLayerTelemetry, ResourceLayerMetadata, ResourceLayerRelationships, ResourceLayerPlatform:
+		return true
+	}
+	return false
+}
+
+func (e ResourceLayer) String() string {
+	return string(e)
+}
+
+func (e *ResourceLayer) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceLayer(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceLayer", str)
+	}
+	return nil
+}
+
+func (e ResourceLayer) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Resource lifecycle states for state machine
+type ResourceLifecycleState string
+
+const (
+	// Initial creation, not yet validated
+	ResourceLifecycleStateDraft ResourceLifecycleState = "DRAFT"
+	// Backend validation in progress
+	ResourceLifecycleStateValidating ResourceLifecycleState = "VALIDATING"
+	// Passed validation, ready to apply
+	ResourceLifecycleStateValid ResourceLifecycleState = "VALID"
+	// Being applied to router
+	ResourceLifecycleStateApplying ResourceLifecycleState = "APPLYING"
+	// Successfully applied and running
+	ResourceLifecycleStateActive ResourceLifecycleState = "ACTIVE"
+	// Running but with issues
+	ResourceLifecycleStateDegraded ResourceLifecycleState = "DEGRADED"
+	// Failed state (validation or apply)
+	ResourceLifecycleStateError ResourceLifecycleState = "ERROR"
+	// Marked for removal
+	ResourceLifecycleStateDeprecated ResourceLifecycleState = "DEPRECATED"
+	// Final state, no longer active
+	ResourceLifecycleStateArchived ResourceLifecycleState = "ARCHIVED"
+)
+
+var AllResourceLifecycleState = []ResourceLifecycleState{
+	ResourceLifecycleStateDraft,
+	ResourceLifecycleStateValidating,
+	ResourceLifecycleStateValid,
+	ResourceLifecycleStateApplying,
+	ResourceLifecycleStateActive,
+	ResourceLifecycleStateDegraded,
+	ResourceLifecycleStateError,
+	ResourceLifecycleStateDeprecated,
+	ResourceLifecycleStateArchived,
+}
+
+func (e ResourceLifecycleState) IsValid() bool {
+	switch e {
+	case ResourceLifecycleStateDraft, ResourceLifecycleStateValidating, ResourceLifecycleStateValid, ResourceLifecycleStateApplying, ResourceLifecycleStateActive, ResourceLifecycleStateDegraded, ResourceLifecycleStateError, ResourceLifecycleStateDeprecated, ResourceLifecycleStateArchived:
+		return true
+	}
+	return false
+}
+
+func (e ResourceLifecycleState) String() string {
+	return string(e)
+}
+
+func (e *ResourceLifecycleState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceLifecycleState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceLifecycleState", str)
+	}
+	return nil
+}
+
+func (e ResourceLifecycleState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Types of relationships between resources
+type ResourceRelationshipType string
+
+const (
+	// Child depends on parent
+	ResourceRelationshipTypeDependsOn ResourceRelationshipType = "DEPENDS_ON"
+	// Traffic routes via this resource
+	ResourceRelationshipTypeRoutesVia ResourceRelationshipType = "ROUTES_VIA"
+	// Parent-child hierarchy
+	ResourceRelationshipTypeParentChild ResourceRelationshipType = "PARENT_CHILD"
+	// Resources are in the same group
+	ResourceRelationshipTypeGroup ResourceRelationshipType = "GROUP"
+	// Custom relationship
+	ResourceRelationshipTypeCustom ResourceRelationshipType = "CUSTOM"
+)
+
+var AllResourceRelationshipType = []ResourceRelationshipType{
+	ResourceRelationshipTypeDependsOn,
+	ResourceRelationshipTypeRoutesVia,
+	ResourceRelationshipTypeParentChild,
+	ResourceRelationshipTypeGroup,
+	ResourceRelationshipTypeCustom,
+}
+
+func (e ResourceRelationshipType) IsValid() bool {
+	switch e {
+	case ResourceRelationshipTypeDependsOn, ResourceRelationshipTypeRoutesVia, ResourceRelationshipTypeParentChild, ResourceRelationshipTypeGroup, ResourceRelationshipTypeCustom:
+		return true
+	}
+	return false
+}
+
+func (e ResourceRelationshipType) String() string {
+	return string(e)
+}
+
+func (e *ResourceRelationshipType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceRelationshipType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceRelationshipType", str)
+	}
+	return nil
+}
+
+func (e ResourceRelationshipType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Rollback operation type
+type RollbackOperation string
+
+const (
+	// Delete a created resource
+	RollbackOperationDelete RollbackOperation = "DELETE"
+	// Restore a deleted resource
+	RollbackOperationRestore RollbackOperation = "RESTORE"
+	// Revert an updated resource
+	RollbackOperationRevert RollbackOperation = "REVERT"
+)
+
+var AllRollbackOperation = []RollbackOperation{
+	RollbackOperationDelete,
+	RollbackOperationRestore,
+	RollbackOperationRevert,
+}
+
+func (e RollbackOperation) IsValid() bool {
+	switch e {
+	case RollbackOperationDelete, RollbackOperationRestore, RollbackOperationRevert:
+		return true
+	}
+	return false
+}
+
+func (e RollbackOperation) String() string {
+	return string(e)
+}
+
+func (e *RollbackOperation) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RollbackOperation(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RollbackOperation", str)
+	}
+	return nil
+}
+
+func (e RollbackOperation) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Route scope
+type RouteScope string
+
+const (
+	// Global route (forwarded between interfaces)
+	RouteScopeGlobal RouteScope = "GLOBAL"
+	// Link-local route (not forwarded)
+	RouteScopeLink RouteScope = "LINK"
+	// Host-local route
+	RouteScopeHost RouteScope = "HOST"
+)
+
+var AllRouteScope = []RouteScope{
+	RouteScopeGlobal,
+	RouteScopeLink,
+	RouteScopeHost,
+}
+
+func (e RouteScope) IsValid() bool {
+	switch e {
+	case RouteScopeGlobal, RouteScopeLink, RouteScopeHost:
+		return true
+	}
+	return false
+}
+
+func (e RouteScope) String() string {
+	return string(e)
+}
+
+func (e *RouteScope) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RouteScope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RouteScope", str)
+	}
+	return nil
+}
+
+func (e RouteScope) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Route type classification
+type RouteType string
+
+const (
+	// Static route (manually configured)
+	RouteTypeStatic RouteType = "STATIC"
+	// Connected route (directly connected network)
+	RouteTypeConnected RouteType = "CONNECTED"
+	// Dynamic route (learned via routing protocol)
+	RouteTypeDynamic RouteType = "DYNAMIC"
+	// BGP route
+	RouteTypeBgp RouteType = "BGP"
+	// OSPF route
+	RouteTypeOspf RouteType = "OSPF"
+)
+
+var AllRouteType = []RouteType{
+	RouteTypeStatic,
+	RouteTypeConnected,
+	RouteTypeDynamic,
+	RouteTypeBgp,
+	RouteTypeOspf,
+}
+
+func (e RouteType) IsValid() bool {
+	switch e {
+	case RouteTypeStatic, RouteTypeConnected, RouteTypeDynamic, RouteTypeBgp, RouteTypeOspf:
+		return true
+	}
+	return false
+}
+
+func (e RouteType) String() string {
+	return string(e)
+}
+
+func (e *RouteType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RouteType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RouteType", str)
+	}
+	return nil
+}
+
+func (e RouteType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Supported router platforms
 type RouterPlatform string
 
@@ -1984,6 +6463,59 @@ func (e *RouterPlatform) UnmarshalGQL(v interface{}) error {
 }
 
 func (e RouterPlatform) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Runtime health status
+type RuntimeHealth string
+
+const (
+	// Resource is healthy and operating normally
+	RuntimeHealthHealthy RuntimeHealth = "HEALTHY"
+	// Resource is running but with warnings
+	RuntimeHealthWarning RuntimeHealth = "WARNING"
+	// Resource is running but degraded
+	RuntimeHealthDegraded RuntimeHealth = "DEGRADED"
+	// Resource has failed
+	RuntimeHealthFailed RuntimeHealth = "FAILED"
+	// Health status unknown
+	RuntimeHealthUnknown RuntimeHealth = "UNKNOWN"
+)
+
+var AllRuntimeHealth = []RuntimeHealth{
+	RuntimeHealthHealthy,
+	RuntimeHealthWarning,
+	RuntimeHealthDegraded,
+	RuntimeHealthFailed,
+	RuntimeHealthUnknown,
+}
+
+func (e RuntimeHealth) IsValid() bool {
+	switch e {
+	case RuntimeHealthHealthy, RuntimeHealthWarning, RuntimeHealthDegraded, RuntimeHealthFailed, RuntimeHealthUnknown:
+		return true
+	}
+	return false
+}
+
+func (e RuntimeHealth) String() string {
+	return string(e)
+}
+
+func (e *RuntimeHealth) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RuntimeHealth(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RuntimeHealth", str)
+	}
+	return nil
+}
+
+func (e RuntimeHealth) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2087,6 +6619,145 @@ func (e ServiceStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type StpPortRole string
+
+const (
+	StpPortRoleRoot       StpPortRole = "ROOT"
+	StpPortRoleDesignated StpPortRole = "DESIGNATED"
+	StpPortRoleAlternate  StpPortRole = "ALTERNATE"
+	StpPortRoleBackup     StpPortRole = "BACKUP"
+	StpPortRoleDisabled   StpPortRole = "DISABLED"
+)
+
+var AllStpPortRole = []StpPortRole{
+	StpPortRoleRoot,
+	StpPortRoleDesignated,
+	StpPortRoleAlternate,
+	StpPortRoleBackup,
+	StpPortRoleDisabled,
+}
+
+func (e StpPortRole) IsValid() bool {
+	switch e {
+	case StpPortRoleRoot, StpPortRoleDesignated, StpPortRoleAlternate, StpPortRoleBackup, StpPortRoleDisabled:
+		return true
+	}
+	return false
+}
+
+func (e StpPortRole) String() string {
+	return string(e)
+}
+
+func (e *StpPortRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StpPortRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StpPortRole", str)
+	}
+	return nil
+}
+
+func (e StpPortRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StpPortState string
+
+const (
+	StpPortStateDisabled   StpPortState = "DISABLED"
+	StpPortStateBlocking   StpPortState = "BLOCKING"
+	StpPortStateListening  StpPortState = "LISTENING"
+	StpPortStateLearning   StpPortState = "LEARNING"
+	StpPortStateForwarding StpPortState = "FORWARDING"
+)
+
+var AllStpPortState = []StpPortState{
+	StpPortStateDisabled,
+	StpPortStateBlocking,
+	StpPortStateListening,
+	StpPortStateLearning,
+	StpPortStateForwarding,
+}
+
+func (e StpPortState) IsValid() bool {
+	switch e {
+	case StpPortStateDisabled, StpPortStateBlocking, StpPortStateListening, StpPortStateLearning, StpPortStateForwarding:
+		return true
+	}
+	return false
+}
+
+func (e StpPortState) String() string {
+	return string(e)
+}
+
+func (e *StpPortState) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StpPortState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StpPortState", str)
+	}
+	return nil
+}
+
+func (e StpPortState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type StpProtocol string
+
+const (
+	StpProtocolNone StpProtocol = "NONE"
+	StpProtocolStp  StpProtocol = "STP"
+	StpProtocolRstp StpProtocol = "RSTP"
+	StpProtocolMstp StpProtocol = "MSTP"
+)
+
+var AllStpProtocol = []StpProtocol{
+	StpProtocolNone,
+	StpProtocolStp,
+	StpProtocolRstp,
+	StpProtocolMstp,
+}
+
+func (e StpProtocol) IsValid() bool {
+	switch e {
+	case StpProtocolNone, StpProtocolStp, StpProtocolRstp, StpProtocolMstp:
+		return true
+	}
+	return false
+}
+
+func (e StpProtocol) String() string {
+	return string(e)
+}
+
+func (e *StpProtocol) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StpProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StpProtocol", str)
+	}
+	return nil
+}
+
+func (e StpProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Severity level for diagnostic suggestions
 type SuggestionSeverity string
 
@@ -2134,6 +6805,318 @@ func (e *SuggestionSeverity) UnmarshalGQL(v interface{}) error {
 }
 
 func (e SuggestionSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Type of topology node
+type TopologyNodeType string
+
+const (
+	// Bridge interface
+	TopologyNodeTypeBridge TopologyNodeType = "BRIDGE"
+	// VLAN interface
+	TopologyNodeTypeVlan TopologyNodeType = "VLAN"
+	// Physical port
+	TopologyNodeTypePort TopologyNodeType = "PORT"
+)
+
+var AllTopologyNodeType = []TopologyNodeType{
+	TopologyNodeTypeBridge,
+	TopologyNodeTypeVlan,
+	TopologyNodeTypePort,
+}
+
+func (e TopologyNodeType) IsValid() bool {
+	switch e {
+	case TopologyNodeTypeBridge, TopologyNodeTypeVlan, TopologyNodeTypePort:
+		return true
+	}
+	return false
+}
+
+func (e TopologyNodeType) String() string {
+	return string(e)
+}
+
+func (e *TopologyNodeType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TopologyNodeType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TopologyNodeType", str)
+	}
+	return nil
+}
+
+func (e TopologyNodeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Event type for traceroute progress updates
+type TracerouteEventType string
+
+const (
+	// A new hop was discovered
+	TracerouteEventTypeHopDiscovered TracerouteEventType = "HOP_DISCOVERED"
+	// Traceroute completed
+	TracerouteEventTypeComplete TracerouteEventType = "COMPLETE"
+	// Traceroute encountered an error
+	TracerouteEventTypeError TracerouteEventType = "ERROR"
+	// Traceroute was cancelled
+	TracerouteEventTypeCancelled TracerouteEventType = "CANCELLED"
+)
+
+var AllTracerouteEventType = []TracerouteEventType{
+	TracerouteEventTypeHopDiscovered,
+	TracerouteEventTypeComplete,
+	TracerouteEventTypeError,
+	TracerouteEventTypeCancelled,
+}
+
+func (e TracerouteEventType) IsValid() bool {
+	switch e {
+	case TracerouteEventTypeHopDiscovered, TracerouteEventTypeComplete, TracerouteEventTypeError, TracerouteEventTypeCancelled:
+		return true
+	}
+	return false
+}
+
+func (e TracerouteEventType) String() string {
+	return string(e)
+}
+
+func (e *TracerouteEventType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TracerouteEventType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TracerouteEventType", str)
+	}
+	return nil
+}
+
+func (e TracerouteEventType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Protocol to use for traceroute probes
+type TracerouteProtocol string
+
+const (
+	// ICMP echo request (default)
+	TracerouteProtocolICMP TracerouteProtocol = "ICMP"
+	// UDP probes
+	TracerouteProtocolUDP TracerouteProtocol = "UDP"
+	// TCP SYN probes
+	TracerouteProtocolTCP TracerouteProtocol = "TCP"
+)
+
+var AllTracerouteProtocol = []TracerouteProtocol{
+	TracerouteProtocolICMP,
+	TracerouteProtocolUDP,
+	TracerouteProtocolTCP,
+}
+
+func (e TracerouteProtocol) IsValid() bool {
+	switch e {
+	case TracerouteProtocolICMP, TracerouteProtocolUDP, TracerouteProtocolTCP:
+		return true
+	}
+	return false
+}
+
+func (e TracerouteProtocol) String() string {
+	return string(e)
+}
+
+func (e *TracerouteProtocol) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TracerouteProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TracerouteProtocol", str)
+	}
+	return nil
+}
+
+func (e TracerouteProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Overall status of a troubleshooting session
+type TroubleshootSessionStatus string
+
+const (
+	// Session created but not started
+	TroubleshootSessionStatusIdle TroubleshootSessionStatus = "IDLE"
+	// Detecting network configuration
+	TroubleshootSessionStatusInitializing TroubleshootSessionStatus = "INITIALIZING"
+	// Running diagnostic steps
+	TroubleshootSessionStatusRunning TroubleshootSessionStatus = "RUNNING"
+	// Waiting for user decision on fix
+	TroubleshootSessionStatusAwaitingFixDecision TroubleshootSessionStatus = "AWAITING_FIX_DECISION"
+	// Applying a fix
+	TroubleshootSessionStatusApplyingFix TroubleshootSessionStatus = "APPLYING_FIX"
+	// Verifying fix worked
+	TroubleshootSessionStatusVerifyingFix TroubleshootSessionStatus = "VERIFYING_FIX"
+	// Session completed
+	TroubleshootSessionStatusCompleted TroubleshootSessionStatus = "COMPLETED"
+	// Session was cancelled
+	TroubleshootSessionStatusCancelled TroubleshootSessionStatus = "CANCELLED"
+)
+
+var AllTroubleshootSessionStatus = []TroubleshootSessionStatus{
+	TroubleshootSessionStatusIdle,
+	TroubleshootSessionStatusInitializing,
+	TroubleshootSessionStatusRunning,
+	TroubleshootSessionStatusAwaitingFixDecision,
+	TroubleshootSessionStatusApplyingFix,
+	TroubleshootSessionStatusVerifyingFix,
+	TroubleshootSessionStatusCompleted,
+	TroubleshootSessionStatusCancelled,
+}
+
+func (e TroubleshootSessionStatus) IsValid() bool {
+	switch e {
+	case TroubleshootSessionStatusIdle, TroubleshootSessionStatusInitializing, TroubleshootSessionStatusRunning, TroubleshootSessionStatusAwaitingFixDecision, TroubleshootSessionStatusApplyingFix, TroubleshootSessionStatusVerifyingFix, TroubleshootSessionStatusCompleted, TroubleshootSessionStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e TroubleshootSessionStatus) String() string {
+	return string(e)
+}
+
+func (e *TroubleshootSessionStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TroubleshootSessionStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TroubleshootSessionStatus", str)
+	}
+	return nil
+}
+
+func (e TroubleshootSessionStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of a diagnostic step
+type TroubleshootStepStatus string
+
+const (
+	// Step not yet started
+	TroubleshootStepStatusPending TroubleshootStepStatus = "PENDING"
+	// Step currently executing
+	TroubleshootStepStatusRunning TroubleshootStepStatus = "RUNNING"
+	// Step completed successfully
+	TroubleshootStepStatusPassed TroubleshootStepStatus = "PASSED"
+	// Step failed
+	TroubleshootStepStatusFailed TroubleshootStepStatus = "FAILED"
+	// Step skipped
+	TroubleshootStepStatusSkipped TroubleshootStepStatus = "SKIPPED"
+)
+
+var AllTroubleshootStepStatus = []TroubleshootStepStatus{
+	TroubleshootStepStatusPending,
+	TroubleshootStepStatusRunning,
+	TroubleshootStepStatusPassed,
+	TroubleshootStepStatusFailed,
+	TroubleshootStepStatusSkipped,
+}
+
+func (e TroubleshootStepStatus) IsValid() bool {
+	switch e {
+	case TroubleshootStepStatusPending, TroubleshootStepStatusRunning, TroubleshootStepStatusPassed, TroubleshootStepStatusFailed, TroubleshootStepStatusSkipped:
+		return true
+	}
+	return false
+}
+
+func (e TroubleshootStepStatus) String() string {
+	return string(e)
+}
+
+func (e *TroubleshootStepStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TroubleshootStepStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TroubleshootStepStatus", str)
+	}
+	return nil
+}
+
+func (e TroubleshootStepStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Diagnostic step identifier for internet troubleshooting
+type TroubleshootStepType string
+
+const (
+	// Check WAN interface status
+	TroubleshootStepTypeWan TroubleshootStepType = "WAN"
+	// Ping default gateway
+	TroubleshootStepTypeGateway TroubleshootStepType = "GATEWAY"
+	// Ping external internet server
+	TroubleshootStepTypeInternet TroubleshootStepType = "INTERNET"
+	// Test DNS resolution
+	TroubleshootStepTypeDNS TroubleshootStepType = "DNS"
+	// Verify NAT/masquerade rules
+	TroubleshootStepTypeNat TroubleshootStepType = "NAT"
+)
+
+var AllTroubleshootStepType = []TroubleshootStepType{
+	TroubleshootStepTypeWan,
+	TroubleshootStepTypeGateway,
+	TroubleshootStepTypeInternet,
+	TroubleshootStepTypeDNS,
+	TroubleshootStepTypeNat,
+}
+
+func (e TroubleshootStepType) IsValid() bool {
+	switch e {
+	case TroubleshootStepTypeWan, TroubleshootStepTypeGateway, TroubleshootStepTypeInternet, TroubleshootStepTypeDNS, TroubleshootStepTypeNat:
+		return true
+	}
+	return false
+}
+
+func (e TroubleshootStepType) String() string {
+	return string(e)
+}
+
+func (e *TroubleshootStepType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TroubleshootStepType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TroubleshootStepType", str)
+	}
+	return nil
+}
+
+func (e TroubleshootStepType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -2240,5 +7223,279 @@ func (e *ValidateFormat) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ValidateFormat) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Validation issue severity
+type ValidationSeverity string
+
+const (
+	// Blocks apply, must be fixed
+	ValidationSeverityError ValidationSeverity = "ERROR"
+	// Does not block, but recommended to address
+	ValidationSeverityWarning ValidationSeverity = "WARNING"
+	// Informational notice
+	ValidationSeverityInfo ValidationSeverity = "INFO"
+)
+
+var AllValidationSeverity = []ValidationSeverity{
+	ValidationSeverityError,
+	ValidationSeverityWarning,
+	ValidationSeverityInfo,
+}
+
+func (e ValidationSeverity) IsValid() bool {
+	switch e {
+	case ValidationSeverityError, ValidationSeverityWarning, ValidationSeverityInfo:
+		return true
+	}
+	return false
+}
+
+func (e ValidationSeverity) String() string {
+	return string(e)
+}
+
+func (e *ValidationSeverity) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValidationSeverity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValidationSeverity", str)
+	}
+	return nil
+}
+
+func (e ValidationSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Validation pipeline stages
+type ValidationStage string
+
+const (
+	// Schema validation (Zod/GraphQL)
+	ValidationStageSchema ValidationStage = "SCHEMA"
+	// Semantic validation (business rules)
+	ValidationStageSemantic ValidationStage = "SEMANTIC"
+	// Dependency validation (required resources exist)
+	ValidationStageDependency ValidationStage = "DEPENDENCY"
+	// Conflict detection (port/IP/route conflicts)
+	ValidationStageConflict ValidationStage = "CONFLICT"
+	// Platform validation (capability checks)
+	ValidationStagePlatform ValidationStage = "PLATFORM"
+	// Quota validation (resource limits)
+	ValidationStageQuota ValidationStage = "QUOTA"
+	// Pre-flight simulation
+	ValidationStageSimulation ValidationStage = "SIMULATION"
+	// All stages complete
+	ValidationStageComplete ValidationStage = "COMPLETE"
+)
+
+var AllValidationStage = []ValidationStage{
+	ValidationStageSchema,
+	ValidationStageSemantic,
+	ValidationStageDependency,
+	ValidationStageConflict,
+	ValidationStagePlatform,
+	ValidationStageQuota,
+	ValidationStageSimulation,
+	ValidationStageComplete,
+}
+
+func (e ValidationStage) IsValid() bool {
+	switch e {
+	case ValidationStageSchema, ValidationStageSemantic, ValidationStageDependency, ValidationStageConflict, ValidationStagePlatform, ValidationStageQuota, ValidationStageSimulation, ValidationStageComplete:
+		return true
+	}
+	return false
+}
+
+func (e ValidationStage) String() string {
+	return string(e)
+}
+
+func (e *ValidationStage) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ValidationStage(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ValidationStage", str)
+	}
+	return nil
+}
+
+func (e ValidationStage) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// WAN connection type classification
+type WANConnectionType string
+
+const (
+	// DHCP client (dynamic IP)
+	WANConnectionTypeDhcp WANConnectionType = "DHCP"
+	// PPPoE dial-up connection
+	WANConnectionTypePppoe WANConnectionType = "PPPOE"
+	// Static IP configuration
+	WANConnectionTypeStatic WANConnectionType = "STATIC"
+	// LTE/cellular connection
+	WANConnectionTypeLte WANConnectionType = "LTE"
+	// Not configured
+	WANConnectionTypeNone WANConnectionType = "NONE"
+)
+
+var AllWANConnectionType = []WANConnectionType{
+	WANConnectionTypeDhcp,
+	WANConnectionTypePppoe,
+	WANConnectionTypeStatic,
+	WANConnectionTypeLte,
+	WANConnectionTypeNone,
+}
+
+func (e WANConnectionType) IsValid() bool {
+	switch e {
+	case WANConnectionTypeDhcp, WANConnectionTypePppoe, WANConnectionTypeStatic, WANConnectionTypeLte, WANConnectionTypeNone:
+		return true
+	}
+	return false
+}
+
+func (e WANConnectionType) String() string {
+	return string(e)
+}
+
+func (e *WANConnectionType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WANConnectionType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WANConnectionType", str)
+	}
+	return nil
+}
+
+func (e WANConnectionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// WAN event types for history tracking
+type WANEventType string
+
+const (
+	// Connection established
+	WANEventTypeConnected WANEventType = "CONNECTED"
+	// Connection lost
+	WANEventTypeDisconnected WANEventType = "DISCONNECTED"
+	// Authentication failed
+	WANEventTypeAuthFailed WANEventType = "AUTH_FAILED"
+	// IP address changed
+	WANEventTypeIPChanged WANEventType = "IP_CHANGED"
+	// Gateway changed
+	WANEventTypeGatewayChanged WANEventType = "GATEWAY_CHANGED"
+	// Health check failed
+	WANEventTypeHealthFailed WANEventType = "HEALTH_FAILED"
+	// Health check recovered
+	WANEventTypeHealthRecovered WANEventType = "HEALTH_RECOVERED"
+)
+
+var AllWANEventType = []WANEventType{
+	WANEventTypeConnected,
+	WANEventTypeDisconnected,
+	WANEventTypeAuthFailed,
+	WANEventTypeIPChanged,
+	WANEventTypeGatewayChanged,
+	WANEventTypeHealthFailed,
+	WANEventTypeHealthRecovered,
+}
+
+func (e WANEventType) IsValid() bool {
+	switch e {
+	case WANEventTypeConnected, WANEventTypeDisconnected, WANEventTypeAuthFailed, WANEventTypeIPChanged, WANEventTypeGatewayChanged, WANEventTypeHealthFailed, WANEventTypeHealthRecovered:
+		return true
+	}
+	return false
+}
+
+func (e WANEventType) String() string {
+	return string(e)
+}
+
+func (e *WANEventType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WANEventType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WANEventType", str)
+	}
+	return nil
+}
+
+func (e WANEventType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// WAN connection status
+type WANStatus string
+
+const (
+	// Connected and online
+	WANStatusConnected WANStatus = "CONNECTED"
+	// Connecting/authenticating
+	WANStatusConnecting WANStatus = "CONNECTING"
+	// Disconnected
+	WANStatusDisconnected WANStatus = "DISCONNECTED"
+	// Connection failed
+	WANStatusError WANStatus = "ERROR"
+	// Disabled
+	WANStatusDisabled WANStatus = "DISABLED"
+)
+
+var AllWANStatus = []WANStatus{
+	WANStatusConnected,
+	WANStatusConnecting,
+	WANStatusDisconnected,
+	WANStatusError,
+	WANStatusDisabled,
+}
+
+func (e WANStatus) IsValid() bool {
+	switch e {
+	case WANStatusConnected, WANStatusConnecting, WANStatusDisconnected, WANStatusError, WANStatusDisabled:
+		return true
+	}
+	return false
+}
+
+func (e WANStatus) String() string {
+	return string(e)
+}
+
+func (e *WANStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WANStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WANStatus", str)
+	}
+	return nil
+}
+
+func (e WANStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

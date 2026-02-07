@@ -1,0 +1,35 @@
+# Router Health Summary Fragments
+# Epic 5 - Story 5.1: Dashboard Layout with Router Health Summary
+#
+# Fragment definitions for router health data.
+# These fragments ensure consistent field selection across queries and subscriptions.
+
+# Core router identification fields
+fragment RouterIdentity on Router {
+  id
+  name
+  host
+  createdAt
+  updatedAt
+}
+
+# Platform information (model, version, uptime)
+fragment RouterPlatform on Router {
+  platform
+  model
+  version
+  uptime
+}
+
+# Runtime status and resource metrics
+fragment RouterRuntime on Router {
+  status
+  lastConnected
+}
+
+# Complete health summary - combines all fragments
+fragment RouterHealthSummary on Router {
+  ...RouterIdentity
+  ...RouterPlatform
+  ...RouterRuntime
+}

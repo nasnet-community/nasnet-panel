@@ -34,6 +34,10 @@ export * from './ui/notification.store';
 // @see NAS-4A.12: Build Help System Components
 export * from './ui/help-mode.store';
 
+// DHCP UI state (filters, search, selection, wizard draft)
+// @see NAS-6.3: Implement DHCP Server Management
+export * from './dhcp-ui.store';
+
 // Consolidated selectors for optimized re-renders
 export * from './ui/selectors';
 
@@ -99,3 +103,9 @@ export * from './a11y';
 // Undo/redo history management with command pattern
 // @see NAS-4.24: Implement Undo/Redo History
 export * from './history';
+
+// ===== Interface Statistics =====
+
+// Interface statistics monitoring preferences
+// @see NAS-6.9: Implement Interface Traffic Statistics
+export * from './interface-stats-store';

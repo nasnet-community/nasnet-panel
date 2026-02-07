@@ -1,0 +1,1044 @@
+# =============================================================================
+# Network Management GraphQL Schema
+# =============================================================================
+# This schema defines types for advanced network management including:
+# - VLAN interfaces (802.1Q)
+# - Bridge port VLAN configuration
+# - Network topology
+#
+# These types extend the base Interface type defined in schema.graphql
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# VLAN Types
+# -----------------------------------------------------------------------------
+
+"""
+A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
+"""
+type Vlan implements Node {
+  "Unique VLAN identifier"
+  id: ID!
+  "VLAN interface name (e.g., vlan10, vlan-guest)"
+  name: String! @validate(minLength: 1, maxLength: 100) @mikrotik(path: "/interface/vlan", field: "name")
+  "802.1Q VLAN ID (1-4094)"
+  vlanId: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/vlan", field: "vlan-id")
+  "Parent interface (bridge or physical interface)"
+  interface: Interface! @mikrotik(path: "/interface/vlan", field: "interface")
+  "MTU setting (optional, inherits from parent if not set)"
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/vlan", field: "mtu")
+  "MAC address of the VLAN interface"
+  macAddress: MAC @mikrotik(path: "/interface/vlan", field: "mac-address")
+  "Whether the VLAN interface is disabled"
+  disabled: Boolean! @mikrotik(path: "/interface/vlan", field: "disabled")
+  "Whether the VLAN interface is running (link up)"
+  running: Boolean! @mikrotik(path: "/interface/vlan", field: "running")
+  "User comment"
+  comment: String @mikrotik(path: "/interface/vlan", field: "comment")
+  "IP addresses assigned to this VLAN"
+  ipAddresses: [IpAddress!]!
+  "Traffic statistics for this VLAN"
+  statistics: InterfaceStats
+}
+
+"""
+Input for creating a new VLAN interface
+"""
+input VlanInput {
+  "VLAN interface name (alphanumeric, hyphens, underscores)"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "802.1Q VLAN ID (1-4094)"
+  vlanId: Int! @validate(min: 1, max: 4094)
+  "Parent interface ID (bridge or physical interface)"
+  interface: ID!
+  "MTU setting (optional, inherits from parent if not set)"
+  mtu: Int @validate(min: 68, max: 65535)
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Filter options for querying VLANs
+"""
+input VlanFilter {
+  "Filter by parent interface ID"
+  parentInterface: ID
+  "Filter by VLAN ID range"
+  vlanIdRange: IntRange
+  "Filter by name containing this string"
+  nameContains: String
+}
+
+"""
+Integer range for filtering
+"""
+input IntRange {
+  "Minimum value (inclusive)"
+  min: Int
+  "Maximum value (inclusive)"
+  max: Int
+}
+
+"""
+Result of a VLAN mutation (create, update)
+"""
+type VlanMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated VLAN (if successful)"
+  vlan: Vlan
+  "Configuration preview (RouterOS commands that will be executed)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Result of a delete operation
+"""
+type DeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+"""
+Preview of RouterOS configuration commands
+"""
+type ConfigPreview {
+  "RouterOS commands to be executed"
+  commands: [String!]!
+  "Warnings about the configuration changes"
+  warnings: [String!]
+  "Resources that will be affected"
+  affectedResources: [AffectedResource!]
+}
+
+"""
+Resource affected by a configuration change
+"""
+type AffectedResource {
+  "Resource type (ip-address, dhcp-server, firewall-rule, etc.)"
+  type: String!
+  "Resource ID"
+  id: ID!
+  "Resource name or description"
+  name: String!
+  "How the resource will be affected (modified, disabled, removed)"
+  impact: ResourceImpact!
+}
+
+"""
+Impact level for affected resources
+"""
+enum ResourceImpact {
+  "Resource will be modified"
+  MODIFIED
+  "Resource will be disabled"
+  DISABLED
+  "Resource will be removed"
+  REMOVED
+  "Connections will be dropped"
+  CONNECTION_DROP
+}
+
+# -----------------------------------------------------------------------------
+# IP Address Types
+# -----------------------------------------------------------------------------
+
+"""
+An IP address assigned to an interface
+"""
+type IpAddress implements Node {
+  "Unique IP address identifier"
+  id: ID!
+  "IP address with CIDR notation (e.g., 192.168.10.1/24)"
+  address: String! @validate(format: CIDR) @mikrotik(path: "/ip/address", field: "address")
+  "Network address (calculated from address and netmask)"
+  network: String
+  "Broadcast address (calculated from address and netmask)"
+  broadcast: String
+  "Interface this IP is assigned to"
+  interface: Interface! @mikrotik(path: "/ip/address", field: "interface")
+  "Whether this IP is disabled"
+  disabled: Boolean! @mikrotik(path: "/ip/address", field: "disabled")
+  "Whether this IP was dynamically assigned (via DHCP client)"
+  dynamic: Boolean! @mikrotik(path: "/ip/address", field: "dynamic")
+  "Whether this IP is invalid (conflicting or error state)"
+  invalid: Boolean! @mikrotik(path: "/ip/address", field: "invalid")
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/address", field: "comment")
+}
+
+"""
+Input for creating or updating an IP address
+"""
+input IpAddressInput {
+  "IP address with CIDR notation (e.g., 192.168.10.1/24)"
+  address: String! @validate(format: CIDR)
+  "Interface ID to assign this IP to"
+  interfaceId: ID!
+  "User comment"
+  comment: String @validate(maxLength: 255)
+  "Whether this IP is disabled"
+  disabled: Boolean
+}
+
+"""
+Result of an IP address mutation (create, update)
+"""
+type IpAddressMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated IP address (if successful)"
+  ipAddress: IpAddress
+  "Configuration preview (RouterOS commands)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Result of an IP address deletion with dependency checking
+"""
+type IpAddressDeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Impact analysis for this IP address deletion"
+  impactAnalysis: IpAddressImpactAnalysis
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+"""
+Analysis of the impact of deleting an IP address
+"""
+type IpAddressImpactAnalysis {
+  "Whether this IP is used as a gateway by DHCP servers"
+  usedByDhcpServers: [DhcpServer!]!
+  "Whether this IP is referenced in firewall rules"
+  usedInFirewallRules: [FirewallRule!]!
+  "Whether this IP is used in NAT rules"
+  usedInNatRules: [NatRule!]!
+  "Number of active connections using this IP"
+  activeConnections: Int!
+  "Severity of the deletion"
+  severity: ConfirmationSeverity!
+  "Human-readable impact message"
+  message: String!
+  "List of consequences of deleting this IP"
+  consequences: [String!]!
+  "Whether the IP can be safely deleted"
+  canDelete: Boolean!
+}
+
+"""
+NAT rule reference type
+"""
+type NatRule {
+  "NAT rule ID"
+  id: ID!
+  "Rule chain (srcnat, dstnat)"
+  chain: String!
+  "Action (masquerade, dst-nat, src-nat)"
+  action: String!
+  "Source address"
+  srcAddress: String
+  "Destination address"
+  dstAddress: String
+  "To address (for dst-nat)"
+  toAddress: String
+  "Whether the rule is disabled"
+  disabled: Boolean!
+}
+
+"""
+Result of checking IP address conflicts
+"""
+type IpConflictResult {
+  "Whether the IP conflicts with existing assignments"
+  hasConflict: Boolean!
+  "List of conflicting IP addresses"
+  conflicts: [IpConflict!]!
+  "Human-readable message"
+  message: String!
+}
+
+"""
+Details about an IP address conflict
+"""
+type IpConflict {
+  "Conflicting IP address ID"
+  id: ID!
+  "Conflicting IP address"
+  address: String!
+  "Interface where conflict exists"
+  interface: Interface!
+  "Type of conflict"
+  conflictType: IpConflictType!
+  "Explanation of the conflict"
+  explanation: String!
+}
+
+"""
+Type of IP address conflict
+"""
+enum IpConflictType {
+  "Exact IP address match on different interface"
+  EXACT
+  "IP addresses are in overlapping subnets"
+  SUBNET_OVERLAP
+  "IP is the broadcast address of another subnet"
+  BROADCAST
+  "IP is the network address of another subnet"
+  NETWORK
+}
+
+"""
+Dependencies for an IP address
+"""
+type IpAddressDependencies {
+  "IP address ID"
+  ipAddressId: ID!
+  "DHCP servers using this IP as gateway"
+  dhcpServers: [DhcpServer!]!
+  "Static routes using this IP"
+  routes: [Route!]!
+  "NAT rules referencing this IP"
+  natRules: [NatRule!]!
+  "Firewall rules referencing this IP"
+  firewallRules: [FirewallRule!]!
+  "Whether the IP has any dependencies"
+  hasDependencies: Boolean!
+}
+
+"""
+Interface traffic statistics
+"""
+type InterfaceStats {
+  "Total bytes transmitted"
+  txBytes: Size!
+  "Total bytes received"
+  rxBytes: Size!
+  "Total packets transmitted"
+  txPackets: Size!
+  "Total packets received"
+  rxPackets: Size!
+  "Transmission errors"
+  txErrors: Int!
+  "Receive errors"
+  rxErrors: Int!
+  "Transmission drops"
+  txDrops: Int!
+  "Receive drops"
+  rxDrops: Int!
+}
+
+"""
+Historical interface statistics with time-series data
+"""
+type InterfaceStatsHistory {
+  "Interface ID"
+  interfaceId: ID!
+  "Time-series data points"
+  dataPoints: [StatsDataPoint!]!
+  "Aggregation interval (e.g., 5m, 1h)"
+  interval: Duration!
+  "Start of the time range"
+  startTime: DateTime!
+  "End of the time range"
+  endTime: DateTime!
+}
+
+"""
+A single data point in interface statistics history
+"""
+type StatsDataPoint {
+  "Timestamp of the data point"
+  timestamp: DateTime!
+  "Transmit rate in bytes per second"
+  txBytesPerSec: Float!
+  "Receive rate in bytes per second"
+  rxBytesPerSec: Float!
+  "Transmit rate in packets per second"
+  txPacketsPerSec: Float!
+  "Receive rate in packets per second"
+  rxPacketsPerSec: Float!
+  "Transmission errors in this interval"
+  txErrors: Int!
+  "Receive errors in this interval"
+  rxErrors: Int!
+}
+
+"""
+Input for specifying a time range
+"""
+input StatsTimeRangeInput {
+  "Start of the time range"
+  start: DateTime!
+  "End of the time range"
+  end: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Bridge Port VLAN Configuration
+# -----------------------------------------------------------------------------
+
+"""
+VLAN configuration for a bridge port (trunk/access port setup)
+"""
+type BridgePortVlanConfig {
+  "Bridge port ID"
+  portId: ID!
+  "Port VLAN ID (PVID) for untagged traffic"
+  pvid: Int! @validate(min: 1, max: 4094)
+  "Frame types allowed on this port"
+  frameTypes: BridgePortFrameTypes!
+  "Tagged VLANs allowed on this port (trunk mode)"
+  taggedVlans: [Int!]! @validate(min: 1, max: 4094)
+  "Untagged VLANs on this port (typically just PVID)"
+  untaggedVlans: [Int!]! @validate(min: 1, max: 4094)
+  "Port mode (trunk or access)"
+  mode: PortMode!
+}
+
+"""
+Frame types that can be admitted on a bridge port
+"""
+enum BridgePortFrameTypes {
+  "Accept all frames (tagged and untagged)"
+  ADMIT_ALL
+  "Accept only untagged and priority-tagged frames"
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY_TAGGED
+  "Accept only VLAN-tagged frames"
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+"""
+Port mode for VLAN configuration
+"""
+enum PortMode {
+  "Trunk port (carries multiple VLANs with tagging)"
+  TRUNK
+  "Access port (single VLAN, untagged)"
+  ACCESS
+}
+
+"""
+Input for configuring bridge port VLAN settings
+"""
+input BridgePortVlanInput {
+  "Port VLAN ID (PVID) for untagged traffic"
+  pvid: Int! @validate(min: 1, max: 4094)
+  "Frame types allowed on this port"
+  frameTypes: BridgePortFrameTypes!
+  "Tagged VLANs (for trunk ports)"
+  taggedVlans: [Int!] @validate(min: 1, max: 4094)
+  "Port mode (trunk or access)"
+  mode: PortMode!
+}
+
+# -----------------------------------------------------------------------------
+# VLAN Dependencies
+# -----------------------------------------------------------------------------
+
+"""
+Resources that depend on a VLAN interface
+"""
+type VlanDependencies {
+  "VLAN interface ID"
+  vlanId: ID!
+  "IP addresses assigned to this VLAN"
+  ipAddresses: [IpAddress!]!
+  "DHCP servers using this VLAN"
+  dhcpServers: [DhcpServer!]!
+  "Firewall rules referencing this VLAN"
+  firewallRules: [FirewallRule!]!
+  "Routes using this VLAN interface"
+  routes: [Route!]!
+  "Number of active connections on this VLAN"
+  activeConnections: Int!
+  "Whether the VLAN has any dependencies"
+  hasDependencies: Boolean!
+}
+
+"""
+DHCP server (minimal type for dependencies)
+"""
+type DhcpServer {
+  "DHCP server ID"
+  id: ID!
+  "DHCP server name"
+  name: String!
+  "Interface the DHCP server is bound to"
+  interface: Interface!
+  "Whether the DHCP server is disabled"
+  disabled: Boolean!
+}
+
+"""
+Firewall rule (minimal type for dependencies)
+"""
+type FirewallRule {
+  "Firewall rule ID"
+  id: ID!
+  "Rule chain"
+  chain: String!
+  "Rule action"
+  action: String!
+  "Input interface filter"
+  inInterface: String
+  "Output interface filter"
+  outInterface: String
+  "Whether the rule is disabled"
+  disabled: Boolean!
+}
+
+"""
+Route type for static and dynamic routing
+"""
+type Route implements Node {
+  "Route ID"
+  id: ID!
+  "Destination network in CIDR notation"
+  destination: CIDR! @mikrotik(path: "/ip/route", field: "dst-address")
+  "Gateway address"
+  gateway: IPv4 @mikrotik(path: "/ip/route", field: "gateway")
+  "Interface used for this route"
+  interface: String @mikrotik(path: "/ip/route", field: "interface")
+  "Route distance/metric (1-255)"
+  distance: Int! @validate(min: 1, max: 255) @mikrotik(path: "/ip/route", field: "distance")
+  "Routing mark for policy routing"
+  routingMark: String @mikrotik(path: "/ip/route", field: "routing-mark")
+  "Routing table name (main, vpn, etc.)"
+  routingTable: String @mikrotik(path: "/ip/route", field: "routing-table")
+  "Route type (static, connected, dynamic, BGP, OSPF)"
+  type: RouteType!
+  "Route scope"
+  scope: RouteScope!
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/route", field: "comment")
+  "Whether the route is active"
+  active: Boolean!
+  "Whether the route is disabled"
+  disabled: Boolean @mikrotik(path: "/ip/route", field: "disabled")
+}
+
+"""
+Route type classification
+"""
+enum RouteType {
+  "Static route (manually configured)"
+  STATIC
+  "Connected route (directly connected network)"
+  CONNECTED
+  "Dynamic route (learned via routing protocol)"
+  DYNAMIC
+  "BGP route"
+  BGP
+  "OSPF route"
+  OSPF
+}
+
+"""
+Route scope
+"""
+enum RouteScope {
+  "Global route (forwarded between interfaces)"
+  GLOBAL
+  "Link-local route (not forwarded)"
+  LINK
+  "Host-local route"
+  HOST
+}
+
+"""
+Input for creating or updating a route
+"""
+input RouteInput {
+  "Destination network in CIDR notation"
+  destination: CIDR!
+  "Gateway address (optional if interface is provided)"
+  gateway: IPv4
+  "Interface used for this route (optional if gateway is provided)"
+  interface: String
+  "Route distance/metric (1-255, default: 1)"
+  distance: Int @validate(min: 1, max: 255)
+  "Routing mark for policy routing"
+  routingMark: String
+  "Routing table name (default: main)"
+  routingTable: String
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Result of a route mutation (create, update)
+"""
+type RouteMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "The created or updated route (if successful)"
+  route: Route
+}
+
+"""
+Result of a route deletion with impact analysis
+"""
+type RouteDeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Impact analysis for this route deletion"
+  impactAnalysis: RouteImpactAnalysis!
+}
+
+"""
+Analysis of the impact of deleting a route
+"""
+type RouteImpactAnalysis {
+  "Whether this is the default route (0.0.0.0/0)"
+  isDefaultRoute: Boolean!
+  "Description of affected traffic"
+  affectedTraffic: String!
+  "Severity of the deletion (CRITICAL for default route, STANDARD for others)"
+  severity: ConfirmationSeverity!
+  "Human-readable message about the impact"
+  message: String!
+  "List of consequences of deleting this route"
+  consequences: [String!]!
+}
+
+"""
+Severity level for confirmation dialogs
+"""
+enum ConfirmationSeverity {
+  "Critical operation requiring explicit confirmation"
+  CRITICAL
+  "Standard operation with brief confirmation"
+  STANDARD
+}
+
+"""
+Result of checking gateway reachability
+"""
+type GatewayReachabilityResult {
+  "Whether the gateway is reachable"
+  reachable: Boolean!
+  "Ping latency in milliseconds (null if unreachable)"
+  latency: Int
+  "Interface through which gateway is reachable (null if unreachable)"
+  interface: String
+  "Human-readable message about reachability"
+  message: String!
+}
+
+# -----------------------------------------------------------------------------
+# VLAN Topology Types
+# -----------------------------------------------------------------------------
+
+"""
+Node in a VLAN network topology diagram
+"""
+type TopologyNode {
+  "Node ID"
+  id: ID!
+  "Node type (bridge, vlan, port)"
+  type: TopologyNodeType!
+  "Display label"
+  label: String!
+  "Sub-label (optional)"
+  sublabel: String
+  "Node position in the diagram"
+  position: TopologyPosition!
+  "Additional node data"
+  data: JSON
+  "Node styling"
+  style: TopologyNodeStyle
+}
+
+"""
+Type of topology node
+"""
+enum TopologyNodeType {
+  "Bridge interface"
+  BRIDGE
+  "VLAN interface"
+  VLAN
+  "Physical port"
+  PORT
+}
+
+"""
+Position of a node in the topology
+"""
+type TopologyPosition {
+  "X coordinate"
+  x: Float!
+  "Y coordinate"
+  y: Float!
+}
+
+"""
+Styling for topology nodes
+"""
+type TopologyNodeStyle {
+  "Fill color (CSS color)"
+  fill: String
+  "Stroke color (CSS color)"
+  stroke: String
+  "Stroke width in pixels"
+  strokeWidth: Float
+}
+
+"""
+Edge connecting nodes in a topology
+"""
+type TopologyEdge {
+  "Edge ID"
+  id: ID!
+  "Source node ID"
+  source: ID!
+  "Target node ID"
+  target: ID!
+  "Edge label (optional)"
+  label: String
+  "Additional edge data"
+  data: JSON
+  "Edge styling"
+  style: TopologyEdgeStyle
+}
+
+"""
+Styling for topology edges
+"""
+type TopologyEdgeStyle {
+  "Stroke color (CSS color)"
+  stroke: String
+  "Stroke width in pixels"
+  strokeWidth: Float
+  "Stroke dash array (for dashed lines)"
+  strokeDasharray: String
+}
+
+"""
+VLAN topology data (nodes and edges)
+"""
+type VlanTopology {
+  "Topology nodes (bridges, VLANs, ports)"
+  nodes: [TopologyNode!]!
+  "Topology edges (connections)"
+  edges: [TopologyEdge!]!
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all IP addresses on a router with optional filtering
+  """
+  ipAddresses(
+    "Router ID to query"
+    routerId: ID!
+    "Optional: filter by interface ID"
+    interfaceId: ID
+  ): [IpAddress!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific IP address by ID
+  """
+  ipAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address ID"
+    id: ID!
+  ): IpAddress @capability(requires: ["interface"])
+
+  """
+  Check if an IP address conflicts with existing assignments
+  """
+  checkIpConflict(
+    "Router ID"
+    routerId: ID!
+    "IP address to check (CIDR notation)"
+    address: String!
+    "Interface ID (optional, for scoped check)"
+    interfaceId: ID
+    "Exclude this IP ID from conflict check (for updates)"
+    excludeId: ID
+  ): IpConflictResult! @capability(requires: ["interface"])
+
+  """
+  Get dependencies for an IP address (DHCP servers, routes, etc.)
+  """
+  ipAddressDependencies(
+    "Router ID"
+    routerId: ID!
+    "IP address ID"
+    id: ID!
+  ): IpAddressDependencies! @capability(requires: ["interface"])
+
+  """
+  Get all VLANs on a router with optional filtering
+  """
+  vlans(
+    "Router ID to query"
+    routerId: ID!
+    "Optional filters"
+    filter: VlanFilter
+  ): [Vlan!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific VLAN by ID
+  """
+  vlan(
+    "VLAN ID"
+    id: ID!
+  ): Vlan @capability(requires: ["interface"])
+
+  """
+  Check if a VLAN ID is available on a parent interface
+  """
+  checkVlanIdAvailable(
+    "Router ID"
+    routerId: ID!
+    "Parent interface ID"
+    parentInterface: ID!
+    "VLAN ID to check"
+    vlanId: Int!
+  ): Boolean! @capability(requires: ["interface"])
+
+  """
+  Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.)
+  """
+  vlanDependencies(
+    "VLAN ID"
+    id: ID!
+  ): VlanDependencies @capability(requires: ["interface"])
+
+  """
+  Get VLAN topology for a bridge
+  """
+  vlanTopology(
+    "Router ID"
+    routerId: ID!
+    "Bridge ID"
+    bridgeId: ID!
+  ): VlanTopology @capability(requires: ["interface"])
+
+  """
+  Get all routes on a router with optional filtering
+  """
+  routes(
+    "Router ID to query"
+    routerId: ID!
+    "Filter by routing table name (main, vpn, etc.)"
+    table: String
+    "Filter by route type (STATIC, CONNECTED, DYNAMIC, etc.)"
+    type: RouteType
+  ): [Route!]! @capability(requires: ["routing"])
+
+  """
+  Get a specific route by ID
+  """
+  route(
+    "Router ID"
+    routerId: ID!
+    "Route ID"
+    id: ID!
+  ): Route @capability(requires: ["routing"])
+
+  """
+  Check if a gateway address is reachable from the router
+  """
+  checkGatewayReachability(
+    "Router ID"
+    routerId: ID!
+    "Gateway IP address to check"
+    gateway: IPv4!
+  ): GatewayReachabilityResult! @capability(requires: ["routing"])
+
+  """
+  Get historical interface statistics for bandwidth analysis
+  """
+  interfaceStatsHistory(
+    "Router ID"
+    routerId: ID!
+    "Interface ID"
+    interfaceId: ID!
+    "Time range for the query"
+    timeRange: StatsTimeRangeInput!
+    "Aggregation interval (default: 5m)"
+    interval: Duration = "5m"
+  ): InterfaceStatsHistory! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Assign a new IP address to an interface
+  """
+  createIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address input"
+    input: IpAddressInput!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing IP address
+  """
+  updateIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address ID"
+    id: ID!
+    "Updated IP address data"
+    input: IpAddressInput!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+
+  """
+  Remove an IP address from an interface
+  """
+  deleteIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address ID to delete"
+    id: ID!
+  ): IpAddressDeleteResult! @capability(requires: ["interface"])
+
+  """
+  Create a new VLAN interface
+  """
+  createVlan(
+    "Router ID"
+    routerId: ID!
+    "VLAN input data"
+    input: VlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing VLAN interface
+  """
+  updateVlan(
+    "VLAN ID"
+    id: ID!
+    "Updated VLAN data"
+    input: VlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete a VLAN interface
+  """
+  deleteVlan(
+    "VLAN ID to delete"
+    id: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+
+  """
+  Configure VLAN settings on a bridge port (trunk/access)
+  """
+  configureBridgePortVlan(
+    "Router ID"
+    routerId: ID!
+    "Bridge port ID"
+    portId: ID!
+    "VLAN configuration"
+    input: BridgePortVlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Create a new static route
+  """
+  createRoute(
+    "Router ID"
+    routerId: ID!
+    "Route input data"
+    input: RouteInput!
+  ): RouteMutationResult! @capability(requires: ["routing"])
+
+  """
+  Update an existing route
+  """
+  updateRoute(
+    "Router ID"
+    routerId: ID!
+    "Route ID"
+    id: ID!
+    "Updated route data"
+    input: RouteInput!
+  ): RouteMutationResult! @capability(requires: ["routing"])
+
+  """
+  Delete a route with impact analysis
+  """
+  deleteRoute(
+    "Router ID"
+    routerId: ID!
+    "Route ID to delete"
+    id: ID!
+  ): RouteDeleteResult! @capability(requires: ["routing"])
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to IP address changes (create, update, delete)
+  """
+  ipAddressChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): IpAddressChangeEvent! @capability(requires: ["interface"])
+
+  """
+  Subscribe to VLAN interface changes (create, update, delete)
+  """
+  vlanChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): Vlan! @capability(requires: ["interface"])
+
+  """
+  Subscribe to real-time interface statistics updates
+  """
+  interfaceStatsUpdated(
+    "Router ID to monitor"
+    routerId: ID!
+    "Interface ID to monitor"
+    interfaceId: ID!
+    "Polling interval (default: 5s, minimum: 1s)"
+    interval: Duration = "5s"
+  ): InterfaceStats! @capability(requires: ["interface"])
+}
+
+"""
+Event emitted when an IP address changes
+"""
+type IpAddressChangeEvent {
+  "Type of change (CREATED, UPDATED, DELETED)"
+  changeType: ChangeType!
+  "The IP address that changed"
+  ipAddress: IpAddress
+  "IP address ID (for deletions)"
+  ipAddressId: ID!
+  "Timestamp of the change"
+  timestamp: DateTime!
+}
+
+# Note: ChangeType enum is defined in schema.graphql
