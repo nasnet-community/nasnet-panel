@@ -72,6 +72,8 @@ var (
 		{Name: "device_id", Type: field.TypeString, Nullable: true, Size: 26},
 		{Name: "acknowledged_at", Type: field.TypeTime, Nullable: true},
 		{Name: "acknowledged_by", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "suppressed_count", Type: field.TypeInt, Default: 0},
+		{Name: "suppress_reason", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "delivery_status", Type: field.TypeJSON, Nullable: true},
 		{Name: "triggered_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -85,7 +87,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "alerts_alert_rules_alerts",
-				Columns:    []*schema.Column{AlertsColumns[12]},
+				Columns:    []*schema.Column{AlertsColumns[14]},
 				RefColumns: []*schema.Column{AlertRulesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -94,7 +96,7 @@ var (
 			{
 				Name:    "alert_rule_id",
 				Unique:  false,
-				Columns: []*schema.Column{AlertsColumns[12]},
+				Columns: []*schema.Column{AlertsColumns[14]},
 			},
 			{
 				Name:    "alert_severity",
@@ -119,12 +121,121 @@ var (
 			{
 				Name:    "alert_triggered_at",
 				Unique:  false,
-				Columns: []*schema.Column{AlertsColumns[10]},
+				Columns: []*schema.Column{AlertsColumns[12]},
 			},
 			{
 				Name:    "alert_event_type",
 				Unique:  false,
 				Columns: []*schema.Column{AlertsColumns[1]},
+			},
+			{
+				Name:    "alert_suppress_reason",
+				Unique:  false,
+				Columns: []*schema.Column{AlertsColumns[10]},
+			},
+		},
+	}
+	// AlertDigestEntriesColumns holds the columns for the "alert_digest_entries" table.
+	AlertDigestEntriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "alert_id", Type: field.TypeString, Nullable: true},
+		{Name: "rule_id", Type: field.TypeString},
+		{Name: "channel_id", Type: field.TypeString},
+		{Name: "channel_type", Type: field.TypeString},
+		{Name: "severity", Type: field.TypeEnum, Enums: []string{"critical", "warning", "info"}},
+		{Name: "event_type", Type: field.TypeString},
+		{Name: "title", Type: field.TypeString},
+		{Name: "message", Type: field.TypeString, Size: 2147483647},
+		{Name: "data", Type: field.TypeJSON, Nullable: true},
+		{Name: "queued_at", Type: field.TypeTime},
+		{Name: "delivered_at", Type: field.TypeTime, Nullable: true},
+		{Name: "digest_id", Type: field.TypeString, Nullable: true},
+		{Name: "bypass_sent", Type: field.TypeBool, Default: false},
+	}
+	// AlertDigestEntriesTable holds the schema information for the "alert_digest_entries" table.
+	AlertDigestEntriesTable = &schema.Table{
+		Name:       "alert_digest_entries",
+		Columns:    AlertDigestEntriesColumns,
+		PrimaryKey: []*schema.Column{AlertDigestEntriesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alertdigestentry_channel_id_delivered_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertDigestEntriesColumns[3], AlertDigestEntriesColumns[11]},
+			},
+			{
+				Name:    "alertdigestentry_queued_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertDigestEntriesColumns[10]},
+			},
+			{
+				Name:    "alertdigestentry_digest_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertDigestEntriesColumns[12]},
+			},
+		},
+	}
+	// AlertEscalationsColumns holds the columns for the "alert_escalations" table.
+	AlertEscalationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "current_level", Type: field.TypeInt, Default: 0},
+		{Name: "max_level", Type: field.TypeInt},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "RESOLVED", "MAX_REACHED"}, Default: "PENDING"},
+		{Name: "next_escalation_at", Type: field.TypeTime, Nullable: true},
+		{Name: "escalation_delay_seconds", Type: field.TypeInt},
+		{Name: "repeat_interval_seconds", Type: field.TypeJSON},
+		{Name: "additional_channels", Type: field.TypeJSON},
+		{Name: "resolved_at", Type: field.TypeTime, Nullable: true},
+		{Name: "resolved_by", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "alert_id", Type: field.TypeString, Size: 26},
+		{Name: "rule_id", Type: field.TypeString, Size: 26},
+	}
+	// AlertEscalationsTable holds the schema information for the "alert_escalations" table.
+	AlertEscalationsTable = &schema.Table{
+		Name:       "alert_escalations",
+		Columns:    AlertEscalationsColumns,
+		PrimaryKey: []*schema.Column{AlertEscalationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "alert_escalations_alerts_escalations",
+				Columns:    []*schema.Column{AlertEscalationsColumns[12]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "alert_escalations_alert_rules_escalations",
+				Columns:    []*schema.Column{AlertEscalationsColumns[13]},
+				RefColumns: []*schema.Column{AlertRulesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alertescalation_alert_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertEscalationsColumns[12]},
+			},
+			{
+				Name:    "alertescalation_status",
+				Unique:  false,
+				Columns: []*schema.Column{AlertEscalationsColumns[3]},
+			},
+			{
+				Name:    "alertescalation_next_escalation_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertEscalationsColumns[4]},
+			},
+			{
+				Name:    "alertescalation_status_next_escalation_at",
+				Unique:  false,
+				Columns: []*schema.Column{AlertEscalationsColumns[3], AlertEscalationsColumns[4]},
+			},
+			{
+				Name:    "alertescalation_rule_id",
+				Unique:  false,
+				Columns: []*schema.Column{AlertEscalationsColumns[13]},
 			},
 		},
 	}
@@ -139,6 +250,7 @@ var (
 		{Name: "channels", Type: field.TypeJSON},
 		{Name: "throttle", Type: field.TypeJSON, Nullable: true},
 		{Name: "quiet_hours", Type: field.TypeJSON, Nullable: true},
+		{Name: "escalation", Type: field.TypeJSON, Nullable: true},
 		{Name: "device_id", Type: field.TypeString, Nullable: true, Size: 26},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "created_at", Type: field.TypeTime},
@@ -158,7 +270,7 @@ var (
 			{
 				Name:    "alertrule_enabled",
 				Unique:  false,
-				Columns: []*schema.Column{AlertRulesColumns[10]},
+				Columns: []*schema.Column{AlertRulesColumns[11]},
 			},
 			{
 				Name:    "alertrule_severity",
@@ -168,12 +280,102 @@ var (
 			{
 				Name:    "alertrule_device_id",
 				Unique:  false,
-				Columns: []*schema.Column{AlertRulesColumns[9]},
+				Columns: []*schema.Column{AlertRulesColumns[10]},
 			},
 			{
 				Name:    "alertrule_enabled_event_type",
 				Unique:  false,
-				Columns: []*schema.Column{AlertRulesColumns[10], AlertRulesColumns[3]},
+				Columns: []*schema.Column{AlertRulesColumns[11], AlertRulesColumns[3]},
+			},
+		},
+	}
+	// AlertRuleTemplatesColumns holds the columns for the "alert_rule_templates" table.
+	AlertRuleTemplatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "description", Type: field.TypeString, Size: 1000},
+		{Name: "category", Type: field.TypeEnum, Enums: []string{"NETWORK", "SECURITY", "RESOURCES", "VPN", "DHCP", "SYSTEM", "CUSTOM"}, Default: "CUSTOM"},
+		{Name: "event_type", Type: field.TypeString, Size: 128},
+		{Name: "severity", Type: field.TypeEnum, Enums: []string{"CRITICAL", "WARNING", "INFO"}, Default: "WARNING"},
+		{Name: "variables", Type: field.TypeJSON, Nullable: true},
+		{Name: "conditions", Type: field.TypeJSON, Nullable: true},
+		{Name: "throttle", Type: field.TypeJSON, Nullable: true},
+		{Name: "channels", Type: field.TypeJSON},
+		{Name: "is_built_in", Type: field.TypeBool, Default: false},
+		{Name: "version", Type: field.TypeString, Size: 20, Default: "1.0.0"},
+		{Name: "usage_count", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// AlertRuleTemplatesTable holds the schema information for the "alert_rule_templates" table.
+	AlertRuleTemplatesTable = &schema.Table{
+		Name:       "alert_rule_templates",
+		Columns:    AlertRuleTemplatesColumns,
+		PrimaryKey: []*schema.Column{AlertRuleTemplatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alertruletemplate_category",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRuleTemplatesColumns[3]},
+			},
+			{
+				Name:    "alertruletemplate_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRuleTemplatesColumns[4]},
+			},
+			{
+				Name:    "alertruletemplate_is_built_in",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRuleTemplatesColumns[10]},
+			},
+			{
+				Name:    "alertruletemplate_usage_count",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRuleTemplatesColumns[12]},
+			},
+			{
+				Name:    "alertruletemplate_category_is_built_in",
+				Unique:  false,
+				Columns: []*schema.Column{AlertRuleTemplatesColumns[3], AlertRuleTemplatesColumns[10]},
+			},
+		},
+	}
+	// AlertTemplatesColumns holds the columns for the "alert_templates" table.
+	AlertTemplatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "event_type", Type: field.TypeString, Size: 128},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"email", "telegram", "pushover", "webhook", "inapp"}},
+		{Name: "subject_template", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "body_template", Type: field.TypeString, Size: 2147483647},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// AlertTemplatesTable holds the schema information for the "alert_templates" table.
+	AlertTemplatesTable = &schema.Table{
+		Name:       "alert_templates",
+		Columns:    AlertTemplatesColumns,
+		PrimaryKey: []*schema.Column{AlertTemplatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "alerttemplate_event_type",
+				Unique:  false,
+				Columns: []*schema.Column{AlertTemplatesColumns[1]},
+			},
+			{
+				Name:    "alerttemplate_channel",
+				Unique:  false,
+				Columns: []*schema.Column{AlertTemplatesColumns[2]},
+			},
+			{
+				Name:    "alerttemplate_event_type_channel",
+				Unique:  true,
+				Columns: []*schema.Column{AlertTemplatesColumns[1], AlertTemplatesColumns[2]},
+			},
+			{
+				Name:    "alerttemplate_is_default",
+				Unique:  false,
+				Columns: []*schema.Column{AlertTemplatesColumns[5]},
 			},
 		},
 	}
@@ -265,6 +467,127 @@ var (
 			},
 		},
 	}
+	// NotificationChannelConfigsColumns holds the columns for the "notification_channel_configs" table.
+	NotificationChannelConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "channel_type", Type: field.TypeEnum, Enums: []string{"pushover", "email", "slack", "webhook", "telegram"}},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "is_default", Type: field.TypeBool, Default: false},
+		{Name: "config_encrypted", Type: field.TypeBytes},
+		{Name: "encryption_key_id", Type: field.TypeString, Default: "default"},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+	}
+	// NotificationChannelConfigsTable holds the schema information for the "notification_channel_configs" table.
+	NotificationChannelConfigsTable = &schema.Table{
+		Name:       "notification_channel_configs",
+		Columns:    NotificationChannelConfigsColumns,
+		PrimaryKey: []*schema.Column{NotificationChannelConfigsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationchannelconfig_channel_type",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationChannelConfigsColumns[3]},
+			},
+			{
+				Name:    "notificationchannelconfig_channel_type_is_default",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationChannelConfigsColumns[3], NotificationChannelConfigsColumns[7]},
+			},
+			{
+				Name:    "notificationchannelconfig_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationChannelConfigsColumns[12]},
+			},
+			{
+				Name:    "notificationchannelconfig_channel_type_name",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationChannelConfigsColumns[3], NotificationChannelConfigsColumns[4]},
+			},
+		},
+	}
+	// NotificationLogsColumns holds the columns for the "notification_logs" table.
+	NotificationLogsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "channel", Type: field.TypeEnum, Enums: []string{"email", "telegram", "pushover", "webhook", "inapp"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "success", "failed", "retrying"}, Default: "pending"},
+		{Name: "attempt_number", Type: field.TypeInt, Default: 1},
+		{Name: "response_code", Type: field.TypeInt, Nullable: true},
+		{Name: "response_body", Type: field.TypeString, Nullable: true, Size: 2000},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 1000},
+		{Name: "request_metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "alert_id", Type: field.TypeString, Size: 26},
+		{Name: "webhook_id", Type: field.TypeString, Nullable: true, Size: 26},
+	}
+	// NotificationLogsTable holds the schema information for the "notification_logs" table.
+	NotificationLogsTable = &schema.Table{
+		Name:       "notification_logs",
+		Columns:    NotificationLogsColumns,
+		PrimaryKey: []*schema.Column{NotificationLogsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notification_logs_alerts_notification_logs",
+				Columns:    []*schema.Column{NotificationLogsColumns[10]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "notification_logs_webhooks_logs",
+				Columns:    []*schema.Column{NotificationLogsColumns[11]},
+				RefColumns: []*schema.Column{WebhooksColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationlog_alert_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[10]},
+			},
+			{
+				Name:    "notificationlog_webhook_id",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[11]},
+			},
+			{
+				Name:    "notificationlog_channel",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[1]},
+			},
+			{
+				Name:    "notificationlog_status",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[2]},
+			},
+			{
+				Name:    "notificationlog_alert_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[10], NotificationLogsColumns[2]},
+			},
+			{
+				Name:    "notificationlog_webhook_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[11], NotificationLogsColumns[2]},
+			},
+			{
+				Name:    "notificationlog_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[8]},
+			},
+			{
+				Name:    "notificationlog_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationLogsColumns[2], NotificationLogsColumns[8]},
+			},
+		},
+	}
 	// NotificationSettingsColumns holds the columns for the "notification_settings" table.
 	NotificationSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -298,6 +621,64 @@ var (
 				Name:    "notificationsettings_test_status",
 				Unique:  false,
 				Columns: []*schema.Column{NotificationSettingsColumns[5]},
+			},
+		},
+	}
+	// PortKnockSequencesColumns holds the columns for the "port_knock_sequences" table.
+	PortKnockSequencesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "name", Type: field.TypeString, Size: 32},
+		{Name: "knock_ports", Type: field.TypeJSON},
+		{Name: "protected_port", Type: field.TypeInt},
+		{Name: "protected_protocol", Type: field.TypeEnum, Enums: []string{"tcp", "udp"}, Default: "tcp"},
+		{Name: "access_timeout", Type: field.TypeString, Size: 10},
+		{Name: "knock_timeout", Type: field.TypeString, Size: 10},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "generated_rule_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "recent_access_count", Type: field.TypeInt, Nullable: true, Default: 0},
+		{Name: "last_accessed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "router_id", Type: field.TypeString, Size: 26},
+	}
+	// PortKnockSequencesTable holds the schema information for the "port_knock_sequences" table.
+	PortKnockSequencesTable = &schema.Table{
+		Name:       "port_knock_sequences",
+		Columns:    PortKnockSequencesColumns,
+		PrimaryKey: []*schema.Column{PortKnockSequencesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "port_knock_sequences_routers_port_knock_sequences",
+				Columns:    []*schema.Column{PortKnockSequencesColumns[13]},
+				RefColumns: []*schema.Column{RoutersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "portknocksequence_router_id",
+				Unique:  false,
+				Columns: []*schema.Column{PortKnockSequencesColumns[13]},
+			},
+			{
+				Name:    "portknocksequence_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{PortKnockSequencesColumns[7]},
+			},
+			{
+				Name:    "portknocksequence_router_id_name",
+				Unique:  true,
+				Columns: []*schema.Column{PortKnockSequencesColumns[13], PortKnockSequencesColumns[1]},
+			},
+			{
+				Name:    "portknocksequence_last_accessed_at",
+				Unique:  false,
+				Columns: []*schema.Column{PortKnockSequencesColumns[10]},
+			},
+			{
+				Name:    "portknocksequence_router_id_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{PortKnockSequencesColumns[13], PortKnockSequencesColumns[7]},
 			},
 		},
 	}
@@ -590,6 +971,64 @@ var (
 			},
 		},
 	}
+	// ServiceInstancesColumns holds the columns for the "service_instances" table.
+	ServiceInstancesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "feature_id", Type: field.TypeString, Size: 100},
+		{Name: "instance_name", Type: field.TypeString, Size: 255},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"installing", "installed", "starting", "running", "stopping", "stopped", "failed", "deleting"}, Default: "installing"},
+		{Name: "vlan_id", Type: field.TypeInt, Nullable: true},
+		{Name: "bind_ip", Type: field.TypeString, Nullable: true, Size: 45},
+		{Name: "ports", Type: field.TypeJSON, Nullable: true},
+		{Name: "config", Type: field.TypeJSON, Nullable: true},
+		{Name: "binary_path", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "binary_version", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "binary_checksum", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "router_id", Type: field.TypeString, Size: 26},
+	}
+	// ServiceInstancesTable holds the schema information for the "service_instances" table.
+	ServiceInstancesTable = &schema.Table{
+		Name:       "service_instances",
+		Columns:    ServiceInstancesColumns,
+		PrimaryKey: []*schema.Column{ServiceInstancesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "service_instances_routers_service_instances",
+				Columns:    []*schema.Column{ServiceInstancesColumns[13]},
+				RefColumns: []*schema.Column{RoutersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "serviceinstance_router_id",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceInstancesColumns[13]},
+			},
+			{
+				Name:    "serviceinstance_status",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceInstancesColumns[3]},
+			},
+			{
+				Name:    "serviceinstance_feature_id",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceInstancesColumns[1]},
+			},
+			{
+				Name:    "serviceinstance_router_id_feature_id",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceInstancesColumns[13], ServiceInstancesColumns[1]},
+			},
+			{
+				Name:    "serviceinstance_router_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{ServiceInstancesColumns[13], ServiceInstancesColumns[3]},
+			},
+		},
+	}
 	// SessionsColumns holds the columns for the "sessions" table.
 	SessionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
@@ -680,29 +1119,98 @@ var (
 			},
 		},
 	}
+	// WebhooksColumns holds the columns for the "webhooks" table.
+	WebhooksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 26},
+		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "url", Type: field.TypeString, Size: 2048},
+		{Name: "auth_type", Type: field.TypeEnum, Enums: []string{"none", "bearer", "basic", "api_key"}, Default: "none"},
+		{Name: "auth_value_encrypted", Type: field.TypeBytes, Nullable: true},
+		{Name: "auth_nonce", Type: field.TypeBytes, Nullable: true},
+		{Name: "signing_secret_encrypted", Type: field.TypeBytes, Nullable: true},
+		{Name: "signing_nonce", Type: field.TypeBytes, Nullable: true},
+		{Name: "headers", Type: field.TypeJSON, Nullable: true},
+		{Name: "template", Type: field.TypeEnum, Enums: []string{"slack", "discord", "mattermost", "teams", "generic_json", "custom"}, Default: "generic_json"},
+		{Name: "custom_template", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "success_count", Type: field.TypeInt, Default: 0},
+		{Name: "failure_count", Type: field.TypeInt, Default: 0},
+		{Name: "last_success_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_failure_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// WebhooksTable holds the schema information for the "webhooks" table.
+	WebhooksTable = &schema.Table{
+		Name:       "webhooks",
+		Columns:    WebhooksColumns,
+		PrimaryKey: []*schema.Column{WebhooksColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "webhook_enabled",
+				Unique:  false,
+				Columns: []*schema.Column{WebhooksColumns[11]},
+			},
+			{
+				Name:    "webhook_name",
+				Unique:  false,
+				Columns: []*schema.Column{WebhooksColumns[1]},
+			},
+			{
+				Name:    "webhook_template",
+				Unique:  false,
+				Columns: []*schema.Column{WebhooksColumns[9]},
+			},
+			{
+				Name:    "webhook_last_success_at",
+				Unique:  false,
+				Columns: []*schema.Column{WebhooksColumns[14]},
+			},
+			{
+				Name:    "webhook_last_failure_at",
+				Unique:  false,
+				Columns: []*schema.Column{WebhooksColumns[15]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		APIKeysTable,
 		AlertsTable,
+		AlertDigestEntriesTable,
+		AlertEscalationsTable,
 		AlertRulesTable,
+		AlertRuleTemplatesTable,
+		AlertTemplatesTable,
 		ConfigSnapshotsTable,
 		GlobalSettingsTable,
+		NotificationChannelConfigsTable,
+		NotificationLogsTable,
 		NotificationSettingsTable,
+		PortKnockSequencesTable,
 		ResourcesTable,
 		ResourceEventsTable,
 		RoutersTable,
 		RouterCapabilitiesTable,
 		RouterSecretsTable,
 		SchemaVersionsTable,
+		ServiceInstancesTable,
 		SessionsTable,
 		UsersTable,
+		WebhooksTable,
 	}
 )
 
 func init() {
 	APIKeysTable.ForeignKeys[0].RefTable = UsersTable
 	AlertsTable.ForeignKeys[0].RefTable = AlertRulesTable
+	AlertEscalationsTable.ForeignKeys[0].RefTable = AlertsTable
+	AlertEscalationsTable.ForeignKeys[1].RefTable = AlertRulesTable
+	NotificationLogsTable.ForeignKeys[0].RefTable = AlertsTable
+	NotificationLogsTable.ForeignKeys[1].RefTable = WebhooksTable
+	PortKnockSequencesTable.ForeignKeys[0].RefTable = RoutersTable
 	ResourceEventsTable.ForeignKeys[0].RefTable = ResourcesTable
 	RouterSecretsTable.ForeignKeys[0].RefTable = RoutersTable
+	ServiceInstancesTable.ForeignKeys[0].RefTable = RoutersTable
 	SessionsTable.ForeignKeys[0].RefTable = UsersTable
 }

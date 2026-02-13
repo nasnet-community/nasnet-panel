@@ -1,0 +1,2547 @@
+{
+  "mangle": {
+    "title": "Mangle Rules",
+    "subtitle": "Traffic marking and QoS configuration",
+    "description": "Configure traffic marking for QoS, policy routing, and advanced traffic control",
+    "chains": {
+      "prerouting": "Prerouting",
+      "input": "Input",
+      "forward": "Forward",
+      "output": "Output",
+      "postrouting": "Postrouting"
+    },
+    "chainDescriptions": {
+      "prerouting": "Process packets before routing decision",
+      "input": "Process packets destined for the router itself",
+      "forward": "Process packets passing through the router",
+      "output": "Process packets originating from the router",
+      "postrouting": "Process packets after routing decision, before exit"
+    },
+    "actions": {
+      "mark-connection": "Mark Connection",
+      "mark-packet": "Mark Packet",
+      "mark-routing": "Mark Routing",
+      "change-dscp": "Change DSCP",
+      "change-ttl": "Change TTL",
+      "change-mss": "Change MSS",
+      "passthrough": "Passthrough",
+      "accept": "Accept",
+      "drop": "Drop",
+      "jump": "Jump",
+      "log": "Log"
+    },
+    "actionDescriptions": {
+      "mark-connection": "Mark all packets in this connection for QoS and routing",
+      "mark-packet": "Mark individual packets for per-packet processing",
+      "mark-routing": "Mark packets for policy-based routing decisions",
+      "change-dscp": "Modify Differentiated Services Code Point for QoS",
+      "change-ttl": "Modify Time To Live value",
+      "change-mss": "Clamp Maximum Segment Size (TCP MSS)",
+      "passthrough": "Continue processing without terminal action",
+      "accept": "Accept packet (terminal action)",
+      "drop": "Drop packet silently (terminal action)",
+      "jump": "Jump to another chain",
+      "log": "Log packet to system log"
+    },
+    "fields": {
+      "chain": "Chain",
+      "action": "Action",
+      "position": "Position",
+      "protocol": "Protocol",
+      "srcAddress": "Source Address",
+      "dstAddress": "Destination Address",
+      "srcPort": "Source Port",
+      "dstPort": "Destination Port",
+      "srcAddressList": "Source Address List",
+      "dstAddressList": "Destination Address List",
+      "inInterface": "In Interface",
+      "outInterface": "Out Interface",
+      "inInterfaceList": "In Interface List",
+      "outInterfaceList": "Out Interface List",
+      "connectionState": "Connection State",
+      "connectionNatState": "Connection NAT State",
+      "connectionMark": "Match Connection Mark",
+      "packetMark": "Match Packet Mark",
+      "routingMark": "Match Routing Mark",
+      "newConnectionMark": "New Connection Mark",
+      "newPacketMark": "New Packet Mark",
+      "newRoutingMark": "New Routing Mark",
+      "newDscp": "DSCP Value",
+      "newTtl": "TTL Value",
+      "newMss": "MSS Value",
+      "passthrough": "Passthrough",
+      "jumpTarget": "Jump Target Chain",
+      "comment": "Comment",
+      "disabled": "Disabled",
+      "log": "Enable Logging",
+      "logPrefix": "Log Prefix",
+      "packetSize": "Packet Size",
+      "layer7Protocol": "Layer 7 Protocol",
+      "content": "Content Pattern",
+      "tcpFlags": "TCP Flags",
+      "packets": "Packets",
+      "bytes": "Bytes"
+    },
+    "fieldHelp": {
+      "passthrough": "Continue to next rule after marking (default: enabled)",
+      "newConnectionMark": "Mark name for all packets in this connection",
+      "newPacketMark": "Mark name for individual packets only",
+      "newRoutingMark": "Mark name for routing decisions (policy routing)",
+      "newDscp": "QoS priority value (0-63) - higher values = higher priority",
+      "newTtl": "Format: 'set:64', 'increment:1', or 'decrement:1'",
+      "newMss": "Clamp MSS to prevent fragmentation (typically 1400-1460)",
+      "jumpTarget": "Name of custom chain to jump to",
+      "logPrefix": "Prefix for log messages (max 50 characters)",
+      "packetSize": "Match packet size (e.g., '64-1500')",
+      "layer7Protocol": "Layer 7 protocol detection (requires regexp)",
+      "content": "Match packet content pattern",
+      "tcpFlags": "TCP flags to match (e.g., 'syn,!fin,!rst,!ack')",
+      "connectionState": "Match packets in specific connection states",
+      "connectionNatState": "Match packets in NAT connections"
+    },
+    "placeholders": {
+      "srcAddress": "e.g., 192.168.1.0/24",
+      "dstAddress": "e.g., 10.0.0.0/8",
+      "srcPort": "e.g., 80 or 80-443",
+      "dstPort": "e.g., 443",
+      "newConnectionMark": "e.g., voip_traffic",
+      "newPacketMark": "e.g., priority_packets",
+      "newRoutingMark": "e.g., wan2_route",
+      "jumpTarget": "e.g., custom_chain",
+      "logPrefix": "e.g., MANGLE:",
+      "comment": "Describe the rule purpose"
+    },
+    "connectionStates": {
+      "established": "Established",
+      "new": "New",
+      "related": "Related",
+      "invalid": "Invalid",
+      "untracked": "Untracked"
+    },
+    "connectionNatStates": {
+      "srcnat": "Source NAT",
+      "dstnat": "Destination NAT"
+    },
+    "dscpClasses": {
+      "0": "BE / CS0 - Best Effort (default) - Normal traffic",
+      "8": "CS1 - Scavenger - Background downloads",
+      "16": "CS2 - OAM - Network management",
+      "24": "CS3 - Broadcast Video - Streaming",
+      "32": "CS4 - Real-time Interactive - Video conferencing",
+      "40": "CS5 - Signaling - SIP/H.323 call setup",
+      "48": "CS6 - Network Control - Routing protocols",
+      "56": "CS7 - Reserved - Reserved",
+      "10": "AF11 - Assured Forwarding 1-1 - Bulk data",
+      "12": "AF12 - Assured Forwarding 1-2 - Bulk data",
+      "14": "AF13 - Assured Forwarding 1-3 - Bulk data",
+      "18": "AF21 - Assured Forwarding 2-1 - Transactional data",
+      "20": "AF22 - Assured Forwarding 2-2 - Transactional data",
+      "22": "AF23 - Assured Forwarding 2-3 - Transactional data",
+      "26": "AF31 - Assured Forwarding 3-1 - Multimedia streaming",
+      "28": "AF32 - Assured Forwarding 3-2 - Multimedia streaming",
+      "30": "AF33 - Assured Forwarding 3-3 - Multimedia streaming",
+      "34": "AF41 - Assured Forwarding 4-1 - Interactive video",
+      "36": "AF42 - Assured Forwarding 4-2 - Interactive video",
+      "38": "AF43 - Assured Forwarding 4-3 - Interactive video",
+      "46": "EF - Expedited Forwarding - VoIP audio (priority)"
+    },
+    "dscpCategories": {
+      "classSelector": "Class Selector (Legacy IP Precedence)",
+      "assuredForwarding": "Assured Forwarding (AF)",
+      "expeditedForwarding": "Expedited Forwarding (EF)",
+      "bestEffort": "Best Effort"
+    },
+    "markTypes": {
+      "connection": "Connection Mark",
+      "packet": "Packet Mark",
+      "routing": "Routing Mark"
+    },
+    "markTypeDescriptions": {
+      "connection": "Marks all packets in the connection - Use for QoS queue trees and routing policies",
+      "packet": "Marks individual packets only - Use for per-packet queue assignment and traffic shaping",
+      "routing": "Marks routing decision - Use for policy-based routing, multi-WAN, and VRF"
+    },
+    "validation": {
+      "chainRequired": "Chain is required",
+      "actionRequired": "Action is required",
+      "markNameInvalid": "Mark name must contain only letters, numbers, underscores, and hyphens",
+      "markNameTooLong": "Mark name must be 63 characters or less",
+      "markNameRequired": "Mark name is required for this action",
+      "dscpInvalid": "DSCP value must be between 0 and 63",
+      "dscpRequired": "DSCP value is required for change-dscp action",
+      "ttlInvalid": "TTL value must be in format: 'set:X', 'increment:X', or 'decrement:X'",
+      "ttlRequired": "TTL value is required for change-ttl action",
+      "mssInvalid": "MSS value must be a positive integer",
+      "mssRequired": "MSS value is required for change-mss action",
+      "jumpTargetRequired": "Jump target chain is required for jump action",
+      "portInvalid": "Port must be a number or range (e.g., 80 or 80-443)",
+      "addressInvalid": "Invalid IP address or CIDR notation"
+    },
+    "buttons": {
+      "addRule": "Add Rule",
+      "viewFlow": "View Flow Diagram",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "save": "Save Rule",
+      "cancel": "Cancel"
+    },
+    "dialogs": {
+      "addRule": {
+        "title": "Add Mangle Rule",
+        "description": "Create a new mangle rule for traffic marking and QoS"
+      },
+      "editRule": {
+        "title": "Edit Mangle Rule",
+        "description": "Modify existing mangle rule configuration"
+      },
+      "deleteRule": {
+        "title": "Delete Mangle Rule",
+        "description": "Are you sure you want to delete this mangle rule?",
+        "warning": "This action cannot be undone.",
+        "consequences": [
+          "Traffic marks will no longer be applied",
+          "QoS queues depending on this mark may stop working",
+          "Policy routing rules using this mark may be affected",
+          "Firewall rules matching this mark will not trigger"
+        ]
+      },
+      "flowDiagram": {
+        "title": "Mangle Packet Flow",
+        "description": "Visual representation of packet flow through mangle chains"
+      }
+    },
+    "table": {
+      "columns": {
+        "position": "#",
+        "chain": "Chain",
+        "action": "Action",
+        "markValue": "Mark Value",
+        "matchers": "Matchers",
+        "packets": "Packets",
+        "bytes": "Bytes",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      },
+      "matchersSummary": {
+        "protocol": "Protocol: {{value}}",
+        "address": "{{src}} → {{dst}}",
+        "port": "Port: {{value}}",
+        "interface": "Interface: {{value}}",
+        "state": "State: {{value}}",
+        "mark": "Mark: {{value}}",
+        "multiple": "+{{count}} more"
+      },
+      "noRules": "No mangle rules configured",
+      "noRulesInChain": "No rules in this chain",
+      "noMatches": "No rules match the current filters",
+      "unused": "Unused (0 hits)",
+      "hitCount": "{{count}} packets"
+    },
+    "emptyStates": {
+      "noRules": {
+        "title": "No Mangle Rules",
+        "description": "Get started by creating your first mangle rule to mark traffic for QoS or policy routing.",
+        "actions": {
+          "create": "Add First Rule",
+          "learn": "Learn About Mangle"
+        }
+      },
+      "noRulesInChain": {
+        "title": "No Rules in {{chain}}",
+        "description": "This chain has no mangle rules configured.",
+        "action": "Add Rule to {{chain}}"
+      },
+      "filterNoResults": {
+        "title": "No Matching Rules",
+        "description": "No rules match your current filters. Try adjusting the filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "stats": {
+      "totalRules": "Total Rules",
+      "activeRules": "Active Rules",
+      "disabledRules": "Disabled Rules",
+      "unusedRules": "Unused Rules",
+      "totalPackets": "Total Packets Processed",
+      "totalBytes": "Total Bytes Processed"
+    },
+    "notifications": {
+      "ruleCreated": "Mangle rule created successfully",
+      "ruleUpdated": "Mangle rule updated successfully",
+      "ruleDeleted": "Mangle rule deleted successfully",
+      "ruleDuplicated": "Mangle rule duplicated successfully",
+      "ruleEnabled": "Mangle rule enabled",
+      "ruleDisabled": "Mangle rule disabled",
+      "ruleMoved": "Mangle rule position updated",
+      "error": {
+        "create": "Failed to create mangle rule",
+        "update": "Failed to update mangle rule",
+        "delete": "Failed to delete mangle rule",
+        "duplicate": "Failed to duplicate mangle rule",
+        "toggle": "Failed to toggle mangle rule",
+        "move": "Failed to move mangle rule",
+        "load": "Failed to load mangle rules"
+      }
+    },
+    "hints": {
+      "dragToReorder": "Drag rules to reorder them - earlier rules are processed first",
+      "passthroughEnabled": "Passthrough is enabled - processing will continue to next rule",
+      "terminalAction": "This is a terminal action - processing will stop here",
+      "unusedRule": "This rule has never matched any packets - verify the matchers",
+      "disabledRule": "This rule is disabled and will not process any packets",
+      "chainOrder": "Chains are processed in order: prerouting → routing → input/forward → output → postrouting",
+      "markingStrategy": "Mark connections in prerouting, then match marks in other chains for efficiency"
+    },
+    "help": {
+      "whatIsMangle": {
+        "title": "What is Mangle?",
+        "content": "Mangle rules mark packets for Quality of Service (QoS), policy routing, and advanced traffic control. They don't block traffic - they classify it for other features to use."
+      },
+      "packetFlow": {
+        "title": "Packet Flow",
+        "content": "Packets flow through chains in this order: prerouting → [routing decision] → input/forward → output → postrouting. Mark packets early (prerouting) and match marks later for best performance."
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Mark VoIP traffic with high DSCP for QoS prioritization",
+          "Route specific traffic through different WAN connections (load balancing)",
+          "Apply connection marks for queue tree bandwidth management",
+          "Change MSS to prevent fragmentation on VPN tunnels",
+          "Mark gaming traffic for low-latency queuing"
+        ]
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Use connection marks (not packet marks) for QoS - more efficient",
+          "Mark in prerouting chain, match in other chains - faster processing",
+          "Enable passthrough on marking rules to continue processing",
+          "Use descriptive mark names (e.g., 'voip_traffic' not 'mark1')",
+          "Add comments to document rule purpose and dependencies",
+          "Test with disabled=yes first, then enable after verification"
+        ]
+      }
+    }
+  },
+  "rateLimiting": {
+    "title": "Rate Limiting",
+    "subtitle": "Connection rate control and DDoS protection",
+    "description": "Protect against DDoS and connection flooding",
+    "tabs": {
+      "rateLimits": "Rate Limits",
+      "synFlood": "SYN Flood Protection",
+      "statistics": "Statistics",
+      "synFloodProtection": "SYN Flood Protection"
+    },
+    "ruleEditor": {
+      "createTitle": "Add Rate Limit Rule",
+      "editTitle": "Edit Rate Limit Rule",
+      "srcAddress": "Source Address",
+      "srcAddressPlaceholder": "0.0.0.0/0 (any)",
+      "connectionLimit": "Connection Limit",
+      "timeWindow": "Time Window",
+      "action": "Action",
+      "addressList": "Address List",
+      "addressListTimeout": "List Timeout",
+      "preview": "Preview",
+      "submit": "Save Rule",
+      "cancel": "Cancel"
+    },
+    "actions": {
+      "drop": "Drop",
+      "tarpit": "Tarpit",
+      "addToList": "Add to List"
+    },
+    "timeWindows": {
+      "perSecond": "per second",
+      "perMinute": "per minute",
+      "perHour": "per hour"
+    },
+    "actionDescriptions": {
+      "drop": "Silently drop connections exceeding the rate limit",
+      "tarpit": "Slow down connections exceeding the rate limit (tarpit delay)",
+      "addToList": "Add source IP to address list when rate limit is exceeded"
+    },
+    "fields": {
+      "srcAddress": "Source Address",
+      "connectionLimit": "Connection Limit",
+      "timeWindow": "Time Window",
+      "action": "Action",
+      "addressList": "Address List",
+      "addressListTimeout": "List Timeout",
+      "comment": "Comment",
+      "disabled": "Disabled",
+      "anySource": "Any Source IP",
+      "triggeredCount": "Triggered Count",
+      "status": "Status",
+      "synLimit": "SYN Limit (packets/sec)",
+      "burst": "Burst Allowance",
+      "masterEnable": "Enable Protection",
+      "ip": "IP Address",
+      "blockCount": "Block Count",
+      "firstBlocked": "First Blocked",
+      "lastBlocked": "Last Blocked",
+      "timeout": "Timeout",
+      "whitelistTimeout": "Whitelist Timeout"
+    },
+    "fieldHelp": {
+      "srcAddress": "Leave empty or toggle 'Any Source IP' to apply rate limit to all IPs",
+      "connectionLimit": "Maximum number of connections allowed within the time window",
+      "timeWindow": "Time period for measuring connection rate (second/minute/hour)",
+      "action": "What to do when rate limit is exceeded",
+      "addressList": "Name of address list to add blocked IPs to (will be created if not exists)",
+      "addressListTimeout": "How long to keep IPs in the blocked list",
+      "synLimit": "Maximum SYN packets per second allowed from a single IP",
+      "burst": "Additional packets allowed in short bursts",
+      "actionDrop": "Recommended for severe attacks - drops connections immediately",
+      "actionTarpit": "Slows down attackers - useful for brute force protection",
+      "actionAddToList": "Flexible - allows dynamic blocking and whitelist management",
+      "whitelistInfo": "Whitelisted IPs bypass all rate limit rules"
+    },
+    "placeholders": {
+      "srcAddress": "e.g., 192.168.1.0/24 or leave empty for any",
+      "connectionLimit": "e.g., 100",
+      "addressList": "e.g., rate-limited",
+      "comment": "Describe the rule purpose"
+    },
+    "timeoutPresets": {
+      "1h": "1 Hour",
+      "6h": "6 Hours",
+      "1d": "1 Day",
+      "1w": "1 Week",
+      "permanent": "Permanent",
+      "custom": "Custom"
+    },
+    "synFlood": {
+      "enabled": "Enabled",
+      "synLimit": "SYN Limit",
+      "burst": "Burst",
+      "action": "Action",
+      "presets": "Presets",
+      "preview": "Preview",
+      "warning": "SYN flood protection blocks packets globally. Tune carefully.",
+      "dangerConfirm": "Enabling SYN flood protection may block legitimate high-traffic. Continue?",
+      "title": "SYN Flood Protection",
+      "description": "Protect against SYN flood attacks by limiting SYN packet rate",
+      "disabled": "Disabled",
+      "whatIsSynFlood": "What is a SYN Flood Attack?",
+      "synFloodExplanation": "A SYN flood attack exploits the TCP handshake by sending many SYN packets without completing the connection. This protection uses the RAW firewall table to drop excessive SYN packets before connection tracking, preventing resource exhaustion.",
+      "rulePreview": "Generated RouterOS Rule",
+      "rulePreviewDescription": "This is the rule that will be created in the RAW firewall table"
+    },
+    "statistics": {
+      "totalBlocked": "Total Blocked",
+      "topBlockedIPs": "Top Blocked IPs",
+      "timeline": "24-Hour Timeline",
+      "exportCSV": "Export CSV",
+      "refresh": "Refresh",
+      "pollingInterval": "Auto-refresh",
+      "whitelist": "Whitelist",
+      "remove": "Remove",
+      "whitelistTimeout": "Whitelist Duration",
+      "confirmRemove": "Remove {{ip}} from blocked list?",
+      "title": "Rate Limiting Statistics",
+      "totalBlockedConnections": "Total Blocked Connections",
+      "triggerEvents": "Trigger Events (24h)",
+      "blockedIPsTable": "Blocked IPs",
+      "refreshInterval": "Refresh Interval",
+      "manualRefresh": "Refresh Now",
+      "autoRefresh": "Auto-refresh every {{seconds}} seconds",
+      "lastUpdated": "Last updated: {{time}}",
+      "noBlockedConnections": "No connections have been blocked yet",
+      "noBlockedIPs": "No IPs currently blocked",
+      "trendUp": "Increasing",
+      "trendDown": "Decreasing",
+      "trendStable": "Stable"
+    },
+    "buttons": {
+      "addRateLimit": "Add Rate Limit",
+      "edit": "Edit",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "whitelist": "Whitelist",
+      "viewDetails": "View Details",
+      "clear": "Clear",
+      "whitelistSelected": "Whitelist Selected",
+      "clearSelected": "Clear Selected",
+      "save": "Save Rule",
+      "cancel": "Cancel",
+      "apply": "Apply",
+      "reset": "Reset"
+    },
+    "dialogs": {
+      "addRule": {
+        "title": "Add Rate Limit Rule",
+        "description": "Create a new rate limit rule to protect against connection flooding"
+      },
+      "editRule": {
+        "title": "Edit Rate Limit Rule",
+        "description": "Modify existing rate limit rule configuration"
+      },
+      "deleteRule": {
+        "title": "Delete Rate Limit Rule",
+        "description": "Are you sure you want to delete this rate limit rule?",
+        "warning": "This action cannot be undone.",
+        "consequences": [
+          "Rate limiting will no longer be applied to matching traffic",
+          "IPs may no longer be added to the address list",
+          "Statistics for this rule will be lost"
+        ]
+      },
+      "whitelist": {
+        "title": "Whitelist IP Address",
+        "description": "Add {{ip}} to the rate limit whitelist",
+        "confirmMessage": "This IP will bypass all rate limit rules for the specified duration.",
+        "timeoutLabel": "Whitelist Duration",
+        "commentLabel": "Reason (optional)"
+      },
+      "clearBlockedIP": {
+        "title": "Remove Blocked IP",
+        "description": "Are you sure you want to remove {{ip}} from the blocked list?",
+        "confirmMessage": "This IP will be able to connect immediately."
+      },
+      "ipDetails": {
+        "title": "IP Details: {{ip}}",
+        "blockedBy": "Blocked by Rules",
+        "noRulesFound": "No matching rules found"
+      },
+      "synFloodConfig": {
+        "title": "Configure SYN Flood Protection",
+        "enableConfirm": "Enable SYN flood protection with these settings?",
+        "disableConfirm": "Disable SYN flood protection?",
+        "warning": "Changes will take effect immediately and may impact legitimate traffic if limits are too strict."
+      }
+    },
+    "table": {
+      "columns": {
+        "source": "Source",
+        "limit": "Limit",
+        "timeWindow": "Time Window",
+        "action": "Action",
+        "listName": "List Name",
+        "triggered": "Triggered",
+        "status": "Status",
+        "actions": "Actions",
+        "ip": "IP Address",
+        "blockCount": "Block Count",
+        "lastBlocked": "Last Blocked",
+        "timeout": "Timeout",
+        "enabled": "Enabled"
+      },
+      "filterByAction": "Filter by Action",
+      "filterByStatus": "Filter by Status",
+      "allActions": "All Actions",
+      "allStatuses": "All Statuses",
+      "statusEnabled": "Enabled",
+      "statusDisabled": "Disabled",
+      "noRules": "No rate limit rules configured",
+      "noBlockedIPs": "No IPs currently blocked",
+      "noMatches": "No rules match the current filters",
+      "anyIP": "Any IP",
+      "permanent": "Permanent",
+      "hitCount": "{{count}} hits"
+    },
+    "emptyStates": {
+      "noRules": "No rate limit rules configured",
+      "noRulesDescription": "Add your first rate limit rule to protect against connection flooding",
+      "noBlockedIPs": "No blocked IPs",
+      "noBlockedIPsDescription": "No IPs have been blocked by rate limiting"
+    },
+    "preview": {
+      "title": "Rule Preview",
+      "humanReadable": "Human-Readable Description",
+      "dropExample": "Drop connections from {{source}} exceeding {{limit}} connections {{timeWindow}}",
+      "tarpitExample": "Slow down connections from {{source}} exceeding {{limit}} connections {{timeWindow}}",
+      "addToListExample": "Add {{source}} to '{{list}}' list (timeout: {{timeout}}) when exceeding {{limit}} connections {{timeWindow}}",
+      "anySource": "any IP",
+      "specificSource": "{{ip}}"
+    },
+    "validation": {
+      "invalidIP": "Invalid IP address or CIDR",
+      "limitRequired": "Connection limit is required",
+      "limitRange": "Limit must be between 1 and 100,000",
+      "addressListRequired": "Address list is required for add-to-list action",
+      "connectionLimitRequired": "Connection limit is required",
+      "connectionLimitMin": "Connection limit must be at least 1",
+      "connectionLimitMax": "Connection limit cannot exceed 100000",
+      "connectionLimitInteger": "Connection limit must be a whole number",
+      "timeWindowRequired": "Time window is required",
+      "actionRequired": "Action is required",
+      "addressListInvalid": "List name can only contain alphanumeric characters, underscores, and hyphens",
+      "addressListTooLong": "List name must be 63 characters or less",
+      "addressListTimeoutRequired": "Timeout is required for add-to-list action",
+      "srcAddressInvalid": "Invalid IP address or CIDR notation",
+      "synLimitRequired": "SYN limit is required",
+      "synLimitMin": "SYN limit must be at least 1",
+      "synLimitMax": "SYN limit cannot exceed 10000",
+      "burstRequired": "Burst allowance is required",
+      "burstMin": "Burst allowance must be at least 1",
+      "burstMax": "Burst allowance cannot exceed 1000",
+      "whitelistTimeoutRequired": "Whitelist timeout is required"
+    },
+    "notifications": {
+      "ruleCreated": "Rate limit rule created successfully",
+      "ruleUpdated": "Rate limit rule updated successfully",
+      "ruleDeleted": "Rate limit rule deleted successfully",
+      "ruleEnabled": "Rate limit rule enabled",
+      "ruleDisabled": "Rate limit rule disabled",
+      "synFloodEnabled": "SYN flood protection enabled",
+      "synFloodDisabled": "SYN flood protection disabled",
+      "synFloodUpdated": "SYN flood protection configuration updated",
+      "ipWhitelisted": "IP {{ip}} whitelisted successfully",
+      "ipCleared": "IP {{ip}} removed from blocked list",
+      "bulkWhitelisted": "{{count}} IPs whitelisted successfully",
+      "bulkCleared": "{{count}} IPs removed from blocked list",
+      "error": {
+        "create": "Failed to create rate limit rule",
+        "update": "Failed to update rate limit rule",
+        "delete": "Failed to delete rate limit rule",
+        "toggle": "Failed to toggle rate limit rule",
+        "synFloodUpdate": "Failed to update SYN flood protection",
+        "whitelist": "Failed to whitelist IP",
+        "clear": "Failed to remove blocked IP",
+        "loadRules": "Failed to load rate limit rules",
+        "loadStats": "Failed to load statistics",
+        "loadBlockedIPs": "Failed to load blocked IPs"
+      }
+    },
+    "alerts": {
+      "listNotExists": "This address list does not exist yet. It will be created automatically when the first IP is added.",
+      "whitelistBypass": "Whitelisted IPs bypass all rate limit rules. Use with caution.",
+      "strictLimits": "Setting very low limits may block legitimate traffic. Test with higher limits first.",
+      "synFloodWarning": "Incorrect SYN flood settings can block legitimate connection attempts. Monitor your traffic after enabling.",
+      "permanentBlock": "Permanent blocks remain until manually cleared. Consider using timeouts for dynamic blocking."
+    },
+    "hints": {
+      "ruleOrder": "Rate limit rules with whitelist bypass should be placed before rate limit rules",
+      "listCreation": "Address lists are created automatically when first used",
+      "synFloodRaw": "SYN flood protection uses RAW table for maximum performance",
+      "testFirst": "Test new rules with 'disabled=yes' first, then enable after verification",
+      "useWhitelist": "Create a whitelist rule to exclude trusted IPs from rate limiting"
+    },
+    "help": {
+      "whatIsRateLimiting": {
+        "title": "What is Rate Limiting?",
+        "content": "Rate limiting restricts the number of connections from an IP address within a time period. It protects against DDoS attacks, brute force attempts, and connection flooding by automatically blocking or slowing down excessive connections."
+      },
+      "actionTypes": {
+        "title": "Action Types",
+        "items": [
+          "Drop: Immediately reject connections - best for severe attacks",
+          "Tarpit: Slow down connections - useful for brute force protection",
+          "Add to List: Flexible dynamic blocking - allows whitelist management"
+        ]
+      },
+      "synFloodProtection": {
+        "title": "SYN Flood Protection",
+        "content": "SYN flood attacks send many TCP SYN packets without completing the handshake, exhausting server resources. This protection uses the RAW firewall table to drop excessive SYN packets before connection tracking, preventing resource exhaustion with minimal performance impact."
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Start with higher limits and adjust down based on legitimate traffic patterns",
+          "Use 'add-to-list' action for flexibility - allows whitelist management",
+          "Create a whitelist rule for trusted IPs (admin networks, monitoring services)",
+          "Monitor statistics regularly to identify attack patterns",
+          "Set appropriate timeouts - too short may allow rapid re-attacks",
+          "Test rules with disabled=yes first, then enable after verification",
+          "Document rules with comments explaining their purpose"
+        ]
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Protect SSH/RDP from brute force attacks (5-10 connections per minute)",
+          "Prevent HTTP flood attacks (100-500 connections per minute per IP)",
+          "Block port scanners (10-20 connections per second across all ports)",
+          "Protect mail servers from spam bots (20-50 connections per hour)",
+          "Defend against application-layer DDoS (50-100 connections per second)"
+        ]
+      }
+    }
+  },
+  "raw": {
+    "title": "RAW Firewall Rules",
+    "subtitle": "Pre-connection tracking packet processing",
+    "description": "Process packets BEFORE connection tracking for performance optimization and DDoS protection",
+    "chains": {
+      "prerouting": "Prerouting",
+      "output": "Output"
+    },
+    "chainDescriptions": {
+      "prerouting": "Process incoming packets BEFORE routing decision and connection tracking",
+      "output": "Process outgoing packets BEFORE connection tracking (packets originating from router)"
+    },
+    "actions": {
+      "drop": "Drop",
+      "accept": "Accept",
+      "notrack": "No Track",
+      "jump": "Jump",
+      "log": "Log",
+      "return": "Return"
+    },
+    "actionDescriptions": {
+      "drop": "Drop packet immediately without connection tracking (saves CPU and memory)",
+      "accept": "Accept packet and bypass RAW table processing (continue to connection tracking)",
+      "notrack": "Skip connection tracking entirely for high-volume legitimate traffic",
+      "jump": "Jump to another chain for additional processing",
+      "log": "Log packet to system log before further processing",
+      "return": "Return to parent chain"
+    },
+    "wizards": {
+      "ddos": {
+        "title": "DDoS Protection Wizard",
+        "subtitle": "Step-by-step DDoS protection configuration",
+        "description": "Configure DDoS protection rules in RAW table for optimal performance",
+        "steps": {
+          "attackTypes": {
+            "title": "Select Attack Types",
+            "description": "Choose which types of DDoS attacks to protect against",
+            "label": "Attack Types",
+            "help": "Select all attack types you want to protect against"
+          },
+          "protectionLevel": {
+            "title": "Protection Level",
+            "description": "Choose the aggressiveness of DDoS protection",
+            "label": "Protection Level",
+            "help": "Higher levels provide stronger protection but may have false positives"
+          },
+          "options": {
+            "title": "Advanced Options",
+            "description": "Configure advanced DDoS protection options",
+            "label": "Advanced Options",
+            "help": "Customize thresholds and behavior"
+          },
+          "review": {
+            "title": "Review & Apply",
+            "description": "Review your DDoS protection configuration before applying",
+            "label": "Review Configuration",
+            "help": "Check all settings before creating RAW rules"
+          }
+        },
+        "attackTypes": {
+          "synFlood": "SYN Flood",
+          "udpFlood": "UDP Flood",
+          "icmpFlood": "ICMP Flood",
+          "invalidPackets": "Invalid/Malformed Packets",
+          "portScan": "Port Scanning",
+          "fragmentation": "Fragmentation Attacks"
+        },
+        "protectionLevels": {
+          "low": {
+            "label": "Low",
+            "description": "Basic protection with minimal false positives"
+          },
+          "medium": {
+            "label": "Medium",
+            "description": "Balanced protection for most networks"
+          },
+          "high": {
+            "label": "High",
+            "description": "Aggressive protection for high-risk environments"
+          },
+          "custom": {
+            "label": "Custom",
+            "description": "Manually configure all thresholds"
+          }
+        },
+        "safetyConfirm": {
+          "title": "DDoS Protection Warning",
+          "message": "DDoS protection rules drop packets before connection tracking. Misconfiguration can block legitimate traffic.",
+          "warnings": [
+            "Test in a maintenance window or staging environment first",
+            "Monitor logs for false positives after enabling",
+            "Keep whitelist rules for trusted sources (management IPs)",
+            "Higher protection levels may affect legitimate burst traffic"
+          ],
+          "checkbox": "I understand the risks and have reviewed the configuration",
+          "confirm": "Enable DDoS Protection",
+          "cancel": "Cancel"
+        }
+      },
+      "bogon": {
+        "title": "Bogon Filter",
+        "subtitle": "Block invalid source addresses",
+        "description": "Drop packets from invalid, reserved, and private IP address ranges (RFC-defined bogon addresses)",
+        "warning": "Blocking private ranges (192.168.x.x, 10.x.x.x, 172.16-31.x.x) will break LAN access. Only enable for WAN interfaces.",
+        "categories": {
+          "loopback": {
+            "label": "Loopback (127.0.0.0/8)",
+            "description": "Block loopback addresses on external interfaces"
+          },
+          "privateRanges": {
+            "label": "Private Ranges (RFC 1918)",
+            "description": "Block 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 (WARNING: Will break LAN)"
+          },
+          "linkLocal": {
+            "label": "Link-Local (169.254.0.0/16)",
+            "description": "Block APIPA/link-local addresses"
+          },
+          "multicast": {
+            "label": "Multicast (224.0.0.0/4)",
+            "description": "Block multicast addresses on unicast interfaces"
+          },
+          "reserved": {
+            "label": "Reserved Ranges",
+            "description": "Block reserved/experimental ranges (0.0.0.0/8, 240.0.0.0/4)"
+          },
+          "documentation": {
+            "label": "Documentation Ranges",
+            "description": "Block TEST-NET ranges (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24)"
+          },
+          "broadcast": {
+            "label": "Broadcast (255.255.255.255/32)",
+            "description": "Block limited broadcast address"
+          }
+        },
+        "interfaceFilter": {
+          "label": "Apply to Interfaces",
+          "help": "Select interfaces where bogon filtering should be applied (typically WAN only)",
+          "placeholder": "Select interfaces..."
+        },
+        "safetyConfirm": {
+          "title": "Bogon Filter Warning",
+          "message": "Bogon filters block packets before connection tracking. Enabling private range blocking on LAN interfaces will break local network access.",
+          "warnings": [
+            "NEVER enable private range blocking on LAN interfaces",
+            "Only apply to WAN/internet-facing interfaces",
+            "Ensure management access is from whitelisted IPs",
+            "Test connectivity after enabling"
+          ],
+          "checkbox": "I have verified interface selection and understand the risks",
+          "confirm": "Enable Bogon Filter",
+          "cancel": "Cancel"
+        }
+      }
+    },
+    "fields": {
+      "chain": "Chain",
+      "action": "Action",
+      "position": "Position",
+      "protocol": "Protocol",
+      "srcAddress": "Source Address",
+      "dstAddress": "Destination Address",
+      "srcPort": "Source Port",
+      "dstPort": "Destination Port",
+      "srcAddressList": "Source Address List",
+      "dstAddressList": "Destination Address List",
+      "inInterface": "In Interface",
+      "outInterface": "Out Interface",
+      "inInterfaceList": "In Interface List",
+      "outInterfaceList": "Out Interface List",
+      "packetSize": "Packet Size",
+      "tcpFlags": "TCP Flags",
+      "icmpType": "ICMP Type",
+      "limit": "Connection Limit",
+      "comment": "Comment",
+      "disabled": "Disabled",
+      "log": "Enable Logging",
+      "logPrefix": "Log Prefix",
+      "packets": "Packets",
+      "bytes": "Bytes",
+      "jumpTarget": "Jump Target Chain"
+    },
+    "fieldHelp": {
+      "srcAddress": "Match packets from this source address or network",
+      "dstAddress": "Match packets to this destination address or network",
+      "srcPort": "Match packets from this source port",
+      "dstPort": "Match packets to this destination port",
+      "inInterface": "Match packets arriving on this interface",
+      "outInterface": "Match packets leaving through this interface",
+      "srcAddressList": "Match source address against address list",
+      "dstAddressList": "Match destination address against address list",
+      "packetSize": "Match packet size (e.g., '64-1500' or '>1500')",
+      "tcpFlags": "Match TCP flags (e.g., 'syn,!ack' for SYN packets)",
+      "icmpType": "Match ICMP message type (0-255)",
+      "limit": "Rate limit in format '5,10:packet' (5 packets per 10 seconds)",
+      "logPrefix": "Prefix for log messages (max 50 characters)",
+      "jumpTarget": "Name of custom chain to jump to",
+      "drop": "Drop packet immediately before connection tracking (saves CPU)",
+      "accept": "Accept packet and continue to connection tracking",
+      "notrack": "Bypass connection tracking entirely for high-volume traffic"
+    },
+    "placeholders": {
+      "srcAddress": "e.g., 192.168.1.0/24",
+      "dstAddress": "e.g., 0.0.0.0/0 (any)",
+      "srcPort": "e.g., 1024-65535",
+      "dstPort": "e.g., 80",
+      "logPrefix": "e.g., RAW-DROP:",
+      "comment": "Describe the rule purpose",
+      "packetSize": "e.g., 0-64 or >1500",
+      "tcpFlags": "e.g., syn,!ack",
+      "icmpType": "e.g., 8 (echo request)",
+      "limit": "e.g., 100,1:packet",
+      "jumpTarget": "e.g., custom-chain"
+    },
+    "validation": {
+      "chainRequired": "Chain is required",
+      "actionRequired": "Action is required",
+      "portInvalid": "Port must be a number between 1 and 65535 or a range (e.g., 80-443)",
+      "portRangeInvalid": "Invalid port range - start port must be less than end port",
+      "addressInvalid": "Invalid IP address or CIDR notation",
+      "packetSizeInvalid": "Invalid packet size format (use 'N', 'N-M', '<N', '>N')",
+      "tcpFlagsInvalid": "Invalid TCP flags format",
+      "icmpTypeInvalid": "ICMP type must be a number between 0 and 255",
+      "limitInvalid": "Invalid limit format (use 'count,time:type', e.g., '5,10:packet')",
+      "jumpTargetRequired": "Jump target chain is required for jump action",
+      "protocolRequired": "Protocol is required for port/flag matching"
+    },
+    "buttons": {
+      "addRule": "Add RAW Rule",
+      "ddosWizard": "DDoS Protection Wizard",
+      "bogonFilter": "Bogon Filter",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "save": "Save Rule",
+      "cancel": "Cancel",
+      "next": "Next Step",
+      "previous": "Previous Step",
+      "finish": "Create Rules"
+    },
+    "dialogs": {
+      "addRule": {
+        "title": "Add RAW Rule",
+        "description": "Create a new RAW rule for pre-connection tracking processing"
+      },
+      "editRule": {
+        "title": "Edit RAW Rule",
+        "description": "Modify an existing RAW rule"
+      },
+      "deleteRule": {
+        "title": "Delete RAW Rule",
+        "message": "Are you sure you want to delete this RAW rule?",
+        "warning": "This action cannot be undone. The rule will be permanently removed.",
+        "confirm": "Delete Rule",
+        "cancel": "Cancel"
+      },
+      "moveRule": {
+        "title": "Move RAW Rule",
+        "message": "Move rule to position:",
+        "confirm": "Move",
+        "cancel": "Cancel"
+      }
+    },
+    "emptyStates": {
+      "noRules": {
+        "title": "No RAW Rules",
+        "description": "RAW rules process packets before connection tracking for performance optimization.",
+        "suggestion": "Use DDoS Protection Wizard or Bogon Filter to get started, or add a custom rule.",
+        "action": "Add RAW Rule"
+      },
+      "noRulesInChain": {
+        "title": "No Rules in {{chain}}",
+        "description": "This chain has no RAW rules configured.",
+        "suggestion": "Add rules to drop unwanted traffic before connection tracking.",
+        "action": "Add Rule"
+      },
+      "noMatchingRules": {
+        "title": "No Matching Rules",
+        "description": "No rules match your current filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "performance": {
+      "title": "Why use RAW table?",
+      "subtitle": "Performance optimization and DDoS protection",
+      "explanation": "The RAW table processes packets BEFORE connection tracking. This is critical for performance because connection tracking is expensive (CPU and memory). By dropping unwanted traffic in RAW, you prevent connection tracking overhead.",
+      "benefits": {
+        "title": "Key Benefits",
+        "items": [
+          "Packets dropped in RAW bypass connection tracking entirely (saves CPU and memory)",
+          "Ideal for DDoS protection - drop attacks before they consume resources",
+          "Use 'notrack' action to bypass connection tracking for trusted high-volume traffic",
+          "Processes at the earliest point in packet flow for maximum efficiency",
+          "Reduces connection table size by preventing tracked connections for dropped packets"
+        ]
+      },
+      "useCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "DDoS Protection - Drop SYN floods, UDP floods, ICMP floods before connection tracking",
+          "Bogon Filtering - Drop packets from invalid/reserved source addresses",
+          "Port Scan Protection - Drop packets from port scanners before connection tracking",
+          "High-Volume Traffic - Use 'notrack' for legitimate traffic that doesn't need connection tracking",
+          "Invalid Packets - Drop malformed packets before they reach connection tracking"
+        ]
+      },
+      "tips": {
+        "tip_drop": "Use 'drop' action in RAW to bypass connection tracking and save CPU/memory",
+        "tip_notrack": "Use 'notrack' action for high-volume trusted traffic (e.g., monitoring systems)",
+        "tip_order": "Place RAW rules for common attacks at the top for fastest processing",
+        "tip_logging": "Enable logging temporarily to verify rules are matching correctly",
+        "tip_testing": "Test RAW rules carefully - they process BEFORE connection tracking and can break legitimate traffic"
+      },
+      "warnings": {
+        "title": "Important Warnings",
+        "items": [
+          "RAW rules process BEFORE connection tracking - no connection state available",
+          "Cannot use connection state matching (established, related, etc.) in RAW",
+          "Dropped packets in RAW are invisible to connection tracking and firewall filter",
+          "Be careful with 'notrack' - untracked connections cannot use NAT or connection state matching",
+          "Always test RAW rules in a maintenance window or staging environment"
+        ]
+      }
+    },
+    "notifications": {
+      "ruleAdded": "RAW rule added successfully",
+      "ruleUpdated": "RAW rule updated successfully",
+      "ruleDeleted": "RAW rule deleted successfully",
+      "ruleMoved": "RAW rule moved successfully",
+      "ruleEnabled": "RAW rule enabled",
+      "ruleDisabled": "RAW rule disabled",
+      "ddosProtectionEnabled": "DDoS protection enabled successfully",
+      "bogonFilterEnabled": "Bogon filter enabled successfully",
+      "error": {
+        "loadRules": "Failed to load RAW rules",
+        "addRule": "Failed to add RAW rule",
+        "updateRule": "Failed to update RAW rule",
+        "deleteRule": "Failed to delete RAW rule",
+        "moveRule": "Failed to move RAW rule",
+        "enableRule": "Failed to enable RAW rule",
+        "disableRule": "Failed to disable RAW rule"
+      }
+    },
+    "hints": {
+      "connectionTracking": "RAW rules process BEFORE connection tracking - use for DDoS protection and performance optimization",
+      "orderMatters": "Rules are processed top-to-bottom - place common rules first for best performance",
+      "dropVsNotrack": "'drop' removes packets entirely, 'notrack' bypasses connection tracking but allows packet to continue",
+      "testing": "Test RAW rules carefully - they can break legitimate traffic if misconfigured",
+      "logging": "Enable logging to debug rule matching and verify expected behavior"
+    },
+    "help": {
+      "whatIsRaw": {
+        "title": "What is the RAW table?",
+        "content": "The RAW table is the first firewall table in packet processing, executed BEFORE connection tracking. This makes it ideal for dropping unwanted traffic (DDoS attacks) before consuming CPU/memory resources, and for bypassing connection tracking for high-volume legitimate traffic."
+      },
+      "packetFlow": {
+        "title": "RAW Packet Flow",
+        "content": "Packets flow through RAW → Connection Tracking → Mangle → NAT → Filter. RAW is the earliest point, making it the most efficient place to drop unwanted traffic or bypass connection tracking."
+      },
+      "connectionTracking": {
+        "title": "Connection Tracking Performance",
+        "content": "Connection tracking maintains state for every connection (TCP, UDP, ICMP), consuming CPU and memory. By dropping attacks in RAW or using 'notrack' for trusted traffic, you reduce connection tracking overhead and improve router performance."
+      },
+      "ddosProtection": {
+        "title": "DDoS Protection with RAW",
+        "content": "RAW table is ideal for DDoS protection because it drops attack traffic BEFORE connection tracking. This prevents attackers from filling the connection table and consuming router resources. Use the DDoS Protection Wizard to configure common protections."
+      },
+      "notrackAction": {
+        "title": "When to use 'notrack'",
+        "content": "Use 'notrack' for high-volume legitimate traffic that doesn't need connection tracking (e.g., monitoring systems, logging servers, SNMP). This reduces connection table size and improves performance. WARNING: Untracked connections cannot use NAT or connection state matching in other tables."
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Use RAW for DDoS protection and dropping attack traffic",
+          "Place most common rules at the top for best performance",
+          "Use 'notrack' for high-volume trusted traffic to reduce connection tracking overhead",
+          "Enable logging temporarily to verify rules are working correctly",
+          "Test RAW rules in a maintenance window - they can break legitimate traffic",
+          "Keep whitelist rules for management IPs at the top",
+          "Use Bogon Filter to drop packets from invalid source addresses",
+          "Monitor connection table size - RAW rules should reduce it significantly"
+        ]
+      }
+    }
+  },
+  "nat": {
+    "title": "NAT Rules",
+    "subtitle": "Network Address Translation configuration",
+    "description": "Configure port forwarding, masquerading, and address translation for routing traffic between networks",
+    "chains": {
+      "srcnat": "Source NAT",
+      "dstnat": "Destination NAT"
+    },
+    "chainDescriptions": {
+      "srcnat": "Modify source address for outgoing packets (masquerade, source NAT)",
+      "dstnat": "Modify destination address for incoming packets (port forwarding, destination NAT)"
+    },
+    "actions": {
+      "masquerade": "Masquerade",
+      "src-nat": "Source NAT",
+      "dst-nat": "Destination NAT",
+      "redirect": "Redirect",
+      "netmap": "Network Map",
+      "accept": "Accept",
+      "drop": "Drop",
+      "jump": "Jump",
+      "log": "Log",
+      "passthrough": "Passthrough",
+      "return": "Return"
+    },
+    "actionDescriptions": {
+      "masquerade": "Replace source IP with outgoing interface address (dynamic IP)",
+      "src-nat": "Replace source IP with specific address (static IP)",
+      "dst-nat": "Replace destination IP and/or port (port forwarding)",
+      "redirect": "Redirect to local port on the router",
+      "netmap": "One-to-one network address mapping",
+      "accept": "Accept packet without NAT (terminal action)",
+      "drop": "Drop packet silently (terminal action)",
+      "jump": "Jump to another chain",
+      "log": "Log packet to system log",
+      "passthrough": "Continue processing without terminal action",
+      "return": "Return to parent chain"
+    },
+    "portForwardWizard": {
+      "title": "Port Forward Wizard",
+      "subtitle": "Step-by-step port forwarding configuration",
+      "description": "Configure port forwarding to expose internal services to the internet",
+      "steps": {
+        "external": {
+          "title": "External Configuration",
+          "description": "Configure the external port and protocol that will be accessible from the internet",
+          "label": "External Access",
+          "help": "This is the port and protocol that internet users will connect to"
+        },
+        "internal": {
+          "title": "Internal Destination",
+          "description": "Configure the internal IP address and port where traffic will be forwarded",
+          "label": "Internal Destination",
+          "help": "This is the device and port on your local network that will receive the traffic"
+        },
+        "review": {
+          "title": "Review & Apply",
+          "description": "Review your port forwarding configuration before applying",
+          "label": "Review Configuration",
+          "help": "Double-check all settings before creating the NAT rule"
+        }
+      },
+      "safetyConfirm": {
+        "title": "Security Warning",
+        "message": "Port forwarding exposes internal services to the internet. This can create security risks if not properly configured.",
+        "warnings": [
+          "Exposed services should have strong authentication",
+          "Keep forwarded services up-to-date with security patches",
+          "Consider using non-standard external ports to reduce scanning",
+          "Monitor logs for suspicious connection attempts"
+        ],
+        "checkbox": "I understand the security implications of port forwarding",
+        "confirm": "Create Port Forward",
+        "cancel": "Cancel"
+      }
+    },
+    "fields": {
+      "chain": "Chain",
+      "action": "Action",
+      "position": "Position",
+      "protocol": "Protocol",
+      "srcAddress": "Source Address",
+      "dstAddress": "Destination Address",
+      "srcPort": "Source Port",
+      "dstPort": "Destination Port",
+      "toAddresses": "To Address",
+      "toPorts": "To Port",
+      "srcAddressList": "Source Address List",
+      "dstAddressList": "Destination Address List",
+      "inInterface": "In Interface",
+      "outInterface": "Out Interface",
+      "inInterfaceList": "In Interface List",
+      "outInterfaceList": "Out Interface List",
+      "connectionState": "Connection State",
+      "connectionNatState": "Connection NAT State",
+      "comment": "Comment",
+      "disabled": "Disabled",
+      "log": "Enable Logging",
+      "logPrefix": "Log Prefix",
+      "packets": "Packets",
+      "bytes": "Bytes",
+      "externalPort": "External Port",
+      "internalIP": "Internal IP Address",
+      "internalPort": "Internal Port",
+      "serviceName": "Service Name"
+    },
+    "fieldHelp": {
+      "srcAddress": "Match packets from this source address or network",
+      "dstAddress": "Match packets to this destination address or network",
+      "srcPort": "Match packets from this source port",
+      "dstPort": "Match packets to this destination port",
+      "toAddresses": "New destination address after NAT translation",
+      "toPorts": "New destination port after NAT translation",
+      "inInterface": "Match packets arriving on this interface",
+      "outInterface": "Match packets leaving through this interface",
+      "masquerade": "Automatically use outgoing interface IP (ideal for dynamic IPs)",
+      "srcnat": "Use static IP for source NAT (faster than masquerade)",
+      "dstnat": "Forward incoming traffic to internal servers",
+      "redirect": "Redirect to router itself (for transparent proxy)",
+      "connectionState": "Match packets in specific connection states",
+      "logPrefix": "Prefix for log messages (max 50 characters)",
+      "externalPort": "Port that will be accessible from the internet",
+      "internalIP": "Local network device that will receive forwarded traffic",
+      "internalPort": "Port on the internal device (can differ from external port)"
+    },
+    "placeholders": {
+      "srcAddress": "e.g., 192.168.1.0/24",
+      "dstAddress": "e.g., 0.0.0.0/0 (any)",
+      "srcPort": "e.g., 1024-65535",
+      "dstPort": "e.g., 80",
+      "toAddresses": "e.g., 192.168.1.100",
+      "toPorts": "e.g., 8080",
+      "logPrefix": "e.g., NAT:",
+      "comment": "Describe the rule purpose",
+      "externalPort": "e.g., 80",
+      "internalIP": "e.g., 192.168.1.100",
+      "internalPort": "e.g., 80",
+      "serviceName": "e.g., Web Server"
+    },
+    "connectionStates": {
+      "established": "Established",
+      "new": "New",
+      "related": "Related",
+      "invalid": "Invalid",
+      "untracked": "Untracked"
+    },
+    "connectionNatStates": {
+      "srcnat": "Source NAT",
+      "dstnat": "Destination NAT"
+    },
+    "commonPorts": {
+      "http": "HTTP (80)",
+      "https": "HTTPS (443)",
+      "ssh": "SSH (22)",
+      "ftp": "FTP (21)",
+      "smtp": "SMTP (25)",
+      "dns": "DNS (53)",
+      "rdp": "RDP (3389)",
+      "minecraft": "Minecraft (25565)",
+      "custom": "Custom Port"
+    },
+    "validation": {
+      "chainRequired": "Chain is required",
+      "actionRequired": "Action is required",
+      "toAddressRequired": "To address is required for this action",
+      "toPortsRequired": "To port is required for this action",
+      "portInvalid": "Port must be a number between 1 and 65535 or a range (e.g., 80-443)",
+      "portRangeInvalid": "Invalid port range - start port must be less than end port",
+      "addressInvalid": "Invalid IP address or CIDR notation",
+      "protocolRequired": "Protocol is required",
+      "inInterfaceRequired": "In interface is required for destination NAT",
+      "outInterfaceRequired": "Out interface is required for source NAT and masquerade",
+      "internalIPRequired": "Internal IP address is required",
+      "internalPortRequired": "Internal port is required",
+      "externalPortRequired": "External port is required",
+      "serviceNameTooLong": "Service name must be 100 characters or less"
+    },
+    "buttons": {
+      "addRule": "Add NAT Rule",
+      "addPortForward": "Port Forward Wizard",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "save": "Save Rule",
+      "cancel": "Cancel",
+      "next": "Next Step",
+      "previous": "Previous Step",
+      "finish": "Create Rule"
+    },
+    "dialogs": {
+      "addRule": {
+        "title": "Add NAT Rule",
+        "description": "Create a new NAT rule for address translation"
+      },
+      "editRule": {
+        "title": "Edit NAT Rule",
+        "description": "Modify existing NAT rule configuration"
+      },
+      "deleteRule": {
+        "title": "Delete NAT Rule",
+        "description": "Are you sure you want to delete this NAT rule?",
+        "warning": "This action cannot be undone.",
+        "consequences": [
+          "Port forwarding will stop working for this rule",
+          "External services depending on this rule will become unreachable",
+          "Active connections using this NAT rule may be terminated",
+          "Internal devices may lose internet connectivity if masquerade rule is removed"
+        ]
+      }
+    },
+    "table": {
+      "columns": {
+        "position": "#",
+        "chain": "Chain",
+        "action": "Action",
+        "translation": "Translation",
+        "matchers": "Matchers",
+        "packets": "Packets",
+        "bytes": "Bytes",
+        "enabled": "Enabled",
+        "actions": "Actions"
+      },
+      "matchersSummary": {
+        "protocol": "Protocol: {{value}}",
+        "address": "{{src}} → {{dst}}",
+        "port": "Port: {{value}}",
+        "interface": "Interface: {{value}}",
+        "state": "State: {{value}}",
+        "multiple": "+{{count}} more"
+      },
+      "translationSummary": {
+        "masquerade": "Masquerade ({{interface}})",
+        "srcnat": "{{srcAddress}} → {{toAddress}}",
+        "dstnat": "{{dstAddress}}:{{dstPort}} → {{toAddress}}:{{toPort}}",
+        "redirect": "Redirect → :{{toPort}}",
+        "netmap": "{{srcNetwork}} ↔ {{dstNetwork}}"
+      },
+      "noRules": "No NAT rules configured",
+      "noRulesInChain": "No rules in this chain",
+      "noMatches": "No rules match the current filters",
+      "unused": "Unused (0 hits)",
+      "hitCount": "{{count}} packets"
+    },
+    "emptyStates": {
+      "noRules": {
+        "title": "No NAT Rules",
+        "description": "Get started by creating your first NAT rule for port forwarding or masquerading.",
+        "actions": {
+          "create": "Add First Rule",
+          "wizard": "Port Forward Wizard",
+          "learn": "Learn About NAT"
+        }
+      },
+      "noRulesInChain": {
+        "title": "No Rules in {{chain}}",
+        "description": "This chain has no NAT rules configured.",
+        "action": "Add Rule to {{chain}}"
+      },
+      "filterNoResults": {
+        "title": "No Matching Rules",
+        "description": "No rules match your current filters. Try adjusting the filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "stats": {
+      "totalRules": "Total Rules",
+      "activeRules": "Active Rules",
+      "disabledRules": "Disabled Rules",
+      "portForwards": "Port Forwards",
+      "masqueradeRules": "Masquerade Rules",
+      "unusedRules": "Unused Rules",
+      "totalPackets": "Total Packets Translated",
+      "totalBytes": "Total Bytes Translated"
+    },
+    "notifications": {
+      "ruleCreated": "NAT rule created successfully",
+      "ruleUpdated": "NAT rule updated successfully",
+      "ruleDeleted": "NAT rule deleted successfully",
+      "ruleDuplicated": "NAT rule duplicated successfully",
+      "ruleEnabled": "NAT rule enabled",
+      "ruleDisabled": "NAT rule disabled",
+      "ruleMoved": "NAT rule position updated",
+      "portForwardCreated": "Port forward created successfully",
+      "error": {
+        "create": "Failed to create NAT rule",
+        "update": "Failed to update NAT rule",
+        "delete": "Failed to delete NAT rule",
+        "duplicate": "Failed to duplicate NAT rule",
+        "toggle": "Failed to toggle NAT rule",
+        "move": "Failed to move NAT rule",
+        "load": "Failed to load NAT rules"
+      }
+    },
+    "hints": {
+      "dragToReorder": "Drag rules to reorder them - earlier rules are processed first",
+      "terminalAction": "This is a terminal action - processing will stop here",
+      "unusedRule": "This rule has never matched any packets - verify the matchers",
+      "disabledRule": "This rule is disabled and will not process any packets",
+      "chainOrder": "Chains are processed in order: prerouting → routing → output/postrouting",
+      "masqueradePerformance": "Masquerade is slightly slower than src-nat but ideal for dynamic IPs",
+      "portForwardSecurity": "Port forwarding exposes services to the internet - ensure proper authentication",
+      "hairpinNAT": "For internal access to port forwards, enable hairpin NAT in firewall settings"
+    },
+    "help": {
+      "whatIsNAT": {
+        "title": "What is NAT?",
+        "content": "Network Address Translation (NAT) modifies IP addresses and ports in packet headers. It enables multiple devices to share a single public IP address and allows port forwarding to internal servers."
+      },
+      "chains": {
+        "title": "NAT Chains",
+        "content": "srcnat chain processes outgoing packets (masquerade, source NAT). dstnat chain processes incoming packets (port forwarding, destination NAT). Rules are evaluated in order from top to bottom."
+      },
+      "masqueradeVsSrcNat": {
+        "title": "Masquerade vs Source NAT",
+        "content": "Masquerade automatically uses the outgoing interface IP address - ideal for dynamic IPs (DHCP, PPPoE). Source NAT uses a static IP address - slightly faster but requires manual configuration for IP changes."
+      },
+      "portForwarding": {
+        "title": "Port Forwarding",
+        "content": "Port forwarding (dst-nat) redirects incoming traffic from a public port to an internal IP and port. Essential for hosting servers, remote access, and gaming. Always secure forwarded services with strong authentication."
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Masquerade - Share internet connection with local network devices",
+          "Port Forward - Host web servers, game servers, security cameras",
+          "Redirect - Transparent proxy, local DNS interception",
+          "Source NAT - Static outgoing IP for VPN or specific applications",
+          "Netmap - One-to-one mapping for subnet translation"
+        ]
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Use masquerade for dynamic WAN IPs, src-nat for static IPs",
+          "Place more specific rules before general rules (order matters)",
+          "Add comments to document the purpose of each rule",
+          "Test port forwards with disabled=yes first, then enable",
+          "Use non-standard external ports to reduce automated scanning",
+          "Enable logging for critical port forwards to monitor access",
+          "Combine with firewall filter rules for additional security",
+          "Consider VPN instead of port forwarding when possible"
+        ]
+      }
+    }
+  },
+  "addressLists": {
+    "title": "Address Lists",
+    "subtitle": "Manage firewall address lists and entries",
+    "description": "Create and manage IP address lists for use in firewall rules, rate limiting, and access control",
+    "fields": {
+      "listName": "List Name",
+      "address": "Address",
+      "comment": "Comment",
+      "timeout": "Timeout",
+      "entryCount": "Entry Count",
+      "dynamicCount": "Dynamic Entries",
+      "referencingRules": "Referencing Rules",
+      "creationTime": "Creation Time",
+      "disabled": "Disabled"
+    },
+    "fieldHelp": {
+      "listName": "Name of the address list (used in firewall rules)",
+      "address": "IP address, CIDR subnet, or IP range",
+      "comment": "Optional description for this entry",
+      "timeout": "Duration after which entry is removed (e.g., 1d, 12h, 30m)",
+      "dynamic": "Dynamic entries are added automatically by firewall rules"
+    },
+    "placeholders": {
+      "listName": "e.g., blocklist",
+      "address": "192.168.1.100 or 192.168.1.0/24 or 192.168.1.1-192.168.1.100",
+      "comment": "Description or note",
+      "timeout": "1d, 12h, 30m"
+    },
+    "buttons": {
+      "addEntry": "Add Entry",
+      "addList": "Add List",
+      "import": "Import",
+      "export": "Export",
+      "edit": "Edit",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "viewEntries": "View Entries",
+      "addToList": "Add to List",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "dialogs": {
+      "addEntry": {
+        "title": "Add Address List Entry",
+        "description": "Add a new IP address, subnet, or range to an address list"
+      },
+      "editEntry": {
+        "title": "Edit Address List Entry",
+        "description": "Modify existing address list entry"
+      },
+      "deleteEntry": {
+        "title": "Delete Entry",
+        "description": "Are you sure you want to delete this address list entry?",
+        "warning": "This action cannot be undone."
+      },
+      "deleteList": {
+        "title": "Delete Address List",
+        "description": "Are you sure you want to delete this entire address list?",
+        "warning": "This will delete all {{count}} entries in this list.",
+        "consequences": [
+          "All entries in this list will be deleted",
+          "Firewall rules referencing this list may stop working",
+          "This action cannot be undone"
+        ]
+      },
+      "import": {
+        "title": "Import Address List",
+        "description": "Import IP addresses from CSV or text file"
+      },
+      "export": {
+        "title": "Export Address Lists",
+        "description": "Export address lists to CSV format"
+      }
+    },
+    "table": {
+      "columns": {
+        "listName": "List Name",
+        "entryCount": "Entries",
+        "dynamicCount": "Dynamic",
+        "referencingRules": "Rules",
+        "actions": "Actions",
+        "address": "Address",
+        "comment": "Comment",
+        "timeout": "Timeout",
+        "creationTime": "Created",
+        "status": "Status"
+      },
+      "noLists": "No address lists configured",
+      "noEntries": "No entries in this list",
+      "noMatches": "No address lists match the current filters",
+      "staticEntry": "Static",
+      "dynamicEntry": "Dynamic",
+      "permanent": "Permanent",
+      "expandToView": "Click to view entries"
+    },
+    "emptyStates": {
+      "noLists": {
+        "title": "No Address Lists",
+        "description": "Get started by creating your first address list for use in firewall rules, rate limiting, and access control.",
+        "actions": {
+          "create": "Add First Entry",
+          "import": "Import from File",
+          "learn": "Learn About Address Lists"
+        }
+      },
+      "noEntries": {
+        "title": "No Entries",
+        "description": "This address list has no entries. Add entries to use this list in firewall rules.",
+        "action": "Add Entry"
+      },
+      "filterNoResults": {
+        "title": "No Matching Lists",
+        "description": "No address lists match your current filters. Try adjusting the filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "notifications": {
+      "entryCreated": "Address list entry created successfully",
+      "entryUpdated": "Address list entry updated successfully",
+      "entryDeleted": "Address list entry deleted successfully",
+      "listDeleted": "Address list '{{name}}' deleted successfully",
+      "importSuccess": "Imported {{count}} addresses successfully",
+      "importPartial": "Imported {{success}} addresses, {{failed}} failed",
+      "exportSuccess": "Address lists exported successfully",
+      "error": {
+        "create": "Failed to create address list entry",
+        "update": "Failed to update address list entry",
+        "delete": "Failed to delete address list entry",
+        "deleteList": "Failed to delete address list",
+        "import": "Failed to import addresses",
+        "export": "Failed to export address lists",
+        "load": "Failed to load address lists"
+      }
+    },
+    "validation": {
+      "listNameRequired": "List name is required",
+      "listNameInvalid": "List name can only contain alphanumeric characters, underscores, and hyphens",
+      "listNameTooLong": "List name must be 63 characters or less",
+      "addressRequired": "Address is required",
+      "addressInvalid": "Invalid IP address, CIDR notation, or IP range",
+      "timeoutInvalid": "Invalid timeout format (use 1d, 12h, 30m, etc.)",
+      "commentTooLong": "Comment must be 200 characters or less"
+    },
+    "hints": {
+      "listUsage": "Address lists can be used in firewall rules, rate limiting, and NAT rules",
+      "dynamicEntries": "Dynamic entries are added automatically by firewall actions (e.g., add-src-to-address-list)",
+      "timeout": "Entries with timeouts are automatically removed after the specified duration",
+      "referencingRules": "Shows how many firewall rules reference this address list",
+      "bulkImport": "Use import to add multiple addresses from a CSV or text file"
+    },
+    "help": {
+      "whatAreAddressLists": {
+        "title": "What are Address Lists?",
+        "content": "Address lists are collections of IP addresses, subnets, or ranges that can be used in firewall rules. They simplify rule management by allowing you to reference a named list instead of individual IPs."
+      },
+      "staticVsDynamic": {
+        "title": "Static vs Dynamic Entries",
+        "content": "Static entries are manually added and remain until deleted. Dynamic entries are added automatically by firewall rules (e.g., blocking IPs that exceed rate limits) and can have timeouts."
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Blocklists - Block traffic from known malicious IPs",
+          "Allowlists - Allow traffic only from trusted IPs",
+          "Rate limiting - Automatically add IPs exceeding connection limits",
+          "Geographic blocking - Block entire country IP ranges",
+          "Internal networks - Group internal subnets for firewall rules"
+        ]
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Use descriptive list names (e.g., 'trusted_networks' not 'list1')",
+          "Add comments to document why each IP is in the list",
+          "Use timeouts for dynamic blocking to prevent permanent blocks",
+          "Regularly review and clean up unused address lists",
+          "Export address lists regularly as backups",
+          "Use CIDR notation for subnets instead of individual IPs when possible"
+        ]
+      }
+    }
+  },
+  "servicePorts": {
+    "title": "Service Ports",
+    "description": "Define service names for easier rule creation",
+    "addService": "Add Service",
+    "createGroup": "Create Group",
+    "editService": "Edit Service",
+    "editGroup": "Edit Group",
+    "deleteService": "Delete Service",
+    "deleteGroup": "Delete Group",
+
+    "tabs": {
+      "services": "Services",
+      "groups": "Groups"
+    },
+
+    "fields": {
+      "name": "Service Name",
+      "groupName": "Group Name",
+      "protocol": "Protocol",
+      "port": "Port",
+      "ports": "Port(s)",
+      "description": "Description",
+      "category": "Category",
+      "type": "Type"
+    },
+
+    "protocols": {
+      "tcp": "TCP",
+      "udp": "UDP",
+      "both": "TCP & UDP"
+    },
+
+    "validation": {
+      "nameRequired": "Service name is required",
+      "nameExists": "Service name already exists",
+      "nameConflict": "Name conflicts with built-in service",
+      "nameInvalid": "Name must be alphanumeric with optional hyphens/underscores",
+      "portRequired": "Port number is required",
+      "portInvalid": "Invalid port number (1-65535)",
+      "portExists": "Port already assigned to another service",
+      "groupEmpty": "Group must contain at least one service",
+      "groupNameRequired": "Group name is required",
+      "groupNameExists": "Group name already exists",
+      "descriptionTooLong": "Description must be less than 500 characters"
+    },
+
+    "types": {
+      "builtIn": "Built-in",
+      "custom": "Custom",
+      "group": "Group"
+    },
+
+    "messages": {
+      "serviceAdded": "Service added successfully",
+      "serviceUpdated": "Service updated successfully",
+      "serviceDeleted": "Service deleted successfully",
+      "groupCreated": "Group created successfully",
+      "groupUpdated": "Group updated successfully",
+      "groupDeleted": "Group deleted successfully"
+    },
+
+    "placeholders": {
+      "serviceName": "e.g., my-app",
+      "groupName": "e.g., web-services",
+      "port": "e.g., 8080",
+      "ports": "e.g., 80, 443, 8080",
+      "description": "Optional description",
+      "searchServices": "Search by name or port...",
+      "selectServices": "Select services to include in group"
+    },
+
+    "emptyStates": {
+      "noServices": "No custom services defined",
+      "noServicesDescription": "Add custom services to use in firewall rules",
+      "noGroups": "No service groups defined",
+      "noGroupsDescription": "Create groups to quickly select multiple services"
+    },
+
+    "tooltips": {
+      "builtInReadOnly": "Built-in services cannot be edited or deleted",
+      "groupsMultiModeOnly": "Service groups only work in multi-port mode",
+      "caseInsensitive": "Name matching is case-insensitive"
+    },
+
+    "confirmations": {
+      "deleteService": "Delete this service?",
+      "deleteServiceDescription": "This action cannot be undone. The service will be removed from your custom list.",
+      "deleteGroup": "Delete this group?",
+      "deleteGroupDescription": "This action cannot be undone. The group will be removed but individual services will remain."
+    }
+  },
+  "connections": {
+    "title": "Connection Tracking",
+    "subtitle": "Active firewall connections and tracking settings",
+    "description": "Monitor active connections and configure connection tracking settings for stateful firewall operation",
+    "tabs": {
+      "list": "Connections",
+      "settings": "Settings"
+    },
+    "fields": {
+      "protocol": "Protocol",
+      "srcAddress": "Source Address",
+      "dstAddress": "Destination Address",
+      "srcPort": "Source Port",
+      "dstPort": "Destination Port",
+      "replyDstAddress": "Reply Destination",
+      "replyDstPort": "Reply Destination Port",
+      "state": "State",
+      "timeout": "Timeout",
+      "packets": "Packets",
+      "bytes": "Bytes",
+      "assured": "Assured",
+      "confirmed": "Confirmed",
+      "ipAddress": "IP Address",
+      "port": "Port"
+    },
+    "states": {
+      "established": "Established",
+      "related": "Related",
+      "new": "New",
+      "invalid": "Invalid",
+      "untracked": "Untracked",
+      "syn-sent": "SYN Sent",
+      "syn-received": "SYN Received",
+      "fin-wait": "FIN Wait",
+      "time-wait": "Time Wait",
+      "close": "Close",
+      "close-wait": "Close Wait",
+      "last-ack": "Last ACK"
+    },
+    "stateDescriptions": {
+      "established": "Connection is fully established and actively transmitting data",
+      "related": "Related to an existing connection (e.g., FTP data channel)",
+      "new": "New connection attempt not yet established",
+      "invalid": "Invalid or malformed connection that doesn't match any known state",
+      "untracked": "Connection not being tracked by the firewall"
+    },
+    "protocols": {
+      "tcp": "TCP",
+      "udp": "UDP",
+      "icmp": "ICMP",
+      "all": "All Protocols"
+    },
+    "filters": {
+      "ipAddress": "Filter by IP",
+      "port": "Filter by Port",
+      "protocol": "Protocol",
+      "state": "State",
+      "clearAll": "Clear All Filters",
+      "activeFilters": "{{count}} active filter(s)"
+    },
+    "filterPlaceholders": {
+      "ipAddress": "192.168.1.* or 192.168.1.100",
+      "port": "e.g., 80 or 443"
+    },
+    "filterHelp": {
+      "ipAddress": "Supports wildcards: 192.168.1.* matches all IPs in that subnet",
+      "port": "Matches source or destination port",
+      "protocol": "Filter by connection protocol (TCP, UDP, ICMP)",
+      "state": "Filter by connection state (established, new, related, etc.)"
+    },
+    "buttons": {
+      "killConnection": "Kill Connection",
+      "pauseRefresh": "Pause Auto-Refresh",
+      "resumeRefresh": "Resume Auto-Refresh",
+      "refresh": "Refresh Now",
+      "export": "Export Connections",
+      "clearFilters": "Clear Filters",
+      "applyFilters": "Apply Filters",
+      "saveSettings": "Save Settings",
+      "resetDefaults": "Reset to Defaults",
+      "cancel": "Cancel"
+    },
+    "dialogs": {
+      "killConnection": {
+        "title": "Terminate Connection",
+        "description": "Are you sure you want to terminate this connection?",
+        "warning": "This will immediately terminate the active connection.",
+        "consequences": [
+          "The connection will be removed from the tracking table",
+          "Any active data transfer will be interrupted",
+          "The client will need to establish a new connection"
+        ],
+        "confirm": "Kill Connection",
+        "cancel": "Cancel"
+      }
+    },
+    "table": {
+      "columns": {
+        "protocol": "Protocol",
+        "srcAddress": "Source",
+        "srcPort": "Src Port",
+        "dstAddress": "Destination",
+        "dstPort": "Dst Port",
+        "state": "State",
+        "timeout": "Timeout",
+        "packets": "Packets",
+        "bytes": "Bytes",
+        "actions": "Actions"
+      },
+      "noConnections": "No active connections",
+      "noMatches": "No connections match the current filters",
+      "loadingConnections": "Loading connections...",
+      "totalConnections": "Total: {{count}} connection(s)",
+      "filteredConnections": "Showing {{filtered}} of {{total}} connection(s)"
+    },
+    "autoRefresh": {
+      "enabled": "Auto-refresh every 5 seconds",
+      "disabled": "Auto-refresh paused",
+      "lastUpdated": "Last updated: {{time}}"
+    },
+    "settings": {
+      "title": "Connection Tracking Settings",
+      "description": "Configure connection tracking behavior and timeout values",
+      "general": {
+        "title": "General Settings",
+        "enabled": "Connection Tracking Enabled",
+        "enabledHelp": "Enable or disable connection tracking globally",
+        "maxEntries": "Maximum Entries",
+        "maxEntriesHelp": "Maximum number of connections in the tracking table (1-10,000,000)",
+        "looseTracking": "Loose TCP Tracking",
+        "looseTrackingHelp": "Allow TCP connections without proper handshake (not recommended for security)"
+      },
+      "tcpTimeouts": {
+        "title": "TCP Timeouts",
+        "description": "Configure timeout values for different TCP connection states",
+        "established": "Established Timeout",
+        "establishedHelp": "Timeout for established TCP connections (default: 1 day)",
+        "synSent": "SYN Sent Timeout",
+        "synSentHelp": "Timeout for connections in SYN-SENT state (default: 5 seconds)",
+        "synReceived": "SYN Received Timeout",
+        "synReceivedHelp": "Timeout for connections in SYN-RECEIVED state (default: 60 seconds)",
+        "finWait": "FIN Wait Timeout",
+        "finWaitHelp": "Timeout for connections in FIN-WAIT state (default: 10 seconds)",
+        "timeWait": "Time Wait Timeout",
+        "timeWaitHelp": "Timeout for connections in TIME-WAIT state (default: 10 seconds)",
+        "close": "Close Timeout",
+        "closeHelp": "Timeout for connections in CLOSE state (default: 10 seconds)",
+        "closeWait": "Close Wait Timeout",
+        "closeWaitHelp": "Timeout for connections in CLOSE-WAIT state (default: 10 seconds)",
+        "lastAck": "Last ACK Timeout",
+        "lastAckHelp": "Timeout for connections in LAST-ACK state (default: 10 seconds)"
+      },
+      "otherProtocols": {
+        "title": "Other Protocol Timeouts",
+        "description": "Configure timeout values for non-TCP protocols",
+        "udp": "UDP Timeout",
+        "udpHelp": "Timeout for UDP connections (default: 10 seconds)",
+        "udpStream": "UDP Stream Timeout",
+        "udpStreamHelp": "Timeout for UDP streams (default: 3 minutes)",
+        "icmp": "ICMP Timeout",
+        "icmpHelp": "Timeout for ICMP connections (default: 10 seconds)",
+        "generic": "Generic Timeout",
+        "genericHelp": "Timeout for other protocols (default: 10 minutes)"
+      },
+      "durationFormat": {
+        "title": "Duration Format",
+        "description": "Enter durations using combinations of days (d), hours (h), minutes (m), and seconds (s)",
+        "examples": "Examples: 1d (1 day), 12h (12 hours), 30m (30 minutes), 45s (45 seconds), 1d12h30m (1 day, 12 hours, 30 minutes)"
+      }
+    },
+    "validation": {
+      "maxEntriesRequired": "Maximum entries is required",
+      "maxEntriesMin": "Maximum entries must be at least 1",
+      "maxEntriesMax": "Maximum entries cannot exceed 10,000,000",
+      "maxEntriesInteger": "Maximum entries must be a whole number",
+      "timeoutRequired": "Timeout is required",
+      "timeoutInvalid": "Invalid timeout format (use 1d, 12h, 30m, or 45s)",
+      "timeoutTooSmall": "Timeout is too small (minimum: 1 second)",
+      "timeoutTooLarge": "Timeout is too large (maximum: 7 days)",
+      "ipAddressInvalid": "Invalid IP address or pattern",
+      "portInvalid": "Port must be a number between 1 and 65535"
+    },
+    "notifications": {
+      "connectionKilled": "Connection terminated successfully",
+      "settingsUpdated": "Connection tracking settings updated successfully",
+      "settingsReset": "Settings reset to defaults successfully",
+      "error": {
+        "killConnection": "Failed to terminate connection",
+        "updateSettings": "Failed to update settings",
+        "loadSettings": "Failed to load settings",
+        "loadConnections": "Failed to load connections"
+      }
+    },
+    "emptyStates": {
+      "noConnections": {
+        "title": "No Active Connections",
+        "description": "There are currently no active connections being tracked by the firewall.",
+        "hint": "Connections will appear here as devices communicate through the router."
+      },
+      "filterNoResults": {
+        "title": "No Matching Connections",
+        "description": "No connections match your current filters. Try adjusting the filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "stats": {
+      "totalConnections": "Total Connections",
+      "tcpConnections": "TCP Connections",
+      "udpConnections": "UDP Connections",
+      "icmpConnections": "ICMP Connections",
+      "establishedConnections": "Established",
+      "newConnections": "New",
+      "relatedConnections": "Related"
+    },
+    "hints": {
+      "autoRefresh": "Connections auto-refresh every 5 seconds - pause to inspect details",
+      "wildcards": "Use wildcards (*) in IP filters to match subnets (e.g., 192.168.1.*)",
+      "killConnection": "Killing a connection may disrupt active transfers and services",
+      "looseTracking": "Loose tracking is less secure but may be needed for asymmetric routing",
+      "timeoutSettings": "Lower timeouts free up tracking table entries faster but may break long-lived connections",
+      "maxEntries": "If the tracking table fills up, new connections will be dropped"
+    },
+    "help": {
+      "whatIsConnectionTracking": {
+        "title": "What is Connection Tracking?",
+        "content": "Connection tracking maintains a table of active network connections, enabling stateful firewall operation. It tracks the state of each connection (new, established, related) and automatically handles return traffic for established connections."
+      },
+      "connectionStates": {
+        "title": "Connection States",
+        "content": "Connections progress through states: new (initial packet), established (handshake complete), related (associated with existing connection), and various TCP-specific states (SYN-SENT, FIN-WAIT, TIME-WAIT, etc.)."
+      },
+      "timeoutSettings": {
+        "title": "Timeout Settings",
+        "content": "Timeouts determine how long inactive connections remain in the tracking table. Lower timeouts free up resources faster but may prematurely close long-lived connections. Higher timeouts use more memory but accommodate idle connections."
+      },
+      "maxEntries": {
+        "title": "Maximum Entries",
+        "content": "The maximum entries setting limits the size of the connection tracking table. If the table fills up, new connections will be rejected. Monitor your connection count and adjust this limit based on your network size and available RAM."
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Monitor active connections to detect unusual traffic patterns",
+          "Identify connection leaks from misconfigured applications",
+          "Troubleshoot connectivity issues by inspecting connection states",
+          "Terminate stuck connections that aren't closing properly",
+          "Adjust timeouts to optimize memory usage vs connection stability"
+        ]
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Keep connection tracking enabled for stateful firewall operation",
+          "Set max entries to 2-3x your typical peak connection count",
+          "Use default timeouts unless you have specific requirements",
+          "Enable loose tracking only if you have asymmetric routing",
+          "Monitor connection count regularly to detect anomalies",
+          "Use filters to investigate suspicious connection patterns",
+          "Document any timeout adjustments and the reason for them"
+        ]
+      }
+    }
+  },
+  "logs": {
+    "title": "Firewall Logs",
+    "subtitle": "Real-time firewall activity and traffic logging",
+    "description": "Monitor firewall activity, blocked connections, and traffic patterns in real-time",
+    "empty": "No firewall logs available. Enable logging in your firewall rules to see activity.",
+    "loading": "Loading firewall logs...",
+    "columns": {
+      "timestamp": "Timestamp",
+      "chain": "Chain",
+      "action": "Action",
+      "source": "Source",
+      "destination": "Destination",
+      "protocol": "Protocol",
+      "prefix": "Prefix",
+      "interfaces": "Interfaces",
+      "length": "Length"
+    },
+    "filters": {
+      "title": "Filters",
+      "timeRange": "Time Range",
+      "action": "Action",
+      "ipAddress": "IP Address",
+      "port": "Port",
+      "prefix": "Log Prefix",
+      "clear": "Clear Filters",
+      "activeFilters": "Active Filters"
+    },
+    "stats": {
+      "title": "Log Statistics",
+      "topBlockedIps": "Top Blocked IPs",
+      "topPorts": "Top Ports",
+      "actionDistribution": "Action Distribution",
+      "addToBlocklist": "Add to Blocklist"
+    },
+    "actions": {
+      "accept": "Accept",
+      "drop": "Drop",
+      "reject": "Reject",
+      "unknown": "Unknown"
+    },
+    "autoRefresh": {
+      "enabled": "Auto-refresh enabled",
+      "disabled": "Auto-refresh disabled",
+      "interval": "Refresh Interval",
+      "pause": "Pause Auto-refresh",
+      "play": "Resume Auto-refresh"
+    },
+    "controls": {
+      "pauseRefresh": "Pause auto-refresh",
+      "startRefresh": "Start auto-refresh",
+      "manual": "Manual",
+      "export": "Export"
+    },
+    "accessibility": {
+      "newLogsAnnouncement": "{{count}} new log entry received",
+      "newLogsAnnouncement_plural": "{{count}} new log entries received"
+    },
+    "export": {
+      "csv": "Export as CSV",
+      "json": "Export as JSON",
+      "downloading": "Downloading logs..."
+    },
+    "navigation": {
+      "goToRule": "Go to Rule",
+      "ruleNotFound": "Rule not found"
+    },
+    "timeRanges": {
+      "lastHour": "Last Hour",
+      "last6Hours": "Last 6 Hours",
+      "lastDay": "Last 24 Hours",
+      "lastWeek": "Last 7 Days",
+      "custom": "Custom Range"
+    },
+    "table": {
+      "columns": {
+        "timestamp": "Time",
+        "chain": "Chain",
+        "action": "Action",
+        "source": "Source IP",
+        "sourcePort": "Src Port",
+        "destination": "Destination IP",
+        "destPort": "Dst Port",
+        "protocol": "Protocol",
+        "prefix": "Log Prefix",
+        "inInterface": "In Interface",
+        "outInterface": "Out Interface",
+        "packetLength": "Length"
+      },
+      "noLogs": "No firewall logs found",
+      "noMatches": "No logs match the current filters",
+      "loadMore": "Load More Logs",
+      "loadingMore": "Loading more logs...",
+      "endOfLogs": "No more logs to display"
+    },
+    "buttons": {
+      "refresh": "Refresh",
+      "export": "Export",
+      "clearFilters": "Clear Filters",
+      "applyFilters": "Apply Filters",
+      "addToBlocklist": "Add to Blocklist",
+      "viewDetails": "View Details"
+    },
+    "dialogs": {
+      "logDetails": {
+        "title": "Log Entry Details",
+        "description": "Complete details for this firewall log entry"
+      },
+      "exportLogs": {
+        "title": "Export Firewall Logs",
+        "description": "Export filtered logs to CSV or JSON format"
+      },
+      "addToBlocklist": {
+        "title": "Add to Blocklist",
+        "description": "Add IP address to firewall blocklist",
+        "ipAddress": "IP Address",
+        "timeout": "Block Duration",
+        "comment": "Comment",
+        "confirm": "Add to Blocklist",
+        "cancel": "Cancel"
+      }
+    },
+    "emptyStates": {
+      "noLogs": {
+        "title": "No Firewall Logs",
+        "description": "Enable logging in your firewall rules to monitor traffic and security events.",
+        "actions": {
+          "goToFirewall": "Go to Firewall Rules",
+          "learn": "Learn About Firewall Logging"
+        }
+      },
+      "noLogsInRange": {
+        "title": "No Logs in Time Range",
+        "description": "No firewall logs found for the selected time range. Try expanding the time range or adjusting filters.",
+        "action": "Expand Time Range"
+      },
+      "filterNoResults": {
+        "title": "No Matching Logs",
+        "description": "No logs match your current filters. Try adjusting the filter criteria.",
+        "action": "Clear Filters"
+      }
+    },
+    "notifications": {
+      "exported": "Firewall logs exported successfully",
+      "addedToBlocklist": "IP {{ip}} added to blocklist successfully",
+      "error": {
+        "load": "Failed to load firewall logs",
+        "export": "Failed to export firewall logs",
+        "addToBlocklist": "Failed to add IP to blocklist"
+      }
+    },
+    "hints": {
+      "enableLogging": "Enable logging on firewall rules to populate this view",
+      "logPrefix": "Use log prefixes to identify which rule generated each log entry",
+      "performance": "Logging all traffic can impact router performance - use selectively",
+      "retention": "Logs are stored for 7 days by default - export for longer retention",
+      "filtering": "Use filters to narrow down logs by time, action, or IP address"
+    },
+    "help": {
+      "whatAreFirewallLogs": {
+        "title": "What are Firewall Logs?",
+        "content": "Firewall logs record traffic events matching firewall rules with logging enabled. They help monitor security events, troubleshoot connectivity issues, and analyze traffic patterns."
+      },
+      "logPrefix": {
+        "title": "Log Prefixes",
+        "content": "Log prefixes are custom labels added to log entries to identify which firewall rule generated the log. Use descriptive prefixes like 'DROP_WAN_' or 'ACCEPT_VPN_' to quickly identify rule matches."
+      },
+      "commonUseCases": {
+        "title": "Common Use Cases",
+        "items": [
+          "Monitor blocked connection attempts from the internet",
+          "Troubleshoot connectivity issues by logging accepted connections",
+          "Identify port scan attempts and malicious traffic patterns",
+          "Track internal traffic for compliance and auditing",
+          "Debug firewall rules during initial configuration"
+        ]
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Use specific log prefixes for each rule for easy identification",
+          "Log drop/reject rules on WAN interfaces to monitor attacks",
+          "Avoid logging all accepted traffic - impacts performance",
+          "Use log prefixes that indicate chain and purpose (e.g., 'INPUT_DROP_SSH')",
+          "Export logs regularly for long-term analysis and compliance",
+          "Filter logs by time range to reduce load when analyzing",
+          "Add suspicious IPs to blocklists directly from log view"
+        ]
+      }
+    }
+  },
+  "portKnocking": {
+    "title": "Port Knocking",
+    "subtitle": "Protect services behind secret knock sequences",
+    "description": "Hide sensitive services by requiring a secret sequence of connection attempts before granting access",
+    "tabs": {
+      "sequences": "Sequences",
+      "log": "Knock Log"
+    },
+    "infoCard": {
+      "title": "What is Port Knocking?",
+      "description": "Port knocking hides services by requiring a secret sequence of connection attempts to specific ports before granting access. This prevents port scanning and unauthorized access to sensitive services like SSH."
+    },
+    "fields": {
+      "name": "Sequence Name",
+      "knockPorts": "Knock Ports",
+      "protectedPort": "Protected Port",
+      "protectedProtocol": "Protocol",
+      "accessTimeout": "Access Timeout",
+      "knockTimeout": "Knock Timeout",
+      "enabled": "Enabled",
+      "recentAccess": "Recent Access",
+      "timeouts": "Timeouts",
+      "sequenceName": "Sequence",
+      "sourceIP": "Source IP",
+      "status": "Status",
+      "progress": "Progress",
+      "portsHit": "Ports Hit",
+      "timestamp": "Timestamp"
+    },
+    "fieldHelp": {
+      "name": "Unique identifier for this knock sequence (used in address list names)",
+      "knockPorts": "Secret sequence of ports to knock. Minimum 2 ports required.",
+      "protectedPort": "Service port to protect behind the knock sequence",
+      "protectedProtocol": "Protocol of the protected service (TCP or UDP)",
+      "accessTimeout": "Duration of access after successful knock",
+      "knockTimeout": "Time allowed between knocks",
+      "enabled": "Enable or disable this knock sequence"
+    },
+    "placeholders": {
+      "name": "e.g., ssh-protection",
+      "knockTimeout": "e.g., 10s",
+      "accessTimeout": "e.g., 1h"
+    },
+    "commonServices": {
+      "ssh": "SSH (22)",
+      "http": "HTTP (80)",
+      "https": "HTTPS (443)",
+      "rdp": "RDP (3389)",
+      "vnc": "VNC (5900)",
+      "custom": "Custom"
+    },
+    "statuses": {
+      "active": "Active",
+      "disabled": "Disabled",
+      "success": "Success",
+      "failed": "Failed",
+      "partial": "Partial"
+    },
+    "buttons": {
+      "createSequence": "Create Sequence",
+      "addKnockPort": "Add Knock Port",
+      "edit": "Edit",
+      "delete": "Delete",
+      "enable": "Enable",
+      "disable": "Disable",
+      "test": "Test",
+      "blockIP": "Block IP",
+      "export": "Export CSV",
+      "loadMore": "Load More",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "warnings": {
+      "sshLockout": "Warning: This sequence protects SSH (port 22). Ensure you test the knock sequence before logging out to avoid being locked out.",
+      "sshLockoutDelete": "Warning: This sequence protects SSH. Ensure you have alternative access before deleting.",
+      "testBeforeLogout": "Test before logging out to avoid lockout"
+    },
+    "dialogs": {
+      "create": {
+        "title": "Create Port Knock Sequence",
+        "description": "Define a secret knock sequence to protect a service"
+      },
+      "edit": {
+        "title": "Edit Port Knock Sequence",
+        "description": "Modify the knock sequence configuration"
+      },
+      "delete": {
+        "title": "Delete Port Knock Sequence",
+        "description": "Are you sure you want to delete the sequence \"{{name}}\"? This will remove all associated firewall rules."
+      }
+    },
+    "preview": {
+      "title": "Preview",
+      "generatedRules": "Generated Rules"
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "protectedService": "Protected Service",
+        "knockPorts": "Knock Ports",
+        "status": "Status",
+        "recentAccess": "Recent Access",
+        "timeouts": "Timeouts",
+        "actions": "Actions",
+        "timestamp": "Timestamp",
+        "sequence": "Sequence",
+        "sourceIP": "Source IP",
+        "progress": "Progress",
+        "portsHit": "Ports Hit",
+        "protectedPort": "Protected Port"
+      },
+      "knockTimeoutLabel": "K",
+      "accessTimeoutLabel": "A"
+    },
+    "emptyStates": {
+      "noSequences": {
+        "title": "No Port Knock Sequences",
+        "description": "Create a knock sequence to protect sensitive services.",
+        "action": "Create First Sequence"
+      },
+      "noAttempts": {
+        "title": "No Knock Attempts",
+        "description": "Knock attempts will appear here when sequences are triggered."
+      }
+    },
+    "filters": {
+      "allStatuses": "All Statuses",
+      "success": "Success",
+      "failed": "Failed",
+      "partial": "Partial",
+      "filterByIP": "Filter by IP...",
+      "autoRefresh": "Auto-refresh"
+    },
+    "notifications": {
+      "created": "Port knock sequence created successfully",
+      "updated": "Port knock sequence updated successfully",
+      "deleted": "Port knock sequence deleted successfully",
+      "enabled": "Port knock sequence enabled",
+      "disabled": "Port knock sequence disabled",
+      "error": {
+        "create": "Failed to create port knock sequence",
+        "update": "Failed to update port knock sequence",
+        "delete": "Failed to delete port knock sequence",
+        "toggle": "Failed to toggle port knock sequence",
+        "load": "Failed to load port knock sequences",
+        "loadLog": "Failed to load knock log"
+      }
+    },
+    "validation": {
+      "nameRequired": "Sequence name is required",
+      "nameInvalid": "Name must contain only letters, numbers, underscores, and hyphens",
+      "nameTooLong": "Name must be 63 characters or less",
+      "knockPortsRequired": "At least 2 knock ports are required",
+      "knockPortsMax": "Maximum 8 knock ports allowed",
+      "portInvalid": "Port must be between 1 and 65535",
+      "portDuplicate": "Knock ports must be unique",
+      "protectedPortRequired": "Protected port is required",
+      "protocolRequired": "Protocol is required",
+      "knockTimeoutRequired": "Knock timeout is required",
+      "knockTimeoutInvalid": "Invalid timeout format (use 10s, 1m, etc.)",
+      "accessTimeoutRequired": "Access timeout is required",
+      "accessTimeoutInvalid": "Invalid timeout format (use 1h, 30m, etc.)"
+    }
+  },
+  "counters": {
+    "title": "Traffic Counters",
+    "subtitle": "Rule hit statistics and visualization",
+    "description": "Monitor traffic patterns and rule effectiveness with real-time counter visualization",
+    "fields": {
+      "packets": "Packets",
+      "bytes": "Bytes",
+      "rate": "Rate",
+      "trafficBar": "Traffic Bar",
+      "percentOfMax": "{{percent}}% of max",
+      "unused": "Unused (0 hits)"
+    },
+    "labels": {
+      "packetsCount": "{{count}} packets",
+      "bytesFormatted": "{{bytes}}",
+      "packetsPerSecond": "{{rate}}/s",
+      "bytesPerSecond": "{{rate}}/s"
+    },
+    "settings": {
+      "title": "Counter Settings",
+      "pollingInterval": "Polling Interval",
+      "pollingIntervalHelp": "How often to refresh counter values",
+      "showRelativeBar": "Show Traffic Bars",
+      "showRelativeBarHelp": "Display progress bars showing relative traffic volume",
+      "showRate": "Show Rate (Desktop)",
+      "showRateHelp": "Display packets/bytes per second on desktop view",
+      "intervals": {
+        "manual": "Manual (No polling)",
+        "5s": "5 seconds",
+        "10s": "10 seconds",
+        "30s": "30 seconds",
+        "60s": "60 seconds"
+      }
+    },
+    "statistics": {
+      "title": "Rule Statistics",
+      "totalPackets": "Total Packets",
+      "totalBytes": "Total Bytes",
+      "averageRate": "Average Rate",
+      "peakRate": "Peak Rate",
+      "timeRange": "Time Range",
+      "timeRanges": {
+        "1h": "1 Hour",
+        "24h": "24 Hours",
+        "7d": "7 Days"
+      }
+    },
+    "chart": {
+      "title": "Traffic History",
+      "xAxisLabel": "Time",
+      "yAxisLabel": "Bytes",
+      "tooltipPackets": "{{count}} packets",
+      "tooltipBytes": "{{bytes}}",
+      "noData": "No historical data available",
+      "loading": "Loading chart data..."
+    },
+    "export": {
+      "title": "Export Counter Data",
+      "description": "Export traffic statistics to CSV format",
+      "csvButton": "Export CSV",
+      "exportSuccess": "Counter data exported successfully",
+      "exportError": "Failed to export counter data"
+    },
+    "buttons": {
+      "showStatistics": "Show Statistics",
+      "hideStatistics": "Hide Statistics",
+      "exportCsv": "Export CSV",
+      "changeTimeRange": "Change Time Range"
+    },
+    "emptyStates": {
+      "noData": {
+        "title": "No Traffic Data",
+        "description": "This rule has not matched any traffic yet.",
+        "hint": "Traffic counters will update as packets match this rule."
+      },
+      "noHistory": {
+        "title": "No Historical Data",
+        "description": "Historical tracking has not been enabled or no data has been collected yet.",
+        "hint": "Counter history is stored locally for 7 days."
+      }
+    },
+    "hints": {
+      "clickForDetails": "Click to view detailed statistics",
+      "relativeBar": "Bar length shows traffic volume relative to busiest rule",
+      "rateCalculation": "Rate is calculated from recent changes in counter values",
+      "unusedRule": "This rule has never matched any packets - verify matchers",
+      "pollingImpact": "Lower polling intervals increase router load but provide more real-time data"
+    },
+    "notifications": {
+      "historyEnabled": "Counter history tracking enabled",
+      "historyDisabled": "Counter history tracking disabled",
+      "historycleared": "Counter history cleared successfully",
+      "error": {
+        "loadHistory": "Failed to load counter history",
+        "saveHistory": "Failed to save counter data",
+        "export": "Failed to export counter data"
+      }
+    }
+  },
+  "efficiency": {
+    "title": "Rule Efficiency Report",
+    "subtitle": "Optimize firewall performance",
+    "description": "Analyze firewall rules for redundancies and optimization opportunities",
+    "tabs": {
+      "redundancy": "Redundancy",
+      "reordering": "Reordering"
+    },
+    "redundancy": {
+      "title": "Redundant Rules",
+      "description": "Rules that are superseded by other rules or never match traffic",
+      "noSuggestions": "No redundant rules detected. Your firewall configuration is optimal!",
+      "detected": "{{count}} redundant rule(s) detected"
+    },
+    "reordering": {
+      "title": "Reordering Suggestions",
+      "description": "Rules that could be reordered for better performance",
+      "noSuggestions": "Rule order is optimal. No reordering suggestions.",
+      "detected": "{{count}} reordering suggestion(s) found"
+    },
+    "suggestion": {
+      "types": {
+        "redundant": "Redundant Rule",
+        "reorder": "Reorder for Performance"
+      },
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "actions": {
+        "delete": "Delete",
+        "disable": "Disable",
+        "move": "Move"
+      },
+      "affectedRules": "Affected Rules",
+      "targetPosition": "Move to position {{position}}",
+      "performanceGain": "Estimated performance gain: {{gain}}",
+      "showAffectedRules": "Show affected rules",
+      "hideAffectedRules": "Hide affected rules"
+    },
+    "details": {
+      "ruleConflict": "This rule is superseded by rule #{{position}}",
+      "highTrafficLatePosition": "Rule #{{position}} has {{ratio}}x more traffic but appears later in chain",
+      "neverMatched": "This rule has never matched any traffic",
+      "sameAction": "Multiple rules with same action and overlapping criteria",
+      "addressOverlap": "Address ranges overlap with another rule"
+    },
+    "buttons": {
+      "preview": "Preview",
+      "apply": "Apply Suggestion",
+      "dismiss": "Dismiss",
+      "viewRule": "View Rule",
+      "openReport": "Efficiency Report",
+      "closeReport": "Close Report",
+      "refreshAnalysis": "Refresh Analysis"
+    },
+    "dialogs": {
+      "applySuggestion": {
+        "title": "Apply Suggestion",
+        "description": "Are you sure you want to apply this optimization?",
+        "deleteWarning": "This will delete the selected rule permanently.",
+        "disableWarning": "This will disable the selected rule.",
+        "reorderWarning": "This will reorder rules in the {{chain}} chain.",
+        "consequences": [
+          "Rule order will change immediately",
+          "Traffic matching may be affected",
+          "Test the configuration after applying"
+        ],
+        "confirm": "Apply",
+        "cancel": "Cancel"
+      },
+      "preview": {
+        "title": "Preview Suggestion",
+        "description": "View the proposed changes before applying",
+        "currentState": "Current State",
+        "proposedState": "After Changes",
+        "ruleOrder": "Rule Order"
+      }
+    },
+    "analysis": {
+      "analyzing": "Analyzing firewall rules...",
+      "complete": "Analysis complete",
+      "rulesAnalyzed": "{{count}} rules analyzed",
+      "lastAnalysis": "Last analyzed: {{time}}",
+      "autoRefresh": "Auto-refresh every {{interval}}"
+    },
+    "emptyStates": {
+      "noRules": {
+        "title": "No Rules to Analyze",
+        "description": "Add firewall rules to see efficiency suggestions.",
+        "action": "Add Rules"
+      },
+      "optimalConfiguration": {
+        "title": "Optimal Configuration",
+        "description": "No optimization suggestions found. Your firewall rules are well-configured!",
+        "hint": "Regular analysis helps maintain optimal performance as traffic patterns change."
+      }
+    },
+    "stats": {
+      "totalSuggestions": "Total Suggestions",
+      "highSeverity": "High Severity",
+      "mediumSeverity": "Medium Severity",
+      "lowSeverity": "Low Severity",
+      "potentialGain": "Potential Performance Gain"
+    },
+    "notifications": {
+      "suggestionApplied": "Suggestion applied successfully",
+      "suggestionDismissed": "Suggestion dismissed",
+      "analysisRefreshed": "Analysis refreshed successfully",
+      "error": {
+        "analyze": "Failed to analyze rules",
+        "apply": "Failed to apply suggestion",
+        "load": "Failed to load efficiency report"
+      }
+    },
+    "hints": {
+      "regularAnalysis": "Run efficiency analysis regularly as traffic patterns change",
+      "testAfterChanges": "Test firewall configuration after applying suggestions",
+      "highSeverityFirst": "Address high severity suggestions first for best results",
+      "backupBeforeChanges": "Consider backing up configuration before applying multiple suggestions",
+      "trafficBased": "Suggestions are based on actual traffic counters - enable counter tracking for accurate analysis"
+    },
+    "help": {
+      "whatIsEfficiencyReport": {
+        "title": "What is the Efficiency Report?",
+        "content": "The efficiency report analyzes your firewall rules to identify redundancies and suboptimal ordering. It uses actual traffic counters to suggest improvements that can enhance performance and reduce resource usage."
+      },
+      "redundancyDetection": {
+        "title": "Redundancy Detection",
+        "content": "Redundant rules are those that will never match traffic because they are superseded by earlier rules with the same or broader criteria. Removing redundant rules simplifies configuration and slightly improves performance."
+      },
+      "reorderingSuggestions": {
+        "title": "Reordering Suggestions",
+        "content": "Rules are processed in order from top to bottom. Placing high-traffic rules earlier in the chain reduces the number of rule evaluations per packet, improving firewall performance. The report identifies rules that would benefit from reordering."
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "items": [
+          "Run efficiency analysis weekly or after significant rule changes",
+          "Address high severity suggestions promptly",
+          "Test configuration in a maintenance window after applying changes",
+          "Enable counter tracking for accurate traffic-based analysis",
+          "Preview suggestions before applying to understand the impact",
+          "Keep comments on rules to document optimization decisions"
+        ]
+      }
+    }
+  }
+}

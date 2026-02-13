@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{.Title}} - NasNet Alert</title>
+    <style>
+        /* Reset styles for email clients */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            background-color: #1f2937;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .logo {
+            color: #EFC729;
+            font-size: 28px;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        /* Severity Banner */
+        .severity-banner {
+            padding: 20px 24px;
+            text-align: center;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .severity-banner.critical {
+            background-color: #ef4444;
+        }
+
+        .severity-banner.warning {
+            background-color: #f59e0b;
+        }
+
+        .severity-banner.info {
+            background-color: #3b82f6;
+        }
+
+        /* Content */
+        .content {
+            padding: 32px 24px;
+        }
+
+        .alert-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 16px 0;
+            line-height: 1.3;
+        }
+
+        .alert-message {
+            font-size: 16px;
+            color: #4b5563;
+            margin: 0 0 24px 0;
+            line-height: 1.6;
+        }
+
+        /* Metadata */
+        .metadata {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .metadata-item {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metadata-item:last-child {
+            border-bottom: none;
+        }
+
+        .metadata-label {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 14px;
+            min-width: 100px;
+        }
+
+        .metadata-value {
+            color: #1f2937;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        /* Suggested Actions */
+        .suggested-actions {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin: 24px 0;
+        }
+
+        .suggested-actions-title {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .suggested-actions-text {
+            color: #1e3a8a;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #EFC729;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #d9b324;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f9fafb;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        .footer-link {
+            color: #4972BA;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 24px 16px !important;
+            }
+
+            .alert-title {
+                font-size: 20px !important;
+            }
+
+            .metadata {
+                padding: 16px !important;
+            }
+
+            .metadata-item {
+                flex-direction: column;
+            }
+
+            .metadata-label {
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0" width="600" align="center">
+
+                    <!-- Header -->
+                    <tr>
+                        <td class="header">
+                            <span class="logo">NasNet</span>
+                        </td>
+                    </tr>
+
+                    <!-- Severity Banner -->
+                    <tr>
+                        <td class="severity-banner {{.SeverityClass}}">
+                            {{.Severity}} Alert
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td class="content">
+                            <h1 class="alert-title">{{.Title}}</h1>
+                            <p class="alert-message">{{.Message}}</p>
+
+                            <!-- Metadata -->
+                            <div class="metadata">
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Router:</span>
+                                    <span class="metadata-value">{{.RouterName}}</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Alert ID:</span>
+                                    <span class="metadata-value">{{.AlertID}}</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Time:</span>
+                                    <span class="metadata-value">{{.Timestamp}}</span>
+                                </div>
+                                <div class="metadata-item">
+                                    <span class="metadata-label">Severity:</span>
+                                    <span class="metadata-value">{{.Severity}}</span>
+                                </div>
+                            </div>
+
+                            {{if .SuggestedActions}}
+                            <!-- Suggested Actions -->
+                            <div class="suggested-actions">
+                                <p class="suggested-actions-title">Suggested Actions</p>
+                                <p class="suggested-actions-text">{{.SuggestedActions}}</p>
+                            </div>
+                            {{end}}
+
+                            <!-- CTA Button -->
+                            <div class="button-container">
+                                <a href="{{.AdminURL}}" class="button">View in NasNet</a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer">
+                            <p class="footer-text">
+                                This is an automated alert from your NasNet monitoring system.
+                            </p>
+                            <p class="footer-text">
+                                <a href="{{.AdminURL}}" class="footer-link">View Alert Details</a> |
+                                <a href="{{.AdminURL}}/settings/notifications" class="footer-link">Manage Notifications</a>
+                            </p>
+                            <p class="footer-text" style="margin-top: 16px;">
+                                &copy; {{.CurrentYear}} NasNet. Enterprise-grade MikroTik Router Management.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -182,3 +182,34 @@ export interface DHCPClient {
   /** Whether DHCP client is disabled */
   disabled: boolean;
 }
+
+// ==================== DHCP Lease with Options ====================
+
+/**
+ * Extended DHCP Lease with DHCP options for fingerprinting
+ * Includes DHCP options used for device identification
+ */
+export interface DHCPLeaseWithOptions extends DHCPLease {
+  /**
+   * DHCP options sent by the client
+   */
+  options?: {
+    /**
+     * DHCP option 55 - Parameter Request List
+     * Array of requested DHCP option codes or comma-separated string
+     */
+    '55'?: number[] | string;
+
+    /**
+     * DHCP option 60 - Vendor Class Identifier
+     * Vendor-specific identifier string
+     */
+    '60'?: string;
+
+    /**
+     * DHCP option 61 - Client Identifier
+     * Unique client identifier
+     */
+    '61'?: string;
+  };
+}

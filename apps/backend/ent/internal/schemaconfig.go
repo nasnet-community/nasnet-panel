@@ -7,20 +7,29 @@ import "context"
 // SchemaConfig represents alternative schema names for all tables
 // that can be passed at runtime.
 type SchemaConfig struct {
-	APIKey               string // APIKey table.
-	Alert                string // Alert table.
-	AlertRule            string // AlertRule table.
-	ConfigSnapshot       string // ConfigSnapshot table.
-	GlobalSettings       string // GlobalSettings table.
-	NotificationSettings string // NotificationSettings table.
-	Resource             string // Resource table.
-	ResourceEvent        string // ResourceEvent table.
-	Router               string // Router table.
-	RouterCapability     string // RouterCapability table.
-	RouterSecret         string // RouterSecret table.
-	SchemaVersion        string // SchemaVersion table.
-	Session              string // Session table.
-	User                 string // User table.
+	APIKey                    string // APIKey table.
+	Alert                     string // Alert table.
+	AlertDigestEntry          string // AlertDigestEntry table.
+	AlertEscalation           string // AlertEscalation table.
+	AlertRule                 string // AlertRule table.
+	AlertRuleTemplate         string // AlertRuleTemplate table.
+	AlertTemplate             string // AlertTemplate table.
+	ConfigSnapshot            string // ConfigSnapshot table.
+	GlobalSettings            string // GlobalSettings table.
+	NotificationChannelConfig string // NotificationChannelConfig table.
+	NotificationLog           string // NotificationLog table.
+	NotificationSettings      string // NotificationSettings table.
+	PortKnockSequence         string // PortKnockSequence table.
+	Resource                  string // Resource table.
+	ResourceEvent             string // ResourceEvent table.
+	Router                    string // Router table.
+	RouterCapability          string // RouterCapability table.
+	RouterSecret              string // RouterSecret table.
+	SchemaVersion             string // SchemaVersion table.
+	ServiceInstance           string // ServiceInstance table.
+	Session                   string // Session table.
+	User                      string // User table.
+	Webhook                   string // Webhook table.
 }
 
 type schemaCtxKey struct{}

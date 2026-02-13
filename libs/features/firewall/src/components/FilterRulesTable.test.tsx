@@ -2,16 +2,50 @@
  * FilterRulesTable Component Tests
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FilterRulesTable } from './FilterRulesTable';
 import * as queries from '@nasnet/api-client/queries';
+import * as routerModule from '@tanstack/react-router';
 import type { FirewallRule } from '@nasnet/core/types/router/firewall';
 
 // Mock the API query hook
 vi.mock('@nasnet/api-client/queries', () => ({
   useFilterRules: vi.fn(),
+  useDeleteFilterRule: vi.fn(),
+  useToggleFilterRule: vi.fn(),
+  useMoveFilterRule: vi.fn(),
+  useCreateFilterRule: vi.fn(),
+  useUpdateFilterRule: vi.fn(),
+}));
+
+// Mock TanStack Router
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: vi.fn(),
+}));
+
+// Mock media query hook
+vi.mock('@nasnet/ui/primitives', async () => {
+  const actual = await vi.importActual('@nasnet/ui/primitives');
+  return {
+    ...actual,
+    useMediaQuery: vi.fn(() => false), // Default to desktop
+  };
+});
+
+// Mock connection store
+vi.mock('@nasnet/state/stores', () => ({
+  useConnectionStore: vi.fn(() => '192.168.1.1'),
+}));
+
+// Mock firewall hooks
+vi.mock('@nasnet/features/firewall', () => ({
+  useCounterSettingsStore: vi.fn(() => ({
+    pollingInterval: false,
+    showRelativeBar: false,
+    showRate: false,
+  })),
 }));
 
 const createWrapper = () => {
@@ -26,6 +60,11 @@ const createWrapper = () => {
 };
 
 describe('FilterRulesTable', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(routerModule, 'useSearch').mockReturnValue({});
+  });
+
   it('renders loading state', () => {
     vi.mocked(queries.useFilterRules).mockReturnValue({
       data: undefined,
@@ -151,5 +190,116 @@ describe('FilterRulesTable', () => {
     // Check that disabled row has opacity-50 class
     const disabledRow = container.querySelector('.opacity-50');
     expect(disabledRow).toBeInTheDocument();
+  });
+
+  describe('Rule Highlighting', () => {
+    const mockRules: FirewallRule[] = [
+      {
+        id: '*1',
+        chain: 'input',
+        action: 'drop',
+        protocol: 'tcp',
+        srcAddress: undefined,
+        dstAddress: undefined,
+        srcPort: undefined,
+        dstPort: '22',
+        inInterface: undefined,
+        outInterface: undefined,
+        disabled: false,
+        order: 0,
+        comment: 'SSH Block',
+        log: true,
+        logPrefix: 'SSH-DROP',
+      },
+      {
+        id: '*2',
+        chain: 'forward',
+        action: 'accept',
+        protocol: 'tcp',
+        srcAddress: undefined,
+        dstAddress: undefined,
+        srcPort: undefined,
+        dstPort: '80,443',
+        inInterface: undefined,
+        outInterface: undefined,
+        disabled: false,
+        order: 1,
+        comment: 'Web Traffic',
+        log: true,
+        logPrefix: 'WEB-ALLOW',
+      },
+    ];
+
+    it('highlights rule when highlight param is in URL', () => {
+      vi.spyOn(routerModule, 'useSearch').mockReturnValue({ highlight: '*1' });
+
+      vi.mocked(queries.useFilterRules).mockReturnValue({
+        data: mockRules,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      const { container } = render(<FilterRulesTable />, { wrapper: createWrapper() });
+
+      // Check that highlighted row has animate-highlight class
+      const highlightedRow = container.querySelector('.animate-highlight');
+      expect(highlightedRow).toBeInTheDocument();
+    });
+
+    it('does not highlight any rule when no highlight param in URL', () => {
+      vi.spyOn(routerModule, 'useSearch').mockReturnValue({});
+
+      vi.mocked(queries.useFilterRules).mockReturnValue({
+        data: mockRules,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      const { container } = render(<FilterRulesTable />, { wrapper: createWrapper() });
+
+      // Check that no row has animate-highlight class
+      const highlightedRow = container.querySelector('.animate-highlight');
+      expect(highlightedRow).not.toBeInTheDocument();
+    });
+
+    it('applies bg-warning/20 class to highlighted rule', () => {
+      vi.spyOn(routerModule, 'useSearch').mockReturnValue({ highlight: '*2' });
+
+      vi.mocked(queries.useFilterRules).mockReturnValue({
+        data: mockRules,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      const { container } = render(<FilterRulesTable />, { wrapper: createWrapper() });
+
+      // Check that highlighted row has bg-warning class
+      const highlightedRow = container.querySelector('.bg-warning\\/20');
+      expect(highlightedRow).toBeInTheDocument();
+    });
+
+    it('scrollIntoView is called for highlighted rule', async () => {
+      vi.spyOn(routerModule, 'useSearch').mockReturnValue({ highlight: '*1' });
+
+      vi.mocked(queries.useFilterRules).mockReturnValue({
+        data: mockRules,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      // Mock scrollIntoView
+      const scrollIntoViewMock = vi.fn();
+      Element.prototype.scrollIntoView = scrollIntoViewMock;
+
+      render(<FilterRulesTable />, { wrapper: createWrapper() });
+
+      // Wait for the useEffect scroll to trigger (100ms timeout in component)
+      await waitFor(() => {
+        expect(scrollIntoViewMock).toHaveBeenCalledWith({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, { timeout: 200 });
+    });
   });
 });

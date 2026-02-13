@@ -16,3 +16,7 @@ export * from './dhcp';
 
 // VLAN Management (NAS-6.7)
 export * from './vlans';
+
+// DNS Cache & Diagnostics (NAS-6.12)
+export * from './components/DnsBenchmark';
+export * from './components/DnsCachePanel';

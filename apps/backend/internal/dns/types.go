@@ -46,3 +46,49 @@ type DnsServers struct {
 	Primary   string
 	Secondary *string
 }
+
+// DnsCacheStats represents DNS cache statistics
+type DnsCacheStats struct {
+	TotalEntries      int
+	CacheUsedBytes    int64
+	CacheMaxBytes     int64
+	CacheUsagePercent float64
+	HitRatePercent    *float64
+	TopDomains        []DnsTopDomain
+	Timestamp         string
+}
+
+// DnsTopDomain represents a frequently queried domain
+type DnsTopDomain struct {
+	Domain      string
+	QueryCount  int
+	LastQueried *string
+}
+
+// FlushDnsCacheResult represents the result of flushing the DNS cache
+type FlushDnsCacheResult struct {
+	Success        bool
+	EntriesRemoved int
+	BeforeStats    DnsCacheStats
+	AfterStats     DnsCacheStats
+	Message        string
+	Timestamp      string
+}
+
+// DnsBenchmarkServerResult represents benchmark result for a single DNS server
+type DnsBenchmarkServerResult struct {
+	Server         string
+	ResponseTimeMs int
+	Status         string
+	Success        bool
+	Error          *string
+}
+
+// DnsBenchmarkResult represents complete benchmark result comparing DNS servers
+type DnsBenchmarkResult struct {
+	TestHostname  string
+	ServerResults []DnsBenchmarkServerResult
+	FastestServer *DnsBenchmarkServerResult
+	Timestamp     string
+	TotalTimeMs   int
+}

@@ -1,0 +1,51 @@
+/**
+ * InterfaceStatsPanel Component
+ * Main wrapper with headless logic and platform detection
+ *
+ * Follows Headless + Platform Presenters pattern (ADR-018)
+ *
+ * Auto-detects platform and renders appropriate presenter:
+ * - Desktop: Dense data layout with grid sections
+ * - Mobile: Card-based layout with 44px touch targets
+ *
+ * NAS-6.9: Implement Interface Traffic Statistics
+ */
+
+import { usePlatform } from '@nasnet/ui/layouts';
+import { InterfaceStatsPanelDesktop } from './interface-stats-panel-desktop';
+import { InterfaceStatsPanelMobile } from './interface-stats-panel-mobile';
+import type { InterfaceStatsPanelProps } from './interface-stats-panel.types';
+
+/**
+ * InterfaceStatsPanel Component
+ *
+ * Displays real-time interface statistics with platform-specific UI:
+ * - TX/RX bytes, packets, errors, drops
+ * - Calculated bandwidth rates
+ * - Error rate percentage with trend indicators
+ * - Threshold-based warnings
+ *
+ * @example
+ * ```tsx
+ * <InterfaceStatsPanel
+ *   routerId="router-1"
+ *   interfaceId="ether1"
+ *   interfaceName="ether1 - WAN"
+ *   pollingInterval="5s"
+ *   onClose={() => navigate('/interfaces')}
+ * />
+ * ```
+ */
+export function InterfaceStatsPanel(props: InterfaceStatsPanelProps) {
+  const platform = usePlatform();
+
+  return platform === 'mobile' ? (
+    <InterfaceStatsPanelMobile {...props} />
+  ) : (
+    <InterfaceStatsPanelDesktop {...props} />
+  );
+}
+
+// Re-export presenters for direct usage
+export { InterfaceStatsPanelDesktop, InterfaceStatsPanelMobile };
+export type { InterfaceStatsPanelProps };

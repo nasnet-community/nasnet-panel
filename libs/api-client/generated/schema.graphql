@@ -163,6 +163,64 @@ type AddRouterPayload {
   validationErrors: [ValidationError!]
 }
 
+"""
+Aggregated view of an address list with entry statistics.
+Address lists group IP addresses for use in firewall rules.
+"""
+type AddressList {
+  """Number of dynamic entries (added by firewall actions)"""
+  dynamicCount: Int!
+  """Paginated entries in this list"""
+  entries(after: String, first: Int): AddressListEntryConnection!
+  """Total number of entries in this list"""
+  entryCount: Int!
+  """List name (unique identifier)"""
+  name: String!
+  """Firewall rules that reference this list"""
+  referencingRules: [FirewallRule!]!
+  """Number of firewall rules referencing this list"""
+  referencingRulesCount: Int!
+}
+
+"""
+Single entry in an address list.
+Represents an IP address, CIDR subnet, or IP range that belongs to a named list.
+"""
+type AddressListEntry implements Node {
+  """IP address, CIDR subnet, or IP range"""
+  address: String! @mikrotik(path: "/ip/firewall/address-list", field: "address")
+  """Optional description"""
+  comment: String @validate(maxLength: 200) @mikrotik(path: "/ip/firewall/address-list", field: "comment")
+  """When this entry was created"""
+  creationTime: DateTime @mikrotik(path: "/ip/firewall/address-list", field: "creation-time")
+  """Whether this entry is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "disabled")
+  """Whether this entry was added dynamically by a firewall action"""
+  dynamic: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "dynamic")
+  """MikroTik internal ID"""
+  id: ID! @mikrotik(path: "/ip/firewall/address-list", field: ".id")
+  """Name of the address list this entry belongs to"""
+  list: String! @mikrotik(path: "/ip/firewall/address-list", field: "list")
+  """Optional timeout after which entry is removed"""
+  timeout: String @mikrotik(path: "/ip/firewall/address-list", field: "timeout")
+}
+
+"""
+Connection type for paginated address list entries.
+Follows Relay pagination specification.
+"""
+type AddressListEntryConnection implements Connection {
+  edges: [AddressListEntryEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""Edge type for address list entry connections."""
+type AddressListEntryEdge implements Edge {
+  cursor: String!
+  node: AddressListEntry!
+}
+
 """Resource affected by a configuration change"""
 type AffectedResource {
   """Resource ID"""
@@ -187,6 +245,8 @@ type Alert implements Node {
   deliveryStatus: JSON
   """Device ID that triggered this alert"""
   deviceId: ID
+  """Escalation tracking for this alert (NAS-18.9)"""
+  escalation: AlertEscalation
   """Event type that triggered this alert"""
   eventType: String!
   """Globally unique identifier"""
@@ -197,6 +257,12 @@ type Alert implements Node {
   rule: AlertRule!
   """Alert severity level"""
   severity: AlertSeverity!
+  """Reason for suppression (e.g., "throttled", "storm_detected")"""
+  suppressReason: String
+  """
+  Number of alerts suppressed by throttling (if this alert is part of a throttle group)
+  """
+  suppressedCount: Int
   """Alert title/summary"""
   title: String!
   """When alert was triggered"""
@@ -213,6 +279,24 @@ enum AlertAction {
   CREATED
   """Alert was resolved"""
   RESOLVED
+}
+
+"""Template variable input"""
+input AlertAlertTemplateVariableInput {
+  """Default value"""
+  defaultValue: String
+  """Description"""
+  description: String
+  """Display label"""
+  label: String!
+  """Variable name"""
+  name: String!
+  """Options for enum types"""
+  options: [String!]
+  """Whether required"""
+  required: Boolean!
+  """Variable type"""
+  type: AlertTemplateVariableType!
 }
 
 """Condition for event matching in alert rules"""
@@ -253,6 +337,32 @@ type AlertEdge implements Edge {
   node: Alert!
 }
 
+"""Alert escalation tracking record (NAS-18.9)"""
+type AlertEscalation implements Node {
+  """Alert being tracked for escalation"""
+  alertId: ID!
+  """Record creation timestamp"""
+  createdAt: DateTime!
+  """Current escalation level (0 = initial)"""
+  currentLevel: Int!
+  """Globally unique identifier"""
+  id: ID!
+  """Maximum escalation level"""
+  maxLevel: Int!
+  """When next escalation level should trigger"""
+  nextEscalationAt: DateTime
+  """When escalation was resolved"""
+  resolvedAt: DateTime
+  """Reason for resolution"""
+  resolvedBy: String
+  """Alert rule with escalation configuration"""
+  ruleId: ID!
+  """Escalation status"""
+  status: EscalationStatus!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
 """Alert event for real-time subscriptions"""
 type AlertEvent {
   """Type of action that occurred"""
@@ -290,6 +400,8 @@ type AlertRule implements Node {
   deviceId: ID
   """Whether this alert rule is enabled"""
   enabled: Boolean!
+  """Escalation configuration for unacknowledged alerts (NAS-18.9)"""
+  escalation: EscalationConfig
   """
   Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high')
   """
@@ -308,12 +420,139 @@ type AlertRule implements Node {
   updatedAt: DateTime!
 }
 
+"""Variable input for alert rule templates"""
+input AlertRuleAlertTemplateVariableInput {
+  """Default value"""
+  defaultValue: String
+  """Description"""
+  description: String
+  """Display label"""
+  label: String!
+  """Maximum value"""
+  max: Int
+  """Minimum value"""
+  min: Int
+  """Variable name"""
+  name: String!
+  """Whether required"""
+  required: Boolean!
+  """Variable type"""
+  type: AlertRuleTemplateVariableType!
+  """Unit label"""
+  unit: String
+}
+
 """Alert rule mutation payload"""
 type AlertRulePayload {
   """Created/updated alert rule"""
   alertRule: AlertRule
   """Errors encountered during mutation"""
   errors: [MutationError!]
+}
+
+"""
+Alert rule template for quick rule creation
+Pre-configured templates with variables for common alert scenarios
+"""
+type AlertRuleTemplate implements Node {
+  """Template category"""
+  category: AlertRuleTemplateCategory!
+  """Default notification channels"""
+  channels: [String!]!
+  """Pre-configured conditions"""
+  conditions: [AlertCondition!]!
+  """Record creation timestamp"""
+  createdAt: DateTime!
+  """Template description"""
+  description: String!
+  """Event type this template monitors"""
+  eventType: String!
+  """Globally unique identifier"""
+  id: ID!
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+  """Template name"""
+  name: String!
+  """Alert severity level"""
+  severity: AlertSeverity!
+  """Throttle configuration"""
+  throttle: ThrottleConfig
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """Template variables for customization"""
+  variables: [AlertRuleTemplateVariable!]!
+  """Template version"""
+  version: String!
+}
+
+"""Alert rule template categories"""
+enum AlertRuleTemplateCategory {
+  """Custom user-defined templates"""
+  CUSTOM
+  """DHCP and IP address management"""
+  DHCP
+  """Network connectivity and interface monitoring"""
+  NETWORK
+  """Resource usage (CPU, memory, disk)"""
+  RESOURCES
+  """Security and firewall events"""
+  SECURITY
+  """System events and maintenance"""
+  SYSTEM
+  """VPN and tunnel monitoring"""
+  VPN
+}
+
+"""Alert rule template mutation payload"""
+type AlertRuleTemplatePayload {
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+  """Created/updated template"""
+  template: AlertRuleTemplate
+}
+
+"""Preview result for alert rule template"""
+type AlertRuleTemplatePreview {
+  """Resolved conditions with variable substitution"""
+  resolvedConditions: [AlertCondition!]!
+  """The template being previewed"""
+  template: AlertRuleTemplate!
+  """Validation information"""
+  validationInfo: TemplateValidationInfo!
+}
+
+"""Variable definition for alert rule templates"""
+type AlertRuleTemplateVariable {
+  """Default value"""
+  defaultValue: String
+  """Variable description"""
+  description: String
+  """Display label"""
+  label: String!
+  """Maximum value (for INTEGER, DURATION, PERCENTAGE)"""
+  max: Int
+  """Minimum value (for INTEGER, DURATION, PERCENTAGE)"""
+  min: Int
+  """Variable name (used for substitution)"""
+  name: String!
+  """Whether this variable is required"""
+  required: Boolean!
+  """Variable type"""
+  type: AlertRuleTemplateVariableType!
+  """Unit label (e.g., "seconds", "percent", "MB")"""
+  unit: String
+}
+
+"""Variable types for alert rule templates"""
+enum AlertRuleTemplateVariableType {
+  """Duration in seconds"""
+  DURATION
+  """Integer value"""
+  INTEGER
+  """Percentage (0-100)"""
+  PERCENTAGE
+  """String value"""
+  STRING
 }
 
 """Alert severity levels"""
@@ -324,6 +563,93 @@ enum AlertSeverity {
   INFO
   """Warning - attention needed soon"""
   WARNING
+}
+
+"""
+Alert notification template
+Templates define message format for different event types and channels
+"""
+type AlertTemplate implements Node {
+  """Body template with Go template syntax"""
+  bodyTemplate: String!
+  """Notification channel"""
+  channel: NotificationChannel!
+  """Record creation timestamp"""
+  createdAt: DateTime!
+  """Template description"""
+  description: String!
+  """Event type this template applies to"""
+  eventType: String!
+  """Globally unique identifier"""
+  id: ID!
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+  """Whether this is a system default template"""
+  isDefault: Boolean!
+  """Channel-specific metadata"""
+  metadata: JSON
+  """Template name"""
+  name: String!
+  """Subject/title template"""
+  subjectTemplate: String
+  """Tags for categorization"""
+  tags: [String!]!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """Template variables"""
+  variables: [AlertTemplateVariable!]!
+}
+
+"""Alert template mutation payload"""
+type AlertTemplatePayload {
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+  """Created/updated template"""
+  template: AlertTemplate
+}
+
+"""Template variable definition"""
+type AlertTemplateVariable {
+  """Default value"""
+  defaultValue: String
+  """Variable description"""
+  description: String
+  """Display label"""
+  label: String!
+  """Variable name (used in template as {{.Name}})"""
+  name: String!
+  """Options for enum-type variables"""
+  options: [String!]
+  """Whether this variable is required"""
+  required: Boolean!
+  """Variable type"""
+  type: AlertTemplateVariableType!
+}
+
+"""Template variable types for notification templates"""
+enum AlertTemplateVariableType {
+  """Boolean value"""
+  BOOLEAN
+  """Interface name"""
+  INTERFACE
+  """IP address"""
+  IPADDRESS
+  """Numeric value"""
+  NUMBER
+  """String value"""
+  STRING
+  """Timestamp value"""
+  TIMESTAMP
+}
+
+"""Input for applying an alert template"""
+input ApplyAlertTemplateInput {
+  """Alert rule configuration"""
+  ruleConfig: CreateAlertRuleInput!
+  """Template ID to apply"""
+  templateId: ID!
+  """Variables for template substitution"""
+  variables: JSON!
 }
 
 type ApplyChangeSetPayload {
@@ -401,6 +727,53 @@ type AuthStatus {
   success: Boolean!
   """Whether authentication was tested"""
   tested: Boolean!
+}
+
+"""
+Available service that can be installed from the Feature Marketplace.
+Represents a downloadable network service with metadata from the manifest.
+"""
+type AvailableService {
+  """Supported architectures"""
+  architectures: [String!]!
+  """Service author"""
+  author: String!
+  """Service category (VPN, Privacy, DNS, Messaging)"""
+  category: String!
+  """Configuration schema (JSON Schema)"""
+  configSchema: JSON
+  """Default configuration (JSON)"""
+  defaultConfig: JSON
+  """Service description"""
+  description: String!
+  """Docker image name"""
+  dockerImage: String!
+  """Docker image tag"""
+  dockerTag: String!
+  """Homepage URL"""
+  homepage: String
+  """Icon filename or URL"""
+  icon: String
+  """Unique service identifier (e.g., 'tor', 'sing-box', 'xray')"""
+  id: ID!
+  """License"""
+  license: String!
+  """Minimum RouterOS version required"""
+  minRouterOSVersion: String
+  """Display name"""
+  name: String!
+  """Required disk space in MB"""
+  requiredDiskMB: Int!
+  """Required memory in MB"""
+  requiredMemoryMB: Int!
+  """Required packages"""
+  requiredPackages: [String!]!
+  """Required ports"""
+  requiredPorts: [Int!]!
+  """Tags for filtering and search"""
+  tags: [String!]!
+  """Service version"""
+  version: String!
 }
 
 """Bandwidth string with unit (e.g., "10M", "1G", "100k")"""
@@ -581,12 +954,48 @@ type BridgeVlanMutationResult {
   vlan: BridgeVlan
 }
 
+"""
+Input for bulk address import.
+Used with bulkCreateAddressListEntries mutation.
+"""
+input BulkAddressInput {
+  """IP address, CIDR notation, or IP range"""
+  address: String!
+  """Optional description"""
+  comment: String @validate(maxLength: 200)
+  """Optional timeout"""
+  timeout: String @validate(pattern: "^\\d+[smhdw]$")
+}
+
 """Bulk alert mutation payload"""
 type BulkAlertPayload {
   """Number of alerts acknowledged"""
   acknowledgedCount: Int!
   """Errors encountered during mutation"""
   errors: [MutationError!]
+}
+
+"""Details of a single failed entry in bulk import."""
+type BulkCreateError {
+  """The address that failed"""
+  address: String!
+  """Index in the input array"""
+  index: Int!
+  """Error message"""
+  message: String!
+}
+
+"""
+Result of bulk address list entry creation.
+Includes success count, failure count, and error details.
+"""
+type BulkCreateResult {
+  """Details of failed entries"""
+  errors: [BulkCreateError!]!
+  """Number of entries that failed"""
+  failedCount: Int!
+  """Number of entries successfully created"""
+  successCount: Int!
 }
 
 """CIDR notation for network address (e.g., "192.168.1.0/24")"""
@@ -962,6 +1371,23 @@ enum ChangeType {
   UPDATE
 }
 
+"""Payload for channel configuration mutations"""
+type ChannelConfigPayload {
+  """The created/updated configuration"""
+  config: NotificationChannelConfig
+  """Validation or mutation errors"""
+  errors: [MutationError!]
+}
+
+"""Type of notification channel"""
+enum ChannelType {
+  EMAIL
+  PUSHOVER
+  SLACK
+  TELEGRAM
+  WEBHOOK
+}
+
 """Event emitted when circuit breaker state changes"""
 type CircuitBreakerEvent {
   """Consecutive failures that triggered the change"""
@@ -1286,6 +1712,23 @@ type ContainerInfo {
   supportsNetworkNamespace: Boolean!
 }
 
+"""
+Input for creating a new address list entry.
+List will be created if it doesn't exist.
+"""
+input CreateAddressListEntryInput {
+  """
+  IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)
+  """
+  address: String! @validate(minLength: 7, maxLength: 100)
+  """Optional description"""
+  comment: String @validate(maxLength: 200)
+  """Target list name (will create if doesn't exist)"""
+  list: String! @validate(minLength: 1, maxLength: 64, pattern: "^[a-zA-Z0-9_-]+$")
+  """Optional timeout (e.g., "1d", "12h", "30m")"""
+  timeout: String @validate(pattern: "^\\d+[smhdw]$")
+}
+
 """Input for creating an alert rule"""
 input CreateAlertRuleInput {
   """Notification channels"""
@@ -1298,6 +1741,8 @@ input CreateAlertRuleInput {
   deviceId: ID
   """Whether rule is enabled (default: true)"""
   enabled: Boolean = true
+  """Escalation configuration (NAS-18.9)"""
+  escalation: EscalationConfigInput
   """Event type to match"""
   eventType: String!
   """Human-readable alert rule name"""
@@ -1343,6 +1788,68 @@ type CreateChangeSetPayload {
   changeSet: ChangeSet
   """Errors that occurred"""
   errors: [MutationError!]
+}
+
+"""Input for creating a NAT rule."""
+input CreateNatRuleInput {
+  """NAT action"""
+  action: NatAction!
+  """NAT chain (srcnat or dstnat)"""
+  chain: NatChain!
+  """Optional comment"""
+  comment: String @validate(maxLength: 255)
+  """Whether rule is disabled"""
+  disabled: Boolean
+  """Destination address or CIDR"""
+  dstAddress: String
+  """Destination port (1-65535)"""
+  dstPort: String
+  """Incoming interface"""
+  inInterface: String
+  """Outgoing interface"""
+  outInterface: String
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol
+  """Source address or CIDR"""
+  srcAddress: String
+  """Source port or port range"""
+  srcPort: String
+  """Target address for NAT"""
+  toAddresses: String
+  """Target port(s) for NAT"""
+  toPorts: String
+}
+
+"""Input for creating a new notification channel configuration"""
+input CreateNotificationChannelConfigInput {
+  """Type of notification channel"""
+  channelType: ChannelType!
+  """
+  Full configuration including sensitive fields
+  For Pushover: {"userKey": "...", "apiToken": "...", "device": "...", "baseURL": "..."}
+  For Email: {"host": "...", "port": 587, "from": "...", "username": "...", "password": "...", "tlsMode": "..."}
+  """
+  config: JSON!
+  """Optional description"""
+  description: String
+  """Whether this should be the default configuration"""
+  isDefault: Boolean
+  """Human-readable name"""
+  name: String!
+}
+
+"""Input for creating a new port mirror configuration"""
+input CreatePortMirrorInput {
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Destination interface ID for mirrored traffic"""
+  destinationInterfaceId: ID!
+  """Direction of traffic to mirror (default: BOTH)"""
+  direction: MirrorDirection
+  """Descriptive name for the mirror configuration"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """Source interface IDs to mirror (must be bridge members)"""
+  sourceInterfaceIds: [ID!]! @validate(minLength: 1)
 }
 
 """Input for creating a new resource"""
@@ -1391,6 +1898,42 @@ type CreateRouterPayload {
   errors: [MutationError!]
   """The created router"""
   router: Router
+}
+
+"""Input for creating a webhook"""
+input CreateWebhookInput {
+  """Authentication type (default: NONE)"""
+  authType: WebhookAuthType = NONE
+  """Bearer token for Bearer auth"""
+  bearerToken: String
+  """Custom template body (required if template is CUSTOM)"""
+  customTemplate: String
+  """Optional description"""
+  description: String
+  """Whether webhook is enabled (default: true)"""
+  enabled: Boolean = true
+  """Custom HTTP headers (as JSON object)"""
+  headers: JSON
+  """Maximum retry attempts (default: 3)"""
+  maxRetries: Int = 3
+  """HTTP method (default: POST)"""
+  method: String = "POST"
+  """Human-readable webhook name"""
+  name: String!
+  """Password for Basic auth"""
+  password: String
+  """Whether to retry failed deliveries (default: true)"""
+  retryEnabled: Boolean = true
+  """Signing secret for HMAC signature (optional)"""
+  signingSecret: String
+  """Template type for webhook payload (default: GENERIC)"""
+  template: WebhookTemplate = GENERIC
+  """Timeout in seconds (default: 10)"""
+  timeoutSeconds: Int = 10
+  """Webhook URL endpoint"""
+  url: String!
+  """Username for Basic auth"""
+  username: String
 }
 
 """Error codes specific to credential operations."""
@@ -1532,6 +2075,14 @@ type DeleteChangeSetPayload {
   errors: [MutationError!]
   """Whether deletion was successful"""
   success: Boolean!
+}
+
+"""Input for deleting a service instance."""
+input DeleteInstanceInput {
+  """Instance ID to delete"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
 }
 
 """Delete operation payload"""
@@ -1712,6 +2263,56 @@ type DiagnosticSuggestion {
   title: String!
 }
 
+"""Email digest configuration (NAS-18.11)"""
+type DigestConfig {
+  """Whether critical alerts bypass digest mode and send immediately"""
+  bypassCritical: Boolean!
+  """Whether digest mode is enabled"""
+  enabled: Boolean!
+  """Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)"""
+  intervalMinutes: Int!
+  """Whether to send digest even when no alerts occurred during the period"""
+  sendEmptyDigest: Boolean!
+  """
+  Time of day for daily delivery in HH:MM format (optional, for daily digests)
+  """
+  time: String
+}
+
+"""Email digest configuration input (NAS-18.11)"""
+input DigestConfigInput {
+  """
+  Whether critical alerts bypass digest mode and send immediately (default: true)
+  """
+  bypassCritical: Boolean = true
+  """Whether digest mode is enabled"""
+  enabled: Boolean!
+  """Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)"""
+  intervalMinutes: Int!
+  """
+  Whether to send digest even when no alerts occurred during the period (default: false)
+  """
+  sendEmptyDigest: Boolean = false
+  """
+  Time of day for daily delivery in HH:MM format (optional, for daily digests)
+  """
+  time: String
+}
+
+"""Digest summary (NAS-18.11)"""
+type DigestSummary {
+  """Number of alerts included in the digest"""
+  alertCount: Int!
+  """Channel ID this digest was sent to"""
+  channelId: String!
+  """When the digest was delivered"""
+  deliveredAt: DateTime!
+  """Globally unique identifier"""
+  id: ID!
+  """Time period covered by the digest (e.g., "Last hour", "Last 24 hours")"""
+  period: String!
+}
+
 """Reason for router disconnection"""
 enum DisconnectReason {
   """Authentication failed"""
@@ -1758,6 +2359,52 @@ type DiscoveredDevice {
   services: [String!]!
   """Device vendor (always 'MikroTik' for returned results)"""
   vendor: String
+}
+
+"""Complete benchmark result comparing all configured DNS servers"""
+type DnsBenchmarkResult {
+  """Fastest server"""
+  fastestServer: DnsBenchmarkServerResult
+  """Results for each tested server, sorted by response time"""
+  serverResults: [DnsBenchmarkServerResult!]!
+  """Test hostname used for benchmarking"""
+  testHostname: String!
+  """When the benchmark was executed"""
+  timestamp: DateTime!
+  """Total benchmark execution time in milliseconds"""
+  totalTimeMs: Int!
+}
+
+"""Benchmark result for a single DNS server"""
+type DnsBenchmarkServerResult {
+  """Error message (if server failed)"""
+  error: String
+  """Response time in milliseconds (-1 if unreachable)"""
+  responseTimeMs: Int!
+  """DNS server IP address"""
+  server: String!
+  """Server status (Fastest, Good, Slow, Unreachable)"""
+  status: DnsServerStatus!
+  """Whether the server responded successfully"""
+  success: Boolean!
+}
+
+"""DNS cache statistics for monitoring cache usage"""
+type DnsCacheStats {
+  """Maximum cache size in bytes"""
+  cacheMaxBytes: Size!
+  """Cache usage percentage (0-100)"""
+  cacheUsagePercent: Float!
+  """Cache size used in bytes"""
+  cacheUsedBytes: Size!
+  """Cache hit rate percentage (0-100)"""
+  hitRatePercent: Float
+  """When the statistics were collected"""
+  timestamp: DateTime!
+  """Most queried domains (top 10)"""
+  topDomains: [DnsTopDomain!]!
+  """Total number of entries in the DNS cache"""
+  totalEntries: Int!
 }
 
 """Input for DNS lookup operation"""
@@ -1862,6 +2509,18 @@ type DnsServer {
   isSecondary: Boolean!
 }
 
+"""Status classification for DNS servers in benchmark"""
+enum DnsServerStatus {
+  """Fastest responding server"""
+  FASTEST
+  """Server responded in acceptable time (<100ms)"""
+  GOOD
+  """Server responded slowly (>100ms)"""
+  SLOW
+  """Server did not respond"""
+  UNREACHABLE
+}
+
 """Collection of DNS servers"""
 type DnsServers {
   """Primary DNS server address"""
@@ -1870,6 +2529,16 @@ type DnsServers {
   secondary: String
   """All configured DNS servers"""
   servers: [DnsServer!]!
+}
+
+"""A frequently queried domain in the DNS cache"""
+type DnsTopDomain {
+  """Domain name"""
+  domain: String!
+  """Last query time"""
+  lastQueried: DateTime
+  """Number of queries for this domain"""
+  queryCount: Int!
 }
 
 """Actions to resolve drift"""
@@ -1909,6 +2578,52 @@ scalar Duration
 interface Edge {
   """Cursor for pagination"""
   cursor: String!
+}
+
+"""Email notification configuration"""
+type EmailConfig {
+  """Whether email notifications are enabled"""
+  enabled: Boolean!
+  """Email sender address"""
+  fromAddress: String
+  """Email sender display name"""
+  fromName: String
+  """SMTP server hostname"""
+  host: String
+  """SMTP server port"""
+  port: Int
+  """Skip TLS certificate verification (use with caution)"""
+  skipVerify: Boolean
+  """Array of recipient email addresses"""
+  toAddresses: [String!]!
+  """Whether to use TLS/SSL"""
+  useTLS: Boolean
+  """SMTP username for authentication"""
+  username: String
+}
+
+"""Email notification configuration input"""
+input EmailConfigInput {
+  """Whether email notifications are enabled"""
+  enabled: Boolean!
+  """Email sender address"""
+  fromAddress: String
+  """Email sender display name"""
+  fromName: String
+  """SMTP server hostname"""
+  host: String
+  """SMTP password for authentication"""
+  password: String
+  """SMTP server port"""
+  port: Int
+  """Skip TLS certificate verification (use with caution)"""
+  skipVerify: Boolean
+  """Array of recipient email addresses"""
+  toAddresses: [String!]!
+  """Whether to use TLS/SSL"""
+  useTLS: Boolean
+  """SMTP username for authentication"""
+  username: String
 }
 
 """Category of connection error for classification"""
@@ -1952,6 +2667,48 @@ type ErrorExtensions {
   troubleshootingSteps: [String!]
   """The invalid value (redacted in production for sensitive fields)"""
   value: JSON
+}
+
+"""Escalation configuration for unacknowledged alerts (NAS-18.9)"""
+type EscalationConfig {
+  """Additional notification channels to add during escalation"""
+  additionalChannels: [String!]!
+  """Whether escalation is enabled"""
+  enabled: Boolean!
+  """Delay in seconds before first escalation"""
+  escalationDelay: Int!
+  """Maximum number of escalation levels"""
+  maxEscalations: Int!
+  """Per-level delay intervals in seconds"""
+  repeatIntervals: [Int!]!
+  """Whether alert must be acknowledged to stop escalation"""
+  requireAck: Boolean!
+}
+
+"""Escalation configuration input (NAS-18.9)"""
+input EscalationConfigInput {
+  """Additional notification channels to add during escalation"""
+  additionalChannels: [String!] = []
+  """Whether escalation is enabled (default: false)"""
+  enabled: Boolean = false
+  """Delay in seconds before first escalation (default: 900 = 15min)"""
+  escalationDelay: Int = 900
+  """Maximum number of escalation levels (default: 3)"""
+  maxEscalations: Int = 3
+  """Per-level delay intervals in seconds (default: [900, 1800, 3600])"""
+  repeatIntervals: [Int!] = []
+  """Whether alert must be acknowledged to stop escalation (default: true)"""
+  requireAck: Boolean = true
+}
+
+"""Escalation status (NAS-18.9)"""
+enum EscalationStatus {
+  """Maximum escalation level reached"""
+  MAX_REACHED
+  """Escalation is pending/in progress"""
+  PENDING
+  """Escalation was resolved (alert acknowledged)"""
+  RESOLVED
 }
 
 """Options for exporting router configuration."""
@@ -2088,8 +2845,34 @@ type FeatureSupport {
   upgradeUrl: String
 }
 
-"""Firewall rule (minimal type for dependencies)"""
-type FirewallRule {
+"""
+Firewall rule placeholder type.
+TODO: Expand with full filter/NAT/mangle rule types in future stories.
+"""
+type FirewallRule implements Node {
+  """Rule action (accept, drop, reject, etc.)"""
+  action: String!
+  """Rule chain (input, forward, output, prerouting, postrouting, etc.)"""
+  chain: String!
+  """Optional comment"""
+  comment: String
+  """Whether rule is disabled"""
+  disabled: Boolean!
+  """Destination address list reference"""
+  dstAddressList: String
+  """Rule ID"""
+  id: ID!
+  """Source address list reference"""
+  srcAddressList: String
+  """Rule type (filter, nat, mangle)"""
+  type: String!
+}
+
+"""
+Firewall rule reference type (lightweight for dependency tracking).
+For full firewall rule management, see FirewallRule type in firewall.graphql.
+"""
+type FirewallRuleReference {
   """Rule action"""
   action: String!
   """Rule chain"""
@@ -2140,6 +2923,98 @@ type FirewallRuleResource implements Node & Resource {
   validation: ValidationResult
 }
 
+"""Firewall table types."""
+enum FirewallTable {
+  """Packet filtering"""
+  FILTER
+  """Packet marking and modification"""
+  MANGLE
+  """Network address translation"""
+  NAT
+  """Raw packet processing"""
+  RAW
+}
+
+"""
+Firewall template with pre-configured rule sets.
+Templates allow quick application of common firewall configurations.
+"""
+type FirewallTemplate {
+  """Category for organization"""
+  category: TemplateCategory!
+  """Complexity level indicator"""
+  complexity: TemplateComplexity!
+  """When this template was created (null for built-in)"""
+  createdAt: DateTime
+  """Detailed description of what this template does"""
+  description: String!
+  """Unique template identifier"""
+  id: ID!
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+  """Human-readable template name"""
+  name: String!
+  """Total number of rules in this template"""
+  ruleCount: Int!
+  """Rules that will be created"""
+  rules: [TemplateRule!]!
+  """When this template was last modified (null for built-in)"""
+  updatedAt: DateTime
+  """Variables that can be customized before applying"""
+  variables: [FirewallTemplateVariable!]!
+  """Template version for compatibility tracking"""
+  version: String!
+}
+
+"""Result of template application."""
+type FirewallTemplateResult {
+  """Number of rules successfully applied"""
+  appliedRulesCount: Int!
+  """Errors encountered during application"""
+  errors: [String!]
+  """Rollback ID for undo (valid for 5 minutes)"""
+  rollbackId: ID!
+  """Whether application succeeded"""
+  success: Boolean!
+}
+
+"""
+Variable definition for template customization.
+Variables allow parameterization of templates for different network configurations.
+"""
+type FirewallTemplateVariable {
+  """Default value if not specified"""
+  defaultValue: String
+  """Description to help users understand the variable"""
+  description: String
+  """Human-readable label for UI"""
+  label: String!
+  """Variable name (used in rule properties)"""
+  name: String!
+  """Available options (populated from router for INTERFACE type)"""
+  options: [String!]
+  """Whether this variable is required"""
+  required: Boolean!
+  """Variable type for validation"""
+  type: VariableType!
+}
+
+"""Input for defining a template variable."""
+input FirewallTemplateVariableInput {
+  """Default value"""
+  defaultValue: String
+  """Description"""
+  description: String @validate(maxLength: 200)
+  """Label for UI"""
+  label: String! @validate(minLength: 1, maxLength: 100)
+  """Variable name"""
+  name: String! @validate(minLength: 1, maxLength: 50, pattern: "^[A-Z_]+$")
+  """Whether required"""
+  required: Boolean!
+  """Variable type"""
+  type: VariableType!
+}
+
 """Status of a fix application"""
 enum FixApplicationStatus {
   """Fix was applied successfully"""
@@ -2162,6 +3037,22 @@ enum FixConfidence {
   LOW
   """Medium confidence, may resolve the issue"""
   MEDIUM
+}
+
+"""Result of flushing the DNS cache"""
+type FlushDnsCacheResult {
+  """Cache statistics after flushing"""
+  afterStats: DnsCacheStats!
+  """Cache statistics before flushing"""
+  beforeStats: DnsCacheStats!
+  """Number of entries removed from the cache"""
+  entriesRemoved: Int!
+  """User-friendly message"""
+  message: String!
+  """Whether the cache was flushed successfully"""
+  success: Boolean!
+  """When the flush was executed"""
+  timestamp: DateTime!
 }
 
 enum FrameTypes {
@@ -2299,6 +3190,67 @@ type ISPInfo {
   url: String
 }
 
+"""
+Analysis of template application impact.
+Provides estimates and warnings before applying.
+"""
+type ImpactAnalysis {
+  """Chains that will be affected"""
+  affectedChains: [String!]!
+  """Estimated time to apply (seconds)"""
+  estimatedApplyTime: Int!
+  """Number of new rules that will be created"""
+  newRulesCount: Int!
+  """Warnings about potential issues"""
+  warnings: [String!]!
+}
+
+"""Installation progress event."""
+type InstallProgress {
+  """Bytes downloaded"""
+  bytesDownloaded: Int!
+  """Error message if failed"""
+  errorMessage: String
+  """Feature ID"""
+  featureID: String!
+  """Instance ID"""
+  instanceID: ID!
+  """Download progress percentage (0-100)"""
+  percent: Float!
+  """Current status (downloading, verifying, completed, failed)"""
+  status: String!
+  """Total bytes to download"""
+  totalBytes: Int!
+}
+
+"""Input for installing a new service instance."""
+input InstallServiceInput {
+  """IP address to bind the service to (optional)"""
+  bindIP: String
+  """Service-specific configuration (JSON)"""
+  config: JSON
+  """Feature ID to install (e.g., 'tor', 'sing-box')"""
+  featureID: String! @validate(pattern: "^[a-z0-9_-]+$")
+  """Human-readable instance name"""
+  instanceName: String! @validate(minLength: 1, maxLength: 255)
+  """Router ID to install the service on"""
+  routerID: ID!
+  """VLAN ID for network isolation (optional)"""
+  vlanID: Int @validate(min: 1, max: 4094)
+}
+
+"""Instance status change event."""
+type InstanceStatusChanged {
+  """Instance ID"""
+  instanceID: ID!
+  """New status"""
+  newStatus: ServiceStatus!
+  """Previous status"""
+  previousStatus: ServiceStatus!
+  """Timestamp of the change"""
+  timestamp: DateTime!
+}
+
 """Integer range for filtering"""
 input IntRange {
   """Maximum value (inclusive)"""
@@ -2386,6 +3338,20 @@ type InterfaceStats {
   txErrors: Int!
   """Total packets transmitted"""
   txPackets: Size!
+}
+
+"""Historical interface statistics with time-series data"""
+type InterfaceStatsHistory {
+  """Time-series data points"""
+  dataPoints: [StatsDataPoint!]!
+  """End of the time range"""
+  endTime: DateTime!
+  """Interface ID"""
+  interfaceId: ID!
+  """Aggregation interval (e.g., 5m, 1h)"""
+  interval: Duration!
+  """Start of the time range"""
+  startTime: DateTime!
 }
 
 """Operational status of a network interface"""
@@ -2496,13 +3462,13 @@ type IpAddressDependencies {
   """DHCP servers using this IP as gateway"""
   dhcpServers: [DhcpServer!]!
   """Firewall rules referencing this IP"""
-  firewallRules: [FirewallRule!]!
+  firewallRules: [FirewallRuleReference!]!
   """Whether the IP has any dependencies"""
   hasDependencies: Boolean!
   """IP address ID"""
   ipAddressId: ID!
   """NAT rules referencing this IP"""
-  natRules: [NatRule!]!
+  natRules: [NatRuleReference!]!
   """Static routes using this IP"""
   routes: [Route!]!
 }
@@ -2522,9 +3488,9 @@ type IpAddressImpactAnalysis {
   """Whether this IP is used as a gateway by DHCP servers"""
   usedByDhcpServers: [DhcpServer!]!
   """Whether this IP is referenced in firewall rules"""
-  usedInFirewallRules: [FirewallRule!]!
+  usedInFirewallRules: [FirewallRuleReference!]!
   """Whether this IP is used in NAT rules"""
-  usedInNatRules: [NatRule!]!
+  usedInNatRules: [NatRuleReference!]!
 }
 
 """Input for creating or updating an IP address"""
@@ -2587,6 +3553,16 @@ enum IpConflictType {
   SUBNET_OVERLAP
 }
 
+"""IPsec profile for GRE tunnel encryption"""
+type IpsecProfile {
+  """User comment"""
+  comment: String @mikrotik(path: "/interface/ipsec/profile", field: "comment")
+  """IPsec profile ID"""
+  id: ID!
+  """Profile name"""
+  name: String! @mikrotik(path: "/interface/ipsec/profile", field: "name")
+}
+
 """Arbitrary JSON data for flexible configuration"""
 scalar JSON
 
@@ -2602,6 +3578,48 @@ enum JobStatus {
   RUNNING
   """Job has been created"""
   STARTED
+}
+
+"""Single knock port in sequence."""
+type KnockPort {
+  """Position in sequence (1-based)"""
+  order: Int!
+  """Port number (1-65535)"""
+  port: Int!
+  """Protocol for this knock port"""
+  protocol: KnockProtocol!
+}
+
+"""Input for knock port."""
+input KnockPortInput {
+  """Order in sequence"""
+  order: Int! @validate(min: 1)
+  """Port number"""
+  port: Int! @validate(min: 1, max: 65535)
+  """Protocol"""
+  protocol: KnockProtocol!
+}
+
+"""Protocol for knock port."""
+enum KnockProtocol {
+  """Both TCP and UDP"""
+  BOTH
+  """TCP only"""
+  TCP
+  """UDP only"""
+  UDP
+}
+
+"""Status of knock attempt."""
+enum KnockStatus {
+  """Wrong port order"""
+  FAILED
+  """Some ports hit, sequence incomplete"""
+  PARTIAL
+  """All ports hit correctly, access granted"""
+  SUCCESS
+  """Time between knocks exceeded"""
+  TIMEOUT
 }
 
 """
@@ -2738,6 +3756,16 @@ type MemoryMetrics {
   used: Float!
 }
 
+"""Direction of traffic to mirror"""
+enum MirrorDirection {
+  """Mirror both ingress and egress traffic"""
+  BOTH
+  """Mirror only egress (outgoing) traffic"""
+  EGRESS
+  """Mirror only ingress (incoming) traffic"""
+  INGRESS
+}
+
 """Missing dependency information"""
 type MissingDependency {
   """Item ID with missing dependency"""
@@ -2746,6 +3774,18 @@ type MissingDependency {
   missingResourceId: ID!
   """Missing resource type"""
   missingResourceType: String!
+}
+
+"""MTU guidance for tunnel configuration"""
+type MtuGuidance {
+  """Human-readable explanation of the overhead"""
+  explanation: String!
+  """Protocol overhead in bytes"""
+  overhead: Int!
+  """Recommended MTU based on base MTU (typically 1500)"""
+  recommendedMtu: Int!
+  """Tunnel type this guidance applies to"""
+  tunnelType: TunnelType!
 }
 
 type Mutation {
@@ -2778,8 +3818,28 @@ type Mutation {
   if the router cannot be reached or authenticated.
   """
   addRouter(input: AddRouterInput!): AddRouterPayload!
+  """Apply an alert rule template to create a rule"""
+  applyAlertRuleTemplate(
+    """Optional customizations"""
+    customizations: CreateAlertRuleInput
+    """Template ID"""
+    templateId: ID!
+    """Variables for substitution"""
+    variables: JSON!
+  ): AlertRulePayload!
+  """Apply an alert template to create an alert rule"""
+  applyAlertTemplate(
+    """Template application input"""
+    input: ApplyAlertTemplateInput!
+  ): AlertRulePayload!
   """Apply a change set atomically to the router"""
   applyChangeSet(changeSetId: ID!): ApplyChangeSetPayload!
+  """
+  Apply a firewall template to the router.
+  Creates all rules defined in the template with variable substitution.
+  Returns a rollback ID for undo within 5 minutes.
+  """
+  applyFirewallTemplate(routerId: ID!, templateId: ID!, variables: JSON!): FirewallTemplateResult!
   """
   Apply resource to router (transitions VALID → APPLYING → ACTIVE/ERROR)
   Follows Apply-Confirm-Merge pattern.
@@ -2804,6 +3864,12 @@ type Mutation {
   autoScanGateways: ScanNetworkPayload!
   """Batch operation on multiple interfaces"""
   batchInterfaceOperation(input: BatchInterfaceInput!, routerId: ID!): BatchInterfacePayload!
+  """
+  Bulk create address list entries.
+  Processes entries in batches and returns success/failure counts.
+  Continues on error - does not stop at first failure.
+  """
+  bulkCreateAddressListEntries(entries: [BulkAddressInput!]!, listName: String!, routerId: ID!): BulkCreateResult!
   """Cancel an in-progress change set application"""
   cancelChangeSet(changeSetId: ID!): CancelChangeSetPayload!
   """
@@ -2878,6 +3944,11 @@ type Mutation {
   ): WANMutationResult! @capability(requires: ["interface"])
   """Connect to a router"""
   connectRouter(id: ID!): ConnectRouterPayload!
+  """
+  Create a new address list entry.
+  If the list doesn't exist, it will be created automatically.
+  """
+  createAddressListEntry(input: CreateAddressListEntryInput!, routerId: ID!): AddressListEntry!
   """Create a new alert rule"""
   createAlertRule(
     """Alert rule input"""
@@ -2896,6 +3967,37 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): IpAddressMutationResult! @capability(requires: ["interface"])
+  """
+  Create a masquerade rule for internet sharing.
+  Convenience mutation for common srcnat masquerade setup.
+  """
+  createMasqueradeRule(comment: String, outInterface: String!, routerId: ID!, srcAddress: String): NatRule!
+  """Create a NAT rule."""
+  createNatRule(input: CreateNatRuleInput!, routerId: ID!): NatRule!
+  """
+  Create a new notification channel configuration (validates before saving)
+  """
+  createNotificationChannelConfig(
+    """Configuration input"""
+    input: CreateNotificationChannelConfigInput!
+  ): ChannelConfigPayload!
+  """
+  Create a port forward (creates both NAT and filter rules).
+  Simplified wizard for common use case of exposing internal service.
+  """
+  createPortForward(input: PortForwardInput!, routerId: ID!): PortForward!
+  """
+  Create a new port knock sequence.
+  Generates firewall rules on the router.
+  """
+  createPortKnockSequence(input: PortKnockSequenceInput!, routerId: ID!): PortKnockSequence!
+  """Create a new port mirror configuration"""
+  createPortMirror(
+    """Port mirror configuration"""
+    input: CreatePortMirrorInput!
+    """Router ID"""
+    routerId: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
   """Create a new resource (starts in DRAFT state)"""
   createResource(input: CreateResourceInput!): CreateResourcePayload!
   """Create a new static route"""
@@ -2907,6 +4009,13 @@ type Mutation {
   ): RouteMutationResult! @capability(requires: ["routing"])
   """Add a new router to manage"""
   createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  """Create a new tunnel interface"""
+  createTunnel(
+    """Tunnel configuration"""
+    input: TunnelInput!
+    """Router ID"""
+    routerId: ID!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
   """Create a new VLAN interface"""
   createVlan(
     """VLAN input data"""
@@ -2914,9 +4023,24 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): VlanMutationResult! @capability(requires: ["interface"])
+  """Create a new webhook"""
+  createWebhook(
+    """Webhook input"""
+    input: CreateWebhookInput!
+  ): WebhookPayload!
+  """
+  Delete an address list entry by ID.
+  Returns true if successful, false otherwise.
+  """
+  deleteAddressListEntry(id: ID!, routerId: ID!): Boolean!
   """Delete an alert rule"""
   deleteAlertRule(
     """Alert rule ID"""
+    id: ID!
+  ): DeletePayload!
+  """Delete a custom alert template"""
+  deleteAlertTemplate(
+    """Template ID"""
     id: ID!
   ): DeletePayload!
   """Delete a bridge"""
@@ -2925,6 +4049,18 @@ type Mutation {
   deleteBridgeVlan(uuid: ID!): DeleteResult!
   """Delete a change set (only if not applying)"""
   deleteChangeSet(changeSetId: ID!): DeleteChangeSetPayload!
+  """Delete a custom alert rule template (built-ins cannot be deleted)"""
+  deleteCustomAlertRuleTemplate(
+    """Template ID"""
+    id: ID!
+  ): DeletePayload!
+  """
+  Delete a custom firewall template.
+  Only custom templates can be deleted (not built-in).
+  """
+  deleteFirewallTemplate(id: ID!): Boolean!
+  """Delete a service instance and clean up resources."""
+  deleteInstance(input: DeleteInstanceInput!): ServiceInstancePayload!
   """Remove an IP address from an interface"""
   deleteIpAddress(
     """IP address ID to delete"""
@@ -2932,6 +4068,27 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): IpAddressDeleteResult! @capability(requires: ["interface"])
+  """Delete a NAT rule."""
+  deleteNatRule(id: ID!, routerId: ID!): Boolean!
+  """Delete a notification channel configuration (soft delete)"""
+  deleteNotificationChannelConfig(
+    """Configuration ID"""
+    id: ID!
+  ): DeletePayload!
+  """Delete a port forward (removes both NAT and filter rules)."""
+  deletePortForward(id: ID!, routerId: ID!): Boolean!
+  """
+  Delete port knock sequence.
+  Removes all associated firewall rules.
+  """
+  deletePortKnockSequence(id: ID!, routerId: ID!): Boolean!
+  """Delete a port mirror configuration"""
+  deletePortMirror(
+    """Port mirror ID to delete"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
   """Delete a resource permanently"""
   deleteResource(id: ID!, routerId: ID!): DeleteResourcePayload!
   """Delete a route with impact analysis"""
@@ -2943,6 +4100,13 @@ type Mutation {
   ): RouteDeleteResult! @capability(requires: ["routing"])
   """Remove a router"""
   deleteRouter(id: ID!): DeleteRouterPayload!
+  """Delete a tunnel interface"""
+  deleteTunnel(
+    """Tunnel ID to delete"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
   """Delete a VLAN interface"""
   deleteVlan(
     """VLAN ID to delete"""
@@ -2955,20 +4119,62 @@ type Mutation {
     """WAN interface ID"""
     wanInterfaceId: ID!
   ): DeleteResult! @capability(requires: ["interface"])
+  """Delete a webhook"""
+  deleteWebhook(
+    """Webhook ID"""
+    id: ID!
+  ): DeletePayload!
   """Deprecate a resource (transitions → DEPRECATED)"""
   deprecateResource(id: ID!, routerId: ID!): DeprecateResourcePayload!
   """Disable an interface"""
   disableInterface(interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
+  """Disable a port mirror configuration"""
+  disablePortMirror(
+    """Port mirror ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
   """Disconnect from a router"""
   disconnectRouter(id: ID!): DisconnectRouterPayload!
   """Enable an interface"""
   enableInterface(interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
+  """Enable a port mirror configuration"""
+  enablePortMirror(
+    """Port mirror ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+  """Export an alert rule template as JSON"""
+  exportAlertRuleTemplate(
+    """Template ID"""
+    id: ID!
+  ): String!
   """
   Export router configuration with optional credential handling.
   Credentials are excluded by default for security.
   If includeCredentials is true, an encryptionKey must be provided.
   """
   exportRouterConfig(input: ExportConfigInput!): ExportConfigPayload! @auth
+  """
+  Flush the DNS cache on the router.
+  Clears all cached DNS entries and returns before/after statistics.
+  """
+  flushDnsCache(
+    """Device/router ID"""
+    deviceId: String!
+  ): FlushDnsCacheResult!
+  """Import an alert rule template from JSON"""
+  importAlertRuleTemplate(
+    """JSON template string"""
+    json: String!
+  ): AlertRuleTemplatePayload!
+  """
+  Install a new service instance on a router.
+  Downloads the binary, verifies checksum, and creates the instance.
+  """
+  installService(input: InstallServiceInput!): ServiceInstancePayload!
   """Authenticate and receive a JWT token"""
   login(
     """Password"""
@@ -2978,6 +4184,15 @@ type Mutation {
   ): AuthPayload!
   """Invalidate current session and clear tokens"""
   logout: Boolean! @auth
+  """
+  Preview how a notification template will render with sample data
+  Used for template customization - renders subject and body with validation
+  Requires authentication
+  """
+  previewNotificationTemplate(
+    """Template preview input"""
+    input: PreviewNotificationTemplateInput!
+  ): NotificationTemplatePreview! @auth
   """Manually trigger reconnection to a router"""
   reconnectRouter(
     """Router ID"""
@@ -2990,11 +4205,24 @@ type Mutation {
   """Remove an item from a change set"""
   removeChangeSetItem(changeSetId: ID!, itemId: ID!): RemoveChangeSetItemPayload!
   """
+  Reset alert notification template to system default (deletes custom template)
+  Used for notification template customization per channel
+  Requires authentication
+  """
+  resetAlertTemplate(
+    """Notification channel to reset template for"""
+    channel: NotificationChannel!
+    """Event type to reset template for"""
+    eventType: String!
+  ): DeletePayload! @auth
+  """
   Manually reset the circuit breaker for a router.
   This allows immediate reconnection attempts even if the circuit is open.
   Use with caution as it bypasses the backoff protection.
   """
   resetCircuitBreaker(routerId: ID!): CircuitBreakerStatus!
+  """Restart a service instance."""
+  restartInstance(input: RestartInstanceInput!): ServiceInstancePayload!
   """Revoke all sessions for a user (admin only)"""
   revokeAllSessions(
     """User ID to revoke sessions for"""
@@ -3007,6 +4235,12 @@ type Mutation {
   ): Boolean! @auth
   """Force rollback of a failed change set"""
   rollbackChangeSet(changeSetId: ID!): RollbackChangeSetPayload!
+  """
+  Rollback a previously applied template.
+  Removes all template rules and restores previous state.
+  Only works within 5 minutes of application.
+  """
+  rollbackFirewallTemplate(rollbackId: ID!, routerId: ID!): Boolean!
   """
   Run comprehensive diagnostics on a router connection.
   Performs network reachability check, port scanning, TLS validation,
@@ -3040,6 +4274,21 @@ type Mutation {
     """Step to run"""
     stepType: TroubleshootStepType!
   ): RunTroubleshootStepPayload!
+  """Save a custom alert template"""
+  saveAlertTemplate(
+    """Template input"""
+    input: SaveAlertTemplateInput!
+  ): AlertTemplatePayload!
+  """Save a custom alert rule template"""
+  saveCustomAlertRuleTemplate(
+    """Template input"""
+    input: SaveAlertRuleTemplateInput!
+  ): AlertRuleTemplatePayload!
+  """
+  Save a custom firewall template.
+  Template is stored locally in IndexedDB (frontend operation).
+  """
+  saveFirewallTemplate(input: SaveTemplateInput!): FirewallTemplate!
   """
   Start a network scan for MikroTik routers.
   Returns a task ID that can be used to track progress via subscription or polling.
@@ -3059,11 +4308,15 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): SetPreferredProtocolPayload!
+  """Start a service instance."""
+  startInstance(input: StartInstanceInput!): ServiceInstancePayload!
   """
   Start a new troubleshooting session for a router.
   Automatically detects network configuration and begins diagnostics.
   """
   startTroubleshoot(routerId: ID!): StartTroubleshootPayload!
+  """Stop a service instance."""
+  stopInstance(input: StopInstanceInput!): ServiceInstancePayload!
   """
   Test all router credentials in parallel.
   Returns aggregate results with per-router status.
@@ -3076,6 +4329,11 @@ type Mutation {
     """Channel configuration"""
     config: JSON!
   ): TestNotificationPayload!
+  """
+  Test port knock sequence.
+  Creates temporary rules with short timeout for verification.
+  """
+  testPortKnockSequence(id: ID!, routerId: ID!): TestPortKnockResult!
   """Test connection to a router"""
   testRouterConnection(id: ID!): TestConnectionPayload!
   """
@@ -3083,6 +4341,33 @@ type Mutation {
   Useful for validating credentials before committing.
   """
   testRouterCredentials(input: AddRouterInput!): ConnectionTestResult!
+  """Test tunnel connectivity and path MTU"""
+  testTunnel(
+    """Tunnel ID to test"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): TunnelTestResult! @capability(requires: ["interface"])
+  """Test a webhook by sending a sample payload"""
+  testWebhook(
+    """Webhook ID to test"""
+    id: ID!
+  ): WebhookTestPayload!
+  """Toggle alert rule enabled/disabled status"""
+  toggleAlertRule(
+    """Alert rule ID"""
+    id: ID!
+  ): AlertRulePayload!
+  """
+  Toggle port knock sequence enabled/disabled.
+  Enables or disables firewall rules.
+  """
+  togglePortKnockSequence(enabled: Boolean!, id: ID!, routerId: ID!): PortKnockSequence!
+  """Trigger digest delivery immediately for a channel (NAS-18.11)"""
+  triggerDigestNow(
+    """Channel ID to trigger digest for"""
+    channelId: ID!
+  ): DigestSummary!
   """Undo a bridge operation (within 10-second window)"""
   undoBridgeOperation(operationId: ID!): BridgeMutationResult!
   """Update an existing alert rule"""
@@ -3109,6 +4394,29 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): IpAddressMutationResult! @capability(requires: ["interface"])
+  """Update an existing NAT rule."""
+  updateNatRule(id: ID!, input: CreateNatRuleInput!, routerId: ID!): NatRule!
+  """Update an existing notification channel configuration"""
+  updateNotificationChannelConfig(
+    """Configuration ID"""
+    id: ID!
+    """Update input"""
+    input: UpdateNotificationChannelConfigInput!
+  ): ChannelConfigPayload!
+  """
+  Update existing port knock sequence.
+  Regenerates firewall rules.
+  """
+  updatePortKnockSequence(id: ID!, input: PortKnockSequenceInput!, routerId: ID!): PortKnockSequence!
+  """Update an existing port mirror configuration"""
+  updatePortMirror(
+    """Port mirror ID"""
+    id: ID!
+    """Updated configuration"""
+    input: UpdatePortMirrorInput!
+    """Router ID"""
+    routerId: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
   """Update resource configuration (transitions to DRAFT → VALIDATING)"""
   updateResource(id: ID!, input: UpdateResourceInput!, routerId: ID!): UpdateResourcePayload!
   """Update an existing route"""
@@ -3128,6 +4436,15 @@ type Mutation {
   Old credentials are preserved if the test fails.
   """
   updateRouterCredentials(input: CredentialsInput!, routerId: ID!): CredentialUpdatePayload! @auth
+  """Update an existing tunnel interface"""
+  updateTunnel(
+    """Tunnel ID"""
+    id: ID!
+    """Updated tunnel configuration"""
+    input: TunnelInput!
+    """Router ID"""
+    routerId: ID!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
   """Update an existing VLAN interface"""
   updateVlan(
     """VLAN ID"""
@@ -3135,6 +4452,13 @@ type Mutation {
     """Updated VLAN data"""
     input: VlanInput!
   ): VlanMutationResult! @capability(requires: ["interface"])
+  """Update an existing webhook"""
+  updateWebhook(
+    """Webhook ID"""
+    id: ID!
+    """Update input"""
+    input: UpdateWebhookInput!
+  ): WebhookPayload!
   """Validate a change set (all items)"""
   validateChangeSet(changeSetId: ID!): ValidateChangeSetPayload!
   """
@@ -3160,8 +4484,88 @@ type MutationError {
   message: String!
 }
 
-"""NAT rule reference type"""
-type NatRule {
+"""NAT action types for firewall NAT rules."""
+enum NatAction {
+  """Accept packet"""
+  ACCEPT
+  """Drop packet"""
+  DROP
+  """Destination NAT (port forwarding)"""
+  DST_NAT
+  """Jump to different chain"""
+  JUMP
+  """Log packet"""
+  LOG
+  """Masquerade (dynamic source NAT)"""
+  MASQUERADE
+  """Network mapping"""
+  NETMAP
+  """Pass through without action"""
+  PASSTHROUGH
+  """Redirect to different port"""
+  REDIRECT
+  """Return to parent chain"""
+  RETURN
+  """Use same IP"""
+  SAME
+  """Source NAT (static mapping)"""
+  SRC_NAT
+}
+
+"""NAT chain types (srcnat for source NAT, dstnat for destination NAT)."""
+enum NatChain {
+  """Destination NAT (incoming traffic)"""
+  DSTNAT
+  """Source NAT (outgoing traffic)"""
+  SRCNAT
+}
+
+"""
+NAT rule configuration for network address translation.
+Handles both source NAT (masquerade) and destination NAT (port forwarding).
+"""
+type NatRule implements Node {
+  """NAT action"""
+  action: NatAction! @mikrotik(path: "/ip/firewall/nat", field: "action")
+  """Bytes processed by this rule"""
+  bytes: Int! @mikrotik(path: "/ip/firewall/nat", field: "bytes")
+  """NAT chain (srcnat or dstnat)"""
+  chain: NatChain! @mikrotik(path: "/ip/firewall/nat", field: "chain")
+  """Optional comment"""
+  comment: String @mikrotik(path: "/ip/firewall/nat", field: "comment")
+  """Whether rule is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/firewall/nat", field: "disabled")
+  """Destination address or CIDR"""
+  dstAddress: String @mikrotik(path: "/ip/firewall/nat", field: "dst-address")
+  """Destination port or port range"""
+  dstPort: String @mikrotik(path: "/ip/firewall/nat", field: "dst-port")
+  """MikroTik internal ID"""
+  id: ID! @mikrotik(path: "/ip/firewall/nat", field: ".id")
+  """Incoming interface"""
+  inInterface: String @mikrotik(path: "/ip/firewall/nat", field: "in-interface")
+  """Outgoing interface"""
+  outInterface: String @mikrotik(path: "/ip/firewall/nat", field: "out-interface")
+  """Packets processed by this rule"""
+  packets: Int! @mikrotik(path: "/ip/firewall/nat", field: "packets")
+  """Rule position in chain"""
+  position: Int!
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol @mikrotik(path: "/ip/firewall/nat", field: "protocol")
+  """Source address or CIDR"""
+  srcAddress: String @mikrotik(path: "/ip/firewall/nat", field: "src-address")
+  """Source port or port range"""
+  srcPort: String @mikrotik(path: "/ip/firewall/nat", field: "src-port")
+  """Target address for NAT"""
+  toAddresses: String @mikrotik(path: "/ip/firewall/nat", field: "to-addresses")
+  """Target port(s) for NAT"""
+  toPorts: String @mikrotik(path: "/ip/firewall/nat", field: "to-ports")
+}
+
+"""
+NAT rule reference type (lightweight for dependency tracking).
+For full NAT rule management, see NatRule type in firewall.graphql.
+"""
+type NatRuleReference {
   """Action (masquerade, dst-nat, src-nat)"""
   action: String!
   """Rule chain (srcnat, dstnat)"""
@@ -3192,6 +4596,105 @@ type NetworkConfigDetection {
 interface Node {
   """Globally unique identifier"""
   id: ID!
+}
+
+"""Notification channel types"""
+enum NotificationChannel {
+  """Email notifications"""
+  EMAIL
+  """In-app notifications"""
+  INAPP
+  """Pushover notifications"""
+  PUSHOVER
+  """Telegram notifications"""
+  TELEGRAM
+  """Webhook notifications"""
+  WEBHOOK
+}
+
+"""Notification channel configuration with encrypted credentials"""
+type NotificationChannelConfig {
+  """Type of notification channel"""
+  channelType: ChannelType!
+  """
+  Masked configuration (sensitive fields redacted)
+  For Pushover: {"device": "iphone", "baseURL": "...", "userKey": "******", "apiToken": "******"}
+  For Email: {"host": "smtp.gmail.com", "port": 587, "from": "...", "password": "******"}
+  """
+  configMasked: JSON!
+  """When this configuration was created"""
+  createdAt: DateTime!
+  """User ID who created this configuration"""
+  createdBy: String
+  """Optional description"""
+  description: String
+  """Whether this configuration is enabled"""
+  enabled: Boolean!
+  """Unique configuration ID"""
+  id: ID!
+  """Whether this is the default configuration for this channel type"""
+  isDefault: Boolean!
+  """Human-readable name for this configuration"""
+  name: String!
+  """When this configuration was last updated"""
+  updatedAt: DateTime!
+  """User ID who last updated this configuration"""
+  updatedBy: String
+}
+
+"""Notification delivery log entry"""
+type NotificationLog implements Node {
+  """Alert that triggered this notification"""
+  alertId: ID!
+  """When delivery was attempted"""
+  attemptedAt: DateTime!
+  """Notification channel type (email, telegram, pushover, webhook)"""
+  channel: String!
+  """When delivery was completed (success or final failure)"""
+  completedAt: DateTime
+  """Error message if delivery failed"""
+  errorMessage: String
+  """Globally unique identifier"""
+  id: ID!
+  """Request payload sent"""
+  requestPayload: JSON
+  """Response body received"""
+  responseBody: String
+  """Response time in milliseconds"""
+  responseTimeMs: Int
+  """Number of retry attempts"""
+  retryCount: Int!
+  """Delivery status"""
+  status: NotificationStatus!
+  """HTTP status code (for webhooks)"""
+  statusCode: Int
+  """Webhook ID (if channel is webhook)"""
+  webhookId: ID
+}
+
+"""Notification delivery status"""
+enum NotificationStatus {
+  """Delivery failed"""
+  FAILED
+  """Delivery pending"""
+  PENDING
+  """Retrying after failure"""
+  RETRYING
+  """Successfully delivered"""
+  SUCCESS
+}
+
+"""
+Notification template preview result
+Simplified preview output for template customization
+"""
+type NotificationTemplatePreview {
+  """Rendered body content"""
+  body: String!
+  """Validation errors (empty array if valid)"""
+  errors: [String!]!
+  """Rendered subject line (empty if channel doesn't use subjects)"""
+  subject: String
 }
 
 """Operation counts by type"""
@@ -3283,6 +4786,206 @@ type PlatformLimitation {
 """TCP/UDP port number (1-65535)"""
 scalar Port
 
+"""
+Port forward configuration (high-level view).
+Represents both the NAT rule and corresponding filter rule.
+"""
+type PortForward implements Node {
+  """External port"""
+  externalPort: Int!
+  """ID of the associated filter rule (if created)"""
+  filterRuleId: ID
+  """Unique identifier"""
+  id: ID!
+  """Internal target IP"""
+  internalIP: String!
+  """Internal target port"""
+  internalPort: Int!
+  """Optional name/description"""
+  name: String
+  """ID of the associated NAT rule"""
+  natRuleId: ID!
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+  """Current status"""
+  status: PortForwardStatus!
+}
+
+"""
+Input for creating a port forward (simplified wizard).
+Creates both NAT and filter rules automatically.
+"""
+input PortForwardInput {
+  """External port (1-65535)"""
+  externalPort: Int! @validate(min: 1, max: 65535)
+  """Internal target IP address"""
+  internalIP: String!
+  """Internal target port (defaults to external port if not specified)"""
+  internalPort: Int @validate(min: 1, max: 65535)
+  """Optional name/description for this port forward"""
+  name: String @validate(minLength: 1, maxLength: 100)
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+  """WAN interface name (optional, auto-detected if not specified)"""
+  wanInterface: String
+}
+
+"""Status of a port forward configuration."""
+enum PortForwardStatus {
+  """Port forward is active and working"""
+  ACTIVE
+  """Port forward is disabled"""
+  DISABLED
+  """Port forward has errors or misconfiguration"""
+  ERROR
+  """Port forward is partially configured (missing rules)"""
+  INCOMPLETE
+}
+
+"""Port knock attempt log entry."""
+type PortKnockAttempt implements Node {
+  """Attempt ID"""
+  id: ID!
+  """Ports hit in order"""
+  portsHit: [Int!]!
+  """Progress indicator (e.g., "2/4")"""
+  progress: String!
+  """Protected service port"""
+  protectedPort: Int!
+  """Sequence ID"""
+  sequenceId: ID!
+  """Sequence name"""
+  sequenceName: String!
+  """Source IP address"""
+  sourceIP: String!
+  """Attempt status"""
+  status: KnockStatus!
+  """Attempt timestamp"""
+  timestamp: DateTime!
+}
+
+"""Connection type for paginated knock attempts."""
+type PortKnockAttemptConnection implements Connection {
+  edges: [PortKnockAttemptEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""Edge type for knock attempt connections."""
+type PortKnockAttemptEdge implements Edge {
+  cursor: String!
+  node: PortKnockAttempt!
+}
+
+"""Filters for knock attempt log."""
+input PortKnockLogFilters {
+  """End date"""
+  endDate: DateTime
+  """Filter by sequence ID"""
+  sequenceId: ID
+  """Filter by source IP"""
+  sourceIP: String
+  """Start date"""
+  startDate: DateTime
+  """Filter by status"""
+  status: KnockStatus
+}
+
+"""
+Port knocking sequence configuration.
+Implements stage-based address list progression for hiding services.
+"""
+type PortKnockSequence implements Node {
+  """Access timeout after successful knock"""
+  accessTimeout: String!
+  """When sequence was created"""
+  createdAt: DateTime!
+  """Whether sequence is enabled"""
+  enabled: Boolean!
+  """Generated firewall rule IDs"""
+  generatedRuleIds: [ID!]!
+  """Unique sequence identifier"""
+  id: ID!
+  """Ordered list of knock ports (2-8 ports)"""
+  knockPorts: [KnockPort!]!
+  """Max time between knocks"""
+  knockTimeout: String!
+  """Sequence name (alphanumeric, underscores, hyphens)"""
+  name: String!
+  """Protected service port"""
+  protectedPort: Int!
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+  """Successful knocks in last 24h"""
+  recentAccessCount: Int!
+  """Router ID"""
+  routerId: ID!
+  """When sequence was last updated"""
+  updatedAt: DateTime!
+}
+
+"""Input for creating/updating port knock sequence."""
+input PortKnockSequenceInput {
+  """Access timeout (e.g., "5m", "1h")"""
+  accessTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+  """Whether enabled"""
+  enabled: Boolean
+  """Ordered knock ports (2-8)"""
+  knockPorts: [KnockPortInput!]!
+  """Knock timeout (e.g., "15s", "30s")"""
+  knockTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+  """Sequence name"""
+  name: String! @validate(minLength: 1, maxLength: 32, pattern: "^[a-zA-Z0-9_-]+$")
+  """Protected service port"""
+  protectedPort: Int! @validate(min: 1, max: 65535)
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+}
+
+"""A port mirror configuration for traffic monitoring and analysis"""
+type PortMirror implements Node {
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """Destination interface where mirrored traffic is sent"""
+  destinationInterface: Interface! @mikrotik(path: "/interface/bridge/port", field: "mirror-target")
+  """Direction of traffic to mirror"""
+  direction: MirrorDirection!
+  """Whether the mirror is enabled"""
+  enabled: Boolean!
+  """Unique port mirror identifier"""
+  id: ID!
+  """Descriptive name for the mirror configuration"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """Source interfaces being mirrored"""
+  sourceInterfaces: [Interface!]! @mikrotik(path: "/interface/bridge/port", field: "interface")
+  """Statistics for the destination interface"""
+  statistics: PortMirrorStats
+}
+
+"""Result of a port mirror mutation (create, update)"""
+type PortMirrorMutationResult {
+  """Errors that occurred during the operation"""
+  errors: [MutationError!]
+  """The created or updated port mirror (if successful)"""
+  portMirror: PortMirror
+  """Configuration preview (RouterOS commands)"""
+  preview: ConfigPreview
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
+"""Statistics for a port mirror destination interface"""
+type PortMirrorStats {
+  """Destination interface current load"""
+  destinationLoad: Float!
+  """Whether the destination is saturated (dropping packets)"""
+  isSaturated: Boolean!
+  """Total mirrored bytes"""
+  mirroredBytes: Size!
+  """Total mirrored packets"""
+  mirroredPackets: Size!
+}
+
 """Port mode for VLAN configuration"""
 enum PortMode {
   """Access port (single VLAN, untagged)"""
@@ -3360,6 +5063,21 @@ input PppoeClientInput {
   username: String! @validate(minLength: 1, maxLength: 128)
 }
 
+"""
+Input for previewing a notification template
+Simpler input for template customization workflow
+"""
+input PreviewNotificationTemplateInput {
+  """Body template with Go template syntax"""
+  bodyTemplate: String!
+  """Notification channel"""
+  channel: NotificationChannel!
+  """Event type for sample data generation"""
+  eventType: String!
+  """Subject template (optional, not all channels use subjects)"""
+  subjectTemplate: String
+}
+
 """Protocol used for router communication"""
 enum Protocol {
   """Binary API protocol (port 8728)"""
@@ -3395,17 +5113,83 @@ enum ProtocolPreference {
   TELNET
 }
 
+"""Pushover API usage statistics"""
+type PushoverUsage {
+  """Monthly message limit"""
+  limit: Int!
+  """Number of messages remaining this month"""
+  remaining: Int!
+  """When the usage counter resets"""
+  resetAt: DateTime!
+  """Number of messages used this month"""
+  used: Int!
+}
+
 type Query {
+  """
+  Get entries for a specific address list with cursor-based pagination.
+  Supports infinite scrolling for large lists (10,000+ entries).
+  """
+  addressListEntries(after: String, first: Int, listName: String!, routerId: ID!): AddressListEntryConnection!
+  """
+  Get all address lists with aggregated statistics.
+  Returns a list of address lists with entry counts and referencing rule counts.
+  """
+  addressLists(routerId: ID!): [AddressList!]!
+  """Get alert escalations with optional filtering (NAS-18.9)"""
+  alertEscalations(
+    """Pagination limit"""
+    limit: Int = 50
+    """Pagination offset"""
+    offset: Int = 0
+    """Filter by escalation status"""
+    status: EscalationStatus
+  ): [AlertEscalation!]!
   """Get a single alert rule by ID"""
   alertRule(
     """Alert rule ID"""
     id: ID!
   ): AlertRule
+  """Get a single alert rule template by ID"""
+  alertRuleTemplate(
+    """Template ID"""
+    id: ID!
+  ): AlertRuleTemplate
+  """Get alert rule templates, optionally filtered by category"""
+  alertRuleTemplates(
+    """Filter by category"""
+    category: AlertRuleTemplateCategory
+  ): [AlertRuleTemplate!]!
+  """
+  Get throttle status for alert rules
+  Returns throttle information for all rules or a specific rule
+  """
+  alertRuleThrottleStatus(
+    """Optional rule ID to filter by specific rule"""
+    ruleId: ID
+  ): [ThrottleStatus!]!
   """Get all alert rules, optionally filtered by device"""
   alertRules(
     """Filter by device ID"""
     deviceId: ID
   ): [AlertRule!]!
+  """
+  Get current storm detection status
+  Shows if alert storm is detected and which rules are contributing
+  """
+  alertStormStatus: StormStatus!
+  """Get a single alert template by ID"""
+  alertTemplate(
+    """Template ID"""
+    id: ID!
+  ): AlertTemplate
+  """Get all alert templates, optionally filtered by event type or channel"""
+  alertTemplates(
+    """Filter by notification channel"""
+    channel: NotificationChannel
+    """Filter by event type"""
+    eventType: String
+  ): [AlertTemplate!]!
   """Get alerts with filtering and pagination"""
   alerts(
     """Filter by acknowledged status"""
@@ -3423,6 +5207,13 @@ type Query {
   Get interfaces available to add to a bridge (not already in any bridge)
   """
   availableInterfacesForBridge(routerId: ID!): [Interface!]!
+  """List all available services from the Feature Marketplace."""
+  availableServices(
+    """Filter by architecture"""
+    architecture: String
+    """Filter by category"""
+    category: String
+  ): [AvailableService!]!
   """Get a single bridge by UUID"""
   bridge(uuid: ID!): Bridge
   """Get bridge ports"""
@@ -3479,6 +5270,8 @@ type Query {
   Shows current state, failure counts, and cooldown timing.
   """
   circuitBreakerStatus(routerId: ID!): CircuitBreakerStatus!
+  """Get common event types"""
+  commonEventTypes: [String!]!
   """Get the compatibility matrix for all known features"""
   compatibilityMatrix: [FeatureCompatibilityInfo!]!
   """Get composite resource with all related sub-resources"""
@@ -3502,6 +5295,11 @@ type Query {
   connectionDetails(routerId: ID!): ConnectionDetails
   """Get connection manager statistics"""
   connectionStats: ConnectionStats!
+  """Get the default configuration for a specific channel type"""
+  defaultNotificationChannelConfig(
+    """Channel type"""
+    channelType: ChannelType!
+  ): NotificationChannelConfig
   """Detect default gateway from DHCP client or static route"""
   detectGateway(routerId: ID!): String
   """Detect ISP information from WAN IP"""
@@ -3510,6 +5308,34 @@ type Query {
   detectWanInterface(routerId: ID!): String!
   """Get a device by ID for resource metrics"""
   device(id: ID!): Device
+  """Get digest delivery history for a channel (NAS-18.11)"""
+  digestHistory(
+    """Channel ID to get history for"""
+    channelId: ID!
+    """Limit number of results (default: 10)"""
+    limit: Int = 10
+  ): [DigestSummary!]!
+  """Get the number of alerts in the digest queue for a channel (NAS-18.11)"""
+  digestQueueCount(
+    """Channel ID to check queue for"""
+    channelId: ID!
+  ): Int!
+  """
+  Run DNS server benchmark against all configured DNS servers.
+  Tests each server with a well-known hostname (google.com) and returns
+  response times sorted from fastest to slowest.
+  """
+  dnsBenchmark(
+    """Device/router ID"""
+    deviceId: String!
+  ): DnsBenchmarkResult!
+  """
+  Get DNS cache statistics including entries, size, hit rate, and top domains.
+  """
+  dnsCacheStats(
+    """Device/router ID"""
+    deviceId: String!
+  ): DnsCacheStats!
   """
   Get configured DNS servers for a device.
   Returns primary and secondary DNS servers configured on the router.
@@ -3527,6 +5353,17 @@ type Query {
     """Router to query"""
     routerId: ID!
   ): Interface @capability(requires: ["interface"])
+  """Get historical interface statistics for bandwidth analysis"""
+  interfaceStatsHistory(
+    """Interface ID"""
+    interfaceId: ID!
+    """Aggregation interval (default: 5m)"""
+    interval: Duration = "5m"
+    """Router ID"""
+    routerId: ID!
+    """Time range for the query"""
+    timeRange: StatsTimeRangeInput!
+  ): InterfaceStatsHistory! @capability(requires: ["interface"])
   """List interfaces on a router"""
   interfaces(
     """Pagination parameters"""
@@ -3557,6 +5394,11 @@ type Query {
     """Router ID to query"""
     routerId: ID!
   ): [IpAddress!]! @capability(requires: ["interface"])
+  """Get available IPsec profiles for GRE tunnel encryption"""
+  ipsecProfiles(
+    """Router ID to query"""
+    routerId: ID!
+  ): [IpsecProfile!]! @capability(requires: ["interface"])
   """Check if a feature is supported on a specific router"""
   isFeatureSupported(
     """Feature identifier"""
@@ -3568,8 +5410,71 @@ type Query {
   me: User @auth
   """Get all active sessions for the current user"""
   mySessions: [Session!]! @auth
+  """Get NAT rules, optionally filtered by chain."""
+  natRules(chain: NatChain, routerId: ID!): [NatRule!]!
   """Fetch any node by its global ID"""
   node(id: ID!): Node
+  """Get a specific notification channel configuration by ID"""
+  notificationChannelConfig(
+    """Configuration ID"""
+    id: ID!
+  ): NotificationChannelConfig
+  """
+  List all notification channel configurations (optionally filtered by type)
+  """
+  notificationChannelConfigs(
+    """Filter by channel type"""
+    channelType: ChannelType
+  ): [NotificationChannelConfig!]!
+  """Get notification delivery logs"""
+  notificationLogs(
+    """Filter by alert ID"""
+    alertId: ID
+    """Filter by channel type"""
+    channel: String
+    """Pagination limit"""
+    limit: Int = 50
+    """Pagination offset"""
+    offset: Int = 0
+    """Filter by webhook ID"""
+    webhookId: ID
+  ): [NotificationLog!]!
+  """Get all port forwards (high-level view)."""
+  portForwards(routerId: ID!): [PortForward!]!
+  """Get port knock attempt log with filtering."""
+  portKnockLog(after: String, filters: PortKnockLogFilters, first: Int, routerId: ID!): PortKnockAttemptConnection!
+  """Get single port knock sequence by ID."""
+  portKnockSequence(id: ID!, routerId: ID!): PortKnockSequence
+  """Get all port knock sequences for a router."""
+  portKnockSequences(routerId: ID!): [PortKnockSequence!]!
+  """Get a specific port mirror by ID"""
+  portMirror(
+    """Port mirror ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): PortMirror @capability(requires: ["interface"])
+  """Get all port mirror configurations on a router"""
+  portMirrors(
+    """Router ID to query"""
+    routerId: ID!
+  ): [PortMirror!]! @capability(requires: ["interface"])
+  """Preview an alert rule template with variable substitution"""
+  previewAlertRuleTemplate(
+    """Template ID"""
+    templateId: ID!
+    """Variables for substitution"""
+    variables: JSON!
+  ): AlertRuleTemplatePreview!
+  """Preview an alert template with variables"""
+  previewAlertTemplate(
+    """Template ID"""
+    templateId: ID!
+    """Variables for substitution"""
+    variables: JSON!
+  ): TemplatePreviewPayload!
+  """Get Pushover API usage statistics"""
+  pushoverUsage: PushoverUsage
   """Get a resource by ID"""
   resource(
     """Resource ID (ULID)"""
@@ -3599,6 +5504,11 @@ type Query {
     """Router ID"""
     routerId: ID!
   ): Route @capability(requires: ["routing"])
+  """
+  Look up which route will be used for a destination IP.
+  Supports optional source address for policy routing testing.
+  """
+  routeLookup(destination: IPv4!, routerId: ID!, source: IPv4): RouteLookupResult!
   """Get a router by ID"""
   router(id: ID!): Router
   """Get router capabilities by router ID"""
@@ -3623,6 +5533,11 @@ type Query {
     """Filter by route type (STATIC, CONNECTED, DYNAMIC, etc.)"""
     type: RouteType
   ): [Route!]! @capability(requires: ["routing"])
+  """
+  Get firewall rules that reference a specific address list.
+  Includes filter, NAT, and mangle rules.
+  """
+  rulesReferencingAddressList(listName: String!, routerId: ID!): [FirewallRule!]!
   """Get scan history (recent scans)"""
   scanHistory(
     """Maximum number of results to return"""
@@ -3630,10 +5545,45 @@ type Query {
   ): [ScanTask!]!
   """Get the status of a scan task by ID"""
   scanStatus(taskId: ID!): ScanTask
+  """Search alert templates"""
+  searchAlertTemplates(
+    """Search query"""
+    query: String!
+  ): [AlertTemplate!]!
+  """Get a specific service instance."""
+  serviceInstance(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): ServiceInstance
+  """List all service instances for a router."""
+  serviceInstances(
+    """Filter by feature ID"""
+    featureID: String
+    """Router ID"""
+    routerID: ID!
+    """Filter by status"""
+    status: ServiceStatus
+  ): [ServiceInstance!]!
   """Get all features supported by a router"""
   supportedFeatures(routerId: ID!): [FeatureSupport!]!
   """Get a troubleshooting session by ID"""
   troubleshootSession(id: ID!): TroubleshootSession
+  """Get a specific tunnel by ID"""
+  tunnel(
+    """Tunnel ID"""
+    id: ID!
+    """Router ID"""
+    routerId: ID!
+  ): Tunnel @capability(requires: ["interface"])
+  """Get all tunnels on a router with optional filtering by type"""
+  tunnels(
+    """Router ID to query"""
+    routerId: ID!
+    """Optional: filter by tunnel type"""
+    type: TunnelType
+  ): [Tunnel!]! @capability(requires: ["interface"])
   """Get features not supported by a router with upgrade guidance"""
   unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
   """Get upgrade recommendation for a specific feature on a router"""
@@ -3692,12 +5642,23 @@ type Query {
     """Router ID"""
     routerId: ID!
   ): [WANInterface!]! @capability(requires: ["interface"])
+  """Get a single webhook by ID"""
+  webhook(
+    """Webhook ID"""
+    id: ID!
+  ): Webhook
+  """Get all webhooks"""
+  webhooks: [Webhook!]!
 }
 
 """Quiet hours configuration"""
 type QuietHoursConfig {
   """Whether critical alerts bypass quiet hours"""
   bypassCritical: Boolean!
+  """
+  Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days.
+  """
+  daysOfWeek: [Int!]!
   """End time in HH:MM format"""
   endTime: String!
   """Start time in HH:MM format"""
@@ -3710,6 +5671,10 @@ type QuietHoursConfig {
 input QuietHoursConfigInput {
   """Whether critical alerts bypass quiet hours (default: true)"""
   bypassCritical: Boolean = true
+  """
+  Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days.
+  """
+  daysOfWeek: [Int!] = []
   """End time in HH:MM format"""
   endTime: String!
   """Start time in HH:MM format"""
@@ -4063,6 +6028,14 @@ type ResourceUpdatedEvent {
   version: Int!
 }
 
+"""Input for restarting a service instance."""
+input RestartInstanceInput {
+  """Instance ID to restart"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+}
+
 type RollbackChangeSetPayload {
   """The rolled back change set"""
   changeSet: ChangeSet
@@ -4172,6 +6145,44 @@ input RouteInput {
   routingMark: String
   """Routing table name (default: main)"""
   routingTable: String
+}
+
+"""A candidate route that matches the destination"""
+type RouteLookupCandidate {
+  """Administrative distance"""
+  distance: Int!
+  """Prefix length (24 for /24, 8 for /8)"""
+  prefixLength: Int!
+  """The route object"""
+  route: Route!
+  """Whether this route was selected"""
+  selected: Boolean!
+  """Reason for selection or non-selection"""
+  selectionReason: String
+}
+
+"""Result of a route lookup operation"""
+type RouteLookupResult {
+  """All candidate routes that match destination"""
+  candidateRoutes: [RouteLookupCandidate!]!
+  """Destination IP that was looked up"""
+  destination: String!
+  """Administrative distance of selected route"""
+  distance: Int
+  """Human-readable explanation of route selection"""
+  explanation: String!
+  """Gateway IP for the selected route"""
+  gateway: String
+  """Outgoing interface for the selected route"""
+  interface: String
+  """Whether this is the default route (0.0.0.0/0)"""
+  isDefaultRoute: Boolean!
+  """The selected route (null if no route found)"""
+  matchedRoute: Route
+  """Route type (STATIC, CONNECTED, DYNAMIC, BGP, OSPF)"""
+  routeType: RouteType!
+  """VPN tunnel info if route goes through VPN"""
+  vpnTunnel: VPNTunnelInfo
 }
 
 """Result of a route mutation (create, update)"""
@@ -4456,6 +6467,64 @@ type RuntimeState {
   uptime: Duration
 }
 
+"""Input for saving custom alert rule template"""
+input SaveAlertRuleTemplateInput {
+  """Template category"""
+  category: AlertRuleTemplateCategory!
+  """Notification channels"""
+  channels: [String!]!
+  """Alert conditions"""
+  conditions: [AlertConditionInput!]!
+  """Template description"""
+  description: String!
+  """Event type"""
+  eventType: String!
+  """Template name"""
+  name: String!
+  """Alert severity"""
+  severity: AlertSeverity!
+  """Throttle configuration"""
+  throttle: ThrottleConfigInput
+  """Template variables"""
+  variables: [AlertRuleAlertTemplateVariableInput!]
+}
+
+"""Input for saving a custom alert template"""
+input SaveAlertTemplateInput {
+  """Body template"""
+  bodyTemplate: String!
+  """Notification channel"""
+  channel: NotificationChannel!
+  """Template description"""
+  description: String!
+  """Event type"""
+  eventType: String!
+  """Metadata"""
+  metadata: JSON
+  """Template name"""
+  name: String!
+  """Subject template"""
+  subjectTemplate: String
+  """Tags"""
+  tags: [String!]
+  """Template variables"""
+  variables: [AlertAlertTemplateVariableInput!]!
+}
+
+"""Input for saving a custom template."""
+input SaveTemplateInput {
+  """Category"""
+  category: TemplateCategory!
+  """Template description"""
+  description: String! @validate(minLength: 1, maxLength: 500)
+  """Template name"""
+  name: String! @validate(minLength: 1, maxLength: 100)
+  """Rule definitions"""
+  rules: [TemplateRuleInput!]!
+  """Variable definitions"""
+  variables: [FirewallTemplateVariableInput!]!
+}
+
 """Input for starting a network scan"""
 input ScanNetworkInput {
   """
@@ -4528,12 +6597,73 @@ type ScanTask {
   totalIPs: Int
 }
 
-"""Service operational status"""
+"""
+Service instance running on a router.
+Represents an installed and potentially running service instance.
+"""
+type ServiceInstance implements Node {
+  """SHA256 checksum of the binary"""
+  binaryChecksum: String
+  """Path to the service binary"""
+  binaryPath: String
+  """Version of the service binary"""
+  binaryVersion: String
+  """IP address to bind the service to"""
+  bindIP: String
+  """Service-specific configuration (JSON)"""
+  config: JSON
+  """When the instance was created"""
+  createdAt: DateTime!
+  """Feature identifier (e.g., 'tor', 'sing-box')"""
+  featureID: String!
+  """Instance ID (ULID)"""
+  id: ID!
+  """Human-readable instance name"""
+  instanceName: String!
+  """Ports used by this service instance"""
+  ports: [Int!]!
+  """The router this instance belongs to"""
+  router: Router
+  """Router ID this instance belongs to"""
+  routerID: String!
+  """Current lifecycle status"""
+  status: ServiceStatus!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """VLAN ID for network isolation"""
+  vlanID: Int
+}
+
+"""Payload for service instance mutations."""
+type ServiceInstancePayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """The service instance (null if operation failed)"""
+  instance: ServiceInstance
+}
+
+"""Service instance lifecycle status."""
 enum ServiceStatus {
   """Service is operational with degraded performance"""
   DEGRADED
+  """Instance is being deleted"""
+  DELETING
+  """Operation failed"""
+  FAILED
   """Service is fully operational"""
   HEALTHY
+  """Binary installed, ready to start"""
+  INSTALLED
+  """Binary is being downloaded and installed"""
+  INSTALLING
+  """Process is running"""
+  RUNNING
+  """Process is starting"""
+  STARTING
+  """Process is stopped"""
+  STOPPED
+  """Process is stopping"""
+  STOPPING
   """Service is not operational"""
   UNHEALTHY
 }
@@ -4584,6 +6714,14 @@ type SoftwareInfo {
   versionPatch: Int
 }
 
+"""Input for starting a service instance."""
+input StartInstanceInput {
+  """Instance ID to start"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+}
+
 """Result of starting a troubleshooting session"""
 type StartTroubleshootPayload {
   """Errors that occurred"""
@@ -4626,6 +6764,40 @@ input StaticIPInput {
   secondaryDNS: IPv4
 }
 
+"""A single data point in interface statistics history"""
+type StatsDataPoint {
+  """Receive rate in bytes per second"""
+  rxBytesPerSec: Float!
+  """Receive errors in this interval"""
+  rxErrors: Int!
+  """Receive rate in packets per second"""
+  rxPacketsPerSec: Float!
+  """Timestamp of the data point"""
+  timestamp: DateTime!
+  """Transmit rate in bytes per second"""
+  txBytesPerSec: Float!
+  """Transmission errors in this interval"""
+  txErrors: Int!
+  """Transmit rate in packets per second"""
+  txPacketsPerSec: Float!
+}
+
+"""Input for specifying a time range"""
+input StatsTimeRangeInput {
+  """End of the time range"""
+  end: DateTime!
+  """Start of the time range"""
+  start: DateTime!
+}
+
+"""Input for stopping a service instance."""
+input StopInstanceInput {
+  """Instance ID to stop"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+}
+
 """Storage utilization metrics"""
 type StorageMetrics {
   """Storage usage percentage (0-100)"""
@@ -4634,6 +6806,41 @@ type StorageMetrics {
   total: Float!
   """Used storage in bytes"""
   used: Float!
+}
+
+"""Alert rule contribution to storm detection"""
+type StormRuleContribution {
+  """Number of alerts from this rule in current window"""
+  alertCount: Int!
+  """Percentage of total alerts"""
+  percentage: Float!
+  """Alert rule ID"""
+  ruleId: ID!
+  """Alert rule name"""
+  ruleName: String!
+}
+
+"""
+Storm detection status
+Shows if alert storm is detected and current metrics
+"""
+type StormStatus {
+  """Number of alerts in current window"""
+  alertCount: Int!
+  """Whether storm is currently detected"""
+  isStormDetected: Boolean!
+  """When storm detection started"""
+  stormStartedAt: DateTime
+  """Storm detection threshold"""
+  threshold: Int!
+  """Top alert rules contributing to the storm"""
+  topRules: [StormRuleContribution!]!
+  """When current window ends"""
+  windowEnd: DateTime!
+  """Window duration in seconds"""
+  windowSeconds: Int!
+  """When current window started"""
+  windowStart: DateTime!
 }
 
 enum StpPortRole {
@@ -4699,6 +6906,31 @@ type Subscription {
     """Router ID to monitor (optional, all routers if not specified)"""
     routerId: ID
   ): HealthCheckResult!
+  """
+  Subscribe to installation progress events for a router.
+  Emits progress updates during binary download and installation.
+  """
+  installProgress(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstallProgress!
+  """
+  Subscribe to instance status changes for a router.
+  Emits events when any instance changes state.
+  """
+  instanceStatusChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstanceStatusChanged!
+  """Subscribe to real-time interface statistics updates"""
+  interfaceStatsUpdated(
+    """Interface ID to monitor"""
+    interfaceId: ID!
+    """Polling interval (default: 5s, minimum: 1s)"""
+    interval: Duration = "5s"
+    """Router ID to monitor"""
+    routerId: ID!
+  ): InterfaceStats! @capability(requires: ["interface"])
   """Subscribe to interface status changes for real-time updates"""
   interfaceStatusChanged(
     """
@@ -4715,6 +6947,11 @@ type Subscription {
     """Router ID to monitor"""
     routerId: ID!
   ): IpAddressChangeEvent! @capability(requires: ["interface"])
+  """Subscribe to port mirror status changes"""
+  portMirrorChanged(
+    """Router ID to monitor"""
+    routerId: ID!
+  ): PortMirror! @capability(requires: ["interface"])
   """Subscribe to real-time resource metrics updates"""
   resourceMetrics(
     """Device ID to monitor"""
@@ -4761,6 +6998,11 @@ type Subscription {
   Emits events as steps are executed, fixes are applied, and results are updated.
   """
   troubleshootProgress(sessionId: ID!): TroubleshootSession!
+  """Subscribe to tunnel status changes (create, update, delete)"""
+  tunnelChanged(
+    """Router ID to monitor"""
+    routerId: ID!
+  ): Tunnel! @capability(requires: ["interface"])
   """Subscribe to VLAN interface changes (create, update, delete)"""
   vlanChanged(
     """Router ID to monitor"""
@@ -4829,6 +7071,140 @@ type TelemetryData {
   uptimeHistory: [UptimeDataPoint!]
 }
 
+"""Template categories for organization."""
+enum TemplateCategory {
+  """Basic security rules"""
+  BASIC
+  """User-created custom templates"""
+  CUSTOM
+  """Gaming-optimized rules"""
+  GAMING
+  """Guest network access"""
+  GUEST
+  """Home network configurations"""
+  HOME
+  """IoT device isolation"""
+  IOT
+}
+
+"""Template complexity levels."""
+enum TemplateComplexity {
+  """Advanced templates with many rules"""
+  ADVANCED
+  """Moderate complexity"""
+  MODERATE
+  """Simple templates with few rules"""
+  SIMPLE
+}
+
+"""Detected conflict between template and existing configuration."""
+type TemplateConflict {
+  """Existing rule ID that conflicts (if applicable)"""
+  existingRuleId: ID
+  """Human-readable conflict description"""
+  message: String!
+  """Proposed template rule that conflicts"""
+  proposedRule: TemplateRule!
+  """Type of conflict"""
+  type: TemplateConflictType!
+}
+
+"""Conflict types between template and existing configuration."""
+enum TemplateConflictType {
+  """Chain configuration conflicts"""
+  CHAIN_CONFLICT
+  """Duplicate rule already exists"""
+  DUPLICATE_RULE
+  """IP address range overlaps"""
+  IP_OVERLAP
+  """Position conflict in chain"""
+  POSITION_CONFLICT
+}
+
+"""Template preview result"""
+type TemplatePreview {
+  """Rendered body after variable substitution"""
+  renderedBody: String!
+  """Rendered subject after variable substitution"""
+  renderedSubject: String!
+  """The template that was previewed"""
+  template: AlertTemplate!
+  """Validation information"""
+  validationInfo: TemplateValidationInfo!
+  """Variables used in preview"""
+  variables: JSON!
+}
+
+"""Template preview payload"""
+type TemplatePreviewPayload {
+  """Errors encountered during preview"""
+  errors: [MutationError!]
+  """Preview result"""
+  preview: TemplatePreview
+}
+
+"""
+Result of template preview operation.
+Shows what will happen when template is applied.
+"""
+type TemplatePreviewResult {
+  """Detected conflicts with existing rules"""
+  conflicts: [TemplateConflict!]!
+  """Impact analysis"""
+  impactAnalysis: ImpactAnalysis!
+  """Rules with variables resolved"""
+  resolvedRules: [TemplateRule!]!
+  """The template being previewed"""
+  template: FirewallTemplate!
+}
+
+"""
+Template rule definition.
+Represents a firewall rule that will be created when template is applied.
+"""
+type TemplateRule {
+  """Action to perform"""
+  action: String!
+  """Chain name"""
+  chain: String!
+  """Optional comment (can include template metadata)"""
+  comment: String
+  """Position in the chain (null = append to end)"""
+  position: Int
+  """
+  Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})
+  """
+  properties: JSON!
+  """Firewall table (filter, nat, mangle, raw)"""
+  table: FirewallTable!
+}
+
+"""Input for defining a template rule."""
+input TemplateRuleInput {
+  """Action"""
+  action: String! @validate(minLength: 1, maxLength: 50)
+  """Chain name"""
+  chain: String! @validate(minLength: 1, maxLength: 50)
+  """Comment"""
+  comment: String @validate(maxLength: 200)
+  """Position"""
+  position: Int
+  """Rule properties as JSON"""
+  properties: JSON!
+  """Firewall table"""
+  table: FirewallTable!
+}
+
+"""Template validation information"""
+type TemplateValidationInfo {
+  """Whether the template is valid with provided variables"""
+  isValid: Boolean!
+  """Missing required variables"""
+  missingVariables: [String!]!
+  """Validation warnings"""
+  warnings: [String!]!
+}
+
 """Result of testing all router credentials."""
 type TestAllCredentialsPayload {
   """Number of failed credential tests"""
@@ -4862,6 +7238,18 @@ type TestNotificationPayload {
   success: Boolean!
 }
 
+"""Result of test port knock operation."""
+type TestPortKnockResult {
+  """Message"""
+  message: String!
+  """Whether test rules were created successfully"""
+  success: Boolean!
+  """Test instructions for user"""
+  testInstructions: String!
+  """Test rule IDs (will auto-expire)"""
+  testRuleIds: [ID!]!
+}
+
 """Throttle configuration to prevent alert spam"""
 type ThrottleConfig {
   """Optional field to group alerts by"""
@@ -4880,6 +7268,39 @@ input ThrottleConfigInput {
   maxAlerts: Int!
   """Time period in seconds"""
   periodSeconds: Int!
+}
+
+"""Throttle status for a specific group (when groupByField is used)"""
+type ThrottleGroupStatus {
+  """Group identifier (value of groupByField)"""
+  groupKey: String!
+  """Whether this group is currently throttled"""
+  isThrottled: Boolean!
+  """Number of alerts suppressed for this group"""
+  suppressedCount: Int!
+  """When the throttle window for this group ends"""
+  windowEnd: DateTime!
+  """When the throttle window for this group started"""
+  windowStart: DateTime!
+}
+
+"""
+Throttle status for an alert rule
+Shows current throttling state and suppressed alert counts
+"""
+type ThrottleStatus {
+  """Throttle groups (if groupByField is configured)"""
+  groups: [ThrottleGroupStatus!]!
+  """Whether the rule is currently throttled"""
+  isThrottled: Boolean!
+  """Alert rule ID"""
+  ruleId: ID!
+  """Number of alerts suppressed in current throttle window"""
+  suppressedCount: Int!
+  """When the current throttle window ends"""
+  windowEnd: DateTime
+  """When the current throttle window started"""
+  windowStart: DateTime
 }
 
 """Edge connecting nodes in a topology"""
@@ -5054,6 +7475,12 @@ type TracerouteResult {
   totalTimeMs: Float!
 }
 
+"""Transport protocol enum for network traffic."""
+enum TransportProtocol {
+  TCP
+  UDP
+}
+
 """Suggested fix for a failed diagnostic step"""
 type TroubleshootFixSuggestion {
   """RouterOS command that will be executed"""
@@ -5186,6 +7613,120 @@ enum TroubleshootStepType {
   WAN
 }
 
+"""A network tunnel interface for connecting remote networks"""
+type Tunnel implements Node {
+  """User comment"""
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/interface/{type}", field: "comment")
+  """Whether the tunnel is disabled"""
+  disabled: Boolean @mikrotik(path: "/interface/{type}", field: "disabled")
+  """Unique tunnel identifier"""
+  id: ID!
+  """IPsec profile name (GRE tunnels only)"""
+  ipsecProfile: String @mikrotik(path: "/interface/gre", field: "ipsec-profile")
+  """Local endpoint IP address"""
+  localAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "local-address")
+  """MTU setting for the tunnel interface"""
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/{type}", field: "mtu")
+  """Tunnel interface name"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$") @mikrotik(path: "/interface/{type}", field: "name")
+  """VXLAN port (default 4789)"""
+  port: Int @validate(min: 1, max: 65535) @mikrotik(path: "/interface/vxlan", field: "port")
+  """Remote endpoint IP address"""
+  remoteAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "remote-address")
+  """Traffic statistics for this tunnel"""
+  statistics: InterfaceStats
+  """Operational status of the tunnel"""
+  status: InterfaceStatus!
+  """Tunnel ID (EoIP tunnels only, must be unique per remote address pair)"""
+  tunnelId: Int @validate(min: 0, max: 65535) @mikrotik(path: "/interface/eoip", field: "tunnel-id")
+  """Tunnel protocol type"""
+  type: TunnelType!
+  """VXLAN Network Identifier (VXLAN tunnels only)"""
+  vni: Int @validate(min: 1, max: 16777215) @mikrotik(path: "/interface/vxlan", field: "vni")
+  """VTEP peer addresses (VXLAN tunnels only)"""
+  vtepPeers: [String!] @mikrotik(path: "/interface/vxlan/vteps", field: "remote-ip")
+}
+
+"""Input for creating or updating a tunnel"""
+input TunnelInput {
+  """User comment"""
+  comment: String @validate(maxLength: 255)
+  """IPsec profile name (GRE tunnels only)"""
+  ipsecProfile: String
+  """Local endpoint IP address"""
+  localAddress: String! @validate(format: IPV4)
+  """MTU setting (optional, default calculated based on tunnel type)"""
+  mtu: Int @validate(min: 68, max: 65535)
+  """Tunnel interface name (alphanumeric, hyphens, underscores)"""
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """VXLAN port (default 4789)"""
+  port: Int @validate(min: 1, max: 65535)
+  """Remote endpoint IP address"""
+  remoteAddress: String! @validate(format: IPV4)
+  """Tunnel ID (EoIP tunnels only, 0-65535)"""
+  tunnelId: Int @validate(min: 0, max: 65535)
+  """Tunnel protocol type"""
+  type: TunnelType!
+  """VXLAN Network Identifier (VXLAN tunnels only, 1-16777215)"""
+  vni: Int @validate(min: 1, max: 16777215)
+  """VTEP peer addresses (VXLAN tunnels only)"""
+  vtepPeers: [String!]
+}
+
+"""Result of a tunnel mutation (create, update)"""
+type TunnelMutationResult {
+  """Errors that occurred during the operation"""
+  errors: [String!]!
+  """MTU guidance for the tunnel type"""
+  mtuGuidance: MtuGuidance
+  """Configuration preview (RouterOS commands)"""
+  preview: String
+  """Whether the operation succeeded"""
+  success: Boolean!
+  """The created or updated tunnel (if successful)"""
+  tunnel: Tunnel
+}
+
+"""Status of a VPN tunnel"""
+enum TunnelStatus {
+  """Tunnel is connected and active"""
+  CONNECTED
+  """Tunnel is attempting to connect"""
+  CONNECTING
+  """Tunnel is disconnected"""
+  DISCONNECTED
+}
+
+"""Result of a tunnel connectivity test"""
+type TunnelTestResult {
+  """Average ping latency in milliseconds (null if unreachable)"""
+  latency: Float
+  """Path MTU discovered (null if not tested)"""
+  mtuPath: Int
+  """Whether the remote endpoint is reachable"""
+  reachable: Boolean!
+  """Suggestions for common connectivity issues"""
+  suggestions: [String!]!
+  """Throughput in Mbps (null if iperf not available)"""
+  throughput: Float
+}
+
+"""Network tunnel types supported by MikroTik RouterOS"""
+enum TunnelType {
+  """Ethernet over IP - Layer 2 tunnel for bridge extension"""
+  EOIP
+  """Generic Routing Encapsulation (RFC 2784) - L3 with optional IPsec"""
+  GRE
+  """IP-in-IP tunnel (RFC 2003) - Basic L3 encapsulation"""
+  IPIP
+  """Layer 2 Tunneling Protocol (future support)"""
+  L2TP
+  """Secure Socket Tunneling Protocol (future support)"""
+  SSTP
+  """Virtual eXtensible LAN (RFC 7348) - L2 overlay network"""
+  VXLAN
+}
+
 """
 ULID (Universally Unique Lexicographically Sortable Identifier)
 A 26-character string that is time-sortable and globally unique.
@@ -5205,6 +7746,8 @@ input UpdateAlertRuleInput {
   deviceId: ID
   """Whether rule is enabled"""
   enabled: Boolean
+  """Escalation configuration (NAS-18.9)"""
+  escalation: EscalationConfigInput
   """Event type to match"""
   eventType: String
   """Human-readable alert rule name"""
@@ -5276,6 +7819,34 @@ type UpdateInterfacePayload {
   interface: Interface
 }
 
+"""Input for updating an existing notification channel configuration"""
+input UpdateNotificationChannelConfigInput {
+  """New configuration (optional, replaces entire config if provided)"""
+  config: JSON
+  """New description (optional)"""
+  description: String
+  """Enable/disable configuration (optional)"""
+  enabled: Boolean
+  """Set as default (optional)"""
+  isDefault: Boolean
+  """New name (optional)"""
+  name: String
+}
+
+"""Input for updating an existing port mirror configuration"""
+input UpdatePortMirrorInput {
+  """Updated comment"""
+  comment: String @validate(maxLength: 255)
+  """Updated destination interface ID"""
+  destinationInterfaceId: ID
+  """Updated direction of traffic to mirror"""
+  direction: MirrorDirection
+  """Updated name"""
+  name: String @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  """Updated source interface IDs (must be bridge members)"""
+  sourceInterfaceIds: [ID!] @validate(minLength: 1)
+}
+
 """Input for updating resource configuration"""
 input UpdateResourceInput {
   """Updated configuration (partial or full)"""
@@ -5314,6 +7885,42 @@ type UpdateRouterPayload {
   errors: [MutationError!]
   """The updated router"""
   router: Router
+}
+
+"""Input for updating a webhook"""
+input UpdateWebhookInput {
+  """Authentication type"""
+  authType: WebhookAuthType
+  """Bearer token for Bearer auth (only set if provided)"""
+  bearerToken: String
+  """Custom template body"""
+  customTemplate: String
+  """Optional description"""
+  description: String
+  """Whether webhook is enabled"""
+  enabled: Boolean
+  """Custom HTTP headers (as JSON object)"""
+  headers: JSON
+  """Maximum retry attempts"""
+  maxRetries: Int
+  """HTTP method"""
+  method: String
+  """Human-readable webhook name"""
+  name: String
+  """Password for Basic auth (only set if provided)"""
+  password: String
+  """Whether to retry failed deliveries"""
+  retryEnabled: Boolean
+  """Signing secret for HMAC signature (only set if provided)"""
+  signingSecret: String
+  """Template type for webhook payload"""
+  template: WebhookTemplate
+  """Timeout in seconds"""
+  timeoutSeconds: Int
+  """Webhook URL endpoint"""
+  url: String
+  """Username for Basic auth"""
+  username: String
 }
 
 """Impact assessment for an upgrade"""
@@ -5450,6 +8057,18 @@ type VIFRequirements {
   sufficientStorage: Boolean!
 }
 
+"""VPN tunnel information for routes through VPN"""
+type VPNTunnelInfo {
+  """Tunnel name"""
+  name: String!
+  """Remote endpoint address"""
+  remoteAddress: String
+  """Current tunnel connection status"""
+  status: TunnelStatus!
+  """Tunnel type (wireguard, ipsec, ovpn, l2tp, gre, eoip)"""
+  type: String!
+}
+
 type ValidateChangeSetPayload {
   """The validated change set"""
   changeSet: ChangeSet
@@ -5564,6 +8183,22 @@ enum ValidationStage {
   SIMULATION
 }
 
+"""Variable types for template parameters."""
+enum VariableType {
+  """Interface name (autocomplete from router)"""
+  INTERFACE
+  """IP address"""
+  IP
+  """Port number"""
+  PORT
+  """Free-form string"""
+  STRING
+  """Subnet in CIDR notation"""
+  SUBNET
+  """VLAN ID"""
+  VLAN_ID
+}
+
 """
 A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
 """
@@ -5599,7 +8234,7 @@ type VlanDependencies {
   """DHCP servers using this VLAN"""
   dhcpServers: [DhcpServer!]!
   """Firewall rules referencing this VLAN"""
-  firewallRules: [FirewallRule!]!
+  firewallRules: [FirewallRuleReference!]!
   """Whether the VLAN has any dependencies"""
   hasDependencies: Boolean!
   """IP addresses assigned to this VLAN"""
@@ -5861,6 +8496,122 @@ enum WANStatus {
   DISCONNECTED
   """Connection failed"""
   ERROR
+}
+
+"""Webhook notification configuration"""
+type Webhook implements Node {
+  """Authentication type"""
+  authType: WebhookAuthType!
+  """Bearer token (masked, only shown on creation)"""
+  bearerToken: String
+  """Record creation timestamp"""
+  createdAt: DateTime!
+  """Custom template body (for CUSTOM template type)"""
+  customTemplate: String
+  """Delivery statistics"""
+  deliveryStats: WebhookDeliveryStats
+  """Optional description"""
+  description: String
+  """Whether this webhook is enabled"""
+  enabled: Boolean!
+  """Custom HTTP headers (as JSON object)"""
+  headers: JSON
+  """Globally unique identifier"""
+  id: ID!
+  """Last successful delivery timestamp"""
+  lastDeliveredAt: DateTime
+  """Maximum retry attempts (default: 3)"""
+  maxRetries: Int!
+  """HTTP method (default: POST)"""
+  method: String!
+  """Human-readable webhook name"""
+  name: String!
+  """Whether to retry failed deliveries"""
+  retryEnabled: Boolean!
+  """
+  Signing secret (masked with ******, never returned in plaintext except on creation)
+  """
+  signingSecretMasked: String
+  """Template type for webhook payload"""
+  template: WebhookTemplate!
+  """Timeout in seconds (default: 10)"""
+  timeoutSeconds: Int!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """Webhook URL endpoint"""
+  url: String!
+  """Username for Basic auth"""
+  username: String
+}
+
+"""Webhook authentication types"""
+enum WebhookAuthType {
+  """HTTP Basic authentication"""
+  BASIC
+  """Bearer token authentication"""
+  BEARER
+  """No authentication required"""
+  NONE
+}
+
+"""Webhook delivery statistics"""
+type WebhookDeliveryStats {
+  """Average response time in milliseconds"""
+  avgResponseTimeMs: Int
+  """Failed deliveries"""
+  failureCount: Int!
+  """Successful deliveries"""
+  successCount: Int!
+  """Success rate (0-100)"""
+  successRate: Float!
+  """Total deliveries attempted"""
+  totalAttempts: Int!
+}
+
+"""Webhook mutation payload"""
+type WebhookPayload {
+  """Errors encountered during mutation"""
+  errors: [MutationError!]
+  """Signing secret (only returned on creation, one-time show)"""
+  signingSecret: String
+  """Created/updated webhook"""
+  webhook: Webhook
+}
+
+"""Webhook template types for predefined formats"""
+enum WebhookTemplate {
+  """Custom template with user-defined format"""
+  CUSTOM
+  """Discord webhook format"""
+  DISCORD
+  """Generic JSON format"""
+  GENERIC
+  """Slack incoming webhook format"""
+  SLACK
+  """Microsoft Teams webhook format"""
+  TEAMS
+}
+
+"""Webhook test mutation payload"""
+type WebhookTestPayload {
+  """Errors encountered during test"""
+  errors: [MutationError!]
+  """Test result"""
+  result: WebhookTestResult
+}
+
+"""Result of testing a webhook"""
+type WebhookTestResult {
+  """Error message if test failed"""
+  errorMessage: String
+  """Response body from webhook endpoint"""
+  responseBody: String
+  """Response time in milliseconds"""
+  responseTimeMs: Int
+  """HTTP status code received"""
+  statusCode: Int
+  """Whether the test was successful"""
+  success: Boolean!
 }
 
 """WireGuard VPN Client resource implementing 8-layer model"""

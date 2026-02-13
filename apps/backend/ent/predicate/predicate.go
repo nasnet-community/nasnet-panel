@@ -12,8 +12,20 @@ type APIKey func(*sql.Selector)
 // Alert is the predicate function for alert builders.
 type Alert func(*sql.Selector)
 
+// AlertDigestEntry is the predicate function for alertdigestentry builders.
+type AlertDigestEntry func(*sql.Selector)
+
+// AlertEscalation is the predicate function for alertescalation builders.
+type AlertEscalation func(*sql.Selector)
+
 // AlertRule is the predicate function for alertrule builders.
 type AlertRule func(*sql.Selector)
+
+// AlertRuleTemplate is the predicate function for alertruletemplate builders.
+type AlertRuleTemplate func(*sql.Selector)
+
+// AlertTemplate is the predicate function for alerttemplate builders.
+type AlertTemplate func(*sql.Selector)
 
 // ConfigSnapshot is the predicate function for configsnapshot builders.
 type ConfigSnapshot func(*sql.Selector)
@@ -21,8 +33,17 @@ type ConfigSnapshot func(*sql.Selector)
 // GlobalSettings is the predicate function for globalsettings builders.
 type GlobalSettings func(*sql.Selector)
 
+// NotificationChannelConfig is the predicate function for notificationchannelconfig builders.
+type NotificationChannelConfig func(*sql.Selector)
+
+// NotificationLog is the predicate function for notificationlog builders.
+type NotificationLog func(*sql.Selector)
+
 // NotificationSettings is the predicate function for notificationsettings builders.
 type NotificationSettings func(*sql.Selector)
+
+// PortKnockSequence is the predicate function for portknocksequence builders.
+type PortKnockSequence func(*sql.Selector)
 
 // Resource is the predicate function for resource builders.
 type Resource func(*sql.Selector)
@@ -42,8 +63,14 @@ type RouterSecret func(*sql.Selector)
 // SchemaVersion is the predicate function for schemaversion builders.
 type SchemaVersion func(*sql.Selector)
 
+// ServiceInstance is the predicate function for serviceinstance builders.
+type ServiceInstance func(*sql.Selector)
+
 // Session is the predicate function for session builders.
 type Session func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// Webhook is the predicate function for webhook builders.
+type Webhook func(*sql.Selector)

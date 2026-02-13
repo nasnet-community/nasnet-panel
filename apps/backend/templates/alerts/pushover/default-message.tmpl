@@ -1,0 +1,13 @@
+{{.RuleName}}
+
+{{.Message}}
+
+Device: {{.DeviceName | default "Unknown"}} ({{.DeviceIP | default "N/A"}})
+Event: {{.EventType}}
+Time: {{.FormattedTime}}
+{{if .SuggestedActions}}
+
+Suggested Actions:
+{{range .SuggestedActions}}- {{.}}
+{{end}}
+{{end}}

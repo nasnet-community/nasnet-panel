@@ -164,7 +164,7 @@ func TestEvaluateConditions(t *testing.T) {
 func TestParseConditions(t *testing.T) {
 	tests := []struct {
 		name      string
-		input     interface{}
+		input     []map[string]interface{}
 		wantLen   int
 		wantError bool
 	}{
@@ -275,7 +275,7 @@ func TestGetFieldValue(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotValue, gotFound := getFieldValue(tt.data, tt.field)
+			gotValue, gotFound := getFieldValue(tt.field, tt.data)
 			if gotFound != tt.wantFound {
 				t.Errorf("getFieldValue() found = %v, want %v", gotFound, tt.wantFound)
 			}

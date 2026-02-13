@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/services"
 	"context"
 	"fmt"
 )
@@ -31,292 +30,37 @@ func (r *mutationResolver) ConfigureLteWan(ctx context.Context, routerID string,
 	panic(fmt.Errorf("not implemented: ConfigureLteWan - configureLteWAN"))
 }
 
-// ConfigureWANHealthCheck configures health check for a WAN interface.
+// ConfigureWANHealthCheck is the resolver for the configureWANHealthCheck field.
 func (r *mutationResolver) ConfigureWANHealthCheck(ctx context.Context, routerID string, wanInterfaceID string, input model.WANHealthCheckInput) (*model.WANMutationResult, error) {
-	// TODO: Implement in Phase 5
-	// Convert GraphQL input to service input
-	// Call WANService.ConfigureHealthCheck()
-	// Return result
-
-	serviceInput := services.HealthCheckInput{
-		Target:   input.Target,
-		Interval: input.Interval,
-		Enabled:  input.Enabled,
-	}
-
-	// Call service (stub for now)
-	err := r.Resolver.WANService.ConfigureHealthCheck(ctx, routerID, wanInterfaceID, serviceInput)
-	if err != nil {
-		return &model.WANMutationResult{
-			Success: false,
-			Errors: []*model.MutationError{
-				{
-					Field:   "target",
-					Message: err.Error(),
-				},
-			},
-		}, nil
-	}
-
-	return &model.WANMutationResult{
-		Success: true,
-	}, nil
+	panic(fmt.Errorf("not implemented: ConfigureWANHealthCheck - configureWANHealthCheck"))
 }
 
-// DeleteWANConfiguration deletes WAN configuration (reverts to unconfigured).
+// DeleteWANConfiguration is the resolver for the deleteWANConfiguration field.
 func (r *mutationResolver) DeleteWANConfiguration(ctx context.Context, routerID string, wanInterfaceID string) (*model.DeleteResult, error) {
-	// TODO: Implement deletion logic
-	// Call WANService.DeleteWANConfiguration()
-
-	err := r.Resolver.WANService.DeleteWANConfiguration(ctx, routerID, wanInterfaceID)
-	if err != nil {
-		return &model.DeleteResult{
-			Success: false,
-			Message: fmt.Sprintf("Failed to delete WAN configuration: %v", err),
-		}, nil
-	}
-
-	return &model.DeleteResult{
-		Success: true,
-		Message: "WAN configuration deleted successfully",
-	}, nil
+	panic(fmt.Errorf("not implemented: DeleteWANConfiguration - deleteWANConfiguration"))
 }
 
-// WANInterfaces retrieves all WAN interfaces for a router.
+// WanInterfaces is the resolver for the wanInterfaces field.
 func (r *queryResolver) WanInterfaces(ctx context.Context, routerID string) ([]*model.WANInterface, error) {
-	// TODO: Implement in Phase 2-4
-	// Call WANService.ListWANInterfaces()
-	// Convert service data to GraphQL model
-
-	return []*model.WANInterface{}, nil
+	panic(fmt.Errorf("not implemented: WanInterfaces - wanInterfaces"))
 }
 
-// WANInterface retrieves a specific WAN interface by ID.
+// WanInterface is the resolver for the wanInterface field.
 func (r *queryResolver) WanInterface(ctx context.Context, routerID string, id string) (*model.WANInterface, error) {
-	// TODO: Implement in Phase 2-4
-	// Call WANService.GetWANInterface()
-	// Convert service data to GraphQL model
-
-	return nil, fmt.Errorf("not implemented yet")
+	panic(fmt.Errorf("not implemented: WanInterface - wanInterface"))
 }
 
-// WANConnectionHistory retrieves connection history for a WAN interface.
+// WanConnectionHistory is the resolver for the wanConnectionHistory field.
 func (r *queryResolver) WanConnectionHistory(ctx context.Context, routerID string, wanInterfaceID string, pagination *model.PaginationInput) (*model.WANConnectionEventConnection, error) {
-	// TODO: Implement in Phase 6
-	// Call WANService.GetConnectionHistory()
-	// Convert to paginated connection model
-
-	return &model.WANConnectionEventConnection{
-		Edges:      []*model.WANConnectionEventEdge{},
-		PageInfo:   &model.PageInfo{},
-		TotalCount: nil,
-	}, nil
+	panic(fmt.Errorf("not implemented: WanConnectionHistory - wanConnectionHistory"))
 }
 
-// WANStatusChanged subscribes to WAN status changes.
+// WanStatusChanged is the resolver for the wanStatusChanged field.
 func (r *subscriptionResolver) WanStatusChanged(ctx context.Context, routerID string, wanInterfaceID *string) (<-chan *model.WANInterface, error) {
-	// TODO: Implement in Phase 2-4
-	// Subscribe to EventBus for WANStatusChangedEvent
-	// Filter by routerID and optional wanInterfaceID
-	// Convert events to GraphQL model and send to channel
-
-	ch := make(chan *model.WANInterface, 10)
-
-	// Stub: close channel immediately
-	go func() {
-		<-ctx.Done()
-		close(ch)
-	}()
-
-	return ch, nil
+	panic(fmt.Errorf("not implemented: WanStatusChanged - wanStatusChanged"))
 }
 
-// WANHealthChanged subscribes to WAN health check updates.
+// WanHealthChanged is the resolver for the wanHealthChanged field.
 func (r *subscriptionResolver) WanHealthChanged(ctx context.Context, routerID string, wanInterfaceID string) (<-chan *model.WANHealthStatus, error) {
-	// TODO: Implement in Phase 5
-	// Subscribe to EventBus for WANHealthChangedEvent
-	// Filter by routerID and wanInterfaceID
-	// Convert events to GraphQL model and send to channel
-
-	ch := make(chan *model.WANHealthStatus, 10)
-
-	// Stub: close channel immediately
-	go func() {
-		<-ctx.Done()
-		close(ch)
-	}()
-
-	return ch, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *mutationResolver) ConfigureDhcpWAN(ctx context.Context, routerID string, input model.DhcpClientInput) (*model.WANMutationResult, error) {
-	// TODO: Implement in Phase 2
-	// Convert GraphQL input to service input
-	// Call WANService.ConfigureDHCPClient()
-	// Return result with preview commands
-
-	serviceInput := services.DhcpClientInput{
-		Interface:       input.Interface,
-		AddDefaultRoute: input.AddDefaultRoute.IsSet() && input.AddDefaultRoute.Value() != nil && *input.AddDefaultRoute.Value(),
-		UsePeerDNS:      input.UsePeerDNS.IsSet() && input.UsePeerDNS.Value() != nil && *input.UsePeerDNS.Value(),
-		UsePeerNTP:      input.UsePeerNTP.IsSet() && input.UsePeerNTP.Value() != nil && *input.UsePeerNTP.Value(),
-		Comment:         "",
-	}
-	if input.Comment.IsSet() && input.Comment.Value() != nil {
-		serviceInput.Comment = *input.Comment.Value()
-	}
-
-	// Call service (stub for now)
-	_, err := r.Resolver.WANService.ConfigureDHCPClient(ctx, routerID, serviceInput)
-	if err != nil {
-		return &model.WANMutationResult{
-			Success: false,
-			Errors: []*model.MutationError{
-				{
-					Field:   "interface",
-					Message: err.Error(),
-				},
-			},
-		}, nil
-	}
-
-	return &model.WANMutationResult{
-		Success: true,
-	}, nil
-}
-func (r *mutationResolver) ConfigurePppoeWAN(ctx context.Context, routerID string, input model.PppoeClientInput) (*model.WANMutationResult, error) {
-	// TODO: Implement in Phase 3
-	// IMPORTANT: Never log password
-	// Convert GraphQL input to service input
-	// Call WANService.ConfigurePPPoEClient()
-	// Return result with preview commands
-
-	serviceInput := services.PppoeClientInput{
-		Name:            input.Name,
-		Interface:       input.Interface,
-		Username:        input.Username,
-		Password:        input.Password, // NEVER LOG THIS
-		ServiceName:     "",
-		AddDefaultRoute: input.AddDefaultRoute.IsSet() && input.AddDefaultRoute.Value() != nil && *input.AddDefaultRoute.Value(),
-		UsePeerDNS:      input.UsePeerDNS.IsSet() && input.UsePeerDNS.Value() != nil && *input.UsePeerDNS.Value(),
-		MTU:             0,
-		MRU:             0,
-		Comment:         "",
-	}
-	if input.ServiceName.IsSet() && input.ServiceName.Value() != nil {
-		serviceInput.ServiceName = *input.ServiceName.Value()
-	}
-	if input.Mtu.IsSet() && input.Mtu.Value() != nil {
-		serviceInput.MTU = *input.Mtu.Value()
-	}
-	if input.Mru.IsSet() && input.Mru.Value() != nil {
-		serviceInput.MRU = *input.Mru.Value()
-	}
-	if input.Comment.IsSet() && input.Comment.Value() != nil {
-		serviceInput.Comment = *input.Comment.Value()
-	}
-
-	// Call service (stub for now)
-	_, err := r.Resolver.WANService.ConfigurePPPoEClient(ctx, routerID, serviceInput)
-	if err != nil {
-		return &model.WANMutationResult{
-			Success: false,
-			Errors: []*model.MutationError{
-				{
-					Field:   "interface",
-					Message: err.Error(),
-				},
-			},
-		}, nil
-	}
-
-	return &model.WANMutationResult{
-		Success: true,
-	}, nil
-}
-func (r *mutationResolver) ConfigureStaticWAN(ctx context.Context, routerID string, input model.StaticIPInput) (*model.WANMutationResult, error) {
-	// TODO: Implement in Phase 4
-	// Convert GraphQL input to service input
-	// Call WANService.ConfigureStaticIP()
-	// Return result with preview commands
-
-	serviceInput := services.StaticIPInput{
-		Interface:    input.Interface,
-		Address:      input.Address,
-		Gateway:      input.Gateway,
-		PrimaryDNS:   "",
-		SecondaryDNS: "",
-		Comment:      "",
-	}
-	if input.PrimaryDNS.IsSet() && input.PrimaryDNS.Value() != nil {
-		serviceInput.PrimaryDNS = string(*input.PrimaryDNS.Value())
-	}
-	if input.SecondaryDNS.IsSet() && input.SecondaryDNS.Value() != nil {
-		serviceInput.SecondaryDNS = string(*input.SecondaryDNS.Value())
-	}
-	if input.Comment.IsSet() && input.Comment.Value() != nil {
-		serviceInput.Comment = *input.Comment.Value()
-	}
-
-	// Call service (stub for now)
-	_, err := r.Resolver.WANService.ConfigureStaticIP(ctx, routerID, serviceInput)
-	if err != nil {
-		return &model.WANMutationResult{
-			Success: false,
-			Errors: []*model.MutationError{
-				{
-					Field:   "interface",
-					Message: err.Error(),
-				},
-			},
-		}, nil
-	}
-
-	return &model.WANMutationResult{
-		Success: true,
-	}, nil
-}
-func (r *mutationResolver) ConfigureLteWAN(ctx context.Context, routerID string, input model.LteModemInput) (*model.WANMutationResult, error) {
-	// TODO: Implement in Phase 7
-	// Convert GraphQL input to service input
-	// Call WANService.ConfigureLTE()
-	// Return result with preview commands
-
-	serviceInput := services.LteModemInput{
-		Name:    input.Name,
-		APN:     input.Apn,
-		Pin:     "",
-		Comment: "",
-	}
-	if input.Pin.IsSet() && input.Pin.Value() != nil {
-		serviceInput.Pin = *input.Pin.Value() // NEVER LOG THIS
-	}
-	if input.Comment.IsSet() && input.Comment.Value() != nil {
-		serviceInput.Comment = *input.Comment.Value()
-	}
-
-	// Call service (stub for now)
-	_, err := r.Resolver.WANService.ConfigureLTE(ctx, routerID, serviceInput)
-	if err != nil {
-		nameField := "name"
-		return &model.WANMutationResult{
-			Success: false,
-			Errors: []*model.MutationError{
-				{
-					Field:   &nameField,
-					Message: err.Error(),
-				},
-			},
-		}, nil
-	}
-
-	return &model.WANMutationResult{
-		Success: true,
-	}, nil
+	panic(fmt.Errorf("not implemented: WanHealthChanged - wanHealthChanged"))
 }

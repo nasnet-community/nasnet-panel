@@ -77,6 +77,17 @@ func (Alert) Fields() []ent.Field {
 			MaxLen(255).
 			Comment("User who acknowledged the alert"),
 
+		// Suppression tracking
+		field.Int("suppressed_count").
+			Default(0).
+			NonNegative().
+			Comment("Number of times this alert was suppressed due to rate limiting"),
+
+		field.String("suppress_reason").
+			Optional().
+			MaxLen(500).
+			Comment("Reason for suppression (e.g., 'rate_limit', 'duplicate')"),
+
 		// Delivery tracking - which channels successfully delivered
 		field.JSON("delivery_status", map[string]interface{}{}).
 			Optional().
@@ -104,6 +115,12 @@ func (Alert) Edges() []ent.Edge {
 			Unique().
 			Required().
 			Comment("Alert rule that triggered this alert"),
+
+		edge.To("escalations", AlertEscalation.Type).
+			Comment("Escalation tracking for this alert"),
+
+		edge.To("notification_logs", NotificationLog.Type).
+			Comment("Notification delivery logs for this alert"),
 	}
 }
 
@@ -124,5 +141,7 @@ func (Alert) Indexes() []ent.Index {
 		index.Fields("triggered_at"),
 		// Event type lookup
 		index.Fields("event_type"),
+		// Suppression reason filtering (for analyzing suppressed alerts)
+		index.Fields("suppress_reason"),
 	}
 }

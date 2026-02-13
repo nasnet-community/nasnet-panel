@@ -1,0 +1,83 @@
+{
+  "id": "singbox",
+  "name": "sing-box",
+  "description": "Universal proxy platform with support for multiple protocols including Shadowsocks, VMess, VLESS, Trojan, and more. Offers advanced routing and traffic management.",
+  "version": "1.0.0",
+  "category": "VPN",
+  "author": "NasNetConnect",
+  "license": "MIT",
+  "homepage": "https://sing-box.sagernet.org",
+  "icon": "singbox-icon.svg",
+  "tags": ["vpn", "proxy", "shadowsocks", "vmess", "vless", "trojan"],
+  "architectures": ["amd64", "arm64", "arm"],
+  "min_routeros_version": "7.0",
+  "required_packages": [],
+  "required_ports": [1080, 8080],
+  "required_memory_mb": 64,
+  "required_disk_mb": 128,
+  "docker_image": "nasnetconnect/singbox",
+  "docker_tag": "latest",
+  "docker_pull_policy": "if-not-present",
+  "environment_vars": {
+    "SING_BOX_CONFIG": "/etc/sing-box/config.json",
+    "LOG_LEVEL": "info"
+  },
+  "volumes": [
+    {
+      "source": "/data/singbox/config",
+      "target": "/etc/sing-box",
+      "read_only": false
+    },
+    {
+      "source": "/data/singbox/data",
+      "target": "/var/lib/sing-box",
+      "read_only": false
+    }
+  ],
+  "ports": [
+    {
+      "container_port": 1080,
+      "host_port": 1080,
+      "protocol": "tcp"
+    },
+    {
+      "container_port": 8080,
+      "host_port": 8080,
+      "protocol": "tcp"
+    }
+  ],
+  "network_mode": "bridge",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "protocol": {
+        "type": "string",
+        "enum": ["shadowsocks", "vmess", "vless", "trojan"],
+        "description": "Proxy protocol to use"
+      },
+      "port": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535,
+        "description": "Listening port"
+      },
+      "log_level": {
+        "type": "string",
+        "enum": ["debug", "info", "warn", "error"],
+        "description": "Logging level"
+      }
+    }
+  },
+  "default_config": {
+    "protocol": "shadowsocks",
+    "port": 1080,
+    "log_level": "info"
+  },
+  "pre_install_script": "",
+  "post_install_script": "",
+  "pre_uninstall_script": "",
+  "health_check_script": "nc -z localhost 1080 || exit 1",
+  "readme_url": "https://github.com/nasnetconnect/singbox/blob/main/README.md",
+  "changelog_url": "https://github.com/nasnetconnect/singbox/blob/main/CHANGELOG.md",
+  "support_url": "https://github.com/nasnetconnect/singbox/issues"
+}

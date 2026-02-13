@@ -356,6 +356,16 @@ func QuietHoursNotNil() predicate.AlertRule {
 	return predicate.AlertRule(sql.FieldNotNull(FieldQuietHours))
 }
 
+// EscalationIsNil applies the IsNil predicate on the "escalation" field.
+func EscalationIsNil() predicate.AlertRule {
+	return predicate.AlertRule(sql.FieldIsNull(FieldEscalation))
+}
+
+// EscalationNotNil applies the NotNil predicate on the "escalation" field.
+func EscalationNotNil() predicate.AlertRule {
+	return predicate.AlertRule(sql.FieldNotNull(FieldEscalation))
+}
+
 // DeviceIDEQ applies the EQ predicate on the "device_id" field.
 func DeviceIDEQ(v string) predicate.AlertRule {
 	return predicate.AlertRule(sql.FieldEQ(FieldDeviceID, v))
@@ -542,6 +552,35 @@ func HasAlertsWith(preds ...predicate.Alert) predicate.AlertRule {
 		schemaConfig := internal.SchemaConfigFromContext(s.Context())
 		step.To.Schema = schemaConfig.Alert
 		step.Edge.Schema = schemaConfig.Alert
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEscalations applies the HasEdge predicate on the "escalations" edge.
+func HasEscalations() predicate.AlertRule {
+	return predicate.AlertRule(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, EscalationsTable, EscalationsColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEscalationsWith applies the HasEdge predicate on the "escalations" edge with a given conditions (other predicates).
+func HasEscalationsWith(preds ...predicate.AlertEscalation) predicate.AlertRule {
+	return predicate.AlertRule(func(s *sql.Selector) {
+		step := newEscalationsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

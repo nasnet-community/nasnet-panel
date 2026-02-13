@@ -1,0 +1,25 @@
+{
+  "event": "nasnet.alert",
+  "version": "1.0",
+  "timestamp": "{{.TriggeredAt.Format "2006-01-02T15:04:05Z07:00"}}",
+  "alert": {
+    "id": "{{.RuleID}}",
+    "rule_name": "{{.RuleName}}",
+    "event_type": "{{.EventType}}",
+    "severity": "{{.Severity}}",
+    "title": "{{.Title}}",
+    "message": "{{.Message}}"
+  },
+  "device": {
+    "name": "{{.DeviceName | default ""}}",
+    "ip": "{{.DeviceIP | default ""}}"
+  },
+  "metadata": {
+    "formatted_time": "{{.FormattedTime}}"{{if .SuggestedActions}},
+    "suggested_actions": [
+      {{range $i, $action := .SuggestedActions}}{{if $i}},{{end}}
+      "{{$action}}"{{end}}
+    ]{{end}}{{if .EventData}},
+    "event_data": {{.EventData | json}}{{end}}
+  }
+}

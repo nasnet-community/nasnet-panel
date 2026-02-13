@@ -1,0 +1,87 @@
+{
+  "id": "psiphon",
+  "name": "Psiphon",
+  "description": "Censorship circumvention tool that combines VPN, SSH, and HTTP proxy technologies. Automatically selects the best protocol for your network conditions.",
+  "version": "1.0.0",
+  "category": "VPN",
+  "author": "NasNetConnect",
+  "license": "MIT",
+  "homepage": "https://www.psiphon.ca",
+  "icon": "psiphon-icon.svg",
+  "tags": ["vpn", "proxy", "censorship-resistance", "privacy", "ssh"],
+  "architectures": ["amd64", "arm64"],
+  "min_routeros_version": "7.0",
+  "required_packages": [],
+  "required_ports": [4000, 4001, 4443],
+  "required_memory_mb": 128,
+  "required_disk_mb": 256,
+  "docker_image": "nasnetconnect/psiphon",
+  "docker_tag": "latest",
+  "docker_pull_policy": "if-not-present",
+  "environment_vars": {
+    "PSIPHON_SERVER_IP": "0.0.0.0",
+    "PSIPHON_TUNNEL_PROTOCOL": "SSH",
+    "PSIPHON_LOG_LEVEL": "info"
+  },
+  "volumes": [
+    {
+      "source": "/data/psiphon/config",
+      "target": "/etc/psiphon",
+      "read_only": false
+    },
+    {
+      "source": "/data/psiphon/data",
+      "target": "/var/lib/psiphon",
+      "read_only": false
+    }
+  ],
+  "ports": [
+    {
+      "container_port": 4000,
+      "host_port": 4000,
+      "protocol": "tcp"
+    },
+    {
+      "container_port": 4001,
+      "host_port": 4001,
+      "protocol": "tcp"
+    },
+    {
+      "container_port": 4443,
+      "host_port": 4443,
+      "protocol": "tcp"
+    }
+  ],
+  "network_mode": "bridge",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "tunnel_protocol": {
+        "type": "string",
+        "enum": ["SSH", "OSSH", "UNFRONTED-MEEK-HTTPS", "FRONTED-MEEK-HTTP"],
+        "description": "Tunnel protocol to use"
+      },
+      "log_level": {
+        "type": "string",
+        "enum": ["debug", "info", "warn", "error"],
+        "description": "Logging level"
+      },
+      "enable_tactics": {
+        "type": "boolean",
+        "description": "Enable tactics for improved evasion"
+      }
+    }
+  },
+  "default_config": {
+    "tunnel_protocol": "SSH",
+    "log_level": "info",
+    "enable_tactics": true
+  },
+  "pre_install_script": "",
+  "post_install_script": "",
+  "pre_uninstall_script": "",
+  "health_check_script": "nc -z localhost 4000 || exit 1",
+  "readme_url": "https://github.com/nasnetconnect/psiphon/blob/main/README.md",
+  "changelog_url": "https://github.com/nasnetconnect/psiphon/blob/main/CHANGELOG.md",
+  "support_url": "https://github.com/nasnetconnect/psiphon/issues"
+}

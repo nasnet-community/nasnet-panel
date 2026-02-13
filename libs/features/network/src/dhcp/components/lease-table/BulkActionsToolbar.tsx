@@ -1,0 +1,189 @@
+/**
+ * BulkActionsToolbar Component
+ *
+ * Toolbar for bulk operations on selected DHCP leases:
+ * - Shows selection count
+ * - "Make All Static" button
+ * - "Delete Selected" button
+ * - "Clear" button to deselect all
+ *
+ * Uses ConfirmationDialog for destructive actions.
+ *
+ * @module features/network/dhcp/components/lease-table
+ */
+
+import * as React from 'react';
+import { Lock, Trash2, X } from 'lucide-react';
+
+import { Button } from '@nasnet/ui/primitives';
+import { ConfirmationDialog } from '@nasnet/ui/patterns';
+import { cn } from '@nasnet/ui/utils';
+
+export interface BulkActionsToolbarProps {
+  /**
+   * Number of selected leases
+   */
+  selectedCount: number;
+
+  /**
+   * Callback for "Make All Static" action
+   */
+  onMakeStatic: () => void;
+
+  /**
+   * Callback for "Delete Selected" action
+   */
+  onDelete: () => void;
+
+  /**
+   * Callback for "Clear" action (deselect all)
+   */
+  onClear: () => void;
+
+  /**
+   * Loading state for async operations
+   */
+  isLoading?: boolean;
+
+  /**
+   * Additional CSS classes
+   */
+  className?: string;
+}
+
+/**
+ * BulkActionsToolbar Component
+ *
+ * Displays action buttons when leases are selected.
+ * Shows confirmation dialog for destructive operations.
+ *
+ * @example
+ * ```tsx
+ * <BulkActionsToolbar
+ *   selectedCount={5}
+ *   onMakeStatic={handleMakeStatic}
+ *   onDelete={handleDelete}
+ *   onClear={handleClear}
+ * />
+ * ```
+ */
+export function BulkActionsToolbar({
+  selectedCount,
+  onMakeStatic,
+  onDelete,
+  onClear,
+  isLoading = false,
+  className,
+}: BulkActionsToolbarProps) {
+  const [showMakeStaticConfirm, setShowMakeStaticConfirm] = React.useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+
+  // Don't render if no items selected
+  if (selectedCount === 0) return null;
+
+  /**
+   * Handle "Make All Static" with confirmation
+   */
+  const handleMakeStaticConfirm = () => {
+    setShowMakeStaticConfirm(false);
+    onMakeStatic();
+  };
+
+  /**
+   * Handle "Delete Selected" with confirmation
+   */
+  const handleDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    onDelete();
+  };
+
+  return (
+    <>
+      <div
+        className={cn(
+          'flex items-center justify-between rounded-lg border border-primary/50 bg-primary/5 p-3',
+          className
+        )}
+        role="toolbar"
+        aria-label="Bulk actions toolbar"
+      >
+        {/* Selection count */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-foreground">
+            {selectedCount} {selectedCount === 1 ? 'lease' : 'leases'} selected
+          </span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowMakeStaticConfirm(true)}
+            disabled={isLoading}
+            className="gap-2"
+            aria-label="Make selected leases static"
+          >
+            <Lock className="h-4 w-4" />
+            Make All Static
+          </Button>
+
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={isLoading}
+            className="gap-2"
+            aria-label="Delete selected leases"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Selected
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClear}
+            disabled={isLoading}
+            aria-label="Clear selection"
+          >
+            <X className="h-4 w-4" />
+            Clear
+          </Button>
+        </div>
+      </div>
+
+      {/* Make Static Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showMakeStaticConfirm}
+        onOpenChange={setShowMakeStaticConfirm}
+        title="Make Leases Static?"
+        description={`This will convert ${selectedCount} ${
+          selectedCount === 1 ? 'lease' : 'leases'
+        } to static DHCP ${
+          selectedCount === 1 ? 'assignment' : 'assignments'
+        }. The ${
+          selectedCount === 1 ? 'device' : 'devices'
+        } will always receive the same IP address.`}
+        confirmLabel="Make Static"
+        onConfirm={handleMakeStaticConfirm}
+        variant="default"
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Delete Selected Leases?"
+        description={`This will permanently delete ${selectedCount} ${
+          selectedCount === 1 ? 'lease' : 'leases'
+        }. The ${
+          selectedCount === 1 ? 'device' : 'devices'
+        } will need to request a new IP address.`}
+        confirmLabel="Delete"
+        onConfirm={handleDeleteConfirm}
+        variant="destructive"
+      />
+    </>
+  );
+}

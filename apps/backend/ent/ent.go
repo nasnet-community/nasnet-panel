@@ -4,19 +4,28 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertdigestentry"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
+	"backend/ent/alertruletemplate"
+	"backend/ent/alerttemplate"
 	"backend/ent/apikey"
 	"backend/ent/configsnapshot"
 	"backend/ent/globalsettings"
+	"backend/ent/notificationchannelconfig"
+	"backend/ent/notificationlog"
 	"backend/ent/notificationsettings"
+	"backend/ent/portknocksequence"
 	"backend/ent/resource"
 	"backend/ent/resourceevent"
 	"backend/ent/router"
 	"backend/ent/routercapability"
 	"backend/ent/routersecret"
 	"backend/ent/schemaversion"
+	"backend/ent/serviceinstance"
 	"backend/ent/session"
 	"backend/ent/user"
+	"backend/ent/webhook"
 	"context"
 	"errors"
 	"fmt"
@@ -86,20 +95,29 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			apikey.Table:               apikey.ValidColumn,
-			alert.Table:                alert.ValidColumn,
-			alertrule.Table:            alertrule.ValidColumn,
-			configsnapshot.Table:       configsnapshot.ValidColumn,
-			globalsettings.Table:       globalsettings.ValidColumn,
-			notificationsettings.Table: notificationsettings.ValidColumn,
-			resource.Table:             resource.ValidColumn,
-			resourceevent.Table:        resourceevent.ValidColumn,
-			router.Table:               router.ValidColumn,
-			routercapability.Table:     routercapability.ValidColumn,
-			routersecret.Table:         routersecret.ValidColumn,
-			schemaversion.Table:        schemaversion.ValidColumn,
-			session.Table:              session.ValidColumn,
-			user.Table:                 user.ValidColumn,
+			apikey.Table:                    apikey.ValidColumn,
+			alert.Table:                     alert.ValidColumn,
+			alertdigestentry.Table:          alertdigestentry.ValidColumn,
+			alertescalation.Table:           alertescalation.ValidColumn,
+			alertrule.Table:                 alertrule.ValidColumn,
+			alertruletemplate.Table:         alertruletemplate.ValidColumn,
+			alerttemplate.Table:             alerttemplate.ValidColumn,
+			configsnapshot.Table:            configsnapshot.ValidColumn,
+			globalsettings.Table:            globalsettings.ValidColumn,
+			notificationchannelconfig.Table: notificationchannelconfig.ValidColumn,
+			notificationlog.Table:           notificationlog.ValidColumn,
+			notificationsettings.Table:      notificationsettings.ValidColumn,
+			portknocksequence.Table:         portknocksequence.ValidColumn,
+			resource.Table:                  resource.ValidColumn,
+			resourceevent.Table:             resourceevent.ValidColumn,
+			router.Table:                    router.ValidColumn,
+			routercapability.Table:          routercapability.ValidColumn,
+			routersecret.Table:              routersecret.ValidColumn,
+			schemaversion.Table:             schemaversion.ValidColumn,
+			serviceinstance.Table:           serviceinstance.ValidColumn,
+			session.Table:                   session.ValidColumn,
+			user.Table:                      user.ValidColumn,
+			webhook.Table:                   webhook.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

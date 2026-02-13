@@ -23,6 +23,7 @@ import {
   searchPorts,
   type PortProtocol as WellKnownPortProtocol,
 } from '@nasnet/core/constants';
+import { expandGroupToPorts, type ServiceGroup } from '@nasnet/core/types';
 
 import type {
   PortMode,
@@ -265,6 +266,7 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
     protocol = 'tcp',
     showService = true,
     showSuggestions: enableSuggestions = false,
+    serviceGroups,
     min = DEFAULT_MIN_PORT,
     max = DEFAULT_MAX_PORT,
   } = config;
@@ -444,7 +446,25 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
 
     const allSuggestions: PortSuggestion[] = [];
 
-    // Add recent ports first
+    // Add service groups first (if provided and protocol matches)
+    if (serviceGroups && serviceGroups.length > 0) {
+      const matchingGroups = serviceGroups.filter(
+        (group) => group.protocol === protocol || group.protocol === 'both'
+      );
+
+      matchingGroups.forEach((group) => {
+        allSuggestions.push({
+          port: 0, // Special marker for groups
+          service: `${group.name} (${group.ports.length} ports)`,
+          category: 'group',
+          protocol: group.protocol,
+          isGroup: true,
+          groupData: group,
+        });
+      });
+    }
+
+    // Add recent ports
     if (recentPorts.length > 0) {
       recentPorts.forEach((p) => {
         const service = getServiceByPort(p) || 'Custom';
@@ -494,7 +514,7 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
     }
 
     return allSuggestions.slice(0, 15);
-  }, [enableSuggestions, inputValue, multiInputValue, mode]);
+  }, [enableSuggestions, inputValue, multiInputValue, mode, serviceGroups, protocol]);
 
   // ============================================================================
   // Event Handlers
@@ -612,6 +632,22 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
       setSelectedSuggestionIndex(-1);
     },
     [mode, onChange, handleAddPort, rangeStartValue, handleRangeStartChange, handleRangeEndChange]
+  );
+
+  const handleSelectServiceGroup = useCallback(
+    (group: ServiceGroup) => {
+      if (mode !== 'multi') {
+        console.warn('Service groups only supported in multi-mode');
+        return;
+      }
+
+      const portString = expandGroupToPorts(group); // e.g., "80, 443, 8080"
+      onChange?.(portString);
+
+      setShowSuggestionsDropdown(false);
+      setSelectedSuggestionIndex(-1);
+    },
+    [mode, onChange]
   );
 
   const handleKeyDown = useCallback(
@@ -806,6 +842,7 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
     showSuggestionsDropdown,
     selectedSuggestionIndex,
     handleSelectSuggestion,
+    handleSelectServiceGroup,
     setShowSuggestionsDropdown,
     navigateSuggestion,
 

@@ -3,10 +3,12 @@
  * Per Task 5.1: Create AlertList component with severity color coding
  * Per AC3: User can view active alerts with count badge, see alert list with
  * timestamp/severity/message
+ * Per Task #9: Added queued alert status display
  */
 import { useAlerts, useAcknowledgeAlert } from '../hooks/useAlerts';
 import { severityConfig } from '../schemas/alert-rule.schema';
 import { formatDistanceToNow } from 'date-fns';
+import { QueuedAlertBadge } from './QueuedAlertBadge';
 
 interface AlertListProps {
   deviceId?: string;
@@ -87,7 +89,7 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 {/* Title and Severity */}
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span
                     className="inline-block px-2 py-0.5 text-xs font-medium rounded"
                     style={{
@@ -98,6 +100,11 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
                     {severityInfo.label}
                   </span>
                   <h3 className="font-semibold text-sm truncate">{alert.title}</h3>
+                  {/* Queued alert badge (placeholder - backend integration pending) */}
+                  <QueuedAlertBadge
+                    queuedUntil={alert.data?.queuedUntil}
+                    bypassedQuietHours={alert.data?.bypassedQuietHours}
+                  />
                 </div>
 
                 {/* Message */}

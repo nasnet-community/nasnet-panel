@@ -101,6 +101,16 @@ func AcknowledgedBy(v string) predicate.Alert {
 	return predicate.Alert(sql.FieldEQ(FieldAcknowledgedBy, v))
 }
 
+// SuppressedCount applies equality check predicate on the "suppressed_count" field. It's identical to SuppressedCountEQ.
+func SuppressedCount(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldEQ(FieldSuppressedCount, v))
+}
+
+// SuppressReason applies equality check predicate on the "suppress_reason" field. It's identical to SuppressReasonEQ.
+func SuppressReason(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldEQ(FieldSuppressReason, v))
+}
+
 // TriggeredAt applies equality check predicate on the "triggered_at" field. It's identical to TriggeredAtEQ.
 func TriggeredAt(v time.Time) predicate.Alert {
 	return predicate.Alert(sql.FieldEQ(FieldTriggeredAt, v))
@@ -601,6 +611,121 @@ func AcknowledgedByContainsFold(v string) predicate.Alert {
 	return predicate.Alert(sql.FieldContainsFold(FieldAcknowledgedBy, v))
 }
 
+// SuppressedCountEQ applies the EQ predicate on the "suppressed_count" field.
+func SuppressedCountEQ(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldEQ(FieldSuppressedCount, v))
+}
+
+// SuppressedCountNEQ applies the NEQ predicate on the "suppressed_count" field.
+func SuppressedCountNEQ(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldNEQ(FieldSuppressedCount, v))
+}
+
+// SuppressedCountIn applies the In predicate on the "suppressed_count" field.
+func SuppressedCountIn(vs ...int) predicate.Alert {
+	return predicate.Alert(sql.FieldIn(FieldSuppressedCount, vs...))
+}
+
+// SuppressedCountNotIn applies the NotIn predicate on the "suppressed_count" field.
+func SuppressedCountNotIn(vs ...int) predicate.Alert {
+	return predicate.Alert(sql.FieldNotIn(FieldSuppressedCount, vs...))
+}
+
+// SuppressedCountGT applies the GT predicate on the "suppressed_count" field.
+func SuppressedCountGT(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldGT(FieldSuppressedCount, v))
+}
+
+// SuppressedCountGTE applies the GTE predicate on the "suppressed_count" field.
+func SuppressedCountGTE(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldGTE(FieldSuppressedCount, v))
+}
+
+// SuppressedCountLT applies the LT predicate on the "suppressed_count" field.
+func SuppressedCountLT(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldLT(FieldSuppressedCount, v))
+}
+
+// SuppressedCountLTE applies the LTE predicate on the "suppressed_count" field.
+func SuppressedCountLTE(v int) predicate.Alert {
+	return predicate.Alert(sql.FieldLTE(FieldSuppressedCount, v))
+}
+
+// SuppressReasonEQ applies the EQ predicate on the "suppress_reason" field.
+func SuppressReasonEQ(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldEQ(FieldSuppressReason, v))
+}
+
+// SuppressReasonNEQ applies the NEQ predicate on the "suppress_reason" field.
+func SuppressReasonNEQ(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldNEQ(FieldSuppressReason, v))
+}
+
+// SuppressReasonIn applies the In predicate on the "suppress_reason" field.
+func SuppressReasonIn(vs ...string) predicate.Alert {
+	return predicate.Alert(sql.FieldIn(FieldSuppressReason, vs...))
+}
+
+// SuppressReasonNotIn applies the NotIn predicate on the "suppress_reason" field.
+func SuppressReasonNotIn(vs ...string) predicate.Alert {
+	return predicate.Alert(sql.FieldNotIn(FieldSuppressReason, vs...))
+}
+
+// SuppressReasonGT applies the GT predicate on the "suppress_reason" field.
+func SuppressReasonGT(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldGT(FieldSuppressReason, v))
+}
+
+// SuppressReasonGTE applies the GTE predicate on the "suppress_reason" field.
+func SuppressReasonGTE(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldGTE(FieldSuppressReason, v))
+}
+
+// SuppressReasonLT applies the LT predicate on the "suppress_reason" field.
+func SuppressReasonLT(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldLT(FieldSuppressReason, v))
+}
+
+// SuppressReasonLTE applies the LTE predicate on the "suppress_reason" field.
+func SuppressReasonLTE(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldLTE(FieldSuppressReason, v))
+}
+
+// SuppressReasonContains applies the Contains predicate on the "suppress_reason" field.
+func SuppressReasonContains(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldContains(FieldSuppressReason, v))
+}
+
+// SuppressReasonHasPrefix applies the HasPrefix predicate on the "suppress_reason" field.
+func SuppressReasonHasPrefix(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldHasPrefix(FieldSuppressReason, v))
+}
+
+// SuppressReasonHasSuffix applies the HasSuffix predicate on the "suppress_reason" field.
+func SuppressReasonHasSuffix(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldHasSuffix(FieldSuppressReason, v))
+}
+
+// SuppressReasonIsNil applies the IsNil predicate on the "suppress_reason" field.
+func SuppressReasonIsNil() predicate.Alert {
+	return predicate.Alert(sql.FieldIsNull(FieldSuppressReason))
+}
+
+// SuppressReasonNotNil applies the NotNil predicate on the "suppress_reason" field.
+func SuppressReasonNotNil() predicate.Alert {
+	return predicate.Alert(sql.FieldNotNull(FieldSuppressReason))
+}
+
+// SuppressReasonEqualFold applies the EqualFold predicate on the "suppress_reason" field.
+func SuppressReasonEqualFold(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldEqualFold(FieldSuppressReason, v))
+}
+
+// SuppressReasonContainsFold applies the ContainsFold predicate on the "suppress_reason" field.
+func SuppressReasonContainsFold(v string) predicate.Alert {
+	return predicate.Alert(sql.FieldContainsFold(FieldSuppressReason, v))
+}
+
 // DeliveryStatusIsNil applies the IsNil predicate on the "delivery_status" field.
 func DeliveryStatusIsNil() predicate.Alert {
 	return predicate.Alert(sql.FieldIsNull(FieldDeliveryStatus))
@@ -712,6 +837,64 @@ func HasRuleWith(preds ...predicate.AlertRule) predicate.Alert {
 		schemaConfig := internal.SchemaConfigFromContext(s.Context())
 		step.To.Schema = schemaConfig.AlertRule
 		step.Edge.Schema = schemaConfig.Alert
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEscalations applies the HasEdge predicate on the "escalations" edge.
+func HasEscalations() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, EscalationsTable, EscalationsColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEscalationsWith applies the HasEdge predicate on the "escalations" edge with a given conditions (other predicates).
+func HasEscalationsWith(preds ...predicate.AlertEscalation) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := newEscalationsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasNotificationLogs applies the HasEdge predicate on the "notification_logs" edge.
+func HasNotificationLogs() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, NotificationLogsTable, NotificationLogsColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.NotificationLog
+		step.Edge.Schema = schemaConfig.NotificationLog
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasNotificationLogsWith applies the HasEdge predicate on the "notification_logs" edge with a given conditions (other predicates).
+func HasNotificationLogsWith(preds ...predicate.NotificationLog) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := newNotificationLogsStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.NotificationLog
+		step.Edge.Schema = schemaConfig.NotificationLog
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

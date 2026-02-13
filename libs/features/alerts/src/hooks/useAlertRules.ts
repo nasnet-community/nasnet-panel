@@ -31,6 +31,7 @@ const GET_ALERT_RULES = gql`
         endTime
         timezone
         bypassCritical
+        daysOfWeek
       }
       deviceId
       enabled
@@ -64,6 +65,7 @@ const GET_ALERT_RULE = gql`
         endTime
         timezone
         bypassCritical
+        daysOfWeek
       }
       deviceId
       enabled

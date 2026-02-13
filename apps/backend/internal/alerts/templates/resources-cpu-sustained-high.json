@@ -1,0 +1,51 @@
+{
+  "id": "resources-cpu-sustained-high",
+  "name": "Sustained High CPU",
+  "description": "Alert when CPU remains high for extended period",
+  "category": "RESOURCES",
+  "severity": "WARNING",
+  "eventType": "device.cpu.high",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "CPU_THRESHOLD",
+      "label": "CPU Threshold",
+      "type": "PERCENTAGE",
+      "required": true,
+      "defaultValue": "70",
+      "min": 50,
+      "max": 100,
+      "unit": "percent"
+    },
+    {
+      "name": "DURATION_MINUTES",
+      "label": "Duration",
+      "type": "DURATION",
+      "required": true,
+      "defaultValue": "10",
+      "min": 5,
+      "max": 60,
+      "unit": "minutes",
+      "description": "How long CPU must stay high"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "cpu_usage",
+      "operator": "GREATER_THAN",
+      "value": "{{CPU_THRESHOLD}}"
+    },
+    {
+      "field": "duration_minutes",
+      "operator": "GREATER_THAN",
+      "value": "{{DURATION_MINUTES}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 900,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

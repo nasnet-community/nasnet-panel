@@ -2,6 +2,8 @@ package dns
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -89,4 +91,75 @@ func parseRouterOSDnsServers(resp string) *DnsServers {
 	}
 
 	return result
+}
+
+// parseRouterOSDnsCacheStats parses DNS cache statistics from /ip/dns/print response
+// Expected fields: cache-size, cache-used, cache-max-ttl
+func parseRouterOSDnsCacheStats(resp string) *DnsCacheStats {
+	stats := &DnsCacheStats{
+		TotalEntries:      0,
+		CacheUsedBytes:    0,
+		CacheMaxBytes:     0,
+		CacheUsagePercent: 0.0,
+		TopDomains:        []DnsTopDomain{},
+	}
+
+	lines := strings.Split(resp, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		// Parse cache-size (max size in KiB)
+		if strings.Contains(line, "cache-size:") {
+			parts := strings.Split(line, "cache-size:")
+			if len(parts) == 2 {
+				sizeStr := strings.TrimSpace(parts[1])
+				sizeStr = strings.TrimSuffix(sizeStr, "KiB")
+				sizeStr = strings.TrimSpace(sizeStr)
+				if size, err := strconv.ParseInt(sizeStr, 10, 64); err == nil {
+					stats.CacheMaxBytes = size * 1024 // Convert KiB to bytes
+				}
+			}
+		}
+
+		// Parse cache-used (current usage in KiB)
+		if strings.Contains(line, "cache-used:") {
+			parts := strings.Split(line, "cache-used:")
+			if len(parts) == 2 {
+				usedStr := strings.TrimSpace(parts[1])
+				usedStr = strings.TrimSuffix(usedStr, "KiB")
+				usedStr = strings.TrimSpace(usedStr)
+				if used, err := strconv.ParseInt(usedStr, 10, 64); err == nil {
+					stats.CacheUsedBytes = used * 1024 // Convert KiB to bytes
+				}
+			}
+		}
+	}
+
+	// Calculate usage percentage
+	if stats.CacheMaxBytes > 0 {
+		stats.CacheUsagePercent = (float64(stats.CacheUsedBytes) / float64(stats.CacheMaxBytes)) * 100.0
+	}
+
+	// Estimate total entries based on cache usage
+	// Rough estimate: ~100 bytes per entry average
+	if stats.CacheUsedBytes > 0 {
+		stats.TotalEntries = int(stats.CacheUsedBytes / 100)
+	}
+
+	return stats
+}
+
+// sortBenchmarkResults sorts benchmark results by response time (ascending)
+func sortBenchmarkResults(results []DnsBenchmarkServerResult) {
+	sort.Slice(results, func(i, j int) bool {
+		// Unreachable servers go to the end
+		if results[i].ResponseTimeMs < 0 && results[j].ResponseTimeMs >= 0 {
+			return false
+		}
+		if results[i].ResponseTimeMs >= 0 && results[j].ResponseTimeMs < 0 {
+			return true
+		}
+		// Both unreachable or both reachable, sort by response time
+		return results[i].ResponseTimeMs < results[j].ResponseTimeMs
+	})
 }

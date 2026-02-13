@@ -38,6 +38,10 @@ type Alert struct {
 	AcknowledgedAt *time.Time `json:"acknowledged_at,omitempty"`
 	// User who acknowledged the alert
 	AcknowledgedBy string `json:"acknowledged_by,omitempty"`
+	// Number of times this alert was suppressed due to rate limiting
+	SuppressedCount int `json:"suppressed_count,omitempty"`
+	// Reason for suppression (e.g., 'rate_limit', 'duplicate')
+	SuppressReason string `json:"suppress_reason,omitempty"`
 	// Delivery status per channel (e.g., {email: 'sent', telegram: 'failed'})
 	DeliveryStatus map[string]interface{} `json:"delivery_status,omitempty"`
 	// When alert was triggered
@@ -54,9 +58,13 @@ type Alert struct {
 type AlertEdges struct {
 	// Alert rule that triggered this alert
 	Rule *AlertRule `json:"rule,omitempty"`
+	// Escalation tracking for this alert
+	Escalations []*AlertEscalation `json:"escalations,omitempty"`
+	// Notification delivery logs for this alert
+	NotificationLogs []*NotificationLog `json:"notification_logs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
 // RuleOrErr returns the Rule value or an error if the edge
@@ -70,6 +78,24 @@ func (e AlertEdges) RuleOrErr() (*AlertRule, error) {
 	return nil, &NotLoadedError{edge: "rule"}
 }
 
+// EscalationsOrErr returns the Escalations value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) EscalationsOrErr() ([]*AlertEscalation, error) {
+	if e.loadedTypes[1] {
+		return e.Escalations, nil
+	}
+	return nil, &NotLoadedError{edge: "escalations"}
+}
+
+// NotificationLogsOrErr returns the NotificationLogs value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) NotificationLogsOrErr() ([]*NotificationLog, error) {
+	if e.loadedTypes[2] {
+		return e.NotificationLogs, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_logs"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Alert) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -77,7 +103,9 @@ func (*Alert) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case alert.FieldData, alert.FieldDeliveryStatus:
 			values[i] = new([]byte)
-		case alert.FieldID, alert.FieldRuleID, alert.FieldEventType, alert.FieldSeverity, alert.FieldTitle, alert.FieldMessage, alert.FieldDeviceID, alert.FieldAcknowledgedBy:
+		case alert.FieldSuppressedCount:
+			values[i] = new(sql.NullInt64)
+		case alert.FieldID, alert.FieldRuleID, alert.FieldEventType, alert.FieldSeverity, alert.FieldTitle, alert.FieldMessage, alert.FieldDeviceID, alert.FieldAcknowledgedBy, alert.FieldSuppressReason:
 			values[i] = new(sql.NullString)
 		case alert.FieldAcknowledgedAt, alert.FieldTriggeredAt, alert.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -159,6 +187,18 @@ func (_m *Alert) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.AcknowledgedBy = value.String
 			}
+		case alert.FieldSuppressedCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field suppressed_count", values[i])
+			} else if value.Valid {
+				_m.SuppressedCount = int(value.Int64)
+			}
+		case alert.FieldSuppressReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field suppress_reason", values[i])
+			} else if value.Valid {
+				_m.SuppressReason = value.String
+			}
 		case alert.FieldDeliveryStatus:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field delivery_status", values[i])
@@ -195,6 +235,16 @@ func (_m *Alert) Value(name string) (ent.Value, error) {
 // QueryRule queries the "rule" edge of the Alert entity.
 func (_m *Alert) QueryRule() *AlertRuleQuery {
 	return NewAlertClient(_m.config).QueryRule(_m)
+}
+
+// QueryEscalations queries the "escalations" edge of the Alert entity.
+func (_m *Alert) QueryEscalations() *AlertEscalationQuery {
+	return NewAlertClient(_m.config).QueryEscalations(_m)
+}
+
+// QueryNotificationLogs queries the "notification_logs" edge of the Alert entity.
+func (_m *Alert) QueryNotificationLogs() *NotificationLogQuery {
+	return NewAlertClient(_m.config).QueryNotificationLogs(_m)
 }
 
 // Update returns a builder for updating this Alert.
@@ -248,6 +298,12 @@ func (_m *Alert) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("acknowledged_by=")
 	builder.WriteString(_m.AcknowledgedBy)
+	builder.WriteString(", ")
+	builder.WriteString("suppressed_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SuppressedCount))
+	builder.WriteString(", ")
+	builder.WriteString("suppress_reason=")
+	builder.WriteString(_m.SuppressReason)
 	builder.WriteString(", ")
 	builder.WriteString("delivery_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DeliveryStatus))

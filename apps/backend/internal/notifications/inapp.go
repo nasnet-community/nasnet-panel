@@ -33,11 +33,11 @@ func (i *InAppChannel) Send(ctx context.Context, notification Notification) erro
 		return fmt.Errorf("event bus is not configured")
 	}
 
-	// Create alert event for GraphQL subscription
-	alertEvent := events.NewBaseEvent("alert.inapp.notification", events.PriorityCritical, "inapp-channel")
+	// Create alert notification event with full notification data
+	alertEvent := NewAlertNotificationEvent(notification, "inapp-channel")
 
 	// Publish event that GraphQL subscription will pick up
-	return i.eventBus.Publish(ctx, &alertEvent)
+	return i.eventBus.Publish(ctx, alertEvent)
 }
 
 // Test verifies the in-app channel configuration.

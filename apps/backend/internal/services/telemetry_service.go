@@ -44,15 +44,9 @@ func (s *TelemetryService) GetInterfaceStatsHistory(
 	timeRange model.StatsTimeRangeInput,
 	intervalStr string,
 ) (*model.InterfaceStatsHistory, error) {
-	// Parse time range
-	start, err := time.Parse(time.RFC3339, timeRange.Start)
-	if err != nil {
-		return nil, fmt.Errorf("invalid start time: %w", err)
-	}
-	end, err := time.Parse(time.RFC3339, timeRange.End)
-	if err != nil {
-		return nil, fmt.Errorf("invalid end time: %w", err)
-	}
+	// Use time range directly (already time.Time)
+	start := timeRange.Start
+	end := timeRange.End
 
 	// Parse interval duration
 	interval, err := parseDuration(intervalStr)
@@ -85,9 +79,9 @@ func (s *TelemetryService) GetInterfaceStatsHistory(
 	return &model.InterfaceStatsHistory{
 		InterfaceID: interfaceID,
 		DataPoints:  dataPoints,
-		Interval:    intervalStr,
-		StartTime:   timeRange.Start,
-		EndTime:     timeRange.End,
+		Interval:    model.Duration(intervalStr),
+		StartTime:   start,
+		EndTime:     end,
 	}, nil
 }
 
@@ -110,13 +104,13 @@ func (s *TelemetryService) queryHotTier(
 	current := start
 	for current.Before(end) {
 		dataPoint := &model.StatsDataPoint{
-			Timestamp:        current.Format(time.RFC3339),
-			TxBytesPerSec:    0.0, // Would be actual data from storage
-			RxBytesPerSec:    0.0,
-			TxPacketsPerSec:  0.0,
-			RxPacketsPerSec:  0.0,
-			TxErrors:         0,
-			RxErrors:         0,
+			Timestamp:       current,
+			TxBytesPerSec:   0.0, // Would be actual data from storage
+			RxBytesPerSec:   0.0,
+			TxPacketsPerSec: 0.0,
+			RxPacketsPerSec: 0.0,
+			TxErrors:        0,
+			RxErrors:        0,
 		}
 		dataPoints = append(dataPoints, dataPoint)
 		current = current.Add(interval)
@@ -140,7 +134,7 @@ func (s *TelemetryService) queryWarmTier(
 	current := start
 	for current.Before(end) {
 		dataPoint := &model.StatsDataPoint{
-			Timestamp:        current.Format(time.RFC3339),
+			Timestamp:       current,
 			TxBytesPerSec:    0.0,
 			RxBytesPerSec:    0.0,
 			TxPacketsPerSec:  0.0,
@@ -170,7 +164,7 @@ func (s *TelemetryService) queryColdTier(
 	current := start
 	for current.Before(end) {
 		dataPoint := &model.StatsDataPoint{
-			Timestamp:        current.Format(time.RFC3339),
+			Timestamp:       current,
 			TxBytesPerSec:    0.0,
 			RxBytesPerSec:    0.0,
 			TxPacketsPerSec:  0.0,
@@ -267,10 +261,8 @@ func averageDataPoints(points []*model.StatsDataPoint) *model.StatsDataPoint {
 	}
 }
 
-// parseDuration parses a duration string like "5s", "5m", "1h"
-func parseDuration(durationStr string) (time.Duration, error) {
-	if durationStr == "" {
-		return 5 * time.Minute, nil // Default to 5 minutes
-	}
-	return time.ParseDuration(durationStr)
+// parseDuration parses a duration string (e.g., "5m", "1h", "30s") into a time.Duration
+func parseDuration(s string) (time.Duration, error) {
+	return time.ParseDuration(s)
 }
+

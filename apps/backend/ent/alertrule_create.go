@@ -4,6 +4,7 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
 	"context"
 	"errors"
@@ -88,6 +89,12 @@ func (_c *AlertRuleCreate) SetQuietHours(v map[string]interface{}) *AlertRuleCre
 	return _c
 }
 
+// SetEscalation sets the "escalation" field.
+func (_c *AlertRuleCreate) SetEscalation(v map[string]interface{}) *AlertRuleCreate {
+	_c.mutation.SetEscalation(v)
+	return _c
+}
+
 // SetDeviceID sets the "device_id" field.
 func (_c *AlertRuleCreate) SetDeviceID(v string) *AlertRuleCreate {
 	_c.mutation.SetDeviceID(v)
@@ -163,6 +170,21 @@ func (_c *AlertRuleCreate) AddAlerts(v ...*Alert) *AlertRuleCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddAlertIDs(ids...)
+}
+
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_c *AlertRuleCreate) AddEscalationIDs(ids ...string) *AlertRuleCreate {
+	_c.mutation.AddEscalationIDs(ids...)
+	return _c
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_c *AlertRuleCreate) AddEscalations(v ...*AlertEscalation) *AlertRuleCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddEscalationIDs(ids...)
 }
 
 // Mutation returns the AlertRuleMutation object of the builder.
@@ -340,6 +362,10 @@ func (_c *AlertRuleCreate) createSpec() (*AlertRule, *sqlgraph.CreateSpec) {
 		_spec.SetField(alertrule.FieldQuietHours, field.TypeJSON, value)
 		_node.QuietHours = value
 	}
+	if value, ok := _c.mutation.Escalation(); ok {
+		_spec.SetField(alertrule.FieldEscalation, field.TypeJSON, value)
+		_node.Escalation = value
+	}
 	if value, ok := _c.mutation.DeviceID(); ok {
 		_spec.SetField(alertrule.FieldDeviceID, field.TypeString, value)
 		_node.DeviceID = value
@@ -368,6 +394,23 @@ func (_c *AlertRuleCreate) createSpec() (*AlertRule, *sqlgraph.CreateSpec) {
 			},
 		}
 		edge.Schema = _c.schemaConfig.Alert
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _c.schemaConfig.AlertEscalation
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -542,6 +585,24 @@ func (u *AlertRuleUpsert) UpdateQuietHours() *AlertRuleUpsert {
 // ClearQuietHours clears the value of the "quiet_hours" field.
 func (u *AlertRuleUpsert) ClearQuietHours() *AlertRuleUpsert {
 	u.SetNull(alertrule.FieldQuietHours)
+	return u
+}
+
+// SetEscalation sets the "escalation" field.
+func (u *AlertRuleUpsert) SetEscalation(v map[string]interface{}) *AlertRuleUpsert {
+	u.Set(alertrule.FieldEscalation, v)
+	return u
+}
+
+// UpdateEscalation sets the "escalation" field to the value that was provided on create.
+func (u *AlertRuleUpsert) UpdateEscalation() *AlertRuleUpsert {
+	u.SetExcluded(alertrule.FieldEscalation)
+	return u
+}
+
+// ClearEscalation clears the value of the "escalation" field.
+func (u *AlertRuleUpsert) ClearEscalation() *AlertRuleUpsert {
+	u.SetNull(alertrule.FieldEscalation)
 	return u
 }
 
@@ -775,6 +836,27 @@ func (u *AlertRuleUpsertOne) UpdateQuietHours() *AlertRuleUpsertOne {
 func (u *AlertRuleUpsertOne) ClearQuietHours() *AlertRuleUpsertOne {
 	return u.Update(func(s *AlertRuleUpsert) {
 		s.ClearQuietHours()
+	})
+}
+
+// SetEscalation sets the "escalation" field.
+func (u *AlertRuleUpsertOne) SetEscalation(v map[string]interface{}) *AlertRuleUpsertOne {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.SetEscalation(v)
+	})
+}
+
+// UpdateEscalation sets the "escalation" field to the value that was provided on create.
+func (u *AlertRuleUpsertOne) UpdateEscalation() *AlertRuleUpsertOne {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.UpdateEscalation()
+	})
+}
+
+// ClearEscalation clears the value of the "escalation" field.
+func (u *AlertRuleUpsertOne) ClearEscalation() *AlertRuleUpsertOne {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.ClearEscalation()
 	})
 }
 
@@ -1182,6 +1264,27 @@ func (u *AlertRuleUpsertBulk) UpdateQuietHours() *AlertRuleUpsertBulk {
 func (u *AlertRuleUpsertBulk) ClearQuietHours() *AlertRuleUpsertBulk {
 	return u.Update(func(s *AlertRuleUpsert) {
 		s.ClearQuietHours()
+	})
+}
+
+// SetEscalation sets the "escalation" field.
+func (u *AlertRuleUpsertBulk) SetEscalation(v map[string]interface{}) *AlertRuleUpsertBulk {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.SetEscalation(v)
+	})
+}
+
+// UpdateEscalation sets the "escalation" field to the value that was provided on create.
+func (u *AlertRuleUpsertBulk) UpdateEscalation() *AlertRuleUpsertBulk {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.UpdateEscalation()
+	})
+}
+
+// ClearEscalation clears the value of the "escalation" field.
+func (u *AlertRuleUpsertBulk) ClearEscalation() *AlertRuleUpsertBulk {
+	return u.Update(func(s *AlertRuleUpsert) {
+		s.ClearEscalation()
 	})
 }
 

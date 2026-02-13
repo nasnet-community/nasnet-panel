@@ -1,0 +1,49 @@
+{
+  "id": "router-offline-email",
+  "name": "Router Offline - Email",
+  "description": "Email template for router offline events. Sends detailed notification when a router becomes unreachable.",
+  "eventType": "router.offline",
+  "channel": "email",
+  "subjectTemplate": "[CRITICAL] Router {{.RouterName}} is OFFLINE",
+  "bodyTemplate": "Router Offline Alert\n\nRouter: {{.RouterName}}\nIP Address: {{.RouterIP}}\nStatus: OFFLINE\nLast Seen: {{.LastSeen}}\n\nThe router has not responded to health checks and is considered offline. \nThis may indicate:\n- Network connectivity issues\n- Power failure\n- Router hardware failure\n- Configuration error\n\nPlease investigate immediately.\n\nAlert Time: {{.Timestamp}}\nAlert ID: {{.AlertID}}\n\n---\nNasNetConnect Alert System",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "RouterIP",
+      "label": "Router IP",
+      "type": "STRING",
+      "required": true,
+      "description": "The IP address of the router"
+    },
+    {
+      "name": "LastSeen",
+      "label": "Last Seen",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the router was last seen online"
+    },
+    {
+      "name": "Timestamp",
+      "label": "Alert Timestamp",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the alert was triggered"
+    },
+    {
+      "name": "AlertID",
+      "label": "Alert ID",
+      "type": "STRING",
+      "required": true,
+      "description": "Unique identifier for this alert"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["critical", "router", "connectivity"]
+}

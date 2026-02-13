@@ -75,6 +75,13 @@ func NewRouterService(cfg RouterServiceConfig) *RouterService {
 	return s
 }
 
+// DB returns the ent database client for direct database access.
+// This is used by resolvers that need to access router-specific entities
+// like port knock sequences.
+func (s *RouterService) DB() *ent.Client {
+	return s.db
+}
+
 // Connect establishes a connection to a router by ID.
 // It verifies the router exists, tests the connection, updates status,
 // and publishes a RouterConnectedEvent on success.

@@ -1,6 +1,17 @@
 // UI Patterns Library - Composed UI patterns for NasNetConnect
 // Higher-level components built on top of primitives
 
+// Firewall Logging (NAS-7.9)
+export * from './firewall-log-filters';
+
+// Service Instance Management - Feature Marketplace Components
+export * from './service-card';
+export * from './instance-manager';
+
+// Port Knocking (NAS-7.12)
+export * from './port-knock-sequence-form';
+export * from './port-knock-visualizer';
+
 // FormField - Label, description, and error handling for form inputs
 export { FormField } from './form-field';
 export * from './file-upload-zone';
@@ -500,6 +511,32 @@ export {
 // ToastProvider - Sonner-based toast provider with notification store integration
 export * from './toast-provider';
 
+// NotificationBell - In-app notification bell with platform presenters
+export {
+  NotificationBell,
+  NotificationBellDesktop,
+  NotificationBellMobile,
+  useNotificationBell,
+} from './notification-bell';
+export type {
+  NotificationBellProps,
+  NotificationBellState,
+} from './notification-bell';
+
+// NotificationCenter - Alert notification center with platform presenters
+export {
+  NotificationCenter,
+  NotificationCenterDesktop,
+  NotificationCenterMobile,
+  NotificationItem,
+  useNotificationCenter,
+} from './notification-center';
+export type {
+  NotificationCenterProps,
+  NotificationItemProps,
+  UseNotificationCenterReturn,
+} from './notification-center';
+
 // ============================================================================
 // Undo/Redo History (NAS-4.24)
 // ============================================================================
@@ -764,3 +801,408 @@ export type {
   UseDeviceListItemConfig,
   UseDeviceListItemReturn,
 } from './device-list-item';
+
+// ============================================================================
+// Firewall Components (NAS-7.3)
+// ============================================================================
+
+// AddressListManager - Address list display with expandable entries
+export {
+  AddressListManager,
+  AddressListManagerDesktop,
+  AddressListManagerMobile,
+  useAddressListManagerState,
+} from './address-list-manager';
+export type {
+  AddressListManagerProps,
+  AddressList,
+  AddressListEntry,
+  FirewallRule,
+  SortConfig,
+  SortField,
+  SortDirection,
+  UseAddressListManagerStateReturn,
+} from './address-list-manager';
+
+// MangleRuleEditor - Mangle rule creation and editing (NAS-7.5)
+export {
+  MangleRuleEditor,
+} from './mangle-rule-editor';
+export type {
+  MangleRuleEditorProps,
+} from './mangle-rule-editor';
+
+// MangleFlowDiagram - Packet flow visualization (NAS-7.5)
+export {
+  MangleFlowDiagram,
+} from './mangle-flow-diagram';
+export type {
+  MangleFlowDiagramProps,
+} from './mangle-flow-diagram';
+
+// RateLimitRuleEditor - Rate limit rule creation and editing (NAS-7.11)
+export {
+  RateLimitRuleEditor,
+  RateLimitRuleEditorDesktop,
+  RateLimitRuleEditorMobile,
+} from './rate-limit-rule-editor';
+export type {
+  RateLimitRuleEditorProps,
+  AddressListItem,
+} from './rate-limit-rule-editor';
+
+// Mangle rule table hook (NAS-7.5)
+export {
+  useMangleRuleTable,
+} from './mangle-rule-table';
+export type {
+  UseMangleRuleTableOptions,
+  UseMangleRuleTableReturn,
+} from './mangle-rule-table';
+
+// RAW rule table hook (NAS-7.16)
+export {
+  useRawRuleTable,
+} from './use-raw-rule-table';
+export type {
+  UseRawRuleTableOptions,
+  UseRawRuleTableReturn,
+  RawRuleFilters,
+  SortableColumn as RawRuleSortableColumn,
+  SortDirection as RawRuleSortDirection,
+} from './use-raw-rule-table';
+
+// FilterRuleEditor - Filter rule creation and editing (NAS-7.1)
+export {
+  FilterRuleEditor,
+  FilterRuleEditorDesktop,
+  FilterRuleEditorMobile,
+  useFilterRuleEditor,
+} from './filter-rule-editor';
+export type {
+  FilterRuleEditorProps,
+  UseFilterRuleEditorOptions,
+  UseFilterRuleEditorReturn,
+} from './filter-rule-editor';
+
+// RawRuleEditor - RAW rule creation and editing (NAS-7.16)
+export {
+  RawRuleEditor,
+  RawRuleEditorDesktop,
+  RawRuleEditorMobile,
+  useRawRuleEditor,
+  validateLogPrefix,
+  validateJumpTarget,
+} from './raw-rule-editor';
+export type {
+  RawRuleEditorProps,
+  UseRawRuleEditorOptions,
+  UseRawRuleEditorReturn,
+} from './raw-rule-editor';
+
+// BogonFilterDialog - Bogon IP filtering wizard (NAS-7.16)
+export {
+  BogonFilterDialog,
+  BogonFilterDialogDesktop,
+  BogonFilterDialogMobile,
+  useBogonFilterDialog,
+} from './bogon-filter-dialog';
+export type {
+  BogonFilterDialogProps,
+  BogonSelection,
+  UseBogonFilterDialogOptions,
+  UseBogonFilterDialogReturn,
+} from './bogon-filter-dialog';
+
+// NATRuleBuilder - NAT rule creation and editing (NAS-7.2)
+export {
+  NATRuleBuilder,
+  NATRuleBuilderDesktop,
+  NATRuleBuilderMobile,
+  useNATRuleBuilder,
+} from './security/nat-rule-builder';
+export type {
+  NATRuleBuilderProps,
+  UseNATRuleBuilderOptions,
+  UseNATRuleBuilderReturn,
+} from './security/nat-rule-builder';
+
+// ============================================================================
+// Rule Counter Visualization (NAS-7.15)
+// ============================================================================
+
+// CounterCell - Firewall rule counter statistics display
+export {
+  CounterCell,
+  CounterCellDesktop,
+  CounterCellMobile,
+  useRuleCounterVisualization,
+  formatPackets,
+  formatBytes,
+} from './rule-counter-visualization';
+export type {
+  CounterCellProps,
+  CounterData,
+  CounterRates,
+  UseRuleCounterVisualizationOptions,
+  RuleCounterVisualizationState,
+} from './rule-counter-visualization';
+
+// ============================================================================
+// Firewall Templates (NAS-7.6)
+// ============================================================================
+
+// TemplateGallery - Firewall template browsing and selection
+export {
+  TemplateGallery,
+  useTemplateGallery,
+  TemplateCard,
+} from './template-gallery';
+export type {
+  TemplateGalleryProps,
+  UseTemplateGalleryOptions,
+  UseTemplateGalleryReturn,
+  TemplateCardProps,
+  FirewallTemplate,
+  TemplateCategory,
+  TemplateComplexity,
+  TemplateVariable,
+  TemplateRule,
+  TemplateFilter,
+  TemplateSortField,
+  TemplateSort,
+  TemplateSelection,
+  ComplexityMeta,
+  CategoryMeta,
+} from './template-gallery';
+
+// TemplatePreview - Firewall template variable editing and preview
+export {
+  TemplatePreview,
+  useTemplatePreview,
+  TemplateVariableEditor,
+  isValidIPv4,
+  isValidCIDR,
+  isValidPort,
+  isValidVLAN,
+  StringVariableSchema,
+  InterfaceVariableSchema,
+  SubnetVariableSchema,
+  IPVariableSchema,
+  PortVariableSchema,
+  VLANVariableSchema,
+  getVariableSchema,
+  createTemplateVariablesSchema,
+} from './template-preview';
+export type {
+  TemplatePreviewProps,
+  UseTemplatePreviewOptions,
+  UseTemplatePreviewReturn,
+  TemplateVariableEditorProps,
+  TemplatePreviewResult,
+  TemplateConflict,
+  ImpactAnalysis,
+  VariableType,
+  TemplateVariableValues,
+  VariableValidationError,
+  PreviewMode,
+  PreviewTab,
+} from './template-preview';
+
+// ============================================================================
+// Rule Efficiency & Optimization (NAS-7.15)
+// ============================================================================
+
+// UnusedRulesFilter - Filter and sort rules by usage
+export { UnusedRulesFilter } from './unused-rules-filter';
+export type { UnusedRulesFilterProps, SortOption } from './unused-rules-filter';
+
+// RuleEfficiencyReport - Detect redundancy and suggest reordering
+export {
+  RuleEfficiencyReport,
+  detectRedundantRules,
+  suggestReorder,
+} from './rule-efficiency-report';
+export type {
+  RuleEfficiencyReportProps,
+  Suggestion,
+  SuggestionType,
+  SuggestionAction,
+  SuggestionSeverity,
+  RedundancyMatch,
+  ReorderOpportunity,
+} from './rule-efficiency-report';
+
+// ============================================================================
+// Rule Statistics Panel (NAS-7.15)
+// ============================================================================
+
+// RuleStatisticsPanel - Detailed rule statistics with historical traffic charts
+export {
+  RuleStatisticsPanel,
+  RuleStatisticsPanelDesktop,
+  RuleStatisticsPanelMobile,
+  TrafficHistoryChart,
+} from './rule-statistics-panel';
+export type {
+  RuleStatisticsPanelProps,
+  RuleStatisticsPanelDesktopProps,
+  RuleStatisticsPanelMobileProps,
+  CounterHistoryEntry,
+  TimeRange,
+  TrafficHistoryChartProps,
+} from './rule-statistics-panel';
+
+// ============================================================================
+// Connection Tracking (NAS-7.4)
+// ============================================================================
+
+// ConnectionList - Active firewall connections display with filtering
+export {
+  ConnectionList,
+  useConnectionList,
+  ConnectionStateBadge,
+  ConnectionFilterBar,
+  ConnectionListDesktop,
+  ConnectionListMobile,
+} from './connection-list';
+export type {
+  ConnectionListProps,
+  UseConnectionListOptions,
+  UseConnectionListReturn,
+  ConnectionEntry,
+  ConnectionFilter,
+  ConnectionSort,
+  ConnectionSortField,
+  ConnectionState,
+  SortDirection,
+} from './connection-list';
+
+// ConnectionTrackingSettings - Connection tracking configuration
+export {
+  ConnectionTrackingSettings,
+  useConnectionTrackingSettings,
+  ConnectionTrackingSettingsDesktop,
+  ConnectionTrackingSettingsMobile,
+  parseDuration,
+  formatDuration,
+  isValidDuration,
+  getDurationOrDefault,
+  parseOrDefault,
+  DEFAULT_TIMEOUTS,
+  DEFAULT_SETTINGS,
+} from './connection-tracking-settings';
+export type {
+  ConnectionTrackingSettingsProps,
+  UseConnectionTrackingSettingsOptions,
+  UseConnectionTrackingSettingsReturn,
+  ConnectionTrackingSchema,
+  ConnectionTrackingSettingsType,
+  ConnectionTrackingTimeouts,
+  ConnectionTrackingFormValues,
+} from './connection-tracking-settings';
+
+// ============================================================================
+// Firewall Log Viewer (NAS-5.6)
+// ============================================================================
+
+// FirewallLogViewer - Main log viewer component with headless hook
+export {
+  FirewallLogViewer,
+  useFirewallLogViewer,
+  getActionColorClasses,
+  ACTION_COLORS,
+} from './firewall-log-viewer';
+export type {
+  FirewallLogViewerProps,
+  FirewallLogViewerPresenterProps,
+  UseFirewallLogViewerOptions,
+  UseFirewallLogViewerReturn,
+  FirewallLogViewerState,
+  SortField,
+  SortOrder,
+  RefreshInterval,
+} from './firewall-log-viewer';
+
+// ============================================================================
+// Firewall Log Statistics (NAS-7.14)
+// ============================================================================
+
+// FirewallLogStats - Statistics panel for firewall logs
+export { FirewallLogStats } from './firewall-log-stats';
+export type { FirewallLogStatsProps } from './firewall-log-stats';
+
+// ============================================================================
+// Rate Limiting Statistics (NAS-7.11)
+// ============================================================================
+
+// RateLimitStatsOverview - Rate limit statistics with 24-hour timeline and top blocked IPs
+export {
+  RateLimitStatsOverview,
+  RateLimitStatsOverviewDesktop,
+  RateLimitStatsOverviewMobile,
+  useRateLimitStatsOverview,
+  POLLING_INTERVAL_CONFIGS,
+} from './rate-limit-stats-overview';
+export type {
+  RateLimitStatsOverviewProps,
+  PollingInterval,
+  PollingIntervalConfig,
+  ChartDataPoint,
+  ExportData,
+  StatsOverviewState,
+  StatsOverviewActions,
+} from './rate-limit-stats-overview';
+
+// BlockedIPsTable - Blocked IPs management with whitelist and remove actions
+export {
+  BlockedIPsTable,
+  useBlockedIPsTable,
+  BlockedIPsTableDesktop,
+  BlockedIPsTableMobile,
+  WHITELIST_TIMEOUT_PRESETS,
+} from './blocked-ips-table';
+export type {
+  BlockedIPsTableProps,
+  UseBlockedIPsTableOptions,
+  UseBlockedIPsTableReturn,
+  BlockedIP,
+  BlockedIPFilter,
+  BlockedIPSort,
+  BlockedIPSortField,
+  WhitelistTimeout,
+  WhitelistTimeoutPreset,
+} from './blocked-ips-table';
+
+// SynFloodConfigPanel - SYN flood protection configuration with presets
+export {
+  SynFloodConfigPanel,
+  SynFloodConfigPanelDesktop,
+  SynFloodConfigPanelMobile,
+  useSynFloodConfigPanel,
+  SYN_FLOOD_PRESETS,
+} from './syn-flood-config-panel';
+export type {
+  SynFloodConfigPanelProps,
+  SynFloodConfigPanelDesktopProps,
+  SynFloodConfigPanelMobileProps,
+  UseSynFloodConfigPanelOptions,
+  UseSynFloodConfigPanelReturn,
+  SynFloodConfigSchema,
+  SynFloodConfig,
+  SynFloodFormValues,
+  SynFloodPreset,
+} from './syn-flood-config-panel';
+
+// RateLimitRulesTable - Rate limit rules table with drag-drop reordering (NAS-7.11)
+export {
+  RateLimitRulesTable,
+  RateLimitRulesTableDesktop,
+  RateLimitRulesTableMobile,
+  useRateLimitRulesTable,
+} from './rate-limit-rules-table';
+export type {
+  RateLimitRulesTableProps,
+  RateLimitRulesTablePresenterProps,
+  SortableRowProps,
+} from './rate-limit-rules-table';

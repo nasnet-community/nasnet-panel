@@ -3,6 +3,7 @@
  * TanStack Query hooks for all API endpoints
  */
 
+export * from './alerts';
 export * from './router';
 export * from './wireless';
 export * from './firewall';
@@ -16,3 +17,5 @@ export * from './resources';
 export * from './change-set';
 export * from './diagnostics';
 export * from './network';
+export * from './services';
+export * from './notifications';

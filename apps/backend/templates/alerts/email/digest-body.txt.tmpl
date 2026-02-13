@@ -1,0 +1,37 @@
+================================================================================
+NASNET ALERT DIGEST
+================================================================================
+
+SUMMARY FOR THE {{upper .Period}}
+
+Total Alerts: {{.TotalCount}}
+
+{{range .Groups}}
+--------------------------------------------------------------------------------
+{{upper .Severity}} ALERTS ({{.Count}})
+--------------------------------------------------------------------------------
+{{range .Alerts}}
+[{{formatTime "15:04:05" .Time}}] {{.Title}}
+Event Type: {{.EventType}}{{if .BypassSent}} ⚡ Sent Immediately{{end}}
+
+{{end}}
+{{end}}
+VIEW ALERT HISTORY
+--------------------------------------------------------------------------------
+To view complete alert details and history, visit:
+{{.AdminURL}}/alerts
+
+MANAGE NOTIFICATIONS
+--------------------------------------------------------------------------------
+To adjust your notification settings and digest preferences, visit:
+{{.AdminURL}}/settings/notifications
+
+================================================================================
+
+This is an automated digest from your NasNet monitoring system.
+Do not reply to this email.
+
+For support, visit: https://nasnet.io/support
+
+© {{.CurrentYear}} NasNet - Enterprise-grade MikroTik Router Management
+================================================================================

@@ -1,0 +1,45 @@
+================================================================================
+NASNET ALERT NOTIFICATION
+================================================================================
+
+SEVERITY: {{.Severity}}
+ALERT ID: {{.AlertID}}
+
+--------------------------------------------------------------------------------
+{{.Title}}
+--------------------------------------------------------------------------------
+
+{{.Message}}
+
+ROUTER DETAILS
+--------------------------------------------------------------------------------
+Router Name:    {{.RouterName}}
+Alert ID:       {{.AlertID}}
+Timestamp:      {{.Timestamp}}
+Severity Level: {{.Severity}}
+
+{{if .SuggestedActions}}
+SUGGESTED ACTIONS
+--------------------------------------------------------------------------------
+{{.SuggestedActions}}
+
+{{end}}
+VIEW ALERT DETAILS
+--------------------------------------------------------------------------------
+To view full alert details and take action, visit:
+{{.AdminURL}}
+
+MANAGE NOTIFICATIONS
+--------------------------------------------------------------------------------
+To adjust your notification settings, visit:
+{{.AdminURL}}/settings/notifications
+
+================================================================================
+
+This is an automated alert from your NasNet monitoring system.
+Do not reply to this email.
+
+For support, visit: https://nasnet.io/support
+
+© {{.CurrentYear}} NasNet - Enterprise-grade MikroTik Router Management
+================================================================================

@@ -625,6 +625,64 @@ func HasSecretsWith(preds ...predicate.RouterSecret) predicate.Router {
 	})
 }
 
+// HasPortKnockSequences applies the HasEdge predicate on the "port_knock_sequences" edge.
+func HasPortKnockSequences() predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PortKnockSequencesTable, PortKnockSequencesColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PortKnockSequence
+		step.Edge.Schema = schemaConfig.PortKnockSequence
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPortKnockSequencesWith applies the HasEdge predicate on the "port_knock_sequences" edge with a given conditions (other predicates).
+func HasPortKnockSequencesWith(preds ...predicate.PortKnockSequence) predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := newPortKnockSequencesStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.PortKnockSequence
+		step.Edge.Schema = schemaConfig.PortKnockSequence
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasServiceInstances applies the HasEdge predicate on the "service_instances" edge.
+func HasServiceInstances() predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ServiceInstancesTable, ServiceInstancesColumn),
+		)
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.ServiceInstance
+		step.Edge.Schema = schemaConfig.ServiceInstance
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasServiceInstancesWith applies the HasEdge predicate on the "service_instances" edge with a given conditions (other predicates).
+func HasServiceInstancesWith(preds ...predicate.ServiceInstance) predicate.Router {
+	return predicate.Router(func(s *sql.Selector) {
+		step := newServiceInstancesStep()
+		schemaConfig := internal.SchemaConfigFromContext(s.Context())
+		step.To.Schema = schemaConfig.ServiceInstance
+		step.Edge.Schema = schemaConfig.ServiceInstance
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Router) predicate.Router {
 	return predicate.Router(sql.AndPredicates(predicates...))

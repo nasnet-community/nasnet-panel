@@ -1,0 +1,42 @@
+{
+  "id": "cpu-high-inapp",
+  "name": "High CPU Usage - In-App",
+  "description": "In-app notification for high CPU usage events. Brief alert for performance issues.",
+  "eventType": "system.cpu_high",
+  "channel": "inapp",
+  "subjectTemplate": "High CPU on {{.RouterName}}",
+  "bodyTemplate": "CPU usage on {{.RouterName}} is {{.CPUUsage}}% (threshold: {{.Threshold}}%). Current load: {{.LoadAverage}}",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "CPUUsage",
+      "label": "CPU Usage Percentage",
+      "type": "NUMBER",
+      "required": true,
+      "description": "Current CPU usage percentage"
+    },
+    {
+      "name": "Threshold",
+      "label": "Threshold",
+      "type": "NUMBER",
+      "required": true,
+      "description": "The threshold that was exceeded"
+    },
+    {
+      "name": "LoadAverage",
+      "label": "Load Average",
+      "type": "STRING",
+      "required": false,
+      "description": "System load average"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["warning", "performance", "cpu"]
+}

@@ -11,6 +11,7 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/router"
+	"backend/internal/utils"
 )
 
 // WANService provides WAN interface configuration and monitoring.
@@ -408,7 +409,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 
 		// Parse expires-after duration if present
 		if expiresStr, ok := dhcpData["expires-after"]; ok {
-			if duration, err := parseDuration(expiresStr); err == nil {
+			if duration, err := utils.ParseRouterOSDuration(expiresStr); err == nil {
 				wanData.DhcpClient.ExpiresAfter = duration
 			}
 		}
@@ -1194,43 +1195,6 @@ func boolToString(b bool) string {
 	return "no"
 }
 
-// parseDuration parses RouterOS duration strings (e.g., "1d2h3m4s", "5w6d").
-func parseDuration(s string) (time.Duration, error) {
-	if s == "" || s == "never" {
-		return 0, nil
-	}
-
-	// RouterOS uses format like "23h59m59s" or "6d23h"
-	// Parse weeks (w), days (d), hours (h), minutes (m), seconds (s)
-	var duration time.Duration
-	var num int
-	var unit rune
-
-	for i, char := range s {
-		if char >= '0' && char <= '9' {
-			num = num*10 + int(char-'0')
-		} else {
-			unit = char
-			switch unit {
-			case 'w':
-				duration += time.Duration(num) * 7 * 24 * time.Hour
-			case 'd':
-				duration += time.Duration(num) * 24 * time.Hour
-			case 'h':
-				duration += time.Duration(num) * time.Hour
-			case 'm':
-				duration += time.Duration(num) * time.Minute
-			case 's':
-				duration += time.Duration(num) * time.Second
-			default:
-				return 0, fmt.Errorf("unknown duration unit: %c in position %d", unit, i)
-			}
-			num = 0
-		}
-	}
-
-	return duration, nil
-}
 
 // parseSignalStrength parses signal strength from dBm string (e.g., "-75dBm" -> -75).
 func parseSignalStrength(s string) (int, error) {

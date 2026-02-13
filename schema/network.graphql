@@ -222,9 +222,9 @@ type IpAddressImpactAnalysis {
   "Whether this IP is used as a gateway by DHCP servers"
   usedByDhcpServers: [DhcpServer!]!
   "Whether this IP is referenced in firewall rules"
-  usedInFirewallRules: [FirewallRule!]!
+  usedInFirewallRules: [FirewallRuleReference!]!
   "Whether this IP is used in NAT rules"
-  usedInNatRules: [NatRule!]!
+  usedInNatRules: [NatRuleReference!]!
   "Number of active connections using this IP"
   activeConnections: Int!
   "Severity of the deletion"
@@ -238,9 +238,10 @@ type IpAddressImpactAnalysis {
 }
 
 """
-NAT rule reference type
+NAT rule reference type (lightweight for dependency tracking).
+For full NAT rule management, see NatRule type in firewall.graphql.
 """
-type NatRule {
+type NatRuleReference {
   "NAT rule ID"
   id: ID!
   "Rule chain (srcnat, dstnat)"
@@ -310,9 +311,9 @@ type IpAddressDependencies {
   "Static routes using this IP"
   routes: [Route!]!
   "NAT rules referencing this IP"
-  natRules: [NatRule!]!
+  natRules: [NatRuleReference!]!
   "Firewall rules referencing this IP"
-  firewallRules: [FirewallRule!]!
+  firewallRules: [FirewallRuleReference!]!
   "Whether the IP has any dependencies"
   hasDependencies: Boolean!
 }
@@ -458,7 +459,7 @@ type VlanDependencies {
   "DHCP servers using this VLAN"
   dhcpServers: [DhcpServer!]!
   "Firewall rules referencing this VLAN"
-  firewallRules: [FirewallRule!]!
+  firewallRules: [FirewallRuleReference!]!
   "Routes using this VLAN interface"
   routes: [Route!]!
   "Number of active connections on this VLAN"
@@ -482,9 +483,10 @@ type DhcpServer {
 }
 
 """
-Firewall rule (minimal type for dependencies)
+Firewall rule reference type (lightweight for dependency tracking).
+For full firewall rule management, see FirewallRule type in firewall.graphql.
 """
-type FirewallRule {
+type FirewallRuleReference {
   "Firewall rule ID"
   id: ID!
   "Rule chain"
@@ -1042,3 +1044,451 @@ type IpAddressChangeEvent {
 }
 
 # Note: ChangeType enum is defined in schema.graphql
+
+# =============================================================================
+# Tunnel Management Types
+# =============================================================================
+# Support for network tunnels (IPIP, GRE, EoIP, VXLAN) for connecting
+# remote networks securely with L2/L3 overlay capabilities
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Tunnel Types
+# -----------------------------------------------------------------------------
+
+"""
+Network tunnel types supported by MikroTik RouterOS
+"""
+enum TunnelType {
+  "IP-in-IP tunnel (RFC 2003) - Basic L3 encapsulation"
+  IPIP
+  "Generic Routing Encapsulation (RFC 2784) - L3 with optional IPsec"
+  GRE
+  "Ethernet over IP - Layer 2 tunnel for bridge extension"
+  EOIP
+  "Virtual eXtensible LAN (RFC 7348) - L2 overlay network"
+  VXLAN
+  "Secure Socket Tunneling Protocol (future support)"
+  SSTP
+  "Layer 2 Tunneling Protocol (future support)"
+  L2TP
+}
+
+"""
+A network tunnel interface for connecting remote networks
+"""
+type Tunnel implements Node {
+  "Unique tunnel identifier"
+  id: ID!
+  "Tunnel interface name"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$") @mikrotik(path: "/interface/{type}", field: "name")
+  "Tunnel protocol type"
+  type: TunnelType!
+  "Local endpoint IP address"
+  localAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "local-address")
+  "Remote endpoint IP address"
+  remoteAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "remote-address")
+  "Operational status of the tunnel"
+  status: InterfaceStatus!
+  "MTU setting for the tunnel interface"
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/{type}", field: "mtu")
+  "IPsec profile name (GRE tunnels only)"
+  ipsecProfile: String @mikrotik(path: "/interface/gre", field: "ipsec-profile")
+  "Tunnel ID (EoIP tunnels only, must be unique per remote address pair)"
+  tunnelId: Int @validate(min: 0, max: 65535) @mikrotik(path: "/interface/eoip", field: "tunnel-id")
+  "VXLAN Network Identifier (VXLAN tunnels only)"
+  vni: Int @validate(min: 1, max: 16777215) @mikrotik(path: "/interface/vxlan", field: "vni")
+  "VXLAN port (default 4789)"
+  port: Int @validate(min: 1, max: 65535) @mikrotik(path: "/interface/vxlan", field: "port")
+  "VTEP peer addresses (VXLAN tunnels only)"
+  vtepPeers: [String!] @mikrotik(path: "/interface/vxlan/vteps", field: "remote-ip")
+  "Traffic statistics for this tunnel"
+  statistics: InterfaceStats
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/interface/{type}", field: "comment")
+  "Whether the tunnel is disabled"
+  disabled: Boolean @mikrotik(path: "/interface/{type}", field: "disabled")
+}
+
+"""
+Input for creating or updating a tunnel
+"""
+input TunnelInput {
+  "Tunnel interface name (alphanumeric, hyphens, underscores)"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Tunnel protocol type"
+  type: TunnelType!
+  "Local endpoint IP address"
+  localAddress: String! @validate(format: IPV4)
+  "Remote endpoint IP address"
+  remoteAddress: String! @validate(format: IPV4)
+  "MTU setting (optional, default calculated based on tunnel type)"
+  mtu: Int @validate(min: 68, max: 65535)
+  "IPsec profile name (GRE tunnels only)"
+  ipsecProfile: String
+  "Tunnel ID (EoIP tunnels only, 0-65535)"
+  tunnelId: Int @validate(min: 0, max: 65535)
+  "VXLAN Network Identifier (VXLAN tunnels only, 1-16777215)"
+  vni: Int @validate(min: 1, max: 16777215)
+  "VXLAN port (default 4789)"
+  port: Int @validate(min: 1, max: 65535)
+  "VTEP peer addresses (VXLAN tunnels only)"
+  vtepPeers: [String!]
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+IPsec profile for GRE tunnel encryption
+"""
+type IpsecProfile {
+  "IPsec profile ID"
+  id: ID!
+  "Profile name"
+  name: String! @mikrotik(path: "/interface/ipsec/profile", field: "name")
+  "User comment"
+  comment: String @mikrotik(path: "/interface/ipsec/profile", field: "comment")
+}
+
+"""
+Result of a tunnel connectivity test
+"""
+type TunnelTestResult {
+  "Whether the remote endpoint is reachable"
+  reachable: Boolean!
+  "Average ping latency in milliseconds (null if unreachable)"
+  latency: Float
+  "Throughput in Mbps (null if iperf not available)"
+  throughput: Float
+  "Path MTU discovered (null if not tested)"
+  mtuPath: Int
+  "Suggestions for common connectivity issues"
+  suggestions: [String!]!
+}
+
+"""
+MTU guidance for tunnel configuration
+"""
+type MtuGuidance {
+  "Tunnel type this guidance applies to"
+  tunnelType: TunnelType!
+  "Protocol overhead in bytes"
+  overhead: Int!
+  "Recommended MTU based on base MTU (typically 1500)"
+  recommendedMtu: Int!
+  "Human-readable explanation of the overhead"
+  explanation: String!
+}
+
+"""
+Result of a tunnel mutation (create, update)
+"""
+type TunnelMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated tunnel (if successful)"
+  tunnel: Tunnel
+  "Configuration preview (RouterOS commands)"
+  preview: String
+  "MTU guidance for the tunnel type"
+  mtuGuidance: MtuGuidance
+  "Errors that occurred during the operation"
+  errors: [String!]!
+}
+
+# -----------------------------------------------------------------------------
+# Tunnel Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all tunnels on a router with optional filtering by type
+  """
+  tunnels(
+    "Router ID to query"
+    routerId: ID!
+    "Optional: filter by tunnel type"
+    type: TunnelType
+  ): [Tunnel!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific tunnel by ID
+  """
+  tunnel(
+    "Router ID"
+    routerId: ID!
+    "Tunnel ID"
+    id: ID!
+  ): Tunnel @capability(requires: ["interface"])
+
+  """
+  Get available IPsec profiles for GRE tunnel encryption
+  """
+  ipsecProfiles(
+    "Router ID to query"
+    routerId: ID!
+  ): [IpsecProfile!]! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Tunnel Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new tunnel interface
+  """
+  createTunnel(
+    "Router ID"
+    routerId: ID!
+    "Tunnel configuration"
+    input: TunnelInput!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing tunnel interface
+  """
+  updateTunnel(
+    "Router ID"
+    routerId: ID!
+    "Tunnel ID"
+    id: ID!
+    "Updated tunnel configuration"
+    input: TunnelInput!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete a tunnel interface
+  """
+  deleteTunnel(
+    "Router ID"
+    routerId: ID!
+    "Tunnel ID to delete"
+    id: ID!
+  ): TunnelMutationResult! @capability(requires: ["interface"])
+
+  """
+  Test tunnel connectivity and path MTU
+  """
+  testTunnel(
+    "Router ID"
+    routerId: ID!
+    "Tunnel ID to test"
+    id: ID!
+  ): TunnelTestResult! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Tunnel Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to tunnel status changes (create, update, delete)
+  """
+  tunnelChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): Tunnel! @capability(requires: ["interface"])
+}
+
+# =============================================================================
+# Port Mirroring Management Types
+# =============================================================================
+# Support for port mirroring (span/monitor ports) for traffic analysis and
+# debugging network issues
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Port Mirror Types
+# -----------------------------------------------------------------------------
+
+"""
+Direction of traffic to mirror
+"""
+enum MirrorDirection {
+  "Mirror only ingress (incoming) traffic"
+  INGRESS
+  "Mirror only egress (outgoing) traffic"
+  EGRESS
+  "Mirror both ingress and egress traffic"
+  BOTH
+}
+
+"""
+A port mirror configuration for traffic monitoring and analysis
+"""
+type PortMirror implements Node {
+  "Unique port mirror identifier"
+  id: ID!
+  "Descriptive name for the mirror configuration"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Source interfaces being mirrored"
+  sourceInterfaces: [Interface!]! @mikrotik(path: "/interface/bridge/port", field: "interface")
+  "Destination interface where mirrored traffic is sent"
+  destinationInterface: Interface! @mikrotik(path: "/interface/bridge/port", field: "mirror-target")
+  "Direction of traffic to mirror"
+  direction: MirrorDirection!
+  "Whether the mirror is enabled"
+  enabled: Boolean!
+  "User comment"
+  comment: String @validate(maxLength: 255)
+  "Statistics for the destination interface"
+  statistics: PortMirrorStats
+}
+
+"""
+Statistics for a port mirror destination interface
+"""
+type PortMirrorStats {
+  "Total mirrored packets"
+  mirroredPackets: Size!
+  "Total mirrored bytes"
+  mirroredBytes: Size!
+  "Destination interface current load"
+  destinationLoad: Float!
+  "Whether the destination is saturated (dropping packets)"
+  isSaturated: Boolean!
+}
+
+"""
+Input for creating a new port mirror configuration
+"""
+input CreatePortMirrorInput {
+  "Descriptive name for the mirror configuration"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Source interface IDs to mirror (must be bridge members)"
+  sourceInterfaceIds: [ID!]! @validate(minLength: 1)
+  "Destination interface ID for mirrored traffic"
+  destinationInterfaceId: ID!
+  "Direction of traffic to mirror (default: BOTH)"
+  direction: MirrorDirection
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Input for updating an existing port mirror configuration
+"""
+input UpdatePortMirrorInput {
+  "Updated name"
+  name: String @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Updated source interface IDs (must be bridge members)"
+  sourceInterfaceIds: [ID!] @validate(minLength: 1)
+  "Updated destination interface ID"
+  destinationInterfaceId: ID
+  "Updated direction of traffic to mirror"
+  direction: MirrorDirection
+  "Updated comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Result of a port mirror mutation (create, update)
+"""
+type PortMirrorMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated port mirror (if successful)"
+  portMirror: PortMirror
+  "Configuration preview (RouterOS commands)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all port mirror configurations on a router
+  """
+  portMirrors(
+    "Router ID to query"
+    routerId: ID!
+  ): [PortMirror!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific port mirror by ID
+  """
+  portMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirror @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new port mirror configuration
+  """
+  createPortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror configuration"
+    input: CreatePortMirrorInput!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing port mirror configuration
+  """
+  updatePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+    "Updated configuration"
+    input: UpdatePortMirrorInput!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete a port mirror configuration
+  """
+  deletePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID to delete"
+    id: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+
+  """
+  Enable a port mirror configuration
+  """
+  enablePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Disable a port mirror configuration
+  """
+  disablePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to port mirror status changes
+  """
+  portMirrorChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): PortMirror! @capability(requires: ["interface"])
+}

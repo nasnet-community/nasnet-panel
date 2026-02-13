@@ -1,0 +1,23 @@
+{
+  "id": "system-config-change",
+  "name": "Configuration Changed",
+  "description": "Alert when router configuration is modified",
+  "category": "SYSTEM",
+  "severity": "INFO",
+  "eventType": "update.available",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [],
+  "conditions": [
+    {
+      "field": "config_changed",
+      "operator": "EQUALS",
+      "value": "true"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 5,
+    "periodSeconds": 300
+  },
+  "channels": ["inapp"]
+}

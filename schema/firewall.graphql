@@ -1,0 +1,1253 @@
+# =============================================================================
+# Firewall GraphQL Schema
+# =============================================================================
+# This schema defines types and operations for MikroTik firewall management:
+# - Address Lists (IP grouping for firewall rules)
+# - Filter Rules (packet filtering)
+# - NAT Rules (network address translation)
+# - Mangle Rules (packet marking and modification)
+# =============================================================================
+
+# ============================================
+# ADDRESS LIST TYPES
+# ============================================
+
+"""
+Aggregated view of an address list with entry statistics.
+Address lists group IP addresses for use in firewall rules.
+"""
+type AddressList {
+  """List name (unique identifier)"""
+  name: String!
+
+  """Total number of entries in this list"""
+  entryCount: Int!
+
+  """Number of dynamic entries (added by firewall actions)"""
+  dynamicCount: Int!
+
+  """Number of firewall rules referencing this list"""
+  referencingRulesCount: Int!
+
+  """Paginated entries in this list"""
+  entries(first: Int, after: String): AddressListEntryConnection!
+
+  """Firewall rules that reference this list"""
+  referencingRules: [FirewallRule!]!
+}
+
+"""
+Single entry in an address list.
+Represents an IP address, CIDR subnet, or IP range that belongs to a named list.
+"""
+type AddressListEntry implements Node {
+  """MikroTik internal ID"""
+  id: ID! @mikrotik(path: "/ip/firewall/address-list", field: ".id")
+
+  """Name of the address list this entry belongs to"""
+  list: String! @mikrotik(path: "/ip/firewall/address-list", field: "list")
+
+  """IP address, CIDR subnet, or IP range"""
+  address: String! @mikrotik(path: "/ip/firewall/address-list", field: "address")
+
+  """Optional description"""
+  comment: String @validate(maxLength: 200) @mikrotik(path: "/ip/firewall/address-list", field: "comment")
+
+  """Optional timeout after which entry is removed"""
+  timeout: String @mikrotik(path: "/ip/firewall/address-list", field: "timeout")
+
+  """When this entry was created"""
+  creationTime: DateTime @mikrotik(path: "/ip/firewall/address-list", field: "creation-time")
+
+  """Whether this entry was added dynamically by a firewall action"""
+  dynamic: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "dynamic")
+
+  """Whether this entry is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "disabled")
+}
+
+"""
+Connection type for paginated address list entries.
+Follows Relay pagination specification.
+"""
+type AddressListEntryConnection implements Connection {
+  edges: [AddressListEntryEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+Edge type for address list entry connections.
+"""
+type AddressListEntryEdge implements Edge {
+  cursor: String!
+  node: AddressListEntry!
+}
+
+# ============================================
+# FIREWALL RULE TYPE (placeholder for referencingRules)
+# ============================================
+
+"""
+Firewall rule placeholder type.
+TODO: Expand with full filter/NAT/mangle rule types in future stories.
+"""
+type FirewallRule implements Node {
+  """Rule ID"""
+  id: ID!
+
+  """Rule type (filter, nat, mangle)"""
+  type: String!
+
+  """Rule chain (input, forward, output, prerouting, postrouting, etc.)"""
+  chain: String!
+
+  """Rule action (accept, drop, reject, etc.)"""
+  action: String!
+
+  """Source address list reference"""
+  srcAddressList: String
+
+  """Destination address list reference"""
+  dstAddressList: String
+
+  """Optional comment"""
+  comment: String
+
+  """Whether rule is disabled"""
+  disabled: Boolean!
+}
+
+# ============================================
+# INPUT TYPES
+# ============================================
+
+"""
+Input for creating a new address list entry.
+List will be created if it doesn't exist.
+"""
+input CreateAddressListEntryInput {
+  """Target list name (will create if doesn't exist)"""
+  list: String! @validate(minLength: 1, maxLength: 64, pattern: "^[a-zA-Z0-9_-]+$")
+
+  """IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)"""
+  address: String! @validate(minLength: 7, maxLength: 100)
+
+  """Optional description"""
+  comment: String @validate(maxLength: 200)
+
+  """Optional timeout (e.g., "1d", "12h", "30m")"""
+  timeout: String @validate(pattern: "^\\d+[smhdw]$")
+}
+
+"""
+Input for bulk address import.
+Used with bulkCreateAddressListEntries mutation.
+"""
+input BulkAddressInput {
+  """IP address, CIDR notation, or IP range"""
+  address: String!
+
+  """Optional description"""
+  comment: String @validate(maxLength: 200)
+
+  """Optional timeout"""
+  timeout: String @validate(pattern: "^\\d+[smhdw]$")
+}
+
+# ============================================
+# MUTATION RESPONSES
+# ============================================
+
+"""
+Result of bulk address list entry creation.
+Includes success count, failure count, and error details.
+"""
+type BulkCreateResult {
+  """Number of entries successfully created"""
+  successCount: Int!
+
+  """Number of entries that failed"""
+  failedCount: Int!
+
+  """Details of failed entries"""
+  errors: [BulkCreateError!]!
+}
+
+"""
+Details of a single failed entry in bulk import.
+"""
+type BulkCreateError {
+  """Index in the input array"""
+  index: Int!
+
+  """The address that failed"""
+  address: String!
+
+  """Error message"""
+  message: String!
+}
+
+# ============================================
+# QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get all address lists with aggregated statistics.
+  Returns a list of address lists with entry counts and referencing rule counts.
+  """
+  addressLists(routerId: ID!): [AddressList!]!
+
+  """
+  Get entries for a specific address list with cursor-based pagination.
+  Supports infinite scrolling for large lists (10,000+ entries).
+  """
+  addressListEntries(
+    routerId: ID!
+    listName: String!
+    first: Int
+    after: String
+  ): AddressListEntryConnection!
+
+  """
+  Get firewall rules that reference a specific address list.
+  Includes filter, NAT, and mangle rules.
+  """
+  rulesReferencingAddressList(
+    routerId: ID!
+    listName: String!
+  ): [FirewallRule!]!
+}
+
+# ============================================
+# FIREWALL TEMPLATES
+# ============================================
+
+"""
+Firewall template with pre-configured rule sets.
+Templates allow quick application of common firewall configurations.
+"""
+type FirewallTemplate {
+  """Unique template identifier"""
+  id: ID!
+
+  """Human-readable template name"""
+  name: String!
+
+  """Detailed description of what this template does"""
+  description: String!
+
+  """Category for organization"""
+  category: TemplateCategory!
+
+  """Complexity level indicator"""
+  complexity: TemplateComplexity!
+
+  """Total number of rules in this template"""
+  ruleCount: Int!
+
+  """Variables that can be customized before applying"""
+  variables: [FirewallTemplateVariable!]!
+
+  """Rules that will be created"""
+  rules: [TemplateRule!]!
+
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+
+  """Template version for compatibility tracking"""
+  version: String!
+
+  """When this template was created (null for built-in)"""
+  createdAt: DateTime
+
+  """When this template was last modified (null for built-in)"""
+  updatedAt: DateTime
+}
+
+"""
+Variable definition for template customization.
+Variables allow parameterization of templates for different network configurations.
+"""
+type FirewallTemplateVariable {
+  """Variable name (used in rule properties)"""
+  name: String!
+
+  """Human-readable label for UI"""
+  label: String!
+
+  """Variable type for validation"""
+  type: VariableType!
+
+  """Default value if not specified"""
+  defaultValue: String
+
+  """Whether this variable is required"""
+  required: Boolean!
+
+  """Description to help users understand the variable"""
+  description: String
+
+  """Available options (populated from router for INTERFACE type)"""
+  options: [String!]
+}
+
+"""
+Template rule definition.
+Represents a firewall rule that will be created when template is applied.
+"""
+type TemplateRule {
+  """Firewall table (filter, nat, mangle, raw)"""
+  table: FirewallTable!
+
+  """Chain name"""
+  chain: String!
+
+  """Action to perform"""
+  action: String!
+
+  """Optional comment (can include template metadata)"""
+  comment: String
+
+  """Position in the chain (null = append to end)"""
+  position: Int
+
+  """Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})"""
+  properties: JSON!
+}
+
+"""
+Result of template preview operation.
+Shows what will happen when template is applied.
+"""
+type TemplatePreviewResult {
+  """The template being previewed"""
+  template: FirewallTemplate!
+
+  """Rules with variables resolved"""
+  resolvedRules: [TemplateRule!]!
+
+  """Detected conflicts with existing rules"""
+  conflicts: [TemplateConflict!]!
+
+  """Impact analysis"""
+  impactAnalysis: ImpactAnalysis!
+}
+
+"""
+Detected conflict between template and existing configuration.
+"""
+type TemplateConflict {
+  """Type of conflict"""
+  type: TemplateConflictType!
+
+  """Human-readable conflict description"""
+  message: String!
+
+  """Existing rule ID that conflicts (if applicable)"""
+  existingRuleId: ID
+
+  """Proposed template rule that conflicts"""
+  proposedRule: TemplateRule!
+}
+
+"""
+Analysis of template application impact.
+Provides estimates and warnings before applying.
+"""
+type ImpactAnalysis {
+  """Number of new rules that will be created"""
+  newRulesCount: Int!
+
+  """Chains that will be affected"""
+  affectedChains: [String!]!
+
+  """Estimated time to apply (seconds)"""
+  estimatedApplyTime: Int!
+
+  """Warnings about potential issues"""
+  warnings: [String!]!
+}
+
+"""
+Result of template application.
+"""
+type FirewallTemplateResult {
+  """Whether application succeeded"""
+  success: Boolean!
+
+  """Number of rules successfully applied"""
+  appliedRulesCount: Int!
+
+  """Rollback ID for undo (valid for 5 minutes)"""
+  rollbackId: ID!
+
+  """Errors encountered during application"""
+  errors: [String!]
+}
+
+# ============================================
+# ENUMS
+# ============================================
+
+"""
+Template categories for organization.
+"""
+enum TemplateCategory {
+  """Basic security rules"""
+  BASIC
+
+  """Home network configurations"""
+  HOME
+
+  """Gaming-optimized rules"""
+  GAMING
+
+  """IoT device isolation"""
+  IOT
+
+  """Guest network access"""
+  GUEST
+
+  """User-created custom templates"""
+  CUSTOM
+}
+
+"""
+Template complexity levels.
+"""
+enum TemplateComplexity {
+  """Simple templates with few rules"""
+  SIMPLE
+
+  """Moderate complexity"""
+  MODERATE
+
+  """Advanced templates with many rules"""
+  ADVANCED
+}
+
+"""
+Variable types for template parameters.
+"""
+enum VariableType {
+  """Free-form string"""
+  STRING
+
+  """Interface name (autocomplete from router)"""
+  INTERFACE
+
+  """Subnet in CIDR notation"""
+  SUBNET
+
+  """IP address"""
+  IP
+
+  """Port number"""
+  PORT
+
+  """VLAN ID"""
+  VLAN_ID
+}
+
+"""
+Firewall table types.
+"""
+enum FirewallTable {
+  """Packet filtering"""
+  FILTER
+
+  """Network address translation"""
+  NAT
+
+  """Packet marking and modification"""
+  MANGLE
+
+  """Raw packet processing"""
+  RAW
+}
+
+"""
+Conflict types between template and existing configuration.
+"""
+enum TemplateConflictType {
+  """Duplicate rule already exists"""
+  DUPLICATE_RULE
+
+  """IP address range overlaps"""
+  IP_OVERLAP
+
+  """Chain configuration conflicts"""
+  CHAIN_CONFLICT
+
+  """Position conflict in chain"""
+  POSITION_CONFLICT
+}
+
+# ============================================
+# INPUT TYPES
+# ============================================
+
+"""
+Input for saving a custom template.
+"""
+input SaveTemplateInput {
+  """Template name"""
+  name: String! @validate(minLength: 1, maxLength: 100)
+
+  """Template description"""
+  description: String! @validate(minLength: 1, maxLength: 500)
+
+  """Category"""
+  category: TemplateCategory!
+
+  """Variable definitions"""
+  variables: [FirewallTemplateVariableInput!]!
+
+  """Rule definitions"""
+  rules: [TemplateRuleInput!]!
+}
+
+"""
+Input for defining a template variable.
+"""
+input FirewallTemplateVariableInput {
+  """Variable name"""
+  name: String! @validate(minLength: 1, maxLength: 50, pattern: "^[A-Z_]+$")
+
+  """Label for UI"""
+  label: String! @validate(minLength: 1, maxLength: 100)
+
+  """Variable type"""
+  type: VariableType!
+
+  """Default value"""
+  defaultValue: String
+
+  """Whether required"""
+  required: Boolean!
+
+  """Description"""
+  description: String @validate(maxLength: 200)
+}
+
+"""
+Input for defining a template rule.
+"""
+input TemplateRuleInput {
+  """Firewall table"""
+  table: FirewallTable!
+
+  """Chain name"""
+  chain: String! @validate(minLength: 1, maxLength: 50)
+
+  """Action"""
+  action: String! @validate(minLength: 1, maxLength: 50)
+
+  """Comment"""
+  comment: String @validate(maxLength: 200)
+
+  """Position"""
+  position: Int
+
+  """Rule properties as JSON"""
+  properties: JSON!
+}
+
+
+# ============================================
+# PORT KNOCKING TYPES
+# ============================================
+
+"""
+Port knocking sequence configuration.
+Implements stage-based address list progression for hiding services.
+"""
+type PortKnockSequence implements Node {
+  """Unique sequence identifier"""
+  id: ID!
+
+  """Sequence name (alphanumeric, underscores, hyphens)"""
+  name: String!
+
+  """Ordered list of knock ports (2-8 ports)"""
+  knockPorts: [KnockPort!]!
+
+  """Protected service port"""
+  protectedPort: Int!
+
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+
+  """Access timeout after successful knock"""
+  accessTimeout: String!
+
+  """Max time between knocks"""
+  knockTimeout: String!
+
+  """Whether sequence is enabled"""
+  enabled: Boolean!
+
+  """Router ID"""
+  routerId: ID!
+
+  """When sequence was created"""
+  createdAt: DateTime!
+
+  """When sequence was last updated"""
+  updatedAt: DateTime!
+
+  """Successful knocks in last 24h"""
+  recentAccessCount: Int!
+
+  """Generated firewall rule IDs"""
+  generatedRuleIds: [ID!]!
+}
+
+"""
+Single knock port in sequence.
+"""
+type KnockPort {
+  """Port number (1-65535)"""
+  port: Int!
+
+  """Protocol for this knock port"""
+  protocol: KnockProtocol!
+
+  """Position in sequence (1-based)"""
+  order: Int!
+}
+
+"""
+Port knock attempt log entry.
+"""
+type PortKnockAttempt implements Node {
+  """Attempt ID"""
+  id: ID!
+
+  """Sequence ID"""
+  sequenceId: ID!
+
+  """Sequence name"""
+  sequenceName: String!
+
+  """Source IP address"""
+  sourceIP: String!
+
+  """Attempt timestamp"""
+  timestamp: DateTime!
+
+  """Attempt status"""
+  status: KnockStatus!
+
+  """Ports hit in order"""
+  portsHit: [Int!]!
+
+  """Protected service port"""
+  protectedPort: Int!
+
+  """Progress indicator (e.g., "2/4")"""
+  progress: String!
+}
+
+"""
+Connection type for paginated knock attempts.
+"""
+type PortKnockAttemptConnection implements Connection {
+  edges: [PortKnockAttemptEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+Edge type for knock attempt connections.
+"""
+type PortKnockAttemptEdge implements Edge {
+  cursor: String!
+  node: PortKnockAttempt!
+}
+
+# ============================================
+# PORT KNOCKING ENUMS
+# ============================================
+
+"""
+Protocol for knock port.
+"""
+enum KnockProtocol {
+  """TCP only"""
+  TCP
+
+  """UDP only"""
+  UDP
+
+  """Both TCP and UDP"""
+  BOTH
+}
+
+"""
+Status of knock attempt.
+"""
+enum KnockStatus {
+  """All ports hit correctly, access granted"""
+  SUCCESS
+
+  """Wrong port order"""
+  FAILED
+
+  """Some ports hit, sequence incomplete"""
+  PARTIAL
+
+  """Time between knocks exceeded"""
+  TIMEOUT
+}
+
+"""
+Transport protocol enum for network traffic.
+"""
+enum TransportProtocol {
+  TCP
+  UDP
+}
+
+# ============================================
+# PORT KNOCKING INPUT TYPES
+# ============================================
+
+"""
+Input for creating/updating port knock sequence.
+"""
+input PortKnockSequenceInput {
+  """Sequence name"""
+  name: String! @validate(minLength: 1, maxLength: 32, pattern: "^[a-zA-Z0-9_-]+$")
+
+  """Ordered knock ports (2-8)"""
+  knockPorts: [KnockPortInput!]!
+
+  """Protected service port"""
+  protectedPort: Int! @validate(min: 1, max: 65535)
+
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+
+  """Access timeout (e.g., "5m", "1h")"""
+  accessTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+
+  """Knock timeout (e.g., "15s", "30s")"""
+  knockTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+
+  """Whether enabled"""
+  enabled: Boolean
+}
+
+"""
+Input for knock port.
+"""
+input KnockPortInput {
+  """Port number"""
+  port: Int! @validate(min: 1, max: 65535)
+
+  """Protocol"""
+  protocol: KnockProtocol!
+
+  """Order in sequence"""
+  order: Int! @validate(min: 1)
+}
+
+"""
+Filters for knock attempt log.
+"""
+input PortKnockLogFilters {
+  """Filter by status"""
+  status: KnockStatus
+
+  """Filter by source IP"""
+  sourceIP: String
+
+  """Filter by sequence ID"""
+  sequenceId: ID
+
+  """Start date"""
+  startDate: DateTime
+
+  """End date"""
+  endDate: DateTime
+}
+
+# ============================================
+# PORT KNOCKING QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get all port knock sequences for a router.
+  """
+  portKnockSequences(routerId: ID!): [PortKnockSequence!]!
+
+  """
+  Get single port knock sequence by ID.
+  """
+  portKnockSequence(routerId: ID!, id: ID!): PortKnockSequence
+
+  """
+  Get port knock attempt log with filtering.
+  """
+  portKnockLog(
+    routerId: ID!
+    filters: PortKnockLogFilters
+    first: Int
+    after: String
+  ): PortKnockAttemptConnection!
+}
+
+# ============================================
+# PORT KNOCKING MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a new port knock sequence.
+  Generates firewall rules on the router.
+  """
+  createPortKnockSequence(
+    routerId: ID!
+    input: PortKnockSequenceInput!
+  ): PortKnockSequence!
+
+  """
+  Update existing port knock sequence.
+  Regenerates firewall rules.
+  """
+  updatePortKnockSequence(
+    routerId: ID!
+    id: ID!
+    input: PortKnockSequenceInput!
+  ): PortKnockSequence!
+
+  """
+  Delete port knock sequence.
+  Removes all associated firewall rules.
+  """
+  deletePortKnockSequence(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Toggle port knock sequence enabled/disabled.
+  Enables or disables firewall rules.
+  """
+  togglePortKnockSequence(
+    routerId: ID!
+    id: ID!
+    enabled: Boolean!
+  ): PortKnockSequence!
+
+  """
+  Test port knock sequence.
+  Creates temporary rules with short timeout for verification.
+  """
+  testPortKnockSequence(
+    routerId: ID!
+    id: ID!
+  ): TestPortKnockResult!
+}
+
+"""
+Result of test port knock operation.
+"""
+type TestPortKnockResult {
+  """Whether test rules were created successfully"""
+  success: Boolean!
+
+  """Test instructions for user"""
+  testInstructions: String!
+
+  """Message"""
+  message: String!
+
+  """Test rule IDs (will auto-expire)"""
+  testRuleIds: [ID!]!
+}
+
+# ============================================
+# EXISTING MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a new address list entry.
+  If the list doesn't exist, it will be created automatically.
+  """
+  createAddressListEntry(
+    routerId: ID!
+    input: CreateAddressListEntryInput!
+  ): AddressListEntry!
+
+  """
+  Delete an address list entry by ID.
+  Returns true if successful, false otherwise.
+  """
+  deleteAddressListEntry(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Bulk create address list entries.
+  Processes entries in batches and returns success/failure counts.
+  Continues on error - does not stop at first failure.
+  """
+  bulkCreateAddressListEntries(
+    routerId: ID!
+    listName: String!
+    entries: [BulkAddressInput!]!
+  ): BulkCreateResult!
+
+  """
+  Apply a firewall template to the router.
+  Creates all rules defined in the template with variable substitution.
+  Returns a rollback ID for undo within 5 minutes.
+  """
+  applyFirewallTemplate(
+    routerId: ID!
+    templateId: ID!
+    variables: JSON!
+  ): FirewallTemplateResult!
+
+  """
+  Rollback a previously applied template.
+  Removes all template rules and restores previous state.
+  Only works within 5 minutes of application.
+  """
+  rollbackFirewallTemplate(
+    routerId: ID!
+    rollbackId: ID!
+  ): Boolean!
+
+  """
+  Save a custom firewall template.
+  Template is stored locally in IndexedDB (frontend operation).
+  """
+  saveFirewallTemplate(
+    input: SaveTemplateInput!
+  ): FirewallTemplate!
+
+  """
+  Delete a custom firewall template.
+  Only custom templates can be deleted (not built-in).
+  """
+  deleteFirewallTemplate(
+    id: ID!
+  ): Boolean!
+}
+
+# ============================================
+# NAT TYPES
+# ============================================
+
+"""
+NAT chain types (srcnat for source NAT, dstnat for destination NAT).
+"""
+enum NatChain {
+  """Source NAT (outgoing traffic)"""
+  SRCNAT
+
+  """Destination NAT (incoming traffic)"""
+  DSTNAT
+}
+
+"""
+NAT action types for firewall NAT rules.
+"""
+enum NatAction {
+  """Masquerade (dynamic source NAT)"""
+  MASQUERADE
+
+  """Destination NAT (port forwarding)"""
+  DST_NAT
+
+  """Source NAT (static mapping)"""
+  SRC_NAT
+
+  """Redirect to different port"""
+  REDIRECT
+
+  """Network mapping"""
+  NETMAP
+
+  """Use same IP"""
+  SAME
+
+  """Accept packet"""
+  ACCEPT
+
+  """Drop packet"""
+  DROP
+
+  """Jump to different chain"""
+  JUMP
+
+  """Return to parent chain"""
+  RETURN
+
+  """Log packet"""
+  LOG
+
+  """Pass through without action"""
+  PASSTHROUGH
+}
+
+"""
+NAT rule configuration for network address translation.
+Handles both source NAT (masquerade) and destination NAT (port forwarding).
+"""
+type NatRule implements Node {
+  """MikroTik internal ID"""
+  id: ID! @mikrotik(path: "/ip/firewall/nat", field: ".id")
+
+  """NAT chain (srcnat or dstnat)"""
+  chain: NatChain! @mikrotik(path: "/ip/firewall/nat", field: "chain")
+
+  """NAT action"""
+  action: NatAction! @mikrotik(path: "/ip/firewall/nat", field: "action")
+
+  """Source address or CIDR"""
+  srcAddress: String @mikrotik(path: "/ip/firewall/nat", field: "src-address")
+
+  """Destination address or CIDR"""
+  dstAddress: String @mikrotik(path: "/ip/firewall/nat", field: "dst-address")
+
+  """Source port or port range"""
+  srcPort: String @mikrotik(path: "/ip/firewall/nat", field: "src-port")
+
+  """Destination port or port range"""
+  dstPort: String @mikrotik(path: "/ip/firewall/nat", field: "dst-port")
+
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol @mikrotik(path: "/ip/firewall/nat", field: "protocol")
+
+  """Target address for NAT"""
+  toAddresses: String @mikrotik(path: "/ip/firewall/nat", field: "to-addresses")
+
+  """Target port(s) for NAT"""
+  toPorts: String @mikrotik(path: "/ip/firewall/nat", field: "to-ports")
+
+  """Incoming interface"""
+  inInterface: String @mikrotik(path: "/ip/firewall/nat", field: "in-interface")
+
+  """Outgoing interface"""
+  outInterface: String @mikrotik(path: "/ip/firewall/nat", field: "out-interface")
+
+  """Optional comment"""
+  comment: String @mikrotik(path: "/ip/firewall/nat", field: "comment")
+
+  """Whether rule is disabled"""
+  disabled: Boolean! @mikrotik(path: "/ip/firewall/nat", field: "disabled")
+
+  """Bytes processed by this rule"""
+  bytes: Int! @mikrotik(path: "/ip/firewall/nat", field: "bytes")
+
+  """Packets processed by this rule"""
+  packets: Int! @mikrotik(path: "/ip/firewall/nat", field: "packets")
+
+  """Rule position in chain"""
+  position: Int!
+}
+
+"""
+Input for creating a NAT rule.
+"""
+input CreateNatRuleInput {
+  """NAT chain (srcnat or dstnat)"""
+  chain: NatChain!
+
+  """NAT action"""
+  action: NatAction!
+
+  """Source address or CIDR"""
+  srcAddress: String
+
+  """Destination address or CIDR"""
+  dstAddress: String
+
+  """Source port or port range"""
+  srcPort: String
+
+  """Destination port (1-65535)"""
+  dstPort: String
+
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol
+
+  """Target address for NAT"""
+  toAddresses: String
+
+  """Target port(s) for NAT"""
+  toPorts: String
+
+  """Incoming interface"""
+  inInterface: String
+
+  """Outgoing interface"""
+  outInterface: String
+
+  """Optional comment"""
+  comment: String @validate(maxLength: 255)
+
+  """Whether rule is disabled"""
+  disabled: Boolean
+}
+
+"""
+Input for creating a port forward (simplified wizard).
+Creates both NAT and filter rules automatically.
+"""
+input PortForwardInput {
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+
+  """External port (1-65535)"""
+  externalPort: Int! @validate(min: 1, max: 65535)
+
+  """Internal target IP address"""
+  internalIP: String!
+
+  """Internal target port (defaults to external port if not specified)"""
+  internalPort: Int @validate(min: 1, max: 65535)
+
+  """Optional name/description for this port forward"""
+  name: String @validate(minLength: 1, maxLength: 100)
+
+  """WAN interface name (optional, auto-detected if not specified)"""
+  wanInterface: String
+}
+
+"""
+Status of a port forward configuration.
+"""
+enum PortForwardStatus {
+  """Port forward is active and working"""
+  ACTIVE
+
+  """Port forward is disabled"""
+  DISABLED
+
+  """Port forward has errors or misconfiguration"""
+  ERROR
+
+  """Port forward is partially configured (missing rules)"""
+  INCOMPLETE
+}
+
+"""
+Port forward configuration (high-level view).
+Represents both the NAT rule and corresponding filter rule.
+"""
+type PortForward implements Node {
+  """Unique identifier"""
+  id: ID!
+
+  """Optional name/description"""
+  name: String
+
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+
+  """External port"""
+  externalPort: Int!
+
+  """Internal target IP"""
+  internalIP: String!
+
+  """Internal target port"""
+  internalPort: Int!
+
+  """Current status"""
+  status: PortForwardStatus!
+
+  """ID of the associated NAT rule"""
+  natRuleId: ID!
+
+  """ID of the associated filter rule (if created)"""
+  filterRuleId: ID
+}
+
+# ============================================
+# NAT QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get NAT rules, optionally filtered by chain.
+  """
+  natRules(
+    routerId: ID!
+    chain: NatChain
+  ): [NatRule!]!
+
+  """
+  Get all port forwards (high-level view).
+  """
+  portForwards(routerId: ID!): [PortForward!]!
+}
+
+# ============================================
+# NAT MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a NAT rule.
+  """
+  createNatRule(
+    routerId: ID!
+    input: CreateNatRuleInput!
+  ): NatRule!
+
+  """
+  Update an existing NAT rule.
+  """
+  updateNatRule(
+    routerId: ID!
+    id: ID!
+    input: CreateNatRuleInput!
+  ): NatRule!
+
+  """
+  Delete a NAT rule.
+  """
+  deleteNatRule(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Create a port forward (creates both NAT and filter rules).
+  Simplified wizard for common use case of exposing internal service.
+  """
+  createPortForward(
+    routerId: ID!
+    input: PortForwardInput!
+  ): PortForward!
+
+  """
+  Delete a port forward (removes both NAT and filter rules).
+  """
+  deletePortForward(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Create a masquerade rule for internet sharing.
+  Convenience mutation for common srcnat masquerade setup.
+  """
+  createMasqueradeRule(
+    routerId: ID!
+    outInterface: String!
+    srcAddress: String
+    comment: String
+  ): NatRule!
+}

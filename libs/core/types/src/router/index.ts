@@ -6,7 +6,6 @@ export * from './discovery';
 export * from './wan';
 export * from './vpn';
 export * from './lan';
-export * from './firewall';
 export * from './status';
 export * from './network';
 export * from './wireless';
@@ -15,3 +14,16 @@ export * from './dns';
 export * from './connected-device';
 export * from './hardware';
 export * from './logs';
+
+// Export firewall types except MangleRule (use firewall/index.ts for new MangleRule)
+export type {
+  FirewallChain,
+  FirewallAction,
+  FirewallProtocol,
+  FirewallRule,
+  NATRule,
+  RouteEntry,
+  RoutingTable,
+  AddressList,
+  RouterService,
+} from './firewall';

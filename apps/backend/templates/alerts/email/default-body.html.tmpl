@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Notification</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            padding: 24px;
+            color: #ffffff;
+        }
+        .header.CRITICAL {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+        .header.WARNING {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .header.INFO {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .content {
+            padding: 24px;
+        }
+        .alert-details {
+            background: #f8fafc;
+            border-left: 4px solid #e2e8f0;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+        .alert-details.CRITICAL {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+        .alert-details.WARNING {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .alert-details.INFO {
+            border-left-color: #0ea5e9;
+            background: #f0f9ff;
+        }
+        .alert-details h2 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .alert-details p {
+            margin: 0;
+            color: #475569;
+        }
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .metadata-item {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        .metadata-item label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .metadata-item .value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        .actions {
+            background: #f8fafc;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+        .actions h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .actions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .actions li {
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .footer {
+            padding: 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .footer a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header {{.Severity}}">
+            <div class="badge">{{.Severity}}</div>
+            <h1>{{.Title}}</h1>
+        </div>
+
+        <div class="content">
+            <div class="alert-details {{.Severity}}">
+                <h2>{{.RuleName}}</h2>
+                <p>{{.Message}}</p>
+            </div>
+
+            <div class="metadata">
+                <div class="metadata-item">
+                    <label>Device</label>
+                    <div class="value">{{.DeviceName | default "Unknown"}}</div>
+                </div>
+                <div class="metadata-item">
+                    <label>IP Address</label>
+                    <div class="value">{{.DeviceIP | default "N/A"}}</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Event Type</label>
+                    <div class="value">{{.EventType}}</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Triggered At</label>
+                    <div class="value">{{.FormattedTime}}</div>
+                </div>
+            </div>
+
+            {{if .SuggestedActions}}
+            <div class="actions">
+                <h3>Suggested Actions</h3>
+                <ul>
+                    {{range .SuggestedActions}}
+                    <li>{{.}}</li>
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+        </div>
+
+        <div class="footer">
+            <p>This is an automated alert from NasNet. <a href="#">View in Dashboard</a></p>
+            <p style="margin-top: 8px;">To manage your notification settings, visit your <a href="#">Alert Rules</a> page.</p>
+        </div>
+    </div>
+</body>
+</html>

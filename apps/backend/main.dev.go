@@ -27,15 +27,18 @@ import (
 	"backend/ent"
 	"backend/graph"
 	"backend/graph/resolver"
+	"backend/internal/alerts"
 	"backend/internal/database"
+	"backend/internal/dns"
 	"backend/internal/encryption"
 	"backend/internal/events"
 	"backend/internal/graphql/loaders"
-	"backend/internal/dns"
+	"backend/internal/notifications"
 	"backend/internal/router"
 	scannerPkg "backend/internal/scanner"
 	"backend/internal/services"
 	troubleshootPkg "backend/internal/troubleshoot"
+	"go.uber.org/zap"
 )
 
 // Development MikroTik RouterOS Management Server
@@ -56,8 +59,8 @@ func init() {
 func init() { ServerVersion = "development-v2.0" }
 
 // createGraphQLServer creates and configures the gqlgen GraphQL server
-func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService) *handler.Server {
-	// Create resolver with event bus and services
+func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService, alertSvc *services.AlertService, dispatcher *notifications.Dispatcher) *handler.Server {
+	// Create resolver with event bus and all services including alert service
 	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
 		EventBus:            eventBus,
 		ScannerService:      scannerSvc,
@@ -65,6 +68,8 @@ func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.Scanne
 		TroubleshootService: troubleshootSvc,
 		DnsService:          dnsService,
 		InterfaceService:    interfaceSvc,
+		AlertService:        alertSvc,
+		Dispatcher:          dispatcher,
 	})
 
 	// Create executable schema
@@ -105,9 +110,9 @@ func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.Scanne
 }
 
 // setupRoutes configures all HTTP routes with proper middleware
-func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService) {
-	// Create GraphQL server with scanner service and router service
-	graphqlServer := createGraphQLServer(eventBus, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc)
+func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService, alertSvc *services.AlertService, alertEngine **alerts.Engine, dispatcher *notifications.Dispatcher) {
+	// Create GraphQL server with all services including alert service
+	graphqlServer := createGraphQLServer(eventBus, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc, alertSvc, dispatcher)
 
 	// Wrap GraphQL server with DataLoader middleware
 	// This ensures DataLoaders are request-scoped and available to all resolvers
@@ -258,6 +263,114 @@ func main() {
 	})
 	log.Printf("Interface service initialized (mock adapter)")
 
+	// Initialize structured logger for alert system (NAS-18.1)
+	loggerConfig := zap.NewDevelopmentConfig()
+	loggerConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel) // Debug level for dev
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		log.Fatalf("Failed to initialize logger: %v", err)
+	}
+	defer logger.Sync()
+	sugar := logger.Sugar()
+	log.Printf("Structured logger initialized (development mode)")
+
+	// Initialize notification channels for alert system (NAS-18.1)
+	emailChannel := notifications.NewEmailChannel(notifications.EmailConfig{})
+	telegramChannel := notifications.NewTelegramChannel(notifications.TelegramConfig{})
+	pushoverChannel := notifications.NewPushoverChannel(notifications.PushoverConfig{})
+	webhookChannel := notifications.NewWebhookChannel(notifications.WebhookConfig{})
+	inappChannel := notifications.NewInAppChannel(eventBus)
+
+	channels := map[string]notifications.Channel{
+		"email":    emailChannel,
+		"telegram": telegramChannel,
+		"pushover": pushoverChannel,
+		"webhook":  webhookChannel,
+		"inapp":    inappChannel,
+	}
+
+	// Initialize notification template service (NAS-18.11 Task 5)
+	templateService := notifications.NewTemplateService(notifications.TemplateServiceConfig{
+		DB:     systemDB,
+		Logger: sugar,
+	})
+	log.Printf("Notification template service initialized")
+
+	// Initialize notification dispatcher (NAS-18.1)
+	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
+		Channels:        channels,
+		Logger:          sugar,
+		TemplateService: templateService, // Optional template renderer (NAS-18.11 Task 5)
+		DB:              systemDB,        // Database client for alert queries
+		MaxRetries:      3,
+		InitialBackoff:  1 * time.Second,
+	})
+
+	// Subscribe dispatcher to alert.created events
+	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
+		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", err)
+	}
+	log.Printf("Notification dispatcher initialized and subscribed")
+
+	// Initialize Escalation Engine (NAS-18.9)
+	// Created separately so it can be shared between AlertService and AlertEngine
+	escalationEngine := alerts.NewEscalationEngine(alerts.EscalationEngineConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBus,
+		Logger:     sugar,
+	})
+	log.Printf("Escalation engine initialized")
+
+	// Initialize Digest Service (NAS-18.11)
+	digestService := alerts.NewDigestService(alerts.DigestServiceConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBus,
+		Logger:     sugar,
+	})
+	log.Printf("Digest service initialized")
+
+	// Initialize Digest Scheduler (NAS-18.11)
+	digestScheduler := alerts.NewDigestScheduler(alerts.DigestSchedulerConfig{
+		DigestService: digestService,
+		DB:            systemDB,
+		Logger:        sugar,
+	})
+
+	// Start digest scheduler (loads and schedules active digests)
+	if err := digestScheduler.Start(context.Background()); err != nil {
+		log.Printf("Warning: failed to start digest scheduler: %v", err)
+	} else {
+		log.Printf("Digest scheduler started")
+	}
+
+	// Initialize Alert Service (NAS-18.1, NAS-18.9, NAS-18.11)
+	alertService := services.NewAlertService(services.AlertServiceConfig{
+		DB:                  systemDB,
+		EventBus:            eventBus,
+		EscalationCanceller: escalationEngine,
+		DigestService:       digestService,
+		Logger:              sugar,
+	})
+	log.Printf("Alert service initialized")
+
+	// Initialize and start Alert Engine (NAS-18.1, NAS-18.9, NAS-18.11)
+	// Pass the shared escalation engine and digest service
+	alertEngine := alerts.NewEngine(alerts.EngineConfig{
+		DB:               systemDB,
+		EventBus:         eventBus,
+		Dispatcher:       dispatcher,
+		EscalationEngine: escalationEngine,
+		DigestService:    digestService,
+		Logger:           sugar,
+	})
+
+	if err := alertEngine.Start(context.Background()); err != nil {
+		log.Fatalf("Failed to start alert engine: %v", err)
+	}
+	log.Printf("Alert engine started and monitoring events")
+
 	// Create Echo instance
 	e := echo.New()
 	e.HideBanner = true
@@ -276,8 +389,8 @@ func main() {
 		MaxAge:           3600,
 	}))
 
-	// Setup routes with DataLoader middleware, scanner service, router service, troubleshoot service, DNS service, and interface service
-	setupRoutes(e, eventBus, systemDB, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc)
+	// Setup routes with DataLoader middleware, all services including alert system
+	setupRoutes(e, eventBus, systemDB, scannerSvc, routerSvc, troubleshootSvc, dnsService, interfaceSvc, alertService, &alertEngine, dispatcher)
 
 	// Configure server timeouts
 	e.Server.ReadTimeout = 60 * time.Second
@@ -296,7 +409,18 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
-		// Close event bus first to flush pending events
+		// Stop alert engine first to prevent processing new events
+		if err := alertEngine.Stop(ctx); err != nil {
+			log.Printf("Warning: error stopping alert engine: %v", err)
+		} else {
+			log.Println("Alert engine stopped")
+		}
+
+		// Stop digest scheduler to cancel all timers and wait for in-flight deliveries
+		digestScheduler.Stop()
+		log.Println("Digest scheduler stopped")
+
+		// Close event bus second to flush pending events
 		if err := eventBus.Close(); err != nil {
 			log.Printf("Warning: error closing event bus: %v", err)
 		}

@@ -32,6 +32,30 @@ func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertMutation", m)
 }
 
+// The AlertDigestEntryFunc type is an adapter to allow the use of ordinary
+// function as AlertDigestEntry mutator.
+type AlertDigestEntryFunc func(context.Context, *ent.AlertDigestEntryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertDigestEntryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertDigestEntryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertDigestEntryMutation", m)
+}
+
+// The AlertEscalationFunc type is an adapter to allow the use of ordinary
+// function as AlertEscalation mutator.
+type AlertEscalationFunc func(context.Context, *ent.AlertEscalationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertEscalationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertEscalationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertEscalationMutation", m)
+}
+
 // The AlertRuleFunc type is an adapter to allow the use of ordinary
 // function as AlertRule mutator.
 type AlertRuleFunc func(context.Context, *ent.AlertRuleMutation) (ent.Value, error)
@@ -42,6 +66,30 @@ func (f AlertRuleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertRuleMutation", m)
+}
+
+// The AlertRuleTemplateFunc type is an adapter to allow the use of ordinary
+// function as AlertRuleTemplate mutator.
+type AlertRuleTemplateFunc func(context.Context, *ent.AlertRuleTemplateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertRuleTemplateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertRuleTemplateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertRuleTemplateMutation", m)
+}
+
+// The AlertTemplateFunc type is an adapter to allow the use of ordinary
+// function as AlertTemplate mutator.
+type AlertTemplateFunc func(context.Context, *ent.AlertTemplateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertTemplateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlertTemplateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertTemplateMutation", m)
 }
 
 // The ConfigSnapshotFunc type is an adapter to allow the use of ordinary
@@ -68,6 +116,30 @@ func (f GlobalSettingsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GlobalSettingsMutation", m)
 }
 
+// The NotificationChannelConfigFunc type is an adapter to allow the use of ordinary
+// function as NotificationChannelConfig mutator.
+type NotificationChannelConfigFunc func(context.Context, *ent.NotificationChannelConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationChannelConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationChannelConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationChannelConfigMutation", m)
+}
+
+// The NotificationLogFunc type is an adapter to allow the use of ordinary
+// function as NotificationLog mutator.
+type NotificationLogFunc func(context.Context, *ent.NotificationLogMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationLogMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationLogMutation", m)
+}
+
 // The NotificationSettingsFunc type is an adapter to allow the use of ordinary
 // function as NotificationSettings mutator.
 type NotificationSettingsFunc func(context.Context, *ent.NotificationSettingsMutation) (ent.Value, error)
@@ -78,6 +150,18 @@ func (f NotificationSettingsFunc) Mutate(ctx context.Context, m ent.Mutation) (e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationSettingsMutation", m)
+}
+
+// The PortKnockSequenceFunc type is an adapter to allow the use of ordinary
+// function as PortKnockSequence mutator.
+type PortKnockSequenceFunc func(context.Context, *ent.PortKnockSequenceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PortKnockSequenceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PortKnockSequenceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PortKnockSequenceMutation", m)
 }
 
 // The ResourceFunc type is an adapter to allow the use of ordinary
@@ -152,6 +236,18 @@ func (f SchemaVersionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SchemaVersionMutation", m)
 }
 
+// The ServiceInstanceFunc type is an adapter to allow the use of ordinary
+// function as ServiceInstance mutator.
+type ServiceInstanceFunc func(context.Context, *ent.ServiceInstanceMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ServiceInstanceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ServiceInstanceMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ServiceInstanceMutation", m)
+}
+
 // The SessionFunc type is an adapter to allow the use of ordinary
 // function as Session mutator.
 type SessionFunc func(context.Context, *ent.SessionMutation) (ent.Value, error)
@@ -174,6 +270,18 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+}
+
+// The WebhookFunc type is an adapter to allow the use of ordinary
+// function as Webhook mutator.
+type WebhookFunc func(context.Context, *ent.WebhookMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WebhookFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WebhookMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WebhookMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -1,0 +1,138 @@
+{
+  "id": "gaming-optimized",
+  "name": "Gaming Optimized",
+  "description": "Low-latency firewall rules optimized for online gaming. Prioritizes gaming traffic, enables UPnP for automatic port forwarding, and reduces connection tracking overhead. Note: Some security features are relaxed for performance.",
+  "category": "GAMING",
+  "complexity": "MODERATE",
+  "ruleCount": 10,
+  "version": "1.0.0",
+  "isBuiltIn": true,
+  "variables": [
+    {
+      "name": "WAN_INTERFACE",
+      "label": "WAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The internet-facing interface (e.g., ether1, pppoe-out1)"
+    },
+    {
+      "name": "LAN_INTERFACE",
+      "label": "LAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The local network interface (e.g., bridge, ether2)"
+    },
+    {
+      "name": "GAMING_DEVICE_IP",
+      "label": "Gaming Device IP",
+      "type": "IP",
+      "required": false,
+      "description": "IP address of primary gaming device for priority treatment (optional)"
+    }
+  ],
+  "rules": [
+    {
+      "table": "NAT",
+      "chain": "srcnat",
+      "action": "masquerade",
+      "comment": "nnc-template:gaming-optimized:masquerade-nat",
+      "position": null,
+      "properties": {
+        "out-interface": "{{WAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "MANGLE",
+      "chain": "prerouting",
+      "action": "mark-connection",
+      "comment": "nnc-template:gaming-optimized:mark-gaming-traffic",
+      "position": null,
+      "properties": {
+        "src-address": "{{GAMING_DEVICE_IP}}",
+        "new-connection-mark": "gaming_traffic",
+        "passthrough": true
+      }
+    },
+    {
+      "table": "MANGLE",
+      "chain": "prerouting",
+      "action": "mark-packet",
+      "comment": "nnc-template:gaming-optimized:mark-gaming-packets",
+      "position": null,
+      "properties": {
+        "connection-mark": "gaming_traffic",
+        "new-packet-mark": "gaming_packets",
+        "passthrough": false
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:gaming-optimized:accept-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:gaming-optimized:accept-upnp",
+      "position": null,
+      "properties": {
+        "protocol": "udp",
+        "dst-port": "1900"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:gaming-optimized:accept-icmp",
+      "position": null,
+      "properties": {
+        "protocol": "icmp"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:gaming-optimized:accept-from-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:gaming-optimized:drop-all-input",
+      "position": null,
+      "properties": {}
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "fasttrack-connection",
+      "comment": "nnc-template:gaming-optimized:fasttrack",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:gaming-optimized:forward-all",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related,new"
+      }
+    }
+  ]
+}

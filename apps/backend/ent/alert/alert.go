@@ -33,6 +33,10 @@ const (
 	FieldAcknowledgedAt = "acknowledged_at"
 	// FieldAcknowledgedBy holds the string denoting the acknowledged_by field in the database.
 	FieldAcknowledgedBy = "acknowledged_by"
+	// FieldSuppressedCount holds the string denoting the suppressed_count field in the database.
+	FieldSuppressedCount = "suppressed_count"
+	// FieldSuppressReason holds the string denoting the suppress_reason field in the database.
+	FieldSuppressReason = "suppress_reason"
 	// FieldDeliveryStatus holds the string denoting the delivery_status field in the database.
 	FieldDeliveryStatus = "delivery_status"
 	// FieldTriggeredAt holds the string denoting the triggered_at field in the database.
@@ -41,6 +45,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeRule holds the string denoting the rule edge name in mutations.
 	EdgeRule = "rule"
+	// EdgeEscalations holds the string denoting the escalations edge name in mutations.
+	EdgeEscalations = "escalations"
+	// EdgeNotificationLogs holds the string denoting the notification_logs edge name in mutations.
+	EdgeNotificationLogs = "notification_logs"
 	// Table holds the table name of the alert in the database.
 	Table = "alerts"
 	// RuleTable is the table that holds the rule relation/edge.
@@ -50,6 +58,20 @@ const (
 	RuleInverseTable = "alert_rules"
 	// RuleColumn is the table column denoting the rule relation/edge.
 	RuleColumn = "rule_id"
+	// EscalationsTable is the table that holds the escalations relation/edge.
+	EscalationsTable = "alert_escalations"
+	// EscalationsInverseTable is the table name for the AlertEscalation entity.
+	// It exists in this package in order to avoid circular dependency with the "alertescalation" package.
+	EscalationsInverseTable = "alert_escalations"
+	// EscalationsColumn is the table column denoting the escalations relation/edge.
+	EscalationsColumn = "alert_id"
+	// NotificationLogsTable is the table that holds the notification_logs relation/edge.
+	NotificationLogsTable = "notification_logs"
+	// NotificationLogsInverseTable is the table name for the NotificationLog entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationlog" package.
+	NotificationLogsInverseTable = "notification_logs"
+	// NotificationLogsColumn is the table column denoting the notification_logs relation/edge.
+	NotificationLogsColumn = "alert_id"
 )
 
 // Columns holds all SQL columns for alert fields.
@@ -64,6 +86,8 @@ var Columns = []string{
 	FieldDeviceID,
 	FieldAcknowledgedAt,
 	FieldAcknowledgedBy,
+	FieldSuppressedCount,
+	FieldSuppressReason,
 	FieldDeliveryStatus,
 	FieldTriggeredAt,
 	FieldUpdatedAt,
@@ -92,6 +116,12 @@ var (
 	DeviceIDValidator func(string) error
 	// AcknowledgedByValidator is a validator for the "acknowledged_by" field. It is called by the builders before save.
 	AcknowledgedByValidator func(string) error
+	// DefaultSuppressedCount holds the default value on creation for the "suppressed_count" field.
+	DefaultSuppressedCount int
+	// SuppressedCountValidator is a validator for the "suppressed_count" field. It is called by the builders before save.
+	SuppressedCountValidator func(int) error
+	// SuppressReasonValidator is a validator for the "suppress_reason" field. It is called by the builders before save.
+	SuppressReasonValidator func(string) error
 	// DefaultTriggeredAt holds the default value on creation for the "triggered_at" field.
 	DefaultTriggeredAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -174,6 +204,16 @@ func ByAcknowledgedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAcknowledgedBy, opts...).ToFunc()
 }
 
+// BySuppressedCount orders the results by the suppressed_count field.
+func BySuppressedCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuppressedCount, opts...).ToFunc()
+}
+
+// BySuppressReason orders the results by the suppress_reason field.
+func BySuppressReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuppressReason, opts...).ToFunc()
+}
+
 // ByTriggeredAt orders the results by the triggered_at field.
 func ByTriggeredAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTriggeredAt, opts...).ToFunc()
@@ -190,10 +230,52 @@ func ByRuleField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRuleStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByEscalationsCount orders the results by escalations count.
+func ByEscalationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newEscalationsStep(), opts...)
+	}
+}
+
+// ByEscalations orders the results by escalations terms.
+func ByEscalations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEscalationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByNotificationLogsCount orders the results by notification_logs count.
+func ByNotificationLogsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationLogsStep(), opts...)
+	}
+}
+
+// ByNotificationLogs orders the results by notification_logs terms.
+func ByNotificationLogs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationLogsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRuleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RuleInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, RuleTable, RuleColumn),
+	)
+}
+func newEscalationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EscalationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, EscalationsTable, EscalationsColumn),
+	)
+}
+func newNotificationLogsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationLogsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationLogsTable, NotificationLogsColumn),
 	)
 }

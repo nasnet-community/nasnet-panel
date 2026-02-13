@@ -1,0 +1,54 @@
+{
+  "id": "vpn-disconnected-telegram",
+  "name": "VPN Disconnected - Telegram",
+  "description": "Telegram notification for VPN disconnection events. Mobile-friendly alert format.",
+  "eventType": "vpn.disconnected",
+  "channel": "telegram",
+  "subjectTemplate": "🔴 VPN Disconnected",
+  "bodyTemplate": "🔴 *VPN Disconnected*\n\n*Router:* {{.RouterName}}\n*VPN Name:* {{.VPNName}}\n*Connection Duration:* {{.Duration}}\n*Reason:* {{.Reason}}\n\n_Time:_ {{.Timestamp}}",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "VPNName",
+      "label": "VPN Connection Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the VPN connection"
+    },
+    {
+      "name": "Duration",
+      "label": "Connection Duration",
+      "type": "STRING",
+      "required": false,
+      "description": "How long the VPN was connected"
+    },
+    {
+      "name": "Reason",
+      "label": "Disconnect Reason",
+      "type": "STRING",
+      "required": false,
+      "defaultValue": "Unknown",
+      "description": "Reason for disconnection"
+    },
+    {
+      "name": "Timestamp",
+      "label": "Alert Timestamp",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the alert was triggered"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["warning", "vpn", "connectivity"],
+  "metadata": {
+    "parseMode": "Markdown",
+    "disableWebPagePreview": true
+  }
+}

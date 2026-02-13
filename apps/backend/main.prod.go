@@ -31,12 +31,16 @@ import (
 	"backend/ent"
 	"backend/graph"
 	"backend/graph/resolver"
+	"backend/internal/alerts"
 	"backend/internal/database"
 	"backend/internal/events"
+	"backend/internal/firewall"
 	"backend/internal/graphql/loaders"
+	"backend/internal/notifications"
 	"backend/internal/router"
 	"backend/internal/services"
 	troubleshootPkg "backend/internal/troubleshoot"
+	"go.uber.org/zap"
 )
 
 // Production NasNetConnect Server
@@ -64,13 +68,40 @@ func init() {
 
 func init() { ServerVersion = "production-v2.0" }
 
+// eventBusAdapter adapts events.EventBus to alerts.EventBus interface
+type eventBusAdapter struct {
+	bus events.EventBus
+}
+
+func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error {
+	// If event is already events.Event, publish it directly
+	if e, ok := event.(events.Event); ok {
+		return a.bus.Publish(ctx, e)
+	}
+	// Otherwise wrap it in a GenericEvent
+	return a.bus.Publish(ctx, events.NewGenericEvent("custom.event", events.PriorityNormal, "alert-service", map[string]interface{}{
+		"data": event,
+	}))
+}
+
+func (a *eventBusAdapter) Close() error {
+	return a.bus.Close()
+}
+
 // createGraphQLServer creates and configures the gqlgen GraphQL server for production
-func createGraphQLServer(eventBus events.EventBus, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService) *handler.Server {
-	// Create resolver with event bus
+func createGraphQLServer(eventBus events.EventBus, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService, alertSvc *services.AlertService, alertRuleTemplateSvc *alerts.AlertRuleTemplateService, dispatcher *notifications.Dispatcher) *handler.Server {
+	// Initialize rollback store for NAT and firewall template operations
+	rollbackStore := firewall.NewRollbackStore()
+
+	// Create resolver with event bus and services
 	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
-		EventBus:            eventBus,
-		TroubleshootService: troubleshootSvc,
-		InterfaceService:    interfaceSvc,
+		EventBus:                 eventBus,
+		TroubleshootService:      troubleshootSvc,
+		InterfaceService:         interfaceSvc,
+		RollbackStore:            rollbackStore,
+		AlertService:             alertSvc,
+		AlertRuleTemplateService: alertRuleTemplateSvc,
+		Dispatcher:               dispatcher,
 	})
 
 	// Create executable schema
@@ -194,9 +225,9 @@ func setCacheHeaders(w http.ResponseWriter, path string) {
 }
 
 // setupRoutes configures all HTTP routes with proper middleware
-func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService) {
-	// Create GraphQL server
-	graphqlServer := createGraphQLServer(eventBus, troubleshootSvc, interfaceSvc)
+func setupRoutes(e *echo.Echo, eventBus events.EventBus, db *ent.Client, troubleshootSvc *troubleshootPkg.Service, interfaceSvc *services.InterfaceService, alertSvc *services.AlertService, alertRuleTemplateSvc *alerts.AlertRuleTemplateService, alertEngine **alerts.Engine, dispatcher *notifications.Dispatcher) {
+	// Create GraphQL server with all services including alert service
+	graphqlServer := createGraphQLServer(eventBus, troubleshootSvc, interfaceSvc, alertSvc, alertRuleTemplateSvc, dispatcher)
 
 	// Wrap GraphQL server with DataLoader middleware
 	// Production mode: no stats logging for performance
@@ -321,6 +352,128 @@ func main() {
 	})
 	log.Printf("Interface service initialized (mock adapter)")
 
+	// Initialize structured logger for alert system (NAS-18.1)
+	loggerConfig := zap.NewProductionConfig()
+	loggerConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		log.Fatalf("Failed to initialize logger: %v", err)
+	}
+	defer logger.Sync()
+	sugar := logger.Sugar()
+	log.Printf("Structured logger initialized")
+
+	// Initialize notification channels for alert system (NAS-18.1)
+	emailChannel := notifications.NewEmailChannel(notifications.EmailConfig{})
+	telegramChannel := notifications.NewTelegramChannel(notifications.TelegramConfig{})
+	pushoverChannel := notifications.NewPushoverChannel(notifications.PushoverConfig{})
+	webhookChannel := notifications.NewWebhookChannel(notifications.WebhookConfig{})
+	inappChannel := notifications.NewInAppChannel(eventBus)
+
+	channels := map[string]notifications.Channel{
+		"email":    emailChannel,
+		"telegram": telegramChannel,
+		"pushover": pushoverChannel,
+		"webhook":  webhookChannel,
+		"inapp":    inappChannel,
+	}
+
+	// Initialize notification template service (NAS-18.11 Task 5)
+	templateService := notifications.NewTemplateService(notifications.TemplateServiceConfig{
+		DB:     systemDB,
+		Logger: sugar,
+	})
+	log.Printf("Notification template service initialized")
+
+	// Initialize notification dispatcher (NAS-18.1)
+	// Note: Dispatcher is initialized here, but DigestService is added after creation
+	// This is a temporary placeholder - DigestService will be wired later
+	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
+		Channels:        channels,
+		Logger:          sugar,
+		TemplateService: templateService, // Optional template renderer (NAS-18.11 Task 5)
+		DB:              systemDB,        // Database client for alert queries
+		MaxRetries:      3,
+		InitialBackoff:  1 * time.Second,
+	})
+
+	// Subscribe dispatcher to alert.created events
+	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
+		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", err)
+	}
+	log.Printf("Notification dispatcher initialized and subscribed")
+
+	// Create EventBus adapter for alerts package (interface compatibility)
+	eventBusAdapter := &eventBusAdapter{bus: eventBus}
+
+	// Initialize Escalation Engine (NAS-18.9)
+	// Created separately so it can be shared between AlertService and AlertEngine
+	escalationEngine := alerts.NewEscalationEngine(alerts.EscalationEngineConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBusAdapter,
+		Logger:     sugar,
+	})
+	log.Printf("Escalation engine initialized")
+
+	// Initialize Digest Service (NAS-18.11)
+	digestService, err := alerts.NewDigestService(alerts.DigestServiceConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBus,
+		Logger:     sugar,
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize digest service: %v", err)
+	}
+	log.Printf("Digest service initialized")
+
+	// Initialize Digest Scheduler (NAS-18.11)
+	digestScheduler := alerts.NewDigestScheduler(alerts.DigestSchedulerConfig{
+		DigestService: digestService,
+		Logger:        sugar,
+	})
+
+	// Start digest scheduler (loads and schedules active digests)
+	if err := digestScheduler.Start(context.Background()); err != nil {
+		log.Printf("Warning: failed to start digest scheduler: %v", err)
+	} else {
+		log.Printf("Digest scheduler started")
+	}
+
+	// Initialize Alert Service (NAS-18.1, NAS-18.9, NAS-18.11)
+	alertService := services.NewAlertService(services.AlertServiceConfig{
+		DB:                  systemDB,
+		EventBus:            eventBus,
+		EscalationCanceller: escalationEngine,
+		DigestService:       nil, // TODO: Create adapter for alerts.DigestService -> services.DigestService
+		Logger:              sugar,
+	})
+	log.Printf("Alert service initialized")
+
+	// Initialize Alert Rule Template Service (NAS-18.12)
+	alertRuleTemplateService, err := alerts.NewAlertRuleTemplateService(alertService, systemDB)
+	if err != nil {
+		log.Fatalf("Failed to initialize alert rule template service: %v", err)
+	}
+	log.Printf("Alert rule template service initialized with 15 built-in templates")
+
+	// Initialize and start Alert Engine (NAS-18.1, NAS-18.9, NAS-18.11)
+	// Pass the shared escalation engine and digest service
+	alertEngine := alerts.NewEngine(alerts.EngineConfig{
+		DB:               systemDB,
+		EventBus:         eventBus,
+		Dispatcher:       dispatcher,
+		EscalationEngine: escalationEngine,
+		DigestService:    digestService,
+		Logger:           sugar,
+	})
+
+	if err := alertEngine.Start(context.Background()); err != nil {
+		log.Fatalf("Failed to start alert engine: %v", err)
+	}
+	log.Printf("Alert engine started and monitoring events")
+
 	// Create Echo instance
 	e := echo.New()
 	e.HideBanner = true
@@ -335,8 +488,8 @@ func main() {
 		e.Use(middleware.Logger())
 	}
 
-	// Setup routes with DataLoader middleware, troubleshoot service, and interface service
-	setupRoutes(e, eventBus, systemDB, troubleshootSvc, interfaceSvc)
+	// Setup routes with DataLoader middleware, services, and alert system
+	setupRoutes(e, eventBus, systemDB, troubleshootSvc, interfaceSvc, alertService, alertRuleTemplateService, &alertEngine, dispatcher)
 
 	// Configure server timeouts (shorter for production)
 	e.Server.ReadTimeout = 30 * time.Second
@@ -355,7 +508,18 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
-		// Close event bus first to flush pending events
+		// Stop alert engine first to prevent processing new events
+		if err := alertEngine.Stop(ctx); err != nil {
+			log.Printf("Warning: error stopping alert engine: %v", err)
+		} else {
+			log.Println("Alert engine stopped")
+		}
+
+		// Stop digest scheduler to cancel all timers and wait for in-flight deliveries
+		digestScheduler.Stop()
+		log.Println("Digest scheduler stopped")
+
+		// Close event bus second to flush pending events
 		if err := eventBus.Close(); err != nil {
 			log.Printf("Warning: error closing event bus: %v", err)
 		}

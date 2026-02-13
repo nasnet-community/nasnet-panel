@@ -4,10 +4,13 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
 	"backend/ent/internal"
+	"backend/ent/notificationlog"
 	"backend/ent/predicate"
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -20,11 +23,13 @@ import (
 // AlertQuery is the builder for querying Alert entities.
 type AlertQuery struct {
 	config
-	ctx        *QueryContext
-	order      []alert.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Alert
-	withRule   *AlertRuleQuery
+	ctx                  *QueryContext
+	order                []alert.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.Alert
+	withRule             *AlertRuleQuery
+	withEscalations      *AlertEscalationQuery
+	withNotificationLogs *NotificationLogQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -80,6 +85,56 @@ func (_q *AlertQuery) QueryRule() *AlertRuleQuery {
 		schemaConfig := _q.schemaConfig
 		step.To.Schema = schemaConfig.AlertRule
 		step.Edge.Schema = schemaConfig.Alert
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryEscalations chains the current query on the "escalations" edge.
+func (_q *AlertQuery) QueryEscalations() *AlertEscalationQuery {
+	query := (&AlertEscalationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(alertescalation.Table, alertescalation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.EscalationsTable, alert.EscalationsColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryNotificationLogs chains the current query on the "notification_logs" edge.
+func (_q *AlertQuery) QueryNotificationLogs() *NotificationLogQuery {
+	query := (&NotificationLogClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(notificationlog.Table, notificationlog.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.NotificationLogsTable, alert.NotificationLogsColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.NotificationLog
+		step.Edge.Schema = schemaConfig.NotificationLog
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -273,12 +328,14 @@ func (_q *AlertQuery) Clone() *AlertQuery {
 		return nil
 	}
 	return &AlertQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]alert.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Alert{}, _q.predicates...),
-		withRule:   _q.withRule.Clone(),
+		config:               _q.config,
+		ctx:                  _q.ctx.Clone(),
+		order:                append([]alert.OrderOption{}, _q.order...),
+		inters:               append([]Interceptor{}, _q.inters...),
+		predicates:           append([]predicate.Alert{}, _q.predicates...),
+		withRule:             _q.withRule.Clone(),
+		withEscalations:      _q.withEscalations.Clone(),
+		withNotificationLogs: _q.withNotificationLogs.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -293,6 +350,28 @@ func (_q *AlertQuery) WithRule(opts ...func(*AlertRuleQuery)) *AlertQuery {
 		opt(query)
 	}
 	_q.withRule = query
+	return _q
+}
+
+// WithEscalations tells the query-builder to eager-load the nodes that are connected to
+// the "escalations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AlertQuery) WithEscalations(opts ...func(*AlertEscalationQuery)) *AlertQuery {
+	query := (&AlertEscalationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEscalations = query
+	return _q
+}
+
+// WithNotificationLogs tells the query-builder to eager-load the nodes that are connected to
+// the "notification_logs" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AlertQuery) WithNotificationLogs(opts ...func(*NotificationLogQuery)) *AlertQuery {
+	query := (&NotificationLogClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withNotificationLogs = query
 	return _q
 }
 
@@ -374,8 +453,10 @@ func (_q *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert,
 	var (
 		nodes       = []*Alert{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [3]bool{
 			_q.withRule != nil,
+			_q.withEscalations != nil,
+			_q.withNotificationLogs != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -401,6 +482,20 @@ func (_q *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert,
 	if query := _q.withRule; query != nil {
 		if err := _q.loadRule(ctx, query, nodes, nil,
 			func(n *Alert, e *AlertRule) { n.Edges.Rule = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withEscalations; query != nil {
+		if err := _q.loadEscalations(ctx, query, nodes,
+			func(n *Alert) { n.Edges.Escalations = []*AlertEscalation{} },
+			func(n *Alert, e *AlertEscalation) { n.Edges.Escalations = append(n.Edges.Escalations, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withNotificationLogs; query != nil {
+		if err := _q.loadNotificationLogs(ctx, query, nodes,
+			func(n *Alert) { n.Edges.NotificationLogs = []*NotificationLog{} },
+			func(n *Alert, e *NotificationLog) { n.Edges.NotificationLogs = append(n.Edges.NotificationLogs, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -433,6 +528,66 @@ func (_q *AlertQuery) loadRule(ctx context.Context, query *AlertRuleQuery, nodes
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (_q *AlertQuery) loadEscalations(ctx context.Context, query *AlertEscalationQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *AlertEscalation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(alertescalation.FieldAlertID)
+	}
+	query.Where(predicate.AlertEscalation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(alert.EscalationsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AlertID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *AlertQuery) loadNotificationLogs(ctx context.Context, query *NotificationLogQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *NotificationLog)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(notificationlog.FieldAlertID)
+	}
+	query.Where(predicate.NotificationLog(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(alert.NotificationLogsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.AlertID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

@@ -1,0 +1,379 @@
+# =============================================================================
+# Service Instance Management GraphQL Schema
+# =============================================================================
+# This schema defines types and operations for downloadable network services
+# (Feature Marketplace): Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home
+# =============================================================================
+
+# ============================================
+# SERVICE TYPES
+# ============================================
+
+"""
+Available service that can be installed from the Feature Marketplace.
+Represents a downloadable network service with metadata from the manifest.
+"""
+type AvailableService {
+  """Unique service identifier (e.g., 'tor', 'sing-box', 'xray')"""
+  id: ID!
+
+  """Display name"""
+  name: String!
+
+  """Service description"""
+  description: String!
+
+  """Service version"""
+  version: String!
+
+  """Service category (VPN, Privacy, DNS, Messaging)"""
+  category: String!
+
+  """Service author"""
+  author: String!
+
+  """License"""
+  license: String!
+
+  """Homepage URL"""
+  homepage: String
+
+  """Icon filename or URL"""
+  icon: String
+
+  """Tags for filtering and search"""
+  tags: [String!]!
+
+  """Supported architectures"""
+  architectures: [String!]!
+
+  """Minimum RouterOS version required"""
+  minRouterOSVersion: String
+
+  """Required packages"""
+  requiredPackages: [String!]!
+
+  """Required ports"""
+  requiredPorts: [Int!]!
+
+  """Required memory in MB"""
+  requiredMemoryMB: Int!
+
+  """Required disk space in MB"""
+  requiredDiskMB: Int!
+
+  """Docker image name"""
+  dockerImage: String!
+
+  """Docker image tag"""
+  dockerTag: String!
+
+  """Default configuration (JSON)"""
+  defaultConfig: JSON
+
+  """Configuration schema (JSON Schema)"""
+  configSchema: JSON
+}
+
+"""
+Service instance running on a router.
+Represents an installed and potentially running service instance.
+"""
+type ServiceInstance implements Node {
+  """Instance ID (ULID)"""
+  id: ID!
+
+  """Feature identifier (e.g., 'tor', 'sing-box')"""
+  featureID: String!
+
+  """Human-readable instance name"""
+  instanceName: String!
+
+  """Router ID this instance belongs to"""
+  routerID: String!
+
+  """Current lifecycle status"""
+  status: ServiceStatus!
+
+  """VLAN ID for network isolation"""
+  vlanID: Int
+
+  """IP address to bind the service to"""
+  bindIP: String
+
+  """Ports used by this service instance"""
+  ports: [Int!]!
+
+  """Service-specific configuration (JSON)"""
+  config: JSON
+
+  """Path to the service binary"""
+  binaryPath: String
+
+  """Version of the service binary"""
+  binaryVersion: String
+
+  """SHA256 checksum of the binary"""
+  binaryChecksum: String
+
+  """When the instance was created"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+
+  """The router this instance belongs to"""
+  router: Router
+}
+
+"""
+Service instance lifecycle status.
+"""
+enum ServiceStatus {
+  """Binary is being downloaded and installed"""
+  INSTALLING
+
+  """Binary installed, ready to start"""
+  INSTALLED
+
+  """Process is starting"""
+  STARTING
+
+  """Process is running"""
+  RUNNING
+
+  """Process is stopping"""
+  STOPPING
+
+  """Process is stopped"""
+  STOPPED
+
+  """Operation failed"""
+  FAILED
+
+  """Instance is being deleted"""
+  DELETING
+}
+
+"""
+Installation progress event.
+"""
+type InstallProgress {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Feature ID"""
+  featureID: String!
+
+  """Bytes downloaded"""
+  bytesDownloaded: Int!
+
+  """Total bytes to download"""
+  totalBytes: Int!
+
+  """Download progress percentage (0-100)"""
+  percent: Float!
+
+  """Current status (downloading, verifying, completed, failed)"""
+  status: String!
+
+  """Error message if failed"""
+  errorMessage: String
+}
+
+"""
+Instance status change event.
+"""
+type InstanceStatusChanged {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Previous status"""
+  previousStatus: ServiceStatus!
+
+  """New status"""
+  newStatus: ServiceStatus!
+
+  """Timestamp of the change"""
+  timestamp: DateTime!
+}
+
+# ============================================
+# INPUT TYPES
+# ============================================
+
+"""
+Input for installing a new service instance.
+"""
+input InstallServiceInput {
+  """Router ID to install the service on"""
+  routerID: ID!
+
+  """Feature ID to install (e.g., 'tor', 'sing-box')"""
+  featureID: String! @validate(pattern: "^[a-z0-9_-]+$")
+
+  """Human-readable instance name"""
+  instanceName: String! @validate(minLength: 1, maxLength: 255)
+
+  """Service-specific configuration (JSON)"""
+  config: JSON
+
+  """VLAN ID for network isolation (optional)"""
+  vlanID: Int @validate(min: 1, max: 4094)
+
+  """IP address to bind the service to (optional)"""
+  bindIP: String
+}
+
+"""
+Input for starting a service instance.
+"""
+input StartInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to start"""
+  instanceID: ID!
+}
+
+"""
+Input for stopping a service instance.
+"""
+input StopInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to stop"""
+  instanceID: ID!
+}
+
+"""
+Input for restarting a service instance.
+"""
+input RestartInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to restart"""
+  instanceID: ID!
+}
+
+"""
+Input for deleting a service instance.
+"""
+input DeleteInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to delete"""
+  instanceID: ID!
+}
+
+# ============================================
+# QUERY TYPES
+# ============================================
+
+extend type Query {
+  """
+  List all available services from the Feature Marketplace.
+  """
+  availableServices(
+    """Filter by category"""
+    category: String
+
+    """Filter by architecture"""
+    architecture: String
+  ): [AvailableService!]!
+
+  """
+  List all service instances for a router.
+  """
+  serviceInstances(
+    """Router ID"""
+    routerID: ID!
+
+    """Filter by status"""
+    status: ServiceStatus
+
+    """Filter by feature ID"""
+    featureID: String
+  ): [ServiceInstance!]!
+
+  """
+  Get a specific service instance.
+  """
+  serviceInstance(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): ServiceInstance
+}
+
+# ============================================
+# MUTATION TYPES
+# ============================================
+
+extend type Mutation {
+  """
+  Install a new service instance on a router.
+  Downloads the binary, verifies checksum, and creates the instance.
+  """
+  installService(input: InstallServiceInput!): ServiceInstancePayload!
+
+  """
+  Start a service instance.
+  """
+  startInstance(input: StartInstanceInput!): ServiceInstancePayload!
+
+  """
+  Stop a service instance.
+  """
+  stopInstance(input: StopInstanceInput!): ServiceInstancePayload!
+
+  """
+  Restart a service instance.
+  """
+  restartInstance(input: RestartInstanceInput!): ServiceInstancePayload!
+
+  """
+  Delete a service instance and clean up resources.
+  """
+  deleteInstance(input: DeleteInstanceInput!): ServiceInstancePayload!
+}
+
+"""
+Payload for service instance mutations.
+"""
+type ServiceInstancePayload {
+  """The service instance (null if operation failed)"""
+  instance: ServiceInstance
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+# ============================================
+# SUBSCRIPTION TYPES
+# ============================================
+
+extend type Subscription {
+  """
+  Subscribe to installation progress events for a router.
+  Emits progress updates during binary download and installation.
+  """
+  installProgress(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstallProgress!
+
+  """
+  Subscribe to instance status changes for a router.
+  Emits events when any instance changes state.
+  """
+  instanceStatusChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstanceStatusChanged!
+}

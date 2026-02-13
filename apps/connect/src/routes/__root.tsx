@@ -14,6 +14,7 @@ import { AppHeader } from '../app/components/AppHeader';
 import { useConnectionToast } from '../app/hooks/useConnectionToast';
 import { useConnectionHeartbeat } from '../app/hooks/useConnectionHeartbeat';
 import { useDefaultCommands } from '../app/hooks/useDefaultCommands';
+import { useAlertNotifications } from '@nasnet/features/alerts';
 
 function RootComponent() {
   // Enable connection toast notifications
@@ -27,6 +28,9 @@ function RootComponent() {
 
   // Enable global keyboard shortcuts (Cmd+K, ?, etc.)
   useGlobalShortcuts();
+
+  // Enable alert notifications subscription with toast + sound playback
+  useAlertNotifications();
 
   return (
     <Providers>

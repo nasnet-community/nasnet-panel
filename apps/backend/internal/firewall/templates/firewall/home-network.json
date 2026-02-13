@@ -1,0 +1,116 @@
+{
+  "id": "home-network",
+  "name": "Home Network",
+  "description": "Complete home network setup with NAT masquerade, basic input protection, and LAN-to-WAN forwarding. Suitable for typical home router configurations.",
+  "category": "HOME",
+  "complexity": "SIMPLE",
+  "ruleCount": 8,
+  "version": "1.0.0",
+  "isBuiltIn": true,
+  "variables": [
+    {
+      "name": "WAN_INTERFACE",
+      "label": "WAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The internet-facing interface (e.g., ether1, pppoe-out1)"
+    },
+    {
+      "name": "LAN_INTERFACE",
+      "label": "LAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The local network interface (e.g., bridge, ether2)"
+    },
+    {
+      "name": "LAN_SUBNET",
+      "label": "LAN Subnet",
+      "type": "SUBNET",
+      "required": true,
+      "defaultValue": "192.168.88.0/24",
+      "description": "The local network subnet in CIDR notation"
+    }
+  ],
+  "rules": [
+    {
+      "table": "NAT",
+      "chain": "srcnat",
+      "action": "masquerade",
+      "comment": "nnc-template:home-network:masquerade-nat",
+      "position": null,
+      "properties": {
+        "out-interface": "{{WAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:home-network:accept-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:home-network:drop-invalid",
+      "position": null,
+      "properties": {
+        "connection-state": "invalid"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:home-network:accept-icmp",
+      "position": null,
+      "properties": {
+        "protocol": "icmp"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:home-network:accept-from-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}",
+        "src-address": "{{LAN_SUBNET}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:home-network:drop-all-input",
+      "position": null,
+      "properties": {}
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:home-network:forward-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:home-network:forward-lan-to-wan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}",
+        "out-interface": "{{WAN_INTERFACE}}"
+      }
+    }
+  ]
+}

@@ -35,6 +35,8 @@ type AlertRule struct {
 	Throttle map[string]interface{} `json:"throttle,omitempty"`
 	// Quiet hours configuration for non-critical alerts
 	QuietHours map[string]interface{} `json:"quiet_hours,omitempty"`
+	// Escalation configuration for unacknowledged alerts
+	Escalation map[string]interface{} `json:"escalation,omitempty"`
 	// Optional device ID filter - rule only applies to this device
 	DeviceID string `json:"device_id,omitempty"`
 	// Whether this alert rule is enabled
@@ -53,9 +55,11 @@ type AlertRule struct {
 type AlertRuleEdges struct {
 	// Alerts triggered by this rule
 	Alerts []*Alert `json:"alerts,omitempty"`
+	// Escalations for alerts from this rule
+	Escalations []*AlertEscalation `json:"escalations,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // AlertsOrErr returns the Alerts value or an error if the edge
@@ -67,12 +71,21 @@ func (e AlertRuleEdges) AlertsOrErr() ([]*Alert, error) {
 	return nil, &NotLoadedError{edge: "alerts"}
 }
 
+// EscalationsOrErr returns the Escalations value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertRuleEdges) EscalationsOrErr() ([]*AlertEscalation, error) {
+	if e.loadedTypes[1] {
+		return e.Escalations, nil
+	}
+	return nil, &NotLoadedError{edge: "escalations"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*AlertRule) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case alertrule.FieldConditions, alertrule.FieldChannels, alertrule.FieldThrottle, alertrule.FieldQuietHours:
+		case alertrule.FieldConditions, alertrule.FieldChannels, alertrule.FieldThrottle, alertrule.FieldQuietHours, alertrule.FieldEscalation:
 			values[i] = new([]byte)
 		case alertrule.FieldEnabled:
 			values[i] = new(sql.NullBool)
@@ -157,6 +170,14 @@ func (_m *AlertRule) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field quiet_hours: %w", err)
 				}
 			}
+		case alertrule.FieldEscalation:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field escalation", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Escalation); err != nil {
+					return fmt.Errorf("unmarshal field escalation: %w", err)
+				}
+			}
 		case alertrule.FieldDeviceID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field device_id", values[i])
@@ -197,6 +218,11 @@ func (_m *AlertRule) Value(name string) (ent.Value, error) {
 // QueryAlerts queries the "alerts" edge of the AlertRule entity.
 func (_m *AlertRule) QueryAlerts() *AlertQuery {
 	return NewAlertRuleClient(_m.config).QueryAlerts(_m)
+}
+
+// QueryEscalations queries the "escalations" edge of the AlertRule entity.
+func (_m *AlertRule) QueryEscalations() *AlertEscalationQuery {
+	return NewAlertRuleClient(_m.config).QueryEscalations(_m)
 }
 
 // Update returns a builder for updating this AlertRule.
@@ -245,6 +271,9 @@ func (_m *AlertRule) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("quiet_hours=")
 	builder.WriteString(fmt.Sprintf("%v", _m.QuietHours))
+	builder.WriteString(", ")
+	builder.WriteString("escalation=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Escalation))
 	builder.WriteString(", ")
 	builder.WriteString("device_id=")
 	builder.WriteString(_m.DeviceID)

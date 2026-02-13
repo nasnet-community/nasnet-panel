@@ -34,6 +34,9 @@ export interface DHCPUIState {
   leaseStatusFilter: 'all' | 'bound' | 'waiting' | 'static';
   setLeaseStatusFilter: (filter: DHCPUIState['leaseStatusFilter']) => void;
 
+  leaseServerFilter: string;
+  setLeaseServerFilter: (server: string) => void;
+
   // Selection
   selectedLeases: string[];
   toggleLeaseSelection: (leaseId: string) => void;
@@ -59,6 +62,7 @@ export interface DHCPUIState {
 const initialState = {
   leaseSearch: '',
   leaseStatusFilter: 'all' as const,
+  leaseServerFilter: 'all',
   selectedLeases: [],
   wizardDraft: null,
   showPoolVisualization: true,
@@ -80,6 +84,10 @@ export const useDHCPUIStore = create<DHCPUIState>()(
       // Lease status filter
       setLeaseStatusFilter: (filter: DHCPUIState['leaseStatusFilter']) =>
         set({ leaseStatusFilter: filter }),
+
+      // Lease server filter
+      setLeaseServerFilter: (server: string) =>
+        set({ leaseServerFilter: server }),
 
       // Lease selection
       toggleLeaseSelection: (leaseId: string) =>
@@ -123,6 +131,7 @@ export const useDHCPUIStore = create<DHCPUIState>()(
  */
 export const useLeaseSearch = () => useDHCPUIStore((state) => state.leaseSearch);
 export const useLeaseStatusFilter = () => useDHCPUIStore((state) => state.leaseStatusFilter);
+export const useLeaseServerFilter = () => useDHCPUIStore((state) => state.leaseServerFilter);
 export const useSelectedLeases = () => useDHCPUIStore((state) => state.selectedLeases);
 export const useWizardDraft = () => useDHCPUIStore((state) => state.wizardDraft);
 export const useShowPoolVisualization = () => useDHCPUIStore((state) => state.showPoolVisualization);

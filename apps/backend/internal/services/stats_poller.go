@@ -147,12 +147,32 @@ func (p *StatsPoller) fetchAndBroadcast(ctx context.Context, session *pollingSes
 	fetchCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	// Fetch stats from router
-	stats, err := p.routerPort.GetInterfaceStats(fetchCtx, session.interfaceID)
-	if err != nil {
+	// Fetch stats from router using ExecuteCommand
+	cmd := router.Command{
+		Path:   "/interface",
+		Action: "print",
+		Args: map[string]string{
+			".id": session.interfaceID,
+		},
+	}
+	result, err := p.routerPort.ExecuteCommand(fetchCtx, cmd)
+	if err != nil || !result.Success || len(result.Data) == 0 {
 		// Log error but don't close subscribers (transient errors are expected)
 		// In production, this would log to a proper logger
 		return
+	}
+
+	// Convert result to InterfaceStats model
+	data := result.Data[0]
+	stats := &model.InterfaceStats{
+		TxBytes:   model.Size(getStringOrEmpty(data, "tx-byte")),
+		RxBytes:   model.Size(getStringOrEmpty(data, "rx-byte")),
+		TxPackets: model.Size(getStringOrEmpty(data, "tx-packet")),
+		RxPackets: model.Size(getStringOrEmpty(data, "rx-packet")),
+		TxErrors:  getIntOrZero(data, "tx-error"),
+		RxErrors:  getIntOrZero(data, "rx-error"),
+		TxDrops:   getIntOrZero(data, "tx-drop"),
+		RxDrops:   getIntOrZero(data, "rx-drop"),
 	}
 
 	// Broadcast to all subscribers
@@ -258,4 +278,22 @@ func (p *StatsPoller) GetSubscriberCount() int {
 		session.subMu.RUnlock()
 	}
 	return count
+}
+
+// Helper functions for extracting data from RouterOS responses
+
+func getStringOrEmpty(data map[string]string, key string) string {
+	if val, ok := data[key]; ok {
+		return val
+	}
+	return ""
+}
+
+func getIntOrZero(data map[string]string, key string) int {
+	if val, ok := data[key]; ok {
+		if i, err := parseInt(val); err == nil {
+			return i
+		}
+	}
+	return 0
 }

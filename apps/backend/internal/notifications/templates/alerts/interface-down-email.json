@@ -1,0 +1,70 @@
+{
+  "id": "interface-down-email",
+  "name": "Interface Down - Email",
+  "description": "Email template for interface down events. Notifies when a network interface goes down.",
+  "eventType": "interface.down",
+  "channel": "email",
+  "subjectTemplate": "[WARNING] Interface {{.InterfaceName}} Down on {{.RouterName}}",
+  "bodyTemplate": "Interface Down Alert\n\nRouter: {{.RouterName}}\nInterface: {{.InterfaceName}}\nStatus: DOWN\nLast Status Change: {{.StatusChangeTime}}\n\nThe network interface has gone down. This may affect:\n- Network connectivity\n- Service availability\n- Routing\n\nDetails:\n- Interface Type: {{.InterfaceType}}\n- MAC Address: {{.MACAddress}}\n- Last IP: {{.LastIP}}\n\nPlease check the interface status and cabling.\n\nAlert Time: {{.Timestamp}}\nAlert ID: {{.AlertID}}\n\n---\nNasNetConnect Alert System",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "InterfaceName",
+      "label": "Interface Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the interface (e.g., ether1, wlan1)"
+    },
+    {
+      "name": "InterfaceType",
+      "label": "Interface Type",
+      "type": "STRING",
+      "required": false,
+      "description": "The type of interface (ethernet, wireless, etc.)"
+    },
+    {
+      "name": "MACAddress",
+      "label": "MAC Address",
+      "type": "STRING",
+      "required": false,
+      "description": "MAC address of the interface"
+    },
+    {
+      "name": "LastIP",
+      "label": "Last IP Address",
+      "type": "STRING",
+      "required": false,
+      "description": "Last known IP address"
+    },
+    {
+      "name": "StatusChangeTime",
+      "label": "Status Change Time",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the interface went down"
+    },
+    {
+      "name": "Timestamp",
+      "label": "Alert Timestamp",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the alert was triggered"
+    },
+    {
+      "name": "AlertID",
+      "label": "Alert ID",
+      "type": "STRING",
+      "required": true,
+      "description": "Unique identifier for this alert"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["warning", "interface", "connectivity"]
+}

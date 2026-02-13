@@ -1,0 +1,36 @@
+{
+  "id": "resources-disk-growth",
+  "name": "Rapid Disk Growth",
+  "description": "Alert when disk usage is growing rapidly",
+  "category": "RESOURCES",
+  "severity": "WARNING",
+  "eventType": "device.disk.full",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "GROWTH_MB",
+      "label": "Growth Threshold",
+      "type": "INTEGER",
+      "required": true,
+      "defaultValue": "100",
+      "min": 10,
+      "max": 10000,
+      "unit": "MB/hour",
+      "description": "Disk growth in MB per hour"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "disk_growth_mb_per_hour",
+      "operator": "GREATER_THAN",
+      "value": "{{GROWTH_MB}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 3600,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

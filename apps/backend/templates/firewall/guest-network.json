@@ -1,0 +1,172 @@
+{
+  "id": "guest-network",
+  "name": "Guest Network",
+  "description": "Isolated guest network with internet-only access. Guests can access the internet but cannot reach local network resources or other guests. Includes DNS redirection and captive portal readiness. Perfect for visitor WiFi.",
+  "category": "GUEST",
+  "complexity": "MODERATE",
+  "ruleCount": 11,
+  "version": "1.0.0",
+  "isBuiltIn": true,
+  "variables": [
+    {
+      "name": "WAN_INTERFACE",
+      "label": "WAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The internet-facing interface (e.g., ether1, pppoe-out1)"
+    },
+    {
+      "name": "LAN_INTERFACE",
+      "label": "LAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The main local network interface (e.g., bridge)"
+    },
+    {
+      "name": "GUEST_INTERFACE",
+      "label": "Guest Network Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The guest network interface (e.g., vlan10, guest-bridge)"
+    },
+    {
+      "name": "GUEST_SUBNET",
+      "label": "Guest Subnet",
+      "type": "SUBNET",
+      "required": true,
+      "defaultValue": "192.168.10.0/24",
+      "description": "The guest network subnet"
+    },
+    {
+      "name": "ROUTER_IP",
+      "label": "Router IP on Guest Network",
+      "type": "IP",
+      "required": true,
+      "defaultValue": "192.168.10.1",
+      "description": "Router IP address on the guest network for DNS"
+    }
+  ],
+  "rules": [
+    {
+      "table": "NAT",
+      "chain": "srcnat",
+      "action": "masquerade",
+      "comment": "nnc-template:guest-network:masquerade-guest",
+      "position": null,
+      "properties": {
+        "out-interface": "{{WAN_INTERFACE}}",
+        "src-address": "{{GUEST_SUBNET}}"
+      }
+    },
+    {
+      "table": "NAT",
+      "chain": "dstnat",
+      "action": "redirect",
+      "comment": "nnc-template:guest-network:redirect-dns",
+      "position": null,
+      "properties": {
+        "protocol": "udp",
+        "dst-port": "53",
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "to-ports": "53"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:guest-network:accept-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:guest-network:drop-invalid",
+      "position": null,
+      "properties": {
+        "connection-state": "invalid"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:guest-network:accept-dns-dhcp-from-guest",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "protocol": "udp",
+        "dst-port": "53,67"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:guest-network:accept-hotspot-http",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "protocol": "tcp",
+        "dst-port": "80,443,8080"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:guest-network:drop-guest-to-router",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:guest-network:forward-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "drop",
+      "comment": "nnc-template:guest-network:block-guest-to-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "out-interface": "{{LAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "drop",
+      "comment": "nnc-template:guest-network:block-guest-to-guest",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "out-interface": "{{GUEST_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:guest-network:allow-guest-to-internet",
+      "position": null,
+      "properties": {
+        "in-interface": "{{GUEST_INTERFACE}}",
+        "out-interface": "{{WAN_INTERFACE}}"
+      }
+    }
+  ]
+}

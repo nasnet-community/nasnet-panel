@@ -1,0 +1,73 @@
+{
+  "id": "backup-completed-webhook",
+  "name": "Backup Completed - Webhook",
+  "description": "Webhook payload template for successful backup completion. JSON format for external integrations.",
+  "eventType": "backup.completed",
+  "channel": "webhook",
+  "subjectTemplate": "Backup Completed",
+  "bodyTemplate": "{\n  \"event\": \"backup.completed\",\n  \"severity\": \"info\",\n  \"router\": {\n    \"name\": \"{{.RouterName}}\",\n    \"id\": \"{{.RouterID}}\"\n  },\n  \"backup\": {\n    \"type\": \"{{.BackupType}}\",\n    \"size\": {{.BackupSize}},\n    \"duration\": {{.Duration}},\n    \"filename\": \"{{.Filename}}\"\n  },\n  \"timestamp\": \"{{.Timestamp}}\",\n  \"alertId\": \"{{.AlertID}}\"\n}",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "RouterID",
+      "label": "Router ID",
+      "type": "STRING",
+      "required": true,
+      "description": "The unique ID of the router"
+    },
+    {
+      "name": "BackupType",
+      "label": "Backup Type",
+      "type": "STRING",
+      "required": true,
+      "description": "Type of backup (full, config, etc.)"
+    },
+    {
+      "name": "BackupSize",
+      "label": "Backup Size",
+      "type": "NUMBER",
+      "required": true,
+      "description": "Size of the backup in bytes"
+    },
+    {
+      "name": "Duration",
+      "label": "Duration",
+      "type": "NUMBER",
+      "required": true,
+      "description": "Backup duration in seconds"
+    },
+    {
+      "name": "Filename",
+      "label": "Backup Filename",
+      "type": "STRING",
+      "required": true,
+      "description": "Name of the backup file"
+    },
+    {
+      "name": "Timestamp",
+      "label": "Timestamp",
+      "type": "TIMESTAMP",
+      "required": true,
+      "description": "When the backup completed"
+    },
+    {
+      "name": "AlertID",
+      "label": "Alert ID",
+      "type": "STRING",
+      "required": true,
+      "description": "Unique identifier for this alert"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["info", "backup", "success"],
+  "metadata": {
+    "contentType": "application/json"
+  }
+}

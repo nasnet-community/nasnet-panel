@@ -1,0 +1,36 @@
+{
+  "id": "resources-memory-leak",
+  "name": "Potential Memory Leak",
+  "description": "Alert when memory usage increases steadily over time",
+  "category": "RESOURCES",
+  "severity": "WARNING",
+  "eventType": "device.memory.high",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "GROWTH_RATE",
+      "label": "Growth Rate",
+      "type": "PERCENTAGE",
+      "required": true,
+      "defaultValue": "10",
+      "min": 5,
+      "max": 50,
+      "unit": "percent/hour",
+      "description": "Memory growth rate per hour"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "memory_growth_rate",
+      "operator": "GREATER_THAN",
+      "value": "{{GROWTH_RATE}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 3600,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

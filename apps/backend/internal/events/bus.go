@@ -479,6 +479,30 @@ func ParseEvent(msg *message.Message) (Event, error) {
 		}
 		event = &e
 
+	case "alert.throttle.summary":
+		// Import cycle prevention: use dynamic unmarshaling
+		var e BaseEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal ThrottleSummaryEvent: %w", err)
+		}
+		event = &e
+
+	case "alert.storm.detected":
+		// Import cycle prevention: use dynamic unmarshaling
+		var e BaseEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal AlertStormDetectedEvent: %w", err)
+		}
+		event = &e
+
+	case "alert.storm.ended":
+		// Import cycle prevention: use dynamic unmarshaling
+		var e BaseEvent
+		if err := json.Unmarshal(msg.Payload, &e); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal AlertStormEndedEvent: %w", err)
+		}
+		event = &e
+
 	default:
 		// For unknown types, return a generic event
 		log.Printf("[EVENTS] Unknown event type: %s", eventType)

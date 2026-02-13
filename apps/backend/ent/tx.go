@@ -18,14 +18,28 @@ type Tx struct {
 	APIKey *APIKeyClient
 	// Alert is the client for interacting with the Alert builders.
 	Alert *AlertClient
+	// AlertDigestEntry is the client for interacting with the AlertDigestEntry builders.
+	AlertDigestEntry *AlertDigestEntryClient
+	// AlertEscalation is the client for interacting with the AlertEscalation builders.
+	AlertEscalation *AlertEscalationClient
 	// AlertRule is the client for interacting with the AlertRule builders.
 	AlertRule *AlertRuleClient
+	// AlertRuleTemplate is the client for interacting with the AlertRuleTemplate builders.
+	AlertRuleTemplate *AlertRuleTemplateClient
+	// AlertTemplate is the client for interacting with the AlertTemplate builders.
+	AlertTemplate *AlertTemplateClient
 	// ConfigSnapshot is the client for interacting with the ConfigSnapshot builders.
 	ConfigSnapshot *ConfigSnapshotClient
 	// GlobalSettings is the client for interacting with the GlobalSettings builders.
 	GlobalSettings *GlobalSettingsClient
+	// NotificationChannelConfig is the client for interacting with the NotificationChannelConfig builders.
+	NotificationChannelConfig *NotificationChannelConfigClient
+	// NotificationLog is the client for interacting with the NotificationLog builders.
+	NotificationLog *NotificationLogClient
 	// NotificationSettings is the client for interacting with the NotificationSettings builders.
 	NotificationSettings *NotificationSettingsClient
+	// PortKnockSequence is the client for interacting with the PortKnockSequence builders.
+	PortKnockSequence *PortKnockSequenceClient
 	// Resource is the client for interacting with the Resource builders.
 	Resource *ResourceClient
 	// ResourceEvent is the client for interacting with the ResourceEvent builders.
@@ -38,10 +52,14 @@ type Tx struct {
 	RouterSecret *RouterSecretClient
 	// SchemaVersion is the client for interacting with the SchemaVersion builders.
 	SchemaVersion *SchemaVersionClient
+	// ServiceInstance is the client for interacting with the ServiceInstance builders.
+	ServiceInstance *ServiceInstanceClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Webhook is the client for interacting with the Webhook builders.
+	Webhook *WebhookClient
 
 	// lazily loaded.
 	client     *Client
@@ -175,18 +193,27 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.APIKey = NewAPIKeyClient(tx.config)
 	tx.Alert = NewAlertClient(tx.config)
+	tx.AlertDigestEntry = NewAlertDigestEntryClient(tx.config)
+	tx.AlertEscalation = NewAlertEscalationClient(tx.config)
 	tx.AlertRule = NewAlertRuleClient(tx.config)
+	tx.AlertRuleTemplate = NewAlertRuleTemplateClient(tx.config)
+	tx.AlertTemplate = NewAlertTemplateClient(tx.config)
 	tx.ConfigSnapshot = NewConfigSnapshotClient(tx.config)
 	tx.GlobalSettings = NewGlobalSettingsClient(tx.config)
+	tx.NotificationChannelConfig = NewNotificationChannelConfigClient(tx.config)
+	tx.NotificationLog = NewNotificationLogClient(tx.config)
 	tx.NotificationSettings = NewNotificationSettingsClient(tx.config)
+	tx.PortKnockSequence = NewPortKnockSequenceClient(tx.config)
 	tx.Resource = NewResourceClient(tx.config)
 	tx.ResourceEvent = NewResourceEventClient(tx.config)
 	tx.Router = NewRouterClient(tx.config)
 	tx.RouterCapability = NewRouterCapabilityClient(tx.config)
 	tx.RouterSecret = NewRouterSecretClient(tx.config)
 	tx.SchemaVersion = NewSchemaVersionClient(tx.config)
+	tx.ServiceInstance = NewServiceInstanceClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.Webhook = NewWebhookClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

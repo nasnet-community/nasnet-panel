@@ -1,0 +1,36 @@
+{
+  "id": "vpn-connection-failed",
+  "name": "VPN Connection Failed",
+  "description": "Alert when VPN connection attempts fail repeatedly",
+  "category": "VPN",
+  "severity": "WARNING",
+  "eventType": "vpn.tunnel.down",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "FAILURE_COUNT",
+      "label": "Failure Threshold",
+      "type": "INTEGER",
+      "required": true,
+      "defaultValue": "3",
+      "min": 1,
+      "max": 20,
+      "unit": "attempts",
+      "description": "Number of failed connection attempts"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "connection_failures",
+      "operator": "GREATER_THAN",
+      "value": "{{FAILURE_COUNT}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 2,
+    "periodSeconds": 600,
+    "groupByField": "tunnel_id"
+  },
+  "channels": ["email", "inapp"]
+}

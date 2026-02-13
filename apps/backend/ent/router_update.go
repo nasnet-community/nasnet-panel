@@ -4,9 +4,11 @@ package ent
 
 import (
 	"backend/ent/internal"
+	"backend/ent/portknocksequence"
 	"backend/ent/predicate"
 	"backend/ent/router"
 	"backend/ent/routersecret"
+	"backend/ent/serviceinstance"
 	"context"
 	"errors"
 	"fmt"
@@ -192,6 +194,36 @@ func (_u *RouterUpdate) SetSecrets(v *RouterSecret) *RouterUpdate {
 	return _u.SetSecretsID(v.ID)
 }
 
+// AddPortKnockSequenceIDs adds the "port_knock_sequences" edge to the PortKnockSequence entity by IDs.
+func (_u *RouterUpdate) AddPortKnockSequenceIDs(ids ...string) *RouterUpdate {
+	_u.mutation.AddPortKnockSequenceIDs(ids...)
+	return _u
+}
+
+// AddPortKnockSequences adds the "port_knock_sequences" edges to the PortKnockSequence entity.
+func (_u *RouterUpdate) AddPortKnockSequences(v ...*PortKnockSequence) *RouterUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPortKnockSequenceIDs(ids...)
+}
+
+// AddServiceInstanceIDs adds the "service_instances" edge to the ServiceInstance entity by IDs.
+func (_u *RouterUpdate) AddServiceInstanceIDs(ids ...string) *RouterUpdate {
+	_u.mutation.AddServiceInstanceIDs(ids...)
+	return _u
+}
+
+// AddServiceInstances adds the "service_instances" edges to the ServiceInstance entity.
+func (_u *RouterUpdate) AddServiceInstances(v ...*ServiceInstance) *RouterUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddServiceInstanceIDs(ids...)
+}
+
 // Mutation returns the RouterMutation object of the builder.
 func (_u *RouterUpdate) Mutation() *RouterMutation {
 	return _u.mutation
@@ -201,6 +233,48 @@ func (_u *RouterUpdate) Mutation() *RouterMutation {
 func (_u *RouterUpdate) ClearSecrets() *RouterUpdate {
 	_u.mutation.ClearSecrets()
 	return _u
+}
+
+// ClearPortKnockSequences clears all "port_knock_sequences" edges to the PortKnockSequence entity.
+func (_u *RouterUpdate) ClearPortKnockSequences() *RouterUpdate {
+	_u.mutation.ClearPortKnockSequences()
+	return _u
+}
+
+// RemovePortKnockSequenceIDs removes the "port_knock_sequences" edge to PortKnockSequence entities by IDs.
+func (_u *RouterUpdate) RemovePortKnockSequenceIDs(ids ...string) *RouterUpdate {
+	_u.mutation.RemovePortKnockSequenceIDs(ids...)
+	return _u
+}
+
+// RemovePortKnockSequences removes "port_knock_sequences" edges to PortKnockSequence entities.
+func (_u *RouterUpdate) RemovePortKnockSequences(v ...*PortKnockSequence) *RouterUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePortKnockSequenceIDs(ids...)
+}
+
+// ClearServiceInstances clears all "service_instances" edges to the ServiceInstance entity.
+func (_u *RouterUpdate) ClearServiceInstances() *RouterUpdate {
+	_u.mutation.ClearServiceInstances()
+	return _u
+}
+
+// RemoveServiceInstanceIDs removes the "service_instances" edge to ServiceInstance entities by IDs.
+func (_u *RouterUpdate) RemoveServiceInstanceIDs(ids ...string) *RouterUpdate {
+	_u.mutation.RemoveServiceInstanceIDs(ids...)
+	return _u
+}
+
+// RemoveServiceInstances removes "service_instances" edges to ServiceInstance entities.
+func (_u *RouterUpdate) RemoveServiceInstances(v ...*ServiceInstance) *RouterUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveServiceInstanceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -356,6 +430,102 @@ func (_u *RouterUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			},
 		}
 		edge.Schema = _u.schemaConfig.RouterSecret
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PortKnockSequencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPortKnockSequencesIDs(); len(nodes) > 0 && !_u.mutation.PortKnockSequencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PortKnockSequencesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ServiceInstancesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedServiceInstancesIDs(); len(nodes) > 0 && !_u.mutation.ServiceInstancesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ServiceInstancesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -545,6 +715,36 @@ func (_u *RouterUpdateOne) SetSecrets(v *RouterSecret) *RouterUpdateOne {
 	return _u.SetSecretsID(v.ID)
 }
 
+// AddPortKnockSequenceIDs adds the "port_knock_sequences" edge to the PortKnockSequence entity by IDs.
+func (_u *RouterUpdateOne) AddPortKnockSequenceIDs(ids ...string) *RouterUpdateOne {
+	_u.mutation.AddPortKnockSequenceIDs(ids...)
+	return _u
+}
+
+// AddPortKnockSequences adds the "port_knock_sequences" edges to the PortKnockSequence entity.
+func (_u *RouterUpdateOne) AddPortKnockSequences(v ...*PortKnockSequence) *RouterUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPortKnockSequenceIDs(ids...)
+}
+
+// AddServiceInstanceIDs adds the "service_instances" edge to the ServiceInstance entity by IDs.
+func (_u *RouterUpdateOne) AddServiceInstanceIDs(ids ...string) *RouterUpdateOne {
+	_u.mutation.AddServiceInstanceIDs(ids...)
+	return _u
+}
+
+// AddServiceInstances adds the "service_instances" edges to the ServiceInstance entity.
+func (_u *RouterUpdateOne) AddServiceInstances(v ...*ServiceInstance) *RouterUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddServiceInstanceIDs(ids...)
+}
+
 // Mutation returns the RouterMutation object of the builder.
 func (_u *RouterUpdateOne) Mutation() *RouterMutation {
 	return _u.mutation
@@ -554,6 +754,48 @@ func (_u *RouterUpdateOne) Mutation() *RouterMutation {
 func (_u *RouterUpdateOne) ClearSecrets() *RouterUpdateOne {
 	_u.mutation.ClearSecrets()
 	return _u
+}
+
+// ClearPortKnockSequences clears all "port_knock_sequences" edges to the PortKnockSequence entity.
+func (_u *RouterUpdateOne) ClearPortKnockSequences() *RouterUpdateOne {
+	_u.mutation.ClearPortKnockSequences()
+	return _u
+}
+
+// RemovePortKnockSequenceIDs removes the "port_knock_sequences" edge to PortKnockSequence entities by IDs.
+func (_u *RouterUpdateOne) RemovePortKnockSequenceIDs(ids ...string) *RouterUpdateOne {
+	_u.mutation.RemovePortKnockSequenceIDs(ids...)
+	return _u
+}
+
+// RemovePortKnockSequences removes "port_knock_sequences" edges to PortKnockSequence entities.
+func (_u *RouterUpdateOne) RemovePortKnockSequences(v ...*PortKnockSequence) *RouterUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePortKnockSequenceIDs(ids...)
+}
+
+// ClearServiceInstances clears all "service_instances" edges to the ServiceInstance entity.
+func (_u *RouterUpdateOne) ClearServiceInstances() *RouterUpdateOne {
+	_u.mutation.ClearServiceInstances()
+	return _u
+}
+
+// RemoveServiceInstanceIDs removes the "service_instances" edge to ServiceInstance entities by IDs.
+func (_u *RouterUpdateOne) RemoveServiceInstanceIDs(ids ...string) *RouterUpdateOne {
+	_u.mutation.RemoveServiceInstanceIDs(ids...)
+	return _u
+}
+
+// RemoveServiceInstances removes "service_instances" edges to ServiceInstance entities.
+func (_u *RouterUpdateOne) RemoveServiceInstances(v ...*ServiceInstance) *RouterUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveServiceInstanceIDs(ids...)
 }
 
 // Where appends a list predicates to the RouterUpdate builder.
@@ -739,6 +981,102 @@ func (_u *RouterUpdateOne) sqlSave(ctx context.Context) (_node *Router, err erro
 			},
 		}
 		edge.Schema = _u.schemaConfig.RouterSecret
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.PortKnockSequencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPortKnockSequencesIDs(); len(nodes) > 0 && !_u.mutation.PortKnockSequencesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PortKnockSequencesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.PortKnockSequencesTable,
+			Columns: []string{router.PortKnockSequencesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(portknocksequence.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.PortKnockSequence
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ServiceInstancesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedServiceInstancesIDs(); len(nodes) > 0 && !_u.mutation.ServiceInstancesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ServiceInstancesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   router.ServiceInstancesTable,
+			Columns: []string{router.ServiceInstancesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(serviceinstance.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.ServiceInstance
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

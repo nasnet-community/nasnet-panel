@@ -4,9 +4,11 @@ package ent
 
 import (
 	"backend/ent/internal"
+	"backend/ent/portknocksequence"
 	"backend/ent/predicate"
 	"backend/ent/router"
 	"backend/ent/routersecret"
+	"backend/ent/serviceinstance"
 	"context"
 	"database/sql/driver"
 	"fmt"
@@ -21,11 +23,13 @@ import (
 // RouterQuery is the builder for querying Router entities.
 type RouterQuery struct {
 	config
-	ctx         *QueryContext
-	order       []router.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.Router
-	withSecrets *RouterSecretQuery
+	ctx                    *QueryContext
+	order                  []router.OrderOption
+	inters                 []Interceptor
+	predicates             []predicate.Router
+	withSecrets            *RouterSecretQuery
+	withPortKnockSequences *PortKnockSequenceQuery
+	withServiceInstances   *ServiceInstanceQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -81,6 +85,56 @@ func (_q *RouterQuery) QuerySecrets() *RouterSecretQuery {
 		schemaConfig := _q.schemaConfig
 		step.To.Schema = schemaConfig.RouterSecret
 		step.Edge.Schema = schemaConfig.RouterSecret
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPortKnockSequences chains the current query on the "port_knock_sequences" edge.
+func (_q *RouterQuery) QueryPortKnockSequences() *PortKnockSequenceQuery {
+	query := (&PortKnockSequenceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, selector),
+			sqlgraph.To(portknocksequence.Table, portknocksequence.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.PortKnockSequencesTable, router.PortKnockSequencesColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.PortKnockSequence
+		step.Edge.Schema = schemaConfig.PortKnockSequence
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryServiceInstances chains the current query on the "service_instances" edge.
+func (_q *RouterQuery) QueryServiceInstances() *ServiceInstanceQuery {
+	query := (&ServiceInstanceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(router.Table, router.FieldID, selector),
+			sqlgraph.To(serviceinstance.Table, serviceinstance.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, router.ServiceInstancesTable, router.ServiceInstancesColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.ServiceInstance
+		step.Edge.Schema = schemaConfig.ServiceInstance
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -274,12 +328,14 @@ func (_q *RouterQuery) Clone() *RouterQuery {
 		return nil
 	}
 	return &RouterQuery{
-		config:      _q.config,
-		ctx:         _q.ctx.Clone(),
-		order:       append([]router.OrderOption{}, _q.order...),
-		inters:      append([]Interceptor{}, _q.inters...),
-		predicates:  append([]predicate.Router{}, _q.predicates...),
-		withSecrets: _q.withSecrets.Clone(),
+		config:                 _q.config,
+		ctx:                    _q.ctx.Clone(),
+		order:                  append([]router.OrderOption{}, _q.order...),
+		inters:                 append([]Interceptor{}, _q.inters...),
+		predicates:             append([]predicate.Router{}, _q.predicates...),
+		withSecrets:            _q.withSecrets.Clone(),
+		withPortKnockSequences: _q.withPortKnockSequences.Clone(),
+		withServiceInstances:   _q.withServiceInstances.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -294,6 +350,28 @@ func (_q *RouterQuery) WithSecrets(opts ...func(*RouterSecretQuery)) *RouterQuer
 		opt(query)
 	}
 	_q.withSecrets = query
+	return _q
+}
+
+// WithPortKnockSequences tells the query-builder to eager-load the nodes that are connected to
+// the "port_knock_sequences" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RouterQuery) WithPortKnockSequences(opts ...func(*PortKnockSequenceQuery)) *RouterQuery {
+	query := (&PortKnockSequenceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPortKnockSequences = query
+	return _q
+}
+
+// WithServiceInstances tells the query-builder to eager-load the nodes that are connected to
+// the "service_instances" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RouterQuery) WithServiceInstances(opts ...func(*ServiceInstanceQuery)) *RouterQuery {
+	query := (&ServiceInstanceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withServiceInstances = query
 	return _q
 }
 
@@ -375,8 +453,10 @@ func (_q *RouterQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Route
 	var (
 		nodes       = []*Router{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [3]bool{
 			_q.withSecrets != nil,
+			_q.withPortKnockSequences != nil,
+			_q.withServiceInstances != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -405,6 +485,22 @@ func (_q *RouterQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Route
 			return nil, err
 		}
 	}
+	if query := _q.withPortKnockSequences; query != nil {
+		if err := _q.loadPortKnockSequences(ctx, query, nodes,
+			func(n *Router) { n.Edges.PortKnockSequences = []*PortKnockSequence{} },
+			func(n *Router, e *PortKnockSequence) {
+				n.Edges.PortKnockSequences = append(n.Edges.PortKnockSequences, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withServiceInstances; query != nil {
+		if err := _q.loadServiceInstances(ctx, query, nodes,
+			func(n *Router) { n.Edges.ServiceInstances = []*ServiceInstance{} },
+			func(n *Router, e *ServiceInstance) { n.Edges.ServiceInstances = append(n.Edges.ServiceInstances, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -420,6 +516,66 @@ func (_q *RouterQuery) loadSecrets(ctx context.Context, query *RouterSecretQuery
 	}
 	query.Where(predicate.RouterSecret(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(router.SecretsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RouterID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "router_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RouterQuery) loadPortKnockSequences(ctx context.Context, query *PortKnockSequenceQuery, nodes []*Router, init func(*Router), assign func(*Router, *PortKnockSequence)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Router)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(portknocksequence.FieldRouterID)
+	}
+	query.Where(predicate.PortKnockSequence(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(router.PortKnockSequencesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RouterID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "router_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RouterQuery) loadServiceInstances(ctx context.Context, query *ServiceInstanceQuery, nodes []*Router, init func(*Router), assign func(*Router, *ServiceInstance)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Router)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(serviceinstance.FieldRouterID)
+	}
+	query.Where(predicate.ServiceInstance(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(router.ServiceInstancesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

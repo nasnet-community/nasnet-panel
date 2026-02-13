@@ -1,0 +1,27 @@
+========================================
+[{{.Severity}}] {{.Title}}
+========================================
+
+Alert Rule: {{.RuleName}}
+Event Type: {{.EventType}}
+Triggered At: {{.FormattedTime}}
+
+DETAILS
+--------
+{{.Message}}
+
+DEVICE INFORMATION
+------------------
+Device Name: {{.DeviceName | default "Unknown"}}
+IP Address: {{.DeviceIP | default "N/A"}}
+
+{{if .SuggestedActions}}
+SUGGESTED ACTIONS
+-----------------
+{{range $i, $action := .SuggestedActions}}{{add $i 1}}. {{$action}}
+{{end}}
+{{end}}
+
+----------------------------------------
+This is an automated alert from NasNet.
+View your dashboard or manage alert rules at your NasNet instance.

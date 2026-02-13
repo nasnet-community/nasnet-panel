@@ -1,0 +1,23 @@
+{
+  "id": "system-backup-failed",
+  "name": "Backup Failed",
+  "description": "Alert when scheduled backup fails",
+  "category": "SYSTEM",
+  "severity": "CRITICAL",
+  "eventType": "backup.failed",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [],
+  "conditions": [
+    {
+      "field": "backup_status",
+      "operator": "EQUALS",
+      "value": "failed"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 3600
+  },
+  "channels": ["email", "inapp"]
+}

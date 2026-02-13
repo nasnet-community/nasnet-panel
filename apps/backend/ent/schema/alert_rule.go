@@ -72,6 +72,12 @@ func (AlertRule) Fields() []ent.Field {
 			Optional().
 			Comment("Quiet hours configuration for non-critical alerts"),
 
+		// Escalation configuration (JSON object)
+		// {enabled: bool, requireAck: bool, escalationDelaySeconds: int, maxEscalations: int, additionalChannels: []string, repeatIntervalSeconds: []int}
+		field.JSON("escalation", map[string]interface{}{}).
+			Optional().
+			Comment("Escalation configuration for unacknowledged alerts"),
+
 		// Device filter (optional - if set, rule only applies to specific device)
 		field.String("device_id").
 			Optional().
@@ -101,6 +107,9 @@ func (AlertRule) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("alerts", Alert.Type).
 			Comment("Alerts triggered by this rule"),
+
+		edge.To("escalations", AlertEscalation.Type).
+			Comment("Escalations for alerts from this rule"),
 	}
 }
 

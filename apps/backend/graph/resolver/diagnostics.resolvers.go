@@ -6,7 +6,6 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/diagnostics"
 	"context"
 	"fmt"
 )
@@ -21,169 +20,49 @@ func (r *mutationResolver) ResetCircuitBreaker(ctx context.Context, routerID str
 	panic(fmt.Errorf("not implemented: ResetCircuitBreaker - resetCircuitBreaker"))
 }
 
-// StartTroubleshoot creates a new troubleshooting session.
+// StartTroubleshoot is the resolver for the startTroubleshoot field.
 func (r *mutationResolver) StartTroubleshoot(ctx context.Context, routerID string) (*model.StartTroubleshootPayload, error) {
-	if r.TroubleshootService == nil {
-		return &model.StartTroubleshootPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_NOT_INITIALIZED",
-				Message: "Troubleshoot service not initialized",
-			}},
-		}, nil
-	}
-
-	session, err := r.TroubleshootService.StartTroubleshoot(ctx, routerID)
-	if err != nil {
-		return &model.StartTroubleshootPayload{
-			Errors: []*model.MutationError{{
-				Code:    "START_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.StartTroubleshootPayload{
-		Session: mapTroubleshootSession(session),
-	}, nil
+	panic(fmt.Errorf("not implemented: StartTroubleshoot - startTroubleshoot"))
 }
 
-// RunTroubleshootStep executes a specific diagnostic step.
+// RunTroubleshootStep is the resolver for the runTroubleshootStep field.
 func (r *mutationResolver) RunTroubleshootStep(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
-	if r.TroubleshootService == nil {
-		return &model.RunTroubleshootStepPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_NOT_INITIALIZED",
-				Message: "Troubleshoot service not initialized",
-			}},
-		}, nil
-	}
-
-	step, err := r.TroubleshootService.RunTroubleshootStep(ctx, sessionID, mapStepTypeToInternal(stepType))
-	if err != nil {
-		return &model.RunTroubleshootStepPayload{
-			Errors: []*model.MutationError{{
-				Code:    "STEP_EXECUTION_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.RunTroubleshootStepPayload{
-		Step: mapTroubleshootStep(step),
-	}, nil
+	panic(fmt.Errorf("not implemented: RunTroubleshootStep - runTroubleshootStep"))
 }
 
-// ApplyTroubleshootFix applies a suggested fix.
+// ApplyTroubleshootFix is the resolver for the applyTroubleshootFix field.
 func (r *mutationResolver) ApplyTroubleshootFix(ctx context.Context, sessionID string, issueCode string) (*model.ApplyFixPayload, error) {
-	if r.TroubleshootService == nil {
-		return &model.ApplyFixPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_NOT_INITIALIZED",
-				Message: "Troubleshoot service not initialized",
-			}},
-		}, nil
-	}
-
-	success, message, status, err := r.TroubleshootService.ApplyTroubleshootFix(ctx, sessionID, issueCode)
-	if err != nil {
-		return &model.ApplyFixPayload{
-			Success: false,
-			Message: message,
-			Status:  mapFixApplicationStatus(status),
-			Errors: []*model.MutationError{{
-				Code:    "FIX_APPLICATION_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.ApplyFixPayload{
-		Success: success,
-		Message: message,
-		Status:  mapFixApplicationStatus(status),
-	}, nil
+	panic(fmt.Errorf("not implemented: ApplyTroubleshootFix - applyTroubleshootFix"))
 }
 
-// VerifyTroubleshootFix verifies a fix by re-running the diagnostic step.
+// VerifyTroubleshootFix is the resolver for the verifyTroubleshootFix field.
 func (r *mutationResolver) VerifyTroubleshootFix(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
-	// Verification is the same as running the step again
-	return r.RunTroubleshootStep(ctx, sessionID, stepType)
+	panic(fmt.Errorf("not implemented: VerifyTroubleshootFix - verifyTroubleshootFix"))
 }
 
-// CancelTroubleshoot cancels an ongoing troubleshooting session.
+// CancelTroubleshoot is the resolver for the cancelTroubleshoot field.
 func (r *mutationResolver) CancelTroubleshoot(ctx context.Context, sessionID string) (*model.TroubleshootSession, error) {
-	if r.TroubleshootService == nil {
-		return nil, fmt.Errorf("troubleshoot service not initialized")
-	}
-
-	session, err := r.TroubleshootService.CancelTroubleshoot(ctx, sessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapTroubleshootSession(session), nil
+	panic(fmt.Errorf("not implemented: CancelTroubleshoot - cancelTroubleshoot"))
 }
 
-// RunTraceroute starts a new traceroute job.
+// RunTraceroute is the resolver for the runTraceroute field.
 func (r *mutationResolver) RunTraceroute(ctx context.Context, deviceID string, input model.TracerouteInput) (*model.TracerouteJob, error) {
-	if r.TracerouteService == nil {
-		return nil, fmt.Errorf("traceroute service not initialized")
-	}
-
-	// Map input
-	tracerouteInput := traceroute.Input{
-		Target:     input.Target,
-		MaxHops:    30,
-		Timeout:    3000,
-		ProbeCount: 3,
-		Protocol:   traceroute.ProtocolICMP,
-	}
-
-	if input.MaxHops.IsSet() && input.MaxHops.Value() != nil {
-		tracerouteInput.MaxHops = *input.MaxHops.Value()
-	}
-
-	if input.Timeout.IsSet() && input.Timeout.Value() != nil {
-		tracerouteInput.Timeout = *input.Timeout.Value()
-	}
-
-	if input.ProbeCount.IsSet() && input.ProbeCount.Value() != nil {
-		tracerouteInput.ProbeCount = *input.ProbeCount.Value()
-	}
-
-	if input.Protocol.IsSet() && input.Protocol.Value() != nil {
-		tracerouteInput.Protocol = mapProtocolToInternal(*input.Protocol.Value())
-	}
-
-	// Start traceroute
-	jobID, err := r.TracerouteService.Run(ctx, deviceID, tracerouteInput)
-	if err != nil {
-		return nil, fmt.Errorf("failed to start traceroute: %w", err)
-	}
-
-	return &model.TracerouteJob{
-		JobID:  jobID,
-		Status: model.JobStatusRunning,
-	}, nil
+	panic(fmt.Errorf("not implemented: RunTraceroute - runTraceroute"))
 }
 
-// CancelTraceroute cancels a running traceroute job.
+// CancelTraceroute is the resolver for the cancelTraceroute field.
 func (r *mutationResolver) CancelTraceroute(ctx context.Context, jobID string) (bool, error) {
-	if r.TracerouteService == nil {
-		return false, fmt.Errorf("traceroute service not initialized")
-	}
-
-	err := r.TracerouteService.Cancel(ctx, jobID)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	panic(fmt.Errorf("not implemented: CancelTraceroute - cancelTraceroute"))
 }
 
 // RunDNSLookup is the resolver for the runDnsLookup field.
 func (r *mutationResolver) RunDNSLookup(ctx context.Context, input model.DNSLookupInput) (*model.DNSLookupResult, error) {
 	panic(fmt.Errorf("not implemented: RunDNSLookup - runDnsLookup"))
+}
+
+// FlushDNSCache is the resolver for the flushDnsCache field.
+func (r *mutationResolver) FlushDNSCache(ctx context.Context, deviceID string) (*model.FlushDNSCacheResult, error) {
+	panic(fmt.Errorf("not implemented: FlushDNSCache - flushDnsCache"))
 }
 
 // ConnectionAttempts is the resolver for the connectionAttempts field.
@@ -196,41 +75,19 @@ func (r *queryResolver) CircuitBreakerStatus(ctx context.Context, routerID strin
 	panic(fmt.Errorf("not implemented: CircuitBreakerStatus - circuitBreakerStatus"))
 }
 
-// TroubleshootSession retrieves a troubleshooting session by ID.
+// TroubleshootSession is the resolver for the troubleshootSession field.
 func (r *queryResolver) TroubleshootSession(ctx context.Context, id string) (*model.TroubleshootSession, error) {
-	if r.TroubleshootService == nil {
-		return nil, fmt.Errorf("troubleshoot service not initialized")
-	}
-
-	session, err := r.TroubleshootService.GetSession(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapTroubleshootSession(session), nil
+	panic(fmt.Errorf("not implemented: TroubleshootSession - troubleshootSession"))
 }
 
-// DetectWanInterface detects the WAN interface from the default route.
+// DetectWanInterface is the resolver for the detectWanInterface field.
 func (r *queryResolver) DetectWanInterface(ctx context.Context, routerID string) (string, error) {
-	if r.TroubleshootService == nil {
-		return "", fmt.Errorf("troubleshoot service not initialized")
-	}
-
-	return r.TroubleshootService.DetectWanInterface(ctx, routerID)
+	panic(fmt.Errorf("not implemented: DetectWanInterface - detectWanInterface"))
 }
 
-// DetectGateway detects the default gateway.
+// DetectGateway is the resolver for the detectGateway field.
 func (r *queryResolver) DetectGateway(ctx context.Context, routerID string) (*string, error) {
-	if r.TroubleshootService == nil {
-		return nil, fmt.Errorf("troubleshoot service not initialized")
-	}
-
-	gateway, err := r.TroubleshootService.DetectGateway(ctx, routerID)
-	if err != nil || gateway == "" {
-		return nil, nil // Return nil for no gateway (not an error)
-	}
-
-	return &gateway, nil
+	panic(fmt.Errorf("not implemented: DetectGateway - detectGateway"))
 }
 
 // DetectIsp is the resolver for the detectISP field.
@@ -243,293 +100,32 @@ func (r *queryResolver) DNSServers(ctx context.Context, deviceID string) (*model
 	panic(fmt.Errorf("not implemented: DNSServers - dnsServers"))
 }
 
+// DNSCacheStats is the resolver for the dnsCacheStats field.
+func (r *queryResolver) DNSCacheStats(ctx context.Context, deviceID string) (*model.DNSCacheStats, error) {
+	panic(fmt.Errorf("not implemented: DNSCacheStats - dnsCacheStats"))
+}
+
+// DNSBenchmark is the resolver for the dnsBenchmark field.
+func (r *queryResolver) DNSBenchmark(ctx context.Context, deviceID string) (*model.DNSBenchmarkResult, error) {
+	panic(fmt.Errorf("not implemented: DNSBenchmark - dnsBenchmark"))
+}
+
+// RouteLookup is the resolver for the routeLookup field.
+func (r *queryResolver) RouteLookup(ctx context.Context, routerID string, destination model.IPv4, source *model.IPv4) (*model.RouteLookupResult, error) {
+	panic(fmt.Errorf("not implemented: RouteLookup - routeLookup"))
+}
+
 // CircuitBreakerStateChanged is the resolver for the circuitBreakerStateChanged field.
 func (r *subscriptionResolver) CircuitBreakerStateChanged(ctx context.Context, routerID *string) (<-chan *model.CircuitBreakerStatus, error) {
 	panic(fmt.Errorf("not implemented: CircuitBreakerStateChanged - circuitBreakerStateChanged"))
 }
 
-// TroubleshootProgress subscribes to session progress updates.
+// TroubleshootProgress is the resolver for the troubleshootProgress field.
 func (r *subscriptionResolver) TroubleshootProgress(ctx context.Context, sessionID string) (<-chan *model.TroubleshootSession, error) {
-	// TODO: Implement real-time subscription using WebSocket
-	// For now, return a placeholder channel
-	ch := make(chan *model.TroubleshootSession, 1)
-
-	// Get initial session state
-	if r.TroubleshootService != nil {
-		session, err := r.TroubleshootService.GetSession(ctx, sessionID)
-		if err == nil {
-			ch <- mapTroubleshootSession(session)
-		}
-	}
-
-	close(ch)
-	return ch, nil
+	panic(fmt.Errorf("not implemented: TroubleshootProgress - troubleshootProgress"))
 }
 
-// TracerouteProgress subscribes to traceroute progress events.
+// TracerouteProgress is the resolver for the tracerouteProgress field.
 func (r *subscriptionResolver) TracerouteProgress(ctx context.Context, jobID string) (<-chan *model.TracerouteProgressEvent, error) {
-	if r.TracerouteService == nil {
-		return nil, fmt.Errorf("traceroute service not initialized")
-	}
-
-	// Subscribe to service events
-	eventChan := r.TracerouteService.Subscribe(jobID)
-
-	// Create output channel for GraphQL
-	out := make(chan *model.TracerouteProgressEvent, 10)
-
-	// Transform internal events to GraphQL events
-	go func() {
-		defer close(out)
-		defer r.TracerouteService.Unsubscribe(jobID, eventChan)
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case event, ok := <-eventChan:
-				if !ok {
-					return
-				}
-
-				// Map event to GraphQL model
-				graphqlEvent := &model.TracerouteProgressEvent{
-					JobID:     event.JobID,
-					EventType: mapEventTypeToModel(event.EventType),
-					Hop:       mapHopToModel(event.Hop),
-					Result:    mapResultToModel(event.Result),
-					Error:     event.Error,
-				}
-
-				select {
-				case out <- graphqlEvent:
-				case <-ctx.Done():
-					return
-				}
-			}
-		}
-	}()
-
-	return out, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *Resolver) ConnectionAttempts(ctx context.Context, routerID string, limit *int) ([]*model.ConnectionAttempt, error) {
-	if r.DiagnosticsService == nil {
-		return nil, fmt.Errorf("diagnostics service not initialized")
-	}
-
-	l := 10
-	if limit != nil && *limit > 0 {
-		l = *limit
-	}
-
-	attempts, err := r.DiagnosticsService.GetConnectionAttempts(ctx, routerID, l)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapConnectionAttempts(attempts), nil
-}
-func (r *Resolver) CircuitBreakerStatus(ctx context.Context, routerID string) (*model.CircuitBreakerStatus, error) {
-	if r.DiagnosticsService == nil {
-		return nil, fmt.Errorf("diagnostics service not initialized")
-	}
-
-	status, err := r.DiagnosticsService.GetCircuitBreakerStatus(ctx, routerID)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapCircuitBreakerStatus(status), nil
-}
-func (r *Resolver) RunDiagnostics(ctx context.Context, routerID string) (*model.DiagnosticReport, error) {
-	if r.DiagnosticsService == nil {
-		return nil, fmt.Errorf("diagnostics service not initialized")
-	}
-
-	report, err := r.DiagnosticsService.RunDiagnostics(ctx, routerID)
-	if err != nil {
-		return nil, err
-	}
-
-	return mapDiagnosticReport(report), nil
-}
-func (r *Resolver) ResetCircuitBreaker(ctx context.Context, routerID string) (*model.CircuitBreakerStatus, error) {
-	if r.DiagnosticsService == nil {
-		return nil, fmt.Errorf("diagnostics service not initialized")
-	}
-
-	status, err := r.DiagnosticsService.ResetCircuitBreaker(ctx, routerID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Publish event for circuit breaker reset
-	if r.EventPublisher != nil {
-		// Note: In a real implementation, this would publish a typed event
-		// r.EventPublisher.PublishCircuitBreakerReset(ctx, routerID)
-	}
-
-	return mapCircuitBreakerStatus(status), nil
-}
-func mapConnectionAttempts(attempts []diagnostics.ConnectionAttempt) []*model.ConnectionAttempt {
-	result := make([]*model.ConnectionAttempt, len(attempts))
-	for i, a := range attempts {
-		result[i] = &model.ConnectionAttempt{
-			Protocol:      mapProtocol(a.Protocol),
-			StartedAt:     a.StartedAt,
-			EndedAt:       a.EndedAt,
-			Success:       a.Success,
-			ErrorCode:     a.ErrorCode,
-			ErrorMessage:  a.ErrorMessage,
-			ErrorCategory: mapErrorCategory(a.ErrorCategory),
-		}
-	}
-	return result
-}
-func mapProtocol(p diagnostics.Protocol) model.Protocol {
-	switch p {
-	case diagnostics.ProtocolREST:
-		return model.ProtocolRest
-	case diagnostics.ProtocolAPI:
-		return model.ProtocolAPI
-	case diagnostics.ProtocolAPISSL:
-		return model.ProtocolAPISsl
-	case diagnostics.ProtocolSSH:
-		return model.ProtocolSSH
-	case diagnostics.ProtocolTelnet:
-		return model.ProtocolTelnet
-	default:
-		return model.ProtocolAPI
-	}
-}
-func mapErrorCategory(c *diagnostics.ErrorCategory) *model.ErrorCategory {
-	if c == nil {
-		return nil
-	}
-	var result model.ErrorCategory
-	switch *c {
-	case diagnostics.ErrorCategoryTimeout:
-		result = model.ErrorCategoryTimeout
-	case diagnostics.ErrorCategoryRefused:
-		result = model.ErrorCategoryRefused
-	case diagnostics.ErrorCategoryAuthFailed:
-		result = model.ErrorCategoryAuthFailed
-	case diagnostics.ErrorCategoryProtocolError:
-		result = model.ErrorCategoryProtocolError
-	case diagnostics.ErrorCategoryNetworkError:
-		result = model.ErrorCategoryNetworkError
-	case diagnostics.ErrorCategoryTLSError:
-		result = model.ErrorCategoryTLSError
-	default:
-		result = model.ErrorCategoryProtocolError
-	}
-	return &result
-}
-func mapCircuitBreakerStatus(s *diagnostics.CircuitBreakerStatus) *model.CircuitBreakerStatus {
-	if s == nil {
-		return nil
-	}
-	return &model.CircuitBreakerStatus{
-		RouterID:                 s.RouterID,
-		State:                    mapCircuitBreakerState(s.State),
-		FailureCount:             s.FailureCount,
-		FailureThreshold:         s.FailureThreshold,
-		CooldownRemainingSeconds: s.CooldownRemainingSeconds,
-		LastFailureAt:            s.LastFailureAt,
-		LastSuccessAt:            s.LastSuccessAt,
-	}
-}
-func mapCircuitBreakerState(s diagnostics.CircuitBreakerState) model.CircuitBreakerState {
-	switch s {
-	case diagnostics.CircuitBreakerStateClosed:
-		return model.CircuitBreakerStateClosed
-	case diagnostics.CircuitBreakerStateOpen:
-		return model.CircuitBreakerStateOpen
-	case diagnostics.CircuitBreakerStateHalfOpen:
-		return model.CircuitBreakerStateHalfOpen
-	default:
-		return model.CircuitBreakerStateClosed
-	}
-}
-func mapDiagnosticReport(r *diagnostics.DiagnosticReport) *model.DiagnosticReport {
-	if r == nil {
-		return nil
-	}
-	return &model.DiagnosticReport{
-		RouterID:         r.RouterID,
-		Timestamp:        r.Timestamp,
-		NetworkReachable: r.NetworkReachable,
-		PortStatus:       mapPortStatuses(r.PortStatus),
-		TLSStatus:        mapTLSStatus(r.TLSStatus),
-		AuthStatus:       mapAuthStatus(r.AuthStatus),
-		Suggestions:      mapSuggestions(r.Suggestions),
-		RawReport:        r.RawReport,
-	}
-}
-func mapPortStatuses(ports []diagnostics.PortStatus) []*model.PortStatus {
-	result := make([]*model.PortStatus, len(ports))
-	for i, p := range ports {
-		result[i] = &model.PortStatus{
-			Port:           p.Port,
-			Service:        p.Service,
-			Open:           p.Open,
-			ResponseTimeMs: p.ResponseTimeMs,
-			Error:          p.Error,
-		}
-	}
-	return result
-}
-func mapTLSStatus(s *diagnostics.TLSStatus) *model.TLSStatus {
-	if s == nil {
-		return nil
-	}
-	return &model.TLSStatus{
-		Valid:     s.Valid,
-		Issuer:    s.Issuer,
-		Subject:   s.Subject,
-		ExpiresAt: s.ExpiresAt,
-		Error:     s.Error,
-	}
-}
-func mapAuthStatus(s diagnostics.AuthStatus) *model.AuthStatus {
-	return &model.AuthStatus{
-		Tested:    s.Tested,
-		Success:   s.Success,
-		Error:     s.Error,
-		ErrorCode: s.ErrorCode,
-	}
-}
-func mapSuggestions(suggestions []diagnostics.DiagnosticSuggestion) []*model.DiagnosticSuggestion {
-	result := make([]*model.DiagnosticSuggestion, len(suggestions))
-	for i, s := range suggestions {
-		result[i] = &model.DiagnosticSuggestion{
-			Severity:    mapSuggestionSeverity(s.Severity),
-			Title:       s.Title,
-			Description: s.Description,
-			Action:      s.Action,
-			DocsURL:     s.DocsURL,
-		}
-	}
-	return result
-}
-func mapSuggestionSeverity(s diagnostics.SuggestionSeverity) model.SuggestionSeverity {
-	switch s {
-	case diagnostics.SuggestionSeverityInfo:
-		return model.SuggestionSeverityInfo
-	case diagnostics.SuggestionSeverityWarning:
-		return model.SuggestionSeverityWarning
-	case diagnostics.SuggestionSeverityError:
-		return model.SuggestionSeverityError
-	case diagnostics.SuggestionSeverityCritical:
-		return model.SuggestionSeverityCritical
-	default:
-		return model.SuggestionSeverityInfo
-	}
+	panic(fmt.Errorf("not implemented: TracerouteProgress - tracerouteProgress"))
 }

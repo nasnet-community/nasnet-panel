@@ -33,3 +33,6 @@ export * from './device';
 
 // MAC Vendor Lookup
 export * from './mac-vendor';
+
+// Firewall Utilities
+export * from './firewall';

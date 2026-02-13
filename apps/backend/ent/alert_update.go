@@ -4,8 +4,10 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
 	"backend/ent/internal"
+	"backend/ent/notificationlog"
 	"backend/ent/predicate"
 	"context"
 	"errors"
@@ -172,6 +174,47 @@ func (_u *AlertUpdate) ClearAcknowledgedBy() *AlertUpdate {
 	return _u
 }
 
+// SetSuppressedCount sets the "suppressed_count" field.
+func (_u *AlertUpdate) SetSuppressedCount(v int) *AlertUpdate {
+	_u.mutation.ResetSuppressedCount()
+	_u.mutation.SetSuppressedCount(v)
+	return _u
+}
+
+// SetNillableSuppressedCount sets the "suppressed_count" field if the given value is not nil.
+func (_u *AlertUpdate) SetNillableSuppressedCount(v *int) *AlertUpdate {
+	if v != nil {
+		_u.SetSuppressedCount(*v)
+	}
+	return _u
+}
+
+// AddSuppressedCount adds value to the "suppressed_count" field.
+func (_u *AlertUpdate) AddSuppressedCount(v int) *AlertUpdate {
+	_u.mutation.AddSuppressedCount(v)
+	return _u
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (_u *AlertUpdate) SetSuppressReason(v string) *AlertUpdate {
+	_u.mutation.SetSuppressReason(v)
+	return _u
+}
+
+// SetNillableSuppressReason sets the "suppress_reason" field if the given value is not nil.
+func (_u *AlertUpdate) SetNillableSuppressReason(v *string) *AlertUpdate {
+	if v != nil {
+		_u.SetSuppressReason(*v)
+	}
+	return _u
+}
+
+// ClearSuppressReason clears the value of the "suppress_reason" field.
+func (_u *AlertUpdate) ClearSuppressReason() *AlertUpdate {
+	_u.mutation.ClearSuppressReason()
+	return _u
+}
+
 // SetDeliveryStatus sets the "delivery_status" field.
 func (_u *AlertUpdate) SetDeliveryStatus(v map[string]interface{}) *AlertUpdate {
 	_u.mutation.SetDeliveryStatus(v)
@@ -195,6 +238,36 @@ func (_u *AlertUpdate) SetRule(v *AlertRule) *AlertUpdate {
 	return _u.SetRuleID(v.ID)
 }
 
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_u *AlertUpdate) AddEscalationIDs(ids ...string) *AlertUpdate {
+	_u.mutation.AddEscalationIDs(ids...)
+	return _u
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_u *AlertUpdate) AddEscalations(v ...*AlertEscalation) *AlertUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEscalationIDs(ids...)
+}
+
+// AddNotificationLogIDs adds the "notification_logs" edge to the NotificationLog entity by IDs.
+func (_u *AlertUpdate) AddNotificationLogIDs(ids ...string) *AlertUpdate {
+	_u.mutation.AddNotificationLogIDs(ids...)
+	return _u
+}
+
+// AddNotificationLogs adds the "notification_logs" edges to the NotificationLog entity.
+func (_u *AlertUpdate) AddNotificationLogs(v ...*NotificationLog) *AlertUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationLogIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (_u *AlertUpdate) Mutation() *AlertMutation {
 	return _u.mutation
@@ -204,6 +277,48 @@ func (_u *AlertUpdate) Mutation() *AlertMutation {
 func (_u *AlertUpdate) ClearRule() *AlertUpdate {
 	_u.mutation.ClearRule()
 	return _u
+}
+
+// ClearEscalations clears all "escalations" edges to the AlertEscalation entity.
+func (_u *AlertUpdate) ClearEscalations() *AlertUpdate {
+	_u.mutation.ClearEscalations()
+	return _u
+}
+
+// RemoveEscalationIDs removes the "escalations" edge to AlertEscalation entities by IDs.
+func (_u *AlertUpdate) RemoveEscalationIDs(ids ...string) *AlertUpdate {
+	_u.mutation.RemoveEscalationIDs(ids...)
+	return _u
+}
+
+// RemoveEscalations removes "escalations" edges to AlertEscalation entities.
+func (_u *AlertUpdate) RemoveEscalations(v ...*AlertEscalation) *AlertUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEscalationIDs(ids...)
+}
+
+// ClearNotificationLogs clears all "notification_logs" edges to the NotificationLog entity.
+func (_u *AlertUpdate) ClearNotificationLogs() *AlertUpdate {
+	_u.mutation.ClearNotificationLogs()
+	return _u
+}
+
+// RemoveNotificationLogIDs removes the "notification_logs" edge to NotificationLog entities by IDs.
+func (_u *AlertUpdate) RemoveNotificationLogIDs(ids ...string) *AlertUpdate {
+	_u.mutation.RemoveNotificationLogIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationLogs removes "notification_logs" edges to NotificationLog entities.
+func (_u *AlertUpdate) RemoveNotificationLogs(v ...*NotificationLog) *AlertUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationLogIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -279,6 +394,16 @@ func (_u *AlertUpdate) check() error {
 			return &ValidationError{Name: "acknowledged_by", err: fmt.Errorf(`ent: validator failed for field "Alert.acknowledged_by": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SuppressedCount(); ok {
+		if err := alert.SuppressedCountValidator(v); err != nil {
+			return &ValidationError{Name: "suppressed_count", err: fmt.Errorf(`ent: validator failed for field "Alert.suppressed_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SuppressReason(); ok {
+		if err := alert.SuppressReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suppress_reason", err: fmt.Errorf(`ent: validator failed for field "Alert.suppress_reason": %w`, err)}
+		}
+	}
 	if _u.mutation.RuleCleared() && len(_u.mutation.RuleIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Alert.rule"`)
 	}
@@ -333,6 +458,18 @@ func (_u *AlertUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.AcknowledgedByCleared() {
 		_spec.ClearField(alert.FieldAcknowledgedBy, field.TypeString)
 	}
+	if value, ok := _u.mutation.SuppressedCount(); ok {
+		_spec.SetField(alert.FieldSuppressedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSuppressedCount(); ok {
+		_spec.AddField(alert.FieldSuppressedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SuppressReason(); ok {
+		_spec.SetField(alert.FieldSuppressReason, field.TypeString, value)
+	}
+	if _u.mutation.SuppressReasonCleared() {
+		_spec.ClearField(alert.FieldSuppressReason, field.TypeString)
+	}
 	if value, ok := _u.mutation.DeliveryStatus(); ok {
 		_spec.SetField(alert.FieldDeliveryStatus, field.TypeJSON, value)
 	}
@@ -368,6 +505,102 @@ func (_u *AlertUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			},
 		}
 		edge.Schema = _u.schemaConfig.Alert
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEscalationsIDs(); len(nodes) > 0 && !_u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationLogsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationLogsIDs(); len(nodes) > 0 && !_u.mutation.NotificationLogsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationLogsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -537,6 +770,47 @@ func (_u *AlertUpdateOne) ClearAcknowledgedBy() *AlertUpdateOne {
 	return _u
 }
 
+// SetSuppressedCount sets the "suppressed_count" field.
+func (_u *AlertUpdateOne) SetSuppressedCount(v int) *AlertUpdateOne {
+	_u.mutation.ResetSuppressedCount()
+	_u.mutation.SetSuppressedCount(v)
+	return _u
+}
+
+// SetNillableSuppressedCount sets the "suppressed_count" field if the given value is not nil.
+func (_u *AlertUpdateOne) SetNillableSuppressedCount(v *int) *AlertUpdateOne {
+	if v != nil {
+		_u.SetSuppressedCount(*v)
+	}
+	return _u
+}
+
+// AddSuppressedCount adds value to the "suppressed_count" field.
+func (_u *AlertUpdateOne) AddSuppressedCount(v int) *AlertUpdateOne {
+	_u.mutation.AddSuppressedCount(v)
+	return _u
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (_u *AlertUpdateOne) SetSuppressReason(v string) *AlertUpdateOne {
+	_u.mutation.SetSuppressReason(v)
+	return _u
+}
+
+// SetNillableSuppressReason sets the "suppress_reason" field if the given value is not nil.
+func (_u *AlertUpdateOne) SetNillableSuppressReason(v *string) *AlertUpdateOne {
+	if v != nil {
+		_u.SetSuppressReason(*v)
+	}
+	return _u
+}
+
+// ClearSuppressReason clears the value of the "suppress_reason" field.
+func (_u *AlertUpdateOne) ClearSuppressReason() *AlertUpdateOne {
+	_u.mutation.ClearSuppressReason()
+	return _u
+}
+
 // SetDeliveryStatus sets the "delivery_status" field.
 func (_u *AlertUpdateOne) SetDeliveryStatus(v map[string]interface{}) *AlertUpdateOne {
 	_u.mutation.SetDeliveryStatus(v)
@@ -560,6 +834,36 @@ func (_u *AlertUpdateOne) SetRule(v *AlertRule) *AlertUpdateOne {
 	return _u.SetRuleID(v.ID)
 }
 
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_u *AlertUpdateOne) AddEscalationIDs(ids ...string) *AlertUpdateOne {
+	_u.mutation.AddEscalationIDs(ids...)
+	return _u
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_u *AlertUpdateOne) AddEscalations(v ...*AlertEscalation) *AlertUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEscalationIDs(ids...)
+}
+
+// AddNotificationLogIDs adds the "notification_logs" edge to the NotificationLog entity by IDs.
+func (_u *AlertUpdateOne) AddNotificationLogIDs(ids ...string) *AlertUpdateOne {
+	_u.mutation.AddNotificationLogIDs(ids...)
+	return _u
+}
+
+// AddNotificationLogs adds the "notification_logs" edges to the NotificationLog entity.
+func (_u *AlertUpdateOne) AddNotificationLogs(v ...*NotificationLog) *AlertUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationLogIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (_u *AlertUpdateOne) Mutation() *AlertMutation {
 	return _u.mutation
@@ -569,6 +873,48 @@ func (_u *AlertUpdateOne) Mutation() *AlertMutation {
 func (_u *AlertUpdateOne) ClearRule() *AlertUpdateOne {
 	_u.mutation.ClearRule()
 	return _u
+}
+
+// ClearEscalations clears all "escalations" edges to the AlertEscalation entity.
+func (_u *AlertUpdateOne) ClearEscalations() *AlertUpdateOne {
+	_u.mutation.ClearEscalations()
+	return _u
+}
+
+// RemoveEscalationIDs removes the "escalations" edge to AlertEscalation entities by IDs.
+func (_u *AlertUpdateOne) RemoveEscalationIDs(ids ...string) *AlertUpdateOne {
+	_u.mutation.RemoveEscalationIDs(ids...)
+	return _u
+}
+
+// RemoveEscalations removes "escalations" edges to AlertEscalation entities.
+func (_u *AlertUpdateOne) RemoveEscalations(v ...*AlertEscalation) *AlertUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEscalationIDs(ids...)
+}
+
+// ClearNotificationLogs clears all "notification_logs" edges to the NotificationLog entity.
+func (_u *AlertUpdateOne) ClearNotificationLogs() *AlertUpdateOne {
+	_u.mutation.ClearNotificationLogs()
+	return _u
+}
+
+// RemoveNotificationLogIDs removes the "notification_logs" edge to NotificationLog entities by IDs.
+func (_u *AlertUpdateOne) RemoveNotificationLogIDs(ids ...string) *AlertUpdateOne {
+	_u.mutation.RemoveNotificationLogIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationLogs removes "notification_logs" edges to NotificationLog entities.
+func (_u *AlertUpdateOne) RemoveNotificationLogs(v ...*NotificationLog) *AlertUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationLogIDs(ids...)
 }
 
 // Where appends a list predicates to the AlertUpdate builder.
@@ -657,6 +1003,16 @@ func (_u *AlertUpdateOne) check() error {
 			return &ValidationError{Name: "acknowledged_by", err: fmt.Errorf(`ent: validator failed for field "Alert.acknowledged_by": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SuppressedCount(); ok {
+		if err := alert.SuppressedCountValidator(v); err != nil {
+			return &ValidationError{Name: "suppressed_count", err: fmt.Errorf(`ent: validator failed for field "Alert.suppressed_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.SuppressReason(); ok {
+		if err := alert.SuppressReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suppress_reason", err: fmt.Errorf(`ent: validator failed for field "Alert.suppress_reason": %w`, err)}
+		}
+	}
 	if _u.mutation.RuleCleared() && len(_u.mutation.RuleIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Alert.rule"`)
 	}
@@ -728,6 +1084,18 @@ func (_u *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error)
 	if _u.mutation.AcknowledgedByCleared() {
 		_spec.ClearField(alert.FieldAcknowledgedBy, field.TypeString)
 	}
+	if value, ok := _u.mutation.SuppressedCount(); ok {
+		_spec.SetField(alert.FieldSuppressedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSuppressedCount(); ok {
+		_spec.AddField(alert.FieldSuppressedCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SuppressReason(); ok {
+		_spec.SetField(alert.FieldSuppressReason, field.TypeString, value)
+	}
+	if _u.mutation.SuppressReasonCleared() {
+		_spec.ClearField(alert.FieldSuppressReason, field.TypeString)
+	}
 	if value, ok := _u.mutation.DeliveryStatus(); ok {
 		_spec.SetField(alert.FieldDeliveryStatus, field.TypeJSON, value)
 	}
@@ -763,6 +1131,102 @@ func (_u *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error)
 			},
 		}
 		edge.Schema = _u.schemaConfig.Alert
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEscalationsIDs(); len(nodes) > 0 && !_u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationLogsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationLogsIDs(); len(nodes) > 0 && !_u.mutation.NotificationLogsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationLogsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.NotificationLog
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

@@ -707,3 +707,113 @@ describe('Edge Cases', () => {
     expect(result.current.portCount).toBe(2);
   });
 });
+
+// ============================================================================
+// Service Group Support Tests
+// ============================================================================
+
+describe('Service Group Support', () => {
+  const mockServiceGroups = [
+    {
+      id: '1',
+      name: 'web',
+      description: 'Web services',
+      ports: [80, 443, 8080],
+      protocol: 'tcp' as const,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+    {
+      id: '2',
+      name: 'dns',
+      description: 'DNS services',
+      ports: [53],
+      protocol: 'both' as const,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    },
+  ];
+
+  it('should include service groups in suggestions', () => {
+    const { result } = renderHook(() =>
+      usePortInput({
+        mode: 'multi',
+        protocol: 'tcp',
+        showSuggestions: true,
+        serviceGroups: mockServiceGroups,
+      })
+    );
+
+    const groupSuggestions = result.current.suggestions.filter((s) => s.isGroup);
+    expect(groupSuggestions.length).toBeGreaterThan(0);
+    expect(groupSuggestions[0].service).toContain('web');
+    expect(groupSuggestions[0].port).toBe(0); // Special marker
+  });
+
+  it('should filter groups by protocol', () => {
+    const { result } = renderHook(() =>
+      usePortInput({
+        mode: 'multi',
+        protocol: 'udp',
+        showSuggestions: true,
+        serviceGroups: mockServiceGroups,
+      })
+    );
+
+    const groupSuggestions = result.current.suggestions.filter((s) => s.isGroup);
+    // Only 'dns' group should appear (protocol: 'both')
+    expect(groupSuggestions.length).toBe(1);
+    expect(groupSuggestions[0].service).toContain('dns');
+  });
+
+  it('should expand service group to port string in multi mode', () => {
+    const onChange = vi.fn();
+    const { result } = renderHook(() =>
+      usePortInput({
+        mode: 'multi',
+        protocol: 'tcp',
+        showSuggestions: true,
+        serviceGroups: mockServiceGroups,
+        onChange,
+      })
+    );
+
+    act(() => {
+      result.current.handleSelectServiceGroup(mockServiceGroups[0]);
+    });
+
+    expect(onChange).toHaveBeenCalledWith('80, 443, 8080');
+  });
+
+  it('should warn when selecting group in single mode', () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() =>
+      usePortInput({
+        mode: 'single',
+        protocol: 'tcp',
+        showSuggestions: true,
+        serviceGroups: mockServiceGroups,
+      })
+    );
+
+    act(() => {
+      result.current.handleSelectServiceGroup(mockServiceGroups[0]);
+    });
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Service groups only supported in multi-mode');
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('should work without serviceGroups prop (backward compatible)', () => {
+    const { result } = renderHook(() =>
+      usePortInput({
+        mode: 'multi',
+        protocol: 'tcp',
+        showSuggestions: true,
+      })
+    );
+
+    const groupSuggestions = result.current.suggestions.filter((s) => s.isGroup);
+    expect(groupSuggestions.length).toBe(0);
+  });
+});

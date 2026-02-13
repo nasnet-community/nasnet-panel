@@ -4,7 +4,9 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
+	"backend/ent/notificationlog"
 	"context"
 	"errors"
 	"fmt"
@@ -102,6 +104,34 @@ func (_c *AlertCreate) SetNillableAcknowledgedBy(v *string) *AlertCreate {
 	return _c
 }
 
+// SetSuppressedCount sets the "suppressed_count" field.
+func (_c *AlertCreate) SetSuppressedCount(v int) *AlertCreate {
+	_c.mutation.SetSuppressedCount(v)
+	return _c
+}
+
+// SetNillableSuppressedCount sets the "suppressed_count" field if the given value is not nil.
+func (_c *AlertCreate) SetNillableSuppressedCount(v *int) *AlertCreate {
+	if v != nil {
+		_c.SetSuppressedCount(*v)
+	}
+	return _c
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (_c *AlertCreate) SetSuppressReason(v string) *AlertCreate {
+	_c.mutation.SetSuppressReason(v)
+	return _c
+}
+
+// SetNillableSuppressReason sets the "suppress_reason" field if the given value is not nil.
+func (_c *AlertCreate) SetNillableSuppressReason(v *string) *AlertCreate {
+	if v != nil {
+		_c.SetSuppressReason(*v)
+	}
+	return _c
+}
+
 // SetDeliveryStatus sets the "delivery_status" field.
 func (_c *AlertCreate) SetDeliveryStatus(v map[string]interface{}) *AlertCreate {
 	_c.mutation.SetDeliveryStatus(v)
@@ -147,6 +177,36 @@ func (_c *AlertCreate) SetRule(v *AlertRule) *AlertCreate {
 	return _c.SetRuleID(v.ID)
 }
 
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_c *AlertCreate) AddEscalationIDs(ids ...string) *AlertCreate {
+	_c.mutation.AddEscalationIDs(ids...)
+	return _c
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_c *AlertCreate) AddEscalations(v ...*AlertEscalation) *AlertCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddEscalationIDs(ids...)
+}
+
+// AddNotificationLogIDs adds the "notification_logs" edge to the NotificationLog entity by IDs.
+func (_c *AlertCreate) AddNotificationLogIDs(ids ...string) *AlertCreate {
+	_c.mutation.AddNotificationLogIDs(ids...)
+	return _c
+}
+
+// AddNotificationLogs adds the "notification_logs" edges to the NotificationLog entity.
+func (_c *AlertCreate) AddNotificationLogs(v ...*NotificationLog) *AlertCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationLogIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (_c *AlertCreate) Mutation() *AlertMutation {
 	return _c.mutation
@@ -182,6 +242,10 @@ func (_c *AlertCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AlertCreate) defaults() {
+	if _, ok := _c.mutation.SuppressedCount(); !ok {
+		v := alert.DefaultSuppressedCount
+		_c.mutation.SetSuppressedCount(v)
+	}
 	if _, ok := _c.mutation.TriggeredAt(); !ok {
 		v := alert.DefaultTriggeredAt()
 		_c.mutation.SetTriggeredAt(v)
@@ -242,6 +306,19 @@ func (_c *AlertCreate) check() error {
 	if v, ok := _c.mutation.AcknowledgedBy(); ok {
 		if err := alert.AcknowledgedByValidator(v); err != nil {
 			return &ValidationError{Name: "acknowledged_by", err: fmt.Errorf(`ent: validator failed for field "Alert.acknowledged_by": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SuppressedCount(); !ok {
+		return &ValidationError{Name: "suppressed_count", err: errors.New(`ent: missing required field "Alert.suppressed_count"`)}
+	}
+	if v, ok := _c.mutation.SuppressedCount(); ok {
+		if err := alert.SuppressedCountValidator(v); err != nil {
+			return &ValidationError{Name: "suppressed_count", err: fmt.Errorf(`ent: validator failed for field "Alert.suppressed_count": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.SuppressReason(); ok {
+		if err := alert.SuppressReasonValidator(v); err != nil {
+			return &ValidationError{Name: "suppress_reason", err: fmt.Errorf(`ent: validator failed for field "Alert.suppress_reason": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.TriggeredAt(); !ok {
@@ -327,6 +404,14 @@ func (_c *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 		_spec.SetField(alert.FieldAcknowledgedBy, field.TypeString, value)
 		_node.AcknowledgedBy = value
 	}
+	if value, ok := _c.mutation.SuppressedCount(); ok {
+		_spec.SetField(alert.FieldSuppressedCount, field.TypeInt, value)
+		_node.SuppressedCount = value
+	}
+	if value, ok := _c.mutation.SuppressReason(); ok {
+		_spec.SetField(alert.FieldSuppressReason, field.TypeString, value)
+		_node.SuppressReason = value
+	}
 	if value, ok := _c.mutation.DeliveryStatus(); ok {
 		_spec.SetField(alert.FieldDeliveryStatus, field.TypeJSON, value)
 		_node.DeliveryStatus = value
@@ -355,6 +440,40 @@ func (_c *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.RuleID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.EscalationsTable,
+			Columns: []string{alert.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _c.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationLogsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.NotificationLogsTable,
+			Columns: []string{alert.NotificationLogsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationlog.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _c.schemaConfig.NotificationLog
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -538,6 +657,42 @@ func (u *AlertUpsert) UpdateAcknowledgedBy() *AlertUpsert {
 // ClearAcknowledgedBy clears the value of the "acknowledged_by" field.
 func (u *AlertUpsert) ClearAcknowledgedBy() *AlertUpsert {
 	u.SetNull(alert.FieldAcknowledgedBy)
+	return u
+}
+
+// SetSuppressedCount sets the "suppressed_count" field.
+func (u *AlertUpsert) SetSuppressedCount(v int) *AlertUpsert {
+	u.Set(alert.FieldSuppressedCount, v)
+	return u
+}
+
+// UpdateSuppressedCount sets the "suppressed_count" field to the value that was provided on create.
+func (u *AlertUpsert) UpdateSuppressedCount() *AlertUpsert {
+	u.SetExcluded(alert.FieldSuppressedCount)
+	return u
+}
+
+// AddSuppressedCount adds v to the "suppressed_count" field.
+func (u *AlertUpsert) AddSuppressedCount(v int) *AlertUpsert {
+	u.Add(alert.FieldSuppressedCount, v)
+	return u
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (u *AlertUpsert) SetSuppressReason(v string) *AlertUpsert {
+	u.Set(alert.FieldSuppressReason, v)
+	return u
+}
+
+// UpdateSuppressReason sets the "suppress_reason" field to the value that was provided on create.
+func (u *AlertUpsert) UpdateSuppressReason() *AlertUpsert {
+	u.SetExcluded(alert.FieldSuppressReason)
+	return u
+}
+
+// ClearSuppressReason clears the value of the "suppress_reason" field.
+func (u *AlertUpsert) ClearSuppressReason() *AlertUpsert {
+	u.SetNull(alert.FieldSuppressReason)
 	return u
 }
 
@@ -773,6 +928,48 @@ func (u *AlertUpsertOne) UpdateAcknowledgedBy() *AlertUpsertOne {
 func (u *AlertUpsertOne) ClearAcknowledgedBy() *AlertUpsertOne {
 	return u.Update(func(s *AlertUpsert) {
 		s.ClearAcknowledgedBy()
+	})
+}
+
+// SetSuppressedCount sets the "suppressed_count" field.
+func (u *AlertUpsertOne) SetSuppressedCount(v int) *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.SetSuppressedCount(v)
+	})
+}
+
+// AddSuppressedCount adds v to the "suppressed_count" field.
+func (u *AlertUpsertOne) AddSuppressedCount(v int) *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.AddSuppressedCount(v)
+	})
+}
+
+// UpdateSuppressedCount sets the "suppressed_count" field to the value that was provided on create.
+func (u *AlertUpsertOne) UpdateSuppressedCount() *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.UpdateSuppressedCount()
+	})
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (u *AlertUpsertOne) SetSuppressReason(v string) *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.SetSuppressReason(v)
+	})
+}
+
+// UpdateSuppressReason sets the "suppress_reason" field to the value that was provided on create.
+func (u *AlertUpsertOne) UpdateSuppressReason() *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.UpdateSuppressReason()
+	})
+}
+
+// ClearSuppressReason clears the value of the "suppress_reason" field.
+func (u *AlertUpsertOne) ClearSuppressReason() *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.ClearSuppressReason()
 	})
 }
 
@@ -1180,6 +1377,48 @@ func (u *AlertUpsertBulk) UpdateAcknowledgedBy() *AlertUpsertBulk {
 func (u *AlertUpsertBulk) ClearAcknowledgedBy() *AlertUpsertBulk {
 	return u.Update(func(s *AlertUpsert) {
 		s.ClearAcknowledgedBy()
+	})
+}
+
+// SetSuppressedCount sets the "suppressed_count" field.
+func (u *AlertUpsertBulk) SetSuppressedCount(v int) *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.SetSuppressedCount(v)
+	})
+}
+
+// AddSuppressedCount adds v to the "suppressed_count" field.
+func (u *AlertUpsertBulk) AddSuppressedCount(v int) *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.AddSuppressedCount(v)
+	})
+}
+
+// UpdateSuppressedCount sets the "suppressed_count" field to the value that was provided on create.
+func (u *AlertUpsertBulk) UpdateSuppressedCount() *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.UpdateSuppressedCount()
+	})
+}
+
+// SetSuppressReason sets the "suppress_reason" field.
+func (u *AlertUpsertBulk) SetSuppressReason(v string) *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.SetSuppressReason(v)
+	})
+}
+
+// UpdateSuppressReason sets the "suppress_reason" field to the value that was provided on create.
+func (u *AlertUpsertBulk) UpdateSuppressReason() *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.UpdateSuppressReason()
+	})
+}
+
+// ClearSuppressReason clears the value of the "suppress_reason" field.
+func (u *AlertUpsertBulk) ClearSuppressReason() *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.ClearSuppressReason()
 	})
 }
 

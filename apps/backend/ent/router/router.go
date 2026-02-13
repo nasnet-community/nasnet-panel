@@ -37,6 +37,10 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeSecrets holds the string denoting the secrets edge name in mutations.
 	EdgeSecrets = "secrets"
+	// EdgePortKnockSequences holds the string denoting the port_knock_sequences edge name in mutations.
+	EdgePortKnockSequences = "port_knock_sequences"
+	// EdgeServiceInstances holds the string denoting the service_instances edge name in mutations.
+	EdgeServiceInstances = "service_instances"
 	// Table holds the table name of the router in the database.
 	Table = "routers"
 	// SecretsTable is the table that holds the secrets relation/edge.
@@ -46,6 +50,20 @@ const (
 	SecretsInverseTable = "router_secrets"
 	// SecretsColumn is the table column denoting the secrets relation/edge.
 	SecretsColumn = "router_id"
+	// PortKnockSequencesTable is the table that holds the port_knock_sequences relation/edge.
+	PortKnockSequencesTable = "port_knock_sequences"
+	// PortKnockSequencesInverseTable is the table name for the PortKnockSequence entity.
+	// It exists in this package in order to avoid circular dependency with the "portknocksequence" package.
+	PortKnockSequencesInverseTable = "port_knock_sequences"
+	// PortKnockSequencesColumn is the table column denoting the port_knock_sequences relation/edge.
+	PortKnockSequencesColumn = "router_id"
+	// ServiceInstancesTable is the table that holds the service_instances relation/edge.
+	ServiceInstancesTable = "service_instances"
+	// ServiceInstancesInverseTable is the table name for the ServiceInstance entity.
+	// It exists in this package in order to avoid circular dependency with the "serviceinstance" package.
+	ServiceInstancesInverseTable = "service_instances"
+	// ServiceInstancesColumn is the table column denoting the service_instances relation/edge.
+	ServiceInstancesColumn = "router_id"
 )
 
 // Columns holds all SQL columns for router fields.
@@ -215,10 +233,52 @@ func BySecretsField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSecretsStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByPortKnockSequencesCount orders the results by port_knock_sequences count.
+func ByPortKnockSequencesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPortKnockSequencesStep(), opts...)
+	}
+}
+
+// ByPortKnockSequences orders the results by port_knock_sequences terms.
+func ByPortKnockSequences(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPortKnockSequencesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByServiceInstancesCount orders the results by service_instances count.
+func ByServiceInstancesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newServiceInstancesStep(), opts...)
+	}
+}
+
+// ByServiceInstances orders the results by service_instances terms.
+func ByServiceInstances(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newServiceInstancesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSecretsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SecretsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, SecretsTable, SecretsColumn),
+	)
+}
+func newPortKnockSequencesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PortKnockSequencesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PortKnockSequencesTable, PortKnockSequencesColumn),
+	)
+}
+func newServiceInstancesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ServiceInstancesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ServiceInstancesTable, ServiceInstancesColumn),
 	)
 }

@@ -1,0 +1,23 @@
+{
+  "id": "system-update-available",
+  "name": "System Update Available",
+  "description": "Alert when RouterOS update is available",
+  "category": "SYSTEM",
+  "severity": "INFO",
+  "eventType": "update.available",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [],
+  "conditions": [
+    {
+      "field": "update_available",
+      "operator": "EQUALS",
+      "value": "true"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 86400
+  },
+  "channels": ["inapp"]
+}

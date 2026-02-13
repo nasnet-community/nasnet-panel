@@ -6,624 +6,665 @@ package resolver
 
 import (
 	"backend/ent"
-	"backend/ent/alert"
-	"backend/ent/alertrule"
 	"backend/graph/model"
-	"backend/internal/events"
-	"backend/internal/notifications"
+	"backend/internal/alerts"
 	"backend/internal/services"
 	"context"
 	"fmt"
 	"time"
 )
 
-// CreateAlertRule is the resolver for the createAlertRule field.
-func (r *mutationResolver) CreateAlertRule(ctx context.Context, input model.CreateAlertRuleInput) (*model.AlertRulePayload, error) {
-	svc := r.AlertService
-	if svc == nil {
+// ApplyAlertRuleTemplate is the resolver for the applyAlertRuleTemplate field.
+func (r *mutationResolver) ApplyAlertRuleTemplate(ctx context.Context, templateID string, variables map[string]interface{}, customizations *model.CreateAlertRuleInput) (*model.AlertRulePayload, error) {
+	if r.AlertRuleTemplateService == nil {
 		return &model.AlertRulePayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Alert service is not available",
-			}},
+			Errors: []*model.MutationError{
+				{Code: "SERVICE_UNAVAILABLE", Message: "alert rule template service not available"},
+			},
 		}, nil
 	}
 
-	// Convert input to service input
-	serviceInput := services.CreateAlertRuleInput{
+	// Build customizations input
+	var input services.CreateAlertRuleInput
+	if customizations != nil {
+		input = convertCreateAlertRuleInput(customizations)
+	}
+
+	// Apply template via service (delegates to AlertService.CreateRule)
+	rule, err := r.AlertRuleTemplateService.ApplyTemplate(ctx, templateID, variables, input)
+	if err != nil {
+		r.log.Errorw("failed to apply alert rule template", "templateId", templateID, "error", err)
+		return &model.AlertRulePayload{
+			Errors: []*model.MutationError{
+				{Code: "TEMPLATE_APPLICATION_FAILED", Message: err.Error()},
+			},
+		}, nil
+	}
+
+	r.log.Infow("applied alert rule template", "templateId", templateID, "ruleId", rule.ID)
+
+	return &model.AlertRulePayload{
+		AlertRule: convertAlertRuleToModel(rule),
+	}, nil
+}
+
+// SaveCustomAlertRuleTemplate is the resolver for the saveCustomAlertRuleTemplate field.
+func (r *mutationResolver) SaveCustomAlertRuleTemplate(ctx context.Context, input model.SaveAlertRuleTemplateInput) (*model.AlertRuleTemplatePayload, error) {
+	if r.AlertRuleTemplateService == nil {
+		return &model.AlertRuleTemplatePayload{
+			Errors: []*model.MutationError{
+				{Code: "SERVICE_UNAVAILABLE", Message: "alert rule template service not available"},
+			},
+		}, nil
+	}
+
+	// Generate a unique ID for the template
+	tmplID := fmt.Sprintf("custom-%d", time.Now().Unix())
+
+	// Convert input to service template
+	tmpl := &alerts.AlertRuleTemplate{
+		ID:          tmplID,
 		Name:        input.Name,
 		Description: input.Description,
+		Category:    alerts.CategoryCustom, // Always CUSTOM for user-created templates
 		EventType:   input.EventType,
-		Severity:    alertrule.Severity(string(input.Severity)),
+		Severity:    string(input.Severity),
 		Channels:    input.Channels,
-		Enabled:     input.Enabled,
+		Version:     "1.0.0",
+	}
+
+	// Convert variables from Omittable
+	if input.Variables.IsSet() {
+		vars := input.Variables.Value()
+		tmpl.Variables = make([]alerts.AlertRuleTemplateVariable, len(vars))
+		for i, v := range vars {
+			variable := alerts.AlertRuleTemplateVariable{
+				Name:     v.Name,
+				Label:    v.Label,
+				Type:     alerts.AlertRuleTemplateVariableType(v.Type),
+				Required: v.Required,
+			}
+
+			// Handle optional Omittable fields
+			if v.DefaultValue.IsSet() {
+				variable.DefaultValue = v.DefaultValue.Value()
+			}
+			if v.Min.IsSet() {
+				variable.Min = v.Min.Value()
+			}
+			if v.Max.IsSet() {
+				variable.Max = v.Max.Value()
+			}
+			if v.Unit.IsSet() {
+				variable.Unit = v.Unit.Value()
+			}
+			if v.Description.IsSet() {
+				variable.Description = v.Description.Value()
+			}
+
+			tmpl.Variables[i] = variable
+		}
 	}
 
 	// Convert conditions
-	if input.Conditions.IsSet() && input.Conditions.Value() != nil {
-		conditions := input.Conditions.Value()
-		serviceInput.Conditions = make([]map[string]interface{}, len(conditions))
-		for i, cond := range conditions {
-			serviceInput.Conditions[i] = map[string]interface{}{
-				"field":    cond.Field,
-				"operator": string(cond.Operator),
-				"value":    cond.Value,
+	tmpl.Conditions = make([]alerts.TemplateCondition, len(input.Conditions))
+	for i, cond := range input.Conditions {
+		tmpl.Conditions[i] = alerts.TemplateCondition{
+			Field:    cond.Field,
+			Operator: string(cond.Operator),
+			Value:    cond.Value,
+		}
+	}
+
+	// Convert throttle if present
+	if input.Throttle.IsSet() {
+		throttle := input.Throttle.Value()
+		if throttle != nil {
+			tmpl.Throttle = &alerts.TemplateThrottle{
+				MaxAlerts:     throttle.MaxAlerts,
+				PeriodSeconds: throttle.PeriodSeconds,
+			}
+			if throttle.GroupByField.IsSet() {
+				tmpl.Throttle.GroupByField = throttle.GroupByField.Value()
 			}
 		}
 	}
 
-	// Convert throttle config
-	if input.Throttle.IsSet() && input.Throttle.Value() != nil {
-		throttle := input.Throttle.Value()
-		serviceInput.Throttle = map[string]interface{}{
-			"maxAlerts":     throttle.MaxAlerts,
-			"periodSeconds": throttle.PeriodSeconds,
-		}
-		if throttle.GroupByField.IsSet() && throttle.GroupByField.Value() != nil {
-			serviceInput.Throttle["groupByField"] = *throttle.GroupByField.Value()
-		}
-	}
-
-	// Convert quiet hours config
-	if input.QuietHours.IsSet() && input.QuietHours.Value() != nil {
-		quietHours := input.QuietHours.Value()
-		serviceInput.QuietHours = map[string]interface{}{
-			"startTime":      quietHours.StartTime,
-			"endTime":        quietHours.EndTime,
-			"timezone":       quietHours.Timezone,
-			"bypassCritical": quietHours.BypassCritical,
-		}
-	}
-
-	if input.DeviceID.IsSet() && input.DeviceID.Value() != nil {
-		deviceIDStr := string(*input.DeviceID.Value())
-		serviceInput.DeviceID = &deviceIDStr
-	}
-
-	// Create rule
-	rule, err := svc.CreateRule(ctx, serviceInput)
+	// Save template
+	saved, err := r.AlertRuleTemplateService.SaveCustomTemplate(ctx, tmpl)
 	if err != nil {
-		return &model.AlertRulePayload{
-			Errors: []*model.MutationError{{
-				Code:    "CREATE_FAILED",
-				Message: err.Error(),
-			}},
+		r.log.Errorw("failed to save custom alert rule template", "name", input.Name, "error", err)
+		return &model.AlertRuleTemplatePayload{
+			Errors: []*model.MutationError{
+				{Code: "SAVE_FAILED", Message: err.Error()},
+			},
 		}, nil
 	}
 
-	return &model.AlertRulePayload{
-		AlertRule: convertAlertRuleToGraphQL(rule),
+	r.log.Infow("saved custom alert rule template", "id", saved.ID, "name", saved.Name)
+
+	return &model.AlertRuleTemplatePayload{
+		Template: convertAlertRuleTemplateToModel(saved),
 	}, nil
+}
+
+// DeleteCustomAlertRuleTemplate is the resolver for the deleteCustomAlertRuleTemplate field.
+func (r *mutationResolver) DeleteCustomAlertRuleTemplate(ctx context.Context, id string) (*model.DeletePayload, error) {
+	if r.AlertRuleTemplateService == nil {
+		return nil, fmt.Errorf("alert rule template service not available")
+	}
+
+	err := r.AlertRuleTemplateService.DeleteCustomTemplate(ctx, id)
+	if err != nil {
+		r.log.Errorw("failed to delete custom alert rule template", "id", id, "error", err)
+		return nil, fmt.Errorf("failed to delete template: %w", err)
+	}
+
+	r.log.Infow("deleted custom alert rule template", "id", id)
+
+	return &model.DeletePayload{
+		Success: true,
+	}, nil
+}
+
+// ImportAlertRuleTemplate is the resolver for the importAlertRuleTemplate field.
+func (r *mutationResolver) ImportAlertRuleTemplate(ctx context.Context, json string) (*model.AlertRuleTemplatePayload, error) {
+	if r.AlertRuleTemplateService == nil {
+		return &model.AlertRuleTemplatePayload{
+			Errors: []*model.MutationError{
+				{Code: "SERVICE_UNAVAILABLE", Message: "alert rule template service not available"},
+			},
+		}, nil
+	}
+
+	template, err := r.AlertRuleTemplateService.ImportTemplate(ctx, json)
+	if err != nil {
+		r.log.Errorw("failed to import alert rule template", "error", err)
+		return &model.AlertRuleTemplatePayload{
+			Errors: []*model.MutationError{
+				{Code: "IMPORT_FAILED", Message: err.Error()},
+			},
+		}, nil
+	}
+
+	r.log.Infow("imported alert rule template", "id", template.ID, "name", template.Name)
+
+	return &model.AlertRuleTemplatePayload{
+		Template: convertAlertRuleTemplateToModel(template),
+	}, nil
+}
+
+// ExportAlertRuleTemplate is the resolver for the exportAlertRuleTemplate field.
+func (r *mutationResolver) ExportAlertRuleTemplate(ctx context.Context, id string) (string, error) {
+	if r.AlertRuleTemplateService == nil {
+		return "", fmt.Errorf("alert rule template service not available")
+	}
+
+	jsonStr, err := r.AlertRuleTemplateService.ExportTemplate(ctx, id)
+	if err != nil {
+		r.log.Errorw("failed to export alert rule template", "id", id, "error", err)
+		return "", fmt.Errorf("export failed: %w", err)
+	}
+
+	r.log.Infow("exported alert rule template", "id", id)
+
+	return jsonStr, nil
+}
+
+// ApplyAlertTemplate is the resolver for the applyAlertTemplate field.
+func (r *mutationResolver) ApplyAlertTemplate(ctx context.Context, input model.ApplyAlertTemplateInput) (*model.AlertRulePayload, error) {
+	panic(fmt.Errorf("not implemented: ApplyAlertTemplate - applyAlertTemplate"))
+}
+
+// SaveAlertTemplate is the resolver for the saveAlertTemplate field.
+func (r *mutationResolver) SaveAlertTemplate(ctx context.Context, input model.SaveAlertTemplateInput) (*model.AlertTemplatePayload, error) {
+	panic(fmt.Errorf("not implemented: SaveAlertTemplate - saveAlertTemplate"))
+}
+
+// DeleteAlertTemplate is the resolver for the deleteAlertTemplate field.
+func (r *mutationResolver) DeleteAlertTemplate(ctx context.Context, id string) (*model.DeletePayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteAlertTemplate - deleteAlertTemplate"))
+}
+
+// ResetAlertTemplate is the resolver for the resetAlertTemplate field.
+func (r *mutationResolver) ResetAlertTemplate(ctx context.Context, eventType string, channel model.NotificationChannel) (*model.DeletePayload, error) {
+	panic(fmt.Errorf("not implemented: ResetAlertTemplate - resetAlertTemplate"))
+}
+
+// PreviewNotificationTemplate is the resolver for the previewNotificationTemplate field.
+func (r *mutationResolver) PreviewNotificationTemplate(ctx context.Context, input model.PreviewNotificationTemplateInput) (*model.NotificationTemplatePreview, error) {
+	panic(fmt.Errorf("not implemented: PreviewNotificationTemplate - previewNotificationTemplate"))
+}
+
+// CreateAlertRule is the resolver for the createAlertRule field.
+func (r *mutationResolver) CreateAlertRule(ctx context.Context, input model.CreateAlertRuleInput) (*model.AlertRulePayload, error) {
+	panic(fmt.Errorf("not implemented: CreateAlertRule - createAlertRule"))
 }
 
 // UpdateAlertRule is the resolver for the updateAlertRule field.
 func (r *mutationResolver) UpdateAlertRule(ctx context.Context, id string, input model.UpdateAlertRuleInput) (*model.AlertRulePayload, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return &model.AlertRulePayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Alert service is not available",
-			}},
-		}, nil
-	}
+	panic(fmt.Errorf("not implemented: UpdateAlertRule - updateAlertRule"))
+}
 
-	// Convert input to service input
-	serviceInput := services.UpdateAlertRuleInput{
-		Name:        input.Name,
-		Description: input.Description,
-		EventType:   input.EventType,
-		Channels:    input.Channels,
-		Enabled:     input.Enabled,
-	}
-
-	// Convert severity if provided
-	if input.Severity.IsSet() && input.Severity.Value() != nil {
-		s := alertrule.Severity(string(*input.Severity.Value()))
-		serviceInput.Severity = &s
-	}
-
-	// Convert conditions
-	if input.Conditions.IsSet() && input.Conditions.Value() != nil {
-		conditions := input.Conditions.Value()
-		serviceInput.Conditions = make([]map[string]interface{}, len(conditions))
-		for i, cond := range conditions {
-			serviceInput.Conditions[i] = map[string]interface{}{
-				"field":    cond.Field,
-				"operator": string(cond.Operator),
-				"value":    cond.Value,
-			}
-		}
-	}
-
-	// Convert throttle config
-	if input.Throttle.IsSet() && input.Throttle.Value() != nil {
-		throttle := input.Throttle.Value()
-		serviceInput.Throttle = map[string]interface{}{
-			"maxAlerts":     throttle.MaxAlerts,
-			"periodSeconds": throttle.PeriodSeconds,
-		}
-		if throttle.GroupByField.IsSet() && throttle.GroupByField.Value() != nil {
-			serviceInput.Throttle["groupByField"] = *throttle.GroupByField.Value()
-		}
-	}
-
-	// Convert quiet hours config
-	if input.QuietHours.IsSet() && input.QuietHours.Value() != nil {
-		quietHours := input.QuietHours.Value()
-		serviceInput.QuietHours = map[string]interface{}{
-			"startTime":      quietHours.StartTime,
-			"endTime":        quietHours.EndTime,
-			"timezone":       quietHours.Timezone,
-			"bypassCritical": quietHours.BypassCritical,
-		}
-	}
-
-	if input.DeviceID.IsSet() && input.DeviceID.Value() != nil {
-		deviceIDStr := string(*input.DeviceID.Value())
-		serviceInput.DeviceID = &deviceIDStr
-	}
-
-	// Update rule
-	rule, err := svc.UpdateRule(ctx, id, serviceInput)
-	if err != nil {
-		return &model.AlertRulePayload{
-			Errors: []*model.MutationError{{
-				Code:    "UPDATE_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.AlertRulePayload{
-		AlertRule: convertAlertRuleToGraphQL(rule),
-	}, nil
+// ToggleAlertRule is the resolver for the toggleAlertRule field.
+func (r *mutationResolver) ToggleAlertRule(ctx context.Context, id string) (*model.AlertRulePayload, error) {
+	panic(fmt.Errorf("not implemented: ToggleAlertRule - toggleAlertRule"))
 }
 
 // DeleteAlertRule is the resolver for the deleteAlertRule field.
 func (r *mutationResolver) DeleteAlertRule(ctx context.Context, id string) (*model.DeletePayload, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return &model.DeletePayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Alert service is not available",
-			}},
-		}, nil
-	}
-
-	// Delete rule
-	err := svc.DeleteRule(ctx, id)
-	if err != nil {
-		return &model.DeletePayload{
-			Success: false,
-			Errors: []*model.MutationError{{
-				Code:    "DELETE_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.DeletePayload{
-		Success:   true,
-		DeletedID: &id,
-	}, nil
+	panic(fmt.Errorf("not implemented: DeleteAlertRule - deleteAlertRule"))
 }
 
 // AcknowledgeAlert is the resolver for the acknowledgeAlert field.
 func (r *mutationResolver) AcknowledgeAlert(ctx context.Context, alertID string) (*model.AlertPayload, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return &model.AlertPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Alert service is not available",
-			}},
-		}, nil
-	}
-
-	// TODO: Extract user ID from context for acknowledgedBy
-	acknowledgedBy := "system" // Default value
-
-	// Acknowledge alert
-	alertEntity, err := svc.AcknowledgeAlert(ctx, services.AcknowledgeAlertInput{
-		AlertID:        alertID,
-		AcknowledgedBy: acknowledgedBy,
-		AcknowledgedAt: time.Now(),
-	})
-	if err != nil {
-		return &model.AlertPayload{
-			Errors: []*model.MutationError{{
-				Code:    "ACKNOWLEDGE_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.AlertPayload{
-		Alert: convertAlertToGraphQL(alertEntity),
-	}, nil
+	panic(fmt.Errorf("not implemented: AcknowledgeAlert - acknowledgeAlert"))
 }
 
 // AcknowledgeAlerts is the resolver for the acknowledgeAlerts field.
 func (r *mutationResolver) AcknowledgeAlerts(ctx context.Context, alertIds []string) (*model.BulkAlertPayload, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return &model.BulkAlertPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SERVICE_UNAVAILABLE",
-				Message: "Alert service is not available",
-			}},
-		}, nil
-	}
-
-	// TODO: Extract user ID from context for acknowledgedBy
-	acknowledgedBy := "system" // Default value
-
-	// Bulk acknowledge
-	count, err := svc.AcknowledgeAlerts(ctx, alertIds, acknowledgedBy)
-	if err != nil {
-		return &model.BulkAlertPayload{
-			Errors: []*model.MutationError{{
-				Code:    "ACKNOWLEDGE_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.BulkAlertPayload{
-		AcknowledgedCount: count,
-	}, nil
+	panic(fmt.Errorf("not implemented: AcknowledgeAlerts - acknowledgeAlerts"))
 }
 
 // TestNotificationChannel is the resolver for the testNotificationChannel field.
 func (r *mutationResolver) TestNotificationChannel(ctx context.Context, channel string, config map[string]interface{}) (*model.TestNotificationPayload, error) {
-	// Create test notification
-	testNotif := notifications.Notification{
-		Title:    "NasNetConnect Test",
-		Message:  fmt.Sprintf("This is a test notification for %s channel", channel),
-		Severity: "INFO",
-		Data:     map[string]interface{}{},
-	}
-
-	var channelImpl notifications.Channel
-	switch channel {
-	case "email":
-		// Extract email config
-		emailConfig := notifications.EmailConfig{}
-		if host, ok := config["host"].(string); ok {
-			emailConfig.SMTPHost = host
-		}
-		if port, ok := config["port"].(float64); ok {
-			emailConfig.SMTPPort = int(port)
-		}
-		if username, ok := config["username"].(string); ok {
-			emailConfig.Username = username
-		}
-		if password, ok := config["password"].(string); ok {
-			emailConfig.Password = password
-		}
-		if from, ok := config["from"].(string); ok {
-			emailConfig.FromAddress = from
-		}
-		if to, ok := config["to"].(string); ok {
-			emailConfig.ToAddress = to
-		}
-		if useTLS, ok := config["useTLS"].(bool); ok {
-			emailConfig.UseTLS = useTLS
-		}
-		channelImpl = notifications.NewEmailChannel(emailConfig)
-
-	case "telegram":
-		// Extract telegram config
-		telegramConfig := notifications.TelegramConfig{}
-		if botToken, ok := config["botToken"].(string); ok {
-			telegramConfig.BotToken = botToken
-		}
-		if chatID, ok := config["chatId"].(string); ok {
-			telegramConfig.ChatID = chatID
-		}
-		channelImpl = notifications.NewTelegramChannel(telegramConfig)
-
-	case "pushover":
-		// Extract pushover config
-		pushoverConfig := notifications.PushoverConfig{}
-		if userKey, ok := config["userKey"].(string); ok {
-			pushoverConfig.UserKey = userKey
-		}
-		if apiToken, ok := config["apiToken"].(string); ok {
-			pushoverConfig.APIToken = apiToken
-		}
-		channelImpl = notifications.NewPushoverChannel(pushoverConfig)
-
-	case "webhook":
-		// Extract webhook config
-		webhookConfig := notifications.WebhookConfig{}
-		if url, ok := config["url"].(string); ok {
-			webhookConfig.URL = url
-		}
-		if secret, ok := config["secret"].(string); ok {
-			webhookConfig.Secret = secret
-		}
-		channelImpl = notifications.NewWebhookChannel(webhookConfig)
-
-	default:
-		return &model.TestNotificationPayload{
-			Success: false,
-			Message: strPtr(fmt.Sprintf("Unknown channel type: %s", channel)),
-		}, nil
-	}
-
-	// Send test notification
-	err := channelImpl.Send(ctx, testNotif)
-	if err != nil {
-		return &model.TestNotificationPayload{
-			Success: false,
-			Message: strPtr(fmt.Sprintf("Test failed: %s", err.Error())),
-		}, nil
-	}
-
-	return &model.TestNotificationPayload{
-		Success: true,
-		Message: strPtr(fmt.Sprintf("%s notification sent successfully", channel)),
-	}, nil
+	panic(fmt.Errorf("not implemented: TestNotificationChannel - testNotificationChannel"))
 }
 
-// AlertRules is the resolver for the alertRules field.
-func (r *queryResolver) AlertRules(ctx context.Context, deviceID *string) ([]*model.AlertRule, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return nil, fmt.Errorf("alert service is not available")
+// CreateWebhook is the resolver for the createWebhook field.
+func (r *mutationResolver) CreateWebhook(ctx context.Context, input model.CreateWebhookInput) (*model.WebhookPayload, error) {
+	panic(fmt.Errorf("not implemented: CreateWebhook - createWebhook"))
+}
+
+// UpdateWebhook is the resolver for the updateWebhook field.
+func (r *mutationResolver) UpdateWebhook(ctx context.Context, id string, input model.UpdateWebhookInput) (*model.WebhookPayload, error) {
+	panic(fmt.Errorf("not implemented: UpdateWebhook - updateWebhook"))
+}
+
+// DeleteWebhook is the resolver for the deleteWebhook field.
+func (r *mutationResolver) DeleteWebhook(ctx context.Context, id string) (*model.DeletePayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteWebhook - deleteWebhook"))
+}
+
+// TestWebhook is the resolver for the testWebhook field.
+func (r *mutationResolver) TestWebhook(ctx context.Context, id string) (*model.WebhookTestPayload, error) {
+	panic(fmt.Errorf("not implemented: TestWebhook - testWebhook"))
+}
+
+// TriggerDigestNow is the resolver for the triggerDigestNow field.
+func (r *mutationResolver) TriggerDigestNow(ctx context.Context, channelID string) (*model.DigestSummary, error) {
+	panic(fmt.Errorf("not implemented: TriggerDigestNow - triggerDigestNow"))
+}
+
+// CreateNotificationChannelConfig is the resolver for the createNotificationChannelConfig field.
+func (r *mutationResolver) CreateNotificationChannelConfig(ctx context.Context, input model.CreateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
+	panic(fmt.Errorf("not implemented: CreateNotificationChannelConfig - createNotificationChannelConfig"))
+}
+
+// UpdateNotificationChannelConfig is the resolver for the updateNotificationChannelConfig field.
+func (r *mutationResolver) UpdateNotificationChannelConfig(ctx context.Context, id string, input model.UpdateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
+	panic(fmt.Errorf("not implemented: UpdateNotificationChannelConfig - updateNotificationChannelConfig"))
+}
+
+// DeleteNotificationChannelConfig is the resolver for the deleteNotificationChannelConfig field.
+func (r *mutationResolver) DeleteNotificationChannelConfig(ctx context.Context, id string) (*model.DeletePayload, error) {
+	panic(fmt.Errorf("not implemented: DeleteNotificationChannelConfig - deleteNotificationChannelConfig"))
+}
+
+// AlertRuleTemplates is the resolver for the alertRuleTemplates field.
+func (r *queryResolver) AlertRuleTemplates(ctx context.Context, category *model.AlertRuleTemplateCategory) ([]*model.AlertRuleTemplate, error) {
+	if r.AlertRuleTemplateService == nil {
+		return nil, fmt.Errorf("alert rule template service not available")
 	}
 
-	// Fetch rules from service
-	rules, err := svc.ListRules(ctx, deviceID)
+	// Convert GraphQL category to service category
+	var serviceCategory *alerts.AlertRuleTemplateCategory
+	if category != nil {
+		c := alerts.AlertRuleTemplateCategory(*category)
+		serviceCategory = &c
+	}
+
+	// Get templates from service
+	templates, err := r.AlertRuleTemplateService.GetTemplates(ctx, serviceCategory)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list alert rules: %w", err)
+		r.log.Errorw("failed to get alert rule templates", "error", err)
+		return nil, fmt.Errorf("failed to get templates: %w", err)
 	}
 
-	// Convert to GraphQL models
-	result := make([]*model.AlertRule, len(rules))
-	for i, rule := range rules {
-		result[i] = convertAlertRuleToGraphQL(rule)
+	// Convert service templates to GraphQL model
+	result := make([]*model.AlertRuleTemplate, len(templates))
+	for i, tmpl := range templates {
+		result[i] = convertAlertRuleTemplateToModel(tmpl)
 	}
 
 	return result, nil
 }
 
+// AlertRuleTemplate is the resolver for the alertRuleTemplate field.
+func (r *queryResolver) AlertRuleTemplate(ctx context.Context, id string) (*model.AlertRuleTemplate, error) {
+	if r.AlertRuleTemplateService == nil {
+		return nil, fmt.Errorf("alert rule template service not available")
+	}
+
+	template, err := r.AlertRuleTemplateService.GetTemplateByID(ctx, id)
+	if err != nil {
+		r.log.Errorw("failed to get alert rule template", "id", id, "error", err)
+		return nil, fmt.Errorf("template not found: %w", err)
+	}
+
+	return convertAlertRuleTemplateToModel(template), nil
+}
+
+// PreviewAlertRuleTemplate is the resolver for the previewAlertRuleTemplate field.
+func (r *queryResolver) PreviewAlertRuleTemplate(ctx context.Context, templateID string, variables map[string]interface{}) (*model.AlertRuleTemplatePreview, error) {
+	if r.AlertRuleTemplateService == nil {
+		return nil, fmt.Errorf("alert rule template service not available")
+	}
+
+	preview, err := r.AlertRuleTemplateService.PreviewTemplate(ctx, templateID, variables)
+	if err != nil {
+		r.log.Errorw("failed to preview alert rule template", "templateId", templateID, "error", err)
+		return nil, fmt.Errorf("preview failed: %w", err)
+	}
+
+	// Convert to GraphQL model
+	result := &model.AlertRuleTemplatePreview{
+		Template:           convertAlertRuleTemplateToModel(preview.Template),
+		ResolvedConditions: make([]*model.AlertCondition, len(preview.ResolvedConditions)),
+		ValidationInfo: &model.TemplateValidationInfo{
+			IsValid:          preview.ValidationInfo.IsValid,
+			MissingVariables: preview.ValidationInfo.MissingVariables,
+			Warnings:         preview.ValidationInfo.Warnings,
+		},
+	}
+
+	// Convert resolved conditions
+	for i, cond := range preview.ResolvedConditions {
+		result.ResolvedConditions[i] = &model.AlertCondition{
+			Field:    cond.Field,
+			Operator: model.ConditionOperator(cond.Operator),
+			Value:    fmt.Sprintf("%v", cond.Value),
+		}
+	}
+
+	return result, nil
+}
+
+// AlertTemplates is the resolver for the alertTemplates field.
+func (r *queryResolver) AlertTemplates(ctx context.Context, eventType *string, channel *model.NotificationChannel) ([]*model.AlertTemplate, error) {
+	panic(fmt.Errorf("not implemented: AlertTemplates - alertTemplates"))
+}
+
+// AlertTemplate is the resolver for the alertTemplate field.
+func (r *queryResolver) AlertTemplate(ctx context.Context, id string) (*model.AlertTemplate, error) {
+	panic(fmt.Errorf("not implemented: AlertTemplate - alertTemplate"))
+}
+
+// CommonEventTypes is the resolver for the commonEventTypes field.
+func (r *queryResolver) CommonEventTypes(ctx context.Context) ([]string, error) {
+	panic(fmt.Errorf("not implemented: CommonEventTypes - commonEventTypes"))
+}
+
+// SearchAlertTemplates is the resolver for the searchAlertTemplates field.
+func (r *queryResolver) SearchAlertTemplates(ctx context.Context, query string) ([]*model.AlertTemplate, error) {
+	panic(fmt.Errorf("not implemented: SearchAlertTemplates - searchAlertTemplates"))
+}
+
+// PreviewAlertTemplate is the resolver for the previewAlertTemplate field.
+func (r *queryResolver) PreviewAlertTemplate(ctx context.Context, templateID string, variables map[string]interface{}) (*model.TemplatePreviewPayload, error) {
+	panic(fmt.Errorf("not implemented: PreviewAlertTemplate - previewAlertTemplate"))
+}
+
+// AlertRules is the resolver for the alertRules field.
+func (r *queryResolver) AlertRules(ctx context.Context, deviceID *string) ([]*model.AlertRule, error) {
+	panic(fmt.Errorf("not implemented: AlertRules - alertRules"))
+}
+
 // AlertRule is the resolver for the alertRule field.
 func (r *queryResolver) AlertRule(ctx context.Context, id string) (*model.AlertRule, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return nil, fmt.Errorf("alert service is not available")
-	}
-
-	// Fetch rule from service
-	rule, err := svc.GetRule(ctx, id)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, nil // Return nil instead of error for not found
-		}
-		return nil, fmt.Errorf("failed to get alert rule: %w", err)
-	}
-
-	return convertAlertRuleToGraphQL(rule), nil
+	panic(fmt.Errorf("not implemented: AlertRule - alertRule"))
 }
 
 // Alerts is the resolver for the alerts field.
 func (r *queryResolver) Alerts(ctx context.Context, deviceID *string, severity *model.AlertSeverity, acknowledged *bool, limit *int, offset *int) (*model.AlertConnection, error) {
-	svc := r.AlertService
-	if svc == nil {
-		return nil, fmt.Errorf("alert service is not available")
-	}
+	panic(fmt.Errorf("not implemented: Alerts - alerts"))
+}
 
-	// Set default pagination values
-	limitVal := 50
-	if limit != nil && *limit > 0 {
-		limitVal = *limit
-	}
-	offsetVal := 0
-	if offset != nil && *offset >= 0 {
-		offsetVal = *offset
-	}
+// PushoverUsage is the resolver for the pushoverUsage field.
+func (r *queryResolver) PushoverUsage(ctx context.Context) (*model.PushoverUsage, error) {
+	panic(fmt.Errorf("not implemented: PushoverUsage - pushoverUsage"))
+}
 
-	// Convert severity if provided
+// Webhooks is the resolver for the webhooks field.
+func (r *queryResolver) Webhooks(ctx context.Context) ([]*model.Webhook, error) {
+	panic(fmt.Errorf("not implemented: Webhooks - webhooks"))
+}
 
-	var entSeverity *alert.Severity
-	if severity != nil {
-		s := alert.Severity(string(*severity))
-		entSeverity = &s
-	}
+// Webhook is the resolver for the webhook field.
+func (r *queryResolver) Webhook(ctx context.Context, id string) (*model.Webhook, error) {
+	panic(fmt.Errorf("not implemented: Webhook - webhook"))
+}
 
-	// Fetch alerts from service
-	alerts, totalCount, err := svc.ListAlerts(ctx, deviceID, entSeverity, acknowledged, limitVal, offsetVal)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list alerts: %w", err)
-	}
+// NotificationLogs is the resolver for the notificationLogs field.
+func (r *queryResolver) NotificationLogs(ctx context.Context, alertID *string, channel *string, webhookID *string, limit *int, offset *int) ([]*model.NotificationLog, error) {
+	panic(fmt.Errorf("not implemented: NotificationLogs - notificationLogs"))
+}
 
-	// Convert to GraphQL connection
-	edges := make([]*model.AlertEdge, len(alerts))
-	for i, alertEntity := range alerts {
-		edges[i] = &model.AlertEdge{
-			Node:   convertAlertToGraphQL(alertEntity),
-			Cursor: alertEntity.ID, // Using ID as cursor
-		}
-	}
+// AlertEscalations is the resolver for the alertEscalations field.
+func (r *queryResolver) AlertEscalations(ctx context.Context, status *model.EscalationStatus, limit *int, offset *int) ([]*model.AlertEscalation, error) {
+	panic(fmt.Errorf("not implemented: AlertEscalations - alertEscalations"))
+}
 
-	pageInfo := &model.PageInfo{
-		HasNextPage:     (offsetVal + len(alerts)) < totalCount,
-		HasPreviousPage: offsetVal > 0,
-	}
-	if len(edges) > 0 {
-		pageInfo.StartCursor = &edges[0].Cursor
-		lastCursor := edges[len(edges)-1].Cursor
-		pageInfo.EndCursor = &lastCursor
-	}
+// DigestQueueCount is the resolver for the digestQueueCount field.
+func (r *queryResolver) DigestQueueCount(ctx context.Context, channelID string) (int, error) {
+	panic(fmt.Errorf("not implemented: DigestQueueCount - digestQueueCount"))
+}
 
-	return &model.AlertConnection{
-		Edges:      edges,
-		PageInfo:   pageInfo,
-		TotalCount: totalCount,
-	}, nil
+// DigestHistory is the resolver for the digestHistory field.
+func (r *queryResolver) DigestHistory(ctx context.Context, channelID string, limit *int) ([]*model.DigestSummary, error) {
+	panic(fmt.Errorf("not implemented: DigestHistory - digestHistory"))
+}
+
+// AlertRuleThrottleStatus is the resolver for the alertRuleThrottleStatus field.
+func (r *queryResolver) AlertRuleThrottleStatus(ctx context.Context, ruleID *string) ([]*model.ThrottleStatus, error) {
+	panic(fmt.Errorf("not implemented: AlertRuleThrottleStatus - alertRuleThrottleStatus"))
+}
+
+// AlertStormStatus is the resolver for the alertStormStatus field.
+func (r *queryResolver) AlertStormStatus(ctx context.Context) (*model.StormStatus, error) {
+	panic(fmt.Errorf("not implemented: AlertStormStatus - alertStormStatus"))
+}
+
+// NotificationChannelConfigs is the resolver for the notificationChannelConfigs field.
+func (r *queryResolver) NotificationChannelConfigs(ctx context.Context, channelType *model.ChannelType) ([]*model.NotificationChannelConfig, error) {
+	panic(fmt.Errorf("not implemented: NotificationChannelConfigs - notificationChannelConfigs"))
+}
+
+// NotificationChannelConfig is the resolver for the notificationChannelConfig field.
+func (r *queryResolver) NotificationChannelConfig(ctx context.Context, id string) (*model.NotificationChannelConfig, error) {
+	panic(fmt.Errorf("not implemented: NotificationChannelConfig - notificationChannelConfig"))
+}
+
+// DefaultNotificationChannelConfig is the resolver for the defaultNotificationChannelConfig field.
+func (r *queryResolver) DefaultNotificationChannelConfig(ctx context.Context, channelType model.ChannelType) (*model.NotificationChannelConfig, error) {
+	panic(fmt.Errorf("not implemented: DefaultNotificationChannelConfig - defaultNotificationChannelConfig"))
 }
 
 // AlertEvents is the resolver for the alertEvents field.
 func (r *subscriptionResolver) AlertEvents(ctx context.Context, deviceID *string) (<-chan *model.AlertEvent, error) {
-	// Create channel for GraphQL subscription
-	eventChannel := make(chan *model.AlertEvent, 10)
-
-	// Subscribe to alert events from event bus
-	if r.EventBus == nil {
-		close(eventChannel)
-		return eventChannel, fmt.Errorf("event bus is not available")
-	}
-
-	// Subscribe to alert.created and alert.acknowledged events
-	err := r.EventBus.Subscribe("alert.created", func(ctx context.Context, event events.Event) error {
-		// TODO: Filter by deviceID if provided
-		// For now, send all events
-
-		// Convert event to AlertEvent
-		alertEvent := &model.AlertEvent{
-			Action: model.AlertActionCreated,
-			// Note: We would need to fetch the full alert details here
-			// For now, this is a placeholder
-		}
-
-		select {
-		case eventChannel <- alertEvent:
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			// Channel full, skip event
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		close(eventChannel)
-		return eventChannel, fmt.Errorf("failed to subscribe to alert events: %w", err)
-	}
-
-	// Also subscribe to acknowledged events
-	_ = r.EventBus.Subscribe("alert.acknowledged", func(ctx context.Context, event events.Event) error {
-		alertEvent := &model.AlertEvent{
-			Action: model.AlertActionAcknowledged,
-		}
-
-		select {
-		case eventChannel <- alertEvent:
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-			// Channel full, skip event
-		}
-
-		return nil
-	})
-
-	// Handle cleanup when context is cancelled
-	go func() {
-		<-ctx.Done()
-		close(eventChannel)
-	}()
-
-	return eventChannel, nil
+	panic(fmt.Errorf("not implemented: AlertEvents - alertEvents"))
 }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func convertAlertRuleToGraphQL(rule *ent.AlertRule) *model.AlertRule {
-	result := &model.AlertRule{
-		ID:          rule.ID,
-		Name:        rule.Name,
-		Description: &rule.Description,
-		EventType:   rule.EventType,
-		Severity:    model.AlertSeverity(string(rule.Severity)),
-		Channels:    rule.Channels,
-		Enabled:     rule.Enabled,
-		CreatedAt:   rule.CreatedAt,
-		UpdatedAt:   rule.UpdatedAt,
+// ============================================
+// Alert Rule Template Helper Functions
+// ============================================
+
+// convertAlertRuleTemplateToModel converts service template to GraphQL model.
+func convertAlertRuleTemplateToModel(tmpl *alerts.AlertRuleTemplate) *model.AlertRuleTemplate {
+	if tmpl == nil {
+		return nil
+	}
+
+	result := &model.AlertRuleTemplate{
+		ID:          tmpl.ID,
+		Name:        tmpl.Name,
+		Description: tmpl.Description,
+		Category:    model.AlertRuleTemplateCategory(tmpl.Category),
+		Severity:    model.AlertSeverity(tmpl.Severity),
+		EventType:   tmpl.EventType,
+		Channels:    tmpl.Channels,
+		IsBuiltIn:   tmpl.IsBuiltIn,
+		Version:     tmpl.Version,
 	}
 
 	// Convert conditions
-	if rule.Conditions != nil {
-		result.Conditions = make([]*model.AlertCondition, len(rule.Conditions))
-		for i, cond := range rule.Conditions {
-			condMap := cond.(map[string]interface{})
-			result.Conditions[i] = &model.AlertCondition{
-				Field:    condMap["field"].(string),
-				Operator: model.ConditionOperator(condMap["operator"].(string)),
-				Value:    condMap["value"].(string),
+	result.Conditions = make([]*model.AlertCondition, len(tmpl.Conditions))
+	for i, cond := range tmpl.Conditions {
+		result.Conditions[i] = &model.AlertCondition{
+			Field:    cond.Field,
+			Operator: model.ConditionOperator(cond.Operator),
+			Value:    cond.Value,
+		}
+	}
+
+	// Convert variables
+	result.Variables = make([]*model.AlertRuleTemplateVariable, len(tmpl.Variables))
+	for i, v := range tmpl.Variables {
+		result.Variables[i] = &model.AlertRuleTemplateVariable{
+			Name:     v.Name,
+			Label:    v.Label,
+			Type:     model.AlertRuleTemplateVariableType(v.Type),
+			Required: v.Required,
+		}
+
+		if v.DefaultValue != nil {
+			result.Variables[i].DefaultValue = v.DefaultValue
+		}
+		if v.Min != nil {
+			result.Variables[i].Min = v.Min
+		}
+		if v.Max != nil {
+			result.Variables[i].Max = v.Max
+		}
+		if v.Unit != nil {
+			result.Variables[i].Unit = v.Unit
+		}
+		if v.Description != nil {
+			result.Variables[i].Description = v.Description
+		}
+	}
+
+	// Convert throttle if present
+	if tmpl.Throttle != nil {
+		result.Throttle = &model.ThrottleConfig{
+			MaxAlerts:     tmpl.Throttle.MaxAlerts,
+			PeriodSeconds: tmpl.Throttle.PeriodSeconds,
+		}
+		if tmpl.Throttle.GroupByField != nil {
+			result.Throttle.GroupByField = tmpl.Throttle.GroupByField
+		}
+	}
+
+	// Set timestamps
+	if tmpl.CreatedAt != nil {
+		result.CreatedAt = *tmpl.CreatedAt
+	} else {
+		result.CreatedAt = time.Now()
+	}
+	if tmpl.UpdatedAt != nil {
+		result.UpdatedAt = *tmpl.UpdatedAt
+	} else {
+		result.UpdatedAt = time.Now()
+	}
+
+	return result
+}
+
+// convertCreateAlertRuleInput converts GraphQL input to service input.
+func convertCreateAlertRuleInput(input *model.CreateAlertRuleInput) services.CreateAlertRuleInput {
+	result := services.CreateAlertRuleInput{
+		Name:        input.Name,
+		EventType:   input.EventType,
+		Enabled:     true, // Default to enabled
+	}
+
+	// Handle optional Omittable fields
+	if input.Description.IsSet() {
+		result.Description = input.Description.Value()
+	}
+
+	if input.DeviceID.IsSet() {
+		result.DeviceID = input.DeviceID.Value()
+	}
+
+	if input.Enabled.IsSet() {
+		enabled := input.Enabled.Value()
+		if enabled != nil {
+			result.Enabled = *enabled
+		}
+	}
+
+	// Convert conditions
+	if input.Conditions.IsSet() {
+		conditions := input.Conditions.Value()
+		result.Conditions = make([]map[string]interface{}, len(conditions))
+		for i, cond := range conditions {
+			result.Conditions[i] = map[string]interface{}{
+				"field":    cond.Field,
+				"operator": string(cond.Operator),
+				"value":    cond.Value,
 			}
 		}
 	}
 
-	// Convert throttle config
-	if rule.Throttle != nil {
-		throttleMap := rule.Throttle.(map[string]interface{})
-		throttle := &model.ThrottleConfig{
-			MaxAlerts:     int(throttleMap["maxAlerts"].(float64)),
-			PeriodSeconds: int(throttleMap["periodSeconds"].(float64)),
-		}
-		if groupBy, ok := throttleMap["groupByField"].(string); ok {
-			throttle.GroupByField = &groupBy
-		}
-		result.Throttle = throttle
-	}
-
-	// Convert quiet hours config
-	if rule.QuietHours != nil {
-		qhMap := rule.QuietHours.(map[string]interface{})
-		result.QuietHours = &model.QuietHoursConfig{
-			StartTime:      qhMap["startTime"].(string),
-			EndTime:        qhMap["endTime"].(string),
-			Timezone:       qhMap["timezone"].(string),
-			BypassCritical: qhMap["bypassCritical"].(bool),
+	// Convert throttle
+	if input.Throttle.IsSet() {
+		throttle := input.Throttle.Value()
+		if throttle != nil {
+			result.Throttle = map[string]interface{}{
+				"maxAlerts":     throttle.MaxAlerts,
+				"periodSeconds": throttle.PeriodSeconds,
+			}
+			if throttle.GroupByField.IsSet() {
+				groupBy := throttle.GroupByField.Value()
+				if groupBy != nil {
+					result.Throttle["groupByField"] = *groupBy
+				}
+			}
 		}
 	}
 
-	// Set device ID if present
-	if rule.DeviceID != "" {
-		deviceID := rule.DeviceID
-		result.DeviceID = &deviceID
+	// Convert quiet hours
+	if input.QuietHours.IsSet() {
+		qh := input.QuietHours.Value()
+		if qh != nil {
+			result.QuietHours = map[string]interface{}{
+				"startTime": qh.StartTime,
+				"endTime":   qh.EndTime,
+				"timezone":  qh.Timezone,
+			}
+			// Days field doesn't exist in QuietHoursConfigInput - removed
+		}
 	}
 
 	return result
 }
-func convertAlertToGraphQL(alertEntity *ent.Alert) *model.Alert {
-	result := &model.Alert{
-		ID:          alertEntity.ID,
-		RuleID:      alertEntity.RuleID,
-		EventType:   alertEntity.EventType,
-		Severity:    model.AlertSeverity(string(alertEntity.Severity)),
-		Title:       alertEntity.Title,
-		Message:     alertEntity.Message,
-		Data:        alertEntity.Data,
-		TriggeredAt: alertEntity.TriggeredAt,
+
+// convertAlertRuleToModel converts ent AlertRule to GraphQL model.
+func convertAlertRuleToModel(rule *ent.AlertRule) *model.AlertRule {
+	if rule == nil {
+		return nil
 	}
 
-	// Set device ID if present
-	if alertEntity.DeviceID != "" {
-		deviceID := alertEntity.DeviceID
-		result.DeviceID = &deviceID
+	// Basic conversion - extend as needed based on model.AlertRule fields
+	return &model.AlertRule{
+		ID:          rule.ID,
+		Name:        rule.Name,
+		Description: &rule.Description,
+		EventType:   rule.EventType,
+		Severity:    model.AlertSeverity(rule.Severity),
+		Enabled:     rule.Enabled,
+		CreatedAt:   rule.CreatedAt,
+		UpdatedAt:   rule.UpdatedAt,
 	}
-
-	// Set acknowledgment fields if present
-	if alertEntity.AcknowledgedAt != nil {
-		result.AcknowledgedAt = alertEntity.AcknowledgedAt
-	}
-	if alertEntity.AcknowledgedBy != "" {
-		result.AcknowledgedBy = &alertEntity.AcknowledgedBy
-	}
-
-	return result
-}
-func strPtr(s string) *string {
-	return &s
 }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Alert Digest - NasNet</title>
+    <style>
+        /* Reset styles for email clients */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+
+        /* Header */
+        .header {
+            background-color: #1f2937;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .logo {
+            color: #EFC729;
+            font-size: 28px;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        /* Digest Banner */
+        .digest-banner {
+            padding: 20px 24px;
+            text-align: center;
+            background: linear-gradient(135deg, #4972BA 0%, #3b5998 100%);
+            color: #ffffff;
+        }
+
+        .digest-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .digest-period {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Content */
+        .content {
+            padding: 32px 24px;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 0 0 32px 0;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 4px 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        /* Severity Groups */
+        .severity-group {
+            margin: 0 0 24px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .severity-header {
+            padding: 16px 20px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .severity-header.critical {
+            background-color: #ef4444;
+        }
+
+        .severity-header.warning {
+            background-color: #f59e0b;
+        }
+
+        .severity-header.info {
+            background-color: #0ea5e9;
+        }
+
+        .severity-count {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Alert Item */
+        .alert-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #ffffff;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .alert-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+            flex: 1;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #6b7280;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        .alert-event-type {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .bypass-badge {
+            display: inline-block;
+            background-color: #eff6ff;
+            color: #1e40af;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #EFC729;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #d9b324;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f9fafb;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        .footer-link {
+            color: #4972BA;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 24px 16px !important;
+            }
+
+            .summary-stats {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .alert-item-header {
+                flex-direction: column;
+            }
+
+            .alert-time {
+                margin-left: 0;
+                margin-top: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td style="padding: 20px 0;">
+                <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0" width="600" align="center">
+
+                    <!-- Header -->
+                    <tr>
+                        <td class="header">
+                            <span class="logo">NasNet</span>
+                        </td>
+                    </tr>
+
+                    <!-- Digest Banner -->
+                    <tr>
+                        <td class="digest-banner">
+                            <h1 class="digest-title">Alert Digest</h1>
+                            <p class="digest-period">Summary for the {{.Period}}</p>
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td class="content">
+
+                            <!-- Summary Stats -->
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">{{.TotalCount}}</div>
+                                    <div class="stat-label">Total Alerts</div>
+                                </div>
+                            </div>
+
+                            <!-- Severity Groups -->
+                            {{range .Groups}}
+                            <div class="severity-group">
+                                <div class="severity-header {{lower .Severity}}">
+                                    <span>{{.Severity}} Alerts</span>
+                                    <span class="severity-count">{{.Count}}</span>
+                                </div>
+                                {{range .Alerts}}
+                                <div class="alert-item">
+                                    <div class="alert-item-header">
+                                        <h3 class="alert-title">{{.Title}}</h3>
+                                        <span class="alert-time">{{formatTime "15:04" .Time}}</span>
+                                    </div>
+                                    <p class="alert-event-type">{{.EventType}}</p>
+                                    {{if .BypassSent}}
+                                    <span class="bypass-badge">Sent Immediately</span>
+                                    {{end}}
+                                </div>
+                                {{end}}
+                            </div>
+                            {{end}}
+
+                            <!-- CTA Button -->
+                            <div class="button-container">
+                                <a href="{{.AdminURL}}/alerts" class="button">View All Alerts</a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer">
+                            <p class="footer-text">
+                                This is an automated digest from your NasNet monitoring system.
+                            </p>
+                            <p class="footer-text">
+                                <a href="{{.AdminURL}}/alerts" class="footer-link">View Alert History</a> |
+                                <a href="{{.AdminURL}}/settings/notifications" class="footer-link">Manage Notifications</a>
+                            </p>
+                            <p class="footer-text" style="margin-top: 16px;">
+                                &copy; {{.CurrentYear}} NasNet. Enterprise-grade MikroTik Router Management.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

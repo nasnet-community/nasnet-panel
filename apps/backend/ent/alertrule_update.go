@@ -4,6 +4,7 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
 	"backend/ent/internal"
 	"backend/ent/predicate"
@@ -147,6 +148,18 @@ func (_u *AlertRuleUpdate) ClearQuietHours() *AlertRuleUpdate {
 	return _u
 }
 
+// SetEscalation sets the "escalation" field.
+func (_u *AlertRuleUpdate) SetEscalation(v map[string]interface{}) *AlertRuleUpdate {
+	_u.mutation.SetEscalation(v)
+	return _u
+}
+
+// ClearEscalation clears the value of the "escalation" field.
+func (_u *AlertRuleUpdate) ClearEscalation() *AlertRuleUpdate {
+	_u.mutation.ClearEscalation()
+	return _u
+}
+
 // SetDeviceID sets the "device_id" field.
 func (_u *AlertRuleUpdate) SetDeviceID(v string) *AlertRuleUpdate {
 	_u.mutation.SetDeviceID(v)
@@ -202,6 +215,21 @@ func (_u *AlertRuleUpdate) AddAlerts(v ...*Alert) *AlertRuleUpdate {
 	return _u.AddAlertIDs(ids...)
 }
 
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_u *AlertRuleUpdate) AddEscalationIDs(ids ...string) *AlertRuleUpdate {
+	_u.mutation.AddEscalationIDs(ids...)
+	return _u
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_u *AlertRuleUpdate) AddEscalations(v ...*AlertEscalation) *AlertRuleUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEscalationIDs(ids...)
+}
+
 // Mutation returns the AlertRuleMutation object of the builder.
 func (_u *AlertRuleUpdate) Mutation() *AlertRuleMutation {
 	return _u.mutation
@@ -226,6 +254,27 @@ func (_u *AlertRuleUpdate) RemoveAlerts(v ...*Alert) *AlertRuleUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAlertIDs(ids...)
+}
+
+// ClearEscalations clears all "escalations" edges to the AlertEscalation entity.
+func (_u *AlertRuleUpdate) ClearEscalations() *AlertRuleUpdate {
+	_u.mutation.ClearEscalations()
+	return _u
+}
+
+// RemoveEscalationIDs removes the "escalations" edge to AlertEscalation entities by IDs.
+func (_u *AlertRuleUpdate) RemoveEscalationIDs(ids ...string) *AlertRuleUpdate {
+	_u.mutation.RemoveEscalationIDs(ids...)
+	return _u
+}
+
+// RemoveEscalations removes "escalations" edges to AlertEscalation entities.
+func (_u *AlertRuleUpdate) RemoveEscalations(v ...*AlertEscalation) *AlertRuleUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEscalationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -352,6 +401,12 @@ func (_u *AlertRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.QuietHoursCleared() {
 		_spec.ClearField(alertrule.FieldQuietHours, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.Escalation(); ok {
+		_spec.SetField(alertrule.FieldEscalation, field.TypeJSON, value)
+	}
+	if _u.mutation.EscalationCleared() {
+		_spec.ClearField(alertrule.FieldEscalation, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.DeviceID(); ok {
 		_spec.SetField(alertrule.FieldDeviceID, field.TypeString, value)
 	}
@@ -407,6 +462,54 @@ func (_u *AlertRuleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			},
 		}
 		edge.Schema = _u.schemaConfig.Alert
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEscalationsIDs(); len(nodes) > 0 && !_u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
@@ -550,6 +653,18 @@ func (_u *AlertRuleUpdateOne) ClearQuietHours() *AlertRuleUpdateOne {
 	return _u
 }
 
+// SetEscalation sets the "escalation" field.
+func (_u *AlertRuleUpdateOne) SetEscalation(v map[string]interface{}) *AlertRuleUpdateOne {
+	_u.mutation.SetEscalation(v)
+	return _u
+}
+
+// ClearEscalation clears the value of the "escalation" field.
+func (_u *AlertRuleUpdateOne) ClearEscalation() *AlertRuleUpdateOne {
+	_u.mutation.ClearEscalation()
+	return _u
+}
+
 // SetDeviceID sets the "device_id" field.
 func (_u *AlertRuleUpdateOne) SetDeviceID(v string) *AlertRuleUpdateOne {
 	_u.mutation.SetDeviceID(v)
@@ -605,6 +720,21 @@ func (_u *AlertRuleUpdateOne) AddAlerts(v ...*Alert) *AlertRuleUpdateOne {
 	return _u.AddAlertIDs(ids...)
 }
 
+// AddEscalationIDs adds the "escalations" edge to the AlertEscalation entity by IDs.
+func (_u *AlertRuleUpdateOne) AddEscalationIDs(ids ...string) *AlertRuleUpdateOne {
+	_u.mutation.AddEscalationIDs(ids...)
+	return _u
+}
+
+// AddEscalations adds the "escalations" edges to the AlertEscalation entity.
+func (_u *AlertRuleUpdateOne) AddEscalations(v ...*AlertEscalation) *AlertRuleUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddEscalationIDs(ids...)
+}
+
 // Mutation returns the AlertRuleMutation object of the builder.
 func (_u *AlertRuleUpdateOne) Mutation() *AlertRuleMutation {
 	return _u.mutation
@@ -629,6 +759,27 @@ func (_u *AlertRuleUpdateOne) RemoveAlerts(v ...*Alert) *AlertRuleUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveAlertIDs(ids...)
+}
+
+// ClearEscalations clears all "escalations" edges to the AlertEscalation entity.
+func (_u *AlertRuleUpdateOne) ClearEscalations() *AlertRuleUpdateOne {
+	_u.mutation.ClearEscalations()
+	return _u
+}
+
+// RemoveEscalationIDs removes the "escalations" edge to AlertEscalation entities by IDs.
+func (_u *AlertRuleUpdateOne) RemoveEscalationIDs(ids ...string) *AlertRuleUpdateOne {
+	_u.mutation.RemoveEscalationIDs(ids...)
+	return _u
+}
+
+// RemoveEscalations removes "escalations" edges to AlertEscalation entities.
+func (_u *AlertRuleUpdateOne) RemoveEscalations(v ...*AlertEscalation) *AlertRuleUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveEscalationIDs(ids...)
 }
 
 // Where appends a list predicates to the AlertRuleUpdate builder.
@@ -785,6 +936,12 @@ func (_u *AlertRuleUpdateOne) sqlSave(ctx context.Context) (_node *AlertRule, er
 	if _u.mutation.QuietHoursCleared() {
 		_spec.ClearField(alertrule.FieldQuietHours, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.Escalation(); ok {
+		_spec.SetField(alertrule.FieldEscalation, field.TypeJSON, value)
+	}
+	if _u.mutation.EscalationCleared() {
+		_spec.ClearField(alertrule.FieldEscalation, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.DeviceID(); ok {
 		_spec.SetField(alertrule.FieldDeviceID, field.TypeString, value)
 	}
@@ -840,6 +997,54 @@ func (_u *AlertRuleUpdateOne) sqlSave(ctx context.Context) (_node *AlertRule, er
 			},
 		}
 		edge.Schema = _u.schemaConfig.Alert
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedEscalationsIDs(); len(nodes) > 0 && !_u.mutation.EscalationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.EscalationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alertrule.EscalationsTable,
+			Columns: []string{alertrule.EscalationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(alertescalation.FieldID, field.TypeString),
+			},
+		}
+		edge.Schema = _u.schemaConfig.AlertEscalation
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}

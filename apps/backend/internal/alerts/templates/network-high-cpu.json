@@ -1,0 +1,36 @@
+{
+  "id": "network-high-cpu",
+  "name": "High CPU Usage",
+  "description": "Alert when device CPU usage exceeds threshold",
+  "category": "NETWORK",
+  "severity": "WARNING",
+  "eventType": "device.cpu.high",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "CPU_THRESHOLD",
+      "label": "CPU Threshold",
+      "type": "PERCENTAGE",
+      "required": true,
+      "defaultValue": "80",
+      "min": 50,
+      "max": 100,
+      "unit": "percent",
+      "description": "CPU usage percentage threshold"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "cpu_usage",
+      "operator": "GREATER_THAN",
+      "value": "{{CPU_THRESHOLD}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 3,
+    "periodSeconds": 600,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

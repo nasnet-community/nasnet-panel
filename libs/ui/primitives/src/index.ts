@@ -193,4 +193,4 @@ export { DriftBadge, driftBadgeVariants } from './drift-badge';
 export type { DriftBadgeProps, DriftBadgeStatus } from './drift-badge';
 
 // Hooks
-export { useReducedMotion } from './hooks';
+export { useReducedMotion, useMediaQuery } from './hooks';

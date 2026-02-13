@@ -52,6 +52,9 @@ const (
 	EventTypeLogAppended   = "log.appended"
 	EventTypeRuntimePolled = "runtime.polled"
 	EventTypeHealthChecked = "health.checked"
+
+	// Alert events
+	EventTypeAlertCreated = "alert.created"
 )
 
 // CriticalEventTypes are events that must be persisted immediately to the warm tier.
@@ -67,6 +70,7 @@ var CriticalEventTypes = []string{
 	EventTypeFeatureCrashed,
 	EventTypeAuthSessionRevoked,
 	EventTypeAuthPasswordChanged,
+	EventTypeAlertCreated, // Alerts are critical for system monitoring
 }
 
 // NormalEventTypes are events that go to warm tier during daily sync.

@@ -93,6 +93,10 @@ func (Router) Edges() []ent.Edge {
 		edge.To("secrets", RouterSecret.Type).
 			Unique().
 			Comment("Router credentials (encrypted)"),
+		edge.To("port_knock_sequences", PortKnockSequence.Type).
+			Comment("Port knock sequences configured for this router"),
+		edge.To("service_instances", ServiceInstance.Type).
+			Comment("Service instances running on this router"),
 	}
 }
 

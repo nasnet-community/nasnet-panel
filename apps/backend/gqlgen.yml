@@ -27,6 +27,7 @@ schema:
   - "../../schema/network.graphql"
   - "../../schema/bridge.graphql"
   - "../../schema/wan.graphql"
+  - "../../schema/firewall.graphql"
 
 # Generated server code
 exec:

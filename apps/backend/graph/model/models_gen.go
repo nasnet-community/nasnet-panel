@@ -97,6 +97,64 @@ type AddRouterPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Aggregated view of an address list with entry statistics.
+// Address lists group IP addresses for use in firewall rules.
+type AddressList struct {
+	// List name (unique identifier)
+	Name string `json:"name"`
+	// Total number of entries in this list
+	EntryCount int `json:"entryCount"`
+	// Number of dynamic entries (added by firewall actions)
+	DynamicCount int `json:"dynamicCount"`
+	// Number of firewall rules referencing this list
+	ReferencingRulesCount int `json:"referencingRulesCount"`
+	// Paginated entries in this list
+	Entries *AddressListEntryConnection `json:"entries"`
+	// Firewall rules that reference this list
+	ReferencingRules []*FirewallRule `json:"referencingRules"`
+}
+
+// Single entry in an address list.
+// Represents an IP address, CIDR subnet, or IP range that belongs to a named list.
+type AddressListEntry struct {
+	// MikroTik internal ID
+	ID string `json:"id"`
+	// Name of the address list this entry belongs to
+	List string `json:"list"`
+	// IP address, CIDR subnet, or IP range
+	Address string `json:"address"`
+	// Optional description
+	Comment *string `json:"comment,omitempty"`
+	// Optional timeout after which entry is removed
+	Timeout *string `json:"timeout,omitempty"`
+	// When this entry was created
+	CreationTime *time.Time `json:"creationTime,omitempty"`
+	// Whether this entry was added dynamically by a firewall action
+	Dynamic bool `json:"dynamic"`
+	// Whether this entry is disabled
+	Disabled bool `json:"disabled"`
+}
+
+func (AddressListEntry) IsNode() {}
+
+// Connection type for paginated address list entries.
+// Follows Relay pagination specification.
+type AddressListEntryConnection struct {
+	Edges      []*AddressListEntryEdge `json:"edges"`
+	PageInfo   *PageInfo               `json:"pageInfo"`
+	TotalCount *int                    `json:"totalCount,omitempty"`
+}
+
+func (AddressListEntryConnection) IsConnection() {}
+
+// Edge type for address list entry connections.
+type AddressListEntryEdge struct {
+	Cursor string            `json:"cursor"`
+	Node   *AddressListEntry `json:"node"`
+}
+
+func (AddressListEntryEdge) IsEdge() {}
+
 // Resource affected by a configuration change
 type AffectedResource struct {
 	// Resource type (ip-address, dhcp-server, firewall-rule, etc.)
@@ -135,11 +193,35 @@ type Alert struct {
 	AcknowledgedBy *string `json:"acknowledgedBy,omitempty"`
 	// Delivery status per channel
 	DeliveryStatus map[string]interface{} `json:"deliveryStatus,omitempty"`
+	// Escalation tracking for this alert (NAS-18.9)
+	Escalation *AlertEscalation `json:"escalation,omitempty"`
+	// Number of alerts suppressed by throttling (if this alert is part of a throttle group)
+	SuppressedCount *int `json:"suppressedCount,omitempty"`
+	// Reason for suppression (e.g., "throttled", "storm_detected")
+	SuppressReason *string `json:"suppressReason,omitempty"`
 	// Last update timestamp
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Alert) IsNode() {}
+
+// Template variable input
+type AlertAlertTemplateVariableInput struct {
+	// Variable name
+	Name string `json:"name"`
+	// Display label
+	Label string `json:"label"`
+	// Variable type
+	Type AlertTemplateVariableType `json:"type"`
+	// Whether required
+	Required bool `json:"required"`
+	// Default value
+	DefaultValue graphql.Omittable[*string] `json:"defaultValue,omitempty"`
+	// Description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Options for enum types
+	Options graphql.Omittable[[]string] `json:"options,omitempty"`
+}
 
 // Condition for event matching in alert rules
 type AlertCondition struct {
@@ -183,6 +265,34 @@ type AlertEdge struct {
 
 func (AlertEdge) IsEdge() {}
 
+// Alert escalation tracking record (NAS-18.9)
+type AlertEscalation struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Alert being tracked for escalation
+	AlertID string `json:"alertId"`
+	// Alert rule with escalation configuration
+	RuleID string `json:"ruleId"`
+	// Current escalation level (0 = initial)
+	CurrentLevel int `json:"currentLevel"`
+	// Maximum escalation level
+	MaxLevel int `json:"maxLevel"`
+	// Escalation status
+	Status EscalationStatus `json:"status"`
+	// When next escalation level should trigger
+	NextEscalationAt *time.Time `json:"nextEscalationAt,omitempty"`
+	// When escalation was resolved
+	ResolvedAt *time.Time `json:"resolvedAt,omitempty"`
+	// Reason for resolution
+	ResolvedBy *string `json:"resolvedBy,omitempty"`
+	// Record creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (AlertEscalation) IsNode() {}
+
 // Alert event for real-time subscriptions
 type AlertEvent struct {
 	// The alert that changed
@@ -219,6 +329,8 @@ type AlertRule struct {
 	Throttle *ThrottleConfig `json:"throttle,omitempty"`
 	// Quiet hours configuration for non-critical alerts
 	QuietHours *QuietHoursConfig `json:"quietHours,omitempty"`
+	// Escalation configuration for unacknowledged alerts (NAS-18.9)
+	Escalation *EscalationConfig `json:"escalation,omitempty"`
 	// Optional device ID filter - rule only applies to this device
 	DeviceID *string `json:"deviceId,omitempty"`
 	// Whether this alert rule is enabled
@@ -233,12 +345,180 @@ type AlertRule struct {
 
 func (AlertRule) IsNode() {}
 
+// Variable input for alert rule templates
+type AlertRuleAlertTemplateVariableInput struct {
+	// Variable name
+	Name string `json:"name"`
+	// Display label
+	Label string `json:"label"`
+	// Variable type
+	Type AlertRuleTemplateVariableType `json:"type"`
+	// Whether required
+	Required bool `json:"required"`
+	// Default value
+	DefaultValue graphql.Omittable[*string] `json:"defaultValue,omitempty"`
+	// Minimum value
+	Min graphql.Omittable[*int] `json:"min,omitempty"`
+	// Maximum value
+	Max graphql.Omittable[*int] `json:"max,omitempty"`
+	// Unit label
+	Unit graphql.Omittable[*string] `json:"unit,omitempty"`
+	// Description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+}
+
 // Alert rule mutation payload
 type AlertRulePayload struct {
 	// Created/updated alert rule
 	AlertRule *AlertRule `json:"alertRule,omitempty"`
 	// Errors encountered during mutation
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Alert rule template for quick rule creation
+// Pre-configured templates with variables for common alert scenarios
+type AlertRuleTemplate struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Template category
+	Category AlertRuleTemplateCategory `json:"category"`
+	// Alert severity level
+	Severity AlertSeverity `json:"severity"`
+	// Event type this template monitors
+	EventType string `json:"eventType"`
+	// Pre-configured conditions
+	Conditions []*AlertCondition `json:"conditions"`
+	// Throttle configuration
+	Throttle *ThrottleConfig `json:"throttle,omitempty"`
+	// Default notification channels
+	Channels []string `json:"channels"`
+	// Template variables for customization
+	Variables []*AlertRuleTemplateVariable `json:"variables"`
+	// Whether this is a built-in template
+	IsBuiltIn bool `json:"isBuiltIn"`
+	// Template version
+	Version string `json:"version"`
+	// Record creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (AlertRuleTemplate) IsNode() {}
+
+// Alert rule template mutation payload
+type AlertRuleTemplatePayload struct {
+	// Created/updated template
+	Template *AlertRuleTemplate `json:"template,omitempty"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Preview result for alert rule template
+type AlertRuleTemplatePreview struct {
+	// The template being previewed
+	Template *AlertRuleTemplate `json:"template"`
+	// Resolved conditions with variable substitution
+	ResolvedConditions []*AlertCondition `json:"resolvedConditions"`
+	// Validation information
+	ValidationInfo *TemplateValidationInfo `json:"validationInfo"`
+}
+
+// Variable definition for alert rule templates
+type AlertRuleTemplateVariable struct {
+	// Variable name (used for substitution)
+	Name string `json:"name"`
+	// Display label
+	Label string `json:"label"`
+	// Variable type
+	Type AlertRuleTemplateVariableType `json:"type"`
+	// Whether this variable is required
+	Required bool `json:"required"`
+	// Default value
+	DefaultValue *string `json:"defaultValue,omitempty"`
+	// Minimum value (for INTEGER, DURATION, PERCENTAGE)
+	Min *int `json:"min,omitempty"`
+	// Maximum value (for INTEGER, DURATION, PERCENTAGE)
+	Max *int `json:"max,omitempty"`
+	// Unit label (e.g., "seconds", "percent", "MB")
+	Unit *string `json:"unit,omitempty"`
+	// Variable description
+	Description *string `json:"description,omitempty"`
+}
+
+// Alert notification template
+// Templates define message format for different event types and channels
+type AlertTemplate struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Event type this template applies to
+	EventType string `json:"eventType"`
+	// Notification channel
+	Channel NotificationChannel `json:"channel"`
+	// Subject/title template
+	SubjectTemplate *string `json:"subjectTemplate,omitempty"`
+	// Body template with Go template syntax
+	BodyTemplate string `json:"bodyTemplate"`
+	// Template variables
+	Variables []*AlertTemplateVariable `json:"variables"`
+	// Whether this is a built-in template
+	IsBuiltIn bool `json:"isBuiltIn"`
+	// Whether this is a system default template
+	IsDefault bool `json:"isDefault"`
+	// Tags for categorization
+	Tags []string `json:"tags"`
+	// Channel-specific metadata
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Record creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (AlertTemplate) IsNode() {}
+
+// Alert template mutation payload
+type AlertTemplatePayload struct {
+	// Created/updated template
+	Template *AlertTemplate `json:"template,omitempty"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Template variable definition
+type AlertTemplateVariable struct {
+	// Variable name (used in template as {{.Name}})
+	Name string `json:"name"`
+	// Display label
+	Label string `json:"label"`
+	// Variable type
+	Type AlertTemplateVariableType `json:"type"`
+	// Whether this variable is required
+	Required bool `json:"required"`
+	// Default value
+	DefaultValue *string `json:"defaultValue,omitempty"`
+	// Variable description
+	Description *string `json:"description,omitempty"`
+	// Options for enum-type variables
+	Options []string `json:"options,omitempty"`
+}
+
+// Input for applying an alert template
+type ApplyAlertTemplateInput struct {
+	// Template ID to apply
+	TemplateID string `json:"templateId"`
+	// Variables for template substitution
+	Variables map[string]interface{} `json:"variables"`
+	// Alert rule configuration
+	RuleConfig *CreateAlertRuleInput `json:"ruleConfig"`
 }
 
 type ApplyChangeSetPayload struct {
@@ -456,12 +736,44 @@ type BridgeVlanMutationResult struct {
 	Errors  []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for bulk address import.
+// Used with bulkCreateAddressListEntries mutation.
+type BulkAddressInput struct {
+	// IP address, CIDR notation, or IP range
+	Address string `json:"address"`
+	// Optional description
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+	// Optional timeout
+	Timeout graphql.Omittable[*string] `json:"timeout,omitempty"`
+}
+
 // Bulk alert mutation payload
 type BulkAlertPayload struct {
 	// Number of alerts acknowledged
 	AcknowledgedCount int `json:"acknowledgedCount"`
 	// Errors encountered during mutation
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Details of a single failed entry in bulk import.
+type BulkCreateError struct {
+	// Index in the input array
+	Index int `json:"index"`
+	// The address that failed
+	Address string `json:"address"`
+	// Error message
+	Message string `json:"message"`
+}
+
+// Result of bulk address list entry creation.
+// Includes success count, failure count, and error details.
+type BulkCreateResult struct {
+	// Number of entries successfully created
+	SuccessCount int `json:"successCount"`
+	// Number of entries that failed
+	FailedCount int `json:"failedCount"`
+	// Details of failed entries
+	Errors []*BulkCreateError `json:"errors"`
 }
 
 // CPU utilization metrics
@@ -724,6 +1036,14 @@ type ChangeSetValidationResult struct {
 	CircularDependencies [][]string `json:"circularDependencies,omitempty"`
 }
 
+// Payload for channel configuration mutations
+type ChannelConfigPayload struct {
+	// The created/updated configuration
+	Config *NotificationChannelConfig `json:"config,omitempty"`
+	// Validation or mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Event emitted when circuit breaker state changes
 type CircuitBreakerEvent struct {
 	// Router ID
@@ -936,6 +1256,19 @@ type ContainerInfo struct {
 	MaxContainers *int `json:"maxContainers,omitempty"`
 }
 
+// Input for creating a new address list entry.
+// List will be created if it doesn't exist.
+type CreateAddressListEntryInput struct {
+	// Target list name (will create if doesn't exist)
+	List string `json:"list"`
+	// IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)
+	Address string `json:"address"`
+	// Optional description
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+	// Optional timeout (e.g., "1d", "12h", "30m")
+	Timeout graphql.Omittable[*string] `json:"timeout,omitempty"`
+}
+
 // Input for creating an alert rule
 type CreateAlertRuleInput struct {
 	// Human-readable alert rule name
@@ -954,6 +1287,8 @@ type CreateAlertRuleInput struct {
 	Throttle graphql.Omittable[*ThrottleConfigInput] `json:"throttle,omitempty"`
 	// Quiet hours configuration
 	QuietHours graphql.Omittable[*QuietHoursConfigInput] `json:"quietHours,omitempty"`
+	// Escalation configuration (NAS-18.9)
+	Escalation graphql.Omittable[*EscalationConfigInput] `json:"escalation,omitempty"`
 	// Optional device ID filter
 	DeviceID graphql.Omittable[*string] `json:"deviceId,omitempty"`
 	// Whether rule is enabled (default: true)
@@ -993,6 +1328,66 @@ type CreateChangeSetPayload struct {
 	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for creating a NAT rule.
+type CreateNatRuleInput struct {
+	// NAT chain (srcnat or dstnat)
+	Chain NatChain `json:"chain"`
+	// NAT action
+	Action NatAction `json:"action"`
+	// Source address or CIDR
+	SrcAddress graphql.Omittable[*string] `json:"srcAddress,omitempty"`
+	// Destination address or CIDR
+	DstAddress graphql.Omittable[*string] `json:"dstAddress,omitempty"`
+	// Source port or port range
+	SrcPort graphql.Omittable[*string] `json:"srcPort,omitempty"`
+	// Destination port (1-65535)
+	DstPort graphql.Omittable[*string] `json:"dstPort,omitempty"`
+	// Protocol (TCP, UDP)
+	Protocol graphql.Omittable[*TransportProtocol] `json:"protocol,omitempty"`
+	// Target address for NAT
+	ToAddresses graphql.Omittable[*string] `json:"toAddresses,omitempty"`
+	// Target port(s) for NAT
+	ToPorts graphql.Omittable[*string] `json:"toPorts,omitempty"`
+	// Incoming interface
+	InInterface graphql.Omittable[*string] `json:"inInterface,omitempty"`
+	// Outgoing interface
+	OutInterface graphql.Omittable[*string] `json:"outInterface,omitempty"`
+	// Optional comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+	// Whether rule is disabled
+	Disabled graphql.Omittable[*bool] `json:"disabled,omitempty"`
+}
+
+// Input for creating a new notification channel configuration
+type CreateNotificationChannelConfigInput struct {
+	// Type of notification channel
+	ChannelType ChannelType `json:"channelType"`
+	// Human-readable name
+	Name string `json:"name"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Whether this should be the default configuration
+	IsDefault graphql.Omittable[*bool] `json:"isDefault,omitempty"`
+	// Full configuration including sensitive fields
+	// For Pushover: {"userKey": "...", "apiToken": "...", "device": "...", "baseURL": "..."}
+	// For Email: {"host": "...", "port": 587, "from": "...", "username": "...", "password": "...", "tlsMode": "..."}
+	Config map[string]interface{} `json:"config"`
+}
+
+// Input for creating a new port mirror configuration
+type CreatePortMirrorInput struct {
+	// Descriptive name for the mirror configuration
+	Name string `json:"name"`
+	// Source interface IDs to mirror (must be bridge members)
+	SourceInterfaceIds []string `json:"sourceInterfaceIds"`
+	// Destination interface ID for mirrored traffic
+	DestinationInterfaceID string `json:"destinationInterfaceId"`
+	// Direction of traffic to mirror (default: BOTH)
+	Direction graphql.Omittable[*MirrorDirection] `json:"direction,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
 }
 
 // Input for creating a new resource
@@ -1041,6 +1436,42 @@ type CreateRouterPayload struct {
 	Router *Router `json:"router,omitempty"`
 	// Errors that occurred during creation
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for creating a webhook
+type CreateWebhookInput struct {
+	// Human-readable webhook name
+	Name string `json:"name"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Webhook URL endpoint
+	URL string `json:"url"`
+	// HTTP method (default: POST)
+	Method graphql.Omittable[*string] `json:"method,omitempty"`
+	// Authentication type (default: NONE)
+	AuthType graphql.Omittable[*WebhookAuthType] `json:"authType,omitempty"`
+	// Username for Basic auth
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	// Password for Basic auth
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	// Bearer token for Bearer auth
+	BearerToken graphql.Omittable[*string] `json:"bearerToken,omitempty"`
+	// Custom HTTP headers (as JSON object)
+	Headers graphql.Omittable[map[string]interface{}] `json:"headers,omitempty"`
+	// Template type for webhook payload (default: GENERIC)
+	Template graphql.Omittable[*WebhookTemplate] `json:"template,omitempty"`
+	// Custom template body (required if template is CUSTOM)
+	CustomTemplate graphql.Omittable[*string] `json:"customTemplate,omitempty"`
+	// Signing secret for HMAC signature (optional)
+	SigningSecret graphql.Omittable[*string] `json:"signingSecret,omitempty"`
+	// Timeout in seconds (default: 10)
+	TimeoutSeconds graphql.Omittable[*int] `json:"timeoutSeconds,omitempty"`
+	// Whether to retry failed deliveries (default: true)
+	RetryEnabled graphql.Omittable[*bool] `json:"retryEnabled,omitempty"`
+	// Maximum retry attempts (default: 3)
+	MaxRetries graphql.Omittable[*int] `json:"maxRetries,omitempty"`
+	// Whether webhook is enabled (default: true)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
 }
 
 // Result of testing a single router's credentials.
@@ -1323,6 +1754,48 @@ type DiagnosticSuggestion struct {
 	DocsURL *string `json:"docsUrl,omitempty"`
 }
 
+// Email digest configuration (NAS-18.11)
+type DigestConfig struct {
+	// Whether digest mode is enabled
+	Enabled bool `json:"enabled"`
+	// Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)
+	IntervalMinutes int `json:"intervalMinutes"`
+	// Time of day for daily delivery in HH:MM format (optional, for daily digests)
+	Time *string `json:"time,omitempty"`
+	// Whether critical alerts bypass digest mode and send immediately
+	BypassCritical bool `json:"bypassCritical"`
+	// Whether to send digest even when no alerts occurred during the period
+	SendEmptyDigest bool `json:"sendEmptyDigest"`
+}
+
+// Email digest configuration input (NAS-18.11)
+type DigestConfigInput struct {
+	// Whether digest mode is enabled
+	Enabled bool `json:"enabled"`
+	// Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)
+	IntervalMinutes int `json:"intervalMinutes"`
+	// Time of day for daily delivery in HH:MM format (optional, for daily digests)
+	Time graphql.Omittable[*string] `json:"time,omitempty"`
+	// Whether critical alerts bypass digest mode and send immediately (default: true)
+	BypassCritical graphql.Omittable[*bool] `json:"bypassCritical,omitempty"`
+	// Whether to send digest even when no alerts occurred during the period (default: false)
+	SendEmptyDigest graphql.Omittable[*bool] `json:"sendEmptyDigest,omitempty"`
+}
+
+// Digest summary (NAS-18.11)
+type DigestSummary struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Channel ID this digest was sent to
+	ChannelID string `json:"channelId"`
+	// When the digest was delivered
+	DeliveredAt time.Time `json:"deliveredAt"`
+	// Number of alerts included in the digest
+	AlertCount int `json:"alertCount"`
+	// Time period covered by the digest (e.g., "Last hour", "Last 24 hours")
+	Period string `json:"period"`
+}
+
 type DisconnectRouterPayload struct {
 	// The router that was disconnected
 	Router *Router `json:"router,omitempty"`
@@ -1349,6 +1822,52 @@ type DiscoveredDevice struct {
 	Confidence int `json:"confidence"`
 	// Detected services (mikrotik-api, mikrotik-winbox, mikrotik-rest, etc.)
 	Services []string `json:"services"`
+}
+
+// Complete benchmark result comparing all configured DNS servers
+type DNSBenchmarkResult struct {
+	// Test hostname used for benchmarking
+	TestHostname string `json:"testHostname"`
+	// Results for each tested server, sorted by response time
+	ServerResults []*DNSBenchmarkServerResult `json:"serverResults"`
+	// Fastest server
+	FastestServer *DNSBenchmarkServerResult `json:"fastestServer,omitempty"`
+	// When the benchmark was executed
+	Timestamp time.Time `json:"timestamp"`
+	// Total benchmark execution time in milliseconds
+	TotalTimeMs int `json:"totalTimeMs"`
+}
+
+// Benchmark result for a single DNS server
+type DNSBenchmarkServerResult struct {
+	// DNS server IP address
+	Server string `json:"server"`
+	// Response time in milliseconds (-1 if unreachable)
+	ResponseTimeMs int `json:"responseTimeMs"`
+	// Server status (Fastest, Good, Slow, Unreachable)
+	Status DNSServerStatus `json:"status"`
+	// Whether the server responded successfully
+	Success bool `json:"success"`
+	// Error message (if server failed)
+	Error *string `json:"error,omitempty"`
+}
+
+// DNS cache statistics for monitoring cache usage
+type DNSCacheStats struct {
+	// Total number of entries in the DNS cache
+	TotalEntries int `json:"totalEntries"`
+	// Cache size used in bytes
+	CacheUsedBytes Size `json:"cacheUsedBytes"`
+	// Maximum cache size in bytes
+	CacheMaxBytes Size `json:"cacheMaxBytes"`
+	// Cache usage percentage (0-100)
+	CacheUsagePercent float64 `json:"cacheUsagePercent"`
+	// Cache hit rate percentage (0-100)
+	HitRatePercent *float64 `json:"hitRatePercent,omitempty"`
+	// Most queried domains (top 10)
+	TopDomains []*DNSTopDomain `json:"topDomains"`
+	// When the statistics were collected
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Input for DNS lookup operation
@@ -1425,6 +1944,16 @@ type DNSServers struct {
 	Secondary *string `json:"secondary,omitempty"`
 }
 
+// A frequently queried domain in the DNS cache
+type DNSTopDomain struct {
+	// Domain name
+	Domain string `json:"domain"`
+	// Number of queries for this domain
+	QueryCount int `json:"queryCount"`
+	// Last query time
+	LastQueried *time.Time `json:"lastQueried,omitempty"`
+}
+
 // A field that has drifted from configuration
 type DriftField struct {
 	// Field path
@@ -1443,6 +1972,52 @@ type DriftInfo struct {
 	DriftedFields []*DriftField `json:"driftedFields"`
 	// Suggested action to resolve drift
 	SuggestedAction DriftAction `json:"suggestedAction"`
+}
+
+// Email notification configuration
+type EmailConfig struct {
+	// Whether email notifications are enabled
+	Enabled bool `json:"enabled"`
+	// SMTP server hostname
+	Host *string `json:"host,omitempty"`
+	// SMTP server port
+	Port *int `json:"port,omitempty"`
+	// SMTP username for authentication
+	Username *string `json:"username,omitempty"`
+	// Email sender address
+	FromAddress *string `json:"fromAddress,omitempty"`
+	// Email sender display name
+	FromName *string `json:"fromName,omitempty"`
+	// Array of recipient email addresses
+	ToAddresses []string `json:"toAddresses"`
+	// Whether to use TLS/SSL
+	UseTLS *bool `json:"useTLS,omitempty"`
+	// Skip TLS certificate verification (use with caution)
+	SkipVerify *bool `json:"skipVerify,omitempty"`
+}
+
+// Email notification configuration input
+type EmailConfigInput struct {
+	// Whether email notifications are enabled
+	Enabled bool `json:"enabled"`
+	// SMTP server hostname
+	Host graphql.Omittable[*string] `json:"host,omitempty"`
+	// SMTP server port
+	Port graphql.Omittable[*int] `json:"port,omitempty"`
+	// SMTP username for authentication
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	// SMTP password for authentication
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	// Email sender address
+	FromAddress graphql.Omittable[*string] `json:"fromAddress,omitempty"`
+	// Email sender display name
+	FromName graphql.Omittable[*string] `json:"fromName,omitempty"`
+	// Array of recipient email addresses
+	ToAddresses []string `json:"toAddresses"`
+	// Whether to use TLS/SSL
+	UseTLS graphql.Omittable[*bool] `json:"useTLS,omitempty"`
+	// Skip TLS certificate verification (use with caution)
+	SkipVerify graphql.Omittable[*bool] `json:"skipVerify,omitempty"`
 }
 
 // Rich error extensions for detailed error diagnostics.
@@ -1466,6 +2041,38 @@ type ErrorExtensions struct {
 	Recoverable bool `json:"recoverable"`
 	// Additional troubleshooting steps for complex errors
 	TroubleshootingSteps []string `json:"troubleshootingSteps,omitempty"`
+}
+
+// Escalation configuration for unacknowledged alerts (NAS-18.9)
+type EscalationConfig struct {
+	// Whether escalation is enabled
+	Enabled bool `json:"enabled"`
+	// Whether alert must be acknowledged to stop escalation
+	RequireAck bool `json:"requireAck"`
+	// Delay in seconds before first escalation
+	EscalationDelay int `json:"escalationDelay"`
+	// Maximum number of escalation levels
+	MaxEscalations int `json:"maxEscalations"`
+	// Additional notification channels to add during escalation
+	AdditionalChannels []string `json:"additionalChannels"`
+	// Per-level delay intervals in seconds
+	RepeatIntervals []int `json:"repeatIntervals"`
+}
+
+// Escalation configuration input (NAS-18.9)
+type EscalationConfigInput struct {
+	// Whether escalation is enabled (default: false)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	// Whether alert must be acknowledged to stop escalation (default: true)
+	RequireAck graphql.Omittable[*bool] `json:"requireAck,omitempty"`
+	// Delay in seconds before first escalation (default: 900 = 15min)
+	EscalationDelay graphql.Omittable[*int] `json:"escalationDelay,omitempty"`
+	// Maximum number of escalation levels (default: 3)
+	MaxEscalations graphql.Omittable[*int] `json:"maxEscalations,omitempty"`
+	// Additional notification channels to add during escalation
+	AdditionalChannels graphql.Omittable[[]string] `json:"additionalChannels,omitempty"`
+	// Per-level delay intervals in seconds (default: [900, 1800, 3600])
+	RepeatIntervals graphql.Omittable[[]int] `json:"repeatIntervals,omitempty"`
 }
 
 // Options for exporting router configuration.
@@ -1604,8 +2211,32 @@ type FeatureSupport struct {
 	MissingPackages []string `json:"missingPackages,omitempty"`
 }
 
-// Firewall rule (minimal type for dependencies)
+// Firewall rule placeholder type.
+// TODO: Expand with full filter/NAT/mangle rule types in future stories.
 type FirewallRule struct {
+	// Rule ID
+	ID string `json:"id"`
+	// Rule type (filter, nat, mangle)
+	Type string `json:"type"`
+	// Rule chain (input, forward, output, prerouting, postrouting, etc.)
+	Chain string `json:"chain"`
+	// Rule action (accept, drop, reject, etc.)
+	Action string `json:"action"`
+	// Source address list reference
+	SrcAddressList *string `json:"srcAddressList,omitempty"`
+	// Destination address list reference
+	DstAddressList *string `json:"dstAddressList,omitempty"`
+	// Optional comment
+	Comment *string `json:"comment,omitempty"`
+	// Whether rule is disabled
+	Disabled bool `json:"disabled"`
+}
+
+func (FirewallRule) IsNode() {}
+
+// Firewall rule reference type (lightweight for dependency tracking).
+// For full firewall rule management, see FirewallRule type in firewall.graphql.
+type FirewallRuleReference struct {
 	// Firewall rule ID
 	ID string `json:"id"`
 	// Rule chain
@@ -1659,6 +2290,98 @@ type FirewallRuleResource struct {
 func (FirewallRuleResource) IsResource() {}
 
 func (FirewallRuleResource) IsNode() {}
+
+// Firewall template with pre-configured rule sets.
+// Templates allow quick application of common firewall configurations.
+type FirewallTemplate struct {
+	// Unique template identifier
+	ID string `json:"id"`
+	// Human-readable template name
+	Name string `json:"name"`
+	// Detailed description of what this template does
+	Description string `json:"description"`
+	// Category for organization
+	Category TemplateCategory `json:"category"`
+	// Complexity level indicator
+	Complexity TemplateComplexity `json:"complexity"`
+	// Total number of rules in this template
+	RuleCount int `json:"ruleCount"`
+	// Variables that can be customized before applying
+	Variables []*FirewallTemplateVariable `json:"variables"`
+	// Rules that will be created
+	Rules []*TemplateRule `json:"rules"`
+	// Whether this is a built-in template
+	IsBuiltIn bool `json:"isBuiltIn"`
+	// Template version for compatibility tracking
+	Version string `json:"version"`
+	// When this template was created (null for built-in)
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	// When this template was last modified (null for built-in)
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// Result of template application.
+type FirewallTemplateResult struct {
+	// Whether application succeeded
+	Success bool `json:"success"`
+	// Number of rules successfully applied
+	AppliedRulesCount int `json:"appliedRulesCount"`
+	// Rollback ID for undo (valid for 5 minutes)
+	RollbackID string `json:"rollbackId"`
+	// Errors encountered during application
+	Errors []string `json:"errors,omitempty"`
+}
+
+// Variable definition for template customization.
+// Variables allow parameterization of templates for different network configurations.
+type FirewallTemplateVariable struct {
+	// Variable name (used in rule properties)
+	Name string `json:"name"`
+	// Human-readable label for UI
+	Label string `json:"label"`
+	// Variable type for validation
+	Type VariableType `json:"type"`
+	// Default value if not specified
+	DefaultValue *string `json:"defaultValue,omitempty"`
+	// Whether this variable is required
+	Required bool `json:"required"`
+	// Description to help users understand the variable
+	Description *string `json:"description,omitempty"`
+	// Available options (populated from router for INTERFACE type)
+	Options []string `json:"options,omitempty"`
+}
+
+// Input for defining a template variable.
+type FirewallTemplateVariableInput struct {
+	// Variable name
+	Name string `json:"name"`
+	// Label for UI
+	Label string `json:"label"`
+	// Variable type
+	Type VariableType `json:"type"`
+	// Default value
+	DefaultValue graphql.Omittable[*string] `json:"defaultValue,omitempty"`
+	// Whether required
+	Required bool `json:"required"`
+	// Description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+}
+
+// Result of flushing the DNS cache
+type FlushDNSCacheResult struct {
+	// Whether the cache was flushed successfully
+	Success bool `json:"success"`
+	// Number of entries removed from the cache
+	EntriesRemoved int `json:"entriesRemoved"`
+	// Cache statistics before flushing
+	BeforeStats *DNSCacheStats `json:"beforeStats"`
+	// Cache statistics after flushing
+	AfterStats *DNSCacheStats `json:"afterStats"`
+	// User-friendly message
+	Message string `json:"message"`
+	// When the flush was executed
+	Timestamp time.Time `json:"timestamp"`
+}
 
 // Result of checking gateway reachability
 type GatewayReachabilityResult struct {
@@ -1754,6 +2477,19 @@ type ISPInfo struct {
 	Phone *string `json:"phone,omitempty"`
 	// ISP support website URL
 	URL *string `json:"url,omitempty"`
+}
+
+// Analysis of template application impact.
+// Provides estimates and warnings before applying.
+type ImpactAnalysis struct {
+	// Number of new rules that will be created
+	NewRulesCount int `json:"newRulesCount"`
+	// Chains that will be affected
+	AffectedChains []string `json:"affectedChains"`
+	// Estimated time to apply (seconds)
+	EstimatedApplyTime int `json:"estimatedApplyTime"`
+	// Warnings about potential issues
+	Warnings []string `json:"warnings"`
 }
 
 // Integer range for filtering
@@ -1953,9 +2689,9 @@ type IPAddressDependencies struct {
 	// Static routes using this IP
 	Routes []*Route `json:"routes"`
 	// NAT rules referencing this IP
-	NatRules []*NatRule `json:"natRules"`
+	NatRules []*NatRuleReference `json:"natRules"`
 	// Firewall rules referencing this IP
-	FirewallRules []*FirewallRule `json:"firewallRules"`
+	FirewallRules []*FirewallRuleReference `json:"firewallRules"`
 	// Whether the IP has any dependencies
 	HasDependencies bool `json:"hasDependencies"`
 }
@@ -1965,9 +2701,9 @@ type IPAddressImpactAnalysis struct {
 	// Whether this IP is used as a gateway by DHCP servers
 	UsedByDhcpServers []*DhcpServer `json:"usedByDhcpServers"`
 	// Whether this IP is referenced in firewall rules
-	UsedInFirewallRules []*FirewallRule `json:"usedInFirewallRules"`
+	UsedInFirewallRules []*FirewallRuleReference `json:"usedInFirewallRules"`
 	// Whether this IP is used in NAT rules
-	UsedInNatRules []*NatRule `json:"usedInNatRules"`
+	UsedInNatRules []*NatRuleReference `json:"usedInNatRules"`
 	// Number of active connections using this IP
 	ActiveConnections int `json:"activeConnections"`
 	// Severity of the deletion
@@ -2026,6 +2762,36 @@ type IPConflictResult struct {
 	Conflicts []*IPConflict `json:"conflicts"`
 	// Human-readable message
 	Message string `json:"message"`
+}
+
+// IPsec profile for GRE tunnel encryption
+type IpsecProfile struct {
+	// IPsec profile ID
+	ID string `json:"id"`
+	// Profile name
+	Name string `json:"name"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+}
+
+// Single knock port in sequence.
+type KnockPort struct {
+	// Port number (1-65535)
+	Port int `json:"port"`
+	// Protocol for this knock port
+	Protocol KnockProtocol `json:"protocol"`
+	// Position in sequence (1-based)
+	Order int `json:"order"`
+}
+
+// Input for knock port.
+type KnockPortInput struct {
+	// Port number
+	Port int `json:"port"`
+	// Protocol
+	Protocol KnockProtocol `json:"protocol"`
+	// Order in sequence
+	Order int `json:"order"`
 }
 
 // LAN Network composite resource - groups bridge, DHCP, firewall, routing
@@ -2173,6 +2939,18 @@ type MissingDependency struct {
 	MissingResourceID string `json:"missingResourceId"`
 }
 
+// MTU guidance for tunnel configuration
+type MtuGuidance struct {
+	// Tunnel type this guidance applies to
+	TunnelType TunnelType `json:"tunnelType"`
+	// Protocol overhead in bytes
+	Overhead int `json:"overhead"`
+	// Recommended MTU based on base MTU (typically 1500)
+	RecommendedMtu int `json:"recommendedMtu"`
+	// Human-readable explanation of the overhead
+	Explanation string `json:"explanation"`
+}
+
 type Mutation struct {
 }
 
@@ -2186,8 +2964,50 @@ type MutationError struct {
 	Field *string `json:"field,omitempty"`
 }
 
-// NAT rule reference type
+// NAT rule configuration for network address translation.
+// Handles both source NAT (masquerade) and destination NAT (port forwarding).
 type NatRule struct {
+	// MikroTik internal ID
+	ID string `json:"id"`
+	// NAT chain (srcnat or dstnat)
+	Chain NatChain `json:"chain"`
+	// NAT action
+	Action NatAction `json:"action"`
+	// Source address or CIDR
+	SrcAddress *string `json:"srcAddress,omitempty"`
+	// Destination address or CIDR
+	DstAddress *string `json:"dstAddress,omitempty"`
+	// Source port or port range
+	SrcPort *string `json:"srcPort,omitempty"`
+	// Destination port or port range
+	DstPort *string `json:"dstPort,omitempty"`
+	// Protocol (TCP, UDP)
+	Protocol *TransportProtocol `json:"protocol,omitempty"`
+	// Target address for NAT
+	ToAddresses *string `json:"toAddresses,omitempty"`
+	// Target port(s) for NAT
+	ToPorts *string `json:"toPorts,omitempty"`
+	// Incoming interface
+	InInterface *string `json:"inInterface,omitempty"`
+	// Outgoing interface
+	OutInterface *string `json:"outInterface,omitempty"`
+	// Optional comment
+	Comment *string `json:"comment,omitempty"`
+	// Whether rule is disabled
+	Disabled bool `json:"disabled"`
+	// Bytes processed by this rule
+	Bytes int `json:"bytes"`
+	// Packets processed by this rule
+	Packets int `json:"packets"`
+	// Rule position in chain
+	Position int `json:"position"`
+}
+
+func (NatRule) IsNode() {}
+
+// NAT rule reference type (lightweight for dependency tracking).
+// For full NAT rule management, see NatRule type in firewall.graphql.
+type NatRuleReference struct {
 	// NAT rule ID
 	ID string `json:"id"`
 	// Rule chain (srcnat, dstnat)
@@ -2212,6 +3032,77 @@ type NetworkConfigDetection struct {
 	Gateway *string `json:"gateway,omitempty"`
 	// Detected ISP information
 	IspInfo *ISPInfo `json:"ispInfo,omitempty"`
+}
+
+// Notification channel configuration with encrypted credentials
+type NotificationChannelConfig struct {
+	// Unique configuration ID
+	ID string `json:"id"`
+	// Type of notification channel
+	ChannelType ChannelType `json:"channelType"`
+	// Human-readable name for this configuration
+	Name string `json:"name"`
+	// Optional description
+	Description *string `json:"description,omitempty"`
+	// Whether this configuration is enabled
+	Enabled bool `json:"enabled"`
+	// Whether this is the default configuration for this channel type
+	IsDefault bool `json:"isDefault"`
+	// Masked configuration (sensitive fields redacted)
+	// For Pushover: {"device": "iphone", "baseURL": "...", "userKey": "******", "apiToken": "******"}
+	// For Email: {"host": "smtp.gmail.com", "port": 587, "from": "...", "password": "******"}
+	ConfigMasked map[string]interface{} `json:"configMasked"`
+	// When this configuration was created
+	CreatedAt time.Time `json:"createdAt"`
+	// When this configuration was last updated
+	UpdatedAt time.Time `json:"updatedAt"`
+	// User ID who created this configuration
+	CreatedBy *string `json:"createdBy,omitempty"`
+	// User ID who last updated this configuration
+	UpdatedBy *string `json:"updatedBy,omitempty"`
+}
+
+// Notification delivery log entry
+type NotificationLog struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Alert that triggered this notification
+	AlertID string `json:"alertId"`
+	// Notification channel type (email, telegram, pushover, webhook)
+	Channel string `json:"channel"`
+	// Webhook ID (if channel is webhook)
+	WebhookID *string `json:"webhookId,omitempty"`
+	// Delivery status
+	Status NotificationStatus `json:"status"`
+	// HTTP status code (for webhooks)
+	StatusCode *int `json:"statusCode,omitempty"`
+	// Response time in milliseconds
+	ResponseTimeMs *int `json:"responseTimeMs,omitempty"`
+	// Error message if delivery failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Number of retry attempts
+	RetryCount int `json:"retryCount"`
+	// Request payload sent
+	RequestPayload map[string]interface{} `json:"requestPayload,omitempty"`
+	// Response body received
+	ResponseBody *string `json:"responseBody,omitempty"`
+	// When delivery was attempted
+	AttemptedAt time.Time `json:"attemptedAt"`
+	// When delivery was completed (success or final failure)
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+func (NotificationLog) IsNode() {}
+
+// Notification template preview result
+// Simplified preview output for template customization
+type NotificationTemplatePreview struct {
+	// Rendered subject line (empty if channel doesn't use subjects)
+	Subject *string `json:"subject,omitempty"`
+	// Rendered body content
+	Body string `json:"body"`
+	// Validation errors (empty array if valid)
+	Errors []string `json:"errors"`
 }
 
 // Operation counts by type
@@ -2298,6 +3189,200 @@ type PlatformLimitation struct {
 	Workaround *string `json:"workaround,omitempty"`
 }
 
+// Port forward configuration (high-level view).
+// Represents both the NAT rule and corresponding filter rule.
+type PortForward struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// Optional name/description
+	Name *string `json:"name,omitempty"`
+	// Protocol (TCP, UDP)
+	Protocol TransportProtocol `json:"protocol"`
+	// External port
+	ExternalPort int `json:"externalPort"`
+	// Internal target IP
+	InternalIP string `json:"internalIP"`
+	// Internal target port
+	InternalPort int `json:"internalPort"`
+	// Current status
+	Status PortForwardStatus `json:"status"`
+	// ID of the associated NAT rule
+	NatRuleID string `json:"natRuleId"`
+	// ID of the associated filter rule (if created)
+	FilterRuleID *string `json:"filterRuleId,omitempty"`
+}
+
+func (PortForward) IsNode() {}
+
+// Input for creating a port forward (simplified wizard).
+// Creates both NAT and filter rules automatically.
+type PortForwardInput struct {
+	// Protocol (TCP, UDP)
+	Protocol TransportProtocol `json:"protocol"`
+	// External port (1-65535)
+	ExternalPort int `json:"externalPort"`
+	// Internal target IP address
+	InternalIP string `json:"internalIP"`
+	// Internal target port (defaults to external port if not specified)
+	InternalPort graphql.Omittable[*int] `json:"internalPort,omitempty"`
+	// Optional name/description for this port forward
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// WAN interface name (optional, auto-detected if not specified)
+	WanInterface graphql.Omittable[*string] `json:"wanInterface,omitempty"`
+}
+
+// Port knock attempt log entry.
+type PortKnockAttempt struct {
+	// Attempt ID
+	ID string `json:"id"`
+	// Sequence ID
+	SequenceID string `json:"sequenceId"`
+	// Sequence name
+	SequenceName string `json:"sequenceName"`
+	// Source IP address
+	SourceIP string `json:"sourceIP"`
+	// Attempt timestamp
+	Timestamp time.Time `json:"timestamp"`
+	// Attempt status
+	Status KnockStatus `json:"status"`
+	// Ports hit in order
+	PortsHit []int `json:"portsHit"`
+	// Protected service port
+	ProtectedPort int `json:"protectedPort"`
+	// Progress indicator (e.g., "2/4")
+	Progress string `json:"progress"`
+}
+
+func (PortKnockAttempt) IsNode() {}
+
+// Connection type for paginated knock attempts.
+type PortKnockAttemptConnection struct {
+	Edges      []*PortKnockAttemptEdge `json:"edges"`
+	PageInfo   *PageInfo               `json:"pageInfo"`
+	TotalCount *int                    `json:"totalCount,omitempty"`
+}
+
+func (PortKnockAttemptConnection) IsConnection() {}
+
+// Edge type for knock attempt connections.
+type PortKnockAttemptEdge struct {
+	Cursor string            `json:"cursor"`
+	Node   *PortKnockAttempt `json:"node"`
+}
+
+func (PortKnockAttemptEdge) IsEdge() {}
+
+// Filters for knock attempt log.
+type PortKnockLogFilters struct {
+	// Filter by status
+	Status graphql.Omittable[*KnockStatus] `json:"status,omitempty"`
+	// Filter by source IP
+	SourceIP graphql.Omittable[*string] `json:"sourceIP,omitempty"`
+	// Filter by sequence ID
+	SequenceID graphql.Omittable[*string] `json:"sequenceId,omitempty"`
+	// Start date
+	StartDate graphql.Omittable[*time.Time] `json:"startDate,omitempty"`
+	// End date
+	EndDate graphql.Omittable[*time.Time] `json:"endDate,omitempty"`
+}
+
+// Port knocking sequence configuration.
+// Implements stage-based address list progression for hiding services.
+type PortKnockSequence struct {
+	// Unique sequence identifier
+	ID string `json:"id"`
+	// Sequence name (alphanumeric, underscores, hyphens)
+	Name string `json:"name"`
+	// Ordered list of knock ports (2-8 ports)
+	KnockPorts []*KnockPort `json:"knockPorts"`
+	// Protected service port
+	ProtectedPort int `json:"protectedPort"`
+	// Protected service protocol
+	ProtectedProtocol TransportProtocol `json:"protectedProtocol"`
+	// Access timeout after successful knock
+	AccessTimeout string `json:"accessTimeout"`
+	// Max time between knocks
+	KnockTimeout string `json:"knockTimeout"`
+	// Whether sequence is enabled
+	Enabled bool `json:"enabled"`
+	// Router ID
+	RouterID string `json:"routerId"`
+	// When sequence was created
+	CreatedAt time.Time `json:"createdAt"`
+	// When sequence was last updated
+	UpdatedAt time.Time `json:"updatedAt"`
+	// Successful knocks in last 24h
+	RecentAccessCount int `json:"recentAccessCount"`
+	// Generated firewall rule IDs
+	GeneratedRuleIds []string `json:"generatedRuleIds"`
+}
+
+func (PortKnockSequence) IsNode() {}
+
+// Input for creating/updating port knock sequence.
+type PortKnockSequenceInput struct {
+	// Sequence name
+	Name string `json:"name"`
+	// Ordered knock ports (2-8)
+	KnockPorts []*KnockPortInput `json:"knockPorts"`
+	// Protected service port
+	ProtectedPort int `json:"protectedPort"`
+	// Protected service protocol
+	ProtectedProtocol TransportProtocol `json:"protectedProtocol"`
+	// Access timeout (e.g., "5m", "1h")
+	AccessTimeout string `json:"accessTimeout"`
+	// Knock timeout (e.g., "15s", "30s")
+	KnockTimeout string `json:"knockTimeout"`
+	// Whether enabled
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
+// A port mirror configuration for traffic monitoring and analysis
+type PortMirror struct {
+	// Unique port mirror identifier
+	ID string `json:"id"`
+	// Descriptive name for the mirror configuration
+	Name string `json:"name"`
+	// Source interfaces being mirrored
+	SourceInterfaces []*Interface `json:"sourceInterfaces"`
+	// Destination interface where mirrored traffic is sent
+	DestinationInterface *Interface `json:"destinationInterface"`
+	// Direction of traffic to mirror
+	Direction MirrorDirection `json:"direction"`
+	// Whether the mirror is enabled
+	Enabled bool `json:"enabled"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+	// Statistics for the destination interface
+	Statistics *PortMirrorStats `json:"statistics,omitempty"`
+}
+
+func (PortMirror) IsNode() {}
+
+// Result of a port mirror mutation (create, update)
+type PortMirrorMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// The created or updated port mirror (if successful)
+	PortMirror *PortMirror `json:"portMirror,omitempty"`
+	// Configuration preview (RouterOS commands)
+	Preview *ConfigPreview `json:"preview,omitempty"`
+	// Errors that occurred during the operation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Statistics for a port mirror destination interface
+type PortMirrorStats struct {
+	// Total mirrored packets
+	MirroredPackets Size `json:"mirroredPackets"`
+	// Total mirrored bytes
+	MirroredBytes Size `json:"mirroredBytes"`
+	// Destination interface current load
+	DestinationLoad float64 `json:"destinationLoad"`
+	// Whether the destination is saturated (dropping packets)
+	IsSaturated bool `json:"isSaturated"`
+}
+
 // Status of a single port check
 type PortStatus struct {
 	// Port number checked
@@ -2366,6 +3451,31 @@ type PppoeClientInput struct {
 	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
 }
 
+// Input for previewing a notification template
+// Simpler input for template customization workflow
+type PreviewNotificationTemplateInput struct {
+	// Event type for sample data generation
+	EventType string `json:"eventType"`
+	// Notification channel
+	Channel NotificationChannel `json:"channel"`
+	// Subject template (optional, not all channels use subjects)
+	SubjectTemplate graphql.Omittable[*string] `json:"subjectTemplate,omitempty"`
+	// Body template with Go template syntax
+	BodyTemplate string `json:"bodyTemplate"`
+}
+
+// Pushover API usage statistics
+type PushoverUsage struct {
+	// Number of messages used this month
+	Used int `json:"used"`
+	// Number of messages remaining this month
+	Remaining int `json:"remaining"`
+	// Monthly message limit
+	Limit int `json:"limit"`
+	// When the usage counter resets
+	ResetAt time.Time `json:"resetAt"`
+}
+
 type Query struct {
 }
 
@@ -2379,6 +3489,8 @@ type QuietHoursConfig struct {
 	Timezone string `json:"timezone"`
 	// Whether critical alerts bypass quiet hours
 	BypassCritical bool `json:"bypassCritical"`
+	// Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days.
+	DaysOfWeek []int `json:"daysOfWeek"`
 }
 
 // Quiet hours configuration input
@@ -2391,6 +3503,8 @@ type QuietHoursConfigInput struct {
 	Timezone graphql.Omittable[*string] `json:"timezone,omitempty"`
 	// Whether critical alerts bypass quiet hours (default: true)
 	BypassCritical graphql.Omittable[*bool] `json:"bypassCritical,omitempty"`
+	// Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days.
+	DaysOfWeek graphql.Omittable[[]int] `json:"daysOfWeek,omitempty"`
 }
 
 type ReconnectRouterPayload struct {
@@ -2695,6 +3809,44 @@ type RouteInput struct {
 	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
 }
 
+// A candidate route that matches the destination
+type RouteLookupCandidate struct {
+	// The route object
+	Route *Route `json:"route"`
+	// Prefix length (24 for /24, 8 for /8)
+	PrefixLength int `json:"prefixLength"`
+	// Administrative distance
+	Distance int `json:"distance"`
+	// Whether this route was selected
+	Selected bool `json:"selected"`
+	// Reason for selection or non-selection
+	SelectionReason *string `json:"selectionReason,omitempty"`
+}
+
+// Result of a route lookup operation
+type RouteLookupResult struct {
+	// Destination IP that was looked up
+	Destination string `json:"destination"`
+	// The selected route (null if no route found)
+	MatchedRoute *Route `json:"matchedRoute,omitempty"`
+	// Gateway IP for the selected route
+	Gateway *string `json:"gateway,omitempty"`
+	// Outgoing interface for the selected route
+	Interface *string `json:"interface,omitempty"`
+	// Administrative distance of selected route
+	Distance *int `json:"distance,omitempty"`
+	// Route type (STATIC, CONNECTED, DYNAMIC, BGP, OSPF)
+	RouteType RouteType `json:"routeType"`
+	// Whether this is the default route (0.0.0.0/0)
+	IsDefaultRoute bool `json:"isDefaultRoute"`
+	// All candidate routes that match destination
+	CandidateRoutes []*RouteLookupCandidate `json:"candidateRoutes"`
+	// Human-readable explanation of route selection
+	Explanation string `json:"explanation"`
+	// VPN tunnel info if route goes through VPN
+	VpnTunnel *VPNTunnelInfo `json:"vpnTunnel,omitempty"`
+}
+
 // Result of a route mutation (create, update)
 type RouteMutationResult struct {
 	// Whether the operation succeeded
@@ -2933,6 +4085,64 @@ type RuntimeState struct {
 	Uptime *Duration `json:"uptime,omitempty"`
 }
 
+// Input for saving custom alert rule template
+type SaveAlertRuleTemplateInput struct {
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Template category
+	Category AlertRuleTemplateCategory `json:"category"`
+	// Alert severity
+	Severity AlertSeverity `json:"severity"`
+	// Event type
+	EventType string `json:"eventType"`
+	// Alert conditions
+	Conditions []*AlertConditionInput `json:"conditions"`
+	// Throttle configuration
+	Throttle graphql.Omittable[*ThrottleConfigInput] `json:"throttle,omitempty"`
+	// Notification channels
+	Channels []string `json:"channels"`
+	// Template variables
+	Variables graphql.Omittable[[]*AlertRuleAlertTemplateVariableInput] `json:"variables,omitempty"`
+}
+
+// Input for saving a custom alert template
+type SaveAlertTemplateInput struct {
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Event type
+	EventType string `json:"eventType"`
+	// Notification channel
+	Channel NotificationChannel `json:"channel"`
+	// Subject template
+	SubjectTemplate graphql.Omittable[*string] `json:"subjectTemplate,omitempty"`
+	// Body template
+	BodyTemplate string `json:"bodyTemplate"`
+	// Template variables
+	Variables []*AlertAlertTemplateVariableInput `json:"variables"`
+	// Tags
+	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
+	// Metadata
+	Metadata graphql.Omittable[map[string]interface{}] `json:"metadata,omitempty"`
+}
+
+// Input for saving a custom template.
+type SaveTemplateInput struct {
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Category
+	Category TemplateCategory `json:"category"`
+	// Variable definitions
+	Variables []*FirewallTemplateVariableInput `json:"variables"`
+	// Rule definitions
+	Rules []*TemplateRuleInput `json:"rules"`
+}
+
 // Input for starting a network scan
 type ScanNetworkInput struct {
 	// Target subnet in CIDR notation (e.g., '192.168.88.0/24') or IP range (e.g., '192.168.1.1-192.168.1.100')
@@ -3094,6 +4304,39 @@ type StorageMetrics struct {
 	Percentage float64 `json:"percentage"`
 }
 
+// Alert rule contribution to storm detection
+type StormRuleContribution struct {
+	// Alert rule ID
+	RuleID string `json:"ruleId"`
+	// Alert rule name
+	RuleName string `json:"ruleName"`
+	// Number of alerts from this rule in current window
+	AlertCount int `json:"alertCount"`
+	// Percentage of total alerts
+	Percentage float64 `json:"percentage"`
+}
+
+// Storm detection status
+// Shows if alert storm is detected and current metrics
+type StormStatus struct {
+	// Whether storm is currently detected
+	IsStormDetected bool `json:"isStormDetected"`
+	// Number of alerts in current window
+	AlertCount int `json:"alertCount"`
+	// Storm detection threshold
+	Threshold int `json:"threshold"`
+	// Window duration in seconds
+	WindowSeconds int `json:"windowSeconds"`
+	// When storm detection started
+	StormStartedAt *time.Time `json:"stormStartedAt,omitempty"`
+	// When current window started
+	WindowStart time.Time `json:"windowStart"`
+	// When current window ends
+	WindowEnd time.Time `json:"windowEnd"`
+	// Top alert rules contributing to the storm
+	TopRules []*StormRuleContribution `json:"topRules"`
+}
+
 type Subscription struct {
 }
 
@@ -3130,6 +4373,96 @@ type TelemetryData struct {
 	RetentionDays int `json:"retentionDays"`
 }
 
+// Detected conflict between template and existing configuration.
+type TemplateConflict struct {
+	// Type of conflict
+	Type TemplateConflictType `json:"type"`
+	// Human-readable conflict description
+	Message string `json:"message"`
+	// Existing rule ID that conflicts (if applicable)
+	ExistingRuleID *string `json:"existingRuleId,omitempty"`
+	// Proposed template rule that conflicts
+	ProposedRule *TemplateRule `json:"proposedRule"`
+}
+
+// Template preview result
+type TemplatePreview struct {
+	// The template that was previewed
+	Template *AlertTemplate `json:"template"`
+	// Rendered subject after variable substitution
+	RenderedSubject string `json:"renderedSubject"`
+	// Rendered body after variable substitution
+	RenderedBody string `json:"renderedBody"`
+	// Variables used in preview
+	Variables map[string]interface{} `json:"variables"`
+	// Validation information
+	ValidationInfo *TemplateValidationInfo `json:"validationInfo"`
+}
+
+// Template preview payload
+type TemplatePreviewPayload struct {
+	// Preview result
+	Preview *TemplatePreview `json:"preview,omitempty"`
+	// Errors encountered during preview
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Result of template preview operation.
+// Shows what will happen when template is applied.
+type TemplatePreviewResult struct {
+	// The template being previewed
+	Template *FirewallTemplate `json:"template"`
+	// Rules with variables resolved
+	ResolvedRules []*TemplateRule `json:"resolvedRules"`
+	// Detected conflicts with existing rules
+	Conflicts []*TemplateConflict `json:"conflicts"`
+	// Impact analysis
+	ImpactAnalysis *ImpactAnalysis `json:"impactAnalysis"`
+}
+
+// Template rule definition.
+// Represents a firewall rule that will be created when template is applied.
+type TemplateRule struct {
+	// Firewall table (filter, nat, mangle, raw)
+	Table FirewallTable `json:"table"`
+	// Chain name
+	Chain string `json:"chain"`
+	// Action to perform
+	Action string `json:"action"`
+	// Optional comment (can include template metadata)
+	Comment *string `json:"comment,omitempty"`
+	// Position in the chain (null = append to end)
+	Position *int `json:"position,omitempty"`
+	// Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})
+	Properties map[string]interface{} `json:"properties"`
+}
+
+// Input for defining a template rule.
+type TemplateRuleInput struct {
+	// Firewall table
+	Table FirewallTable `json:"table"`
+	// Chain name
+	Chain string `json:"chain"`
+	// Action
+	Action string `json:"action"`
+	// Comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+	// Position
+	Position graphql.Omittable[*int] `json:"position,omitempty"`
+	// Rule properties as JSON
+	Properties map[string]interface{} `json:"properties"`
+}
+
+// Template validation information
+type TemplateValidationInfo struct {
+	// Whether the template is valid with provided variables
+	IsValid bool `json:"isValid"`
+	// Missing required variables
+	MissingVariables []string `json:"missingVariables"`
+	// Validation warnings
+	Warnings []string `json:"warnings"`
+}
+
 // Result of testing all router credentials.
 type TestAllCredentialsPayload struct {
 	// Total number of routers tested
@@ -3163,6 +4496,18 @@ type TestNotificationPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Result of test port knock operation.
+type TestPortKnockResult struct {
+	// Whether test rules were created successfully
+	Success bool `json:"success"`
+	// Test instructions for user
+	TestInstructions string `json:"testInstructions"`
+	// Message
+	Message string `json:"message"`
+	// Test rule IDs (will auto-expire)
+	TestRuleIds []string `json:"testRuleIds"`
+}
+
 // Throttle configuration to prevent alert spam
 type ThrottleConfig struct {
 	// Maximum number of alerts allowed
@@ -3181,6 +4526,37 @@ type ThrottleConfigInput struct {
 	PeriodSeconds int `json:"periodSeconds"`
 	// Optional field to group alerts by
 	GroupByField graphql.Omittable[*string] `json:"groupByField,omitempty"`
+}
+
+// Throttle status for a specific group (when groupByField is used)
+type ThrottleGroupStatus struct {
+	// Group identifier (value of groupByField)
+	GroupKey string `json:"groupKey"`
+	// Whether this group is currently throttled
+	IsThrottled bool `json:"isThrottled"`
+	// Number of alerts suppressed for this group
+	SuppressedCount int `json:"suppressedCount"`
+	// When the throttle window for this group started
+	WindowStart time.Time `json:"windowStart"`
+	// When the throttle window for this group ends
+	WindowEnd time.Time `json:"windowEnd"`
+}
+
+// Throttle status for an alert rule
+// Shows current throttling state and suppressed alert counts
+type ThrottleStatus struct {
+	// Alert rule ID
+	RuleID string `json:"ruleId"`
+	// Whether the rule is currently throttled
+	IsThrottled bool `json:"isThrottled"`
+	// Number of alerts suppressed in current throttle window
+	SuppressedCount int `json:"suppressedCount"`
+	// When the current throttle window started
+	WindowStart *time.Time `json:"windowStart,omitempty"`
+	// When the current throttle window ends
+	WindowEnd *time.Time `json:"windowEnd,omitempty"`
+	// Throttle groups (if groupByField is configured)
+	Groups []*ThrottleGroupStatus `json:"groups"`
 }
 
 // Edge connecting nodes in a topology
@@ -3407,6 +4783,96 @@ type TroubleshootStepResult struct {
 	Target *string `json:"target,omitempty"`
 }
 
+// A network tunnel interface for connecting remote networks
+type Tunnel struct {
+	// Unique tunnel identifier
+	ID string `json:"id"`
+	// Tunnel interface name
+	Name string `json:"name"`
+	// Tunnel protocol type
+	Type TunnelType `json:"type"`
+	// Local endpoint IP address
+	LocalAddress string `json:"localAddress"`
+	// Remote endpoint IP address
+	RemoteAddress string `json:"remoteAddress"`
+	// Operational status of the tunnel
+	Status InterfaceStatus `json:"status"`
+	// MTU setting for the tunnel interface
+	Mtu *int `json:"mtu,omitempty"`
+	// IPsec profile name (GRE tunnels only)
+	IpsecProfile *string `json:"ipsecProfile,omitempty"`
+	// Tunnel ID (EoIP tunnels only, must be unique per remote address pair)
+	TunnelID *int `json:"tunnelId,omitempty"`
+	// VXLAN Network Identifier (VXLAN tunnels only)
+	Vni *int `json:"vni,omitempty"`
+	// VXLAN port (default 4789)
+	Port *int `json:"port,omitempty"`
+	// VTEP peer addresses (VXLAN tunnels only)
+	VtepPeers []string `json:"vtepPeers,omitempty"`
+	// Traffic statistics for this tunnel
+	Statistics *InterfaceStats `json:"statistics,omitempty"`
+	// User comment
+	Comment *string `json:"comment,omitempty"`
+	// Whether the tunnel is disabled
+	Disabled *bool `json:"disabled,omitempty"`
+}
+
+func (Tunnel) IsNode() {}
+
+// Input for creating or updating a tunnel
+type TunnelInput struct {
+	// Tunnel interface name (alphanumeric, hyphens, underscores)
+	Name string `json:"name"`
+	// Tunnel protocol type
+	Type TunnelType `json:"type"`
+	// Local endpoint IP address
+	LocalAddress string `json:"localAddress"`
+	// Remote endpoint IP address
+	RemoteAddress string `json:"remoteAddress"`
+	// MTU setting (optional, default calculated based on tunnel type)
+	Mtu graphql.Omittable[*int] `json:"mtu,omitempty"`
+	// IPsec profile name (GRE tunnels only)
+	IpsecProfile graphql.Omittable[*string] `json:"ipsecProfile,omitempty"`
+	// Tunnel ID (EoIP tunnels only, 0-65535)
+	TunnelID graphql.Omittable[*int] `json:"tunnelId,omitempty"`
+	// VXLAN Network Identifier (VXLAN tunnels only, 1-16777215)
+	Vni graphql.Omittable[*int] `json:"vni,omitempty"`
+	// VXLAN port (default 4789)
+	Port graphql.Omittable[*int] `json:"port,omitempty"`
+	// VTEP peer addresses (VXLAN tunnels only)
+	VtepPeers graphql.Omittable[[]string] `json:"vtepPeers,omitempty"`
+	// User comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
+// Result of a tunnel mutation (create, update)
+type TunnelMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// The created or updated tunnel (if successful)
+	Tunnel *Tunnel `json:"tunnel,omitempty"`
+	// Configuration preview (RouterOS commands)
+	Preview *string `json:"preview,omitempty"`
+	// MTU guidance for the tunnel type
+	MtuGuidance *MtuGuidance `json:"mtuGuidance,omitempty"`
+	// Errors that occurred during the operation
+	Errors []string `json:"errors"`
+}
+
+// Result of a tunnel connectivity test
+type TunnelTestResult struct {
+	// Whether the remote endpoint is reachable
+	Reachable bool `json:"reachable"`
+	// Average ping latency in milliseconds (null if unreachable)
+	Latency *float64 `json:"latency,omitempty"`
+	// Throughput in Mbps (null if iperf not available)
+	Throughput *float64 `json:"throughput,omitempty"`
+	// Path MTU discovered (null if not tested)
+	MtuPath *int `json:"mtuPath,omitempty"`
+	// Suggestions for common connectivity issues
+	Suggestions []string `json:"suggestions"`
+}
+
 // Input for updating an alert rule
 type UpdateAlertRuleInput struct {
 	// Human-readable alert rule name
@@ -3425,6 +4891,8 @@ type UpdateAlertRuleInput struct {
 	Throttle graphql.Omittable[*ThrottleConfigInput] `json:"throttle,omitempty"`
 	// Quiet hours configuration
 	QuietHours graphql.Omittable[*QuietHoursConfigInput] `json:"quietHours,omitempty"`
+	// Escalation configuration (NAS-18.9)
+	Escalation graphql.Omittable[*EscalationConfigInput] `json:"escalation,omitempty"`
 	// Optional device ID filter
 	DeviceID graphql.Omittable[*string] `json:"deviceId,omitempty"`
 	// Whether rule is enabled
@@ -3488,6 +4956,34 @@ type UpdateInterfacePayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for updating an existing notification channel configuration
+type UpdateNotificationChannelConfigInput struct {
+	// New name (optional)
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// New description (optional)
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Enable/disable configuration (optional)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	// Set as default (optional)
+	IsDefault graphql.Omittable[*bool] `json:"isDefault,omitempty"`
+	// New configuration (optional, replaces entire config if provided)
+	Config graphql.Omittable[map[string]interface{}] `json:"config,omitempty"`
+}
+
+// Input for updating an existing port mirror configuration
+type UpdatePortMirrorInput struct {
+	// Updated name
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// Updated source interface IDs (must be bridge members)
+	SourceInterfaceIds graphql.Omittable[[]string] `json:"sourceInterfaceIds,omitempty"`
+	// Updated destination interface ID
+	DestinationInterfaceID graphql.Omittable[*string] `json:"destinationInterfaceId,omitempty"`
+	// Updated direction of traffic to mirror
+	Direction graphql.Omittable[*MirrorDirection] `json:"direction,omitempty"`
+	// Updated comment
+	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
+}
+
 // Input for updating resource configuration
 type UpdateResourceInput struct {
 	// Updated configuration (partial or full)
@@ -3526,6 +5022,42 @@ type UpdateRouterPayload struct {
 	Router *Router `json:"router,omitempty"`
 	// Errors that occurred during update
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for updating a webhook
+type UpdateWebhookInput struct {
+	// Human-readable webhook name
+	Name graphql.Omittable[*string] `json:"name,omitempty"`
+	// Optional description
+	Description graphql.Omittable[*string] `json:"description,omitempty"`
+	// Webhook URL endpoint
+	URL graphql.Omittable[*string] `json:"url,omitempty"`
+	// HTTP method
+	Method graphql.Omittable[*string] `json:"method,omitempty"`
+	// Authentication type
+	AuthType graphql.Omittable[*WebhookAuthType] `json:"authType,omitempty"`
+	// Username for Basic auth
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	// Password for Basic auth (only set if provided)
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	// Bearer token for Bearer auth (only set if provided)
+	BearerToken graphql.Omittable[*string] `json:"bearerToken,omitempty"`
+	// Custom HTTP headers (as JSON object)
+	Headers graphql.Omittable[map[string]interface{}] `json:"headers,omitempty"`
+	// Template type for webhook payload
+	Template graphql.Omittable[*WebhookTemplate] `json:"template,omitempty"`
+	// Custom template body
+	CustomTemplate graphql.Omittable[*string] `json:"customTemplate,omitempty"`
+	// Signing secret for HMAC signature (only set if provided)
+	SigningSecret graphql.Omittable[*string] `json:"signingSecret,omitempty"`
+	// Timeout in seconds
+	TimeoutSeconds graphql.Omittable[*int] `json:"timeoutSeconds,omitempty"`
+	// Whether to retry failed deliveries
+	RetryEnabled graphql.Omittable[*bool] `json:"retryEnabled,omitempty"`
+	// Maximum retry attempts
+	MaxRetries graphql.Omittable[*int] `json:"maxRetries,omitempty"`
+	// Whether webhook is enabled
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
 }
 
 // Impact assessment for an upgrade
@@ -3620,6 +5152,18 @@ type VIFRequirements struct {
 	MissingReasons []string `json:"missingReasons"`
 	// Step-by-step guidance for enabling VIF
 	GuidanceSteps []*VIFGuidanceStep `json:"guidanceSteps"`
+}
+
+// VPN tunnel information for routes through VPN
+type VPNTunnelInfo struct {
+	// Tunnel name
+	Name string `json:"name"`
+	// Tunnel type (wireguard, ipsec, ovpn, l2tp, gre, eoip)
+	Type string `json:"type"`
+	// Current tunnel connection status
+	Status TunnelStatus `json:"status"`
+	// Remote endpoint address
+	RemoteAddress *string `json:"remoteAddress,omitempty"`
 }
 
 type ValidateChangeSetPayload struct {
@@ -3728,7 +5272,7 @@ type VlanDependencies struct {
 	// DHCP servers using this VLAN
 	DhcpServers []*DhcpServer `json:"dhcpServers"`
 	// Firewall rules referencing this VLAN
-	FirewallRules []*FirewallRule `json:"firewallRules"`
+	FirewallRules []*FirewallRuleReference `json:"firewallRules"`
 	// Routes using this VLAN interface
 	Routes []*Route `json:"routes"`
 	// Number of active connections on this VLAN
@@ -3954,6 +5498,98 @@ type WANMutationResult struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Webhook notification configuration
+type Webhook struct {
+	// Globally unique identifier
+	ID string `json:"id"`
+	// Human-readable webhook name
+	Name string `json:"name"`
+	// Optional description
+	Description *string `json:"description,omitempty"`
+	// Webhook URL endpoint
+	URL string `json:"url"`
+	// HTTP method (default: POST)
+	Method string `json:"method"`
+	// Authentication type
+	AuthType WebhookAuthType `json:"authType"`
+	// Username for Basic auth
+	Username *string `json:"username,omitempty"`
+	// Bearer token (masked, only shown on creation)
+	BearerToken *string `json:"bearerToken,omitempty"`
+	// Custom HTTP headers (as JSON object)
+	Headers map[string]interface{} `json:"headers,omitempty"`
+	// Template type for webhook payload
+	Template WebhookTemplate `json:"template"`
+	// Custom template body (for CUSTOM template type)
+	CustomTemplate *string `json:"customTemplate,omitempty"`
+	// Signing secret (masked with ******, never returned in plaintext except on creation)
+	SigningSecretMasked *string `json:"signingSecretMasked,omitempty"`
+	// Timeout in seconds (default: 10)
+	TimeoutSeconds int `json:"timeoutSeconds"`
+	// Whether to retry failed deliveries
+	RetryEnabled bool `json:"retryEnabled"`
+	// Maximum retry attempts (default: 3)
+	MaxRetries int `json:"maxRetries"`
+	// Whether this webhook is enabled
+	Enabled bool `json:"enabled"`
+	// Record creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+	// Last successful delivery timestamp
+	LastDeliveredAt *time.Time `json:"lastDeliveredAt,omitempty"`
+	// Delivery statistics
+	DeliveryStats *WebhookDeliveryStats `json:"deliveryStats,omitempty"`
+}
+
+func (Webhook) IsNode() {}
+
+// Webhook delivery statistics
+type WebhookDeliveryStats struct {
+	// Total deliveries attempted
+	TotalAttempts int `json:"totalAttempts"`
+	// Successful deliveries
+	SuccessCount int `json:"successCount"`
+	// Failed deliveries
+	FailureCount int `json:"failureCount"`
+	// Success rate (0-100)
+	SuccessRate float64 `json:"successRate"`
+	// Average response time in milliseconds
+	AvgResponseTimeMs *int `json:"avgResponseTimeMs,omitempty"`
+}
+
+// Webhook mutation payload
+type WebhookPayload struct {
+	// Created/updated webhook
+	Webhook *Webhook `json:"webhook,omitempty"`
+	// Signing secret (only returned on creation, one-time show)
+	SigningSecret *string `json:"signingSecret,omitempty"`
+	// Errors encountered during mutation
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Webhook test mutation payload
+type WebhookTestPayload struct {
+	// Test result
+	Result *WebhookTestResult `json:"result,omitempty"`
+	// Errors encountered during test
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Result of testing a webhook
+type WebhookTestResult struct {
+	// Whether the test was successful
+	Success bool `json:"success"`
+	// HTTP status code received
+	StatusCode *int `json:"statusCode,omitempty"`
+	// Response body from webhook endpoint
+	ResponseBody *string `json:"responseBody,omitempty"`
+	// Response time in milliseconds
+	ResponseTimeMs *int `json:"responseTimeMs,omitempty"`
+	// Error message if test failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+}
+
 // WireGuard VPN Client resource implementing 8-layer model
 type WireGuardClient struct {
 	ID                  string                 `json:"id"`
@@ -4082,6 +5718,115 @@ func (e AlertAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Alert rule template categories
+type AlertRuleTemplateCategory string
+
+const (
+	// Network connectivity and interface monitoring
+	AlertRuleTemplateCategoryNetwork AlertRuleTemplateCategory = "NETWORK"
+	// Security and firewall events
+	AlertRuleTemplateCategorySecurity AlertRuleTemplateCategory = "SECURITY"
+	// Resource usage (CPU, memory, disk)
+	AlertRuleTemplateCategoryResources AlertRuleTemplateCategory = "RESOURCES"
+	// VPN and tunnel monitoring
+	AlertRuleTemplateCategoryVpn AlertRuleTemplateCategory = "VPN"
+	// DHCP and IP address management
+	AlertRuleTemplateCategoryDhcp AlertRuleTemplateCategory = "DHCP"
+	// System events and maintenance
+	AlertRuleTemplateCategorySystem AlertRuleTemplateCategory = "SYSTEM"
+	// Custom user-defined templates
+	AlertRuleTemplateCategoryCustom AlertRuleTemplateCategory = "CUSTOM"
+)
+
+var AllAlertRuleTemplateCategory = []AlertRuleTemplateCategory{
+	AlertRuleTemplateCategoryNetwork,
+	AlertRuleTemplateCategorySecurity,
+	AlertRuleTemplateCategoryResources,
+	AlertRuleTemplateCategoryVpn,
+	AlertRuleTemplateCategoryDhcp,
+	AlertRuleTemplateCategorySystem,
+	AlertRuleTemplateCategoryCustom,
+}
+
+func (e AlertRuleTemplateCategory) IsValid() bool {
+	switch e {
+	case AlertRuleTemplateCategoryNetwork, AlertRuleTemplateCategorySecurity, AlertRuleTemplateCategoryResources, AlertRuleTemplateCategoryVpn, AlertRuleTemplateCategoryDhcp, AlertRuleTemplateCategorySystem, AlertRuleTemplateCategoryCustom:
+		return true
+	}
+	return false
+}
+
+func (e AlertRuleTemplateCategory) String() string {
+	return string(e)
+}
+
+func (e *AlertRuleTemplateCategory) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertRuleTemplateCategory(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertRuleTemplateCategory", str)
+	}
+	return nil
+}
+
+func (e AlertRuleTemplateCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Variable types for alert rule templates
+type AlertRuleTemplateVariableType string
+
+const (
+	// String value
+	AlertRuleTemplateVariableTypeString AlertRuleTemplateVariableType = "STRING"
+	// Integer value
+	AlertRuleTemplateVariableTypeInteger AlertRuleTemplateVariableType = "INTEGER"
+	// Duration in seconds
+	AlertRuleTemplateVariableTypeDuration AlertRuleTemplateVariableType = "DURATION"
+	// Percentage (0-100)
+	AlertRuleTemplateVariableTypePercentage AlertRuleTemplateVariableType = "PERCENTAGE"
+)
+
+var AllAlertRuleTemplateVariableType = []AlertRuleTemplateVariableType{
+	AlertRuleTemplateVariableTypeString,
+	AlertRuleTemplateVariableTypeInteger,
+	AlertRuleTemplateVariableTypeDuration,
+	AlertRuleTemplateVariableTypePercentage,
+}
+
+func (e AlertRuleTemplateVariableType) IsValid() bool {
+	switch e {
+	case AlertRuleTemplateVariableTypeString, AlertRuleTemplateVariableTypeInteger, AlertRuleTemplateVariableTypeDuration, AlertRuleTemplateVariableTypePercentage:
+		return true
+	}
+	return false
+}
+
+func (e AlertRuleTemplateVariableType) String() string {
+	return string(e)
+}
+
+func (e *AlertRuleTemplateVariableType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertRuleTemplateVariableType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertRuleTemplateVariableType", str)
+	}
+	return nil
+}
+
+func (e AlertRuleTemplateVariableType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Alert severity levels
 type AlertSeverity string
 
@@ -4126,6 +5871,62 @@ func (e *AlertSeverity) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AlertSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Template variable types for notification templates
+type AlertTemplateVariableType string
+
+const (
+	// String value
+	AlertTemplateVariableTypeString AlertTemplateVariableType = "STRING"
+	// Numeric value
+	AlertTemplateVariableTypeNumber AlertTemplateVariableType = "NUMBER"
+	// Timestamp value
+	AlertTemplateVariableTypeTimestamp AlertTemplateVariableType = "TIMESTAMP"
+	// Boolean value
+	AlertTemplateVariableTypeBoolean AlertTemplateVariableType = "BOOLEAN"
+	// Interface name
+	AlertTemplateVariableTypeInterface AlertTemplateVariableType = "INTERFACE"
+	// IP address
+	AlertTemplateVariableTypeIpaddress AlertTemplateVariableType = "IPADDRESS"
+)
+
+var AllAlertTemplateVariableType = []AlertTemplateVariableType{
+	AlertTemplateVariableTypeString,
+	AlertTemplateVariableTypeNumber,
+	AlertTemplateVariableTypeTimestamp,
+	AlertTemplateVariableTypeBoolean,
+	AlertTemplateVariableTypeInterface,
+	AlertTemplateVariableTypeIpaddress,
+}
+
+func (e AlertTemplateVariableType) IsValid() bool {
+	switch e {
+	case AlertTemplateVariableTypeString, AlertTemplateVariableTypeNumber, AlertTemplateVariableTypeTimestamp, AlertTemplateVariableTypeBoolean, AlertTemplateVariableTypeInterface, AlertTemplateVariableTypeIpaddress:
+		return true
+	}
+	return false
+}
+
+func (e AlertTemplateVariableType) String() string {
+	return string(e)
+}
+
+func (e *AlertTemplateVariableType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AlertTemplateVariableType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AlertTemplateVariableType", str)
+	}
+	return nil
+}
+
+func (e AlertTemplateVariableType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -4602,6 +6403,54 @@ func (e *ChangeType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ChangeType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Type of notification channel
+type ChannelType string
+
+const (
+	ChannelTypePushover ChannelType = "PUSHOVER"
+	ChannelTypeEmail    ChannelType = "EMAIL"
+	ChannelTypeSLACk    ChannelType = "SLACK"
+	ChannelTypeWebhook  ChannelType = "WEBHOOK"
+	ChannelTypeTelegram ChannelType = "TELEGRAM"
+)
+
+var AllChannelType = []ChannelType{
+	ChannelTypePushover,
+	ChannelTypeEmail,
+	ChannelTypeSLACk,
+	ChannelTypeWebhook,
+	ChannelTypeTelegram,
+}
+
+func (e ChannelType) IsValid() bool {
+	switch e {
+	case ChannelTypePushover, ChannelTypeEmail, ChannelTypeSLACk, ChannelTypeWebhook, ChannelTypeTelegram:
+		return true
+	}
+	return false
+}
+
+func (e ChannelType) String() string {
+	return string(e)
+}
+
+func (e *ChannelType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChannelType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChannelType", str)
+	}
+	return nil
+}
+
+func (e ChannelType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -5280,6 +7129,56 @@ func (e DNSRecordType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Status classification for DNS servers in benchmark
+type DNSServerStatus string
+
+const (
+	// Fastest responding server
+	DNSServerStatusFastest DNSServerStatus = "FASTEST"
+	// Server responded in acceptable time (<100ms)
+	DNSServerStatusGood DNSServerStatus = "GOOD"
+	// Server responded slowly (>100ms)
+	DNSServerStatusSlow DNSServerStatus = "SLOW"
+	// Server did not respond
+	DNSServerStatusUnreachable DNSServerStatus = "UNREACHABLE"
+)
+
+var AllDNSServerStatus = []DNSServerStatus{
+	DNSServerStatusFastest,
+	DNSServerStatusGood,
+	DNSServerStatusSlow,
+	DNSServerStatusUnreachable,
+}
+
+func (e DNSServerStatus) IsValid() bool {
+	switch e {
+	case DNSServerStatusFastest, DNSServerStatusGood, DNSServerStatusSlow, DNSServerStatusUnreachable:
+		return true
+	}
+	return false
+}
+
+func (e DNSServerStatus) String() string {
+	return string(e)
+}
+
+func (e *DNSServerStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DNSServerStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DnsServerStatus", str)
+	}
+	return nil
+}
+
+func (e DNSServerStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Actions to resolve drift
 type DriftAction string
 
@@ -5380,6 +7279,103 @@ func (e *ErrorCategory) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ErrorCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Escalation status (NAS-18.9)
+type EscalationStatus string
+
+const (
+	// Escalation is pending/in progress
+	EscalationStatusPending EscalationStatus = "PENDING"
+	// Escalation was resolved (alert acknowledged)
+	EscalationStatusResolved EscalationStatus = "RESOLVED"
+	// Maximum escalation level reached
+	EscalationStatusMaxReached EscalationStatus = "MAX_REACHED"
+)
+
+var AllEscalationStatus = []EscalationStatus{
+	EscalationStatusPending,
+	EscalationStatusResolved,
+	EscalationStatusMaxReached,
+}
+
+func (e EscalationStatus) IsValid() bool {
+	switch e {
+	case EscalationStatusPending, EscalationStatusResolved, EscalationStatusMaxReached:
+		return true
+	}
+	return false
+}
+
+func (e EscalationStatus) String() string {
+	return string(e)
+}
+
+func (e *EscalationStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EscalationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EscalationStatus", str)
+	}
+	return nil
+}
+
+func (e EscalationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Firewall table types.
+type FirewallTable string
+
+const (
+	// Packet filtering
+	FirewallTableFilter FirewallTable = "FILTER"
+	// Network address translation
+	FirewallTableNat FirewallTable = "NAT"
+	// Packet marking and modification
+	FirewallTableMangle FirewallTable = "MANGLE"
+	// Raw packet processing
+	FirewallTableRaw FirewallTable = "RAW"
+)
+
+var AllFirewallTable = []FirewallTable{
+	FirewallTableFilter,
+	FirewallTableNat,
+	FirewallTableMangle,
+	FirewallTableRaw,
+}
+
+func (e FirewallTable) IsValid() bool {
+	switch e {
+	case FirewallTableFilter, FirewallTableNat, FirewallTableMangle, FirewallTableRaw:
+		return true
+	}
+	return false
+}
+
+func (e FirewallTable) String() string {
+	return string(e)
+}
+
+func (e *FirewallTable) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FirewallTable(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FirewallTable", str)
+	}
+	return nil
+}
+
+func (e FirewallTable) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -5834,6 +7830,421 @@ func (e *JobStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e JobStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Protocol for knock port.
+type KnockProtocol string
+
+const (
+	// TCP only
+	KnockProtocolTCP KnockProtocol = "TCP"
+	// UDP only
+	KnockProtocolUDP KnockProtocol = "UDP"
+	// Both TCP and UDP
+	KnockProtocolBoth KnockProtocol = "BOTH"
+)
+
+var AllKnockProtocol = []KnockProtocol{
+	KnockProtocolTCP,
+	KnockProtocolUDP,
+	KnockProtocolBoth,
+}
+
+func (e KnockProtocol) IsValid() bool {
+	switch e {
+	case KnockProtocolTCP, KnockProtocolUDP, KnockProtocolBoth:
+		return true
+	}
+	return false
+}
+
+func (e KnockProtocol) String() string {
+	return string(e)
+}
+
+func (e *KnockProtocol) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = KnockProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid KnockProtocol", str)
+	}
+	return nil
+}
+
+func (e KnockProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of knock attempt.
+type KnockStatus string
+
+const (
+	// All ports hit correctly, access granted
+	KnockStatusSuccess KnockStatus = "SUCCESS"
+	// Wrong port order
+	KnockStatusFailed KnockStatus = "FAILED"
+	// Some ports hit, sequence incomplete
+	KnockStatusPartial KnockStatus = "PARTIAL"
+	// Time between knocks exceeded
+	KnockStatusTimeout KnockStatus = "TIMEOUT"
+)
+
+var AllKnockStatus = []KnockStatus{
+	KnockStatusSuccess,
+	KnockStatusFailed,
+	KnockStatusPartial,
+	KnockStatusTimeout,
+}
+
+func (e KnockStatus) IsValid() bool {
+	switch e {
+	case KnockStatusSuccess, KnockStatusFailed, KnockStatusPartial, KnockStatusTimeout:
+		return true
+	}
+	return false
+}
+
+func (e KnockStatus) String() string {
+	return string(e)
+}
+
+func (e *KnockStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = KnockStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid KnockStatus", str)
+	}
+	return nil
+}
+
+func (e KnockStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Direction of traffic to mirror
+type MirrorDirection string
+
+const (
+	// Mirror only ingress (incoming) traffic
+	MirrorDirectionIngress MirrorDirection = "INGRESS"
+	// Mirror only egress (outgoing) traffic
+	MirrorDirectionEgress MirrorDirection = "EGRESS"
+	// Mirror both ingress and egress traffic
+	MirrorDirectionBoth MirrorDirection = "BOTH"
+)
+
+var AllMirrorDirection = []MirrorDirection{
+	MirrorDirectionIngress,
+	MirrorDirectionEgress,
+	MirrorDirectionBoth,
+}
+
+func (e MirrorDirection) IsValid() bool {
+	switch e {
+	case MirrorDirectionIngress, MirrorDirectionEgress, MirrorDirectionBoth:
+		return true
+	}
+	return false
+}
+
+func (e MirrorDirection) String() string {
+	return string(e)
+}
+
+func (e *MirrorDirection) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MirrorDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MirrorDirection", str)
+	}
+	return nil
+}
+
+func (e MirrorDirection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// NAT action types for firewall NAT rules.
+type NatAction string
+
+const (
+	// Masquerade (dynamic source NAT)
+	NatActionMasquerade NatAction = "MASQUERADE"
+	// Destination NAT (port forwarding)
+	NatActionDstNat NatAction = "DST_NAT"
+	// Source NAT (static mapping)
+	NatActionSrcNat NatAction = "SRC_NAT"
+	// Redirect to different port
+	NatActionRedirect NatAction = "REDIRECT"
+	// Network mapping
+	NatActionNetmap NatAction = "NETMAP"
+	// Use same IP
+	NatActionSame NatAction = "SAME"
+	// Accept packet
+	NatActionAccept NatAction = "ACCEPT"
+	// Drop packet
+	NatActionDrop NatAction = "DROP"
+	// Jump to different chain
+	NatActionJump NatAction = "JUMP"
+	// Return to parent chain
+	NatActionReturn NatAction = "RETURN"
+	// Log packet
+	NatActionLog NatAction = "LOG"
+	// Pass through without action
+	NatActionPassthrough NatAction = "PASSTHROUGH"
+)
+
+var AllNatAction = []NatAction{
+	NatActionMasquerade,
+	NatActionDstNat,
+	NatActionSrcNat,
+	NatActionRedirect,
+	NatActionNetmap,
+	NatActionSame,
+	NatActionAccept,
+	NatActionDrop,
+	NatActionJump,
+	NatActionReturn,
+	NatActionLog,
+	NatActionPassthrough,
+}
+
+func (e NatAction) IsValid() bool {
+	switch e {
+	case NatActionMasquerade, NatActionDstNat, NatActionSrcNat, NatActionRedirect, NatActionNetmap, NatActionSame, NatActionAccept, NatActionDrop, NatActionJump, NatActionReturn, NatActionLog, NatActionPassthrough:
+		return true
+	}
+	return false
+}
+
+func (e NatAction) String() string {
+	return string(e)
+}
+
+func (e *NatAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NatAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NatAction", str)
+	}
+	return nil
+}
+
+func (e NatAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// NAT chain types (srcnat for source NAT, dstnat for destination NAT).
+type NatChain string
+
+const (
+	// Source NAT (outgoing traffic)
+	NatChainSrcnat NatChain = "SRCNAT"
+	// Destination NAT (incoming traffic)
+	NatChainDstnat NatChain = "DSTNAT"
+)
+
+var AllNatChain = []NatChain{
+	NatChainSrcnat,
+	NatChainDstnat,
+}
+
+func (e NatChain) IsValid() bool {
+	switch e {
+	case NatChainSrcnat, NatChainDstnat:
+		return true
+	}
+	return false
+}
+
+func (e NatChain) String() string {
+	return string(e)
+}
+
+func (e *NatChain) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NatChain(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NatChain", str)
+	}
+	return nil
+}
+
+func (e NatChain) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Notification channel types
+type NotificationChannel string
+
+const (
+	// Email notifications
+	NotificationChannelEmail NotificationChannel = "EMAIL"
+	// Telegram notifications
+	NotificationChannelTelegram NotificationChannel = "TELEGRAM"
+	// Pushover notifications
+	NotificationChannelPushover NotificationChannel = "PUSHOVER"
+	// Webhook notifications
+	NotificationChannelWebhook NotificationChannel = "WEBHOOK"
+	// In-app notifications
+	NotificationChannelInapp NotificationChannel = "INAPP"
+)
+
+var AllNotificationChannel = []NotificationChannel{
+	NotificationChannelEmail,
+	NotificationChannelTelegram,
+	NotificationChannelPushover,
+	NotificationChannelWebhook,
+	NotificationChannelInapp,
+}
+
+func (e NotificationChannel) IsValid() bool {
+	switch e {
+	case NotificationChannelEmail, NotificationChannelTelegram, NotificationChannelPushover, NotificationChannelWebhook, NotificationChannelInapp:
+		return true
+	}
+	return false
+}
+
+func (e NotificationChannel) String() string {
+	return string(e)
+}
+
+func (e *NotificationChannel) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NotificationChannel(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NotificationChannel", str)
+	}
+	return nil
+}
+
+func (e NotificationChannel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Notification delivery status
+type NotificationStatus string
+
+const (
+	// Delivery pending
+	NotificationStatusPending NotificationStatus = "PENDING"
+	// Successfully delivered
+	NotificationStatusSuccess NotificationStatus = "SUCCESS"
+	// Delivery failed
+	NotificationStatusFailed NotificationStatus = "FAILED"
+	// Retrying after failure
+	NotificationStatusRetrying NotificationStatus = "RETRYING"
+)
+
+var AllNotificationStatus = []NotificationStatus{
+	NotificationStatusPending,
+	NotificationStatusSuccess,
+	NotificationStatusFailed,
+	NotificationStatusRetrying,
+}
+
+func (e NotificationStatus) IsValid() bool {
+	switch e {
+	case NotificationStatusPending, NotificationStatusSuccess, NotificationStatusFailed, NotificationStatusRetrying:
+		return true
+	}
+	return false
+}
+
+func (e NotificationStatus) String() string {
+	return string(e)
+}
+
+func (e *NotificationStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NotificationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NotificationStatus", str)
+	}
+	return nil
+}
+
+func (e NotificationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of a port forward configuration.
+type PortForwardStatus string
+
+const (
+	// Port forward is active and working
+	PortForwardStatusActive PortForwardStatus = "ACTIVE"
+	// Port forward is disabled
+	PortForwardStatusDisabled PortForwardStatus = "DISABLED"
+	// Port forward has errors or misconfiguration
+	PortForwardStatusError PortForwardStatus = "ERROR"
+	// Port forward is partially configured (missing rules)
+	PortForwardStatusIncomplete PortForwardStatus = "INCOMPLETE"
+)
+
+var AllPortForwardStatus = []PortForwardStatus{
+	PortForwardStatusActive,
+	PortForwardStatusDisabled,
+	PortForwardStatusError,
+	PortForwardStatusIncomplete,
+}
+
+func (e PortForwardStatus) IsValid() bool {
+	switch e {
+	case PortForwardStatusActive, PortForwardStatusDisabled, PortForwardStatusError, PortForwardStatusIncomplete:
+		return true
+	}
+	return false
+}
+
+func (e PortForwardStatus) String() string {
+	return string(e)
+}
+
+func (e *PortForwardStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PortForwardStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PortForwardStatus", str)
+	}
+	return nil
+}
+
+func (e PortForwardStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -6808,6 +9219,159 @@ func (e SuggestionSeverity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Template categories for organization.
+type TemplateCategory string
+
+const (
+	// Basic security rules
+	TemplateCategoryBasic TemplateCategory = "BASIC"
+	// Home network configurations
+	TemplateCategoryHome TemplateCategory = "HOME"
+	// Gaming-optimized rules
+	TemplateCategoryGaming TemplateCategory = "GAMING"
+	// IoT device isolation
+	TemplateCategoryIot TemplateCategory = "IOT"
+	// Guest network access
+	TemplateCategoryGuest TemplateCategory = "GUEST"
+	// User-created custom templates
+	TemplateCategoryCustom TemplateCategory = "CUSTOM"
+)
+
+var AllTemplateCategory = []TemplateCategory{
+	TemplateCategoryBasic,
+	TemplateCategoryHome,
+	TemplateCategoryGaming,
+	TemplateCategoryIot,
+	TemplateCategoryGuest,
+	TemplateCategoryCustom,
+}
+
+func (e TemplateCategory) IsValid() bool {
+	switch e {
+	case TemplateCategoryBasic, TemplateCategoryHome, TemplateCategoryGaming, TemplateCategoryIot, TemplateCategoryGuest, TemplateCategoryCustom:
+		return true
+	}
+	return false
+}
+
+func (e TemplateCategory) String() string {
+	return string(e)
+}
+
+func (e *TemplateCategory) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateCategory(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateCategory", str)
+	}
+	return nil
+}
+
+func (e TemplateCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Template complexity levels.
+type TemplateComplexity string
+
+const (
+	// Simple templates with few rules
+	TemplateComplexitySimple TemplateComplexity = "SIMPLE"
+	// Moderate complexity
+	TemplateComplexityModerate TemplateComplexity = "MODERATE"
+	// Advanced templates with many rules
+	TemplateComplexityAdvanced TemplateComplexity = "ADVANCED"
+)
+
+var AllTemplateComplexity = []TemplateComplexity{
+	TemplateComplexitySimple,
+	TemplateComplexityModerate,
+	TemplateComplexityAdvanced,
+}
+
+func (e TemplateComplexity) IsValid() bool {
+	switch e {
+	case TemplateComplexitySimple, TemplateComplexityModerate, TemplateComplexityAdvanced:
+		return true
+	}
+	return false
+}
+
+func (e TemplateComplexity) String() string {
+	return string(e)
+}
+
+func (e *TemplateComplexity) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateComplexity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateComplexity", str)
+	}
+	return nil
+}
+
+func (e TemplateComplexity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Conflict types between template and existing configuration.
+type TemplateConflictType string
+
+const (
+	// Duplicate rule already exists
+	TemplateConflictTypeDuplicateRule TemplateConflictType = "DUPLICATE_RULE"
+	// IP address range overlaps
+	TemplateConflictTypeIPOverlap TemplateConflictType = "IP_OVERLAP"
+	// Chain configuration conflicts
+	TemplateConflictTypeChainConflict TemplateConflictType = "CHAIN_CONFLICT"
+	// Position conflict in chain
+	TemplateConflictTypePositionConflict TemplateConflictType = "POSITION_CONFLICT"
+)
+
+var AllTemplateConflictType = []TemplateConflictType{
+	TemplateConflictTypeDuplicateRule,
+	TemplateConflictTypeIPOverlap,
+	TemplateConflictTypeChainConflict,
+	TemplateConflictTypePositionConflict,
+}
+
+func (e TemplateConflictType) IsValid() bool {
+	switch e {
+	case TemplateConflictTypeDuplicateRule, TemplateConflictTypeIPOverlap, TemplateConflictTypeChainConflict, TemplateConflictTypePositionConflict:
+		return true
+	}
+	return false
+}
+
+func (e TemplateConflictType) String() string {
+	return string(e)
+}
+
+func (e *TemplateConflictType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateConflictType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateConflictType", str)
+	}
+	return nil
+}
+
+func (e TemplateConflictType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Type of topology node
 type TopologyNodeType string
 
@@ -6949,6 +9513,48 @@ func (e *TracerouteProtocol) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TracerouteProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Transport protocol enum for network traffic.
+type TransportProtocol string
+
+const (
+	TransportProtocolTCP TransportProtocol = "TCP"
+	TransportProtocolUDP TransportProtocol = "UDP"
+)
+
+var AllTransportProtocol = []TransportProtocol{
+	TransportProtocolTCP,
+	TransportProtocolUDP,
+}
+
+func (e TransportProtocol) IsValid() bool {
+	switch e {
+	case TransportProtocolTCP, TransportProtocolUDP:
+		return true
+	}
+	return false
+}
+
+func (e TransportProtocol) String() string {
+	return string(e)
+}
+
+func (e *TransportProtocol) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TransportProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TransportProtocol", str)
+	}
+	return nil
+}
+
+func (e TransportProtocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -7117,6 +9723,109 @@ func (e *TroubleshootStepType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TroubleshootStepType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status of a VPN tunnel
+type TunnelStatus string
+
+const (
+	// Tunnel is connected and active
+	TunnelStatusConnected TunnelStatus = "CONNECTED"
+	// Tunnel is disconnected
+	TunnelStatusDisconnected TunnelStatus = "DISCONNECTED"
+	// Tunnel is attempting to connect
+	TunnelStatusConnecting TunnelStatus = "CONNECTING"
+)
+
+var AllTunnelStatus = []TunnelStatus{
+	TunnelStatusConnected,
+	TunnelStatusDisconnected,
+	TunnelStatusConnecting,
+}
+
+func (e TunnelStatus) IsValid() bool {
+	switch e {
+	case TunnelStatusConnected, TunnelStatusDisconnected, TunnelStatusConnecting:
+		return true
+	}
+	return false
+}
+
+func (e TunnelStatus) String() string {
+	return string(e)
+}
+
+func (e *TunnelStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TunnelStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TunnelStatus", str)
+	}
+	return nil
+}
+
+func (e TunnelStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Network tunnel types supported by MikroTik RouterOS
+type TunnelType string
+
+const (
+	// IP-in-IP tunnel (RFC 2003) - Basic L3 encapsulation
+	TunnelTypeIpip TunnelType = "IPIP"
+	// Generic Routing Encapsulation (RFC 2784) - L3 with optional IPsec
+	TunnelTypeGre TunnelType = "GRE"
+	// Ethernet over IP - Layer 2 tunnel for bridge extension
+	TunnelTypeEoip TunnelType = "EOIP"
+	// Virtual eXtensible LAN (RFC 7348) - L2 overlay network
+	TunnelTypeVxlan TunnelType = "VXLAN"
+	// Secure Socket Tunneling Protocol (future support)
+	TunnelTypeSstp TunnelType = "SSTP"
+	// Layer 2 Tunneling Protocol (future support)
+	TunnelTypeL2tp TunnelType = "L2TP"
+)
+
+var AllTunnelType = []TunnelType{
+	TunnelTypeIpip,
+	TunnelTypeGre,
+	TunnelTypeEoip,
+	TunnelTypeVxlan,
+	TunnelTypeSstp,
+	TunnelTypeL2tp,
+}
+
+func (e TunnelType) IsValid() bool {
+	switch e {
+	case TunnelTypeIpip, TunnelTypeGre, TunnelTypeEoip, TunnelTypeVxlan, TunnelTypeSstp, TunnelTypeL2tp:
+		return true
+	}
+	return false
+}
+
+func (e TunnelType) String() string {
+	return string(e)
+}
+
+func (e *TunnelType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TunnelType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TunnelType", str)
+	}
+	return nil
+}
+
+func (e TunnelType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -7335,6 +10044,62 @@ func (e ValidationStage) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Variable types for template parameters.
+type VariableType string
+
+const (
+	// Free-form string
+	VariableTypeString VariableType = "STRING"
+	// Interface name (autocomplete from router)
+	VariableTypeInterface VariableType = "INTERFACE"
+	// Subnet in CIDR notation
+	VariableTypeSubnet VariableType = "SUBNET"
+	// IP address
+	VariableTypeIP VariableType = "IP"
+	// Port number
+	VariableTypePort VariableType = "PORT"
+	// VLAN ID
+	VariableTypeVlanID VariableType = "VLAN_ID"
+)
+
+var AllVariableType = []VariableType{
+	VariableTypeString,
+	VariableTypeInterface,
+	VariableTypeSubnet,
+	VariableTypeIP,
+	VariableTypePort,
+	VariableTypeVlanID,
+}
+
+func (e VariableType) IsValid() bool {
+	switch e {
+	case VariableTypeString, VariableTypeInterface, VariableTypeSubnet, VariableTypeIP, VariableTypePort, VariableTypeVlanID:
+		return true
+	}
+	return false
+}
+
+func (e VariableType) String() string {
+	return string(e)
+}
+
+func (e *VariableType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VariableType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VariableType", str)
+	}
+	return nil
+}
+
+func (e VariableType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // WAN connection type classification
 type WANConnectionType string
 
@@ -7497,5 +10262,105 @@ func (e *WANStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e WANStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Webhook authentication types
+type WebhookAuthType string
+
+const (
+	// No authentication required
+	WebhookAuthTypeNone WebhookAuthType = "NONE"
+	// Bearer token authentication
+	WebhookAuthTypeBearer WebhookAuthType = "BEARER"
+	// HTTP Basic authentication
+	WebhookAuthTypeBasic WebhookAuthType = "BASIC"
+)
+
+var AllWebhookAuthType = []WebhookAuthType{
+	WebhookAuthTypeNone,
+	WebhookAuthTypeBearer,
+	WebhookAuthTypeBasic,
+}
+
+func (e WebhookAuthType) IsValid() bool {
+	switch e {
+	case WebhookAuthTypeNone, WebhookAuthTypeBearer, WebhookAuthTypeBasic:
+		return true
+	}
+	return false
+}
+
+func (e WebhookAuthType) String() string {
+	return string(e)
+}
+
+func (e *WebhookAuthType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WebhookAuthType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WebhookAuthType", str)
+	}
+	return nil
+}
+
+func (e WebhookAuthType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Webhook template types for predefined formats
+type WebhookTemplate string
+
+const (
+	// Generic JSON format
+	WebhookTemplateGeneric WebhookTemplate = "GENERIC"
+	// Slack incoming webhook format
+	WebhookTemplateSLACk WebhookTemplate = "SLACK"
+	// Discord webhook format
+	WebhookTemplateDiscord WebhookTemplate = "DISCORD"
+	// Microsoft Teams webhook format
+	WebhookTemplateTeams WebhookTemplate = "TEAMS"
+	// Custom template with user-defined format
+	WebhookTemplateCustom WebhookTemplate = "CUSTOM"
+)
+
+var AllWebhookTemplate = []WebhookTemplate{
+	WebhookTemplateGeneric,
+	WebhookTemplateSLACk,
+	WebhookTemplateDiscord,
+	WebhookTemplateTeams,
+	WebhookTemplateCustom,
+}
+
+func (e WebhookTemplate) IsValid() bool {
+	switch e {
+	case WebhookTemplateGeneric, WebhookTemplateSLACk, WebhookTemplateDiscord, WebhookTemplateTeams, WebhookTemplateCustom:
+		return true
+	}
+	return false
+}
+
+func (e WebhookTemplate) String() string {
+	return string(e)
+}
+
+func (e *WebhookTemplate) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WebhookTemplate(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WebhookTemplate", str)
+	}
+	return nil
+}
+
+func (e WebhookTemplate) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -31,6 +31,8 @@ const (
 	FieldThrottle = "throttle"
 	// FieldQuietHours holds the string denoting the quiet_hours field in the database.
 	FieldQuietHours = "quiet_hours"
+	// FieldEscalation holds the string denoting the escalation field in the database.
+	FieldEscalation = "escalation"
 	// FieldDeviceID holds the string denoting the device_id field in the database.
 	FieldDeviceID = "device_id"
 	// FieldEnabled holds the string denoting the enabled field in the database.
@@ -41,6 +43,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// EdgeAlerts holds the string denoting the alerts edge name in mutations.
 	EdgeAlerts = "alerts"
+	// EdgeEscalations holds the string denoting the escalations edge name in mutations.
+	EdgeEscalations = "escalations"
 	// Table holds the table name of the alertrule in the database.
 	Table = "alert_rules"
 	// AlertsTable is the table that holds the alerts relation/edge.
@@ -50,6 +54,13 @@ const (
 	AlertsInverseTable = "alerts"
 	// AlertsColumn is the table column denoting the alerts relation/edge.
 	AlertsColumn = "rule_id"
+	// EscalationsTable is the table that holds the escalations relation/edge.
+	EscalationsTable = "alert_escalations"
+	// EscalationsInverseTable is the table name for the AlertEscalation entity.
+	// It exists in this package in order to avoid circular dependency with the "alertescalation" package.
+	EscalationsInverseTable = "alert_escalations"
+	// EscalationsColumn is the table column denoting the escalations relation/edge.
+	EscalationsColumn = "rule_id"
 )
 
 // Columns holds all SQL columns for alertrule fields.
@@ -63,6 +74,7 @@ var Columns = []string{
 	FieldChannels,
 	FieldThrottle,
 	FieldQuietHours,
+	FieldEscalation,
 	FieldDeviceID,
 	FieldEnabled,
 	FieldCreatedAt,
@@ -188,10 +200,31 @@ func ByAlerts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAlertsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByEscalationsCount orders the results by escalations count.
+func ByEscalationsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newEscalationsStep(), opts...)
+	}
+}
+
+// ByEscalations orders the results by escalations terms.
+func ByEscalations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEscalationsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newAlertsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AlertsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AlertsTable, AlertsColumn),
+	)
+}
+func newEscalationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EscalationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, EscalationsTable, EscalationsColumn),
 	)
 }

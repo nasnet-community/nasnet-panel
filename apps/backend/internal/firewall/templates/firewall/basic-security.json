@@ -1,0 +1,76 @@
+{
+  "id": "basic-security",
+  "name": "Basic Security",
+  "description": "Essential security rules: block invalid connections, allow established connections, and implement default-deny input policy. Recommended as a foundation for all networks.",
+  "category": "BASIC",
+  "complexity": "SIMPLE",
+  "ruleCount": 5,
+  "version": "1.0.0",
+  "isBuiltIn": true,
+  "variables": [
+    {
+      "name": "WAN_INTERFACE",
+      "label": "WAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The internet-facing interface (e.g., ether1, pppoe-out1)"
+    },
+    {
+      "name": "LAN_INTERFACE",
+      "label": "LAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The local network interface (e.g., bridge, ether2)"
+    }
+  ],
+  "rules": [
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:basic-security:accept-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:basic-security:drop-invalid",
+      "position": null,
+      "properties": {
+        "connection-state": "invalid"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:basic-security:accept-icmp",
+      "position": null,
+      "properties": {
+        "protocol": "icmp"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:basic-security:accept-from-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:basic-security:drop-all-input",
+      "position": null,
+      "properties": {}
+    }
+  ]
+}

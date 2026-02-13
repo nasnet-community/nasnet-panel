@@ -1,0 +1,35 @@
+{
+  "id": "router-offline-inapp",
+  "name": "Router Offline - In-App",
+  "description": "In-app notification template for router offline events. Shows brief notification in the UI.",
+  "eventType": "router.offline",
+  "channel": "inapp",
+  "subjectTemplate": "Router {{.RouterName}} Offline",
+  "bodyTemplate": "Router {{.RouterName}} ({{.RouterIP}}) is offline. Last seen {{.LastSeen}}.",
+  "variables": [
+    {
+      "name": "RouterName",
+      "label": "Router Name",
+      "type": "STRING",
+      "required": true,
+      "description": "The name of the router"
+    },
+    {
+      "name": "RouterIP",
+      "label": "Router IP",
+      "type": "STRING",
+      "required": true,
+      "description": "The IP address of the router"
+    },
+    {
+      "name": "LastSeen",
+      "label": "Last Seen",
+      "type": "STRING",
+      "required": true,
+      "description": "Human-readable time since last seen"
+    }
+  ],
+  "isBuiltIn": true,
+  "isDefault": true,
+  "tags": ["critical", "router", "connectivity"]
+}

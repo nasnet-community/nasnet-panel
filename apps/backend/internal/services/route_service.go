@@ -4,6 +4,8 @@ package services
 import (
 	"context"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 
 	"backend/graph/model"
@@ -250,7 +252,7 @@ func (s *RouteService) CheckGatewayReachability(ctx context.Context, gateway mod
 	if len(result.Data) > 0 {
 		if avgTime, ok := result.Data[0]["avg-rtt"]; ok {
 			// Convert milliseconds string to int
-			if ms, _ := parseInt(avgTime); ms > 0 {
+			if ms, _ := parseIntRoute(avgTime); ms > 0 {
 				latency = &ms
 			}
 		}
@@ -318,7 +320,7 @@ func (s *RouteService) mapRouteData(data map[string]string) *model.Route {
 	}
 
 	if dist, ok := data["distance"]; ok {
-		distance, _ := parseInt(dist)
+		distance, _ := parseIntRoute(dist)
 		route.Distance = distance
 	}
 
@@ -365,8 +367,301 @@ func (s *RouteService) determineRouteType(data map[string]string) model.RouteTyp
 	return model.RouteTypeStatic
 }
 
+// LookupRoute finds which route will be used for a destination IP.
+// It performs longest prefix match and considers administrative distance for tiebreakers.
+func (s *RouteService) LookupRoute(
+	ctx context.Context,
+	destination string,
+	source *string,
+) (*model.RouteLookupResult, error) {
+	// 1. Build RouterOS command to fetch all routes
+	cmd := router.Command{
+		Path:   "/ip/route",
+		Action: "print",
+		Args:   map[string]string{},
+	}
+
+	// 2. Execute command
+	result, err := s.port.ExecuteCommand(ctx, cmd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list routes: %w", err)
+	}
+
+	if !result.Success {
+		return nil, fmt.Errorf("command failed: %v", result.Error)
+	}
+
+	// 3. Parse routes from result
+	var routes []*model.Route
+	for _, routeData := range result.Data {
+		route := s.mapRouteData(routeData)
+		routes = append(routes, route)
+	}
+
+	// 4. Find matching routes using longest prefix match
+	candidates := s.findMatchingRoutes(destination, routes)
+
+	// 5. Select best route (longest prefix, then lowest distance)
+	selected := s.selectBestRoute(candidates)
+
+	// 6. Generate explanation
+	explanation := s.generateExplanation(destination, selected, candidates)
+
+	// 7. Detect VPN tunnel if applicable
+	var vpnInfo *model.VPNTunnelInfo
+	if selected != nil && selected.Route.Interface != nil {
+		vpnInfo = s.detectVPNTunnel(ctx, *selected.Route.Interface)
+	}
+
+	// 8. Build result
+	routeType := model.RouteTypeStatic
+	isDefaultRoute := false
+	var gateway, iface *string
+	var distance *int
+
+	if selected != nil {
+		routeType = selected.Route.Type
+		isDefaultRoute = string(selected.Route.Destination) == "0.0.0.0/0"
+		if selected.Route.Gateway != nil {
+			gwStr := string(*selected.Route.Gateway)
+			gateway = &gwStr
+		}
+		iface = selected.Route.Interface
+		dist := selected.Route.Distance
+		distance = &dist
+	}
+
+	var matchedRoute *model.Route
+	if selected != nil {
+		matchedRoute = selected.Route
+	}
+
+	return &model.RouteLookupResult{
+		Destination:     destination,
+		MatchedRoute:    matchedRoute,
+		Gateway:         gateway,
+		Interface:       iface,
+		Distance:        distance,
+		RouteType:       routeType,
+		IsDefaultRoute:  isDefaultRoute,
+		CandidateRoutes: candidates,
+		Explanation:     explanation,
+		VpnTunnel:       vpnInfo,
+	}, nil
+}
+
+// findMatchingRoutes finds all routes that match the destination IP.
+func (s *RouteService) findMatchingRoutes(
+	destination string,
+	routes []*model.Route,
+) []*model.RouteLookupCandidate {
+	destIP := parseIP(destination)
+	var candidates []*model.RouteLookupCandidate
+
+	for _, route := range routes {
+		// Skip inactive or disabled routes
+		if !route.Active {
+			continue
+		}
+		if route.Disabled != nil && *route.Disabled {
+			continue
+		}
+
+		// Check if destination falls within this route's network
+		routeNet := parseCIDRRoute(string(route.Destination))
+		if routeNet != nil && routeNet.Contains(destIP) {
+			prefixLen := getPrefixLength(string(route.Destination))
+			candidates = append(candidates, &model.RouteLookupCandidate{
+				Route:        route,
+				PrefixLength: prefixLen,
+				Distance:     route.Distance,
+				Selected:     false, // Will be set later
+			})
+		}
+	}
+
+	return candidates
+}
+
+// selectBestRoute selects the best route using longest prefix match, then lowest distance.
+func (s *RouteService) selectBestRoute(
+	candidates []*model.RouteLookupCandidate,
+) *model.RouteLookupCandidate {
+	if len(candidates) == 0 {
+		return nil
+	}
+
+	// Sort by prefix length DESC, then distance ASC
+	best := candidates[0]
+	for _, candidate := range candidates[1:] {
+		if candidate.PrefixLength > best.PrefixLength {
+			best = candidate
+		} else if candidate.PrefixLength == best.PrefixLength && candidate.Distance < best.Distance {
+			best = candidate
+		}
+	}
+
+	best.Selected = true
+	reason := s.getSelectionReason(best, candidates)
+	best.SelectionReason = &reason
+
+	return best
+}
+
+// getSelectionReason generates a reason why this route was selected.
+func (s *RouteService) getSelectionReason(
+	selected *model.RouteLookupCandidate,
+	candidates []*model.RouteLookupCandidate,
+) string {
+	if len(candidates) == 1 {
+		return "Only matching route"
+	}
+
+	// Check if there are other routes with same prefix
+	samePrefixCount := 0
+	for _, c := range candidates {
+		if c.PrefixLength == selected.PrefixLength && c != selected {
+			samePrefixCount++
+		}
+	}
+
+	if samePrefixCount > 0 {
+		return fmt.Sprintf("Longest prefix match /%d, lowest distance (%d)", selected.PrefixLength, selected.Distance)
+	}
+
+	return fmt.Sprintf("Longest prefix match /%d", selected.PrefixLength)
+}
+
+// generateExplanation generates a human-readable explanation of route selection.
+func (s *RouteService) generateExplanation(
+	destination string,
+	selected *model.RouteLookupCandidate,
+	candidates []*model.RouteLookupCandidate,
+) string {
+	if selected == nil {
+		return fmt.Sprintf("No route found to %s. Check routing table or add a default route.", destination)
+	}
+
+	routeDest := string(selected.Route.Destination)
+	if routeDest == "0.0.0.0/0" {
+		gwStr := "unknown gateway"
+		if selected.Route.Gateway != nil {
+			gwStr = fmt.Sprintf("gateway %s", string(*selected.Route.Gateway))
+		}
+		return fmt.Sprintf("Using default route via %s", gwStr)
+	}
+
+	if len(candidates) == 1 {
+		return fmt.Sprintf("Route %s selected (only matching route)", routeDest)
+	}
+
+	return fmt.Sprintf("Route %s selected (longest prefix match, distance %d)", routeDest, selected.Distance)
+}
+
+// detectVPNTunnel detects if an interface is a VPN tunnel.
+func (s *RouteService) detectVPNTunnel(
+	ctx context.Context,
+	iface string,
+) *model.VPNTunnelInfo {
+	tunnelTypes := []string{"wireguard", "ovpn", "l2tp", "pptp", "sstp", "ipsec-peer", "gre", "eoip"}
+
+	for _, tunnelType := range tunnelTypes {
+		path := fmt.Sprintf("/interface/%s", tunnelType)
+		cmd := router.Command{
+			Path:   path,
+			Action: "print",
+			Args:   map[string]string{},
+		}
+
+		result, err := s.port.ExecuteCommand(ctx, cmd)
+		if err != nil {
+			continue
+		}
+
+		if !result.Success || len(result.Data) == 0 {
+			continue
+		}
+
+		// Search for matching interface name
+		for _, data := range result.Data {
+			if name, ok := data["name"]; ok && name == iface {
+				status := s.parseTunnelStatus(data["running"])
+				remoteAddr := data["remote-address"]
+				if remoteAddr == "" {
+					remoteAddr = data["connect-to"]
+				}
+				var remoteAddrPtr *string
+				if remoteAddr != "" {
+					remoteAddrPtr = &remoteAddr
+				}
+
+				return &model.VPNTunnelInfo{
+					Name:          name,
+					Type:          tunnelType,
+					Status:        status,
+					RemoteAddress: remoteAddrPtr,
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// parseTunnelStatus converts RouterOS running status to TunnelStatus enum.
+func (s *RouteService) parseTunnelStatus(running string) model.TunnelStatus {
+	if running == "true" || running == "yes" {
+		return model.TunnelStatusConnected
+	}
+	return model.TunnelStatusDisconnected
+}
+
 // Helper functions
 
 func parseBool(s string) bool {
 	return strings.ToLower(s) == "true" || s == "yes"
+}
+
+func parseIntRoute(s string) (int, error) {
+	if s == "" {
+		return 0, fmt.Errorf("empty string")
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("invalid integer: %w", err)
+	}
+	return i, nil
+}
+
+// parseIP parses an IP address string and returns a net.IP.
+func parseIP(ipStr string) net.IP {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		// Return empty IP if parsing fails
+		return net.IP{}
+	}
+	return ip
+}
+
+// parseCIDRRoute parses a CIDR string and returns the network.
+func parseCIDRRoute(cidr string) *net.IPNet {
+	_, network, err := net.ParseCIDR(cidr)
+	if err != nil {
+		// Return nil network if parsing fails
+		return nil
+	}
+	return network
+}
+
+// getPrefixLength extracts the prefix length from a CIDR string.
+func getPrefixLength(cidr string) int {
+	parts := strings.Split(cidr, "/")
+	if len(parts) != 2 {
+		return 0
+	}
+	length, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0
+	}
+	return length
 }

@@ -31,7 +31,8 @@ export interface ChannelConfig {
 
   // Telegram config
   botToken?: string;
-  chatId?: string;
+  chatId?: string;       // DEPRECATED: Backward compat - use chatIds
+  chatIds?: string[];    // NEW: Multiple chat IDs
 
   // Pushover config
   userKey?: string;

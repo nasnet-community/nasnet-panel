@@ -487,3 +487,147 @@ export const AllModes: Story = {
     </div>
   ),
 };
+
+// ============================================================================
+// Service Groups (NAS-7.8)
+// ============================================================================
+
+/**
+ * Multi-mode with service groups for quick bulk selection.
+ * Service groups appear with folder icons in the suggestions dropdown.
+ */
+export const WithServiceGroups: Story = {
+  render: (args) => {
+    const [value, setValue] = useState<string>('');
+
+    // Mock service groups
+    const serviceGroups = [
+      {
+        id: '1',
+        name: 'web',
+        description: 'Common web services',
+        ports: [80, 443, 8080],
+        protocol: 'tcp' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        name: 'database',
+        description: 'Database servers',
+        ports: [3306, 5432, 27017],
+        protocol: 'tcp' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '3',
+        name: 'gaming',
+        description: 'Gaming ports',
+        ports: [27015, 27016, 3074],
+        protocol: 'udp' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+
+    return (
+      <div className="w-96">
+        <PortInput
+          {...args}
+          value={value}
+          onChange={setValue}
+          serviceGroups={serviceGroups}
+        />
+        <div className="mt-4 p-3 bg-muted rounded-lg">
+          <div className="text-sm font-medium mb-2">Instructions:</div>
+          <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+            <li>Click the input to see suggestions</li>
+            <li>Service groups show with folder icons</li>
+            <li>Click a group to expand all its ports</li>
+            <li>Groups only work in multi-mode</li>
+          </ol>
+          <div className="mt-3 pt-3 border-t">
+            <div className="text-xs font-mono text-muted-foreground">
+              Current value: {value || '(empty)'}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  args: {
+    label: 'Destination Ports',
+    mode: 'multi',
+    protocol: 'tcp',
+    showSuggestions: true,
+    helpText: 'Select from service groups or enter custom ports',
+  },
+};
+
+/**
+ * Service groups filtered by protocol context.
+ * Only TCP groups are shown when protocol is TCP.
+ */
+export const ServiceGroupsFiltered: Story = {
+  render: () => {
+    const [tcpValue, setTcpValue] = useState<string>('');
+    const [udpValue, setUdpValue] = useState<string>('');
+
+    const serviceGroups = [
+      {
+        id: '1',
+        name: 'web',
+        ports: [80, 443, 8080],
+        protocol: 'tcp' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        name: 'gaming',
+        ports: [27015, 3074],
+        protocol: 'udp' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: '3',
+        name: 'dns',
+        ports: [53],
+        protocol: 'both' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+
+    return (
+      <div className="space-y-6 w-96">
+        <div>
+          <PortInput
+            label="TCP Ports"
+            mode="multi"
+            protocol="tcp"
+            showSuggestions
+            value={tcpValue}
+            onChange={setTcpValue}
+            serviceGroups={serviceGroups}
+            helpText="Only 'web' and 'dns' groups appear (TCP or Both)"
+          />
+        </div>
+        <div>
+          <PortInput
+            label="UDP Ports"
+            mode="multi"
+            protocol="udp"
+            showSuggestions
+            value={udpValue}
+            onChange={setUdpValue}
+            serviceGroups={serviceGroups}
+            helpText="Only 'gaming' and 'dns' groups appear (UDP or Both)"
+          />
+        </div>
+      </div>
+    );
+  },
+};

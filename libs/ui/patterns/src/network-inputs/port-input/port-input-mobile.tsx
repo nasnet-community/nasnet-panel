@@ -13,7 +13,7 @@
 
 import { memo, useId } from 'react';
 
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Folder } from 'lucide-react';
 
 import { Input, cn, Badge, Button, Label } from '@nasnet/ui/primitives';
 
@@ -98,6 +98,7 @@ export const PortInputMobile = memo(function PortInputMobile(
     showSuggestionsDropdown,
     selectedSuggestionIndex,
     handleSelectSuggestion,
+    handleSelectServiceGroup,
     inputRef,
     rangeStartRef,
     rangeEndRef,
@@ -109,6 +110,7 @@ export const PortInputMobile = memo(function PortInputMobile(
     protocol,
     showService,
     showSuggestions,
+    serviceGroups: rest.serviceGroups,
     min,
     max,
     ...hookConfig,
@@ -154,7 +156,9 @@ export const PortInputMobile = memo(function PortInputMobile(
         {Array.from(groupedSuggestions.entries()).map(([category, items]) => (
           <div key={category} className="mb-2 last:mb-0">
             <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {category === 'recent'
+              {category === 'group'
+                ? 'Service Groups'
+                : category === 'recent'
                 ? 'Recent'
                 : PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS] || category}
             </div>
@@ -164,6 +168,34 @@ export const PortInputMobile = memo(function PortInputMobile(
               );
               const isSelected = globalIndex === selectedSuggestionIndex;
 
+              // Render service group with folder icon
+              if (suggestion.isGroup && suggestion.groupData) {
+                return (
+                  <button
+                    key={`group-${suggestion.groupData.id}`}
+                    id={`${suggestionsId}-${globalIndex}`}
+                    role="option"
+                    type="button"
+                    aria-selected={isSelected}
+                    className={cn(
+                      'flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2.5 text-sm',
+                      'min-h-[44px]', // Touch target
+                      'hover:bg-accent hover:text-accent-foreground',
+                      'active:bg-accent/80',
+                      isSelected && 'bg-accent text-accent-foreground'
+                    )}
+                    onClick={() => handleSelectServiceGroup(suggestion.groupData!)}
+                  >
+                    <Folder className="h-5 w-5 text-primary flex-shrink-0" aria-hidden="true" />
+                    <span className="flex-1 font-medium">{suggestion.service}</span>
+                    <Badge variant="secondary" className="uppercase text-xs">
+                      {suggestion.groupData.protocol}
+                    </Badge>
+                  </button>
+                );
+              }
+
+              // Regular port suggestion
               return (
                 <button
                   key={`${suggestion.port}-${suggestion.category}`}

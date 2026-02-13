@@ -47,81 +47,62 @@ func (r *mutationResolver) ConfigureBridgePortVlan(ctx context.Context, routerID
 
 // CreateRoute is the resolver for the createRoute field.
 func (r *mutationResolver) CreateRoute(ctx context.Context, routerID string, input model.RouteInput) (*model.RouteMutationResult, error) {
-	// Validate input: at least one of gateway or interface required
-	hasGateway := input.Gateway.IsSet() && input.Gateway.Value() != nil
-	hasInterface := input.Interface.IsSet() && input.Interface.Value() != nil
-
-	if !hasGateway && !hasInterface {
-		msg := "At least one of gateway or interface must be provided"
-		return &model.RouteMutationResult{
-			Success: false,
-			Message: &msg,
-		}, nil
-	}
-
-	// TODO: Implement route service layer
-	// Service layer will:
-	// 1. Validate CIDR format
-	// 2. Call adapter.CreateRoute(ctx, input)
-	// 3. Return created route with ID
-
-	msg := "Route service not yet implemented"
-	return &model.RouteMutationResult{
-		Success: false,
-		Message: &msg,
-	}, nil
+	panic(fmt.Errorf("not implemented: CreateRoute - createRoute"))
 }
 
 // UpdateRoute is the resolver for the updateRoute field.
 func (r *mutationResolver) UpdateRoute(ctx context.Context, routerID string, id string, input model.RouteInput) (*model.RouteMutationResult, error) {
-	// Validate input: at least one of gateway or interface required
-	hasGateway := input.Gateway.IsSet() && input.Gateway.Value() != nil
-	hasInterface := input.Interface.IsSet() && input.Interface.Value() != nil
-
-	if !hasGateway && !hasInterface {
-		msg := "At least one of gateway or interface must be provided"
-		return &model.RouteMutationResult{
-			Success: false,
-			Message: &msg,
-		}, nil
-	}
-
-	// TODO: Implement route service layer
-	// Service layer will:
-	// 1. Fetch existing route
-	// 2. Validate changes
-	// 3. Call adapter.UpdateRoute(ctx, id, input)
-
-	msg := "Route service not yet implemented"
-	return &model.RouteMutationResult{
-		Success: false,
-		Message: &msg,
-	}, nil
+	panic(fmt.Errorf("not implemented: UpdateRoute - updateRoute"))
 }
 
 // DeleteRoute is the resolver for the deleteRoute field.
 func (r *mutationResolver) DeleteRoute(ctx context.Context, routerID string, id string) (*model.RouteDeleteResult, error) {
-	// TODO: Implement route service layer
-	// Service layer will:
-	// 1. Fetch route to analyze impact
-	// 2. Call analyzeRouteImpact(route)
-	// 3. Call adapter.DeleteRoute(ctx, id)
+	panic(fmt.Errorf("not implemented: DeleteRoute - deleteRoute"))
+}
 
-	// For now, return placeholder impact analysis
-	impact := &model.RouteImpactAnalysis{
-		IsDefaultRoute:  false,
-		AffectedTraffic: "Unknown",
-		Severity:        model.ConfirmationSeverityStandard,
-		Message:         "Route deletion analysis not yet implemented",
-		Consequences:    []string{"Impact analysis pending implementation"},
-	}
+// CreateTunnel is the resolver for the createTunnel field.
+func (r *mutationResolver) CreateTunnel(ctx context.Context, routerID string, input model.TunnelInput) (*model.TunnelMutationResult, error) {
+	panic(fmt.Errorf("not implemented: CreateTunnel - createTunnel"))
+}
 
-	msg := "Route service not yet implemented"
-	return &model.RouteDeleteResult{
-		Success:        false,
-		Message:        &msg,
-		ImpactAnalysis: impact,
-	}, nil
+// UpdateTunnel is the resolver for the updateTunnel field.
+func (r *mutationResolver) UpdateTunnel(ctx context.Context, routerID string, id string, input model.TunnelInput) (*model.TunnelMutationResult, error) {
+	panic(fmt.Errorf("not implemented: UpdateTunnel - updateTunnel"))
+}
+
+// DeleteTunnel is the resolver for the deleteTunnel field.
+func (r *mutationResolver) DeleteTunnel(ctx context.Context, routerID string, id string) (*model.TunnelMutationResult, error) {
+	panic(fmt.Errorf("not implemented: DeleteTunnel - deleteTunnel"))
+}
+
+// TestTunnel is the resolver for the testTunnel field.
+func (r *mutationResolver) TestTunnel(ctx context.Context, routerID string, id string) (*model.TunnelTestResult, error) {
+	panic(fmt.Errorf("not implemented: TestTunnel - testTunnel"))
+}
+
+// CreatePortMirror is the resolver for the createPortMirror field.
+func (r *mutationResolver) CreatePortMirror(ctx context.Context, routerID string, input model.CreatePortMirrorInput) (*model.PortMirrorMutationResult, error) {
+	panic(fmt.Errorf("not implemented: CreatePortMirror - createPortMirror"))
+}
+
+// UpdatePortMirror is the resolver for the updatePortMirror field.
+func (r *mutationResolver) UpdatePortMirror(ctx context.Context, routerID string, id string, input model.UpdatePortMirrorInput) (*model.PortMirrorMutationResult, error) {
+	panic(fmt.Errorf("not implemented: UpdatePortMirror - updatePortMirror"))
+}
+
+// DeletePortMirror is the resolver for the deletePortMirror field.
+func (r *mutationResolver) DeletePortMirror(ctx context.Context, routerID string, id string) (*model.DeleteResult, error) {
+	panic(fmt.Errorf("not implemented: DeletePortMirror - deletePortMirror"))
+}
+
+// EnablePortMirror is the resolver for the enablePortMirror field.
+func (r *mutationResolver) EnablePortMirror(ctx context.Context, routerID string, id string) (*model.PortMirrorMutationResult, error) {
+	panic(fmt.Errorf("not implemented: EnablePortMirror - enablePortMirror"))
+}
+
+// DisablePortMirror is the resolver for the disablePortMirror field.
+func (r *mutationResolver) DisablePortMirror(ctx context.Context, routerID string, id string) (*model.PortMirrorMutationResult, error) {
+	panic(fmt.Errorf("not implemented: DisablePortMirror - disablePortMirror"))
 }
 
 // IPAddresses is the resolver for the ipAddresses field.
@@ -171,34 +152,47 @@ func (r *queryResolver) VlanTopology(ctx context.Context, routerID string, bridg
 
 // Routes is the resolver for the routes field.
 func (r *queryResolver) Routes(ctx context.Context, routerID string, table *string, typeArg *model.RouteType) ([]*model.Route, error) {
-	// TODO: Implement route service layer
-	// For now, return empty list as placeholder
-	// Service layer will call adapter.ListRoutes(ctx, table, typeArg)
-	return []*model.Route{}, nil
+	panic(fmt.Errorf("not implemented: Routes - routes"))
 }
 
 // Route is the resolver for the route field.
 func (r *queryResolver) Route(ctx context.Context, routerID string, id string) (*model.Route, error) {
-	// TODO: Implement route service layer
-	// For now, return nil as placeholder
-	// Service layer will call adapter.GetRoute(ctx, id)
-	return nil, fmt.Errorf("route not found")
+	panic(fmt.Errorf("not implemented: Route - route"))
 }
 
 // CheckGatewayReachability is the resolver for the checkGatewayReachability field.
 func (r *queryResolver) CheckGatewayReachability(ctx context.Context, routerID string, gateway model.IPv4) (*model.GatewayReachabilityResult, error) {
-	// TODO: Implement gateway reachability check via adapter
-	// For now, return unreachable as placeholder
-	// Service layer will call adapter.CheckGatewayReachability(ctx, gateway)
-	return &model.GatewayReachabilityResult{
-		Reachable: false,
-		Message:   fmt.Sprintf("Gateway %s may not be reachable from any interface", string(gateway)),
-	}, nil
+	panic(fmt.Errorf("not implemented: CheckGatewayReachability - checkGatewayReachability"))
 }
 
 // InterfaceStatsHistory is the resolver for the interfaceStatsHistory field.
 func (r *queryResolver) InterfaceStatsHistory(ctx context.Context, routerID string, interfaceID string, timeRange model.StatsTimeRangeInput, interval *model.Duration) (*model.InterfaceStatsHistory, error) {
 	panic(fmt.Errorf("not implemented: InterfaceStatsHistory - interfaceStatsHistory"))
+}
+
+// Tunnels is the resolver for the tunnels field.
+func (r *queryResolver) Tunnels(ctx context.Context, routerID string, typeArg *model.TunnelType) ([]*model.Tunnel, error) {
+	panic(fmt.Errorf("not implemented: Tunnels - tunnels"))
+}
+
+// Tunnel is the resolver for the tunnel field.
+func (r *queryResolver) Tunnel(ctx context.Context, routerID string, id string) (*model.Tunnel, error) {
+	panic(fmt.Errorf("not implemented: Tunnel - tunnel"))
+}
+
+// IpsecProfiles is the resolver for the ipsecProfiles field.
+func (r *queryResolver) IpsecProfiles(ctx context.Context, routerID string) ([]*model.IpsecProfile, error) {
+	panic(fmt.Errorf("not implemented: IpsecProfiles - ipsecProfiles"))
+}
+
+// PortMirrors is the resolver for the portMirrors field.
+func (r *queryResolver) PortMirrors(ctx context.Context, routerID string) ([]*model.PortMirror, error) {
+	panic(fmt.Errorf("not implemented: PortMirrors - portMirrors"))
+}
+
+// PortMirror is the resolver for the portMirror field.
+func (r *queryResolver) PortMirror(ctx context.Context, routerID string, id string) (*model.PortMirror, error) {
+	panic(fmt.Errorf("not implemented: PortMirror - portMirror"))
 }
 
 // IPAddressChanged is the resolver for the ipAddressChanged field.
@@ -214,4 +208,14 @@ func (r *subscriptionResolver) VlanChanged(ctx context.Context, routerID string)
 // InterfaceStatsUpdated is the resolver for the interfaceStatsUpdated field.
 func (r *subscriptionResolver) InterfaceStatsUpdated(ctx context.Context, routerID string, interfaceID string, interval *model.Duration) (<-chan *model.InterfaceStats, error) {
 	panic(fmt.Errorf("not implemented: InterfaceStatsUpdated - interfaceStatsUpdated"))
+}
+
+// TunnelChanged is the resolver for the tunnelChanged field.
+func (r *subscriptionResolver) TunnelChanged(ctx context.Context, routerID string) (<-chan *model.Tunnel, error) {
+	panic(fmt.Errorf("not implemented: TunnelChanged - tunnelChanged"))
+}
+
+// PortMirrorChanged is the resolver for the portMirrorChanged field.
+func (r *subscriptionResolver) PortMirrorChanged(ctx context.Context, routerID string) (<-chan *model.PortMirror, error) {
+	panic(fmt.Errorf("not implemented: PortMirrorChanged - portMirrorChanged"))
 }

@@ -51,6 +51,16 @@ export const quietHoursConfigSchema = z.object({
     .regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
   timezone: z.string().min(1, 'Timezone is required'),
   bypassCritical: z.boolean().default(true),
+  daysOfWeek: z
+    .array(z.number().int().min(0).max(6))
+    .min(1, 'At least one day must be selected')
+    .refine(
+      (days) => {
+        const uniqueDays = new Set(days);
+        return uniqueDays.size === days.length;
+      },
+      { message: 'Duplicate days are not allowed' }
+    ),
 });
 
 /**

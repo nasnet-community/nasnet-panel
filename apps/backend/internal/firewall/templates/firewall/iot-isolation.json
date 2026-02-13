@@ -1,0 +1,175 @@
+{
+  "id": "iot-isolation",
+  "name": "IoT Isolation",
+  "description": "Isolate IoT devices on a separate VLAN with restricted internet-only access. Prevents IoT devices from accessing local network resources while allowing internet connectivity. Recommended for smart home devices, cameras, and other IoT equipment.",
+  "category": "IOT",
+  "complexity": "ADVANCED",
+  "ruleCount": 12,
+  "version": "1.0.0",
+  "isBuiltIn": true,
+  "variables": [
+    {
+      "name": "WAN_INTERFACE",
+      "label": "WAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The internet-facing interface (e.g., ether1, pppoe-out1)"
+    },
+    {
+      "name": "LAN_INTERFACE",
+      "label": "LAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The main local network interface (e.g., bridge)"
+    },
+    {
+      "name": "IOT_INTERFACE",
+      "label": "IoT VLAN Interface",
+      "type": "INTERFACE",
+      "required": true,
+      "description": "The IoT VLAN interface (e.g., vlan20)"
+    },
+    {
+      "name": "LAN_SUBNET",
+      "label": "LAN Subnet",
+      "type": "SUBNET",
+      "required": true,
+      "defaultValue": "192.168.88.0/24",
+      "description": "The main local network subnet"
+    },
+    {
+      "name": "IOT_SUBNET",
+      "label": "IoT Subnet",
+      "type": "SUBNET",
+      "required": true,
+      "defaultValue": "192.168.20.0/24",
+      "description": "The IoT network subnet"
+    }
+  ],
+  "rules": [
+    {
+      "table": "NAT",
+      "chain": "srcnat",
+      "action": "masquerade",
+      "comment": "nnc-template:iot-isolation:masquerade-iot",
+      "position": null,
+      "properties": {
+        "out-interface": "{{WAN_INTERFACE}}",
+        "src-address": "{{IOT_SUBNET}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:accept-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:iot-isolation:drop-invalid",
+      "position": null,
+      "properties": {
+        "connection-state": "invalid"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:accept-dhcp-dns-from-iot",
+      "position": null,
+      "properties": {
+        "in-interface": "{{IOT_INTERFACE}}",
+        "protocol": "udp",
+        "dst-port": "53,67"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:iot-isolation:drop-iot-to-router",
+      "position": null,
+      "properties": {
+        "in-interface": "{{IOT_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:accept-from-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "input",
+      "action": "drop",
+      "comment": "nnc-template:iot-isolation:drop-all-input",
+      "position": null,
+      "properties": {}
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:forward-established-related",
+      "position": null,
+      "properties": {
+        "connection-state": "established,related"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "drop",
+      "comment": "nnc-template:iot-isolation:block-iot-to-lan",
+      "position": null,
+      "properties": {
+        "in-interface": "{{IOT_INTERFACE}}",
+        "out-interface": "{{LAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "drop",
+      "comment": "nnc-template:iot-isolation:block-iot-to-iot",
+      "position": null,
+      "properties": {
+        "in-interface": "{{IOT_INTERFACE}}",
+        "out-interface": "{{IOT_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:allow-iot-to-internet",
+      "position": null,
+      "properties": {
+        "in-interface": "{{IOT_INTERFACE}}",
+        "out-interface": "{{WAN_INTERFACE}}"
+      }
+    },
+    {
+      "table": "FILTER",
+      "chain": "forward",
+      "action": "accept",
+      "comment": "nnc-template:iot-isolation:allow-lan-to-anywhere",
+      "position": null,
+      "properties": {
+        "in-interface": "{{LAN_INTERFACE}}"
+      }
+    }
+  ]
+}

@@ -6,270 +6,36 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/scanner"
 	"context"
-	"time"
+	"fmt"
 )
 
-// ScanNetwork starts a network scan for MikroTik routers.
+// ScanNetwork is the resolver for the scanNetwork field.
 func (r *mutationResolver) ScanNetwork(ctx context.Context, input model.ScanNetworkInput) (*model.ScanNetworkPayload, error) {
-	// Get scanner service from resolver
-	svc := r.ScannerService
-	if svc == nil {
-		return &model.ScanNetworkPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SCANNER_UNAVAILABLE",
-				Message: "Scanner service is not available",
-			}},
-		}, nil
-	}
-
-	// Start the scan
-	task, err := svc.StartScan(ctx, input.Subnet)
-	if err != nil {
-		return &model.ScanNetworkPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SCAN_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.ScanNetworkPayload{
-		Task: convertScanTask(task),
-	}, nil
+	panic(fmt.Errorf("not implemented: ScanNetwork - scanNetwork"))
 }
 
-// AutoScanGateways starts an automatic gateway scan.
+// AutoScanGateways is the resolver for the autoScanGateways field.
 func (r *mutationResolver) AutoScanGateways(ctx context.Context) (*model.ScanNetworkPayload, error) {
-	svc := r.ScannerService
-	if svc == nil {
-		return &model.ScanNetworkPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SCANNER_UNAVAILABLE",
-				Message: "Scanner service is not available",
-			}},
-		}, nil
-	}
-
-	task, err := svc.StartAutoScan(ctx)
-	if err != nil {
-		return &model.ScanNetworkPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SCAN_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.ScanNetworkPayload{
-		Task: convertScanTask(task),
-	}, nil
+	panic(fmt.Errorf("not implemented: AutoScanGateways - autoScanGateways"))
 }
 
-// CancelScan cancels a running scan.
+// CancelScan is the resolver for the cancelScan field.
 func (r *mutationResolver) CancelScan(ctx context.Context, taskID string) (*model.CancelScanPayload, error) {
-	svc := r.ScannerService
-	if svc == nil {
-		return &model.CancelScanPayload{
-			Errors: []*model.MutationError{{
-				Code:    "SCANNER_UNAVAILABLE",
-				Message: "Scanner service is not available",
-			}},
-		}, nil
-	}
-
-	task, err := svc.CancelScan(taskID)
-	if err != nil {
-		return &model.CancelScanPayload{
-			Errors: []*model.MutationError{{
-				Code:    "CANCEL_FAILED",
-				Message: err.Error(),
-			}},
-		}, nil
-	}
-
-	return &model.CancelScanPayload{
-		Task: convertScanTask(task),
-	}, nil
+	panic(fmt.Errorf("not implemented: CancelScan - cancelScan"))
 }
 
-// ScanStatus returns the current status of a scan task.
+// ScanStatus is the resolver for the scanStatus field.
 func (r *queryResolver) ScanStatus(ctx context.Context, taskID string) (*model.ScanTask, error) {
-	svc := r.ScannerService
-	if svc == nil {
-		return nil, nil
-	}
-
-	task, err := svc.GetStatus(taskID)
-	if err != nil {
-		return nil, nil // Return nil for not found instead of error
-	}
-
-	return convertScanTask(task), nil
+	panic(fmt.Errorf("not implemented: ScanStatus - scanStatus"))
 }
 
-// ScanHistory returns recent scan tasks.
+// ScanHistory is the resolver for the scanHistory field.
 func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.ScanTask, error) {
-	svc := r.ScannerService
-	if svc == nil {
-		return []*model.ScanTask{}, nil
-	}
-
-	maxResults := 10
-	if limit != nil && *limit > 0 {
-		maxResults = *limit
-	}
-
-	tasks := svc.GetHistory(maxResults)
-	result := make([]*model.ScanTask, len(tasks))
-	for i, task := range tasks {
-		result[i] = convertScanTask(task)
-	}
-
-	return result, nil
+	panic(fmt.Errorf("not implemented: ScanHistory - scanHistory"))
 }
 
-// ScanProgress subscribes to real-time scan progress updates.
+// ScanProgress is the resolver for the scanProgress field.
 func (r *subscriptionResolver) ScanProgress(ctx context.Context, taskID string) (<-chan *model.ScanProgressEvent, error) {
-	ch := make(chan *model.ScanProgressEvent, 10)
-
-	svc := r.ScannerService
-	if svc == nil {
-		close(ch)
-		return ch, nil
-	}
-
-	// Poll for updates every 500ms
-	go func() {
-		defer close(ch)
-
-		ticker := time.NewTicker(500 * time.Millisecond)
-		defer ticker.Stop()
-
-		lastProgress := -1
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				task, err := svc.GetStatus(taskID)
-				if err != nil {
-					return
-				}
-
-				progress, _ := task.GetProgress()
-				status := task.GetStatus()
-
-				// Only emit if progress changed or status changed
-				if progress != lastProgress {
-					lastProgress = progress
-
-					event := &model.ScanProgressEvent{
-						TaskID:       taskID,
-						Progress:     progress,
-						DevicesFound: len(task.GetResults()),
-						Status:       convertScanStatus(status),
-						Timestamp:    time.Now(),
-					}
-
-					select {
-					case ch <- event:
-					case <-ctx.Done():
-						return
-					}
-				}
-
-				// Stop polling when scan is done
-				if status == scanner.ScanStatusCompleted ||
-					status == scanner.ScanStatusCancelled ||
-					status == scanner.ScanStatusFailed {
-					return
-				}
-			}
-		}
-	}()
-
-	return ch, nil
-}
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func convertScanTask(task *scanner.ScanTask) *model.ScanTask {
-	if task == nil {
-		return nil
-	}
-
-	results := task.GetResults()
-	devices := make([]*model.DiscoveredDevice, len(results))
-	for i, d := range results {
-		devices[i] = convertDiscoveredDevice(d)
-	}
-
-	progress, scannedIPs := task.GetProgress()
-
-	return &model.ScanTask{
-		ID:         task.ID,
-		Subnet:     task.Subnet,
-		Status:     convertScanStatus(task.GetStatus()),
-		Progress:   progress,
-		Results:    devices,
-		StartTime:  task.StartTime,
-		EndTime:    task.EndTime,
-		Error:      nilIfEmpty(task.Error),
-		TotalIPs:   intPtr(task.TotalIPs),
-		ScannedIPs: intPtr(scannedIPs),
-	}
-}
-func convertDiscoveredDevice(d scanner.DiscoveredDevice) *model.DiscoveredDevice {
-	var routerOSInfo *model.RouterOSInfo
-	if d.RouterOSInfo != nil {
-		routerOSInfo = &model.RouterOSInfo{
-			Version:      nilIfEmpty(d.RouterOSInfo.Version),
-			BoardName:    nilIfEmpty(d.RouterOSInfo.BoardName),
-			Architecture: nilIfEmpty(d.RouterOSInfo.Architecture),
-			Platform:     nilIfEmpty(d.RouterOSInfo.Platform),
-		}
-	}
-
-	return &model.DiscoveredDevice{
-		IP:           d.IP,
-		Hostname:     nilIfEmpty(d.Hostname),
-		Ports:        d.Ports,
-		DeviceType:   d.DeviceType,
-		Vendor:       nilIfEmpty(d.Vendor),
-		RouterOSInfo: routerOSInfo,
-		Confidence:   d.Confidence,
-		Services:     d.Services,
-	}
-}
-func convertScanStatus(status scanner.ScanStatus) model.ScanStatus {
-	switch status {
-	case scanner.ScanStatusPending:
-		return model.ScanStatusPending
-	case scanner.ScanStatusRunning:
-		return model.ScanStatusRunning
-	case scanner.ScanStatusCompleted:
-		return model.ScanStatusCompleted
-	case scanner.ScanStatusCancelled:
-		return model.ScanStatusCancelled
-	case scanner.ScanStatusFailed:
-		return model.ScanStatusFailed
-	default:
-		return model.ScanStatusPending
-	}
-}
-func nilIfEmpty(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
-func intPtr(i int) *int {
-	return &i
+	panic(fmt.Errorf("not implemented: ScanProgress - scanProgress"))
 }

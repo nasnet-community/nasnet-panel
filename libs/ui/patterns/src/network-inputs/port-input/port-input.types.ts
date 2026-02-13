@@ -7,6 +7,8 @@
  * @module @nasnet/ui/patterns/network-inputs/port-input
  */
 
+import type { ServiceGroup } from '@nasnet/core/types';
+
 /**
  * Port input mode - determines the input behavior.
  */
@@ -31,12 +33,18 @@ export interface PortRange {
  * Port suggestion entry for autocomplete.
  */
 export interface PortSuggestion {
-  /** Port number */
+  /** Port number (0 for service groups) */
   port: number;
   /** Service name */
   service: string;
   /** Category for grouping */
-  category: 'web' | 'secure' | 'database' | 'messaging' | 'mail' | 'network' | 'system' | 'containers' | 'mikrotik' | 'recent';
+  category: 'web' | 'secure' | 'database' | 'messaging' | 'mail' | 'network' | 'system' | 'containers' | 'mikrotik' | 'recent' | 'group';
+  /** Protocol for filtering */
+  protocol?: 'tcp' | 'udp' | 'both';
+  /** Flag indicating this is a service group */
+  isGroup?: boolean;
+  /** Service group data (when isGroup=true) */
+  groupData?: ServiceGroup;
 }
 
 /**
@@ -55,6 +63,8 @@ export interface PortInputProps {
   showService?: boolean;
   /** Show suggestions dropdown on focus */
   showSuggestions?: boolean;
+  /** Optional service groups for quick selection */
+  serviceGroups?: ServiceGroup[];
   /** Disable the input */
   disabled?: boolean;
   /** External error message to display */
@@ -101,6 +111,8 @@ export interface UsePortInputConfig {
   showService?: boolean;
   /** Show suggestions */
   showSuggestions?: boolean;
+  /** Optional service groups for quick selection */
+  serviceGroups?: ServiceGroup[];
   /** Custom minimum port */
   min?: number;
   /** Custom maximum port */
@@ -191,6 +203,8 @@ export interface UsePortInputReturn {
   selectedSuggestionIndex: number;
   /** Select a suggestion */
   handleSelectSuggestion: (port: number) => void;
+  /** Select a service group (multi-mode only) */
+  handleSelectServiceGroup: (group: ServiceGroup) => void;
   /** Open/close suggestions dropdown */
   setShowSuggestionsDropdown: (show: boolean) => void;
   /** Navigate suggestions with arrow keys */

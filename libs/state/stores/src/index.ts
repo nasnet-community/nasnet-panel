@@ -38,6 +38,41 @@ export * from './ui/help-mode.store';
 // @see NAS-6.3: Implement DHCP Server Management
 export * from './dhcp-ui.store';
 
+// Service UI state (filters, search, selection, install wizard)
+// @see Service Instance Manager - Frontend State Management
+export * from './service-ui.store';
+
+// Mangle UI state (selected chain, expanded rules, filters)
+// @see NAS-7.5: Implement Mangle Rules
+export * from './mangle-ui.store';
+
+// NAT UI state (selected chain, expanded rules, filters)
+// @see NAS-7.2: Implement NAT Configuration
+export * from './nat-ui.store';
+
+// RAW UI state (selected chain, performance section, filters, dialogs)
+// @see NAS-7.X: Implement RAW Firewall Rules
+export * from './raw-ui.store';
+
+// Port Knock UI state (tabs, filters, dialogs)
+// @see NAS-7.12: Implement Port Knocking
+export * from './port-knock-ui.store';
+
+// Rate Limiting UI state (tabs, filters, rule editor, statistics)
+// @see NAS-7.11: Implement Connection Rate Limiting
+export * from './rate-limiting-ui.store';
+
+// Firewall Log UI state (filters, auto-refresh, sort, stats)
+// @see NAS-5.6: Implement Firewall Logging Viewer
+export * from './firewall-log-ui.store';
+
+// Alert notification state (in-app notifications with persistence)
+export * from './alert-notification.store';
+
+// Alert rule template UI state (filters, view mode, selection, dialogs)
+// @see NAS-18.12: Alert Rule Templates
+export * from './alert-rule-template-ui.store';
+
 // Consolidated selectors for optimized re-renders
 export * from './ui/selectors';
 

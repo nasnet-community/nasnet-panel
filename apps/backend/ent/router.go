@@ -49,9 +49,13 @@ type Router struct {
 type RouterEdges struct {
 	// Router credentials (encrypted)
 	Secrets *RouterSecret `json:"secrets,omitempty"`
+	// Port knock sequences configured for this router
+	PortKnockSequences []*PortKnockSequence `json:"port_knock_sequences,omitempty"`
+	// Service instances running on this router
+	ServiceInstances []*ServiceInstance `json:"service_instances,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
 // SecretsOrErr returns the Secrets value or an error if the edge
@@ -63,6 +67,24 @@ func (e RouterEdges) SecretsOrErr() (*RouterSecret, error) {
 		return nil, &NotFoundError{label: routersecret.Label}
 	}
 	return nil, &NotLoadedError{edge: "secrets"}
+}
+
+// PortKnockSequencesOrErr returns the PortKnockSequences value or an error if the edge
+// was not loaded in eager-loading.
+func (e RouterEdges) PortKnockSequencesOrErr() ([]*PortKnockSequence, error) {
+	if e.loadedTypes[1] {
+		return e.PortKnockSequences, nil
+	}
+	return nil, &NotLoadedError{edge: "port_knock_sequences"}
+}
+
+// ServiceInstancesOrErr returns the ServiceInstances value or an error if the edge
+// was not loaded in eager-loading.
+func (e RouterEdges) ServiceInstancesOrErr() ([]*ServiceInstance, error) {
+	if e.loadedTypes[2] {
+		return e.ServiceInstances, nil
+	}
+	return nil, &NotLoadedError{edge: "service_instances"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -174,6 +196,16 @@ func (_m *Router) Value(name string) (ent.Value, error) {
 // QuerySecrets queries the "secrets" edge of the Router entity.
 func (_m *Router) QuerySecrets() *RouterSecretQuery {
 	return NewRouterClient(_m.config).QuerySecrets(_m)
+}
+
+// QueryPortKnockSequences queries the "port_knock_sequences" edge of the Router entity.
+func (_m *Router) QueryPortKnockSequences() *PortKnockSequenceQuery {
+	return NewRouterClient(_m.config).QueryPortKnockSequences(_m)
+}
+
+// QueryServiceInstances queries the "service_instances" edge of the Router entity.
+func (_m *Router) QueryServiceInstances() *ServiceInstanceQuery {
+	return NewRouterClient(_m.config).QueryServiceInstances(_m)
 }
 
 // Update returns a builder for updating this Router.

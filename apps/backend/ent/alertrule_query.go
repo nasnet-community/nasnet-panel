@@ -4,6 +4,7 @@ package ent
 
 import (
 	"backend/ent/alert"
+	"backend/ent/alertescalation"
 	"backend/ent/alertrule"
 	"backend/ent/internal"
 	"backend/ent/predicate"
@@ -21,11 +22,12 @@ import (
 // AlertRuleQuery is the builder for querying AlertRule entities.
 type AlertRuleQuery struct {
 	config
-	ctx        *QueryContext
-	order      []alertrule.OrderOption
-	inters     []Interceptor
-	predicates []predicate.AlertRule
-	withAlerts *AlertQuery
+	ctx             *QueryContext
+	order           []alertrule.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.AlertRule
+	withAlerts      *AlertQuery
+	withEscalations *AlertEscalationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -81,6 +83,31 @@ func (_q *AlertRuleQuery) QueryAlerts() *AlertQuery {
 		schemaConfig := _q.schemaConfig
 		step.To.Schema = schemaConfig.Alert
 		step.Edge.Schema = schemaConfig.Alert
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryEscalations chains the current query on the "escalations" edge.
+func (_q *AlertRuleQuery) QueryEscalations() *AlertEscalationQuery {
+	query := (&AlertEscalationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alertrule.Table, alertrule.FieldID, selector),
+			sqlgraph.To(alertescalation.Table, alertescalation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alertrule.EscalationsTable, alertrule.EscalationsColumn),
+		)
+		schemaConfig := _q.schemaConfig
+		step.To.Schema = schemaConfig.AlertEscalation
+		step.Edge.Schema = schemaConfig.AlertEscalation
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
@@ -274,12 +301,13 @@ func (_q *AlertRuleQuery) Clone() *AlertRuleQuery {
 		return nil
 	}
 	return &AlertRuleQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]alertrule.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.AlertRule{}, _q.predicates...),
-		withAlerts: _q.withAlerts.Clone(),
+		config:          _q.config,
+		ctx:             _q.ctx.Clone(),
+		order:           append([]alertrule.OrderOption{}, _q.order...),
+		inters:          append([]Interceptor{}, _q.inters...),
+		predicates:      append([]predicate.AlertRule{}, _q.predicates...),
+		withAlerts:      _q.withAlerts.Clone(),
+		withEscalations: _q.withEscalations.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -294,6 +322,17 @@ func (_q *AlertRuleQuery) WithAlerts(opts ...func(*AlertQuery)) *AlertRuleQuery 
 		opt(query)
 	}
 	_q.withAlerts = query
+	return _q
+}
+
+// WithEscalations tells the query-builder to eager-load the nodes that are connected to
+// the "escalations" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AlertRuleQuery) WithEscalations(opts ...func(*AlertEscalationQuery)) *AlertRuleQuery {
+	query := (&AlertEscalationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withEscalations = query
 	return _q
 }
 
@@ -375,8 +414,9 @@ func (_q *AlertRuleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Al
 	var (
 		nodes       = []*AlertRule{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withAlerts != nil,
+			_q.withEscalations != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -406,6 +446,13 @@ func (_q *AlertRuleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Al
 			return nil, err
 		}
 	}
+	if query := _q.withEscalations; query != nil {
+		if err := _q.loadEscalations(ctx, query, nodes,
+			func(n *AlertRule) { n.Edges.Escalations = []*AlertEscalation{} },
+			func(n *AlertRule, e *AlertEscalation) { n.Edges.Escalations = append(n.Edges.Escalations, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -424,6 +471,36 @@ func (_q *AlertRuleQuery) loadAlerts(ctx context.Context, query *AlertQuery, nod
 	}
 	query.Where(predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(alertrule.AlertsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RuleID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "rule_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *AlertRuleQuery) loadEscalations(ctx context.Context, query *AlertEscalationQuery, nodes []*AlertRule, init func(*AlertRule), assign func(*AlertRule, *AlertEscalation)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*AlertRule)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(alertescalation.FieldRuleID)
+	}
+	query.Where(predicate.AlertEscalation(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(alertrule.EscalationsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

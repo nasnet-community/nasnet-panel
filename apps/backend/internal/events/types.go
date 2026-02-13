@@ -570,3 +570,53 @@ func NewInterfaceTrafficUpdateEvent(
 		RxTotal:       rxTotal,
 	}
 }
+
+// -----------------------------------------------------------------------------
+// Alert Events
+// -----------------------------------------------------------------------------
+
+// AlertCreatedEvent is emitted when an alert is created and saved to the database.
+// This event triggers notification dispatch through all configured channels.
+type AlertCreatedEvent struct {
+	BaseEvent
+	AlertID   string                 `json:"alertId"`
+	RuleID    string                 `json:"ruleId"`
+	EventType string                 `json:"eventType"`
+	Severity  string                 `json:"severity"`
+	Title     string                 `json:"title"`
+	Message   string                 `json:"message"`
+	DeviceID  string                 `json:"deviceId,omitempty"`
+	Channels  []string               `json:"channels"`
+	Data      map[string]interface{} `json:"data,omitempty"`
+}
+
+// Payload returns the JSON-serialized event payload.
+func (e *AlertCreatedEvent) Payload() ([]byte, error) {
+	return json.Marshal(e)
+}
+
+// NewAlertCreatedEvent creates a new AlertCreatedEvent.
+func NewAlertCreatedEvent(
+	alertID, ruleID, eventType, severity, title, message, deviceID string,
+	channels []string,
+	data map[string]interface{},
+	source string,
+) *AlertCreatedEvent {
+	return &AlertCreatedEvent{
+		BaseEvent: NewBaseEvent(EventTypeAlertCreated, PriorityCritical, source),
+		AlertID:   alertID,
+		RuleID:    ruleID,
+		EventType: eventType,
+		Severity:  severity,
+		Title:     title,
+		Message:   message,
+		DeviceID:  deviceID,
+		Channels:  channels,
+		Data:      data,
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Generic Event
+// -----------------------------------------------------------------------------
+// Note: GenericEvent is defined in generic.go

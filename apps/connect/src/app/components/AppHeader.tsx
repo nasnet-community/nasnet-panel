@@ -1,7 +1,9 @@
-import { ThemeToggle } from '@nasnet/ui/patterns';
+import { ThemeToggle, NotificationBell } from '@nasnet/ui/patterns';
 import { MoreVertical } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { useConnectionStore, useAlertNotificationStore, useUnreadCount, useNotifications } from '@nasnet/state/stores';
+import { useNavigate } from '@tanstack/react-router';
+import type { InAppNotification } from '@nasnet/state/stores';
 
 /**
  * AppHeader Component
@@ -17,6 +19,34 @@ import { useConnectionStore } from '@nasnet/state/stores';
  */
 export function AppHeader() {
   const { state, currentRouterIp } = useConnectionStore();
+  const navigate = useNavigate();
+
+  // Get notification data from store
+  const unreadCount = useUnreadCount();
+  const allNotifications = useNotifications();
+  const recentNotifications = allNotifications.slice(0, 5); // Show 5 most recent
+
+  // Get store actions
+  const markAsRead = useAlertNotificationStore((s) => s.markAsRead);
+  const markAllRead = useAlertNotificationStore((s) => s.markAllRead);
+
+  // Handler: Click notification -> mark as read + navigate to dashboard
+  const handleNotificationClick = (notification: InAppNotification) => {
+    markAsRead(notification.id);
+
+    // Navigate to dashboard (alerts will be shown there)
+    navigate({ to: '/dashboard' });
+  };
+
+  // Handler: Mark all notifications as read
+  const handleMarkAllRead = () => {
+    markAllRead();
+  };
+
+  // Handler: View all notifications page
+  const handleViewAll = () => {
+    navigate({ to: '/dashboard' });
+  };
 
   // Determine status display based on connection state
   const getStatusConfig = () => {
@@ -79,6 +109,13 @@ export function AppHeader() {
       {/* Right: Actions */}
       <div className="flex items-center gap-1">
         <ThemeToggle />
+        <NotificationBell
+          unreadCount={unreadCount}
+          notifications={recentNotifications}
+          onNotificationClick={handleNotificationClick}
+          onMarkAllRead={handleMarkAllRead}
+          onViewAll={handleViewAll}
+        />
         <Button
           variant="ghost"
           size="icon"

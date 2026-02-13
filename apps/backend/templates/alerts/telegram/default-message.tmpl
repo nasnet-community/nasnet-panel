@@ -1,0 +1,20 @@
+🚨 *{{.Severity}}* \- {{.Title | escape}}
+
+*Alert Rule:* {{.RuleName | escape}}
+*Event Type:* `{{.EventType}}`
+*Time:* {{.FormattedTime | escape}}
+
+📋 *Details*
+{{.Message | escape}}
+
+🖥 *Device Information*
+• *Name:* {{.DeviceName | default "Unknown" | escape}}
+• *IP:* `{{.DeviceIP | default "N/A"}}`
+
+{{if .SuggestedActions}}
+💡 *Suggested Actions*
+{{range .SuggestedActions}}• {{. | escape}}
+{{end}}
+{{end}}
+
+_Automated alert from NasNet_
