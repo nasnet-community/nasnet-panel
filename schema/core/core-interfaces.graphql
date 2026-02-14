@@ -1,0 +1,67 @@
+# =============================================================================
+# Core Interfaces and Pagination Types
+# =============================================================================
+# Relay-compatible interfaces for global object identification and pagination.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Interfaces
+# -----------------------------------------------------------------------------
+
+"""
+Relay Node interface for global object identification
+"""
+interface Node {
+  "Globally unique identifier"
+  id: ID!
+}
+
+"""
+Connection interface for paginated results (Relay pagination)
+"""
+interface Connection {
+  "Pagination information"
+  pageInfo: PageInfo!
+  "Total count of items (if available)"
+  totalCount: Int
+}
+
+"""
+Edge interface for connection edges
+"""
+interface Edge {
+  "Cursor for pagination"
+  cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Pagination Types
+# -----------------------------------------------------------------------------
+
+"""
+Information about pagination in a connection
+"""
+type PageInfo {
+  "When paginating forwards, are there more items?"
+  hasNextPage: Boolean!
+  "When paginating backwards, are there more items?"
+  hasPreviousPage: Boolean!
+  "Cursor for the first edge"
+  startCursor: String
+  "Cursor for the last edge"
+  endCursor: String
+}
+
+"""
+Standard pagination input arguments
+"""
+input PaginationInput {
+  "Number of items to fetch"
+  first: Int
+  "Cursor to fetch items after"
+  after: String
+  "Number of items to fetch from the end"
+  last: Int
+  "Cursor to fetch items before"
+  before: String
+}

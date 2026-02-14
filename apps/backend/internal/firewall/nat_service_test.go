@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/router"
 
 	"github.com/99designs/gqlgen/graphql"

@@ -1,0 +1,134 @@
+# -----------------------------------------------------------------------------
+# Troubleshooting Payloads
+# -----------------------------------------------------------------------------
+
+"""
+Result of starting a troubleshooting session
+"""
+type StartTroubleshootPayload {
+  "The created session"
+  session: TroubleshootSession
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Result of running a diagnostic step
+"""
+type RunTroubleshootStepPayload {
+  "Updated step with result"
+  step: TroubleshootStep!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Result of applying a fix
+"""
+type ApplyFixPayload {
+  "Whether fix was applied successfully"
+  success: Boolean!
+  "User-friendly message"
+  message: String!
+  "Fix application status"
+  status: FixApplicationStatus!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Network configuration detection result
+"""
+type NetworkConfigDetection {
+  "Detected WAN interface name"
+  wanInterface: String!
+  "Detected default gateway IP"
+  gateway: String
+  "Detected ISP information"
+  ispInfo: ISPInfo
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get a troubleshooting session by ID
+  """
+  troubleshootSession(id: ID!): TroubleshootSession
+
+  """
+  Detect WAN interface from default route
+  """
+  detectWanInterface(routerId: ID!): String!
+
+  """
+  Detect default gateway from DHCP client or static route
+  """
+  detectGateway(routerId: ID!): String
+
+  """
+  Detect ISP information from WAN IP
+  """
+  detectISP(routerId: ID!): ISPInfo
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Start a new troubleshooting session for a router.
+  Automatically detects network configuration and begins diagnostics.
+  """
+  startTroubleshoot(routerId: ID!): StartTroubleshootPayload!
+
+  """
+  Run a specific diagnostic step in a session
+  """
+  runTroubleshootStep(
+    "Session ID"
+    sessionId: ID!
+    "Step to run"
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
+
+  """
+  Apply a suggested fix for a failed diagnostic step
+  """
+  applyTroubleshootFix(
+    "Session ID"
+    sessionId: ID!
+    "Issue code to fix"
+    issueCode: String!
+  ): ApplyFixPayload!
+
+  """
+  Verify a fix by re-running the diagnostic step
+  """
+  verifyTroubleshootFix(
+    "Session ID"
+    sessionId: ID!
+    "Step to verify"
+    stepType: TroubleshootStepType!
+  ): RunTroubleshootStepPayload!
+
+  """
+  Cancel a troubleshooting session
+  """
+  cancelTroubleshoot(sessionId: ID!): TroubleshootSession!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions (Internet Troubleshooting)
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to troubleshooting session progress.
+  Emits events as steps are executed, fixes are applied, and results are updated.
+  """
+  troubleshootProgress(sessionId: ID!): TroubleshootSession!
+}

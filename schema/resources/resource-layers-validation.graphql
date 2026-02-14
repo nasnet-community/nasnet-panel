@@ -1,0 +1,170 @@
+# =============================================================================
+# Resource Layer 2: Validation
+# =============================================================================
+# Validation result types for the 7-stage backend validation pipeline.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Layer 2: Validation Result
+# -----------------------------------------------------------------------------
+
+"""
+Layer 2: Validation result from 7-stage backend validation pipeline.
+Computed on every configuration change.
+"""
+type ValidationResult {
+  "Whether the resource can be applied"
+  canApply: Boolean!
+
+  "Current validation stage"
+  stage: ValidationStage!
+
+  "Validation errors (blocking)"
+  errors: [ValidationIssue!]!
+
+  "Validation warnings (non-blocking)"
+  warnings: [ValidationIssue!]!
+
+  "Resource conflicts detected"
+  conflicts: [ResourceConflict!]!
+
+  "Required dependencies that must be active"
+  requiredDependencies: [DependencyStatus!]!
+
+  "When validation was performed"
+  validatedAt: DateTime!
+
+  "Duration of validation in milliseconds"
+  validationDurationMs: Int!
+}
+
+"""
+Validation pipeline stages
+"""
+enum ValidationStage {
+  "Schema validation (Zod/GraphQL)"
+  SCHEMA
+
+  "Semantic validation (business rules)"
+  SEMANTIC
+
+  "Dependency validation (required resources exist)"
+  DEPENDENCY
+
+  "Conflict detection (port/IP/route conflicts)"
+  CONFLICT
+
+  "Platform validation (capability checks)"
+  PLATFORM
+
+  "Quota validation (resource limits)"
+  QUOTA
+
+  "Pre-flight simulation"
+  SIMULATION
+
+  "All stages complete"
+  COMPLETE
+}
+
+"""
+A validation issue (error or warning)
+"""
+type ValidationIssue {
+  "Error code for programmatic handling"
+  code: String!
+
+  "Human-readable message"
+  message: String!
+
+  "Field path that caused the issue (e.g., 'configuration.listenPort')"
+  field: String
+
+  "Severity level"
+  severity: ValidationSeverity!
+
+  "Suggested fix"
+  suggestedFix: String
+
+  "Link to documentation"
+  docsUrl: String
+}
+
+"""
+Validation issue severity
+"""
+enum ValidationSeverity {
+  "Blocks apply, must be fixed"
+  ERROR
+
+  "Does not block, but recommended to address"
+  WARNING
+
+  "Informational notice"
+  INFO
+}
+
+"""
+Conflict with another resource
+"""
+type ResourceConflict {
+  "Type of conflict"
+  type: ConflictType!
+
+  "The conflicting resource"
+  conflictingResource: Resource
+
+  "Conflicting resource UUID (if resource is not loaded)"
+  conflictingResourceUuid: ID!
+
+  "Description of the conflict"
+  description: String!
+
+  "Suggested resolution"
+  resolution: String
+}
+
+"""
+Types of resource conflicts
+"""
+enum ConflictType {
+  "Port number conflict"
+  PORT
+
+  "IP address conflict"
+  IP_ADDRESS
+
+  "Route overlap"
+  ROUTE
+
+  "Interface conflict"
+  INTERFACE
+
+  "Name collision"
+  NAME
+
+  "Configuration incompatibility"
+  CONFIGURATION
+}
+
+"""
+Status of a required dependency
+"""
+type DependencyStatus {
+  "Dependency resource UUID"
+  resourceUuid: ID!
+
+  "Dependency resource type"
+  resourceType: String!
+
+  "Whether the dependency is active"
+  isActive: Boolean!
+
+  "Current state of the dependency"
+  state: ResourceLifecycleState!
+
+  "Why this dependency is required"
+  reason: String!
+}

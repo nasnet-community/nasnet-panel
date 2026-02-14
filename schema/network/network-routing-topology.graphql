@@ -1,0 +1,97 @@
+# -----------------------------------------------------------------------------
+# VLAN Topology Types
+# -----------------------------------------------------------------------------
+
+"""
+Node in a VLAN network topology diagram
+"""
+type TopologyNode {
+  "Node ID"
+  id: ID!
+  "Node type (bridge, vlan, port)"
+  type: TopologyNodeType!
+  "Display label"
+  label: String!
+  "Sub-label (optional)"
+  sublabel: String
+  "Node position in the diagram"
+  position: TopologyPosition!
+  "Additional node data"
+  data: JSON
+  "Node styling"
+  style: TopologyNodeStyle
+}
+
+"""
+Type of topology node
+"""
+enum TopologyNodeType {
+  "Bridge interface"
+  BRIDGE
+  "VLAN interface"
+  VLAN
+  "Physical port"
+  PORT
+}
+
+"""
+Position of a node in the topology
+"""
+type TopologyPosition {
+  "X coordinate"
+  x: Float!
+  "Y coordinate"
+  y: Float!
+}
+
+"""
+Styling for topology nodes
+"""
+type TopologyNodeStyle {
+  "Fill color (CSS color)"
+  fill: String
+  "Stroke color (CSS color)"
+  stroke: String
+  "Stroke width in pixels"
+  strokeWidth: Float
+}
+
+"""
+Edge connecting nodes in a topology
+"""
+type TopologyEdge {
+  "Edge ID"
+  id: ID!
+  "Source node ID"
+  source: ID!
+  "Target node ID"
+  target: ID!
+  "Edge label (optional)"
+  label: String
+  "Additional edge data"
+  data: JSON
+  "Edge styling"
+  style: TopologyEdgeStyle
+}
+
+"""
+Styling for topology edges
+"""
+type TopologyEdgeStyle {
+  "Stroke color (CSS color)"
+  stroke: String
+  "Stroke width in pixels"
+  strokeWidth: Float
+  "Stroke dash array (for dashed lines)"
+  strokeDasharray: String
+}
+
+"""
+VLAN topology data (nodes and edges)
+"""
+type VlanTopology {
+  "Topology nodes (bridges, VLANs, ports)"
+  nodes: [TopologyNode!]!
+  "Topology edges (connections)"
+  edges: [TopologyEdge!]!
+}

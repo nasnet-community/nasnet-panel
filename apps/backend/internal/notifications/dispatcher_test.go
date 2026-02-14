@@ -17,6 +17,14 @@ type MockChannel struct {
 	shouldFail  bool
 	failCount   int
 	currentFail int
+	name        string
+}
+
+func (m *MockChannel) Name() string {
+	if m.name != "" {
+		return m.name
+	}
+	return "mock"
 }
 
 func (m *MockChannel) Send(ctx context.Context, notification Notification) error {
@@ -349,6 +357,10 @@ func TestHandleAlertCreatedEventWithDeviceID(t *testing.T) {
 // MockChannelWithCapture is a mock channel that captures sent notifications.
 type MockChannelWithCapture struct {
 	onSend func(Notification)
+}
+
+func (m *MockChannelWithCapture) Name() string {
+	return "mock-capture"
 }
 
 func (m *MockChannelWithCapture) Send(ctx context.Context, notification Notification) error {

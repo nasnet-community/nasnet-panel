@@ -1,0 +1,200 @@
+# =============================================================================
+# Port Mirroring Management Types
+# =============================================================================
+# Support for port mirroring (span/monitor ports) for traffic analysis and
+# debugging network issues
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Port Mirror Types
+# -----------------------------------------------------------------------------
+
+"""
+Direction of traffic to mirror
+"""
+enum MirrorDirection {
+  "Mirror only ingress (incoming) traffic"
+  INGRESS
+  "Mirror only egress (outgoing) traffic"
+  EGRESS
+  "Mirror both ingress and egress traffic"
+  BOTH
+}
+
+"""
+A port mirror configuration for traffic monitoring and analysis
+"""
+type PortMirror implements Node {
+  "Unique port mirror identifier"
+  id: ID!
+  "Descriptive name for the mirror configuration"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Source interfaces being mirrored"
+  sourceInterfaces: [Interface!]! @mikrotik(path: "/interface/bridge/port", field: "interface")
+  "Destination interface where mirrored traffic is sent"
+  destinationInterface: Interface! @mikrotik(path: "/interface/bridge/port", field: "mirror-target")
+  "Direction of traffic to mirror"
+  direction: MirrorDirection!
+  "Whether the mirror is enabled"
+  enabled: Boolean!
+  "User comment"
+  comment: String @validate(maxLength: 255)
+  "Statistics for the destination interface"
+  statistics: PortMirrorStats
+}
+
+"""
+Statistics for a port mirror destination interface
+"""
+type PortMirrorStats {
+  "Total mirrored packets"
+  mirroredPackets: Size!
+  "Total mirrored bytes"
+  mirroredBytes: Size!
+  "Destination interface current load"
+  destinationLoad: Float!
+  "Whether the destination is saturated (dropping packets)"
+  isSaturated: Boolean!
+}
+
+"""
+Input for creating a new port mirror configuration
+"""
+input CreatePortMirrorInput {
+  "Descriptive name for the mirror configuration"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Source interface IDs to mirror (must be bridge members)"
+  sourceInterfaceIds: [ID!]! @validate(minLength: 1)
+  "Destination interface ID for mirrored traffic"
+  destinationInterfaceId: ID!
+  "Direction of traffic to mirror (default: BOTH)"
+  direction: MirrorDirection
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Input for updating an existing port mirror configuration
+"""
+input UpdatePortMirrorInput {
+  "Updated name"
+  name: String @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Updated source interface IDs (must be bridge members)"
+  sourceInterfaceIds: [ID!] @validate(minLength: 1)
+  "Updated destination interface ID"
+  destinationInterfaceId: ID
+  "Updated direction of traffic to mirror"
+  direction: MirrorDirection
+  "Updated comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Result of a port mirror mutation (create, update)
+"""
+type PortMirrorMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated port mirror (if successful)"
+  portMirror: PortMirror
+  "Configuration preview (RouterOS commands)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all port mirror configurations on a router
+  """
+  portMirrors(
+    "Router ID to query"
+    routerId: ID!
+  ): [PortMirror!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific port mirror by ID
+  """
+  portMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirror @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new port mirror configuration
+  """
+  createPortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror configuration"
+    input: CreatePortMirrorInput!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing port mirror configuration
+  """
+  updatePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+    "Updated configuration"
+    input: UpdatePortMirrorInput!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete a port mirror configuration
+  """
+  deletePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID to delete"
+    id: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+
+  """
+  Enable a port mirror configuration
+  """
+  enablePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+
+  """
+  Disable a port mirror configuration
+  """
+  disablePortMirror(
+    "Router ID"
+    routerId: ID!
+    "Port mirror ID"
+    id: ID!
+  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Port Mirror Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to port mirror status changes
+  """
+  portMirrorChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): PortMirror! @capability(requires: ["interface"])
+}

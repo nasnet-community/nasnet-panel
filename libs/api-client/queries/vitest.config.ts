@@ -16,4 +16,7 @@ export default defineConfig({
       '@nasnet/core/types': path.resolve(__dirname, '../../core/types/src'),
     },
   },
+  esbuild: {
+    jsx: 'automatic',
+  },
 });

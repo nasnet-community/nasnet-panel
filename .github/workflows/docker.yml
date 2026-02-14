@@ -57,14 +57,14 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           GHCR_REPOSITORY: ${{ env.GHCR_REPOSITORY }}
-        run: npx nx run rosproxy:docker:build
+        run: npx nx run backend:docker:build
 
       - name: Build and push (via Nx docker:build)
         if: github.event_name != 'pull_request'
         env:
           GHCR_REPOSITORY: ${{ env.GHCR_REPOSITORY }}
           PUSH: 1
-        run: npx nx run rosproxy:docker:build
+        run: npx nx run backend:docker:build
 
 
 

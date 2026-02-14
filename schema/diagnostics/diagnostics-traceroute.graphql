@@ -1,0 +1,209 @@
+# =============================================================================
+# Traceroute Diagnostic Tool
+# =============================================================================
+# This schema provides types and operations for running traceroute diagnostics
+# from the router to discover network paths and identify latency issues.
+# Story: NAS-5.8 - Implement Traceroute Diagnostic Tool
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Traceroute Types
+# -----------------------------------------------------------------------------
+
+"""
+Status of a single hop in a traceroute
+"""
+enum HopStatus {
+  "Hop responded successfully"
+  SUCCESS
+  "Hop did not respond (timeout)"
+  TIMEOUT
+  "Destination unreachable at this hop"
+  UNREACHABLE
+  "Access prohibited (firewall/ACL)"
+  PROHIBITED
+}
+
+"""
+Protocol to use for traceroute probes
+"""
+enum TracerouteProtocol {
+  "ICMP echo request (default)"
+  ICMP
+  "UDP probes"
+  UDP
+  "TCP SYN probes"
+  TCP
+}
+
+"""
+A single probe result within a hop
+"""
+type HopProbe {
+  "Probe number (1-3 typically)"
+  probeNumber: Int!
+  "Latency in milliseconds (null for timeout)"
+  latencyMs: Float
+  "Whether the probe succeeded"
+  success: Boolean!
+  "ICMP error code if probe failed"
+  icmpCode: String
+}
+
+"""
+A single hop in the traceroute path
+"""
+type TracerouteHop {
+  "Hop number (1-based)"
+  hopNumber: Int!
+  "IP address of the hop (null for timeout)"
+  address: String
+  "Reverse DNS hostname (if available)"
+  hostname: String
+  "Individual probe results for this hop"
+  probes: [HopProbe!]!
+  "Status of this hop"
+  status: HopStatus!
+  "Average latency across successful probes"
+  avgLatencyMs: Float
+  "Packet loss percentage for this hop (0-100)"
+  packetLoss: Float!
+}
+
+"""
+Complete traceroute result
+"""
+type TracerouteResult {
+  "Target hostname or IP address"
+  target: String!
+  "Resolved target IP address"
+  targetIp: String!
+  "Protocol used for probes"
+  protocol: TracerouteProtocol!
+  "Maximum hops configured"
+  maxHops: Int!
+  "Discovered hops in order"
+  hops: [TracerouteHop!]!
+  "Whether traceroute completed"
+  completed: Boolean!
+  "Whether destination was reached"
+  reachedDestination: Boolean!
+  "Total time from start to completion (ms)"
+  totalTimeMs: Float!
+  "When the traceroute started"
+  startedAt: DateTime!
+  "When the traceroute completed (if finished)"
+  completedAt: DateTime
+}
+
+"""
+Input parameters for starting a traceroute
+"""
+input TracerouteInput {
+  "Target hostname or IP address"
+  target: String!
+  "Maximum number of hops (default: 30, max: 64)"
+  maxHops: Int = 30
+  "Timeout per hop in milliseconds (default: 3000)"
+  timeout: Int = 3000
+  "Number of probes per hop (default: 3)"
+  probeCount: Int = 3
+  "Protocol to use for probes (default: ICMP)"
+  protocol: TracerouteProtocol = ICMP
+}
+
+"""
+Job status for async traceroute execution
+"""
+enum JobStatus {
+  "Job has been created"
+  STARTED
+  "Job is currently running"
+  RUNNING
+  "Job completed successfully"
+  COMPLETE
+  "Job was cancelled by user"
+  CANCELLED
+  "Job encountered an error"
+  ERROR
+}
+
+"""
+Traceroute job reference for subscription tracking
+"""
+type TracerouteJob {
+  "Unique job identifier"
+  jobId: ID!
+  "Current job status"
+  status: JobStatus!
+}
+
+"""
+Event type for traceroute progress updates
+"""
+enum TracerouteEventType {
+  "A new hop was discovered"
+  HOP_DISCOVERED
+  "Traceroute completed"
+  COMPLETE
+  "Traceroute encountered an error"
+  ERROR
+  "Traceroute was cancelled"
+  CANCELLED
+}
+
+"""
+Progress event emitted during traceroute execution
+"""
+type TracerouteProgressEvent {
+  "Job identifier"
+  jobId: ID!
+  "Type of event"
+  eventType: TracerouteEventType!
+  "Newly discovered hop (for HOP_DISCOVERED events)"
+  hop: TracerouteHop
+  "Final result (for COMPLETE events)"
+  result: TracerouteResult
+  "Error message (for ERROR events)"
+  error: String
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (Traceroute)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Start a traceroute from the router to the target.
+  Returns a job ID for subscription tracking.
+  """
+  runTraceroute(
+    "Device/router ID to run traceroute from"
+    deviceId: ID!
+    "Traceroute parameters"
+    input: TracerouteInput!
+  ): TracerouteJob!
+
+  """
+  Cancel a running traceroute job.
+  """
+  cancelTraceroute(
+    "Job ID to cancel"
+    jobId: ID!
+  ): Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions (Traceroute)
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to traceroute progress updates.
+  Emits an event for each hop discovered and when traceroute completes.
+  """
+  tracerouteProgress(
+    "Job ID to monitor"
+    jobId: ID!
+  ): TracerouteProgressEvent!
+}

@@ -1,0 +1,193 @@
+# ============================================
+# DEVICE-TO-SERVICE ROUTING TYPES (NAS-8.3)
+# ============================================
+
+"""
+Network device discovered via DHCP and ARP.
+Represents a client device on the network that can be routed through service instances.
+"""
+type NetworkDevice {
+  """Device identifier (generated from MAC address)"""
+  deviceID: ID!
+
+  """MAC address of the device"""
+  macAddress: String!
+
+  """IP address of the device (optional, may change)"""
+  ipAddress: String
+
+  """Hostname from DHCP (optional)"""
+  hostname: String
+
+  """Source of device discovery (dhcp, arp, or both)"""
+  source: String!
+
+  """Whether the device is currently active"""
+  active: Boolean!
+
+  """Whether device has a DHCP lease"""
+  dhcpLease: Boolean!
+
+  """Whether device has an ARP entry"""
+  arpEntry: Boolean!
+
+  """Whether device has a routing assignment"""
+  isRouted: Boolean!
+
+  """Current routing mark (if routed)"""
+  routingMark: String
+}
+
+"""
+Virtual interface information for routing matrix.
+Simplified view of VirtualInterface for device routing selection.
+"""
+type VirtualInterfaceInfo {
+  """Interface ID"""
+  id: ID!
+
+  """Service instance ID"""
+  instanceID: ID!
+
+  """Service instance name"""
+  instanceName: String!
+
+  """Interface name (e.g., vlan100)"""
+  interfaceName: String!
+
+  """VLAN ID"""
+  vlanID: Int!
+
+  """IP address"""
+  ipAddress: String!
+
+  """Routing mark for PBR"""
+  routingMark: String!
+
+  """Interface status"""
+  status: String!
+
+  """Gateway type"""
+  gatewayType: String!
+
+  """Gateway status"""
+  gatewayStatus: String!
+}
+
+"""
+Device routing assignment.
+Maps a client device to a service instance via Policy-Based Routing (PBR).
+"""
+type DeviceRouting {
+  """Routing assignment ID (ULID)"""
+  id: ID!
+
+  """Device identifier"""
+  deviceID: String!
+
+  """Device MAC address"""
+  macAddress: String!
+
+  """Device IP address (optional)"""
+  deviceIP: String
+
+  """Device hostname (optional)"""
+  deviceName: String
+
+  """Service instance ID"""
+  instanceID: ID!
+
+  """Virtual interface ID"""
+  interfaceID: ID!
+
+  """Routing mark"""
+  routingMark: String!
+
+  """Routing mode (MAC-based or IP-based)"""
+  routingMode: RoutingMode!
+
+  """Whether the assignment is active"""
+  active: Boolean!
+
+  """RouterOS mangle rule ID (for O(1) removal)"""
+  mangleRuleID: String!
+
+  """Whether kill switch is enabled for this routing"""
+  killSwitchEnabled: Boolean!
+
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode!
+
+  """Whether kill switch is currently blocking traffic"""
+  killSwitchActive: Boolean!
+
+  """Timestamp when kill switch was last activated"""
+  killSwitchActivatedAt: DateTime
+
+  """Fallback interface ID when kill_switch_mode=FALLBACK_SERVICE"""
+  killSwitchFallbackInterfaceID: String
+
+  """RouterOS filter rule ID for kill switch (for O(1) cleanup)"""
+  killSwitchRuleID: String
+
+  """When the assignment was created"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""
+Routing mode for device routing assignments.
+"""
+enum RoutingMode {
+  """MAC address-based routing (default, more reliable)"""
+  MAC
+
+  """IP address-based routing (less reliable due to DHCP changes)"""
+  IP
+}
+
+"""
+Complete device routing matrix.
+Provides all data needed for the device-to-service routing UI.
+"""
+type DeviceRoutingMatrix {
+  """Discovered network devices"""
+  devices: [NetworkDevice!]!
+
+  """Active virtual interfaces available for routing"""
+  interfaces: [VirtualInterfaceInfo!]!
+
+  """Current routing assignments"""
+  routings: [DeviceRouting!]!
+
+  """Summary statistics"""
+  summary: DeviceRoutingMatrixStats!
+}
+
+"""
+Summary statistics for device routing matrix.
+"""
+type DeviceRoutingMatrixStats {
+  """Total discovered devices"""
+  totalDevices: Int!
+
+  """Devices with routing assignments"""
+  routedDevices: Int!
+
+  """Devices without routing assignments"""
+  unroutedDevices: Int!
+
+  """Active virtual interfaces"""
+  activeInterfaces: Int!
+
+  """Devices discovered via DHCP"""
+  dhcpDevices: Int!
+
+  """Devices discovered via ARP only"""
+  arpOnlyDevices: Int!
+
+  """Active routing assignments"""
+  activeRoutings: Int!
+}

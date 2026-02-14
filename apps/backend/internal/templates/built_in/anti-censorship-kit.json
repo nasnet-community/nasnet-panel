@@ -1,0 +1,156 @@
+{
+  "id": "anti-censorship-kit",
+  "name": "Anti-Censorship Kit",
+  "description": "Multi-layered censorship circumvention toolkit combining Psiphon, MTProxy, and Tor. Provides multiple fallback options for accessing blocked content.",
+  "category": "anti-censorship",
+  "scope": "multiple",
+  "version": "1.0.0",
+  "author": "NasNetConnect",
+  "tags": ["censorship", "psiphon", "mtproxy", "tor", "bypass", "freedom"],
+  "services": [
+    {
+      "serviceType": "psiphon",
+      "name": "{{PSIPHON_NAME}}",
+      "configOverrides": {
+        "socksPort": 1080,
+        "httpPort": 8080
+      },
+      "memoryLimitMB": 128,
+      "cpuShares": 256,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": 1080,
+          "external": 0,
+          "protocol": "tcp",
+          "purpose": "Psiphon SOCKS proxy"
+        },
+        {
+          "internal": 8080,
+          "external": 0,
+          "protocol": "tcp",
+          "purpose": "Psiphon HTTP proxy"
+        }
+      ]
+    },
+    {
+      "serviceType": "mtproxy",
+      "name": "{{MTPROXY_NAME}}",
+      "configOverrides": {
+        "port": 8443,
+        "secret": "{{MTPROXY_SECRET}}"
+      },
+      "memoryLimitMB": 64,
+      "cpuShares": 128,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": 8443,
+          "external": "{{MTPROXY_EXTERNAL_PORT}}",
+          "protocol": "tcp",
+          "purpose": "MTProxy Telegram proxy"
+        }
+      ]
+    },
+    {
+      "serviceType": "tor",
+      "name": "{{TOR_NAME}}",
+      "configOverrides": {
+        "socksPort": 9050,
+        "controlPort": 9051,
+        "useBridges": true,
+        "bridgeType": "obfs4"
+      },
+      "memoryLimitMB": 256,
+      "cpuShares": 512,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": 9050,
+          "external": 0,
+          "protocol": "tcp",
+          "purpose": "Tor SOCKS proxy"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "PSIPHON_NAME",
+      "type": "string",
+      "required": true,
+      "default": "psiphon-bypass",
+      "description": "Name for the Psiphon service instance",
+      "label": "Psiphon Instance Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "MTPROXY_NAME",
+      "type": "string",
+      "required": true,
+      "default": "mtproxy-telegram",
+      "description": "Name for the MTProxy service instance",
+      "label": "MTProxy Instance Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "MTPROXY_SECRET",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "MTProxy secret key (32 hex characters)",
+      "label": "MTProxy Secret",
+      "validationPattern": "^[0-9a-fA-F]{32}$"
+    },
+    {
+      "name": "MTPROXY_EXTERNAL_PORT",
+      "type": "port",
+      "required": false,
+      "default": "8443",
+      "description": "External port for MTProxy",
+      "label": "MTProxy Port"
+    },
+    {
+      "name": "TOR_NAME",
+      "type": "string",
+      "required": true,
+      "default": "tor-bypass",
+      "description": "Name for the Tor service instance",
+      "label": "Tor Instance Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    }
+  ],
+  "suggestedRouting": [
+    {
+      "devicePattern": "phone-*",
+      "targetService": "{{PSIPHON_NAME}}",
+      "protocol": "all",
+      "description": "Route mobile devices through Psiphon"
+    },
+    {
+      "devicePattern": "desktop-*",
+      "targetService": "{{TOR_NAME}}",
+      "protocol": "all",
+      "description": "Route desktop devices through Tor with bridges"
+    }
+  ],
+  "estimatedResources": {
+    "totalMemoryMB": 448,
+    "totalCPUShares": 896,
+    "diskSpaceMB": 200,
+    "networkPorts": 4,
+    "vlansRequired": 3
+  },
+  "prerequisites": [
+    "At least 500MB free memory",
+    "Four available network ports",
+    "Three available VLAN IDs",
+    "MTProxy secret key (generate using openssl rand -hex 16)"
+  ],
+  "documentation": "This template deploys three independent censorship circumvention tools. Psiphon is best for general browsing, MTProxy specifically for Telegram access in restricted regions, and Tor with bridges for maximum anonymity. Each service operates independently, providing redundancy and choice.",
+  "examples": [
+    "Access Telegram in countries where it's blocked",
+    "Bypass internet censorship for browsing",
+    "Maintain communication channels during network restrictions"
+  ]
+}

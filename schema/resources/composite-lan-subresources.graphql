@@ -1,0 +1,133 @@
+# =============================================================================
+# Composite Resources: LAN Sub-Resource Types
+# =============================================================================
+# Sub-resource types: Bridge, DHCP Server, Firewall Rule, Route.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Sub-Resource Types
+# -----------------------------------------------------------------------------
+
+"""
+Bridge resource (part of LANNetwork)
+"""
+type BridgeResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Bridge name"
+  name: String!
+  "Ports in this bridge"
+  ports: [String!]!
+  "Protocol mode (rstp, stp, none)"
+  protocolMode: String
+}
+
+"""
+DHCP Server resource
+"""
+type DHCPServerResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Server name"
+  name: String!
+  "Interface serving DHCP"
+  interface: String!
+  "Address pool name"
+  addressPool: String!
+  "Lease time"
+  leaseTime: Duration!
+  "Number of active leases"
+  activeLeases: Int
+}
+
+"""
+Firewall Rule resource
+"""
+type FirewallRuleResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Rule chain (input, forward, output)"
+  chain: String!
+  "Rule action (accept, drop, reject)"
+  action: String!
+  "Source address/network"
+  srcAddress: String
+  "Destination address/network"
+  dstAddress: String
+  "Source port(s)"
+  srcPort: String
+  "Destination port(s)"
+  dstPort: String
+  "Protocol (tcp, udp, icmp, etc.)"
+  protocol: String
+  "Rule comment"
+  comment: String
+  "Whether rule is enabled"
+  enabled: Boolean!
+  "Hit counter"
+  hitCount: Int
+}
+
+"""
+Route resource
+"""
+type RouteResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON!
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  "Destination network"
+  dstAddress: CIDR!
+  "Gateway address"
+  gateway: IPv4
+  "Outgoing interface"
+  interface: String
+  "Route distance/metric"
+  distance: Int
+  "Whether route is active"
+  active: Boolean!
+}

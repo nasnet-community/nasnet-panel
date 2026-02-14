@@ -1,0 +1,113 @@
+# ============================================
+# RESOURCE MANAGEMENT TYPES (NAS-8.4 Resource Budgeting)
+# ============================================
+
+# Get system-wide resource overview for all service instances on a router.
+# Shows total RAM, available RAM, allocated RAM, and per-instance usage.
+extend type Query {
+  """Get system-wide resource overview"""
+  systemResources(
+    """Router ID"""
+    routerID: ID!
+  ): SystemResources!
+}
+
+"""
+Resource requirements for a service feature (from manifest).
+Defines the minimum and recommended resources for a service.
+"""
+type ResourceRequirements {
+  """Minimum RAM required in megabytes"""
+  minRAM: Int!
+
+  """Recommended RAM for optimal performance in megabytes"""
+  recommendedRAM: Int!
+
+  """CPU weight (priority) for scheduling (0-100)"""
+  cpuWeight: Int!
+}
+
+"""
+Current resource usage for a service instance.
+Provides real-time memory usage statistics.
+"""
+type ResourceUsage {
+  """Current memory usage in megabytes"""
+  currentMB: Int!
+
+  """Memory limit in megabytes"""
+  limitMB: Int!
+
+  """Usage as a percentage of the limit (0-100)"""
+  usagePercent: Float!
+
+  """Resource status (ok, warning, critical)"""
+  status: ResourceStatus!
+}
+
+"""
+Resource status indicating health of resource usage.
+"""
+enum ResourceStatus {
+  """Resource usage is within acceptable limits (<70%)"""
+  OK
+
+  """Resource usage is high (70-90%)"""
+  WARNING
+
+  """Resource usage is critical (>90%)"""
+  CRITICAL
+}
+
+"""
+System-wide resource overview for a router.
+Shows total resources, available resources, and per-instance allocations.
+"""
+type SystemResources {
+  """Total RAM available on the router in megabytes"""
+  totalRAM: Int!
+
+  """Available (unallocated) RAM in megabytes"""
+  availableRAM: Int!
+
+  """Total allocated RAM across all instances in megabytes"""
+  allocatedRAM: Int!
+
+  """Per-instance resource usage details"""
+  instances: [InstanceResourceUsage!]!
+}
+
+"""
+Resource usage details for a single service instance.
+Combines instance metadata with current resource usage.
+"""
+type InstanceResourceUsage {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Instance name"""
+  instanceName: String!
+
+  """Feature ID"""
+  featureID: String!
+
+  """Current resource usage"""
+  usage: ResourceUsage!
+
+  """Resource requirements from manifest"""
+  requirements: ResourceRequirements
+}
+
+extend type Subscription {
+  """
+  Subscribe to resource usage changes for a specific instance.
+  Emits updates when memory usage changes significantly or crosses thresholds.
+  """
+  resourceUsageChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+
+    """Instance ID to monitor"""
+    instanceID: ID!
+  ): ResourceUsage!
+}

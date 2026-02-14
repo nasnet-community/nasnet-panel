@@ -1,0 +1,150 @@
+# -----------------------------------------------------------------------------
+# Mutation Results
+# -----------------------------------------------------------------------------
+
+"""
+Result of WAN configuration mutation
+"""
+type WANMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+
+  "The configured WAN interface"
+  wanInterface: WANInterface
+
+  "Configuration preview (RouterOS commands)"
+  preview: ConfigPreview
+
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get all WAN interfaces on a router
+  """
+  wanInterfaces(
+    "Router ID"
+    routerId: ID!
+  ): [WANInterface!]! @capability(requires: ["interface"])
+
+  """
+  Get a specific WAN interface by ID
+  """
+  wanInterface(
+    "Router ID"
+    routerId: ID!
+    "WAN interface ID"
+    id: ID!
+  ): WANInterface @capability(requires: ["interface"])
+
+  """
+  Get connection history for a WAN interface
+  """
+  wanConnectionHistory(
+    "Router ID"
+    routerId: ID!
+    "WAN interface ID"
+    wanInterfaceId: ID!
+    "Pagination"
+    pagination: PaginationInput
+  ): WANConnectionEventConnection! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Configure DHCP client on a WAN interface
+  """
+  configureDhcpWAN(
+    "Router ID"
+    routerId: ID!
+    "DHCP configuration"
+    input: DhcpClientInput!
+  ): WANMutationResult! @capability(requires: ["interface"])
+
+  """
+  Configure PPPoE client on a WAN interface
+  """
+  configurePppoeWAN(
+    "Router ID"
+    routerId: ID!
+    "PPPoE configuration"
+    input: PppoeClientInput!
+  ): WANMutationResult! @capability(requires: ["interface"])
+
+  """
+  Configure static IP on a WAN interface
+  """
+  configureStaticWAN(
+    "Router ID"
+    routerId: ID!
+    "Static IP configuration"
+    input: StaticIPInput!
+  ): WANMutationResult! @capability(requires: ["interface"])
+
+  """
+  Configure LTE modem
+  """
+  configureLteWAN(
+    "Router ID"
+    routerId: ID!
+    "LTE configuration"
+    input: LteModemInput!
+  ): WANMutationResult! @capability(requires: ["interface"])
+
+  """
+  Configure health check for WAN interface
+  """
+  configureWANHealthCheck(
+    "Router ID"
+    routerId: ID!
+    "WAN interface ID"
+    wanInterfaceId: ID!
+    "Health check configuration"
+    input: WANHealthCheckInput!
+  ): WANMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete WAN configuration (revert to unconfigured)
+  """
+  deleteWANConfiguration(
+    "Router ID"
+    routerId: ID!
+    "WAN interface ID"
+    wanInterfaceId: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to WAN status changes
+  """
+  wanStatusChanged(
+    "Router ID"
+    routerId: ID!
+    "Optional WAN interface ID filter"
+    wanInterfaceId: ID
+  ): WANInterface! @capability(requires: ["interface"])
+
+  """
+  Subscribe to WAN health check updates
+  """
+  wanHealthChanged(
+    "Router ID"
+    routerId: ID!
+    "WAN interface ID"
+    wanInterfaceId: ID!
+  ): WANHealthStatus! @capability(requires: ["interface"])
+}

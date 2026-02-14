@@ -1,0 +1,161 @@
+# ============================================
+# INPUT TYPES AND QUERIES
+# ============================================
+
+"""
+Input for installing a new service instance.
+"""
+input InstallServiceInput {
+  """Router ID to install the service on"""
+  routerID: ID!
+
+  """Feature ID to install (e.g., 'tor', 'sing-box')"""
+  featureID: String! @validate(pattern: "^[a-z0-9_-]+$")
+
+  """Human-readable instance name"""
+  instanceName: String! @validate(minLength: 1, maxLength: 255)
+
+  """Service-specific configuration (JSON)"""
+  config: JSON
+
+  """VLAN ID for network isolation (optional)"""
+  vlanID: Int @validate(min: 1, max: 4094)
+
+  """IP address to bind the service to (optional)"""
+  bindIP: String
+}
+
+"""
+Input for starting a service instance.
+"""
+input StartInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to start"""
+  instanceID: ID!
+}
+
+"""
+Input for stopping a service instance.
+"""
+input StopInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to stop"""
+  instanceID: ID!
+}
+
+"""
+Input for restarting a service instance.
+"""
+input RestartInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to restart"""
+  instanceID: ID!
+}
+
+"""
+Input for deleting a service instance.
+"""
+input DeleteInstanceInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID to delete"""
+  instanceID: ID!
+}
+
+# ============================================
+# QUERY TYPES
+# ============================================
+
+extend type Query {
+  """
+  List all available services from the Feature Marketplace.
+  """
+  availableServices(
+    """Filter by category"""
+    category: String
+
+    """Filter by architecture"""
+    architecture: String
+  ): [AvailableService!]!
+
+  """
+  List all service instances for a router.
+  """
+  serviceInstances(
+    """Router ID"""
+    routerID: ID!
+
+    """Filter by status"""
+    status: ServiceInstanceStatus
+
+    """Filter by feature ID"""
+    featureID: String
+  ): [ServiceInstance!]!
+
+  """
+  Get a specific service instance.
+  """
+  serviceInstance(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): ServiceInstance
+
+  """
+  Get verification status for all instances on a router.
+  Returns only instances with verification enabled.
+  """
+  instanceVerificationStatus(
+    """Router ID"""
+    routerID: ID!
+  ): [BinaryVerification!]!
+
+  """
+  List all virtual interfaces for a router.
+  """
+  virtualInterfaces(
+    """Router ID"""
+    routerID: ID!
+  ): [VirtualInterface!]!
+
+  """
+  Get a specific virtual interface for a service instance.
+  """
+  virtualInterface(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): VirtualInterface
+
+  """
+  Get bridge status for a service instance.
+  Includes interface and gateway health status.
+  """
+  bridgeStatus(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): BridgeStatus!
+
+  """
+  Get gateway status for a service instance.
+  Returns gateway state for SOCKS-to-TUN gateways.
+  """
+  gatewayStatus(
+    """Instance ID"""
+    instanceID: ID!
+  ): GatewayInfo!
+}

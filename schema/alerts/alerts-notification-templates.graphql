@@ -1,0 +1,169 @@
+# -----------------------------------------------------------------------------
+# Alert Notification Template Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert notification template
+Templates define message format for different event types and channels
+"""
+type AlertTemplate implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Template name
+  """
+  name: String!
+
+  """
+  Template description
+  """
+  description: String!
+
+  """
+  Event type this template applies to
+  """
+  eventType: String!
+
+  """
+  Notification channel
+  """
+  channel: NotificationChannel!
+
+  """
+  Subject/title template
+  """
+  subjectTemplate: String
+
+  """
+  Body template with Go template syntax
+  """
+  bodyTemplate: String!
+
+  """
+  Template variables
+  """
+  variables: [AlertTemplateVariable!]!
+
+  """
+  Whether this is a built-in template
+  """
+  isBuiltIn: Boolean!
+
+  """
+  Whether this is a system default template
+  """
+  isDefault: Boolean!
+
+  """
+  Tags for categorization
+  """
+  tags: [String!]!
+
+  """
+  Channel-specific metadata
+  """
+  metadata: JSON
+
+  """
+  Record creation timestamp
+  """
+  createdAt: DateTime!
+
+  """
+  Last update timestamp
+  """
+  updatedAt: DateTime!
+}
+
+"""
+Template variable definition
+"""
+type AlertTemplateVariable {
+  """
+  Variable name (used in template as {{.Name}})
+  """
+  name: String!
+
+  """
+  Display label
+  """
+  label: String!
+
+  """
+  Variable type
+  """
+  type: AlertTemplateVariableType!
+
+  """
+  Whether this variable is required
+  """
+  required: Boolean!
+
+  """
+  Default value
+  """
+  defaultValue: String
+
+  """
+  Variable description
+  """
+  description: String
+
+  """
+  Options for enum-type variables
+  """
+  options: [String!]
+}
+
+"""
+Template preview result
+"""
+type TemplatePreview {
+  """
+  The template that was previewed
+  """
+  template: AlertTemplate!
+
+  """
+  Rendered subject after variable substitution
+  """
+  renderedSubject: String!
+
+  """
+  Rendered body after variable substitution
+  """
+  renderedBody: String!
+
+  """
+  Variables used in preview
+  """
+  variables: JSON!
+
+  """
+  Validation information
+  """
+  validationInfo: TemplateValidationInfo!
+}
+
+"""
+Template validation information
+"""
+type TemplateValidationInfo {
+  """
+  Whether the template is valid with provided variables
+  """
+  isValid: Boolean!
+
+  """
+  Missing required variables
+  """
+  missingVariables: [String!]!
+
+  """
+  Validation warnings
+  """
+  warnings: [String!]!
+}

@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -20,7 +21,14 @@ func NewMockAdapter(routerID string) *MockAdapter {
 
 // ExecuteCommand simulates RouterOS command execution with canned responses.
 // Returns mock data based on command path to support troubleshooting diagnostics.
+// Checks for programmed test responses first (SetMockResponse/SetMockResponseFn).
 func (m *MockAdapter) ExecuteCommand(ctx context.Context, cmd Command) (*CommandResult, error) {
+	// Check for programmed test responses first
+	if result := m.checkProgrammedResponse(cmd); result != nil {
+		return result, nil
+	}
+
+	// Default mock responses
 	switch cmd.Path {
 	case "/interface":
 		// Mock WAN interface status - interface is up and running
@@ -287,4 +295,66 @@ func (m *MockAdapterWithErrors) Info() (*RouterInfo, error) {
 func (m *MockAdapterWithErrors) QueryState(ctx context.Context, query StateQuery) (*StateResult, error) {
 	mockAdapter := &MockAdapter{routerID: m.routerID}
 	return mockAdapter.QueryState(ctx, query)
+}
+
+// =============================================================================
+// Test Helper Methods (for programmed responses in tests)
+// =============================================================================
+
+// Global storage for mock responses (keyed by routerID -> path -> result)
+var (
+	mockResponses     = make(map[string]map[string]CommandResult)
+	mockResponsesMu   sync.RWMutex
+	mockResponseFns   = make(map[string]map[string]func(Command) CommandResult)
+	mockResponseFnsMu sync.RWMutex
+)
+
+// SetMockResponse sets a static response for a given command path.
+// This is a test helper method that allows tests to program specific responses.
+func (m *MockAdapter) SetMockResponse(path string, result CommandResult) {
+	mockResponsesMu.Lock()
+	defer mockResponsesMu.Unlock()
+
+	if mockResponses[m.routerID] == nil {
+		mockResponses[m.routerID] = make(map[string]CommandResult)
+	}
+	mockResponses[m.routerID][path] = result
+}
+
+// SetMockResponseFn sets a dynamic response function for a given command path.
+// The function receives the Command and can return different results based on command args.
+func (m *MockAdapter) SetMockResponseFn(path string, fn func(Command) CommandResult) {
+	mockResponseFnsMu.Lock()
+	defer mockResponseFnsMu.Unlock()
+
+	if mockResponseFns[m.routerID] == nil {
+		mockResponseFns[m.routerID] = make(map[string]func(Command) CommandResult)
+	}
+	mockResponseFns[m.routerID][path] = fn
+}
+
+// checkProgrammedResponse checks for programmed test responses.
+// Returns nil if no programmed response exists.
+func (m *MockAdapter) checkProgrammedResponse(cmd Command) *CommandResult {
+	// Check for dynamic response function first
+	mockResponseFnsMu.RLock()
+	if mockResponseFns[m.routerID] != nil {
+		if fn, ok := mockResponseFns[m.routerID][cmd.Path]; ok {
+			mockResponseFnsMu.RUnlock()
+			result := fn(cmd)
+			return &result
+		}
+	}
+	mockResponseFnsMu.RUnlock()
+
+	// Check for static response
+	mockResponsesMu.RLock()
+	defer mockResponsesMu.RUnlock()
+	if mockResponses[m.routerID] != nil {
+		if result, ok := mockResponses[m.routerID][cmd.Path]; ok {
+			return &result
+		}
+	}
+
+	return nil
 }

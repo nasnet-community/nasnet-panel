@@ -1,0 +1,172 @@
+{
+  "id": "family-protection",
+  "name": "Family Protection (AdGuard Home)",
+  "description": "Family-safe DNS filtering with AdGuard Home. Blocks ads, trackers, malware, and adult content across all devices on your network.",
+  "category": "security",
+  "scope": "single",
+  "version": "1.0.0",
+  "author": "NasNetConnect",
+  "tags": ["adguard", "dns", "filtering", "parental-control", "security", "privacy"],
+  "services": [
+    {
+      "serviceType": "adguard",
+      "name": "{{ADGUARD_NAME}}",
+      "configOverrides": {
+        "bind_host": "0.0.0.0",
+        "bind_port": "{{WEB_PORT}}",
+        "dns": {
+          "bind_hosts": ["0.0.0.0"],
+          "port": "{{DNS_PORT}}",
+          "protection_enabled": true,
+          "filtering_enabled": true,
+          "parental_enabled": "{{ENABLE_PARENTAL}}",
+          "safebrowsing_enabled": "{{ENABLE_SAFEBROWSING}}",
+          "safesearch_enabled": "{{ENABLE_SAFESEARCH}}"
+        },
+        "filters": [
+          {
+            "enabled": true,
+            "url": "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt",
+            "name": "AdGuard DNS filter",
+            "id": 1
+          },
+          {
+            "enabled": true,
+            "url": "https://adguardteam.github.io/HostlistsRegistry/assets/filter_2.txt",
+            "name": "AdAway Default Blocklist",
+            "id": 2
+          },
+          {
+            "enabled": "{{ENABLE_PRIVACY_FILTERS}}",
+            "url": "https://adguardteam.github.io/HostlistsRegistry/assets/filter_3.txt",
+            "name": "EasyPrivacy",
+            "id": 3
+          },
+          {
+            "enabled": "{{ENABLE_SOCIAL_FILTERS}}",
+            "url": "https://adguardteam.github.io/HostlistsRegistry/assets/filter_4.txt",
+            "name": "Fanboy's Social Blocking List",
+            "id": 4
+          }
+        ],
+        "dhcp": {
+          "enabled": false
+        }
+      },
+      "memoryLimitMB": "{{MEMORY_LIMIT}}",
+      "cpuShares": 512,
+      "requiresBridge": false,
+      "portMappings": [
+        {
+          "internal": "{{WEB_PORT}}",
+          "external": "{{WEB_PORT}}",
+          "protocol": "tcp",
+          "purpose": "AdGuard Home web interface"
+        },
+        {
+          "internal": "{{DNS_PORT}}",
+          "external": "{{DNS_PORT}}",
+          "protocol": "udp",
+          "purpose": "DNS server"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "ADGUARD_NAME",
+      "type": "string",
+      "required": true,
+      "default": "family-dns",
+      "description": "Name for the AdGuard Home instance",
+      "label": "Service Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "WEB_PORT",
+      "type": "port",
+      "required": false,
+      "default": "3000",
+      "description": "Port for AdGuard Home web interface",
+      "label": "Web Interface Port"
+    },
+    {
+      "name": "DNS_PORT",
+      "type": "port",
+      "required": false,
+      "default": "53",
+      "description": "DNS server port (typically 53)",
+      "label": "DNS Port"
+    },
+    {
+      "name": "ENABLE_PARENTAL",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Enable parental control filtering",
+      "label": "Parental Control"
+    },
+    {
+      "name": "ENABLE_SAFEBROWSING",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Enable safe browsing (malware/phishing protection)",
+      "label": "Safe Browsing"
+    },
+    {
+      "name": "ENABLE_SAFESEARCH",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Enforce safe search on search engines",
+      "label": "Safe Search"
+    },
+    {
+      "name": "ENABLE_PRIVACY_FILTERS",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Enable privacy protection filters (blocks trackers)",
+      "label": "Privacy Filters"
+    },
+    {
+      "name": "ENABLE_SOCIAL_FILTERS",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Block social media widgets and buttons",
+      "label": "Social Media Filters"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "type": "number",
+      "required": false,
+      "default": 256,
+      "description": "Memory limit in MB",
+      "label": "Memory Limit (MB)",
+      "minValue": 128,
+      "maxValue": 512
+    }
+  ],
+  "suggestedRouting": [],
+  "estimatedResources": {
+    "totalMemoryMB": 256,
+    "totalCPUShares": 512,
+    "diskSpaceMB": 100,
+    "networkPorts": 2,
+    "vlansRequired": 0
+  },
+  "prerequisites": [
+    "At least 256MB free memory",
+    "Port 53 available for DNS (or custom port)",
+    "Port 3000 available for web interface (or custom port)"
+  ],
+  "documentation": "This template deploys AdGuard Home as a network-wide DNS filter, providing:\n\n**Security Features:**\n- Ad blocking across all devices\n- Tracker and analytics blocking\n- Malware and phishing protection\n- Custom blocklists and allowlists\n\n**Family Safety:**\n- Parental control filtering\n- Adult content blocking\n- Safe search enforcement\n- Social media filtering (optional)\n\n**Privacy:**\n- Blocks tracking pixels and beacons\n- Prevents CNAME cloaking\n- DNS query logging and statistics\n- Encrypted DNS support (DoH/DoT)\n\n**Setup:**\n1. After deployment, access web interface at http://router-ip:3000\n2. Complete initial setup wizard\n3. Set router DHCP to use AdGuard as DNS server\n4. Configure custom filters and rules as needed",
+  "examples": [
+    "Block ads and trackers across all family devices",
+    "Create a safe browsing environment for children",
+    "Monitor DNS queries and identify suspicious activity",
+    "Improve privacy by blocking tracking domains"
+  ]
+}

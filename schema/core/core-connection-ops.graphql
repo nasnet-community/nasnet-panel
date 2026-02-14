@@ -1,0 +1,107 @@
+# =============================================================================
+# Connection Management Operations
+# =============================================================================
+# Queries, mutations, and subscriptions for connection management.
+# Story: NAS-3.5 - Implement Connection Management
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  "Get detailed connection status for a router"
+  connectionDetails(routerId: ID!): ConnectionDetails
+
+  "Get health check result for a router"
+  routerHealth(routerId: ID!): HealthCheckResult
+
+  "Get connection manager statistics"
+  connectionStats: ConnectionStats!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  "Set preferred protocol for a router"
+  setPreferredProtocol(
+    "Router ID"
+    routerId: ID!
+    "Preferred protocol"
+    protocol: Protocol!
+  ): SetPreferredProtocolPayload!
+
+  "Manually trigger reconnection to a router"
+  reconnectRouter(
+    "Router ID"
+    routerId: ID!
+  ): ReconnectRouterPayload!
+
+  "Perform immediate health check on a router"
+  checkRouterHealth(
+    "Router ID"
+    routerId: ID!
+  ): HealthCheckResult!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+type SetPreferredProtocolPayload {
+  "The updated router"
+  router: Router
+  "Updated connection details"
+  connectionDetails: ConnectionDetails
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ReconnectRouterPayload {
+  "The router being reconnected"
+  router: Router
+  "Updated connection details"
+  connectionDetails: ConnectionDetails
+  "Whether reconnection was initiated"
+  initiated: Boolean!
+  "Rate limit wait time if rate limited"
+  waitTimeMs: Int
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  "Subscribe to connection health updates"
+  connectionHealth(
+    "Router ID to monitor (optional, all routers if not specified)"
+    routerId: ID
+  ): HealthCheckResult!
+
+  "Subscribe to circuit breaker state changes"
+  circuitBreakerChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): CircuitBreakerEvent!
+}
+
+"""
+Event emitted when circuit breaker state changes
+"""
+type CircuitBreakerEvent {
+  "Router ID"
+  routerId: ID!
+  "Previous state"
+  previousState: CircuitBreakerState!
+  "New state"
+  newState: CircuitBreakerState!
+  "Consecutive failures that triggered the change"
+  consecutiveFailures: Int!
+  "When the state changed"
+  timestamp: DateTime!
+}

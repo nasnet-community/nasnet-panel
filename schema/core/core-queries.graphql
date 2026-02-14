@@ -1,0 +1,178 @@
+# =============================================================================
+# Core Queries and Resource Metrics
+# =============================================================================
+# Root Query type with resource metrics types and feature compatibility.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Resource Metrics Types (System Resources)
+# -----------------------------------------------------------------------------
+
+"""
+Device (router) for querying resource metrics
+"""
+type Device {
+  "Device identifier"
+  id: ID!
+  "Current resource utilization metrics"
+  resourceMetrics: ResourceMetrics!
+}
+
+"""
+Real-time resource utilization metrics for a device
+"""
+type ResourceMetrics {
+  "CPU utilization metrics"
+  cpu: CPUMetrics!
+  "Memory utilization metrics"
+  memory: MemoryMetrics!
+  "Storage utilization metrics"
+  storage: StorageMetrics!
+  "Temperature in Celsius (null if not supported)"
+  temperature: Float
+  "Timestamp when metrics were collected"
+  timestamp: DateTime!
+}
+
+"""
+CPU utilization metrics
+"""
+type CPUMetrics {
+  "Overall CPU usage percentage (0-100)"
+  usage: Float!
+  "Number of CPU cores"
+  cores: Int!
+  "Per-core usage percentages (one per core)"
+  perCore: [Float!]!
+  "CPU frequency in MHz (optional)"
+  frequency: Float
+}
+
+"""
+Memory utilization metrics
+"""
+type MemoryMetrics {
+  "Used memory in bytes"
+  used: Float!
+  "Total memory in bytes"
+  total: Float!
+  "Memory usage percentage (0-100)"
+  percentage: Float!
+}
+
+"""
+Storage utilization metrics
+"""
+type StorageMetrics {
+  "Used storage in bytes"
+  used: Float!
+  "Total storage in bytes"
+  total: Float!
+  "Storage usage percentage (0-100)"
+  percentage: Float!
+}
+
+# -----------------------------------------------------------------------------
+# Query Root
+# -----------------------------------------------------------------------------
+
+type Query {
+  "Fetch any node by its global ID"
+  node(id: ID!): Node
+
+  "Get system health status"
+  health: HealthStatus!
+
+  "Get current API version"
+  version: String!
+
+  # Device Queries (Resource Metrics)
+  "Get a device by ID for resource metrics"
+  device(id: ID!): Device
+
+  # Router Queries
+  "Get a router by ID"
+  router(id: ID!): Router
+  "List all managed routers"
+  routers(
+    "Filter by connection status"
+    status: ConnectionStatus
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): RouterConnection!
+
+  # Interface Queries (require active router connection)
+  "Get a network interface by ID"
+  interface(
+    "Router to query"
+    routerId: ID!
+    "Interface ID"
+    id: ID!
+  ): Interface @capability(requires: ["interface"])
+
+  "List interfaces on a router"
+  interfaces(
+    "Router to query"
+    routerId: ID!
+    "Filter by interface type"
+    type: InterfaceType
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): InterfaceConnection! @capability(requires: ["interface"])
+
+  # Capability Queries
+  "Get router capabilities by router ID"
+  routerCapabilities(routerId: ID!): RouterCapabilities
+
+  # Version Compatibility Queries
+  "Check if a feature is supported on a specific router"
+  isFeatureSupported(
+    "Router to check"
+    routerId: ID!
+    "Feature identifier"
+    featureId: String!
+  ): FeatureSupport!
+
+  "Get all features supported by a router"
+  supportedFeatures(routerId: ID!): [FeatureSupport!]!
+
+  "Get features not supported by a router with upgrade guidance"
+  unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
+
+  "Get the compatibility matrix for all known features"
+  compatibilityMatrix: [FeatureCompatibilityInfo!]!
+
+  # Upgrade Recommendation Queries
+  "Get upgrade recommendation for a specific feature on a router"
+  upgradeRecommendation(
+    "Router to check"
+    routerId: ID!
+    "Feature to enable"
+    featureId: String!
+  ): UpgradeRecommendation
+
+  "Get all upgrade recommendations for a router"
+  upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!
+}
+
+"""
+Information about a feature in the compatibility matrix
+"""
+type FeatureCompatibilityInfo {
+  "Feature identifier"
+  featureId: String!
+  "Human-readable feature name"
+  name: String!
+  "Minimum RouterOS version required"
+  minVersion: String!
+  "Maximum RouterOS version supported (if any)"
+  maxVersion: String
+  "Minimum version for CHR (if different)"
+  minVersionCHR: String
+  "Required packages"
+  requiredPackages: [String!]!
+  "Feature dependencies"
+  dependsOn: [String!]!
+  "URL to MikroTik documentation"
+  upgradeUrl: String
+}

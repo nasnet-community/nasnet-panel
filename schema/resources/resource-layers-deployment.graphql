@@ -1,0 +1,83 @@
+# =============================================================================
+# Resource Layer 3: Deployment
+# =============================================================================
+# Deployment state and drift detection types.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Layer 3: Deployment State
+# -----------------------------------------------------------------------------
+
+"""
+Layer 3: What's actually on router after Apply-Confirm.
+Includes router-generated fields like IDs and computed values.
+"""
+type DeploymentState {
+  "Router-generated resource ID (e.g., '*1A' in MikroTik)"
+  routerResourceId: String
+
+  "When the resource was applied"
+  appliedAt: DateTime!
+
+  "User who applied the resource"
+  appliedBy: String
+
+  "Version number on router"
+  routerVersion: Int
+
+  "Router-generated fields (public key, computed values, etc.)"
+  generatedFields: JSON
+
+  "Whether deployment matches configuration (no drift)"
+  isInSync: Boolean!
+
+  "Detected drift from configuration"
+  drift: DriftInfo
+
+  "Apply operation ID for audit trail"
+  applyOperationId: ID
+}
+
+"""
+Information about configuration drift
+"""
+type DriftInfo {
+  "When drift was detected"
+  detectedAt: DateTime!
+
+  "Fields that have drifted"
+  driftedFields: [DriftField!]!
+
+  "Suggested action to resolve drift"
+  suggestedAction: DriftAction!
+}
+
+"""
+A field that has drifted from configuration
+"""
+type DriftField {
+  "Field path"
+  path: String!
+
+  "Expected value (from configuration)"
+  expected: JSON
+
+  "Actual value (from router)"
+  actual: JSON
+}
+
+"""
+Actions to resolve drift
+"""
+enum DriftAction {
+  "Re-apply configuration to router"
+  REAPPLY
+
+  "Update configuration to match router"
+  ACCEPT
+
+  "Manual review required"
+  REVIEW
+}

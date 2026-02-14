@@ -1,0 +1,189 @@
+# =============================================================================
+# Mutation Payloads and Subscription Events
+# =============================================================================
+# Standard mutation error types, router operation payloads, and
+# subscription event types.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+"""
+Standard error type for mutations
+"""
+type MutationError {
+  "Error code for programmatic handling"
+  code: String!
+  "Human-readable error message"
+  message: String!
+  "Field that caused the error (if applicable)"
+  field: String
+}
+
+"""
+Rich error extensions for detailed error diagnostics.
+Included in GraphQL error responses under the 'extensions' key.
+"""
+type ErrorExtensions {
+  "Error code for programmatic handling (e.g., 'V400', 'R200')"
+  code: String!
+  "Error category (validation, protocol, network, auth, resource, internal)"
+  category: String!
+  "Field path that caused the error (e.g., 'input.listenPort')"
+  field: String
+  "The invalid value (redacted in production for sensitive fields)"
+  value: JSON
+  "User-friendly suggestion for fixing the error"
+  suggestedFix: String
+  "Link to relevant documentation"
+  docsUrl: String
+  "Request correlation ID for support and debugging"
+  requestId: String!
+  "Whether the error is recoverable (can be retried)"
+  recoverable: Boolean!
+  "Additional troubleshooting steps for complex errors"
+  troubleshootingSteps: [String!]
+}
+
+type CreateRouterPayload {
+  "The created router"
+  router: Router
+  "Errors that occurred during creation"
+  errors: [MutationError!]
+}
+
+type UpdateRouterPayload {
+  "The updated router"
+  router: Router
+  "Errors that occurred during update"
+  errors: [MutationError!]
+}
+
+type DeleteRouterPayload {
+  "Whether deletion was successful"
+  success: Boolean!
+  "ID of the deleted router"
+  deletedRouterId: ID
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+type TestConnectionPayload {
+  "Whether the connection test succeeded"
+  success: Boolean!
+  "Response time in milliseconds"
+  responseTimeMs: Int
+  "Router version if connection succeeded"
+  version: String
+  "Error message if connection failed"
+  error: String
+}
+
+type ConnectRouterPayload {
+  "The router that was connected"
+  router: Router
+  "Errors that occurred during connection"
+  errors: [MutationError!]
+}
+
+type DisconnectRouterPayload {
+  "The router that was disconnected"
+  router: Router
+  "Errors that occurred during disconnection"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Events
+# -----------------------------------------------------------------------------
+
+type RouterStatusEvent {
+  "The router whose status changed"
+  router: Router!
+  "Previous status"
+  previousStatus: ConnectionStatus!
+  "New status"
+  newStatus: ConnectionStatus!
+  "Timestamp of the change"
+  timestamp: DateTime!
+}
+
+type InterfaceTrafficEvent {
+  "Interface ID"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "TX rate in bytes per second"
+  txRate: Size!
+  "RX rate in bytes per second"
+  rxRate: Size!
+  "Total TX bytes"
+  txTotal: Size!
+  "Total RX bytes"
+  rxTotal: Size!
+  "Timestamp"
+  timestamp: DateTime!
+}
+
+"""
+Event emitted when a router resource is updated
+"""
+type ResourceUpdatedEvent {
+  "Unique resource identifier"
+  resourceId: ID!
+  "Type of resource (interface, firewall-rule, dhcp-lease, etc.)"
+  resourceType: String!
+  "Router this resource belongs to"
+  routerId: ID!
+  "New version number after update"
+  version: Int!
+  "Fields that were changed"
+  changedFields: [String!]!
+  "Type of change (create, update, delete)"
+  changeType: ChangeType!
+  "Timestamp of the update"
+  timestamp: DateTime!
+}
+
+"""
+Type of change for resource events
+"""
+enum ChangeType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+"""
+Progress information for configuration apply operations
+"""
+type ConfigProgress {
+  "Unique operation identifier"
+  operationId: ID!
+  "Current status of the operation"
+  status: ConfigApplyStatus!
+  "Completion percentage (0-100)"
+  percentage: Int!
+  "Human-readable progress message"
+  message: String!
+  "Current step number"
+  currentStep: Int
+  "Total number of steps"
+  totalSteps: Int
+  "Timestamp of this progress update"
+  timestamp: DateTime!
+}
+
+"""
+Status of a configuration apply operation
+"""
+enum ConfigApplyStatus {
+  PENDING
+  VALIDATING
+  APPLYING
+  VERIFYING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}

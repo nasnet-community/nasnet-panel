@@ -1,0 +1,108 @@
+# -----------------------------------------------------------------------------
+# Notification Channel Configuration - Types and Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Type of notification channel
+"""
+enum ChannelType {
+  PUSHOVER
+  EMAIL
+  SLACK
+  WEBHOOK
+  TELEGRAM
+}
+
+"""
+Notification channel configuration with encrypted credentials
+"""
+type NotificationChannelConfig {
+  """
+  Unique configuration ID
+  """
+  id: ID!
+
+  """
+  Type of notification channel
+  """
+  channelType: ChannelType!
+
+  """
+  Human-readable name for this configuration
+  """
+  name: String!
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Whether this configuration is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Whether this is the default configuration for this channel type
+  """
+  isDefault: Boolean!
+
+  """
+  Masked configuration (sensitive fields redacted)
+  For Pushover: {"device": "iphone", "baseURL": "...", "userKey": "******", "apiToken": "******"}
+  For Email: {"host": "smtp.gmail.com", "port": 587, "from": "...", "password": "******"}
+  """
+  configMasked: JSON!
+
+  """
+  When this configuration was created
+  """
+  createdAt: DateTime!
+
+  """
+  When this configuration was last updated
+  """
+  updatedAt: DateTime!
+
+  """
+  User ID who created this configuration
+  """
+  createdBy: String
+
+  """
+  User ID who last updated this configuration
+  """
+  updatedBy: String
+}
+
+"""
+Input for creating a new notification channel configuration
+"""
+input CreateNotificationChannelConfigInput {
+  """
+  Type of notification channel
+  """
+  channelType: ChannelType!
+
+  """
+  Human-readable name
+  """
+  name: String!
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Whether this should be the default configuration
+  """
+  isDefault: Boolean
+
+  """
+  Full configuration including sensitive fields
+  For Pushover: {"userKey": "...", "apiToken": "...", "device": "...", "baseURL": "..."}
+  For Email: {"host": "...", "port": 587, "from": "...", "username": "...", "password": "...", "tlsMode": "..."}
+  """
+  config: JSON!
+}

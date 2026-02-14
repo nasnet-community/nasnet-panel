@@ -1,0 +1,196 @@
+# -----------------------------------------------------------------------------
+# DNS Lookup Tool
+# -----------------------------------------------------------------------------
+# This schema provides types and operations for DNS lookups, supporting
+# multiple record types and server comparisons for troubleshooting.
+# Story: NAS-5.9 - Implement DNS Lookup Tool
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DNS Lookup Types
+# -----------------------------------------------------------------------------
+
+"""
+DNS lookup status codes
+"""
+enum DnsLookupStatus {
+  "Query completed successfully"
+  SUCCESS
+  "Domain does not exist (NXDOMAIN)"
+  NXDOMAIN
+  "DNS server failure (SERVFAIL)"
+  SERVFAIL
+  "Query timed out"
+  TIMEOUT
+  "Query refused by server"
+  REFUSED
+  "Network error occurred"
+  NETWORK_ERROR
+}
+
+"""
+DNS record types supported
+"""
+enum DnsRecordType {
+  "IPv4 address record"
+  A
+  "IPv6 address record"
+  AAAA
+  "Mail exchange record"
+  MX
+  "Text record"
+  TXT
+  "Canonical name record"
+  CNAME
+  "Name server record"
+  NS
+  "Pointer record (reverse DNS)"
+  PTR
+  "Start of authority record"
+  SOA
+  "Service record"
+  SRV
+}
+
+"""
+Single DNS record
+"""
+type DnsRecord {
+  "Record name (query hostname)"
+  name: String!
+  "Record type"
+  type: DnsRecordType!
+  "Time to live in seconds"
+  ttl: Int!
+  "Record data (IP, hostname, text, etc.)"
+  data: String!
+  "Priority (for MX/SRV records)"
+  priority: Int
+  "Weight (for SRV records)"
+  weight: Int
+  "Port (for SRV records)"
+  port: Int
+}
+
+"""
+Result of a DNS lookup operation
+"""
+type DnsLookupResult {
+  "Hostname that was queried"
+  hostname: String!
+  "Record type that was queried"
+  recordType: DnsRecordType!
+  "Query status"
+  status: DnsLookupStatus!
+  "Resolved records"
+  records: [DnsRecord!]!
+  "DNS server used"
+  server: String!
+  "Query time in milliseconds"
+  queryTime: Int!
+  "Whether response was authoritative"
+  authoritative: Boolean!
+  "Error message (if query failed)"
+  error: String
+  "When the query was executed"
+  timestamp: DateTime!
+}
+
+"""
+DNS server configuration
+"""
+type DnsServer {
+  "Server IP address"
+  address: String!
+  "Whether this is the primary DNS server"
+  isPrimary: Boolean!
+  "Whether this is the secondary DNS server"
+  isSecondary: Boolean!
+}
+
+"""
+Collection of DNS servers
+"""
+type DnsServers {
+  "All configured DNS servers"
+  servers: [DnsServer!]!
+  "Primary DNS server address"
+  primary: String!
+  "Secondary DNS server address (if configured)"
+  secondary: String
+}
+
+"""
+Input for DNS lookup operation
+"""
+input DnsLookupInput {
+  "Device/router ID to run lookup from"
+  deviceId: String!
+  "Hostname or IP address to look up"
+  hostname: String!
+  "DNS record type to query"
+  recordType: DnsRecordType!
+  "DNS server to use (defaults to router's configured DNS)"
+  server: String
+  "Query timeout in seconds (default: 5)"
+  timeout: Int
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions (DNS Cache & Diagnostics)
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get configured DNS servers for a device.
+  Returns primary and secondary DNS servers configured on the router.
+  """
+  dnsServers(
+    "Device/router ID"
+    deviceId: String!
+  ): DnsServers!
+
+  """
+  Get DNS cache statistics including entries, size, hit rate, and top domains.
+  """
+  dnsCacheStats(
+    "Device/router ID"
+    deviceId: String!
+  ): DnsCacheStats!
+
+  """
+  Run DNS server benchmark against all configured DNS servers.
+  Tests each server with a well-known hostname (google.com) and returns
+  response times sorted from fastest to slowest.
+  """
+  dnsBenchmark(
+    "Device/router ID"
+    deviceId: String!
+  ): DnsBenchmarkResult!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions (DNS Cache & Diagnostics)
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Perform DNS lookup (synchronous request-response).
+  Queries the specified DNS server for the hostname and record type.
+  Uses RouterOS native DNS lookup for A/AAAA records when possible,
+  falls back to Go resolver for other record types.
+  """
+  runDnsLookup(
+    "DNS lookup parameters"
+    input: DnsLookupInput!
+  ): DnsLookupResult!
+
+  """
+  Flush the DNS cache on the router.
+  Clears all cached DNS entries and returns before/after statistics.
+  """
+  flushDnsCache(
+    "Device/router ID"
+    deviceId: String!
+  ): FlushDnsCacheResult!
+}

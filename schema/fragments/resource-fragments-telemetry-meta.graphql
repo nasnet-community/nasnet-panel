@@ -1,0 +1,179 @@
+# =============================================================================
+# Resource Fragments: Telemetry, Metadata, Relationships, Platform (5-8)
+# =============================================================================
+# Fragments for selective fetching of resource layers 5-8.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+"""
+Fragment for Layer 5: Telemetry (lightweight)
+"""
+fragment ResourceTelemetryLight on Resource {
+  ...ResourceId
+  telemetry {
+    lastUpdatedAt
+    retentionDays
+  }
+}
+
+"""
+Fragment for Layer 5: Telemetry (full)
+"""
+fragment ResourceTelemetryFull on Resource {
+  ...ResourceId
+  telemetry {
+    bandwidthHistory {
+      timestamp
+      bytesIn
+      bytesOut
+      periodSeconds
+    }
+    uptimeHistory {
+      timestamp
+      isUp
+      periodSeconds
+    }
+    hourlyStats {
+      hour
+      totalBytesIn
+      totalBytesOut
+      uptimePercent
+      errorCount
+    }
+    dailyStats {
+      date
+      totalBytesIn
+      totalBytesOut
+      uptimePercent
+      errorCount
+      peakThroughputIn
+      peakThroughputOut
+    }
+    dataStartedAt
+    lastUpdatedAt
+    retentionDays
+  }
+}
+
+"""
+Fragment for Layer 6: Metadata
+"""
+fragment ResourceMetadataFull on Resource {
+  ...ResourceId
+  metadata {
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    state
+    version
+    tags
+    description
+    isFavorite
+    isPinned
+    notes
+    recentChanges {
+      timestamp
+      user
+      changeType
+      changedFields
+      summary
+    }
+  }
+}
+
+"""
+Fragment for Layer 6: Metadata (minimal)
+"""
+fragment ResourceMetadataLight on Resource {
+  ...ResourceId
+  metadata {
+    state
+    version
+    tags
+    updatedAt
+  }
+}
+
+"""
+Fragment for Layer 7: Relationships
+"""
+fragment ResourceRelationshipsFull on Resource {
+  ...ResourceId
+  relationships {
+    dependsOn {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    dependents {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    routesVia {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    routedBy {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    parent {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    children {
+      uuid
+      id
+      type
+      category
+      state
+    }
+    custom
+  }
+}
+
+"""
+Fragment for Layer 8: Platform
+"""
+fragment ResourcePlatform on Resource {
+  ...ResourceId
+  platform {
+    current
+    capabilities {
+      isSupported
+      level
+      minVersion
+      requiredPackages
+      details
+    }
+    fieldMappings
+    limitations {
+      code
+      description
+      affectedFields
+      workaround
+    }
+    features {
+      id
+      name
+      enabled
+      description
+    }
+  }
+}

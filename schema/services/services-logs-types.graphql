@@ -1,0 +1,193 @@
+# ============================================
+# SERVICE LOGS & DIAGNOSTICS (NAS-8.12)
+# ============================================
+
+"""
+Log level for service log entries.
+"""
+enum LogLevel {
+  """Debug-level log"""
+  DEBUG
+
+  """Informational log"""
+  INFO
+
+  """Warning log"""
+  WARN
+
+  """Error log"""
+  ERROR
+
+  """Unknown/unparsed log level"""
+  UNKNOWN
+}
+
+"""
+A single log entry from a service instance.
+Represents one line of stdout/stderr output with parsed metadata.
+"""
+type LogEntry {
+  """Timestamp when the log was generated"""
+  timestamp: DateTime!
+
+  """Log severity level"""
+  level: LogLevel!
+
+  """Log message"""
+  message: String!
+
+  """Service source (e.g., 'tor', 'singbox', 'adguard')"""
+  source: String!
+
+  """Original raw log line"""
+  rawLine: String!
+
+  """Additional parsed metadata (JSON)"""
+  metadata: JSON
+}
+
+"""
+Service log file with metadata.
+Represents captured logs from a service instance.
+"""
+type ServiceLogFile {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Service name"""
+  serviceName: String!
+
+  """Log file path on router filesystem"""
+  filePath: String!
+
+  """Current log file size in bytes"""
+  sizeBytes: Int!
+
+  """Number of log lines available"""
+  lineCount: Int!
+
+  """Recent log entries (last N lines)"""
+  entries: [LogEntry!]!
+
+  """Timestamp when log file was created"""
+  createdAt: DateTime!
+
+  """Timestamp when log file was last updated"""
+  lastUpdated: DateTime!
+}
+
+"""
+Diagnostic test status.
+"""
+enum DiagnosticStatus {
+  """Test passed successfully"""
+  PASS
+
+  """Test failed"""
+  FAIL
+
+  """Test completed with warnings"""
+  WARNING
+
+  """Test was skipped"""
+  SKIPPED
+}
+
+"""
+Result of a single diagnostic test.
+Represents the outcome of a health check or connectivity test.
+"""
+type DiagnosticResult implements Node {
+  """Result ID (ULID)"""
+  id: ID!
+
+  """Instance ID this diagnostic belongs to"""
+  instanceID: ID!
+
+  """Test name (e.g., 'tor_socks5', 'process_health')"""
+  testName: String!
+
+  """Test result status"""
+  status: DiagnosticStatus!
+
+  """Short message describing the result"""
+  message: String!
+
+  """Detailed information about the test result"""
+  details: String
+
+  """Test execution duration in milliseconds"""
+  durationMs: Int!
+
+  """ULID for grouping tests run together"""
+  runGroupID: String
+
+  """Additional test-specific metadata (JSON)"""
+  metadata: JSON
+
+  """Error message if test failed"""
+  errorMessage: String
+
+  """Timestamp when test was executed"""
+  createdAt: DateTime!
+}
+
+"""
+A single diagnostic test definition.
+Describes a test that can be run against a service.
+"""
+type DiagnosticTest {
+  """Unique test identifier"""
+  name: String!
+
+  """Human-readable description"""
+  description: String!
+
+  """Test category (health, connectivity, dns, http, socks5)"""
+  category: String!
+}
+
+"""
+Complete diagnostic suite for a service type.
+Defines all available tests for a service.
+"""
+type DiagnosticSuite {
+  """Service name (e.g., 'tor', 'singbox', 'adguard')"""
+  serviceName: String!
+
+  """Available diagnostic tests"""
+  tests: [DiagnosticTest!]!
+}
+
+"""
+Startup diagnostic results collected during instance boot.
+Automatically run when a service starts.
+"""
+type StartupDiagnostics {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Run group ID linking these results together"""
+  runGroupID: String!
+
+  """Test results"""
+  results: [DiagnosticResult!]!
+
+  """Overall health status (pass if all tests passed)"""
+  overallStatus: DiagnosticStatus!
+
+  """Number of tests that passed"""
+  passedCount: Int!
+
+  """Number of tests that failed"""
+  failedCount: Int!
+
+  """Number of tests with warnings"""
+  warningCount: Int!
+
+  """Total number of tests run"""
+  totalTests: Int!
+
+  """Timestamp when diagnostics were run"""
+  timestamp: DateTime!
+}

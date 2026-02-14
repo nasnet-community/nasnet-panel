@@ -1,0 +1,15 @@
+# -----------------------------------------------------------------------------
+# Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to alert events for real-time updates
+  """
+  alertEvents(
+    """
+    Filter by device ID
+    """
+    deviceId: ID
+  ): AlertEvent!
+}

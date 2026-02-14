@@ -1,0 +1,204 @@
+# -----------------------------------------------------------------------------
+# IP Address Dependencies & Interface Statistics
+# -----------------------------------------------------------------------------
+
+"""
+Dependencies for an IP address
+"""
+type IpAddressDependencies {
+  "IP address ID"
+  ipAddressId: ID!
+  "DHCP servers using this IP as gateway"
+  dhcpServers: [DhcpServer!]!
+  "Static routes using this IP"
+  routes: [Route!]!
+  "NAT rules referencing this IP"
+  natRules: [NatRuleReference!]!
+  "Firewall rules referencing this IP"
+  firewallRules: [FirewallRuleReference!]!
+  "Whether the IP has any dependencies"
+  hasDependencies: Boolean!
+}
+
+"""
+Interface traffic statistics
+"""
+type InterfaceStats {
+  "Total bytes transmitted"
+  txBytes: Size!
+  "Total bytes received"
+  rxBytes: Size!
+  "Total packets transmitted"
+  txPackets: Size!
+  "Total packets received"
+  rxPackets: Size!
+  "Transmission errors"
+  txErrors: Int!
+  "Receive errors"
+  rxErrors: Int!
+  "Transmission drops"
+  txDrops: Int!
+  "Receive drops"
+  rxDrops: Int!
+}
+
+"""
+Historical interface statistics with time-series data
+"""
+type InterfaceStatsHistory {
+  "Interface ID"
+  interfaceId: ID!
+  "Time-series data points"
+  dataPoints: [StatsDataPoint!]!
+  "Aggregation interval (e.g., 5m, 1h)"
+  interval: Duration!
+  "Start of the time range"
+  startTime: DateTime!
+  "End of the time range"
+  endTime: DateTime!
+}
+
+"""
+A single data point in interface statistics history
+"""
+type StatsDataPoint {
+  "Timestamp of the data point"
+  timestamp: DateTime!
+  "Transmit rate in bytes per second"
+  txBytesPerSec: Float!
+  "Receive rate in bytes per second"
+  rxBytesPerSec: Float!
+  "Transmit rate in packets per second"
+  txPacketsPerSec: Float!
+  "Receive rate in packets per second"
+  rxPacketsPerSec: Float!
+  "Transmission errors in this interval"
+  txErrors: Int!
+  "Receive errors in this interval"
+  rxErrors: Int!
+}
+
+"""
+Input for specifying a time range
+"""
+input StatsTimeRangeInput {
+  "Start of the time range"
+  start: DateTime!
+  "End of the time range"
+  end: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Bridge Port VLAN Configuration
+# -----------------------------------------------------------------------------
+
+"""
+VLAN configuration for a bridge port (trunk/access port setup)
+"""
+type BridgePortVlanConfig {
+  "Bridge port ID"
+  portId: ID!
+  "Port VLAN ID (PVID) for untagged traffic"
+  pvid: Int! @validate(min: 1, max: 4094)
+  "Frame types allowed on this port"
+  frameTypes: BridgePortFrameTypes!
+  "Tagged VLANs allowed on this port (trunk mode)"
+  taggedVlans: [Int!]! @validate(min: 1, max: 4094)
+  "Untagged VLANs on this port (typically just PVID)"
+  untaggedVlans: [Int!]! @validate(min: 1, max: 4094)
+  "Port mode (trunk or access)"
+  mode: PortMode!
+}
+
+"""
+Frame types that can be admitted on a bridge port
+"""
+enum BridgePortFrameTypes {
+  "Accept all frames (tagged and untagged)"
+  ADMIT_ALL
+  "Accept only untagged and priority-tagged frames"
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY_TAGGED
+  "Accept only VLAN-tagged frames"
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+"""
+Port mode for VLAN configuration
+"""
+enum PortMode {
+  "Trunk port (carries multiple VLANs with tagging)"
+  TRUNK
+  "Access port (single VLAN, untagged)"
+  ACCESS
+}
+
+"""
+Input for configuring bridge port VLAN settings
+"""
+input BridgePortVlanInput {
+  "Port VLAN ID (PVID) for untagged traffic"
+  pvid: Int! @validate(min: 1, max: 4094)
+  "Frame types allowed on this port"
+  frameTypes: BridgePortFrameTypes!
+  "Tagged VLANs (for trunk ports)"
+  taggedVlans: [Int!] @validate(min: 1, max: 4094)
+  "Port mode (trunk or access)"
+  mode: PortMode!
+}
+
+# -----------------------------------------------------------------------------
+# VLAN Dependencies
+# -----------------------------------------------------------------------------
+
+"""
+Resources that depend on a VLAN interface
+"""
+type VlanDependencies {
+  "VLAN interface ID"
+  vlanId: ID!
+  "IP addresses assigned to this VLAN"
+  ipAddresses: [IpAddress!]!
+  "DHCP servers using this VLAN"
+  dhcpServers: [DhcpServer!]!
+  "Firewall rules referencing this VLAN"
+  firewallRules: [FirewallRuleReference!]!
+  "Routes using this VLAN interface"
+  routes: [Route!]!
+  "Number of active connections on this VLAN"
+  activeConnections: Int!
+  "Whether the VLAN has any dependencies"
+  hasDependencies: Boolean!
+}
+
+"""
+DHCP server (minimal type for dependencies)
+"""
+type DhcpServer {
+  "DHCP server ID"
+  id: ID!
+  "DHCP server name"
+  name: String!
+  "Interface the DHCP server is bound to"
+  interface: Interface!
+  "Whether the DHCP server is disabled"
+  disabled: Boolean!
+}
+
+"""
+Firewall rule reference type (lightweight for dependency tracking).
+For full firewall rule management, see FirewallRule type in firewall.graphql.
+"""
+type FirewallRuleReference {
+  "Firewall rule ID"
+  id: ID!
+  "Rule chain"
+  chain: String!
+  "Rule action"
+  action: String!
+  "Input interface filter"
+  inInterface: String
+  "Output interface filter"
+  outInterface: String
+  "Whether the rule is disabled"
+  disabled: Boolean!
+}

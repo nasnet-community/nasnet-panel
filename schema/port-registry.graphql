@@ -1,0 +1,171 @@
+# =============================================================================
+# Port Registry GraphQL Schema
+# =============================================================================
+# This schema defines types and operations for centralized port allocation
+# management across service instances. Prevents port conflicts and enables
+# orphan detection/cleanup.
+# =============================================================================
+
+# ============================================
+# PORT ALLOCATION TYPES
+# ============================================
+
+"""
+A port allocation record tracking which ports are in use by service instances.
+Prevents port conflicts and enables centralized port management.
+"""
+type PortAllocation implements Node {
+  """ULID primary key"""
+  id: ID!
+
+  """Router ID where this port is allocated"""
+  routerID: String!
+
+  """Port number (1-65535)"""
+  port: Int!
+
+  """Transport protocol (TCP or UDP)"""
+  protocol: PortProtocol!
+
+  """Service instance ID that owns this allocation"""
+  instanceID: String!
+
+  """Service type (e.g., 'tor', 'xray-core', 'adguard-home')"""
+  serviceType: String!
+
+  """Optional notes about this port allocation"""
+  notes: String
+
+  """Allocation timestamp"""
+  allocatedAt: DateTime!
+
+  """The router where this port is allocated"""
+  router: Router
+
+  """The service instance that owns this port allocation"""
+  serviceInstance: ServiceInstance
+}
+
+"""
+Transport protocol for port allocations.
+"""
+enum PortProtocol {
+  """TCP protocol"""
+  TCP
+
+  """UDP protocol"""
+  UDP
+}
+
+"""
+Port availability check result.
+"""
+type PortAvailability {
+  """Port number checked"""
+  port: Int!
+
+  """Protocol checked"""
+  protocol: PortProtocol!
+
+  """Whether the port is available for allocation"""
+  available: Boolean!
+
+  """Reason why port is unavailable (if applicable)"""
+  reason: String
+}
+
+"""
+Orphaned port allocation that references a non-existent service instance.
+"""
+type OrphanedPort {
+  """Port allocation record"""
+  allocation: PortAllocation!
+
+  """Reason why this allocation is orphaned"""
+  reason: String!
+}
+
+# ============================================
+# INPUT TYPES
+# ============================================
+
+"""
+Input for checking port availability.
+"""
+input CheckPortAvailabilityInput {
+  """Router ID to check"""
+  routerID: ID!
+
+  """Port number to check"""
+  port: Int! @validate(min: 1, max: 65535)
+
+  """Protocol to check"""
+  protocol: PortProtocol!
+}
+
+"""
+Input for cleaning up orphaned ports.
+"""
+input CleanupOrphanedPortsInput {
+  """Router ID to cleanup (if not provided, cleans all routers)"""
+  routerID: ID
+}
+
+# ============================================
+# QUERY TYPES
+# ============================================
+
+extend type Query {
+  """
+  List all port allocations, optionally filtered by router, protocol, or service type.
+  """
+  portAllocations(
+    """Filter by router ID"""
+    routerID: ID
+
+    """Filter by protocol"""
+    protocol: PortProtocol
+
+    """Filter by service type"""
+    serviceType: String
+  ): [PortAllocation!]!
+
+  """
+  Check if a specific port is available for allocation.
+  """
+  isPortAvailable(input: CheckPortAvailabilityInput!): PortAvailability!
+
+  """
+  Detect orphaned port allocations (allocated to non-existent instances).
+  """
+  detectOrphanedPorts(
+    """Router ID to check (if not provided, checks all routers)"""
+    routerID: ID
+  ): [OrphanedPort!]!
+}
+
+# ============================================
+# MUTATION TYPES
+# ============================================
+
+extend type Mutation {
+  """
+  Clean up orphaned port allocations.
+  Removes allocations for service instances that no longer exist.
+  """
+  cleanupOrphanedPorts(input: CleanupOrphanedPortsInput!): OrphanCleanupPayload!
+}
+
+"""
+Payload for orphan cleanup mutation.
+"""
+type OrphanCleanupPayload {
+  """Number of orphaned allocations cleaned up"""
+  cleanedCount: Int!
+
+  """List of allocation IDs that were deleted"""
+  deletedAllocationIDs: [ID!]!
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}

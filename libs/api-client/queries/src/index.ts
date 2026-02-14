@@ -19,3 +19,4 @@ export * from './diagnostics';
 export * from './network';
 export * from './services';
 export * from './notifications';
+export * from './storage';

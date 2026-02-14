@@ -1,0 +1,110 @@
+# -----------------------------------------------------------------------------
+# Queries - Notifications, Webhooks, Digest, Throttle, Storm
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get Pushover API usage statistics
+  """
+  pushoverUsage: PushoverUsage
+
+  """
+  Get all webhooks
+  """
+  webhooks: [Webhook!]!
+
+  """
+  Get a single webhook by ID
+  """
+  webhook(
+    """
+    Webhook ID
+    """
+    id: ID!
+  ): Webhook
+
+  """
+  Get notification delivery logs
+  """
+  notificationLogs(
+    """
+    Filter by alert ID
+    """
+    alertId: ID
+    """
+    Filter by channel type
+    """
+    channel: String
+    """
+    Filter by webhook ID
+    """
+    webhookId: ID
+    """
+    Pagination limit
+    """
+    limit: Int = 50
+    """
+    Pagination offset
+    """
+    offset: Int = 0
+  ): [NotificationLog!]!
+
+  """
+  Get alert escalations with optional filtering (NAS-18.9)
+  """
+  alertEscalations(
+    """
+    Filter by escalation status
+    """
+    status: EscalationStatus
+    """
+    Pagination limit
+    """
+    limit: Int = 50
+    """
+    Pagination offset
+    """
+    offset: Int = 0
+  ): [AlertEscalation!]!
+
+  """
+  Get the number of alerts in the digest queue for a channel (NAS-18.11)
+  """
+  digestQueueCount(
+    """
+    Channel ID to check queue for
+    """
+    channelId: ID!
+  ): Int!
+
+  """
+  Get digest delivery history for a channel (NAS-18.11)
+  """
+  digestHistory(
+    """
+    Channel ID to get history for
+    """
+    channelId: ID!
+    """
+    Limit number of results (default: 10)
+    """
+    limit: Int = 10
+  ): [DigestSummary!]!
+
+  """
+  Get throttle status for alert rules
+  Returns throttle information for all rules or a specific rule
+  """
+  alertRuleThrottleStatus(
+    """
+    Optional rule ID to filter by specific rule
+    """
+    ruleId: ID
+  ): [ThrottleStatus!]!
+
+  """
+  Get current storm detection status
+  Shows if alert storm is detected and which rules are contributing
+  """
+  alertStormStatus: StormStatus!
+}

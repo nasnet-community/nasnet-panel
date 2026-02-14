@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"backend/ent"
-	"backend/ent/webhook"
+	"backend/generated/ent"
+	"backend/generated/ent/webhook"
 	"backend/internal/encryption"
 	"backend/internal/events"
 	"backend/internal/notifications"

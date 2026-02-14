@@ -1,0 +1,93 @@
+# -----------------------------------------------------------------------------
+# Mutations - Acknowledge, Notification, Webhook, Digest
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Acknowledge a single alert
+  """
+  acknowledgeAlert(
+    """
+    Alert ID
+    """
+    alertId: ID!
+  ): AlertPayload!
+
+  """
+  Acknowledge multiple alerts
+  """
+  acknowledgeAlerts(
+    """
+    Array of alert IDs
+    """
+    alertIds: [ID!]!
+  ): BulkAlertPayload!
+
+  """
+  Test a notification channel
+  """
+  testNotificationChannel(
+    """
+    Channel type (email, telegram, pushover, webhook)
+    """
+    channel: String!
+    """
+    Channel configuration
+    """
+    config: JSON!
+  ): TestNotificationPayload!
+
+  """
+  Create a new webhook
+  """
+  createWebhook(
+    """
+    Webhook input
+    """
+    input: CreateWebhookInput!
+  ): WebhookPayload!
+
+  """
+  Update an existing webhook
+  """
+  updateWebhook(
+    """
+    Webhook ID
+    """
+    id: ID!
+    """
+    Update input
+    """
+    input: UpdateWebhookInput!
+  ): WebhookPayload!
+
+  """
+  Delete a webhook
+  """
+  deleteWebhook(
+    """
+    Webhook ID
+    """
+    id: ID!
+  ): DeletePayload!
+
+  """
+  Test a webhook by sending a sample payload
+  """
+  testWebhook(
+    """
+    Webhook ID to test
+    """
+    id: ID!
+  ): WebhookTestPayload!
+
+  """
+  Trigger digest delivery immediately for a channel (NAS-18.11)
+  """
+  triggerDigestNow(
+    """
+    Channel ID to trigger digest for
+    """
+    channelId: ID!
+  ): DigestSummary!
+}

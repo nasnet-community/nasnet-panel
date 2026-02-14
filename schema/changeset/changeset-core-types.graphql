@@ -1,0 +1,143 @@
+# =============================================================================
+# Change Set Core Types
+# =============================================================================
+# Core types for change sets: items, validation errors, conflicts,
+# validation results, and missing dependencies.
+#
+# Reference: NAS-4.14 - Implement Change Sets
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Change Set Item Types
+# -----------------------------------------------------------------------------
+
+"""
+Individual item within a change set
+"""
+type ChangeSetItem {
+  "Unique identifier for this item"
+  id: ID!
+
+  "Resource type identifier"
+  resourceType: String!
+
+  "Resource category"
+  resourceCategory: ResourceCategory!
+
+  "Existing resource UUID (null for create operations)"
+  resourceUuid: ID
+
+  "User-friendly name"
+  name: String!
+
+  "Optional description"
+  description: String
+
+  "Operation to perform"
+  operation: ChangeOperation!
+
+  "New/updated configuration"
+  configuration: JSON!
+
+  "Previous state (for rollback)"
+  previousState: JSON
+
+  "Item IDs this depends on"
+  dependencies: [ID!]!
+
+  "Current status"
+  status: ChangeSetItemStatus!
+
+  "Error message if failed"
+  error: String
+
+  "Apply started timestamp"
+  applyStartedAt: DateTime
+
+  "Apply completed timestamp"
+  applyCompletedAt: DateTime
+
+  "Order in which this item will be applied"
+  applyOrder: Int!
+}
+
+# -----------------------------------------------------------------------------
+# Validation and Conflict Types
+# -----------------------------------------------------------------------------
+
+"""
+Validation error for a change set item
+"""
+type ChangeSetValidationError {
+  "Item ID with validation error"
+  itemId: ID!
+
+  "Field path within the item configuration"
+  field: String!
+
+  "Error message"
+  message: String!
+
+  "Severity level"
+  severity: ValidationSeverity!
+
+  "Error code"
+  code: String
+}
+
+"""
+Conflict between change set items
+"""
+type ChangeSetConflict {
+  "First conflicting item ID"
+  itemId1: ID!
+
+  "Second conflicting item ID or resource UUID"
+  itemId2OrResourceUuid: ID!
+
+  "Whether conflict is with existing resource"
+  isExternalConflict: Boolean!
+
+  "Description of the conflict"
+  description: String!
+
+  "Suggested resolution"
+  resolution: String
+}
+
+"""
+Validation result for a change set
+"""
+type ChangeSetValidationResult {
+  "Whether the change set can be applied"
+  canApply: Boolean!
+
+  "Validation errors (blocking)"
+  errors: [ChangeSetValidationError!]!
+
+  "Validation warnings (non-blocking)"
+  warnings: [ChangeSetValidationError!]!
+
+  "Detected conflicts"
+  conflicts: [ChangeSetConflict!]!
+
+  "Missing dependencies"
+  missingDependencies: [MissingDependency!]!
+
+  "Circular dependencies (if any)"
+  circularDependencies: [[ID!]!]
+}
+
+"""
+Missing dependency information
+"""
+type MissingDependency {
+  "Item ID with missing dependency"
+  itemId: ID!
+
+  "Missing resource type"
+  missingResourceType: String!
+
+  "Missing resource ID"
+  missingResourceId: ID!
+}

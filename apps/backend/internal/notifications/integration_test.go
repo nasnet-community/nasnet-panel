@@ -9,6 +9,7 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/notifications"
+	"backend/internal/notifications/channels/push"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -21,7 +22,7 @@ func TestInAppChannelIntegration(t *testing.T) {
 	defer eventBus.Close()
 
 	// Create InAppChannel
-	channel := notifications.NewInAppChannel(eventBus)
+	channel := push.NewInAppChannel(eventBus)
 
 	// Create context
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

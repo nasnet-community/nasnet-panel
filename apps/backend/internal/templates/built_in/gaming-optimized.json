@@ -1,0 +1,146 @@
+{
+  "id": "gaming-optimized",
+  "name": "Gaming-Optimized Proxy",
+  "description": "Low-latency sing-box configuration optimized for online gaming. Minimizes packet loss and jitter while providing region bypass capabilities.",
+  "category": "gaming",
+  "scope": "single",
+  "version": "1.0.0",
+  "author": "NasNetConnect",
+  "tags": ["gaming", "low-latency", "sing-box", "performance"],
+  "services": [
+    {
+      "serviceType": "singbox",
+      "name": "{{SINGBOX_NAME}}",
+      "configOverrides": {
+        "inbounds": [
+          {
+            "type": "mixed",
+            "listen": "0.0.0.0",
+            "listen_port": "{{PROXY_PORT}}",
+            "tcp_fast_open": true,
+            "udp_fragment": true,
+            "sniff": true,
+            "sniff_override_destination": false
+          }
+        ],
+        "outbounds": [
+          {
+            "type": "direct",
+            "tag": "direct",
+            "tcp_fast_open": true,
+            "tcp_multi_path": true,
+            "udp_fragment": true
+          }
+        ],
+        "route": {
+          "rules": [
+            {
+              "protocol": "dns",
+              "outbound": "dns-out"
+            },
+            {
+              "network": "udp",
+              "port": [
+                "{{GAME_PORT_START}}-{{GAME_PORT_END}}"
+              ],
+              "outbound": "direct"
+            }
+          ],
+          "final": "direct",
+          "auto_detect_interface": true
+        }
+      },
+      "memoryLimitMB": "{{MEMORY_LIMIT}}",
+      "cpuShares": 1024,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": "{{PROXY_PORT}}",
+          "external": "{{PROXY_PORT}}",
+          "protocol": "tcp",
+          "purpose": "sing-box mixed proxy"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "SINGBOX_NAME",
+      "type": "string",
+      "required": true,
+      "default": "gaming-proxy",
+      "description": "Name for the sing-box instance",
+      "label": "Service Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "PROXY_PORT",
+      "type": "port",
+      "required": true,
+      "default": "7890",
+      "description": "Port for the mixed proxy (HTTP/SOCKS5)",
+      "label": "Proxy Port"
+    },
+    {
+      "name": "GAME_PORT_START",
+      "type": "port",
+      "required": false,
+      "default": "27000",
+      "description": "Start of game port range for direct routing",
+      "label": "Game Port Range Start"
+    },
+    {
+      "name": "GAME_PORT_END",
+      "type": "port",
+      "required": false,
+      "default": "27100",
+      "description": "End of game port range for direct routing",
+      "label": "Game Port Range End"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "type": "number",
+      "required": false,
+      "default": 128,
+      "description": "Memory limit in MB",
+      "label": "Memory Limit (MB)",
+      "minValue": 64,
+      "maxValue": 512
+    },
+    {
+      "name": "ENABLE_TCP_FAST_OPEN",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Enable TCP Fast Open for lower latency",
+      "label": "TCP Fast Open"
+    }
+  ],
+  "suggestedRouting": [
+    {
+      "devicePattern": "gaming-*",
+      "targetService": "{{SINGBOX_NAME}}",
+      "protocol": "all",
+      "description": "Route gaming devices through optimized proxy"
+    }
+  ],
+  "estimatedResources": {
+    "totalMemoryMB": 128,
+    "totalCPUShares": 1024,
+    "diskSpaceMB": 50,
+    "networkPorts": 1,
+    "vlansRequired": 1
+  },
+  "prerequisites": [
+    "At least 128MB free memory",
+    "One available network port",
+    "Router with TCP Fast Open support (optional but recommended)"
+  ],
+  "documentation": "This template deploys sing-box with optimizations for online gaming:\n\n- TCP Fast Open enabled for lower handshake latency\n- UDP fragment support for game protocols\n- Direct routing for game port ranges to minimize hops\n- Multi-path TCP for better reliability\n- Zero packet inspection overhead\n\nIdeal for:\n- Reducing ping in competitive games\n- Bypassing regional restrictions\n- Improving connection stability\n- Playing on foreign game servers",
+  "examples": [
+    "Play on EU/US game servers from Asia with lower ping",
+    "Access region-locked games",
+    "Improve connection stability for competitive gaming",
+    "Reduce packet loss during online matches"
+  ]
+}

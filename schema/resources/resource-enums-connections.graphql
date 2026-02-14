@@ -1,0 +1,148 @@
+# =============================================================================
+# Resource Enums, Connections, and Relationship Types
+# =============================================================================
+# Resource category, lifecycle states, pagination, composite resource types,
+# and relationship types.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Resource Category Enum
+# -----------------------------------------------------------------------------
+
+"""
+Categories of managed resources
+"""
+enum ResourceCategory {
+  "Network topology: WAN Links, LAN Networks, VLANs"
+  NETWORK
+
+  "VPN connectivity: WireGuard, OpenVPN, IPsec"
+  VPN
+
+  "System infrastructure: Certificates, NTP, DDNS"
+  INFRASTRUCTURE
+
+  "Application-level: Port Forwarding, Game Rules"
+  APPLICATION
+
+  "Marketplace features: Tor, AdGuard, sing-box"
+  FEATURE
+
+  "Community extensions: Third-party plugins"
+  PLUGIN
+}
+
+# -----------------------------------------------------------------------------
+# Resource Lifecycle States
+# -----------------------------------------------------------------------------
+
+"""
+Resource lifecycle states for state machine
+"""
+enum ResourceLifecycleState {
+  "Initial creation, not yet validated"
+  DRAFT
+
+  "Backend validation in progress"
+  VALIDATING
+
+  "Passed validation, ready to apply"
+  VALID
+
+  "Being applied to router"
+  APPLYING
+
+  "Successfully applied and running"
+  ACTIVE
+
+  "Running but with issues"
+  DEGRADED
+
+  "Failed state (validation or apply)"
+  ERROR
+
+  "Marked for removal"
+  DEPRECATED
+
+  "Final state, no longer active"
+  ARCHIVED
+}
+
+# -----------------------------------------------------------------------------
+# Resource Connection (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+type ResourceConnection implements Connection {
+  edges: [ResourceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type ResourceEdge implements Edge {
+  cursor: String!
+  node: Resource!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Layer Enum (for selective fetching)
+# -----------------------------------------------------------------------------
+
+"""
+Selectable resource layers for optimized fetching
+"""
+enum ResourceLayer {
+  CONFIGURATION
+  VALIDATION
+  DEPLOYMENT
+  RUNTIME
+  TELEMETRY
+  METADATA
+  RELATIONSHIPS
+  PLATFORM
+}
+
+# -----------------------------------------------------------------------------
+# Composite Resource Type
+# -----------------------------------------------------------------------------
+
+"""
+A composite resource with all related sub-resources
+"""
+type CompositeResource {
+  "The root resource"
+  root: Resource!
+  "All child/related resources"
+  children: [Resource!]!
+  "Flattened relationship graph"
+  relationships: [ResourceRelationshipEdge!]!
+}
+
+"""
+Edge in the resource relationship graph
+"""
+type ResourceRelationshipEdge {
+  "Source resource ID"
+  from: ID!
+  "Target resource ID"
+  to: ID!
+  "Relationship type"
+  type: ResourceRelationshipType!
+}
+
+"""
+Types of relationships between resources
+"""
+enum ResourceRelationshipType {
+  "Child depends on parent"
+  DEPENDS_ON
+  "Traffic routes via this resource"
+  ROUTES_VIA
+  "Parent-child hierarchy"
+  PARENT_CHILD
+  "Resources are in the same group"
+  GROUP
+  "Custom relationship"
+  CUSTOM
+}

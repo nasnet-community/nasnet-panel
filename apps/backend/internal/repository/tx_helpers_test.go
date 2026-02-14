@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"backend/ent"
+	"backend/generated/ent"
 	"backend/internal/repository"
 	"backend/pkg/ulid"
 

@@ -7,6 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import type { UpdateStage } from '@nasnet/api-client/queries';
 
 /**
  * Type for install wizard draft (partial service instance configuration)
@@ -76,6 +77,16 @@ export interface ServiceUIState {
   showAdvancedConfig: boolean;
   setShowAdvancedConfig: (show: boolean) => void;
 
+  // Update management (NOT persisted)
+  updateInProgress: Record<string, boolean>;
+  setUpdateInProgress: (instanceId: string, inProgress: boolean) => void;
+
+  updateStage: Record<string, UpdateStage>;
+  setUpdateStage: (instanceId: string, stage: UpdateStage) => void;
+
+  showUpdateAll: boolean;
+  setShowUpdateAll: (show: boolean) => void;
+
   // Reset all state
   reset: () => void;
 }
@@ -93,6 +104,9 @@ const initialState = {
   viewMode: 'grid' as ServiceViewMode,
   showResourceMetrics: true,
   showAdvancedConfig: false,
+  updateInProgress: {},
+  updateStage: {},
+  showUpdateAll: false,
 };
 
 /**
@@ -157,6 +171,25 @@ export const useServiceUIStore = create<ServiceUIState>()(
       setShowAdvancedConfig: (show: boolean) =>
         set({ showAdvancedConfig: show }),
 
+      // Update management
+      setUpdateInProgress: (instanceId: string, inProgress: boolean) =>
+        set((state) => ({
+          updateInProgress: {
+            ...state.updateInProgress,
+            [instanceId]: inProgress,
+          },
+        })),
+
+      setUpdateStage: (instanceId: string, stage: UpdateStage) =>
+        set((state) => ({
+          updateStage: {
+            ...state.updateStage,
+            [instanceId]: stage,
+          },
+        })),
+
+      setShowUpdateAll: (show: boolean) => set({ showUpdateAll: show }),
+
       // Reset all state
       reset: () => set(initialState),
     }),
@@ -203,3 +236,12 @@ export const useShowResourceMetrics = () =>
 
 export const useShowAdvancedConfig = () =>
   useServiceUIStore((state) => state.showAdvancedConfig);
+
+export const useUpdateInProgress = (instanceId: string) =>
+  useServiceUIStore((state) => state.updateInProgress[instanceId] ?? false);
+
+export const useUpdateStage = (instanceId: string) =>
+  useServiceUIStore((state) => state.updateStage[instanceId]);
+
+export const useShowUpdateAll = () =>
+  useServiceUIStore((state) => state.showUpdateAll);

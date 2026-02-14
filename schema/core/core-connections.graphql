@@ -1,0 +1,102 @@
+# =============================================================================
+# Connection Types and Interface Management
+# =============================================================================
+# Relay pagination connections and interface management inputs/payloads.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Connection Types (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+type RouterConnection implements Connection {
+  edges: [RouterEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type RouterEdge implements Edge {
+  node: Router!
+  cursor: String!
+}
+
+type InterfaceConnection implements Connection {
+  edges: [InterfaceEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type InterfaceEdge implements Edge {
+  node: Interface!
+  cursor: String!
+}
+
+# -----------------------------------------------------------------------------
+# Interface Management Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Input for updating interface settings
+"""
+input UpdateInterfaceInput {
+  "Enable or disable the interface"
+  enabled: Boolean
+  "MTU size (68-9000 bytes)"
+  mtu: Int @validate(min: 68, max: 9000)
+  "Interface comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Input for batch interface operations
+"""
+input BatchInterfaceInput {
+  "Interface IDs to operate on"
+  interfaceIds: [ID!]!
+  "Action to perform"
+  action: BatchInterfaceAction!
+  "Optional input for UPDATE action"
+  input: UpdateInterfaceInput
+}
+
+"""
+Actions available for batch interface operations
+"""
+enum BatchInterfaceAction {
+  ENABLE
+  DISABLE
+  UPDATE
+}
+
+"""
+Payload returned by updateInterface, enableInterface, and disableInterface mutations
+"""
+type UpdateInterfacePayload {
+  "Updated interface"
+  interface: Interface
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Payload returned by batchInterfaceOperation mutation
+"""
+type BatchInterfacePayload {
+  "Interfaces that were successfully updated"
+  succeeded: [Interface!]!
+  "Interfaces that failed with reasons"
+  failed: [InterfaceOperationError!]!
+  "General errors that occurred"
+  errors: [MutationError!]
+}
+
+"""
+Error information for a single interface operation in a batch
+"""
+type InterfaceOperationError {
+  "Interface ID that failed"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "Error message describing why the operation failed"
+  error: String!
+}

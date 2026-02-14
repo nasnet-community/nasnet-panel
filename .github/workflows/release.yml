@@ -1,0 +1,373 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-beta.*'
+      - 'v*.*.*-rc.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
+      skip_signing:
+        description: 'Skip image signing (for testing)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write  # Required for cosign keyless signing
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 20
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+
+jobs:
+  # ============================================================================
+  # Validation (must pass before release)
+  # ============================================================================
+
+  validate:
+    name: Pre-Release Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: Setup Nx Cloud
+        env:
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+        run: |
+          if [ -n "$NX_CLOUD_ACCESS_TOKEN" ]; then
+            echo "NX_CLOUD_ACCESS_TOKEN=$NX_CLOUD_ACCESS_TOKEN" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Run full CI validation
+        run: npm run ci
+
+      - name: Check bundle size
+        run: npm run build:check
+
+  # ============================================================================
+  # Multi-Architecture Docker Build
+  # ============================================================================
+
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            suffix: amd64
+          - platform: linux/arm64
+            suffix: arm64
+          - platform: linux/arm/v7
+            suffix: armv7
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - run: npm ci --no-audit --no-fund
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Set lowercase repository
+        run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ !contains(github.ref, 'beta') && !contains(github.ref, 'rc') }}
+            type=raw,value=beta,enable=${{ contains(github.ref, 'beta') }}
+            type=raw,value=rc,enable=${{ contains(github.ref, 'rc') }}
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          platforms: ${{ matrix.platform }}
+          target: production
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}-${{ matrix.suffix }}
+          cache-from: type=gha,scope=${{ matrix.suffix }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
+          provenance: true
+          sbom: true
+
+      - name: Check image size
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}-${{ matrix.suffix }}
+          SIZE=$(docker image inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}-${{ matrix.suffix }} --format='{{.Size}}')
+          SIZE_MB=$((SIZE / 1024 / 1024))
+          echo "Image size for ${{ matrix.platform }}: ${SIZE_MB}MB"
+
+          if [ $SIZE_MB -gt 20 ]; then
+            echo "::error::Image size (${SIZE_MB}MB) exceeds limit of 20MB"
+            exit 1
+          fi
+
+  # ============================================================================
+  # Create Multi-Arch Manifest
+  # ============================================================================
+
+  manifest:
+    name: Create Multi-Arch Manifest
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Set lowercase repository
+        run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          VERSION=${{ github.ref_name }}
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+
+          # Create multi-arch manifest
+          docker manifest create $IMAGE:$VERSION \
+            --amend $IMAGE:$VERSION-amd64 \
+            --amend $IMAGE:$VERSION-arm64 \
+            --amend $IMAGE:$VERSION-armv7
+
+          docker manifest push $IMAGE:$VERSION
+
+          # Also tag as latest/beta/rc based on version
+          if [[ "$VERSION" == *"beta"* ]]; then
+            docker manifest create $IMAGE:beta \
+              --amend $IMAGE:$VERSION-amd64 \
+              --amend $IMAGE:$VERSION-arm64 \
+              --amend $IMAGE:$VERSION-armv7
+            docker manifest push $IMAGE:beta
+          elif [[ "$VERSION" == *"rc"* ]]; then
+            docker manifest create $IMAGE:rc \
+              --amend $IMAGE:$VERSION-amd64 \
+              --amend $IMAGE:$VERSION-arm64 \
+              --amend $IMAGE:$VERSION-armv7
+            docker manifest push $IMAGE:rc
+          else
+            docker manifest create $IMAGE:latest \
+              --amend $IMAGE:$VERSION-amd64 \
+              --amend $IMAGE:$VERSION-arm64 \
+              --amend $IMAGE:$VERSION-armv7
+            docker manifest push $IMAGE:latest
+
+            # Also create major.minor tag
+            MAJOR_MINOR=$(echo $VERSION | sed 's/v//' | cut -d. -f1,2)
+            docker manifest create $IMAGE:$MAJOR_MINOR \
+              --amend $IMAGE:$VERSION-amd64 \
+              --amend $IMAGE:$VERSION-arm64 \
+              --amend $IMAGE:$VERSION-armv7
+            docker manifest push $IMAGE:$MAJOR_MINOR
+          fi
+
+  # ============================================================================
+  # Sign Container Images with Cosign
+  # ============================================================================
+
+  sign:
+    name: Sign Container Images
+    runs-on: ubuntu-latest
+    needs: manifest
+    if: ${{ !inputs.skip_signing }}
+    steps:
+      - name: Set lowercase repository
+        run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Sign images with cosign (keyless)
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}
+
+          # Sign with keyless (OIDC identity)
+          cosign sign --yes $IMAGE
+
+          echo "✓ Image signed: $IMAGE"
+
+      - name: Verify signature
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}
+          cosign verify $IMAGE \
+            --certificate-identity-regexp=".*" \
+            --certificate-oidc-issuer-regexp=".*"
+
+  # ============================================================================
+  # Generate Changelog and Create GitHub Release
+  # ============================================================================
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [manifest, sign]
+    if: always() && needs.manifest.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set lowercase repository
+        run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog from $PREV_TAG to ${{ github.ref_name }}"
+            CHANGELOG=$(git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            echo "No previous tag found, generating full changelog"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+          fi
+
+          # Categorize commits by conventional commit type
+          echo "## What's Changed" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+
+          if echo "$CHANGELOG" | grep -q "^- feat"; then
+            echo "### ✨ Features" >> CHANGELOG.md
+            echo "$CHANGELOG" | grep "^- feat" | sed 's/^- feat[:(]/- /' >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          if echo "$CHANGELOG" | grep -q "^- fix"; then
+            echo "### 🐛 Bug Fixes" >> CHANGELOG.md
+            echo "$CHANGELOG" | grep "^- fix" | sed 's/^- fix[:(]/- /' >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          if echo "$CHANGELOG" | grep -q "^- perf"; then
+            echo "### ⚡ Performance" >> CHANGELOG.md
+            echo "$CHANGELOG" | grep "^- perf" | sed 's/^- perf[:(]/- /' >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          if echo "$CHANGELOG" | grep -q "^- docs"; then
+            echo "### 📚 Documentation" >> CHANGELOG.md
+            echo "$CHANGELOG" | grep "^- docs" | sed 's/^- docs[:(]/- /' >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          echo "### 🔧 Other Changes" >> CHANGELOG.md
+          echo "$CHANGELOG" | grep -v "^- feat\|^- fix\|^- perf\|^- docs" >> CHANGELOG.md || true
+          echo "" >> CHANGELOG.md
+
+          echo "---" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## 🐳 Docker Images" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "\`\`\`bash" >> CHANGELOG.md
+          echo "# Pull the latest release" >> CHANGELOG.md
+          echo "docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "# Or use the latest stable" >> CHANGELOG.md
+          echo "docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}:latest" >> CHANGELOG.md
+          echo "\`\`\`" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**Supported Architectures:** \`linux/amd64\`, \`linux/arm64\`, \`linux/arm/v7\`" >> CHANGELOG.md
+
+          cat CHANGELOG.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # Notify on Completion
+  # ============================================================================
+
+  notify:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: always()
+    steps:
+      - name: Set lowercase repository
+        run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Summary
+        run: |
+          echo "## Release Summary for ${{ github.ref_name }}"
+          echo ""
+          echo "### Container Images"
+          echo "- \`ghcr.io/${{ env.IMAGE_NAME_LOWER }}:${{ github.ref_name }}\`"
+          echo "- \`ghcr.io/${{ env.IMAGE_NAME_LOWER }}:latest\` (if stable)"
+          echo ""
+          echo "### Architectures"
+          echo "- linux/amd64 ✓"
+          echo "- linux/arm64 ✓"
+          echo "- linux/arm/v7 ✓"
+          echo ""
+          echo "### Security"
+          echo "- Container images signed with cosign (keyless)"
+          echo "- SBOM and provenance attached"

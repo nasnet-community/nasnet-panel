@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// =============================================================================
+// BaseEvent Tests
+// =============================================================================
+
 func TestBaseEvent_Fields(t *testing.T) {
 	event := NewBaseEvent("test.event", PriorityNormal, "test-source")
 
@@ -35,6 +39,46 @@ func TestBaseEvent_Payload(t *testing.T) {
 	assert.Equal(t, event.Source, parsed.Source)
 }
 
+func TestEventMetadata(t *testing.T) {
+	metadata := EventMetadata{
+		CorrelationID: "corr-123",
+		CausationID:   "cause-456",
+		UserID:        "user-789",
+		RequestID:     "req-abc",
+		RouterID:      "router-123",
+		Extra: map[string]string{
+			"custom": "value",
+		},
+	}
+
+	event := NewBaseEventWithMetadata("test.event", PriorityNormal, "test-source", metadata)
+
+	assert.Equal(t, "corr-123", event.Metadata.CorrelationID)
+	assert.Equal(t, "cause-456", event.Metadata.CausationID)
+	assert.Equal(t, "user-789", event.Metadata.UserID)
+	assert.Equal(t, "req-abc", event.Metadata.RequestID)
+	assert.Equal(t, "router-123", event.Metadata.RouterID)
+	assert.Equal(t, "value", event.Metadata.Extra["custom"])
+}
+
+func TestRouterStatus_Values(t *testing.T) {
+	assert.Equal(t, RouterStatus("connected"), RouterStatusConnected)
+	assert.Equal(t, RouterStatus("disconnected"), RouterStatusDisconnected)
+	assert.Equal(t, RouterStatus("reconnecting"), RouterStatusReconnecting)
+	assert.Equal(t, RouterStatus("error"), RouterStatusError)
+	assert.Equal(t, RouterStatus("unknown"), RouterStatusUnknown)
+}
+
+func TestChangeType_Values(t *testing.T) {
+	assert.Equal(t, ChangeType("create"), ChangeTypeCreate)
+	assert.Equal(t, ChangeType("update"), ChangeTypeUpdate)
+	assert.Equal(t, ChangeType("delete"), ChangeTypeDelete)
+}
+
+// =============================================================================
+// Domain Event Constructor Tests
+// =============================================================================
+
 func TestRouterStatusChangedEvent(t *testing.T) {
 	event := NewRouterStatusChangedEvent("router-123", RouterStatusConnected, RouterStatusDisconnected, "router-service")
 
@@ -44,7 +88,6 @@ func TestRouterStatusChangedEvent(t *testing.T) {
 	assert.Equal(t, RouterStatusConnected, event.Status)
 	assert.Equal(t, RouterStatusDisconnected, event.PreviousStatus)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -62,14 +105,13 @@ func TestResourceUpdatedEvent(t *testing.T) {
 	event := NewResourceUpdatedEvent(resourceUUID, "firewall-rule", "router-123", 5, ChangeTypeUpdate, "resource-service")
 
 	assert.Equal(t, EventTypeResourceUpdated, event.GetType())
-	assert.Equal(t, PriorityNormal, event.GetPriority()) // Update is normal priority
+	assert.Equal(t, PriorityNormal, event.GetPriority())
 	assert.Equal(t, resourceUUID, event.ResourceUUID)
 	assert.Equal(t, "firewall-rule", event.ResourceType)
 	assert.Equal(t, "router-123", event.RouterID)
 	assert.Equal(t, 5, event.NewVersion)
 	assert.Equal(t, ChangeTypeUpdate, event.ChangeType)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -85,15 +127,12 @@ func TestResourceUpdatedEvent(t *testing.T) {
 func TestResourceUpdatedEvent_CreateDeletePriority(t *testing.T) {
 	resourceUUID := ulid.Make()
 
-	// Create should be critical
 	createEvent := NewResourceUpdatedEvent(resourceUUID, "firewall-rule", "router-123", 1, ChangeTypeCreate, "test")
 	assert.Equal(t, PriorityCritical, createEvent.GetPriority())
 
-	// Delete should be critical
 	deleteEvent := NewResourceUpdatedEvent(resourceUUID, "firewall-rule", "router-123", 1, ChangeTypeDelete, "test")
 	assert.Equal(t, PriorityCritical, deleteEvent.GetPriority())
 
-	// Update should be normal
 	updateEvent := NewResourceUpdatedEvent(resourceUUID, "firewall-rule", "router-123", 2, ChangeTypeUpdate, "test")
 	assert.Equal(t, PriorityNormal, updateEvent.GetPriority())
 }
@@ -102,7 +141,7 @@ func TestFeatureCrashedEvent(t *testing.T) {
 	event := NewFeatureCrashedEvent("tor-proxy", "instance-abc", "router-123", 1, 3, "segfault", true, "supervisor")
 
 	assert.Equal(t, EventTypeFeatureCrashed, event.GetType())
-	assert.Equal(t, PriorityImmediate, event.GetPriority()) // Crashes are immediate
+	assert.Equal(t, PriorityImmediate, event.GetPriority())
 	assert.Equal(t, "tor-proxy", event.FeatureID)
 	assert.Equal(t, "instance-abc", event.InstanceID)
 	assert.Equal(t, "router-123", event.RouterID)
@@ -111,7 +150,6 @@ func TestFeatureCrashedEvent(t *testing.T) {
 	assert.Equal(t, "segfault", event.LastError)
 	assert.True(t, event.WillRestart)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -137,7 +175,6 @@ func TestConfigApplyProgressEvent(t *testing.T) {
 	assert.Equal(t, 10, event.ResourcesTotal)
 	assert.Equal(t, "Applying firewall rules", event.Message)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -153,14 +190,13 @@ func TestAuthEvent(t *testing.T) {
 	event := NewAuthEvent("user-123", "login", "192.168.1.100", "Mozilla/5.0", true, "", "auth-service")
 
 	assert.Equal(t, EventTypeAuth, event.GetType())
-	assert.Equal(t, PriorityCritical, event.GetPriority()) // Successful login is critical
+	assert.Equal(t, PriorityCritical, event.GetPriority())
 	assert.Equal(t, "user-123", event.UserID)
 	assert.Equal(t, "login", event.Action)
 	assert.Equal(t, "192.168.1.100", event.IPAddress)
 	assert.True(t, event.Success)
 	assert.Empty(t, event.FailReason)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -173,15 +209,12 @@ func TestAuthEvent(t *testing.T) {
 }
 
 func TestAuthEvent_FailedLoginPriority(t *testing.T) {
-	// Failed login should be immediate priority
 	failedEvent := NewAuthEvent("user-123", "login", "192.168.1.100", "Mozilla/5.0", false, "invalid password", "auth-service")
 	assert.Equal(t, PriorityImmediate, failedEvent.GetPriority())
 
-	// Session revoked should be immediate
 	revokedEvent := NewAuthEvent("user-123", "session_revoked", "192.168.1.100", "Mozilla/5.0", true, "", "auth-service")
 	assert.Equal(t, PriorityImmediate, revokedEvent.GetPriority())
 
-	// Password changed should be immediate
 	pwdChangedEvent := NewAuthEvent("user-123", "password_changed", "192.168.1.100", "Mozilla/5.0", true, "", "auth-service")
 	assert.Equal(t, PriorityImmediate, pwdChangedEvent.GetPriority())
 }
@@ -196,7 +229,6 @@ func TestFeatureInstalledEvent(t *testing.T) {
 	assert.Equal(t, "0.107.0", event.Version)
 	assert.Equal(t, "router-123", event.RouterID)
 
-	// Test payload roundtrip
 	payload, err := event.Payload()
 	require.NoError(t, err)
 
@@ -236,7 +268,7 @@ func TestMetricUpdatedEvent(t *testing.T) {
 	event := NewMetricUpdatedEvent("router-123", "system", values, "metrics-collector")
 
 	assert.Equal(t, EventTypeMetricUpdated, event.GetType())
-	assert.Equal(t, PriorityBackground, event.GetPriority()) // Metrics are low priority
+	assert.Equal(t, PriorityBackground, event.GetPriority())
 	assert.Equal(t, "router-123", event.RouterID)
 	assert.Equal(t, "system", event.MetricType)
 	assert.Equal(t, values, event.Values)
@@ -265,40 +297,319 @@ func TestConfigAppliedEvent(t *testing.T) {
 	assert.Equal(t, resources, event.Resources)
 }
 
-func TestEventMetadata(t *testing.T) {
-	metadata := EventMetadata{
-		CorrelationID: "corr-123",
-		CausationID:   "cause-456",
-		UserID:        "user-789",
-		RequestID:     "req-abc",
-		RouterID:      "router-123",
-		Extra: map[string]string{
-			"custom": "value",
-		},
+// =============================================================================
+// Priority Tests
+// =============================================================================
+
+func TestPriority_String(t *testing.T) {
+	tests := []struct {
+		priority Priority
+		expected string
+	}{
+		{PriorityImmediate, "immediate"},
+		{PriorityCritical, "critical"},
+		{PriorityNormal, "normal"},
+		{PriorityLow, "low"},
+		{PriorityBackground, "background"},
+		{Priority(100), "unknown"},
 	}
 
-	event := NewBaseEventWithMetadata("test.event", PriorityNormal, "test-source", metadata)
-
-	assert.Equal(t, "corr-123", event.Metadata.CorrelationID)
-	assert.Equal(t, "cause-456", event.Metadata.CausationID)
-	assert.Equal(t, "user-789", event.Metadata.UserID)
-	assert.Equal(t, "req-abc", event.Metadata.RequestID)
-	assert.Equal(t, "router-123", event.Metadata.RouterID)
-	assert.Equal(t, "value", event.Metadata.Extra["custom"])
+	for _, tt := range tests {
+		t.Run(tt.expected, func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.priority.String())
+		})
+	}
 }
 
-func TestRouterStatus_Values(t *testing.T) {
-	// Verify RouterStatus constants
-	assert.Equal(t, RouterStatus("connected"), RouterStatusConnected)
-	assert.Equal(t, RouterStatus("disconnected"), RouterStatusDisconnected)
-	assert.Equal(t, RouterStatus("reconnecting"), RouterStatusReconnecting)
-	assert.Equal(t, RouterStatus("error"), RouterStatusError)
-	assert.Equal(t, RouterStatus("unknown"), RouterStatusUnknown)
+func TestPriority_TargetLatency(t *testing.T) {
+	tests := []struct {
+		priority Priority
+		expected time.Duration
+	}{
+		{PriorityImmediate, 100 * time.Millisecond},
+		{PriorityCritical, 1 * time.Second},
+		{PriorityNormal, 5 * time.Second},
+		{PriorityLow, 30 * time.Second},
+		{PriorityBackground, 60 * time.Second},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.priority.String(), func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.priority.TargetLatency())
+		})
+	}
 }
 
-func TestChangeType_Values(t *testing.T) {
-	// Verify ChangeType constants
-	assert.Equal(t, ChangeType("create"), ChangeTypeCreate)
-	assert.Equal(t, ChangeType("update"), ChangeTypeUpdate)
-	assert.Equal(t, ChangeType("delete"), ChangeTypeDelete)
+func TestPriority_BatchWindow(t *testing.T) {
+	tests := []struct {
+		priority Priority
+		expected time.Duration
+	}{
+		{PriorityImmediate, 0},
+		{PriorityCritical, 100 * time.Millisecond},
+		{PriorityNormal, 1 * time.Second},
+		{PriorityLow, 5 * time.Second},
+		{PriorityBackground, 30 * time.Second},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.priority.String(), func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.priority.BatchWindow())
+		})
+	}
+}
+
+func TestPriority_ShouldPersist(t *testing.T) {
+	tests := []struct {
+		priority Priority
+		expected bool
+	}{
+		{PriorityImmediate, true},
+		{PriorityCritical, true},
+		{PriorityNormal, true},
+		{PriorityLow, false},
+		{PriorityBackground, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.priority.String(), func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.priority.ShouldPersist())
+		})
+	}
+}
+
+func TestParsePriority(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected Priority
+	}{
+		{"immediate", PriorityImmediate},
+		{"critical", PriorityCritical},
+		{"normal", PriorityNormal},
+		{"low", PriorityLow},
+		{"background", PriorityBackground},
+		{"unknown", PriorityNormal},
+		{"", PriorityNormal},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			assert.Equal(t, tt.expected, ParsePriority(tt.input))
+		})
+	}
+}
+
+func TestPriority_IsValid(t *testing.T) {
+	tests := []struct {
+		priority Priority
+		expected bool
+	}{
+		{PriorityImmediate, true},
+		{PriorityCritical, true},
+		{PriorityNormal, true},
+		{PriorityLow, true},
+		{PriorityBackground, true},
+		{Priority(-1), false},
+		{Priority(5), false},
+		{Priority(100), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.priority.String(), func(t *testing.T) {
+			assert.Equal(t, tt.expected, tt.priority.IsValid())
+		})
+	}
+}
+
+func TestPriority_Ordering(t *testing.T) {
+	assert.Less(t, int(PriorityImmediate), int(PriorityCritical))
+	assert.Less(t, int(PriorityCritical), int(PriorityNormal))
+	assert.Less(t, int(PriorityNormal), int(PriorityLow))
+	assert.Less(t, int(PriorityLow), int(PriorityBackground))
+}
+
+// =============================================================================
+// Classification Tests
+// =============================================================================
+
+func TestIsCriticalEvent(t *testing.T) {
+	criticalTypes := []string{
+		EventTypeRouterStatusChanged,
+		EventTypeResourceWAN,
+		EventTypeResourceVPN,
+		EventTypeResourceFW,
+		EventTypeRouterDeleted,
+		EventTypeConfigApplied,
+		EventTypeFeatureInstalled,
+		EventTypeFeatureCrashed,
+		EventTypeAuthSessionRevoked,
+		EventTypeAuthPasswordChanged,
+	}
+
+	for _, eventType := range criticalTypes {
+		t.Run(eventType, func(t *testing.T) {
+			assert.True(t, IsCriticalEvent(eventType), "expected %s to be critical", eventType)
+		})
+	}
+
+	assert.False(t, IsCriticalEvent(EventTypeMetricUpdated))
+	assert.False(t, IsCriticalEvent(EventTypeLogAppended))
+	assert.False(t, IsCriticalEvent(EventTypeRouterConnected))
+	assert.False(t, IsCriticalEvent("unknown.event"))
+}
+
+func TestIsNormalEvent(t *testing.T) {
+	normalTypes := []string{
+		EventTypeResourceCreated,
+		EventTypeResourceUpdated,
+		EventTypeResourceDeleted,
+		EventTypeFeatureStarted,
+		EventTypeFeatureStopped,
+		EventTypeRouterConnected,
+		EventTypeRouterDisconnected,
+		EventTypeConfigApplyProgress,
+		EventTypeAuth,
+	}
+
+	for _, eventType := range normalTypes {
+		t.Run(eventType, func(t *testing.T) {
+			assert.True(t, IsNormalEvent(eventType), "expected %s to be normal", eventType)
+		})
+	}
+
+	assert.False(t, IsNormalEvent(EventTypeMetricUpdated))
+	assert.False(t, IsNormalEvent(EventTypeLogAppended))
+	assert.False(t, IsNormalEvent(EventTypeRouterStatusChanged))
+	assert.False(t, IsNormalEvent("unknown.event"))
+}
+
+func TestIsLowValueEvent(t *testing.T) {
+	lowValueTypes := []string{
+		EventTypeMetricUpdated,
+		EventTypeLogAppended,
+		EventTypeRuntimePolled,
+		EventTypeHealthChecked,
+	}
+
+	for _, eventType := range lowValueTypes {
+		t.Run(eventType, func(t *testing.T) {
+			assert.True(t, IsLowValueEvent(eventType), "expected %s to be low-value", eventType)
+		})
+	}
+
+	assert.False(t, IsLowValueEvent(EventTypeRouterStatusChanged))
+	assert.False(t, IsLowValueEvent(EventTypeResourceUpdated))
+	assert.False(t, IsLowValueEvent("unknown.event"))
+}
+
+func TestGetEventTier(t *testing.T) {
+	tests := []struct {
+		eventType string
+		expected  EventTier
+	}{
+		{EventTypeRouterStatusChanged, TierWarm},
+		{EventTypeFeatureCrashed, TierWarm},
+		{EventTypeConfigApplied, TierWarm},
+		{EventTypeResourceUpdated, TierWarm},
+		{EventTypeRouterConnected, TierWarm},
+		{EventTypeMetricUpdated, TierHot},
+		{EventTypeLogAppended, TierHot},
+		{"unknown.event", TierHot},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.eventType, func(t *testing.T) {
+			assert.Equal(t, tt.expected, GetEventTier(tt.eventType))
+		})
+	}
+}
+
+func TestGetEventRetention(t *testing.T) {
+	tests := []struct {
+		eventType string
+		expected  time.Duration
+	}{
+		{EventTypeRouterStatusChanged, 30 * 24 * time.Hour},
+		{EventTypeFeatureCrashed, 30 * 24 * time.Hour},
+		{EventTypeResourceUpdated, 7 * 24 * time.Hour},
+		{EventTypeRouterConnected, 7 * 24 * time.Hour},
+		{EventTypeMetricUpdated, 24 * time.Hour},
+		{EventTypeLogAppended, 24 * time.Hour},
+		{"unknown.event", 24 * time.Hour},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.eventType, func(t *testing.T) {
+			assert.Equal(t, tt.expected, GetEventRetention(tt.eventType))
+		})
+	}
+}
+
+func TestGetDefaultPriority(t *testing.T) {
+	tests := []struct {
+		eventType string
+		expected  Priority
+	}{
+		{EventTypeRouterStatusChanged, PriorityImmediate},
+		{EventTypeFeatureCrashed, PriorityImmediate},
+		{EventTypeConfigApplied, PriorityCritical},
+		{EventTypeFeatureInstalled, PriorityCritical},
+		{EventTypeResourceUpdated, PriorityNormal},
+		{EventTypeRouterConnected, PriorityNormal},
+		{EventTypeMetricUpdated, PriorityBackground},
+		{EventTypeLogAppended, PriorityBackground},
+		{"unknown.event", PriorityBackground},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.eventType, func(t *testing.T) {
+			assert.Equal(t, tt.expected, GetDefaultPriority(tt.eventType))
+		})
+	}
+}
+
+func TestShouldImmediatelyPersist(t *testing.T) {
+	assert.True(t, ShouldImmediatelyPersist(EventTypeRouterStatusChanged))
+	assert.True(t, ShouldImmediatelyPersist(EventTypeFeatureCrashed))
+	assert.True(t, ShouldImmediatelyPersist(EventTypeConfigApplied))
+
+	assert.False(t, ShouldImmediatelyPersist(EventTypeResourceUpdated))
+	assert.False(t, ShouldImmediatelyPersist(EventTypeRouterConnected))
+
+	assert.False(t, ShouldImmediatelyPersist(EventTypeMetricUpdated))
+	assert.False(t, ShouldImmediatelyPersist(EventTypeLogAppended))
+}
+
+func TestShouldBatchPersist(t *testing.T) {
+	assert.True(t, ShouldBatchPersist(EventTypeResourceUpdated))
+	assert.True(t, ShouldBatchPersist(EventTypeRouterConnected))
+
+	assert.False(t, ShouldBatchPersist(EventTypeRouterStatusChanged))
+	assert.False(t, ShouldBatchPersist(EventTypeFeatureCrashed))
+
+	assert.False(t, ShouldBatchPersist(EventTypeMetricUpdated))
+	assert.False(t, ShouldBatchPersist(EventTypeLogAppended))
+}
+
+func TestEventTier_Values(t *testing.T) {
+	assert.Less(t, int(TierHot), int(TierWarm))
+	assert.Less(t, int(TierWarm), int(TierCold))
+}
+
+func TestEventClassificationConsistency(t *testing.T) {
+	allTypes := make(map[string]int)
+
+	for _, et := range CriticalEventTypes {
+		allTypes[et]++
+	}
+	for _, et := range NormalEventTypes {
+		allTypes[et]++
+	}
+	for _, et := range LowValueEventTypes {
+		allTypes[et]++
+	}
+
+	for eventType, count := range allTypes {
+		assert.Equal(t, 1, count, "event type %s appears in multiple classification lists", eventType)
+	}
 }

@@ -1,0 +1,137 @@
+# -----------------------------------------------------------------------------
+# VLAN Registry Query & Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  List all VLAN allocations with optional filtering.
+
+  Examples:
+  - vlanAllocations(routerID: "router-123") - All allocations for a router
+  - vlanAllocations(status: ALLOCATED) - All active allocations across all routers
+  - vlanAllocations(routerID: "router-123", status: ALLOCATED) - Active allocations for a router
+  """
+  vlanAllocations(
+    """Filter by router ID"""
+    routerID: String
+
+    """Filter by allocation status"""
+    status: VLANAllocationStatus
+  ): [VLANAllocation!]!
+
+  """
+  Get VLAN pool status for a router.
+
+  Returns utilization metrics and warning flags. Useful for monitoring
+  pool capacity and planning when to expand the pool or clean up unused instances.
+
+  Example:
+  ```
+  query {
+    vlanPoolStatus(routerID: "router-123") {
+      totalVLANs
+      allocatedVLANs
+      availableVLANs
+      utilization
+      shouldWarn
+    }
+  }
+  ```
+  """
+  vlanPoolStatus(
+    """Router ID to check pool status for"""
+    routerID: String!
+  ): VLANPoolStatus!
+
+  """
+  Detect orphaned VLAN allocations for a router.
+
+  An allocation is orphaned if:
+  - Its ServiceInstance no longer exists
+  - Its ServiceInstance is in "deleting" status
+
+  This is a diagnostic query - use cleanupOrphanedVLANs mutation to actually remove them.
+
+  Example:
+  ```
+  query {
+    detectOrphanedVLANs(routerID: "router-123") {
+      id
+      vlanID
+      instanceID
+      serviceType
+      allocatedAt
+    }
+  }
+  ```
+  """
+  detectOrphanedVLANs(
+    """Router ID to check for orphans"""
+    routerID: String!
+  ): [VLANAllocation!]!
+}
+
+extend type Mutation {
+  """
+  Clean up orphaned VLAN allocations for a router.
+
+  Finds allocations referencing missing or deleting instances and marks them
+  as RELEASED. Returns the count of cleaned allocations.
+
+  This mutation is automatically called during system startup reconciliation
+  via InstanceManager.Reconcile(). Manual invocation is useful for:
+  - Recovering from crashes or unclean shutdowns
+  - Debugging allocation issues
+  - Forcing cleanup outside of normal reconciliation
+
+  Example:
+  ```
+  mutation {
+    cleanupOrphanedVLANs(routerID: "router-123")
+  }
+  ```
+
+  Returns: Number of allocations cleaned up
+  """
+  cleanupOrphanedVLANs(
+    """Router ID to clean up orphans for"""
+    routerID: String!
+  ): Int!
+
+  """
+  Update VLAN pool configuration.
+
+  Changes the allocatable VLAN range. The new configuration is persisted to
+  GlobalSettings and will be used for all future allocations.
+
+  Validation:
+  - poolStart must be >= 1 (minimum valid VLAN ID)
+  - poolEnd must be <= 4094 (maximum valid VLAN ID per IEEE 802.1Q)
+  - poolStart must be <= poolEnd
+  - No existing allocations can fall outside the new range
+
+  Example:
+  ```
+  mutation {
+    updateVLANPoolConfig(poolStart: 200, poolEnd: 299) {
+      routerID
+      totalVLANs
+      poolStart
+      poolEnd
+    }
+  }
+  ```
+
+  Note: Changing pool config may require application restart to take effect
+  for all service instances.
+
+  Returns: Updated pool status with new configuration
+  """
+  updateVLANPoolConfig(
+    """First VLAN ID in the pool (1-4094)"""
+    poolStart: Int!
+
+    """Last VLAN ID in the pool (1-4094)"""
+    poolEnd: Int!
+  ): VLANPoolStatus!
+}

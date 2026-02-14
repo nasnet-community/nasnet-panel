@@ -9,7 +9,8 @@ import {
   Globe,
   Cable,
   ScrollText,
-  Store
+  Store,
+  Boxes
 } from 'lucide-react';
 import { cn } from '@nasnet/ui/primitives';
 import { useEffect, useCallback } from 'react';
@@ -107,6 +108,13 @@ const tabs: TabDefinition[] = [
     icon: Store,
     ariaLabel: 'Plugin store',
     preload: preloadPluginStoreTab,
+  },
+  {
+    value: 'services',
+    label: 'Services',
+    mobileLabel: 'Svc',
+    icon: Boxes,
+    ariaLabel: 'Service management',
   },
 ];
 
@@ -229,7 +237,7 @@ export function TabNavigation() {
         role="navigation"
         aria-label="Router panel sections"
       >
-        <div className="grid grid-cols-8 h-16">
+        <div className="grid grid-cols-9 h-16">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;

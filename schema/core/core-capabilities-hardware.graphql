@@ -1,0 +1,134 @@
+# =============================================================================
+# Capability Types - Hardware, Software, and Enums
+# =============================================================================
+# Router capability detection types: enums, hardware info, software info,
+# and container info.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Capability Enums
+# -----------------------------------------------------------------------------
+
+"""
+Feature capability categories detected on routers.
+Used to determine what features are available on a specific router.
+"""
+enum Capability {
+  "Container/Docker support"
+  CONTAINER
+  "Virtual Interface Factory support"
+  VIF
+  "Wireless/WiFi support"
+  WIRELESS
+  "Advanced routing features"
+  ROUTING
+  "Firewall features"
+  FIREWALL
+  "MPLS support"
+  MPLS
+  "IPv6 support"
+  IPV6
+  "Hotspot features"
+  HOTSPOT
+  "User Manager features"
+  USER_MANAGER
+  "Dude monitoring support"
+  DUDE
+  "WireGuard VPN support"
+  WIREGUARD
+  "ZeroTier support"
+  ZEROTIER
+}
+
+"""
+Capability support level for a feature.
+Determines how the feature appears in the UI.
+"""
+enum CapabilityLevel {
+  "Feature not supported (hide in UI)"
+  NONE
+  "Limited support (show with warnings)"
+  BASIC
+  "Full RouterOS native support"
+  ADVANCED
+  "Complete support including container-based features"
+  FULL
+}
+
+"""
+Single capability with its support level and guidance
+"""
+type CapabilityEntry {
+  "Capability category"
+  capability: Capability!
+  "Support level"
+  level: CapabilityLevel!
+  "Human-readable description of support"
+  description: String
+  "Actionable message if feature unavailable"
+  guidance: String
+}
+
+# -----------------------------------------------------------------------------
+# Hardware, Software, Container Info
+# -----------------------------------------------------------------------------
+
+"""
+Hardware information detected from router
+"""
+type HardwareInfo {
+  "CPU architecture (arm, arm64, x86_64, etc.)"
+  architecture: String!
+  "Router model name"
+  model: String
+  "Board name"
+  boardName: String
+  "Total RAM in bytes"
+  totalMemory: Size!
+  "Available storage in bytes"
+  availableStorage: Size!
+  "Number of CPU cores"
+  cpuCount: Int!
+  "Whether wireless hardware is present"
+  hasWirelessChip: Boolean!
+  "Whether LTE/cellular hardware is present"
+  hasLTEModule: Boolean!
+}
+
+"""
+Software information detected from router
+"""
+type SoftwareInfo {
+  "RouterOS version string"
+  version: String!
+  "Parsed major version number"
+  versionMajor: Int!
+  "Parsed minor version number"
+  versionMinor: Int!
+  "Parsed patch version number"
+  versionPatch: Int
+  "List of installed packages"
+  installedPackages: [String!]!
+  "License level (0-6)"
+  licenseLevel: Int!
+  "Update channel (stable, testing, development)"
+  updateChannel: String
+}
+
+"""
+Container-specific capability information
+"""
+type ContainerInfo {
+  "Whether container package is installed"
+  packageInstalled: Boolean!
+  "Whether container feature is enabled in system settings"
+  enabled: Boolean!
+  "Whether a container registry is configured"
+  registryConfigured: Boolean!
+  "Available storage for container images in bytes"
+  storageAvailable: Size!
+  "Whether network namespace is supported"
+  supportsNetworkNamespace: Boolean!
+  "Maximum number of containers supported"
+  maxContainers: Int
+}

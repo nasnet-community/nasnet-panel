@@ -1,0 +1,153 @@
+# ============================================
+# DEPENDENCY MANAGEMENT TYPES (NAS-8.19)
+# ============================================
+
+"""
+ServiceDependency represents a dependency relationship between two service instances.
+Example: A VPN-over-Tor instance depends on a Tor instance being running.
+"""
+type ServiceDependency {
+  id: ID!
+  fromInstance: ServiceInstance!
+  toInstance: ServiceInstance!
+  dependencyType: DependencyType!
+  autoStart: Boolean!
+  healthTimeoutSeconds: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+DependencyType defines the strength of the dependency relationship.
+"""
+enum DependencyType {
+  """
+  REQUIRES: Hard dependency - dependent cannot start without this dependency
+  """
+  REQUIRES
+
+  """
+  OPTIONAL: Soft dependency - dependent can start even if this dependency is unavailable
+  """
+  OPTIONAL
+}
+
+"""
+DependencyGraph represents the full dependency graph for visualization.
+"""
+type DependencyGraph {
+  nodes: [DependencyGraphNode!]!
+  edges: [DependencyGraphEdge!]!
+}
+
+"""
+DependencyGraphNode represents a service instance node in the graph.
+"""
+type DependencyGraphNode {
+  instanceId: ID!
+  instanceName: String!
+  featureId: String!
+  status: String!
+}
+
+"""
+DependencyGraphEdge represents a dependency relationship edge in the graph.
+"""
+type DependencyGraphEdge {
+  fromInstanceId: ID!
+  toInstanceId: ID!
+  dependencyType: DependencyType!
+  autoStart: Boolean!
+  healthTimeoutSeconds: Int!
+}
+
+"""
+BootSequenceProgress represents the current state of the boot sequence.
+"""
+type BootSequenceProgress {
+  inProgress: Boolean!
+  currentLayer: Int
+  totalLayers: Int
+  startedInstances: [String!]!
+  failedInstances: [String!]!
+  remainingInstances: [String!]!
+}
+
+"""
+BootSequenceEvent represents a real-time boot sequence event.
+"""
+type BootSequenceEvent {
+  id: ID!
+  type: String!
+  timestamp: DateTime!
+  layer: Int
+  instanceIds: [String!]!
+  successCount: Int
+  failureCount: Int
+  errorMessage: String
+}
+
+"""
+AddDependencyInput contains parameters for creating a dependency relationship.
+"""
+input AddDependencyInput {
+  fromInstanceId: ID!
+  toInstanceId: ID!
+  dependencyType: DependencyType!
+  autoStart: Boolean!
+  healthTimeoutSeconds: Int!
+}
+
+"""
+RemoveDependencyInput contains parameters for removing a dependency relationship.
+"""
+input RemoveDependencyInput {
+  dependencyId: ID!
+}
+
+extend type Query {
+  """
+  Get all dependencies of a service instance (services it depends on).
+  """
+  serviceDependencies(instanceId: ID!): [ServiceDependency!]!
+
+  """
+  Get all dependents of a service instance (services that depend on it).
+  """
+  serviceDependents(instanceId: ID!): [ServiceDependency!]!
+
+  """
+  Get the full dependency graph for a router (for visualization).
+  """
+  dependencyGraph(routerId: ID!): DependencyGraph!
+
+  """
+  Get the current boot sequence progress (if running).
+  """
+  bootSequenceProgress: BootSequenceProgress
+}
+
+extend type Mutation {
+  """
+  Add a new dependency relationship between service instances.
+  Pre-validates that the relationship won't create a cycle.
+  """
+  addDependency(input: AddDependencyInput!): ServiceDependency!
+
+  """
+  Remove an existing dependency relationship.
+  """
+  removeDependency(input: RemoveDependencyInput!): Boolean!
+
+  """
+  Manually trigger the boot sequence for auto-start instances.
+  Useful for testing or re-running boot sequence after failures.
+  """
+  triggerBootSequence: Boolean!
+
+  """
+  Set resource limits for a service instance.
+  Applies cgroups v2 memory limits to the running process.
+  """
+  setResourceLimits(input: SetResourceLimitsInput!): ResourceLimitsPayload!
+}

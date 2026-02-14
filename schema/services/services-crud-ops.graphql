@@ -1,0 +1,116 @@
+# ============================================
+# MUTATION AND SUBSCRIPTION TYPES
+# ============================================
+
+extend type Mutation {
+  """
+  Install a new service instance on a router.
+  Downloads the binary, verifies checksum, and creates the instance.
+  """
+  installService(input: InstallServiceInput!): ServiceInstancePayload!
+
+  """
+  Start a service instance.
+  """
+  startInstance(input: StartInstanceInput!): ServiceInstancePayload!
+
+  """
+  Stop a service instance.
+  """
+  stopInstance(input: StopInstanceInput!): ServiceInstancePayload!
+
+  """
+  Restart a service instance.
+  """
+  restartInstance(input: RestartInstanceInput!): ServiceInstancePayload!
+
+  """
+  Delete a service instance and clean up resources.
+  """
+  deleteInstance(input: DeleteInstanceInput!): ServiceInstancePayload!
+
+  """
+  Manually trigger binary reverification for an instance.
+  Checks if the binary hash matches the stored hash from install-time.
+  """
+  reverifyInstance(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID to reverify"""
+    instanceID: ID!
+  ): ReverifyPayload!
+}
+
+"""
+Payload for service instance mutations.
+"""
+type ServiceInstancePayload {
+  """The service instance (null if operation failed)"""
+  instance: ServiceInstance
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+"""
+Payload for reverification mutation.
+"""
+type ReverifyPayload {
+  """Instance ID that was reverified"""
+  instanceID: ID!
+
+  """Whether reverification passed"""
+  success: Boolean!
+
+  """Current binary hash"""
+  currentHash: String
+
+  """Expected binary hash (from install-time)"""
+  expectedHash: String
+
+  """Error message if verification failed"""
+  errorMessage: String
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+# ============================================
+# SUBSCRIPTION TYPES
+# ============================================
+
+extend type Subscription {
+  """
+  Subscribe to installation progress events for a router.
+  Emits progress updates during binary download and installation.
+  """
+  installProgress(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstallProgress!
+
+  """
+  Subscribe to instance status changes for a router.
+  Emits events when any instance changes state.
+  """
+  instanceStatusChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): InstanceStatusChanged!
+
+  """
+  Subscribe to binary verification events for a router.
+  Emits events when binaries are verified, verification fails, or integrity checks fail.
+  """
+  verificationEvents(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): VerificationEvent!
+
+  """
+  Subscribe to boot sequence events for real-time progress updates.
+  Emits events during system boot when auto-start instances are being started.
+  """
+  bootSequenceEvents: BootSequenceEvent!
+}

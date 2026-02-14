@@ -34,8 +34,10 @@
       "Bridge",
       "BridgePort",
       "BridgeResource",
+      "ChainHop",
       "DHCPServerResource",
       "DhcpClient",
+      "DiagnosticResult",
       "FeatureResource",
       "FirewallRule",
       "FirewallRuleResource",
@@ -45,6 +47,7 @@
       "LteModem",
       "NatRule",
       "NotificationLog",
+      "PortAllocation",
       "PortForward",
       "PortKnockAttempt",
       "PortKnockSequence",
@@ -53,10 +56,14 @@
       "Route",
       "RouteResource",
       "Router",
+      "RoutingChain",
+      "RoutingSchedule",
       "ServiceInstance",
+      "ServiceTemplate",
       "StaticIPConfig",
       "Tunnel",
       "User",
+      "VLANAllocation",
       "Vlan",
       "WANInterface",
       "WANLink",
@@ -72,6 +79,10 @@
       "RouteResource",
       "WANLink",
       "WireGuardClient"
+    ],
+    "StorageMountEvent": [
+      "StorageMountedEvent",
+      "StorageUnmountedEvent"
     ]
   }
 };

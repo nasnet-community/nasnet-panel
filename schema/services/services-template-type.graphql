@@ -1,0 +1,154 @@
+# =============================================================================
+# Service Templates - ServiceSpec, PortMapping, ServiceTemplate
+# =============================================================================
+
+"""
+Service specification within a template
+"""
+type ServiceSpec {
+  """Service type (feature ID like 'tor', 'xray-core')"""
+  serviceType: String!
+
+  """Instance name template (supports variables)"""
+  name: String!
+
+  """Service-specific configuration overrides"""
+  configOverrides: JSON
+
+  """Service dependencies (references other services in template)"""
+  dependsOn: [String!]
+
+  """Memory limit in MB"""
+  memoryLimitMB: Int
+
+  """CPU shares"""
+  cpuShares: Int
+
+  """Whether this service needs Virtual Interface Factory"""
+  requiresBridge: Boolean
+
+  """VLAN ID (null = auto-allocate)"""
+  vlanID: Int
+
+  """Port mappings"""
+  portMappings: [PortMapping!]
+}
+
+"""
+Port mapping specification
+"""
+type PortMapping {
+  """Container port"""
+  internal: Int!
+
+  """Host port (0 = auto-allocate)"""
+  external: Int!
+
+  """Protocol (tcp/udp)"""
+  protocol: String!
+
+  """Purpose description"""
+  purpose: String
+}
+
+"""
+Routing suggestion for a template
+"""
+type SuggestedRoutingRule {
+  """Device name pattern (e.g., 'all', 'phone-*')"""
+  devicePattern: String!
+
+  """Target service name from template"""
+  targetService: String!
+
+  """Protocol filter"""
+  protocol: String
+
+  """Destination port filter"""
+  destinationPort: Int
+
+  """Rule description"""
+  description: String!
+}
+
+"""
+Resource usage estimate
+"""
+type ResourceEstimate {
+  """Total estimated memory in MB"""
+  totalMemoryMB: Int!
+
+  """Total CPU shares"""
+  totalCPUShares: Int!
+
+  """Disk space needed in MB"""
+  diskSpaceMB: Int!
+
+  """Number of network ports"""
+  networkPorts: Int!
+
+  """Number of VLANs required"""
+  vlansRequired: Int!
+}
+
+"""
+Service template
+"""
+type ServiceTemplate implements Node {
+  """Template ID (ULID)"""
+  id: ID!
+
+  """Template name"""
+  name: String!
+
+  """Detailed description"""
+  description: String!
+
+  """Template category"""
+  category: ServiceTemplateCategory!
+
+  """Deployment scope"""
+  scope: TemplateScope!
+
+  """Template version"""
+  version: String!
+
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+
+  """Template author"""
+  author: String
+
+  """Router ID (null for built-in templates)"""
+  routerID: String
+
+  """Services to deploy"""
+  services: [ServiceSpec!]!
+
+  """Configuration variables"""
+  configVariables: [TemplateVariable!]!
+
+  """Routing suggestions"""
+  suggestedRouting: [SuggestedRoutingRule!]
+
+  """Resource estimates"""
+  estimatedResources: ResourceEstimate
+
+  """Search tags"""
+  tags: [String!]
+
+  """Prerequisites"""
+  prerequisites: [String!]
+
+  """Documentation"""
+  documentation: String
+
+  """Usage examples"""
+  examples: [String!]
+
+  """Creation timestamp"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}

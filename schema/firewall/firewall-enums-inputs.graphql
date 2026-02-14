@@ -1,0 +1,167 @@
+# ============================================
+# ENUMS
+# ============================================
+
+"""
+Template categories for organization.
+"""
+enum TemplateCategory {
+  """Basic security rules"""
+  BASIC
+
+  """Home network configurations"""
+  HOME
+
+  """Gaming-optimized rules"""
+  GAMING
+
+  """IoT device isolation"""
+  IOT
+
+  """Guest network access"""
+  GUEST
+
+  """User-created custom templates"""
+  CUSTOM
+}
+
+"""
+Template complexity levels.
+"""
+enum TemplateComplexity {
+  """Simple templates with few rules"""
+  SIMPLE
+
+  """Moderate complexity"""
+  MODERATE
+
+  """Advanced templates with many rules"""
+  ADVANCED
+}
+
+"""
+Variable types for template parameters.
+"""
+enum VariableType {
+  """Free-form string"""
+  STRING
+
+  """Interface name (autocomplete from router)"""
+  INTERFACE
+
+  """Subnet in CIDR notation"""
+  SUBNET
+
+  """IP address"""
+  IP
+
+  """Port number"""
+  PORT
+
+  """VLAN ID"""
+  VLAN_ID
+}
+
+"""
+Firewall table types.
+"""
+enum FirewallTable {
+  """Packet filtering"""
+  FILTER
+
+  """Network address translation"""
+  NAT
+
+  """Packet marking and modification"""
+  MANGLE
+
+  """Raw packet processing"""
+  RAW
+}
+
+"""
+Conflict types between template and existing configuration.
+"""
+enum TemplateConflictType {
+  """Duplicate rule already exists"""
+  DUPLICATE_RULE
+
+  """IP address range overlaps"""
+  IP_OVERLAP
+
+  """Chain configuration conflicts"""
+  CHAIN_CONFLICT
+
+  """Position conflict in chain"""
+  POSITION_CONFLICT
+}
+
+# ============================================
+# INPUT TYPES
+# ============================================
+
+"""
+Input for saving a custom template.
+"""
+input SaveTemplateInput {
+  """Template name"""
+  name: String! @validate(minLength: 1, maxLength: 100)
+
+  """Template description"""
+  description: String! @validate(minLength: 1, maxLength: 500)
+
+  """Category"""
+  category: TemplateCategory!
+
+  """Variable definitions"""
+  variables: [FirewallTemplateVariableInput!]!
+
+  """Rule definitions"""
+  rules: [TemplateRuleInput!]!
+}
+
+"""
+Input for defining a template variable.
+"""
+input FirewallTemplateVariableInput {
+  """Variable name"""
+  name: String! @validate(minLength: 1, maxLength: 50, pattern: "^[A-Z_]+$")
+
+  """Label for UI"""
+  label: String! @validate(minLength: 1, maxLength: 100)
+
+  """Variable type"""
+  type: VariableType!
+
+  """Default value"""
+  defaultValue: String
+
+  """Whether required"""
+  required: Boolean!
+
+  """Description"""
+  description: String @validate(maxLength: 200)
+}
+
+"""
+Input for defining a template rule.
+"""
+input TemplateRuleInput {
+  """Firewall table"""
+  table: FirewallTable!
+
+  """Chain name"""
+  chain: String! @validate(minLength: 1, maxLength: 50)
+
+  """Action"""
+  action: String! @validate(minLength: 1, maxLength: 50)
+
+  """Comment"""
+  comment: String @validate(maxLength: 200)
+
+  """Position"""
+  position: Int
+
+  """Rule properties as JSON"""
+  properties: JSON!
+}

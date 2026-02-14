@@ -1,0 +1,105 @@
+# =============================================================================
+# Router Addition Operations
+# =============================================================================
+# Mutations and subscriptions for adding routers.
+# Story: NAS-3.8 - Implement Manual Router Addition Flow
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Validation Error
+# -----------------------------------------------------------------------------
+
+"""
+Field-level validation error with suggestions for fixing.
+"""
+type ValidationError {
+  "Field path that failed validation (e.g., 'input.host', 'input.port')"
+  field: String!
+
+  "Error code for the validation failure"
+  code: String!
+
+  "Human-readable error message"
+  message: String!
+
+  "Suggestion for fixing the validation error"
+  suggestion: String
+
+  "The invalid value (redacted for sensitive fields)"
+  providedValue: String
+}
+
+"""
+Payload returned from the addRouter mutation.
+Contains either the created router or validation/connection errors.
+"""
+type AddRouterPayload {
+  "The newly created router (null if errors occurred)"
+  router: Router
+
+  "Connection test result from initial connection attempt"
+  connectionResult: ConnectionTestResult
+
+  "Field-level validation errors for retry"
+  validationErrors: [ValidationError!]
+
+  "General errors that occurred during creation"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extension
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Add a new router by entering its IP address and credentials.
+
+  This mutation will:
+  1. Validate input fields (host format, port range, etc.)
+  2. Check for duplicate routers (same host/port)
+  3. Resolve hostname to IP if necessary (with DNS caching)
+  4. Test connection using protocol preference (or auto-detect)
+  5. Store router with encrypted credentials on success
+  6. Emit RouterAddedEvent for real-time updates
+
+  Returns validation errors if input is invalid, or connection errors
+  if the router cannot be reached or authenticated.
+  """
+  addRouter(input: AddRouterInput!): AddRouterPayload!
+
+  """
+  Test connection to a router without adding it.
+  Useful for validating credentials before committing.
+  """
+  testRouterCredentials(input: AddRouterInput!): ConnectionTestResult!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extension
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to router addition events.
+  Emits when a new router is successfully added to the system.
+  """
+  routerAdded: RouterAddedEvent!
+}
+
+"""
+Event emitted when a new router is added.
+"""
+type RouterAddedEvent {
+  "The newly added router"
+  router: Router!
+
+  "Protocol used for initial connection"
+  protocolUsed: Protocol!
+
+  "User who added the router (if authenticated)"
+  addedBy: String
+
+  "Timestamp of addition"
+  timestamp: DateTime!
+}

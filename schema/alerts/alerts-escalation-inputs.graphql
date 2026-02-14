@@ -1,0 +1,127 @@
+# -----------------------------------------------------------------------------
+# Input Types - Throttle, Quiet Hours, Escalation
+# -----------------------------------------------------------------------------
+
+"""
+Throttle configuration input
+"""
+input ThrottleConfigInput {
+  """
+  Maximum number of alerts allowed
+  """
+  maxAlerts: Int!
+
+  """
+  Time period in seconds
+  """
+  periodSeconds: Int!
+
+  """
+  Optional field to group alerts by
+  """
+  groupByField: String
+}
+
+"""
+Quiet hours configuration input
+"""
+input QuietHoursConfigInput {
+  """
+  Start time in HH:MM format
+  """
+  startTime: String!
+
+  """
+  End time in HH:MM format
+  """
+  endTime: String!
+
+  """
+  Timezone (default: UTC)
+  """
+  timezone: String = "UTC"
+
+  """
+  Whether critical alerts bypass quiet hours (default: true)
+  """
+  bypassCritical: Boolean = true
+
+  """
+  Days of week when quiet hours apply (0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday). Empty array means all days.
+  """
+  daysOfWeek: [Int!] = []
+}
+
+"""
+Escalation configuration input (NAS-18.9)
+"""
+input EscalationConfigInput {
+  """
+  Whether escalation is enabled (default: false)
+  """
+  enabled: Boolean = false
+
+  """
+  Whether alert must be acknowledged to stop escalation (default: true)
+  """
+  requireAck: Boolean = true
+
+  """
+  Delay in seconds before first escalation (default: 900 = 15min)
+  """
+  escalationDelay: Int = 900
+
+  """
+  Maximum number of escalation levels (default: 3)
+  """
+  maxEscalations: Int = 3
+
+  """
+  Additional notification channels to add during escalation
+  """
+  additionalChannels: [String!] = []
+
+  """
+  Per-level delay intervals in seconds (default: [900, 1800, 3600])
+  """
+  repeatIntervals: [Int!] = []
+}
+
+# -----------------------------------------------------------------------------
+# Connection Types (Relay Pagination)
+# -----------------------------------------------------------------------------
+
+"""
+Paginated alert connection
+"""
+type AlertConnection implements Connection {
+  """
+  Alert edges
+  """
+  edges: [AlertEdge!]!
+
+  """
+  Pagination information
+  """
+  pageInfo: PageInfo!
+
+  """
+  Total count of alerts
+  """
+  totalCount: Int!
+}
+
+"""
+Alert edge for pagination
+"""
+type AlertEdge implements Edge {
+  """
+  Alert node
+  """
+  node: Alert!
+
+  """
+  Pagination cursor
+  """
+  cursor: String!
+}

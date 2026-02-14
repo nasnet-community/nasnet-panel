@@ -1,0 +1,187 @@
+# =============================================================================
+# Resource Queries, Mutations, Subscriptions, and Inputs
+# =============================================================================
+# Operations for managing resources in the 8-layer model.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Resource Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get a resource by ID
+  """
+  resource(
+    "Resource ID (ULID)"
+    id: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+    "Specific layers to fetch (default: all)"
+    layers: [ResourceLayer!]
+  ): Resource
+
+  """
+  List resources for a router
+  """
+  resources(
+    "Router to query"
+    routerId: ID!
+    "Filter by category"
+    category: ResourceCategory
+    "Filter by type"
+    type: String
+    "Filter by lifecycle state"
+    state: ResourceLifecycleState
+    "Pagination parameters"
+    pagination: PaginationInput
+  ): ResourceConnection!
+
+  """
+  Get composite resource with all related sub-resources
+  """
+  compositeResource(
+    "Resource ID (ULID)"
+    id: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+  ): CompositeResource
+}
+
+# -----------------------------------------------------------------------------
+# Resource Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new resource (starts in DRAFT state)
+  """
+  createResource(input: CreateResourceInput!): CreateResourcePayload!
+
+  """
+  Update resource configuration (transitions to DRAFT -> VALIDATING)
+  """
+  updateResource(
+    id: ID!
+    routerId: ID!
+    input: UpdateResourceInput!
+  ): UpdateResourcePayload!
+
+  """
+  Validate resource configuration (transitions DRAFT -> VALIDATING -> VALID/ERROR)
+  """
+  validateResource(id: ID!, routerId: ID!): ValidateResourcePayload!
+
+  """
+  Apply resource to router (transitions VALID -> APPLYING -> ACTIVE/ERROR)
+  Follows Apply-Confirm-Merge pattern.
+  """
+  applyResource(id: ID!, routerId: ID!): ApplyResourcePayload!
+
+  """
+  Deprecate a resource (transitions -> DEPRECATED)
+  """
+  deprecateResource(id: ID!, routerId: ID!): DeprecateResourcePayload!
+
+  """
+  Archive a resource (transitions DEPRECATED -> ARCHIVED)
+  """
+  archiveResource(id: ID!, routerId: ID!): ArchiveResourcePayload!
+
+  """
+  Delete a resource permanently
+  """
+  deleteResource(id: ID!, routerId: ID!): DeleteResourcePayload!
+}
+
+# -----------------------------------------------------------------------------
+# Resource Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to resource runtime updates
+  """
+  resourceRuntime(
+    "Resource ID (ULID)"
+    id: ID!
+    "Router the resource belongs to"
+    routerId: ID!
+  ): ResourceRuntimeEvent! @realtime(interval: 5000)
+
+  """
+  Subscribe to resource lifecycle state changes
+  """
+  resourceStateChanged(
+    "Resource ID (optional - subscribe to all if not provided)"
+    id: ID
+    "Router to subscribe to"
+    routerId: ID!
+  ): ResourceStateEvent!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Input for creating a new resource
+"""
+input CreateResourceInput {
+  "Router to create resource on"
+  routerId: ID!
+
+  "Resource type (e.g., 'vpn.wireguard.client')"
+  type: String!
+
+  "Resource category"
+  category: ResourceCategory!
+
+  "Initial configuration"
+  configuration: JSON!
+
+  "User-defined relationships"
+  relationships: ResourceRelationshipsInput
+
+  "Initial tags"
+  tags: [String!]
+
+  "Resource description"
+  description: String
+}
+
+"""
+Input for updating resource configuration
+"""
+input UpdateResourceInput {
+  "Updated configuration (partial or full)"
+  configuration: JSON
+
+  "Updated relationships"
+  relationships: ResourceRelationshipsInput
+
+  "Updated tags"
+  tags: [String!]
+
+  "Updated description"
+  description: String
+}
+
+"""
+Input for resource relationships
+"""
+input ResourceRelationshipsInput {
+  "Resources this resource depends on (IDs)"
+  dependsOn: [ID!]
+
+  "Resources that route traffic via this resource (ID)"
+  routesVia: ID
+
+  "Parent resource ID (for hierarchical resources)"
+  parent: ID
+
+  "Custom relationship data"
+  custom: JSON
+}

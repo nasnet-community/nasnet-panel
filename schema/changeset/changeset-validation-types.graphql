@@ -1,0 +1,167 @@
+# =============================================================================
+# Change Set Error, Rollback, and Aggregate Types
+# =============================================================================
+# Detailed error types, rollback steps, the ChangeSet aggregate type,
+# and summary types for list displays.
+#
+# Reference: NAS-4.14 - Implement Change Sets
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Error and Rollback Types
+# -----------------------------------------------------------------------------
+
+"""
+Detailed error for failed change sets
+"""
+type ChangeSetError {
+  "Error message"
+  message: String!
+
+  "Item ID that caused the failure"
+  failedItemId: ID!
+
+  "Error code"
+  code: String
+
+  "Items applied before failure"
+  partiallyAppliedItemIds: [ID!]!
+
+  "Items that failed rollback"
+  failedRollbackItemIds: [ID!]!
+
+  "Whether manual intervention is required"
+  requiresManualIntervention: Boolean!
+}
+
+"""
+Rollback step for recovery
+"""
+type RollbackStep {
+  "Item ID being rolled back"
+  itemId: ID!
+
+  "Rollback operation"
+  operation: RollbackOperation!
+
+  "State to restore"
+  restoreState: JSON
+
+  "Resource UUID on router"
+  resourceUuid: ID
+
+  "Whether rollback succeeded"
+  success: Boolean!
+
+  "Error message if failed"
+  error: String
+
+  "Order in rollback sequence"
+  rollbackOrder: Int!
+}
+
+"""
+Rollback operation type
+"""
+enum RollbackOperation {
+  "Delete a created resource"
+  DELETE
+
+  "Restore a deleted resource"
+  RESTORE
+
+  "Revert an updated resource"
+  REVERT
+}
+
+# -----------------------------------------------------------------------------
+# ChangeSet Aggregate and Summary
+# -----------------------------------------------------------------------------
+
+"""
+A change set representing an atomic multi-resource operation
+"""
+type ChangeSet {
+  "Unique identifier (ULID)"
+  id: ID!
+
+  "Human-readable name"
+  name: String!
+
+  "Optional description"
+  description: String
+
+  "Router ID this change set applies to"
+  routerId: ID!
+
+  "Items in this change set"
+  items: [ChangeSetItem!]!
+
+  "Current status"
+  status: ChangeSetStatus!
+
+  "Validation result"
+  validation: ChangeSetValidationResult
+
+  "Rollback plan"
+  rollbackPlan: [RollbackStep!]!
+
+  "Error information (if failed)"
+  error: ChangeSetError
+
+  "Created timestamp"
+  createdAt: DateTime!
+
+  "Apply started timestamp"
+  applyStartedAt: DateTime
+
+  "Completed timestamp"
+  completedAt: DateTime
+
+  "User who created the change set"
+  createdBy: String
+
+  "Source wizard/feature"
+  source: String
+
+  "Version for optimistic concurrency"
+  version: Int!
+}
+
+"""
+Summary of a change set for list displays
+"""
+type ChangeSetSummary {
+  "Change set ID"
+  id: ID!
+
+  "Name"
+  name: String!
+
+  "Current status"
+  status: ChangeSetStatus!
+
+  "Operation counts"
+  operationCounts: OperationCounts!
+
+  "Total items"
+  totalItems: Int!
+
+  "Created timestamp"
+  createdAt: DateTime!
+
+  "Has validation errors"
+  hasErrors: Boolean!
+
+  "Has validation warnings"
+  hasWarnings: Boolean!
+}
+
+"""
+Operation counts by type
+"""
+type OperationCounts {
+  create: Int!
+  update: Int!
+  delete: Int!
+}

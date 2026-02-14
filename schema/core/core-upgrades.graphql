@@ -1,0 +1,127 @@
+# =============================================================================
+# Upgrade and Feature Support Types
+# =============================================================================
+# Feature support information, upgrade recommendations, and related payloads.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Feature Support
+# -----------------------------------------------------------------------------
+
+"""
+Feature support information based on RouterOS version
+"""
+type FeatureSupport {
+  "Feature identifier (e.g., 'rest_api', 'container', 'wireguard')"
+  featureId: String!
+  "Human-readable feature name"
+  name: String!
+  "Whether the feature is supported on this router"
+  supported: Boolean!
+  "Capability level (none, basic, advanced, full)"
+  level: CapabilityLevel!
+  "Reason why the feature is not supported (if applicable)"
+  reason: String
+  "Minimum RouterOS version required for this feature"
+  requiredVersion: String
+  "URL to MikroTik documentation for upgrade guidance"
+  upgradeUrl: String
+  "Required packages that need to be installed"
+  requiredPackages: [String!]
+  "Missing packages (if any)"
+  missingPackages: [String!]
+}
+
+"""
+Input for checking feature compatibility
+"""
+input FeatureCompatibilityInput {
+  "Feature identifier to check"
+  featureId: String!
+  "Whether to check for CHR-specific requirements"
+  isCHR: Boolean
+}
+
+# -----------------------------------------------------------------------------
+# Upgrade Recommendations
+# -----------------------------------------------------------------------------
+
+"""
+Upgrade recommendation for enabling a feature
+"""
+type UpgradeRecommendation {
+  "Feature that requires upgrade"
+  featureId: String!
+  "Human-readable feature name"
+  featureName: String!
+  "Current RouterOS version"
+  currentVersion: String!
+  "Minimum required version for this feature"
+  requiredVersion: String!
+  "Whether this is a major version upgrade (e.g., 6.x to 7.x)"
+  isMajorUpgrade: Boolean!
+  "Priority level (critical, high, medium, low)"
+  priority: UpgradePriority!
+  "Steps to complete the upgrade"
+  steps: [UpgradeStep!]!
+  "Estimated impact on router operation"
+  impact: UpgradeImpact!
+  "URL to MikroTik upgrade documentation"
+  documentationUrl: String
+  "Warnings or important notes about this upgrade"
+  warnings: [String!]!
+}
+
+"""
+Priority level for upgrade recommendations
+"""
+enum UpgradePriority {
+  "Security-related, should upgrade immediately"
+  CRITICAL
+  "Highly recommended for stability/features"
+  HIGH
+  "Recommended but not urgent"
+  MEDIUM
+  "Nice to have, optional"
+  LOW
+}
+
+"""
+Impact assessment for an upgrade
+"""
+type UpgradeImpact {
+  "Whether reboot is required"
+  requiresReboot: Boolean!
+  "Estimated downtime description"
+  estimatedDowntime: String
+  "Whether configuration backup is recommended before upgrade"
+  backupRecommended: Boolean!
+  "Potential breaking changes to be aware of"
+  breakingChanges: [String!]!
+}
+
+"""
+Single step in an upgrade process
+"""
+type UpgradeStep {
+  "Step number (1-based)"
+  step: Int!
+  "Step title"
+  title: String!
+  "Detailed instructions"
+  description: String!
+  "RouterOS command to execute (if applicable)"
+  command: String
+  "Whether this step is optional"
+  optional: Boolean!
+}
+
+"""
+Payload for refreshCapabilities mutation
+"""
+type RefreshCapabilitiesPayload {
+  "Updated capabilities after refresh"
+  capabilities: RouterCapabilities
+  "Errors during refresh"
+  errors: [MutationError!]
+}

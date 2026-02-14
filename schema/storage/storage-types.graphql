@@ -1,0 +1,181 @@
+# =============================================================================
+# External Storage Management GraphQL Schema
+# =============================================================================
+# This schema defines types and operations for external storage (USB/disk)
+# management for service binaries and data. Part of NAS-8.20.
+#
+# CRITICAL: All byte-size fields use String! (serialized uint64) to avoid
+# GraphQL 32-bit Int overflow on drives >2GB. Frontend parses with BigInt or
+# Number. Backend serializes uint64 -> strconv.FormatUint() in resolvers.
+# =============================================================================
+
+# ============================================
+# STORAGE TYPES
+# ============================================
+
+"""
+Information about a storage location (flash or external).
+Represents a detected mount point with capacity and filesystem information.
+"""
+type StorageInfo {
+  """Absolute path to the mount point (e.g., '/data', '/usb1', '/disk1')"""
+  path: String!
+
+  """Total capacity in bytes (serialized uint64)"""
+  totalBytes: String!
+
+  """Available free space in bytes (serialized uint64)"""
+  availableBytes: String!
+
+  """Used space in bytes (serialized uint64)"""
+  usedBytes: String!
+
+  """Filesystem type (e.g., 'ext4', 'vfat', 'ntfs')"""
+  filesystem: String!
+
+  """Whether the storage is currently mounted and accessible"""
+  mounted: Boolean!
+
+  """Usage percentage (0-100, calculated from used/total)"""
+  usagePercent: Float!
+
+  """Storage location type"""
+  locationType: StorageLocationType!
+}
+
+"""
+Type of storage location.
+"""
+enum StorageLocationType {
+  """Internal flash memory (limited, persistent)"""
+  FLASH
+
+  """External USB/disk storage (large, removable)"""
+  EXTERNAL
+
+  """Unknown storage type"""
+  UNKNOWN
+}
+
+"""
+Comprehensive storage usage breakdown across flash and external locations.
+Shows how storage is allocated across configs, binaries, data, and per-feature.
+"""
+type StorageUsage {
+  """Flash memory usage breakdown"""
+  flash: StorageBreakdown!
+
+  """External storage usage breakdown (null if not configured)"""
+  external: StorageBreakdown
+
+  """Per-feature storage usage details"""
+  features: [FeatureStorageUsage!]!
+
+  """Total storage usage across all locations in bytes (serialized uint64)"""
+  totalUsedBytes: String!
+
+  """Total available capacity across all locations in bytes (serialized uint64)"""
+  totalCapacityBytes: String!
+
+  """Timestamp when usage was calculated"""
+  calculatedAt: DateTime!
+}
+
+"""
+Storage breakdown for a specific location (flash or external).
+Shows what types of data are stored and capacity metrics.
+"""
+type StorageBreakdown {
+  """Total capacity in bytes (serialized uint64)"""
+  totalBytes: String!
+
+  """Used space in bytes (serialized uint64)"""
+  usedBytes: String!
+
+  """Available free space in bytes (serialized uint64)"""
+  availableBytes: String!
+
+  """Human-readable description of contents (e.g., 'Configs, DB' or 'Binaries, data')"""
+  contents: String!
+
+  """Usage percentage (0-100)"""
+  usagePercent: Float!
+
+  """Storage location type"""
+  locationType: StorageLocationType!
+
+  """Space threshold status"""
+  thresholdStatus: StorageThresholdStatus!
+}
+
+"""
+Storage space threshold status.
+Used to trigger warnings and prevent installations when space is low.
+"""
+enum StorageThresholdStatus {
+  """Normal usage (<80%)"""
+  NORMAL
+
+  """Low space warning (80-89%)"""
+  LOW
+
+  """Critical space warning (90-94%)"""
+  CRITICAL
+
+  """Full - installations blocked (95%+)"""
+  FULL
+}
+
+"""
+Per-feature storage usage breakdown.
+Shows how much space each feature is consuming and where data is stored.
+"""
+type FeatureStorageUsage {
+  """Feature identifier (e.g., 'tor', 'sing-box')"""
+  featureId: ID!
+
+  """Human-readable feature name"""
+  featureName: String!
+
+  """Binary size in bytes (serialized uint64)"""
+  binarySize: String!
+
+  """Runtime data size in bytes (serialized uint64)"""
+  dataSize: String!
+
+  """Config files size in bytes (serialized uint64)"""
+  configSize: String!
+
+  """Log files size in bytes (serialized uint64)"""
+  logsSize: String!
+
+  """Total size across all components in bytes (serialized uint64)"""
+  totalSize: String!
+
+  """Primary storage location ('flash' or 'external')"""
+  location: String!
+
+  """Number of instances of this feature"""
+  instanceCount: Int!
+}
+
+"""
+Storage configuration state.
+Represents the current external storage configuration.
+"""
+type StorageConfig {
+  """Whether external storage is enabled and configured"""
+  enabled: Boolean!
+
+  """Configured external storage path (null if not configured)"""
+  path: String
+
+  """Storage info for configured path (null if not mounted)"""
+  storageInfo: StorageInfo
+
+  """When the configuration was last updated"""
+  updatedAt: DateTime!
+
+  """Whether configured storage is currently available"""
+  isAvailable: Boolean!
+}

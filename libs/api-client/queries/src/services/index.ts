@@ -83,6 +83,24 @@ export type {
 
 export { useInstanceMutations } from './useInstanceMutations';
 
+// Verification Hooks
+export {
+  useFeatureVerification,
+  useInstanceVerificationStatus,
+} from './useFeatureVerification';
+export type {
+  GetFeatureVerificationVariables,
+  GetFeatureVerificationResult,
+  GetInstanceVerificationStatusVariables,
+  GetInstanceVerificationStatusResult,
+} from './useFeatureVerification';
+
+export { useReverifyFeature } from './useReverifyFeature';
+export type {
+  ReverifyInstanceVariables,
+  ReverifyInstanceResult,
+} from './useReverifyFeature';
+
 // Subscription Hooks
 export {
   useInstallProgress,
@@ -93,6 +111,173 @@ export type {
   InstallProgress,
   InstanceStatusChanged,
 } from './useInstanceSubscriptions';
+
+// Virtual Interface Hooks
+export {
+  useVirtualInterfaces,
+  useVirtualInterface,
+} from './useVirtualInterfaces';
+export type {
+  VirtualInterface,
+  GatewayType,
+  GatewayStatus,
+  VirtualInterfaceStatus,
+} from './useVirtualInterfaces';
+
+// Bridge Status Hooks
+export { useBridgeStatus } from './useBridgeStatus';
+export type { BridgeStatus } from './useBridgeStatus';
+
+// Isolation Status Hooks (NAS-8.4)
+export {
+  useInstanceIsolation,
+  useSetResourceLimits,
+} from './useInstanceIsolation';
+export type {
+  GetInstanceIsolationVariables,
+  GetInstanceIsolationResult,
+  SetResourceLimitsVariables,
+  SetResourceLimitsResult,
+} from './useInstanceIsolation';
+
+// Gateway Status Hooks (NAS-8.14)
+export { useGatewayStatus, formatUptime } from './useGatewayStatus';
+export { GatewayState } from './useGatewayStatus';
+export type { GatewayInfo, UseGatewayStatusOptions } from './useGatewayStatus';
+
+// Health Monitoring Hooks (NAS-8.6)
+export { useInstanceHealth } from './useInstanceHealth';
+export { useInstanceHealthSubscription } from './useInstanceHealthSubscription';
+export { useConfigureHealthCheck, validateHealthCheckConfig } from './useConfigureHealthCheck';
+
+// Port Registry Hooks
+export {
+  usePortAllocations,
+  useCheckPortAvailability,
+  useOrphanedPorts,
+} from './usePortRegistry';
+export type {
+  PortAllocationFilters,
+  PortAllocationSort,
+  UsePortAllocationsReturn,
+} from './usePortRegistry';
+
+// Dependency Management Hooks (NAS-8.19)
+export {
+  useDependencies,
+  useDependents,
+  useDependencyGraph,
+} from './useDependencies';
+export type {
+  DependencyType,
+  ServiceDependency,
+  ServiceInstanceRef,
+  DependencyGraph,
+  DependencyGraphNode,
+  DependencyGraphEdge,
+} from './useDependencies';
+
+export { useDependencyMutations } from './useDependencyMutations';
+export type {
+  AddDependencyInput,
+  RemoveDependencyInput,
+} from './useDependencyMutations';
+
+export { useBootSequenceProgress } from './useBootSequenceProgress';
+export type {
+  BootSequenceProgress,
+  BootSequenceEvent,
+  BootSequenceEventType,
+} from './useBootSequenceProgress';
+
+// VLAN Management Hooks (NAS-8.18)
+export { useVLANAllocations } from './useVLANAllocations';
+export type {
+  VLANAllocation,
+  VLANAllocationStatus,
+  ServiceInstanceRef as VLANServiceInstanceRef,
+  RouterRef as VLANRouterRef,
+} from './useVLANAllocations';
+
+export { useVLANPoolStatus } from './useVLANPoolStatus';
+export type { VLANPoolStatus } from './useVLANPoolStatus';
+
+export { useCleanupOrphanedVLANs } from './useCleanupOrphanedVLANs';
+
+export { useUpdateVLANPoolConfig } from './useUpdateVLANPoolConfig';
+export type { UpdateVLANPoolConfigInput } from './useUpdateVLANPoolConfig';
+
+// Resource Budgeting Hooks (Resource Management)
+export {
+  useSystemResources,
+  useSetResourceLimits,
+  useResourceUsageSubscription,
+} from './useSystemResources';
+export type {
+  SystemResources,
+  InstanceResourceUsage,
+  ResourceUsage,
+  ResourceLimits,
+  ResourceRequirements,
+  ResourceStatus,
+  SetResourceLimitsInput,
+  ResourceLimitsPayload,
+  GetSystemResourcesVariables,
+  GetSystemResourcesResult,
+  SetResourceLimitsVariables,
+  SetResourceLimitsResult,
+  ResourceUsageChangedVariables,
+  ResourceUsageChangedResult,
+} from './useSystemResources';
+
+// Device-to-Service Routing Hooks (NAS-8.3)
+export {
+  useDeviceRoutingMatrix,
+  useDeviceRoutings,
+  useDeviceRouting,
+  useAssignDeviceRouting,
+  useRemoveDeviceRouting,
+  useBulkAssignRouting,
+  useDeviceRoutingSubscription,
+} from './useDeviceRouting';
+export type {
+  DeviceRoutingMatrix,
+  DeviceRouting,
+  AssignDeviceRoutingInput,
+  BulkAssignRoutingInput,
+  BulkRoutingResult,
+  DeviceRoutingEvent,
+  RoutingMode,
+  DeviceRoutingFilters,
+  BulkAssignProgress,
+} from './useDeviceRouting';
+
+// Kill Switch Hooks (NAS-8.14)
+export {
+  useKillSwitchStatus,
+  useSetKillSwitch,
+  useKillSwitchSubscription,
+} from './useKillSwitch';
+export type {
+  KillSwitchStatus,
+  SetKillSwitchInput,
+} from './useKillSwitch';
+
+// Time-Based Service Scheduling Hooks (NAS-8.X)
+export {
+  useRoutingSchedules,
+  useRoutingSchedule,
+  useCreateSchedule,
+  useUpdateSchedule,
+  useDeleteSchedule,
+} from './useSchedules';
+export type {
+  CreateScheduleVariables,
+  UpdateScheduleVariables,
+  DeleteScheduleVariables,
+  RoutingSchedulesVariables,
+  RoutingScheduleVariables,
+} from './useSchedules';
 
 // Query Keys (for manual cache invalidation)
 export { serviceKeys } from './queryKeys';
@@ -109,4 +294,290 @@ export {
   DELETE_INSTANCE,
   SUBSCRIBE_INSTALL_PROGRESS,
   SUBSCRIBE_INSTANCE_STATUS_CHANGED,
+  GET_DEPENDENCIES,
+  GET_DEPENDENTS,
+  GET_DEPENDENCY_GRAPH,
+  GET_BOOT_SEQUENCE_PROGRESS,
+  ADD_DEPENDENCY,
+  REMOVE_DEPENDENCY,
+  TRIGGER_BOOT_SEQUENCE,
+  SUBSCRIBE_BOOT_SEQUENCE_EVENTS,
 } from './services.graphql';
+
+export {
+  GET_PORT_ALLOCATIONS,
+  CHECK_PORT_AVAILABILITY,
+  DETECT_ORPHANED_PORTS,
+  CLEANUP_ORPHANED_PORTS,
+} from './usePortRegistry';
+
+export {
+  GET_FEATURE_VERIFICATION,
+  GET_INSTANCE_VERIFICATION_STATUS,
+  REVERIFY_INSTANCE,
+} from './useFeatureVerification';
+export { REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './useReverifyFeature';
+
+export {
+  GET_VIRTUAL_INTERFACES,
+  GET_VIRTUAL_INTERFACE,
+} from './useVirtualInterfaces';
+export { GET_BRIDGE_STATUS } from './useBridgeStatus';
+
+export {
+  GET_INSTANCE_ISOLATION,
+  SET_RESOURCE_LIMITS,
+} from './useInstanceIsolation';
+
+export {
+  INSTANCE_HEALTH_QUERY,
+} from './useInstanceHealth';
+
+export {
+  INSTANCE_HEALTH_CHANGED_SUBSCRIPTION,
+} from './useInstanceHealthSubscription';
+
+export {
+  CONFIGURE_HEALTH_CHECK_MUTATION,
+} from './useConfigureHealthCheck';
+
+export {
+  GET_VLAN_ALLOCATIONS,
+  GET_VLAN_POOL_STATUS,
+  DETECT_ORPHANED_VLANS,
+  CLEANUP_ORPHANED_VLANS,
+  UPDATE_VLAN_POOL_CONFIG,
+} from './vlan.graphql';
+
+export {
+  GET_SYSTEM_RESOURCES,
+  SET_RESOURCE_LIMITS,
+  SUBSCRIBE_RESOURCE_USAGE,
+} from './useSystemResources';
+
+export {
+  GET_DEVICE_ROUTING_MATRIX,
+  GET_DEVICE_ROUTINGS,
+  GET_DEVICE_ROUTING,
+  ASSIGN_DEVICE_ROUTING,
+  REMOVE_DEVICE_ROUTING,
+  BULK_ASSIGN_ROUTING,
+  SUBSCRIBE_DEVICE_ROUTING_CHANGES,
+} from './device-routing.graphql';
+
+export {
+  GET_KILL_SWITCH_STATUS,
+  SET_KILL_SWITCH,
+  SUBSCRIBE_KILL_SWITCH_CHANGES,
+} from './kill-switch.graphql';
+
+// Service Alerts Hooks (NAS-18.X)
+export {
+  useServiceAlerts,
+  useServiceAlertSubscription,
+  useAcknowledgeAlert,
+  useAcknowledgeAlerts,
+} from './useServiceAlerts';
+export type {
+  ServiceAlert,
+  AlertRule,
+  AlertSeverity,
+  AlertAction,
+  AlertEscalation,
+  EscalationStatus,
+  AlertConnection,
+  AlertEvent,
+  GetServiceAlertsVariables,
+  GetServiceAlertsResult,
+  AcknowledgeAlertVariables,
+  AcknowledgeAlertResult,
+  AcknowledgeAlertsVariables,
+  AcknowledgeAlertsResult,
+  ServiceAlertEventsVariables,
+  ServiceAlertEventsResult,
+} from './useServiceAlerts';
+
+export {
+  GET_SERVICE_ALERTS,
+  SERVICE_ALERT_EVENTS,
+  ACKNOWLEDGE_ALERT,
+  ACKNOWLEDGE_ALERTS,
+} from './useServiceAlerts';
+
+// Service Logs & Diagnostics Hooks (NAS-8.12)
+export {
+  useServiceLogFile,
+  useServiceLogsSubscription,
+  useServiceLogs,
+} from './useServiceLogs';
+export type { LogLevel, LogEntry, ServiceLogFile } from './useServiceLogs';
+
+export {
+  useDiagnosticHistory,
+  useAvailableDiagnostics,
+  useRunDiagnostics,
+  useDiagnosticsProgressSubscription,
+  getStartupDiagnostics,
+  hasFailures,
+} from './useDiagnostics';
+export type {
+  DiagnosticStatus,
+  DiagnosticResult,
+  StartupDiagnostics,
+  DiagnosticTest,
+  DiagnosticSuite,
+  DiagnosticsProgress,
+  RunDiagnosticsInput,
+  RunDiagnosticsPayload,
+} from './useDiagnostics';
+
+export {
+  GET_SERVICE_LOG_FILE,
+  GET_DIAGNOSTIC_HISTORY,
+  GET_AVAILABLE_DIAGNOSTICS,
+  RUN_SERVICE_DIAGNOSTICS,
+  SUBSCRIBE_SERVICE_LOGS,
+  SUBSCRIBE_DIAGNOSTICS_PROGRESS,
+} from './logs-diagnostics.graphql';
+
+// Traffic Statistics Hooks (NAS-8.8)
+export {
+  useServiceTrafficStats,
+  useServiceDeviceBreakdown,
+  useSetTrafficQuota,
+  useResetTrafficQuota,
+  useServiceTrafficSubscription,
+  useTrafficMonitoring,
+} from './useServiceTrafficStats';
+export type {
+  UseServiceTrafficStatsOptions,
+  UseServiceDeviceBreakdownOptions,
+  UseServiceTrafficSubscriptionOptions,
+  UseSetTrafficQuotaOptions,
+  UseResetTrafficQuotaOptions,
+} from './useServiceTrafficStats';
+
+export {
+  GET_SERVICE_TRAFFIC_STATS,
+  GET_SERVICE_DEVICE_BREAKDOWN,
+  SET_TRAFFIC_QUOTA,
+  RESET_TRAFFIC_QUOTA,
+  SUBSCRIBE_SERVICE_TRAFFIC_UPDATED,
+} from './traffic-stats.graphql';
+
+// Service Sharing Hooks (NAS-8.11)
+export {
+  useExportService,
+  useGenerateConfigQR,
+  useImportService,
+  useServiceSharing,
+} from './useServiceSharing';
+
+export {
+  EXPORT_SERVICE_CONFIG,
+  GENERATE_CONFIG_QR,
+  IMPORT_SERVICE_CONFIG,
+} from './service-sharing.graphql';
+
+// Service Templates Hooks (NAS-8.9)
+export { useServiceTemplates } from './useServiceTemplates';
+export type {
+  UseServiceTemplatesOptions,
+  UseServiceTemplatesReturn,
+} from './useServiceTemplates';
+
+export { useInstallTemplate } from './useInstallTemplate';
+export type {
+  UseInstallTemplateOptions,
+  UseInstallTemplateReturn,
+} from './useInstallTemplate';
+
+export { useExportAsTemplate } from './useExportAsTemplate';
+export type {
+  UseExportAsTemplateOptions,
+  UseExportAsTemplateReturn,
+} from './useExportAsTemplate';
+
+export { useImportTemplate } from './useImportTemplate';
+export type {
+  UseImportTemplateOptions,
+  UseImportTemplateReturn,
+} from './useImportTemplate';
+
+export { useDeleteTemplate } from './useDeleteTemplate';
+export type {
+  DeleteTemplateInput,
+  UseDeleteTemplateOptions,
+  UseDeleteTemplateReturn,
+} from './useDeleteTemplate';
+
+export { useTemplateInstallProgress } from './useTemplateInstallProgress';
+export type {
+  UseTemplateInstallProgressOptions,
+  UseTemplateInstallProgressReturn,
+} from './useTemplateInstallProgress';
+
+export {
+  GET_SERVICE_TEMPLATES,
+  GET_SERVICE_TEMPLATE,
+  INSTALL_SERVICE_TEMPLATE,
+  EXPORT_AS_TEMPLATE,
+  IMPORT_SERVICE_TEMPLATE,
+  DELETE_SERVICE_TEMPLATE,
+  TEMPLATE_INSTALL_PROGRESS,
+} from './templates.graphql';
+
+// Service Update Management Hooks (NAS-8.7)
+export {
+  useAvailableUpdates,
+  useCheckForUpdates,
+  useUpdateInstance,
+  useUpdateAllInstances,
+  useRollbackInstance,
+  useUpdateProgress,
+} from './useUpdates';
+export type {
+  UpdateSeverity,
+  UpdateStage,
+  AvailableUpdate,
+  UpdateCheckResult,
+  UpdateProgressEvent,
+  UpdateResult,
+  GetAvailableUpdatesVariables,
+  GetAvailableUpdatesResult,
+  CheckForUpdatesVariables,
+  CheckForUpdatesResult,
+  UpdateInstanceVariables,
+  UpdateInstanceResult,
+  UpdateAllInstancesVariables,
+  UpdateAllInstancesResult,
+  RollbackInstanceVariables,
+  RollbackInstanceResult,
+  UpdateProgressVariables,
+  UpdateProgressResult,
+} from './useUpdates';
+
+export {
+  GET_AVAILABLE_UPDATES,
+  CHECK_FOR_UPDATES,
+  UPDATE_INSTANCE,
+  UPDATE_ALL_INSTANCES,
+  ROLLBACK_INSTANCE,
+  UPDATE_PROGRESS,
+} from './updates.graphql';
+
+// Service Configuration Hooks (NAS-8.5)
+export {
+  useServiceConfigSchema,
+  useInstanceConfig,
+  useValidateServiceConfig,
+  useApplyServiceConfig,
+  useServiceConfigOperations,
+} from './useServiceConfig';
+
+export {
+  GET_SERVICE_CONFIG_SCHEMA,
+  GET_INSTANCE_CONFIG,
+  VALIDATE_SERVICE_CONFIG,
+  APPLY_SERVICE_CONFIG,
+} from './service-config.graphql';

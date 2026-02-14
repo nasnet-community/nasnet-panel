@@ -21,10 +21,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/websocket"
+	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"backend/ent"
+	"backend/generated/ent"
 	"backend/graph"
 	"backend/graph/resolver"
 	"backend/internal/alerts"
@@ -34,6 +35,8 @@ import (
 	"backend/internal/events"
 	"backend/internal/graphql/loaders"
 	"backend/internal/notifications"
+	channelshttp "backend/internal/notifications/channels/http"
+	"backend/internal/notifications/channels/push"
 	"backend/internal/router"
 	scannerPkg "backend/internal/scanner"
 	"backend/internal/services"
@@ -57,6 +60,26 @@ func init() {
 }
 
 func init() { ServerVersion = "development-v2.0" }
+
+// eventBusAdapter adapts events.EventBus to alerts.EventBus interface
+type eventBusAdapter struct {
+	bus events.EventBus
+}
+
+func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error {
+	// If event is already events.Event, publish it directly
+	if e, ok := event.(events.Event); ok {
+		return a.bus.Publish(ctx, e)
+	}
+	// Otherwise wrap it in a GenericEvent
+	return a.bus.Publish(ctx, events.NewGenericEvent("custom.event", events.PriorityNormal, "alert-service", map[string]interface{}{
+		"data": event,
+	}))
+}
+
+func (a *eventBusAdapter) Close() error {
+	return a.bus.Close()
+}
 
 // createGraphQLServer creates and configures the gqlgen GraphQL server
 func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.ScannerService, routerSvc *services.RouterService, troubleshootSvc *troubleshootPkg.Service, dnsService *dns.Service, interfaceSvc *services.InterfaceService, alertSvc *services.AlertService, dispatcher *notifications.Dispatcher) *handler.Server {
@@ -100,10 +123,10 @@ func createGraphQLServer(eventBus events.EventBus, scannerSvc *scannerPkg.Scanne
 	})
 
 	// Add extensions
-	srv.SetQueryCache(lru.New(1000))
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 	srv.Use(extension.Introspection{}) // Enable introspection
 	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New(100),
+		Cache: lru.New[string](100),
 	})
 
 	return srv
@@ -275,11 +298,11 @@ func main() {
 	log.Printf("Structured logger initialized (development mode)")
 
 	// Initialize notification channels for alert system (NAS-18.1)
-	emailChannel := notifications.NewEmailChannel(notifications.EmailConfig{})
-	telegramChannel := notifications.NewTelegramChannel(notifications.TelegramConfig{})
-	pushoverChannel := notifications.NewPushoverChannel(notifications.PushoverConfig{})
-	webhookChannel := notifications.NewWebhookChannel(notifications.WebhookConfig{})
-	inappChannel := notifications.NewInAppChannel(eventBus)
+	emailChannel := channelshttp.NewEmailChannel(channelshttp.EmailConfig{})
+	telegramChannel := push.NewTelegramChannel(push.TelegramConfig{})
+	pushoverChannel := push.NewPushoverChannel(push.PushoverConfig{})
+	webhookChannel := channelshttp.NewWebhookChannel(channelshttp.WebhookConfig{})
+	inappChannel := push.NewInAppChannel(eventBus)
 
 	channels := map[string]notifications.Channel{
 		"email":    emailChannel,
@@ -314,21 +337,26 @@ func main() {
 
 	// Initialize Escalation Engine (NAS-18.9)
 	// Created separately so it can be shared between AlertService and AlertEngine
+	// Use eventBusAdapter to convert events.EventBus to alerts.EventBus interface
+	escalationEventBus := &eventBusAdapter{bus: eventBus}
 	escalationEngine := alerts.NewEscalationEngine(alerts.EscalationEngineConfig{
 		DB:         systemDB,
 		Dispatcher: dispatcher,
-		EventBus:   eventBus,
+		EventBus:   escalationEventBus,
 		Logger:     sugar,
 	})
 	log.Printf("Escalation engine initialized")
 
 	// Initialize Digest Service (NAS-18.11)
-	digestService := alerts.NewDigestService(alerts.DigestServiceConfig{
+	digestService, err := alerts.NewDigestService(alerts.DigestServiceConfig{
 		DB:         systemDB,
 		Dispatcher: dispatcher,
-		EventBus:   eventBus,
+		EventBus:   eventBus, // Uses events.EventBus directly
 		Logger:     sugar,
 	})
+	if err != nil {
+		log.Fatalf("Failed to initialize digest service: %v", err)
+	}
 	log.Printf("Digest service initialized")
 
 	// Initialize Digest Scheduler (NAS-18.11)
@@ -350,7 +378,7 @@ func main() {
 		DB:                  systemDB,
 		EventBus:            eventBus,
 		EscalationCanceller: escalationEngine,
-		DigestService:       digestService,
+		DigestService:       nil, // TODO: Create adapter for alerts.DigestService -> services.DigestService
 		Logger:              sugar,
 	})
 	log.Printf("Alert service initialized")
@@ -359,7 +387,7 @@ func main() {
 	// Pass the shared escalation engine and digest service
 	alertEngine := alerts.NewEngine(alerts.EngineConfig{
 		DB:               systemDB,
-		EventBus:         eventBus,
+		EventBus:         eventBus, // Uses events.EventBus directly
 		Dispatcher:       dispatcher,
 		EscalationEngine: escalationEngine,
 		DigestService:    digestService,

@@ -1,0 +1,155 @@
+# ============================================
+# PORT FORWARD TYPES
+# ============================================
+
+"""
+Input for creating a port forward (simplified wizard).
+Creates both NAT and filter rules automatically.
+"""
+input PortForwardInput {
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+
+  """External port (1-65535)"""
+  externalPort: Int! @validate(min: 1, max: 65535)
+
+  """Internal target IP address"""
+  internalIP: String!
+
+  """Internal target port (defaults to external port if not specified)"""
+  internalPort: Int @validate(min: 1, max: 65535)
+
+  """Optional name/description for this port forward"""
+  name: String @validate(minLength: 1, maxLength: 100)
+
+  """WAN interface name (optional, auto-detected if not specified)"""
+  wanInterface: String
+}
+
+"""
+Status of a port forward configuration.
+"""
+enum PortForwardStatus {
+  """Port forward is active and working"""
+  ACTIVE
+
+  """Port forward is disabled"""
+  DISABLED
+
+  """Port forward has errors or misconfiguration"""
+  ERROR
+
+  """Port forward is partially configured (missing rules)"""
+  INCOMPLETE
+}
+
+"""
+Port forward configuration (high-level view).
+Represents both the NAT rule and corresponding filter rule.
+"""
+type PortForward implements Node {
+  """Unique identifier"""
+  id: ID!
+
+  """Optional name/description"""
+  name: String
+
+  """Protocol (TCP, UDP)"""
+  protocol: TransportProtocol!
+
+  """External port"""
+  externalPort: Int!
+
+  """Internal target IP"""
+  internalIP: String!
+
+  """Internal target port"""
+  internalPort: Int!
+
+  """Current status"""
+  status: PortForwardStatus!
+
+  """ID of the associated NAT rule"""
+  natRuleId: ID!
+
+  """ID of the associated filter rule (if created)"""
+  filterRuleId: ID
+}
+
+# ============================================
+# NAT QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get NAT rules, optionally filtered by chain.
+  """
+  natRules(
+    routerId: ID!
+    chain: NatChain
+  ): [NatRule!]!
+
+  """
+  Get all port forwards (high-level view).
+  """
+  portForwards(routerId: ID!): [PortForward!]!
+}
+
+# ============================================
+# NAT MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a NAT rule.
+  """
+  createNatRule(
+    routerId: ID!
+    input: CreateNatRuleInput!
+  ): NatRule!
+
+  """
+  Update an existing NAT rule.
+  """
+  updateNatRule(
+    routerId: ID!
+    id: ID!
+    input: CreateNatRuleInput!
+  ): NatRule!
+
+  """
+  Delete a NAT rule.
+  """
+  deleteNatRule(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Create a port forward (creates both NAT and filter rules).
+  Simplified wizard for common use case of exposing internal service.
+  """
+  createPortForward(
+    routerId: ID!
+    input: PortForwardInput!
+  ): PortForward!
+
+  """
+  Delete a port forward (removes both NAT and filter rules).
+  """
+  deletePortForward(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Create a masquerade rule for internet sharing.
+  Convenience mutation for common srcnat masquerade setup.
+  """
+  createMasqueradeRule(
+    routerId: ID!
+    outInterface: String!
+    srcAddress: String
+    comment: String
+  ): NatRule!
+}

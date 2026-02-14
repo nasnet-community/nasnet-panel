@@ -1,0 +1,148 @@
+# =============================================================================
+# Composite Resources: WAN Link and Feature Resource
+# =============================================================================
+# WAN link for internet connectivity and marketplace feature resources.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# WAN Link Resource
+# -----------------------------------------------------------------------------
+
+"""
+WAN Link resource for internet connectivity
+"""
+type WANLink implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Typed runtime (additional to interface)
+  wanRuntime: WANLinkRuntime
+
+  "Interface name"
+  interface: String!
+  "Connection type (static, dhcp, pppoe)"
+  connectionType: WANConnectionType!
+  "Whether this is the primary WAN"
+  isPrimary: Boolean!
+  "Failover priority (lower = higher priority)"
+  failoverPriority: Int
+}
+
+# Note: WANConnectionType enum is defined in wan.graphql
+
+"""
+WAN Link runtime state
+"""
+type WANLinkRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # WAN-specific
+  "Current IP address"
+  currentIP: IPv4
+  "Gateway address"
+  gateway: IPv4
+  "Public IP (may differ due to NAT)"
+  publicIP: IPv4
+  "DNS servers received"
+  dnsServers: [IPv4!]
+  "Current uplink speed (bytes/sec)"
+  uplinkSpeed: Size
+  "Current downlink speed (bytes/sec)"
+  downlinkSpeed: Size
+  "Total uptime"
+  uptime: Duration
+  "Last connection change"
+  lastStateChange: DateTime
+}
+
+# -----------------------------------------------------------------------------
+# Feature Resource (Marketplace)
+# -----------------------------------------------------------------------------
+
+"""
+Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)
+"""
+type FeatureResource implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  featureDeployment: FeatureDeployment
+  featureRuntime: FeatureRuntime
+
+  "Feature identifier"
+  featureId: String!
+  "Feature name"
+  name: String!
+  "Feature version"
+  version: String!
+  "Virtual interface assigned"
+  virtualInterface: String
+}
+
+"""
+Feature deployment state
+"""
+type FeatureDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # Feature-specific
+  "Container ID (if containerized)"
+  containerId: String
+  "Container image used"
+  containerImage: String
+  "Assigned ports"
+  assignedPorts: [Port!]
+  "Assigned IP address"
+  assignedIP: IPv4
+}
+
+"""
+Feature runtime state
+"""
+type FeatureRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # Feature-specific
+  "Container status"
+  containerStatus: String
+  "Memory usage"
+  memoryUsage: Size
+  "CPU usage percentage"
+  cpuUsagePercent: Float
+  "Devices routed through this feature"
+  routedDevices: Int
+}

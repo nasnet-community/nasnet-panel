@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"backend/ent"
-	"backend/ent/alert"
-	"backend/ent/alerttemplate"
-	"backend/ent/enttest"
+	"backend/generated/ent"
+	"backend/generated/ent/alert"
+	"backend/generated/ent/alerttemplate"
+	"backend/generated/ent/enttest"
 	"backend/internal/events"
 
 	"github.com/stretchr/testify/assert"
@@ -165,7 +165,7 @@ func TestTemplatePipeline_ResetFlow(t *testing.T) {
 		SetTriggeredAt(time.Now()).
 		SaveX(ctx)
 
-	subject1, body1, err := service.RenderAlert(ctx, testAlert1, "telegram")
+	_, body1, err := service.RenderAlert(ctx, testAlert1, "telegram")
 	require.NoError(t, err)
 	assert.Contains(t, body1, "Custom Body: VPN tunnel to remote-site has disconnected")
 
@@ -188,7 +188,7 @@ func TestTemplatePipeline_ResetFlow(t *testing.T) {
 		SaveX(ctx)
 
 	// Step 5: Verify uses default template now
-	subject2, body2, err := service.RenderAlert(ctx, testAlert2, "telegram")
+	_, body2, err := service.RenderAlert(ctx, testAlert2, "telegram")
 	require.NoError(t, err)
 	// Should NOT contain custom text anymore
 	assert.NotContains(t, body2, "Custom Body:")
@@ -293,7 +293,7 @@ func TestTemplatePipeline_InvalidTemplate(t *testing.T) {
 	_, service, cleanup := setupTestEnv(t)
 	defer cleanup()
 
-	ctx := context.Background()
+	_ = context.Background()
 
 	// Invalid template with syntax error
 	invalidSubject := "{{.Title"
@@ -628,11 +628,14 @@ func TestRenderAlert_AllAcceptanceCriteria(t *testing.T) {
 func TestRealEventBusIntegration(t *testing.T) {
 	t.Skip("Requires event bus setup - run manually with real infrastructure")
 
-	client, service, cleanup := setupTestEnv(t)
+	_, service, cleanup := setupTestEnv(t)
 	defer cleanup()
 
 	// Create real event bus
-	eventBus := events.NewEventBus(events.DefaultEventBusOptions())
+	eventBus, err := events.NewEventBus(events.DefaultEventBusOptions())
+	if err != nil {
+		t.Fatalf("Failed to create event bus: %v", err)
+	}
 	defer eventBus.Close()
 
 	ctx := context.Background()
@@ -649,7 +652,7 @@ func TestRealEventBusIntegration(t *testing.T) {
 	})
 
 	// Trigger operations
-	err := service.SaveTemplate(ctx, "event.test", "email", "Subject", "Body", false)
+	err = service.SaveTemplate(ctx, "event.test", "email", "Subject", "Body", false)
 	require.NoError(t, err)
 
 	time.Sleep(100 * time.Millisecond) // Allow event propagation

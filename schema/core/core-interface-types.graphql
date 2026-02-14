@@ -1,0 +1,115 @@
+# =============================================================================
+# Network Interface Types
+# =============================================================================
+# Types for network interfaces on routers, including enums and status events.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Interface Types (Network Interfaces)
+# -----------------------------------------------------------------------------
+
+"""
+A network interface on a router
+"""
+type Interface implements Node {
+  "Unique interface identifier"
+  id: ID!
+  "Interface name (e.g., ether1, wlan1)"
+  name: String! @mikrotik(path: "/interface", field: "name")
+  "Interface type"
+  type: InterfaceType! @mikrotik(path: "/interface", field: "type")
+  "Whether the interface is enabled"
+  enabled: Boolean! @mikrotik(path: "/interface", field: "disabled")
+  "Whether the interface is running (link up)"
+  running: Boolean! @mikrotik(path: "/interface", field: "running")
+  "MAC address"
+  macAddress: MAC @mikrotik(path: "/interface", field: "mac-address")
+  "MTU setting"
+  mtu: Int @mikrotik(path: "/interface", field: "mtu")
+  "User comment"
+  comment: String @mikrotik(path: "/interface", field: "comment")
+  "TX bytes"
+  txBytes: Size @mikrotik(path: "/interface", field: "tx-byte")
+  "RX bytes"
+  rxBytes: Size @mikrotik(path: "/interface", field: "rx-byte")
+
+  # Dashboard-specific fields
+  "IP address assigned to this interface"
+  ip: IPv4 @mikrotik(path: "/ip/address", field: "address")
+  "Operational status of the interface"
+  status: InterfaceStatus!
+  "Current transmit rate in bytes per second"
+  txRate: Size @mikrotik(path: "/interface", field: "tx-bits-per-second")
+  "Current receive rate in bytes per second"
+  rxRate: Size @mikrotik(path: "/interface", field: "rx-bits-per-second")
+  "Link speed (e.g., 1Gbps, 100Mbps)"
+  linkSpeed: String @mikrotik(path: "/interface/ethernet", field: "rate")
+  "Last time this interface was seen/queried"
+  lastSeen: DateTime
+  "Connected device information from LLDP"
+  linkPartner: String
+  "Services using this interface (bridge, VPN, etc.)"
+  usedBy: [String!]
+}
+
+"""
+Types of network interfaces
+"""
+enum InterfaceType {
+  ETHERNET
+  VLAN
+  BRIDGE
+  WIRELESS
+  TUNNEL
+  PPP
+  BONDING
+  LOOPBACK
+  VIRTUAL
+  OTHER
+}
+
+"""
+Operational status of a network interface
+"""
+enum InterfaceStatus {
+  "Interface is up and running"
+  UP
+  "Interface is down"
+  DOWN
+  "Interface is disabled"
+  DISABLED
+  "Status unknown or error"
+  UNKNOWN
+}
+
+"""
+Event emitted when an interface status changes
+"""
+type InterfaceStatusEvent {
+  "Interface ID"
+  interfaceId: ID!
+  "Interface name"
+  interfaceName: String!
+  "New status"
+  status: InterfaceStatus!
+  "Previous status"
+  previousStatus: InterfaceStatus!
+  "Event timestamp"
+  timestamp: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Interface Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to interface status changes for real-time updates
+  """
+  interfaceStatusChanged(
+    "Router ID to monitor"
+    routerId: ID!
+    "Optional interface ID to filter events (if not provided, all interfaces)"
+    interfaceId: ID
+  ): InterfaceStatusEvent!
+}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/router"
 )
 
@@ -16,9 +16,9 @@ func (a *MikroTikAdapter) GetInterfaceStats(
 	interfaceID string,
 ) (*model.InterfaceStats, error) {
 	cmd := router.Command{
-		Path:   "/interface",
-		Action: "print",
-		Query:  map[string]string{".id": interfaceID},
+		Path:        "/interface",
+		Action:      "print",
+		QueryFilter: map[string]string{".id": interfaceID},
 		Props: []string{
 			"tx-byte", "rx-byte",
 			"tx-packet", "rx-packet",
@@ -72,33 +72,33 @@ func (a *MikroTikAdapter) GetAllInterfaceStats(
 }
 
 // mapToInterfaceStats converts RouterOS response to InterfaceStats model.
-// Handles type conversion for large counters (stored as strings in GraphQL to avoid JS integer overflow).
+// Handles type conversion for large counters (stored as Size in GraphQL to avoid JS integer overflow).
 func mapToInterfaceStats(data map[string]interface{}) *model.InterfaceStats {
 	stats := &model.InterfaceStats{
-		TxBytes:   "0",
-		RxBytes:   "0",
-		TxPackets: "0",
-		RxPackets: "0",
+		TxBytes:   model.Size("0"),
+		RxBytes:   model.Size("0"),
+		TxPackets: model.Size("0"),
+		RxPackets: model.Size("0"),
 		TxErrors:  0,
 		RxErrors:  0,
 		TxDrops:   0,
 		RxDrops:   0,
 	}
 
-	// Convert bytes (large numbers, returned as strings)
+	// Convert bytes (large numbers, returned as Size)
 	if val, ok := data["tx-byte"]; ok {
-		stats.TxBytes = formatSize(val)
+		stats.TxBytes = model.Size(formatSize(val))
 	}
 	if val, ok := data["rx-byte"]; ok {
-		stats.RxBytes = formatSize(val)
+		stats.RxBytes = model.Size(formatSize(val))
 	}
 
-	// Convert packets (large numbers, returned as strings)
+	// Convert packets (large numbers, returned as Size)
 	if val, ok := data["tx-packet"]; ok {
-		stats.TxPackets = formatSize(val)
+		stats.TxPackets = model.Size(formatSize(val))
 	}
 	if val, ok := data["rx-packet"]; ok {
-		stats.RxPackets = formatSize(val)
+		stats.RxPackets = model.Size(formatSize(val))
 	}
 
 	// Convert errors (integers)

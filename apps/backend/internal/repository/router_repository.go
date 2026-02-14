@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"backend/ent"
-	"backend/ent/router"
-	"backend/ent/routersecret"
+	"backend/generated/ent"
+	"backend/generated/ent/router"
+	"backend/generated/ent/routersecret"
 	"backend/internal/database"
 	"backend/internal/events"
 	"backend/pkg/ulid"

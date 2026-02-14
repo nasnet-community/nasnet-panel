@@ -1,0 +1,165 @@
+# -----------------------------------------------------------------------------
+# Queries - Alert Rules, Templates, Alerts
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get alert rule templates, optionally filtered by category
+  """
+  alertRuleTemplates(
+    """
+    Filter by category
+    """
+    category: AlertRuleTemplateCategory
+  ): [AlertRuleTemplate!]!
+
+  """
+  Get a single alert rule template by ID
+  """
+  alertRuleTemplate(
+    """
+    Template ID
+    """
+    id: ID!
+  ): AlertRuleTemplate
+
+  """
+  Preview an alert rule template with variable substitution
+  """
+  previewAlertRuleTemplate(
+    """
+    Template ID
+    """
+    templateId: ID!
+    """
+    Variables for substitution
+    """
+    variables: JSON!
+  ): AlertRuleTemplatePreview!
+
+  """
+  Get all alert templates, optionally filtered by event type or channel
+  """
+  alertTemplates(
+    """
+    Filter by event type
+    """
+    eventType: String
+    """
+    Filter by notification channel
+    """
+    channel: NotificationChannel
+  ): [AlertTemplate!]!
+
+  """
+  Get a single alert template by ID
+  """
+  alertTemplate(
+    """
+    Template ID
+    """
+    id: ID!
+  ): AlertTemplate
+
+  """
+  Get common event types
+  """
+  commonEventTypes: [String!]!
+
+  """
+  Search alert templates
+  """
+  searchAlertTemplates(
+    """
+    Search query
+    """
+    query: String!
+  ): [AlertTemplate!]!
+
+  """
+  Preview an alert template with variables
+  """
+  previewAlertTemplate(
+    """
+    Template ID
+    """
+    templateId: ID!
+    """
+    Variables for substitution
+    """
+    variables: JSON!
+  ): TemplatePreviewPayload!
+
+  """
+  Get all alert rules, optionally filtered by device
+  """
+  alertRules(
+    """
+    Filter by device ID
+    """
+    deviceId: ID
+  ): [AlertRule!]!
+
+  """
+  Get a single alert rule by ID
+  """
+  alertRule(
+    """
+    Alert rule ID
+    """
+    id: ID!
+  ): AlertRule
+
+  """
+  Get alerts with filtering and pagination
+  """
+  alerts(
+    """
+    Filter by device ID
+    """
+    deviceId: ID
+    """
+    Filter by severity
+    """
+    severity: AlertSeverity
+    """
+    Filter by acknowledged status
+    """
+    acknowledged: Boolean
+    """
+    Pagination limit
+    """
+    limit: Int = 50
+    """
+    Pagination offset
+    """
+    offset: Int = 0
+  ): AlertConnection!
+
+  """
+  Get alerts for a specific service instance
+  Filters alerts by source_type='service' and source_id=instanceId
+  """
+  serviceAlerts(
+    """
+    Service instance ID to filter alerts for
+    """
+    instanceId: ID!
+    """
+    Filter by severity
+    """
+    severity: AlertSeverity
+    """
+    Filter by acknowledged status
+    """
+    acknowledged: Boolean
+    """
+    Pagination limit
+    """
+    limit: Int = 50
+    """
+    Pagination offset
+    """
+    offset: Int = 0
+  ): AlertConnection!
+}

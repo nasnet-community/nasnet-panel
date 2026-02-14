@@ -10,6 +10,7 @@
 import * as React from 'react';
 
 import { Badge, Button, Card, CardContent } from '@nasnet/ui/primitives';
+import { ResourceUsageBar } from '../resource-usage-bar';
 
 import { useServiceCard, formatBytes } from './useServiceCard';
 
@@ -98,6 +99,19 @@ export function ServiceCardMobile(props: ServiceCardProps) {
               service.category.slice(1)}
           </span>
         </div>
+
+        {/* Resource usage bar (for running instances with memory limits) */}
+        {isRunning &&
+          service.metrics?.currentMemory !== undefined &&
+          service.metrics?.memoryLimit !== undefined && (
+            <ResourceUsageBar
+              label="Memory"
+              current={service.metrics.currentMemory}
+              limit={service.metrics.memoryLimit}
+              unit="MB"
+              className="my-2"
+            />
+          )}
 
         {/* Description if present */}
         {service.description && (

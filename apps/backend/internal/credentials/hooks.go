@@ -2,8 +2,8 @@
 package credentials
 
 import (
-	"backend/ent"
-	"backend/ent/hook"
+	"backend/generated/ent"
+	"backend/generated/ent/hook"
 	"backend/internal/encryption"
 	"context"
 	"fmt"

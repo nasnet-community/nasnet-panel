@@ -1,0 +1,107 @@
+# =============================================================================
+# DNS Cache & Diagnostics
+# =============================================================================
+# This schema provides types and operations for DNS cache management and
+# diagnostics, including cache statistics, flushing, and server benchmarking.
+# Story: NAS-6.12 - Implement DNS Cache & Diagnostics
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DNS Cache Types
+# -----------------------------------------------------------------------------
+
+"""
+DNS cache statistics for monitoring cache usage
+"""
+type DnsCacheStats {
+  "Total number of entries in the DNS cache"
+  totalEntries: Int!
+  "Cache size used in bytes"
+  cacheUsedBytes: Size!
+  "Maximum cache size in bytes"
+  cacheMaxBytes: Size!
+  "Cache usage percentage (0-100)"
+  cacheUsagePercent: Float!
+  "Cache hit rate percentage (0-100)"
+  hitRatePercent: Float
+  "Most queried domains (top 10)"
+  topDomains: [DnsTopDomain!]!
+  "When the statistics were collected"
+  timestamp: DateTime!
+}
+
+"""
+A frequently queried domain in the DNS cache
+"""
+type DnsTopDomain {
+  "Domain name"
+  domain: String!
+  "Number of queries for this domain"
+  queryCount: Int!
+  "Last query time"
+  lastQueried: DateTime
+}
+
+"""
+Result of flushing the DNS cache
+"""
+type FlushDnsCacheResult {
+  "Whether the cache was flushed successfully"
+  success: Boolean!
+  "Number of entries removed from the cache"
+  entriesRemoved: Int!
+  "Cache statistics before flushing"
+  beforeStats: DnsCacheStats!
+  "Cache statistics after flushing"
+  afterStats: DnsCacheStats!
+  "User-friendly message"
+  message: String!
+  "When the flush was executed"
+  timestamp: DateTime!
+}
+
+"""
+Benchmark result for a single DNS server
+"""
+type DnsBenchmarkServerResult {
+  "DNS server IP address"
+  server: String!
+  "Response time in milliseconds (-1 if unreachable)"
+  responseTimeMs: Int!
+  "Server status (Fastest, Good, Slow, Unreachable)"
+  status: DnsServerStatus!
+  "Whether the server responded successfully"
+  success: Boolean!
+  "Error message (if server failed)"
+  error: String
+}
+
+"""
+Status classification for DNS servers in benchmark
+"""
+enum DnsServerStatus {
+  "Fastest responding server"
+  FASTEST
+  "Server responded in acceptable time (<100ms)"
+  GOOD
+  "Server responded slowly (>100ms)"
+  SLOW
+  "Server did not respond"
+  UNREACHABLE
+}
+
+"""
+Complete benchmark result comparing all configured DNS servers
+"""
+type DnsBenchmarkResult {
+  "Test hostname used for benchmarking"
+  testHostname: String!
+  "Results for each tested server, sorted by response time"
+  serverResults: [DnsBenchmarkServerResult!]!
+  "Fastest server"
+  fastestServer: DnsBenchmarkServerResult
+  "When the benchmark was executed"
+  timestamp: DateTime!
+  "Total benchmark execution time in milliseconds"
+  totalTimeMs: Int!
+}

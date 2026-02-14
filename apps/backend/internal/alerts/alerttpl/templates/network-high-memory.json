@@ -1,0 +1,36 @@
+{
+  "id": "network-high-memory",
+  "name": "High Memory Usage",
+  "description": "Alert when device memory usage exceeds threshold",
+  "category": "NETWORK",
+  "severity": "WARNING",
+  "eventType": "device.memory.high",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "MEMORY_THRESHOLD",
+      "label": "Memory Threshold",
+      "type": "PERCENTAGE",
+      "required": true,
+      "defaultValue": "85",
+      "min": 50,
+      "max": 100,
+      "unit": "percent",
+      "description": "Memory usage percentage threshold"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "memory_usage",
+      "operator": "GREATER_THAN",
+      "value": "{{MEMORY_THRESHOLD}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 3,
+    "periodSeconds": 600,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

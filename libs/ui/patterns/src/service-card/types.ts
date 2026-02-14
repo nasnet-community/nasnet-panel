@@ -74,6 +74,8 @@ export interface Service {
   metrics?: {
     cpu?: number; // Percentage
     memory?: number; // MB
+    currentMemory?: number; // Current memory usage in MB
+    memoryLimit?: number; // Memory limit in MB
     network?: {
       rx: number; // bytes/s
       tx: number; // bytes/s

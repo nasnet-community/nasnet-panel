@@ -1,0 +1,139 @@
+# ============================================
+# QUERY EXTENSIONS
+# ============================================
+
+extend type Query {
+  """
+  List all detected storage locations (flash and external).
+  Scans known RouterOS mount points and returns availability.
+  """
+  storageInfo: [StorageInfo!]!
+
+  """
+  Get comprehensive storage usage breakdown.
+  Shows flash vs external usage and per-feature breakdown.
+  """
+  storageUsage(
+    """Router ID to query storage for (optional, defaults to current router)"""
+    routerId: ID
+  ): StorageUsage!
+
+  """
+  Get current external storage configuration.
+  Returns enabled state and configured path.
+  """
+  storageConfig: StorageConfig!
+
+  """
+  Get list of features affected by storage disconnection.
+  Returns features marked as unavailable due to missing storage.
+  """
+  unavailableFeatures(
+    """Router ID to query (optional, defaults to current router)"""
+    routerId: ID
+  ): [ServiceInstance!]!
+}
+
+# ============================================
+# MUTATION EXTENSIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Configure external storage path for service binaries.
+  Validates path exists and is writable, then persists to settings.
+  Future installations will use external storage for binaries.
+  """
+  configureExternalStorage(
+    input: ConfigureExternalStorageInput!
+  ): ConfigureExternalStoragePayload!
+
+  """
+  Reset external storage configuration to use flash only.
+  Optionally migrates existing binaries back to flash.
+  """
+  resetExternalStorage(
+    input: ResetExternalStorageInput
+  ): ResetExternalStoragePayload!
+
+  """
+  Manually trigger storage detection scan.
+  Useful for detecting newly mounted storage without restart.
+  """
+  scanStorage: ScanStoragePayload!
+}
+
+# ============================================
+# MUTATION PAYLOADS
+# ============================================
+
+"""
+Payload for configureExternalStorage mutation.
+"""
+type ConfigureExternalStoragePayload {
+  """Storage configuration after update"""
+  config: StorageConfig
+
+  """Storage info for configured path"""
+  storageInfo: StorageInfo
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+"""
+Payload for resetExternalStorage mutation.
+"""
+type ResetExternalStoragePayload {
+  """Whether reset was successful"""
+  success: Boolean!
+
+  """Number of features migrated to flash (if requested)"""
+  featuresMigrated: Int!
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+"""
+Payload for scanStorage mutation.
+"""
+type ScanStoragePayload {
+  """Detected storage locations"""
+  storageInfo: [StorageInfo!]!
+
+  """Number of new storage locations detected"""
+  newStorageCount: Int!
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+# ============================================
+# SUBSCRIPTION EXTENSIONS
+# ============================================
+
+extend type Subscription {
+  """
+  Subscribe to storage mount/unmount events.
+  Emits when external storage becomes available or unavailable.
+  """
+  storageMountChanged(
+    """Optional path filter (if not provided, all storage events)"""
+    path: String
+  ): StorageMountEvent!
+
+  """
+  Subscribe to storage space threshold events.
+  Emits when storage usage crosses 80%, 90%, or 95% thresholds.
+  """
+  storageSpaceChanged(
+    """Optional path filter (if not provided, all storage events)"""
+    path: String
+  ): StorageSpaceEvent!
+}
+
+"""
+Union type for storage mount/unmount events.
+"""
+union StorageMountEvent = StorageMountedEvent | StorageUnmountedEvent

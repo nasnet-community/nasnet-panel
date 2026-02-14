@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"backend/ent"
-	"backend/ent/session"
-	"backend/ent/user"
+	"backend/generated/ent"
+	"backend/generated/ent/session"
+	"backend/generated/ent/user"
 	"backend/pkg/ulid"
 
 	oklogulid "github.com/oklog/ulid/v2"

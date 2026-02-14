@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"backend/ent"
-	"backend/ent/session"
-	"backend/ent/user"
+	"backend/generated/ent"
+	"backend/generated/ent/session"
+	"backend/generated/ent/user"
 )
 
 // EntUserRepository implements UserRepository using ent

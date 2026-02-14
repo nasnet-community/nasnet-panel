@@ -1,0 +1,135 @@
+# =============================================================================
+# Router Types
+# =============================================================================
+# Health status, router type definitions, and router input types.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Health & System Types
+# -----------------------------------------------------------------------------
+
+"""
+Overall system health status
+"""
+type HealthStatus {
+  "Service status"
+  status: ServiceStatus!
+  "Service version"
+  version: String!
+  "Server uptime"
+  uptime: Duration
+  "Connected router count"
+  connectedRouters: Int!
+  "Last health check timestamp"
+  checkedAt: DateTime!
+}
+
+"""
+Service operational status
+"""
+enum ServiceStatus {
+  "Service is fully operational"
+  HEALTHY
+  "Service is operational with degraded performance"
+  DEGRADED
+  "Service is not operational"
+  UNHEALTHY
+}
+
+"""
+Router connection status
+"""
+enum ConnectionStatus {
+  "Actively connected and responsive"
+  CONNECTED
+  "Connection attempt in progress"
+  CONNECTING
+  "Not connected"
+  DISCONNECTED
+  "Connection failed with error"
+  ERROR
+}
+
+# -----------------------------------------------------------------------------
+# Router Types
+# -----------------------------------------------------------------------------
+
+"""
+A managed router device
+"""
+type Router implements Node {
+  "Unique router identifier"
+  id: ID!
+  "User-friendly display name"
+  name: String!
+  "Router hostname or IP address"
+  host: String!
+  "Connection port"
+  port: Int!
+  "Current connection status"
+  status: ConnectionStatus!
+  "Router platform type"
+  platform: RouterPlatform!
+  "RouterOS version (if connected)"
+  version: String @mikrotik(path: "/system/resource", field: "version")
+  "Router model"
+  model: String @mikrotik(path: "/system/routerboard", field: "model")
+  "System uptime"
+  uptime: Duration @mikrotik(path: "/system/resource", field: "uptime")
+  "Last successful connection time"
+  lastConnected: DateTime
+  "When the router was added to NasNet"
+  createdAt: DateTime!
+  "Last update timestamp"
+  updatedAt: DateTime!
+  "Detected router capabilities (requires connection)"
+  capabilities: RouterCapabilities
+}
+
+"""
+Supported router platforms
+"""
+enum RouterPlatform {
+  "MikroTik RouterOS"
+  MIKROTIK
+  "OpenWrt"
+  OPENWRT
+  "VyOS"
+  VYOS
+  "Generic/Unknown"
+  GENERIC
+}
+
+"""
+Input for creating a new router connection
+"""
+input CreateRouterInput {
+  "User-friendly display name"
+  name: String! @validate(minLength: 1, maxLength: 64)
+  "Router hostname or IP address"
+  host: String! @validate(minLength: 1, maxLength: 255)
+  "Connection port (default: 8728 for MikroTik API)"
+  port: Int @validate(min: 1, max: 65535)
+  "Username for authentication"
+  username: String! @validate(minLength: 1, maxLength: 64)
+  "Password for authentication"
+  password: String! @validate(minLength: 1, maxLength: 128)
+  "Router platform type"
+  platform: RouterPlatform
+}
+
+"""
+Input for updating router settings
+"""
+input UpdateRouterInput {
+  "Updated display name"
+  name: String @validate(minLength: 1, maxLength: 64)
+  "Updated hostname or IP address"
+  host: String @validate(minLength: 1, maxLength: 255)
+  "Updated connection port"
+  port: Int @validate(min: 1, max: 65535)
+  "Updated username"
+  username: String @validate(minLength: 1, maxLength: 64)
+  "Updated password"
+  password: String @validate(minLength: 1, maxLength: 128)
+}

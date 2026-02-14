@@ -1,0 +1,145 @@
+# =============================================================================
+# Resource Fragments: Combined and Composite
+# =============================================================================
+# Combined fragments for common use cases (list views, cards, detail, full).
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Combined Fragments for Common Use Cases
+# -----------------------------------------------------------------------------
+
+"""
+Minimal fragment for list views (mobile-optimized)
+Contains: id, type, category, state, basic runtime
+"""
+fragment ResourceListItem on Resource {
+  uuid
+  id
+  type
+  category
+  metadata {
+    state
+    tags
+    updatedAt
+    isFavorite
+  }
+  runtime {
+    isRunning
+    health
+    lastUpdated
+  }
+}
+
+"""
+Fragment for resource cards in dashboards
+Contains: id, config summary, runtime, basic metadata
+"""
+fragment ResourceCard on Resource {
+  ...ResourceId
+  configuration
+  metadata {
+    state
+    version
+    tags
+    description
+    isFavorite
+    isPinned
+  }
+  runtime {
+    isRunning
+    health
+    errorMessage
+    activeConnections
+    uptime
+  }
+}
+
+"""
+Fragment for resource detail view (desktop)
+Contains: All layers except full telemetry
+"""
+fragment ResourceDetail on Resource {
+  ...ResourceId
+  configuration
+  validation {
+    canApply
+    stage
+    errors {
+      code
+      message
+      field
+      severity
+      suggestedFix
+      docsUrl
+    }
+    warnings {
+      code
+      message
+      field
+      severity
+    }
+    conflicts {
+      type
+      conflictingResourceUuid
+      description
+      resolution
+    }
+    validatedAt
+  }
+  deployment {
+    routerResourceId
+    appliedAt
+    appliedBy
+    isInSync
+    drift {
+      detectedAt
+      suggestedAction
+    }
+  }
+  runtime {
+    isRunning
+    health
+    errorMessage
+    metrics {
+      bytesIn
+      bytesOut
+      throughputIn
+      throughputOut
+      errors
+    }
+    lastUpdated
+    activeConnections
+    uptime
+  }
+  ...ResourceMetadataFull
+  ...ResourceRelationshipsFull
+  platform {
+    current
+    capabilities {
+      isSupported
+      level
+    }
+    limitations {
+      code
+      description
+    }
+  }
+}
+
+"""
+Full resource fragment with all 8 layers
+Use sparingly - prefer selective fragments for bandwidth optimization
+"""
+fragment ResourceFull on Resource {
+  ...ResourceId
+  ...ResourceConfiguration
+  ...ResourceValidation
+  ...ResourceDeployment
+  ...ResourceRuntime
+  ...ResourceTelemetryFull
+  ...ResourceMetadataFull
+  ...ResourceRelationshipsFull
+  ...ResourcePlatform
+}

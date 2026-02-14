@@ -1,0 +1,128 @@
+# =============================================================================
+# Change Set Payloads and Subscriptions
+# =============================================================================
+# Mutation payloads and subscription events for change sets.
+#
+# Reference: NAS-4.14 - Implement Change Sets
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+type CreateChangeSetPayload {
+  "The created change set"
+  changeSet: ChangeSet
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type AddChangeSetItemPayload {
+  "The updated change set"
+  changeSet: ChangeSet
+  "The added item ID"
+  itemId: ID
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type UpdateChangeSetItemPayload {
+  "The updated change set"
+  changeSet: ChangeSet
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type RemoveChangeSetItemPayload {
+  "The updated change set"
+  changeSet: ChangeSet
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ValidateChangeSetPayload {
+  "The validated change set"
+  changeSet: ChangeSet
+  "Validation result"
+  validation: ChangeSetValidationResult
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ApplyChangeSetPayload {
+  "Change set ID"
+  changeSetId: ID!
+  "Current status"
+  status: ChangeSetStatus!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type CancelChangeSetPayload {
+  "The cancelled change set"
+  changeSet: ChangeSet
+  "Whether cancel was successful"
+  success: Boolean!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type RollbackChangeSetPayload {
+  "The rolled back change set"
+  changeSet: ChangeSet
+  "Whether rollback was successful"
+  success: Boolean!
+  "Items that failed to rollback"
+  failedItems: [ID!]
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type DeleteChangeSetPayload {
+  "Whether deletion was successful"
+  success: Boolean!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscriptions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to change set application progress
+  """
+  changeSetProgress(
+    "Change set ID"
+    changeSetId: ID!
+  ): ChangeSetProgressEvent!
+
+  """
+  Subscribe to change set status changes
+  """
+  changeSetStatusChanged(
+    "Router to subscribe to"
+    routerId: ID!
+  ): ChangeSetStatusEvent!
+}
+
+"""
+Change set status change event
+"""
+type ChangeSetStatusEvent {
+  "Change set ID"
+  changeSetId: ID!
+
+  "Previous status"
+  previousStatus: ChangeSetStatus!
+
+  "New status"
+  newStatus: ChangeSetStatus!
+
+  "Error if failed"
+  error: ChangeSetError
+
+  "Timestamp"
+  timestamp: DateTime!
+}

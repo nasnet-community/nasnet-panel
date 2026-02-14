@@ -7,6 +7,20 @@ export * from './firewall-log-filters';
 // Service Instance Management - Feature Marketplace Components
 export * from './service-card';
 export * from './instance-manager';
+export * from './service-health-badge';
+
+// Service Templates (NAS-8.9)
+export * from './service-template-card';
+
+// Service Sharing (NAS-8.11)
+export * from './service-export-dialog';
+export * from './service-import-dialog';
+
+// Device-to-Service Routing (NAS-8.3)
+export * from './device-routing-matrix';
+
+// Kill Switch Toggle (NAS-8.14)
+export * from './kill-switch-toggle';
 
 // Port Knocking (NAS-7.12)
 export * from './port-knock-sequence-form';
@@ -84,6 +98,51 @@ export type { SystemInfoCardProps } from './system-info-card';
 // ResourceGauge - Resource usage visualization
 export { ResourceGauge } from './resource-gauge';
 export type { ResourceGaugeProps } from './resource-gauge';
+
+// ResourceUsageBar - Resource usage bar with threshold-based color coding
+export {
+  ResourceUsageBar,
+  ResourceUsageBarMobile,
+  ResourceUsageBarDesktop,
+  useResourceUsageBar,
+} from './resource-usage-bar';
+export type {
+  ResourceUsageBarProps,
+  UsageStatus,
+  ResourceType,
+  UseResourceUsageBarReturn,
+} from './resource-usage-bar';
+
+// PreFlightDialog - Insufficient resources dialog with service selection
+export {
+  PreFlightDialog,
+  PreFlightDialogMobile,
+  PreFlightDialogDesktop,
+  usePreFlightDialog,
+} from './pre-flight-dialog';
+export type {
+  PreFlightDialogProps,
+  ServiceSuggestion,
+  InsufficientResourcesError,
+  UsePreFlightDialogReturn,
+} from './pre-flight-dialog';
+
+// ResourceBudgetPanel - System-wide and per-instance resource budget display
+export {
+  ResourceBudgetPanel,
+  ResourceBudgetPanelMobile,
+  ResourceBudgetPanelDesktop,
+  useResourceBudgetPanel,
+} from './resource-budget-panel';
+export type {
+  ResourceBudgetPanelProps,
+  ServiceInstanceResource,
+  SystemResourceTotals,
+  SortColumn,
+  SortDirection,
+  EnhancedServiceInstanceResource,
+  UseResourceBudgetPanelReturn,
+} from './resource-budget-panel';
 
 // DHCPServerCard - DHCP server configuration display
 export { DHCPServerCard } from './dhcp-server-card';
@@ -664,6 +723,76 @@ export type {
 export * from './help';
 
 // ============================================================================
+// Verification Badge (Binary Verification)
+// ============================================================================
+
+// VerificationBadge - Binary verification status display for service instances
+// Headless hook + Platform Presenters pattern (Tooltip for desktop, Sheet for mobile)
+export {
+  VerificationBadge,
+  VerificationBadgeDesktop,
+  VerificationBadgeMobile,
+  useVerificationBadge,
+  STATUS_COLORS,
+  STATUS_ICONS,
+  STATUS_LABELS as VERIFICATION_STATUS_LABELS,
+} from './verification-badge';
+export type {
+  VerificationStatus,
+  VerificationBadgeSize,
+  VerificationBadgeVariant,
+  VerificationBadgeProps,
+  VerificationBadgePresenterProps,
+  UseVerificationBadgeConfig,
+  UseVerificationBadgeReturn,
+} from './verification-badge';
+
+// ============================================================================
+// Virtual Interface Bridge
+// ============================================================================
+
+// VirtualInterfaceBridge - Network bridge status display for service instances
+// Headless hook + Platform Presenters pattern (Horizontal for desktop, Vertical for mobile)
+export {
+  VirtualInterfaceBridge,
+  VirtualInterfaceBridgeDesktop,
+  VirtualInterfaceBridgeMobile,
+  useVirtualInterfaceBridge,
+} from './virtual-interface-bridge';
+export type {
+  VirtualInterfaceBridgeProps,
+  VirtualInterface,
+  BridgeStatusData,
+  BridgeStatus,
+  GatewayType,
+  GatewayStatus,
+  UseVirtualInterfaceBridgeReturn,
+} from './virtual-interface-bridge';
+
+// ============================================================================
+// Isolation Status (NAS-8.4)
+// ============================================================================
+
+// IsolationStatus - Service instance isolation verification display
+// Headless hook + Platform Presenters pattern (Table for desktop, Collapsible for mobile)
+export {
+  IsolationStatus,
+  IsolationStatusDesktop,
+  IsolationStatusMobile,
+  useIsolationStatus,
+} from './isolation-status';
+export type {
+  IsolationStatusProps,
+  IsolationStatusPresenterProps,
+  IsolationHealth,
+  IsolationStatusSize,
+  IsolationStatusVariant,
+  ViolationDisplay,
+  UseIsolationStatusConfig,
+  UseIsolationStatusReturn,
+} from './isolation-status';
+
+// ============================================================================
 // Config Preview (NAS-4A.21)
 // ============================================================================
 
@@ -728,7 +857,7 @@ export {
   useRouterStatus,
   useRouterStatusSubscription,
   ROUTER_STATUS_CHANGED_SUBSCRIPTION,
-  STATUS_LABELS,
+  STATUS_LABELS as ROUTER_STATUS_LABELS,
   DEFAULT_MAX_RECONNECT_ATTEMPTS,
 } from './network/router-status';
 export type {
@@ -1206,3 +1335,76 @@ export type {
   RateLimitRulesTablePresenterProps,
   SortableRowProps,
 } from './rate-limit-rules-table';
+
+// DependencyGraph - Service dependency visualization (NAS-8.19)
+export {
+  DependencyGraph,
+  DependencyGraphMobile,
+  DependencyGraphDesktop,
+  useDependencyGraph,
+} from './dependency-graph';
+export type {
+  DependencyType,
+  EnhancedNode,
+  EnhancedEdge,
+  DependencyLayer,
+  UseDependencyGraphConfig,
+  UseDependencyGraphReturn,
+  DependencyGraphProps,
+  DependencyGraphPresenterProps,
+} from './dependency-graph';
+
+// ============================================================================
+// VLAN Management (NAS-8.18)
+// ============================================================================
+
+// VLANPoolGauge - Circular progress indicator for VLAN pool utilization
+export { VLANPoolGauge } from './vlan-pool-gauge';
+export type { VLANPoolGaugeProps } from './vlan-pool-gauge';
+
+// VLANAllocationTable - VLAN allocation table with filters and sorting
+export {
+  VLANAllocationTable,
+} from './vlan-allocation-table';
+export type {
+  VLANAllocation,
+  VLANAllocationSort,
+  VLANAllocationTableProps,
+} from './vlan-allocation-table';
+
+// ============================================================================
+// Routing Schedule Editor (NAS-8.20)
+// ============================================================================
+
+// ScheduleEditor - Time-based routing schedule editor
+export {
+  ScheduleEditor,
+  ScheduleEditorMobile,
+  ScheduleEditorDesktop,
+  useScheduleEditor,
+} from './schedule-editor';
+export type {
+  ScheduleEditorProps,
+  UseScheduleEditorOptions,
+  UseScheduleEditorReturn,
+} from './schedule-editor';
+
+// ============================================================================
+// Service Update Indicator (NAS-8.7)
+// ============================================================================
+
+// UpdateIndicator - Service update indicator with platform presenters
+export {
+  UpdateIndicator,
+  UpdateIndicatorMobile,
+  UpdateIndicatorDesktop,
+  UpdateProgressBar,
+  useUpdateIndicator,
+} from './update-indicator';
+export type {
+  UpdateIndicatorProps,
+  SeverityConfig,
+  StageConfig,
+  UseUpdateIndicatorReturn,
+  UpdateProgressBarProps,
+} from './update-indicator';

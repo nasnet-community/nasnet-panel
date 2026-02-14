@@ -1,0 +1,108 @@
+# -----------------------------------------------------------------------------
+# Alert Types - Alert, AlertCondition
+# -----------------------------------------------------------------------------
+
+"""
+Individual alert instance triggered when rule conditions are met
+"""
+type Alert implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Alert rule that triggered this alert
+  """
+  rule: AlertRule!
+
+  """
+  Event type that triggered this alert
+  """
+  eventType: String!
+
+  """
+  Alert severity level
+  """
+  severity: AlertSeverity!
+
+  """
+  Alert title/summary
+  """
+  title: String!
+
+  """
+  Detailed alert message
+  """
+  message: String!
+
+  """
+  Event data and context information
+  """
+  data: JSON
+
+  """
+  Device ID that triggered this alert
+  """
+  deviceId: ID
+
+  """
+  When alert was triggered
+  """
+  triggeredAt: DateTime!
+
+  """
+  When alert was acknowledged
+  """
+  acknowledgedAt: DateTime
+
+  """
+  User who acknowledged the alert
+  """
+  acknowledgedBy: String
+
+  """
+  Delivery status per channel
+  """
+  deliveryStatus: JSON
+
+  """
+  Escalation tracking for this alert (NAS-18.9)
+  """
+  escalation: AlertEscalation
+
+  """
+  Number of alerts suppressed by throttling (if this alert is part of a throttle group)
+  """
+  suppressedCount: Int
+
+  """
+  Reason for suppression (e.g., "throttled", "storm_detected")
+  """
+  suppressReason: String
+
+  """
+  Last update timestamp
+  """
+  updatedAt: DateTime!
+}
+
+"""
+Condition for event matching in alert rules
+"""
+type AlertCondition {
+  """
+  Field name to evaluate
+  """
+  field: String!
+
+  """
+  Comparison operator
+  """
+  operator: ConditionOperator!
+
+  """
+  Value to compare against
+  """
+  value: String!
+}

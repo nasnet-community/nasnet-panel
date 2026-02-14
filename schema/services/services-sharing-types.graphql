@@ -1,0 +1,133 @@
+# ============================================
+# SERVICE SHARING (IMPORT/EXPORT) (NAS-8.11)
+# ============================================
+
+"""
+Conflict resolution strategy for service import.
+Determines what happens when an imported service name already exists.
+"""
+enum ConflictResolution {
+  """Skip import, leave existing instance unchanged"""
+  SKIP
+
+  """Overwrite existing instance configuration"""
+  OVERWRITE
+
+  """Create new instance with renamed name"""
+  RENAME
+}
+
+"""
+Export package containing service configuration.
+Used for sharing service configs via JSON or QR code.
+"""
+type ServiceExportPackage {
+  """Schema version (e.g., "1.0")"""
+  schemaVersion: String!
+
+  """Timestamp when the export was created"""
+  exportedAt: DateTime!
+
+  """Service type identifier (e.g., 'tor', 'mtproxy')"""
+  serviceType: String!
+
+  """Service instance name"""
+  serviceName: String!
+
+  """Binary version"""
+  binaryVersion: String!
+
+  """Service configuration (JSON)"""
+  config: JSON!
+
+  """Optional routing rules for device routing"""
+  routingRules: [RoutingRule!]
+
+  """Whether secrets are included (not redacted)"""
+  includesSecrets: Boolean!
+
+  """User who exported this configuration"""
+  exportedByUserID: String
+}
+
+"""
+A single routing rule for device-to-service routing.
+Represents a MikroTik firewall mangle rule.
+"""
+type RoutingRule {
+  """Mangle chain (e.g., 'prerouting')"""
+  chain: String!
+
+  """Action (e.g., 'mark-routing')"""
+  action: String!
+
+  """Source address (MAC or IP)"""
+  srcAddress: String
+
+  """Destination address"""
+  dstAddress: String
+
+  """Protocol (tcp, udp, icmp, etc.)"""
+  protocol: String
+
+  """Comment for rule identification"""
+  comment: String
+
+  """Routing mark to match"""
+  routingMark: String
+
+  """New routing mark to set"""
+  newRoutingMark: String
+}
+
+"""
+Validation result for service import.
+Contains errors, warnings, and redacted field prompts.
+"""
+type ImportValidationResult {
+  """Whether the import package passed validation"""
+  valid: Boolean!
+
+  """Validation errors (blocking)"""
+  errors: [ImportValidationError!]!
+
+  """Validation warnings (non-blocking)"""
+  warnings: [ImportValidationWarning!]!
+
+  """List of fields that were redacted and need user input"""
+  redactedFields: [String!]
+
+  """Conflicting service instances (if any)"""
+  conflictingInstances: [ServiceInstance!]
+
+  """Whether user input is required to proceed"""
+  requiresUserInput: Boolean!
+}
+
+"""
+Validation error for service import.
+"""
+type ImportValidationError {
+  """Validation stage (schema, syntax, cross-resource, dependency, conflict, capability, dry-run)"""
+  stage: String!
+
+  """Field name (if applicable)"""
+  field: String
+
+  """Error code (V400, V403, S600, S602)"""
+  code: String!
+
+  """Human-readable error message"""
+  message: String!
+}
+
+"""
+Validation warning for service import.
+"""
+type ImportValidationWarning {
+  """Validation stage"""
+  stage: String!
+
+  """Warning message"""
+  message: String!
+}

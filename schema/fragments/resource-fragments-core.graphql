@@ -1,0 +1,120 @@
+# =============================================================================
+# Resource Fragments: Core Layers (1-4)
+# =============================================================================
+# Fragments for selective fetching of resource layers 1-4.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Layer Fragments
+# -----------------------------------------------------------------------------
+
+"""
+Fragment for resource identification only (minimal)
+"""
+fragment ResourceId on Resource {
+  uuid
+  id
+  type
+  category
+}
+
+"""
+Fragment for Layer 1: Configuration
+"""
+fragment ResourceConfiguration on Resource {
+  ...ResourceId
+  configuration
+}
+
+"""
+Fragment for Layer 2: Validation
+"""
+fragment ResourceValidation on Resource {
+  ...ResourceId
+  validation {
+    canApply
+    stage
+    errors {
+      code
+      message
+      field
+      severity
+      suggestedFix
+    }
+    warnings {
+      code
+      message
+      field
+      severity
+    }
+    conflicts {
+      type
+      conflictingResourceUuid
+      description
+      resolution
+    }
+    requiredDependencies {
+      resourceUuid
+      resourceType
+      isActive
+      state
+      reason
+    }
+    validatedAt
+    validationDurationMs
+  }
+}
+
+"""
+Fragment for Layer 3: Deployment
+"""
+fragment ResourceDeployment on Resource {
+  ...ResourceId
+  deployment {
+    routerResourceId
+    appliedAt
+    appliedBy
+    routerVersion
+    generatedFields
+    isInSync
+    drift {
+      detectedAt
+      driftedFields {
+        path
+        expected
+        actual
+      }
+      suggestedAction
+    }
+    applyOperationId
+  }
+}
+
+"""
+Fragment for Layer 4: Runtime
+"""
+fragment ResourceRuntime on Resource {
+  ...ResourceId
+  runtime {
+    isRunning
+    health
+    errorMessage
+    metrics {
+      bytesIn
+      bytesOut
+      packetsIn
+      packetsOut
+      errors
+      drops
+      throughputIn
+      throughputOut
+      custom
+    }
+    lastUpdated
+    lastSuccessfulOperation
+    activeConnections
+    uptime
+  }
+}

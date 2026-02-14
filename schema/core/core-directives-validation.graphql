@@ -1,0 +1,67 @@
+# =============================================================================
+# Validation and Sensitivity Directives
+# =============================================================================
+# Input validation (@validate) and sensitive data (@sensitive) directives.
+# These constraints are:
+# - Processed by graphql-codegen to generate Zod validation schemas
+# - Used by gqlgen for server-side validation
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Validation Directive
+# -----------------------------------------------------------------------------
+# Example usage:
+#   input CreateUserInput {
+#     username: String! @validate(minLength: 3, maxLength: 32, pattern: "^[a-z0-9_]+$")
+#     email: String! @validate(format: EMAIL)
+#     age: Int @validate(min: 0, max: 150)
+#   }
+# -----------------------------------------------------------------------------
+directive @validate(
+  "Minimum value for numeric types"
+  min: Int
+  "Maximum value for numeric types"
+  max: Int
+  "Minimum length for string types"
+  minLength: Int
+  "Maximum length for string types"
+  maxLength: Int
+  "Regular expression pattern for string validation"
+  pattern: String
+  "Predefined format validation (EMAIL, URL, UUID, IPV4, IPV6, MAC, CIDR)"
+  format: ValidateFormat
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+"""
+Predefined validation formats for common data types
+"""
+enum ValidateFormat {
+  EMAIL
+  URL
+  UUID
+  IPV4
+  IPV6
+  MAC
+  CIDR
+  HOSTNAME
+  FQDN
+}
+
+# -----------------------------------------------------------------------------
+# Sensitive Data Directive
+# -----------------------------------------------------------------------------
+# Marks fields containing sensitive data that should be redacted in logs
+# and stripped from error responses in production mode.
+#
+# Example usage:
+#   input CredentialsInput {
+#     username: String!
+#     password: String! @sensitive
+#     apiKey: String @sensitive
+#   }
+# -----------------------------------------------------------------------------
+"""
+Marks field as containing sensitive data (passwords, tokens, keys).
+Values are redacted in logs and error responses.
+"""
+directive @sensitive on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION

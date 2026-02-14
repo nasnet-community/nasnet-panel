@@ -1,0 +1,74 @@
+# ============================================
+# SERVICE SHARING EVENTS, MUTATIONS, SUBSCRIPTIONS
+# ============================================
+
+"""
+Service configuration sharing event for subscriptions.
+Emitted when configs are exported, imported, or QR codes generated.
+"""
+type ServiceConfigSharedEvent {
+  """Event ID"""
+  id: ID!
+
+  """Event type (exported, imported, qr_generated)"""
+  eventType: String!
+
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID"""
+  instanceID: ID!
+
+  """Service type"""
+  serviceType: String!
+
+  """Service name"""
+  serviceName: String!
+
+  """User who performed the action"""
+  userID: String
+
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+extend type Mutation {
+  """
+  Export a service configuration as a JSON package.
+  Returns a download URL with 15-minute expiry.
+  Supports secret redaction and routing rule inclusion.
+  """
+  exportServiceConfig(input: ExportServiceConfigInput!): ExportServiceConfigPayload!
+
+  """
+  Import a service configuration package (validation only).
+  Performs 7-stage validation pipeline without making changes.
+  Returns validation results and conflicts.
+  """
+  importServiceConfig(input: ImportServiceConfigInput!): ImportServiceConfigPayload!
+
+  """
+  Apply a validated service import package.
+  Creates or updates service instance based on conflict resolution strategy.
+  Applies routing rules if included.
+  """
+  applyServiceImport(input: ApplyServiceImportInput!): ApplyServiceImportPayload!
+
+  """
+  Generate a QR code for service configuration sharing.
+  Returns base64-encoded PNG image (256x256 by default).
+  Enforces 2KB size limit for QR code data.
+  """
+  generateConfigQR(input: GenerateConfigQRInput!): GenerateConfigQRPayload!
+}
+
+extend type Subscription {
+  """
+  Subscribe to service configuration sharing events.
+  Emits events when configs are exported, imported, or QR codes generated.
+  """
+  serviceConfigShared(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ServiceConfigSharedEvent!
+}

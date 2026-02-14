@@ -1,0 +1,194 @@
+# ============================================
+# ROUTING SCHEDULE TYPES (NAS-8.21)
+# ============================================
+
+"""
+Time-based schedule for activating/deactivating device routing rules.
+Enables features like parental controls, time-based VPN routing, etc.
+"""
+type RoutingSchedule implements Node {
+  """Schedule ID (ULID)"""
+  id: ID!
+
+  """Device routing ID this schedule controls"""
+  routingID: ID!
+
+  """Days of week when schedule is active (0=Sunday, 6=Saturday)"""
+  days: [Int!]!
+
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String!
+
+  """End time in HH:MM format (24-hour)"""
+  endTime: String!
+
+  """IANA timezone identifier (e.g., 'America/New_York', 'UTC')"""
+  timezone: String!
+
+  """Whether this schedule is enabled"""
+  enabled: Boolean!
+
+  """Timestamp when routing was last activated by this schedule"""
+  lastActivated: DateTime
+
+  """Timestamp when routing was last deactivated by this schedule"""
+  lastDeactivated: DateTime
+
+  """Whether the schedule window is currently active (computed field)"""
+  isActive: Boolean!
+
+  """When the schedule was created"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""
+Input for creating a new routing schedule.
+"""
+input CreateScheduleInput {
+  """Device routing ID to schedule"""
+  routingID: ID!
+
+  """Days of week (0=Sunday, 6=Saturday)"""
+  days: [Int!]!
+
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+
+  """End time in HH:MM format (24-hour)"""
+  endTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+
+  """IANA timezone identifier"""
+  timezone: String! @validate(minLength: 1, maxLength: 64)
+
+  """Whether schedule is enabled (default: true)"""
+  enabled: Boolean
+}
+
+"""
+Input for updating an existing routing schedule.
+"""
+input UpdateScheduleInput {
+  """Days of week (0=Sunday, 6=Saturday)"""
+  days: [Int!]
+
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+
+  """End time in HH:MM format (24-hour)"""
+  endTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+
+  """IANA timezone identifier"""
+  timezone: String @validate(minLength: 1, maxLength: 64)
+
+  """Whether schedule is enabled"""
+  enabled: Boolean
+}
+
+"""
+Schedule event for subscriptions.
+Emitted when schedules are created, updated, deleted, or when activation state changes.
+"""
+type ScheduleEvent {
+  """Event ID"""
+  id: ID!
+
+  """Event type (created, updated, deleted, activated, deactivated)"""
+  eventType: String!
+
+  """Schedule that changed"""
+  schedule: RoutingSchedule
+
+  """Routing ID (for deleted schedules)"""
+  routingID: ID
+
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+extend type DeviceRouting {
+  """All schedules for this device routing"""
+  schedules: [RoutingSchedule!]!
+
+  """Whether this routing has any active schedules"""
+  hasSchedules: Boolean!
+}
+
+extend type Query {
+  """
+  Get a specific routing schedule by ID.
+  """
+  routingSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID"""
+    scheduleID: ID!
+  ): RoutingSchedule
+
+  """
+  Get all schedules for a device routing.
+  Returns schedules ordered by start time.
+  """
+  routingSchedules(
+    """Router ID"""
+    routerID: ID!
+
+    """Device routing ID"""
+    routingID: ID!
+  ): [RoutingSchedule!]!
+}
+
+extend type Mutation {
+  """
+  Create a new routing schedule.
+  Validates time format, timezone, and days. Triggers immediate schedule evaluation.
+  """
+  createSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule input"""
+    input: CreateScheduleInput!
+  ): RoutingSchedule!
+
+  """
+  Update an existing routing schedule.
+  Triggers immediate schedule evaluation.
+  """
+  updateSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID to update"""
+    scheduleID: ID!
+
+    """Schedule input"""
+    input: UpdateScheduleInput!
+  ): RoutingSchedule!
+
+  """
+  Delete a routing schedule.
+  Triggers immediate schedule evaluation to ensure routing state is correct.
+  """
+  deleteSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID to delete"""
+    scheduleID: ID!
+  ): Boolean!
+}
+
+extend type Subscription {
+  """
+  Subscribe to schedule changes for a router.
+  Emits events when schedules are created, updated, deleted, or when activation state changes.
+  """
+  scheduleChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ScheduleEvent!
+}

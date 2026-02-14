@@ -1,0 +1,212 @@
+# =============================================================================
+# Change Set Operations
+# =============================================================================
+# Queries, mutations, and inputs for change set management.
+#
+# Reference: NAS-4.14 - Implement Change Sets
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Progress Event for Subscriptions
+# -----------------------------------------------------------------------------
+
+"""
+Progress event for real-time updates during apply
+"""
+type ChangeSetProgressEvent {
+  "Change set ID"
+  changeSetId: ID!
+
+  "Current status"
+  status: ChangeSetStatus!
+
+  "Currently processing item"
+  currentItem: CurrentItemInfo
+
+  "Number of items applied"
+  appliedCount: Int!
+
+  "Total number of items"
+  totalCount: Int!
+
+  "Progress percentage (0-100)"
+  progressPercent: Float!
+
+  "Estimated time remaining in milliseconds"
+  estimatedRemainingMs: Int
+
+  "Error if failed"
+  error: ChangeSetError
+
+  "Timestamp of this event"
+  timestamp: DateTime!
+}
+
+"""
+Current item information in progress event
+"""
+type CurrentItemInfo {
+  id: ID!
+  name: String!
+  operation: ChangeOperation!
+  status: ChangeSetItemStatus!
+}
+
+# -----------------------------------------------------------------------------
+# Queries
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  """
+  Get a change set by ID
+  """
+  changeSet(
+    "Change set ID"
+    id: ID!
+    "Router the change set belongs to"
+    routerId: ID!
+  ): ChangeSet
+
+  """
+  List change sets for a router
+  """
+  changeSets(
+    "Router to query"
+    routerId: ID!
+    "Filter by status"
+    status: ChangeSetStatus
+    "Include completed/failed (default: false)"
+    includeCompleted: Boolean = false
+  ): [ChangeSetSummary!]!
+}
+
+# -----------------------------------------------------------------------------
+# Mutations
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Create a new change set
+  """
+  createChangeSet(input: CreateChangeSetInput!): CreateChangeSetPayload!
+
+  """
+  Add an item to a change set
+  """
+  addChangeSetItem(
+    changeSetId: ID!
+    input: ChangeSetItemInput!
+  ): AddChangeSetItemPayload!
+
+  """
+  Update an item in a change set
+  """
+  updateChangeSetItem(
+    changeSetId: ID!
+    itemId: ID!
+    input: UpdateChangeSetItemInput!
+  ): UpdateChangeSetItemPayload!
+
+  """
+  Remove an item from a change set
+  """
+  removeChangeSetItem(
+    changeSetId: ID!
+    itemId: ID!
+  ): RemoveChangeSetItemPayload!
+
+  """
+  Validate a change set (all items)
+  """
+  validateChangeSet(changeSetId: ID!): ValidateChangeSetPayload!
+
+  """
+  Apply a change set atomically to the router
+  """
+  applyChangeSet(changeSetId: ID!): ApplyChangeSetPayload!
+
+  """
+  Cancel an in-progress change set application
+  """
+  cancelChangeSet(changeSetId: ID!): CancelChangeSetPayload!
+
+  """
+  Force rollback of a failed change set
+  """
+  rollbackChangeSet(changeSetId: ID!): RollbackChangeSetPayload!
+
+  """
+  Delete a change set (only if not applying)
+  """
+  deleteChangeSet(changeSetId: ID!): DeleteChangeSetPayload!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Inputs
+# -----------------------------------------------------------------------------
+
+"""
+Input for creating a new change set
+"""
+input CreateChangeSetInput {
+  "Router to apply changes to"
+  routerId: ID!
+
+  "Human-readable name"
+  name: String!
+
+  "Optional description"
+  description: String
+
+  "Source wizard/feature"
+  source: String
+}
+
+"""
+Input for adding an item to a change set
+"""
+input ChangeSetItemInput {
+  "Resource type identifier"
+  resourceType: String!
+
+  "Resource category"
+  resourceCategory: ResourceCategory!
+
+  "Existing resource UUID (for update/delete)"
+  resourceUuid: ID
+
+  "User-friendly name"
+  name: String!
+
+  "Optional description"
+  description: String
+
+  "Operation to perform"
+  operation: ChangeOperation!
+
+  "Configuration"
+  configuration: JSON!
+
+  "Previous state (for rollback on update/delete)"
+  previousState: JSON
+
+  "Item IDs this depends on"
+  dependencies: [ID!]
+}
+
+"""
+Input for updating an item in a change set
+"""
+input UpdateChangeSetItemInput {
+  "Updated name"
+  name: String
+
+  "Updated description"
+  description: String
+
+  "Updated configuration"
+  configuration: JSON
+
+  "Updated dependencies"
+  dependencies: [ID!]
+}

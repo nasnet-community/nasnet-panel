@@ -1,0 +1,86 @@
+# =============================================================================
+# Route Lookup Diagnostic Tool
+# =============================================================================
+# Provides route lookup functionality for troubleshooting routing decisions
+# Story: NAS-6.10 - Implement Route Lookup Diagnostic
+# =============================================================================
+
+"""
+Status of a VPN tunnel
+"""
+enum TunnelStatus {
+  "Tunnel is connected and active"
+  CONNECTED
+  "Tunnel is disconnected"
+  DISCONNECTED
+  "Tunnel is attempting to connect"
+  CONNECTING
+}
+
+"""
+VPN tunnel information for routes through VPN
+"""
+type VPNTunnelInfo {
+  "Tunnel name"
+  name: String!
+  "Tunnel type (wireguard, ipsec, ovpn, l2tp, gre, eoip)"
+  type: String!
+  "Current tunnel connection status"
+  status: TunnelStatus!
+  "Remote endpoint address"
+  remoteAddress: String
+}
+
+"""
+A candidate route that matches the destination
+"""
+type RouteLookupCandidate {
+  "The route object"
+  route: Route!
+  "Prefix length (24 for /24, 8 for /8)"
+  prefixLength: Int!
+  "Administrative distance"
+  distance: Int!
+  "Whether this route was selected"
+  selected: Boolean!
+  "Reason for selection or non-selection"
+  selectionReason: String
+}
+
+"""
+Result of a route lookup operation
+"""
+type RouteLookupResult {
+  "Destination IP that was looked up"
+  destination: String!
+  "The selected route (null if no route found)"
+  matchedRoute: Route
+  "Gateway IP for the selected route"
+  gateway: String
+  "Outgoing interface for the selected route"
+  interface: String
+  "Administrative distance of selected route"
+  distance: Int
+  "Route type (STATIC, CONNECTED, DYNAMIC, BGP, OSPF)"
+  routeType: RouteType!
+  "Whether this is the default route (0.0.0.0/0)"
+  isDefaultRoute: Boolean!
+  "All candidate routes that match destination"
+  candidateRoutes: [RouteLookupCandidate!]!
+  "Human-readable explanation of route selection"
+  explanation: String!
+  "VPN tunnel info if route goes through VPN"
+  vpnTunnel: VPNTunnelInfo
+}
+
+extend type Query {
+  """
+  Look up which route will be used for a destination IP.
+  Supports optional source address for policy routing testing.
+  """
+  routeLookup(
+    routerId: ID!
+    destination: IPv4!
+    source: IPv4
+  ): RouteLookupResult!
+}

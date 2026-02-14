@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"backend/graph"
+	"backend/generated/graphql"
 	"backend/graph/resolver"
 	"backend/internal/router"
 	"backend/internal/troubleshoot"

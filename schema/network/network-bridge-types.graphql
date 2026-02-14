@@ -1,0 +1,110 @@
+# =============================================================================
+# Bridge Configuration Schema
+# =============================================================================
+# Reference: Epic 6 - Network Management
+# RouterOS Commands: /interface/bridge/*
+# Story: NAS-6.6 - Implement Bridge Configuration
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Enums
+# -----------------------------------------------------------------------------
+
+enum StpProtocol {
+  NONE
+  STP
+  RSTP
+  MSTP
+}
+
+enum FrameTypes {
+  ADMIT_ALL
+  ADMIT_ONLY_UNTAGGED_AND_PRIORITY
+  ADMIT_ONLY_VLAN_TAGGED
+}
+
+enum StpPortRole {
+  ROOT
+  DESIGNATED
+  ALTERNATE
+  BACKUP
+  DISABLED
+}
+
+enum StpPortState {
+  DISABLED
+  BLOCKING
+  LISTENING
+  LEARNING
+  FORWARDING
+}
+
+# -----------------------------------------------------------------------------
+# Types
+# -----------------------------------------------------------------------------
+
+type Bridge implements Node {
+  id: ID!
+  name: String!
+  comment: String @mikrotik(path: "/interface/bridge", field: "comment")
+  disabled: Boolean! @mikrotik(path: "/interface/bridge", field: "disabled")
+  running: Boolean!
+  macAddress: MAC @mikrotik(path: "/interface/bridge", field: "mac-address")
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/bridge", field: "mtu")
+
+  # STP Configuration
+  protocol: StpProtocol! @mikrotik(path: "/interface/bridge", field: "protocol")
+  priority: Int @validate(min: 0, max: 61440) @mikrotik(path: "/interface/bridge", field: "priority")
+
+  # VLAN Configuration
+  vlanFiltering: Boolean! @mikrotik(path: "/interface/bridge", field: "vlan-filtering")
+  pvid: Int @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge", field: "pvid")
+
+  # Relationships
+  ports: [BridgePort!]!
+  vlans: [BridgeVlan!]!
+  ipAddresses: [IpAddress!]!
+
+  # STP Status (real-time)
+  stpStatus: BridgeStpStatus
+
+  # Impact analysis for deletion
+  dependentDhcpServers: [DhcpServer!]!
+  dependentRoutes: [Route!]!
+}
+
+type BridgePort implements Node {
+  id: ID!
+  bridge: Bridge!
+  interface: Interface!
+
+  # VLAN Configuration
+  pvid: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/bridge/port", field: "pvid")
+  frameTypes: FrameTypes! @mikrotik(path: "/interface/bridge/port", field: "frame-types")
+  ingressFiltering: Boolean! @mikrotik(path: "/interface/bridge/port", field: "ingress-filtering")
+  taggedVlans: [Int!]!
+  untaggedVlans: [Int!]!
+
+  # STP Per-Port Status
+  role: StpPortRole!
+  state: StpPortState!
+  pathCost: Int!
+  edge: Boolean! @mikrotik(path: "/interface/bridge/port", field: "edge")
+}
+
+type BridgeStpStatus {
+  rootBridge: Boolean!
+  rootBridgeId: String
+  rootPort: String
+  rootPathCost: Int!
+  topologyChangeCount: Int!
+  lastTopologyChange: DateTime
+}
+
+type BridgeVlan {
+  uuid: ID!
+  bridge: Bridge!
+  vlanId: Int! @validate(min: 1, max: 4094)
+  taggedPorts: [BridgePort!]!
+  untaggedPorts: [BridgePort!]!
+}

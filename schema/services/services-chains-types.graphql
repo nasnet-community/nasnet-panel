@@ -1,0 +1,124 @@
+# ============================================
+# MULTI-HOP ROUTING CHAINS (NAS-8.10)
+# ============================================
+
+"""
+Kill switch behavior when any hop in a chain fails.
+"""
+enum KillSwitchMode {
+  """Block all traffic from the device"""
+  BLOCK_ALL
+
+  """Fall back to a specified service"""
+  FALLBACK_SERVICE
+
+  """Allow direct internet access (no VPN)"""
+  ALLOW_DIRECT
+}
+
+"""
+Kill switch status information for monitoring.
+Provides visibility into kill switch state and activation history.
+"""
+type KillSwitchStatus {
+  """Whether kill switch is enabled"""
+  enabled: Boolean!
+
+  """Kill switch behavior mode"""
+  mode: KillSwitchMode!
+
+  """Whether kill switch is currently active (blocking traffic)"""
+  active: Boolean!
+
+  """Timestamp when kill switch was last activated"""
+  lastActivatedAt: DateTime
+
+  """Timestamp when kill switch was last deactivated"""
+  lastDeactivatedAt: DateTime
+
+  """Fallback interface ID (if mode=FALLBACK_SERVICE)"""
+  fallbackInterfaceID: String
+
+  """Number of times kill switch has been activated"""
+  activationCount: Int!
+
+  """Reason for most recent activation (service_down, health_check_failed, etc.)"""
+  lastActivationReason: String
+}
+
+"""
+A multi-hop routing chain that routes device traffic through multiple services sequentially.
+Example: Device -> VPN -> Tor -> Internet for layered privacy.
+"""
+type RoutingChain implements Node {
+  """Chain ID (ULID)"""
+  id: ID!
+
+  """Target device identifier"""
+  deviceId: ID!
+
+  """Device MAC address (when routing_mode=MAC)"""
+  deviceMac: String
+
+  """Device IP address (when routing_mode=IP)"""
+  deviceIp: String
+
+  """Human-readable device name"""
+  deviceName: String
+
+  """Ordered list of service hops in this chain"""
+  hops: [ChainHop!]!
+
+  """Whether this chain is currently active"""
+  active: Boolean!
+
+  """Routing mode (MAC or IP matching)"""
+  routingMode: RoutingMode!
+
+  """Whether kill switch is enabled for this chain"""
+  killSwitchEnabled: Boolean!
+
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode!
+
+  """Whether kill switch is currently blocking traffic"""
+  killSwitchActive: Boolean!
+
+  """Timestamp when kill switch was last activated"""
+  killSwitchActivatedAt: DateTime
+
+  """Total latency across all hops in milliseconds"""
+  totalLatencyMs: Float
+
+  """Chain creation timestamp"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""
+A single hop in a multi-hop routing chain, referencing one VirtualInterface.
+"""
+type ChainHop implements Node {
+  """Hop ID (ULID)"""
+  id: ID!
+
+  """1-based position in the chain (1 = first hop, 2 = second, etc.)"""
+  order: Int!
+
+  """Virtual interface for this hop"""
+  interface: VirtualInterface!
+
+  """MikroTik routing mark (e.g., chain-abc123-hop1)"""
+  routingMark: String!
+
+  """Latency for this hop in milliseconds (-1 if unreachable)"""
+  latencyMs: Float
+
+  """Whether this hop is currently healthy"""
+  healthy: Boolean!
+
+  """Whether kill switch is active for this hop"""
+  killSwitchActive: Boolean!
+}

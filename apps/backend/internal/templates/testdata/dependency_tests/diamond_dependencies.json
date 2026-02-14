@@ -1,0 +1,36 @@
+{
+  "id": "diamond-deps",
+  "name": "Diamond Dependency Pattern",
+  "description": "Tests parallel dependency resolution",
+  "category": "networking",
+  "scope": "multiple",
+  "version": "1.0.0",
+  "author": "Test",
+  "tags": ["test"],
+  "services": [
+    {
+      "serviceType": "tor",
+      "name": "service-a",
+      "configOverrides": {}
+    },
+    {
+      "serviceType": "xray-core",
+      "name": "service-b",
+      "dependsOn": ["service-a"],
+      "configOverrides": {}
+    },
+    {
+      "serviceType": "sing-box",
+      "name": "service-c",
+      "dependsOn": ["service-a"],
+      "configOverrides": {}
+    },
+    {
+      "serviceType": "psiphon",
+      "name": "service-d",
+      "dependsOn": ["service-b", "service-c"],
+      "configOverrides": {}
+    }
+  ],
+  "configVariables": []
+}

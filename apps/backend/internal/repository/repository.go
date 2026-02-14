@@ -51,7 +51,7 @@ import (
 	"context"
 	"time"
 
-	"backend/ent"
+	"backend/generated/ent"
 
 	"github.com/oklog/ulid/v2"
 )

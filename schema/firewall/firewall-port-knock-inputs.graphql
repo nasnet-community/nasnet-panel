@@ -1,0 +1,106 @@
+# ============================================
+# PORT KNOCKING ENUMS
+# ============================================
+
+"""
+Protocol for knock port.
+"""
+enum KnockProtocol {
+  """TCP only"""
+  TCP
+
+  """UDP only"""
+  UDP
+
+  """Both TCP and UDP"""
+  BOTH
+}
+
+"""
+Status of knock attempt.
+"""
+enum KnockStatus {
+  """All ports hit correctly, access granted"""
+  SUCCESS
+
+  """Wrong port order"""
+  FAILED
+
+  """Some ports hit, sequence incomplete"""
+  PARTIAL
+
+  """Time between knocks exceeded"""
+  TIMEOUT
+}
+
+"""
+Transport protocol enum for network traffic.
+"""
+enum TransportProtocol {
+  TCP
+  UDP
+}
+
+# ============================================
+# PORT KNOCKING INPUT TYPES
+# ============================================
+
+"""
+Input for creating/updating port knock sequence.
+"""
+input PortKnockSequenceInput {
+  """Sequence name"""
+  name: String! @validate(minLength: 1, maxLength: 32, pattern: "^[a-zA-Z0-9_-]+$")
+
+  """Ordered knock ports (2-8)"""
+  knockPorts: [KnockPortInput!]!
+
+  """Protected service port"""
+  protectedPort: Int! @validate(min: 1, max: 65535)
+
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+
+  """Access timeout (e.g., "5m", "1h")"""
+  accessTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+
+  """Knock timeout (e.g., "15s", "30s")"""
+  knockTimeout: String! @validate(pattern: "^\\d+[smhd]$")
+
+  """Whether enabled"""
+  enabled: Boolean
+}
+
+"""
+Input for knock port.
+"""
+input KnockPortInput {
+  """Port number"""
+  port: Int! @validate(min: 1, max: 65535)
+
+  """Protocol"""
+  protocol: KnockProtocol!
+
+  """Order in sequence"""
+  order: Int! @validate(min: 1)
+}
+
+"""
+Filters for knock attempt log.
+"""
+input PortKnockLogFilters {
+  """Filter by status"""
+  status: KnockStatus
+
+  """Filter by source IP"""
+  sourceIP: String
+
+  """Filter by sequence ID"""
+  sequenceId: ID
+
+  """Start date"""
+  startDate: DateTime
+
+  """End date"""
+  endDate: DateTime
+}

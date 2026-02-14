@@ -1,0 +1,111 @@
+# ============================================
+# PORT KNOCKING TYPES
+# ============================================
+
+"""
+Port knocking sequence configuration.
+Implements stage-based address list progression for hiding services.
+"""
+type PortKnockSequence implements Node {
+  """Unique sequence identifier"""
+  id: ID!
+
+  """Sequence name (alphanumeric, underscores, hyphens)"""
+  name: String!
+
+  """Ordered list of knock ports (2-8 ports)"""
+  knockPorts: [KnockPort!]!
+
+  """Protected service port"""
+  protectedPort: Int!
+
+  """Protected service protocol"""
+  protectedProtocol: TransportProtocol!
+
+  """Access timeout after successful knock"""
+  accessTimeout: String!
+
+  """Max time between knocks"""
+  knockTimeout: String!
+
+  """Whether sequence is enabled"""
+  enabled: Boolean!
+
+  """Router ID"""
+  routerId: ID!
+
+  """When sequence was created"""
+  createdAt: DateTime!
+
+  """When sequence was last updated"""
+  updatedAt: DateTime!
+
+  """Successful knocks in last 24h"""
+  recentAccessCount: Int!
+
+  """Generated firewall rule IDs"""
+  generatedRuleIds: [ID!]!
+}
+
+"""
+Single knock port in sequence.
+"""
+type KnockPort {
+  """Port number (1-65535)"""
+  port: Int!
+
+  """Protocol for this knock port"""
+  protocol: KnockProtocol!
+
+  """Position in sequence (1-based)"""
+  order: Int!
+}
+
+"""
+Port knock attempt log entry.
+"""
+type PortKnockAttempt implements Node {
+  """Attempt ID"""
+  id: ID!
+
+  """Sequence ID"""
+  sequenceId: ID!
+
+  """Sequence name"""
+  sequenceName: String!
+
+  """Source IP address"""
+  sourceIP: String!
+
+  """Attempt timestamp"""
+  timestamp: DateTime!
+
+  """Attempt status"""
+  status: KnockStatus!
+
+  """Ports hit in order"""
+  portsHit: [Int!]!
+
+  """Protected service port"""
+  protectedPort: Int!
+
+  """Progress indicator (e.g., "2/4")"""
+  progress: String!
+}
+
+"""
+Connection type for paginated knock attempts.
+"""
+type PortKnockAttemptConnection implements Connection {
+  edges: [PortKnockAttemptEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+"""
+Edge type for knock attempt connections.
+"""
+type PortKnockAttemptEdge implements Edge {
+  cursor: String!
+  node: PortKnockAttempt!
+}

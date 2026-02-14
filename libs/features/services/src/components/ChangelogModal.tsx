@@ -1,0 +1,244 @@
+/**
+ * ChangelogModal Component (NAS-8.7)
+ * Displays GitHub release notes with markdown rendering
+ */
+
+import * as React from 'react';
+import { ExternalLink, ShieldAlert, AlertCircle, ArrowUp, CheckCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  Button,
+  Badge,
+  Separator,
+  cn,
+} from '@nasnet/ui/primitives';
+import type { UpdateSeverity } from '@nasnet/api-client/queries';
+
+export interface ChangelogModalProps {
+  /** Whether the modal is open */
+  open: boolean;
+
+  /** Callback to close the modal */
+  onClose: () => void;
+
+  /** Service instance name */
+  instanceName: string;
+
+  /** Current version */
+  currentVersion: string;
+
+  /** New version */
+  newVersion: string;
+
+  /** Update severity */
+  severity: UpdateSeverity;
+
+  /** Changelog URL (GitHub releases) */
+  changelogUrl: string;
+
+  /** Release date (ISO string) */
+  releaseDate?: string;
+
+  /** Whether update includes security fixes */
+  securityFixes?: boolean;
+
+  /** Whether update has breaking changes */
+  breakingChanges?: boolean;
+}
+
+/**
+ * Severity icon mapping
+ */
+const SEVERITY_ICONS = {
+  SECURITY: ShieldAlert,
+  MAJOR: AlertCircle,
+  MINOR: ArrowUp,
+  PATCH: CheckCircle,
+};
+
+/**
+ * Severity color mapping
+ */
+const SEVERITY_COLORS: Record<UpdateSeverity, string> = {
+  SECURITY: 'bg-error/10 text-error border-error/20',
+  MAJOR: 'bg-warning/10 text-warning border-warning/20',
+  MINOR: 'bg-info/10 text-info border-info/20',
+  PATCH: 'bg-success/10 text-success border-success/20',
+};
+
+/**
+ * Severity label mapping
+ */
+const SEVERITY_LABELS: Record<UpdateSeverity, string> = {
+  SECURITY: 'Security Update',
+  MAJOR: 'Major Update',
+  MINOR: 'Minor Update',
+  PATCH: 'Patch Update',
+};
+
+/**
+ * ChangelogModal
+ *
+ * Displays release notes from GitHub with:
+ * - Severity badge
+ * - Version diff (current → new)
+ * - Release date
+ * - Link to full changelog on GitHub
+ * - Security/breaking change warnings
+ *
+ * @example
+ * ```tsx
+ * <ChangelogModal
+ *   open={modalOpen}
+ *   onClose={() => setModalOpen(false)}
+ *   instanceName="Tor Proxy"
+ *   currentVersion="1.0.0"
+ *   newVersion="1.1.0"
+ *   severity="SECURITY"
+ *   changelogUrl="https://github.com/torproject/tor/releases/tag/v1.1.0"
+ *   securityFixes={true}
+ * />
+ * ```
+ */
+export function ChangelogModal(props: ChangelogModalProps) {
+  const {
+    open,
+    onClose,
+    instanceName,
+    currentVersion,
+    newVersion,
+    severity,
+    changelogUrl,
+    releaseDate,
+    securityFixes,
+    breakingChanges,
+  } = props;
+
+  const SeverityIcon = SEVERITY_ICONS[severity];
+  const severityColor = SEVERITY_COLORS[severity];
+  const severityLabel = SEVERITY_LABELS[severity];
+
+  // Format release date
+  const formattedDate = React.useMemo(() => {
+    if (!releaseDate) return null;
+    try {
+      const date = new Date(releaseDate);
+      // Check if date is valid
+      if (isNaN(date.getTime())) return null;
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch {
+      return null;
+    }
+  }, [releaseDate]);
+
+  // Open changelog URL in new tab
+  const handleOpenChangelog = React.useCallback(() => {
+    window.open(changelogUrl, '_blank', 'noopener,noreferrer');
+  }, [changelogUrl]);
+
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <SeverityIcon className="h-6 w-6" aria-hidden="true" />
+            <span>{instanceName} Update</span>
+          </DialogTitle>
+          <DialogDescription>
+            View changelog and release notes for this update
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
+          {/* Severity badge */}
+          <div className="flex items-center justify-between">
+            <Badge
+              className={cn(
+                'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium border',
+                severityColor
+              )}
+            >
+              <SeverityIcon className="h-4 w-4" />
+              {severityLabel}
+            </Badge>
+            {formattedDate && (
+              <span className="text-sm text-muted-foreground">
+                Released {formattedDate}
+              </span>
+            )}
+          </div>
+
+          {/* Version diff */}
+          <div className="rounded-md bg-muted p-4">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              Version Change
+            </h3>
+            <p className="font-mono text-lg">
+              <span className="text-muted-foreground">v{currentVersion}</span>
+              <span className="mx-3 text-muted-foreground">→</span>
+              <span className="font-semibold text-foreground">v{newVersion}</span>
+            </p>
+          </div>
+
+          {/* Warnings */}
+          {(securityFixes || breakingChanges) && (
+            <div className="space-y-2">
+              {securityFixes && (
+                <div className="flex items-start gap-3 rounded-md border border-error/20 bg-error/5 p-3">
+                  <ShieldAlert className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-error">
+                      Security Fixes Included
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This update includes important security patches. We recommend
+                      updating as soon as possible.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {breakingChanges && (
+                <div className="flex items-start gap-3 rounded-md border border-warning/20 bg-warning/5 p-3">
+                  <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-warning">
+                      Breaking Changes
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This update contains breaking changes. Review the changelog
+                      before updating.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Changelog preview message */}
+          <div className="text-center py-6 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              For detailed release notes and changelog, visit the GitHub release page.
+            </p>
+            <Button
+              onClick={handleOpenChangelog}
+              className="inline-flex items-center gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View Full Changelog on GitHub
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

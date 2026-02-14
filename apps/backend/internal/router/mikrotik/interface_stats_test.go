@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/router"
 
 	"github.com/stretchr/testify/assert"

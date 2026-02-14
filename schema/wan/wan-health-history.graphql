@@ -1,0 +1,130 @@
+# -----------------------------------------------------------------------------
+# Health Monitoring Types
+# -----------------------------------------------------------------------------
+
+"""
+WAN health check status
+"""
+type WANHealthStatus {
+  "Overall health status"
+  status: HealthCheckStatus!
+
+  "Target host being monitored"
+  target: String!
+
+  "Check interval"
+  interval: Duration!
+
+  "Current latency (if reachable)"
+  latency: Int
+
+  "Packet loss percentage (0-100)"
+  packetLoss: Int!
+
+  "Consecutive successful checks"
+  successCount: Int!
+
+  "Consecutive failed checks"
+  failureCount: Int!
+
+  "Last check timestamp"
+  lastCheck: DateTime!
+
+  "Whether health check is enabled"
+  enabled: Boolean!
+}
+
+"""
+Health check status
+"""
+enum HealthCheckStatus {
+  "Target is reachable (healthy)"
+  HEALTHY
+  "Target is unreachable (unhealthy)"
+  UNHEALTHY
+  "Health check is disabled"
+  DISABLED
+  "Health check is starting"
+  UNKNOWN
+}
+
+"""
+Input for configuring WAN health check
+"""
+input WANHealthCheckInput {
+  "Target host to ping (IP or hostname)"
+  target: String! @validate(minLength: 1, maxLength: 255)
+
+  "Check interval in seconds"
+  interval: Int! @validate(min: 5, max: 300)
+
+  "Enable health check"
+  enabled: Boolean!
+}
+
+# -----------------------------------------------------------------------------
+# Connection History Types
+# -----------------------------------------------------------------------------
+
+"""
+WAN connection history entry
+"""
+type WANConnectionEvent {
+  "Event ID"
+  id: ID!
+
+  "WAN interface ID"
+  wanInterfaceId: ID!
+
+  "Event type"
+  eventType: WANEventType!
+
+  "Event timestamp"
+  timestamp: DateTime!
+
+  "Public IP at the time (if applicable)"
+  publicIP: IPv4
+
+  "Gateway IP"
+  gateway: IPv4
+
+  "Reason/error message (if applicable)"
+  reason: String
+
+  "Connection duration (for disconnect events)"
+  duration: Duration
+}
+
+"""
+WAN event types for history tracking
+"""
+enum WANEventType {
+  "Connection established"
+  CONNECTED
+  "Connection lost"
+  DISCONNECTED
+  "Authentication failed"
+  AUTH_FAILED
+  "IP address changed"
+  IP_CHANGED
+  "Gateway changed"
+  GATEWAY_CHANGED
+  "Health check failed"
+  HEALTH_FAILED
+  "Health check recovered"
+  HEALTH_RECOVERED
+}
+
+"""
+Connection history pagination
+"""
+type WANConnectionEventConnection implements Connection {
+  edges: [WANConnectionEventEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+
+type WANConnectionEventEdge implements Edge {
+  node: WANConnectionEvent!
+  cursor: String!
+}

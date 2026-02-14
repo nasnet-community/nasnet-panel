@@ -1,0 +1,158 @@
+# -----------------------------------------------------------------------------
+# Input Types - EmailConfigInput, NtfyChannelInput, CreateAlertRuleInput
+# -----------------------------------------------------------------------------
+
+"""
+Email notification configuration input
+"""
+input EmailConfigInput {
+  """
+  Whether email notifications are enabled
+  """
+  enabled: Boolean!
+
+  """
+  SMTP server hostname
+  """
+  host: String
+
+  """
+  SMTP server port
+  """
+  port: Int
+
+  """
+  SMTP username for authentication
+  """
+  username: String
+
+  """
+  SMTP password for authentication
+  """
+  password: String
+
+  """
+  Email sender address
+  """
+  fromAddress: String
+
+  """
+  Email sender display name
+  """
+  fromName: String
+
+  """
+  Array of recipient email addresses
+  """
+  toAddresses: [String!]!
+
+  """
+  Whether to use TLS/SSL
+  """
+  useTLS: Boolean
+
+  """
+  Skip TLS certificate verification (use with caution)
+  """
+  skipVerify: Boolean
+}
+
+"""
+Ntfy.sh notification configuration input
+"""
+input NtfyChannelInput {
+  """
+  Whether ntfy notifications are enabled
+  """
+  enabled: Boolean!
+
+  """
+  Ntfy server URL (e.g., https://ntfy.sh or self-hosted)
+  """
+  serverUrl: String!
+
+  """
+  Topic to publish to
+  """
+  topic: String!
+
+  """
+  Optional username for authentication
+  """
+  username: String
+
+  """
+  Optional password for authentication
+  """
+  password: String
+
+  """
+  Message priority (1-5, default: 3)
+  """
+  priority: Int
+
+  """
+  Optional tags for categorization
+  """
+  tags: [String!]
+}
+
+"""
+Input for creating an alert rule
+"""
+input CreateAlertRuleInput {
+  """
+  Human-readable alert rule name
+  """
+  name: String!
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Event type to match
+  """
+  eventType: String!
+
+  """
+  Array of conditions
+  """
+  conditions: [AlertConditionInput!]
+
+  """
+  Alert severity level
+  """
+  severity: AlertSeverity!
+
+  """
+  Notification channels
+  """
+  channels: [String!]!
+
+  """
+  Throttle configuration
+  """
+  throttle: ThrottleConfigInput
+
+  """
+  Quiet hours configuration
+  """
+  quietHours: QuietHoursConfigInput
+
+  """
+  Escalation configuration (NAS-18.9)
+  """
+  escalation: EscalationConfigInput
+
+  """
+  Optional device ID filter
+  """
+  deviceId: ID
+
+  """
+  Whether rule is enabled (default: true)
+  """
+  enabled: Boolean = true
+}

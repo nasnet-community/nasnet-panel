@@ -1,0 +1,124 @@
+# =============================================================================
+# Composite Resources: LAN Network Types
+# =============================================================================
+# LAN Network composite resource with configuration, deployment, and runtime.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# LAN Network (Composite)
+# -----------------------------------------------------------------------------
+
+"""
+LAN Network composite resource - groups bridge, DHCP, firewall, routing
+"""
+type LANNetwork implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  # Generic fields (interface requirement)
+  configuration: JSON
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  config: LANNetworkConfig!
+  lanDeployment: LANNetworkDeployment
+  lanRuntime: LANNetworkRuntime
+
+  # Composite sub-resources
+  "Bridge interface"
+  bridge: BridgeResource
+  "DHCP server configuration"
+  dhcpServer: DHCPServerResource
+  "Firewall rules for this LAN"
+  firewallRules: [FirewallRuleResource!]!
+  "Static routes"
+  routes: [RouteResource!]!
+}
+
+"""
+LAN Network configuration
+"""
+type LANNetworkConfig {
+  "Network name"
+  name: String!
+
+  "IP address for the LAN"
+  ipAddress: IPv4!
+
+  "Subnet mask in CIDR notation"
+  subnetMask: Int! @validate(min: 1, max: 32)
+
+  "Interfaces to include in bridge"
+  interfaces: [String!]!
+
+  "Enable DHCP server"
+  dhcpEnabled: Boolean!
+
+  "DHCP pool start"
+  dhcpPoolStart: IPv4
+
+  "DHCP pool end"
+  dhcpPoolEnd: IPv4
+
+  "DHCP lease time"
+  dhcpLeaseTime: Duration
+
+  "DNS servers for DHCP"
+  dnsServers: [IPv4!]
+
+  "Enable NAT masquerading"
+  enableNat: Boolean!
+
+  "VLAN ID (optional)"
+  vlanId: Int @validate(min: 1, max: 4094)
+}
+
+"""
+LAN Network deployment state
+"""
+type LANNetworkDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # Composite deployment
+  "Bridge interface ID on router"
+  bridgeId: String
+  "DHCP server ID on router"
+  dhcpServerId: String
+  "IP address ID on router"
+  ipAddressId: String
+}
+
+"""
+LAN Network runtime state
+"""
+type LANNetworkRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # LAN-specific runtime
+  "Number of active clients"
+  activeClients: Int!
+  "Active DHCP leases"
+  dhcpLeases: Int!
+  "Total traffic in"
+  totalBytesIn: Size!
+  "Total traffic out"
+  totalBytesOut: Size!
+}

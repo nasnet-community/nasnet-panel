@@ -1,0 +1,265 @@
+//go:build !dev
+// +build !dev
+
+package main
+
+import (
+	"context"
+	"embed"
+	"io/fs"
+	"log"
+	"os"
+	"runtime"
+	"runtime/debug"
+	"time"
+
+	"github.com/rs/zerolog"
+	"go.uber.org/zap"
+
+	"backend/internal/alerts"
+	"backend/internal/database"
+	"backend/internal/events"
+	"backend/internal/notifications"
+	"backend/internal/router"
+	"backend/internal/server"
+	"backend/internal/services"
+	troubleshootPkg "backend/internal/troubleshoot"
+)
+
+//go:embed dist/**
+var frontendFiles embed.FS
+
+func init() {
+	runtime.GOMAXPROCS(1)
+	debug.SetGCPercent(10)
+	debug.SetMemoryLimit(32 << 20) // 32MB memory limit
+
+	scannerPool = NewScannerPool(2)
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Println("Production NasNetConnect server initialized")
+
+	initializeContainerIPs()
+	detectDefaultGateway()
+}
+
+func init() { ServerVersion = "production-v2.0" }
+
+func run() {
+	cfg := server.DefaultProdConfig()
+
+	// Initialize EventBus with production-optimized options
+	eventBusOpts := events.DefaultEventBusOptions()
+	eventBusOpts.BufferSize = 256
+	eventBus, err := events.NewEventBus(eventBusOpts)
+	if err != nil {
+		log.Fatalf("Failed to create event bus: %v", err)
+	}
+
+	storagePublisher := events.NewPublisher(eventBus, "storage-infrastructure")
+
+	// Initialize Database Manager
+	dataDir := os.Getenv("NASNET_DATA_DIR")
+	if dataDir == "" {
+		dataDir = database.DefaultDataDir
+	}
+	dbManager, err := database.NewManager(context.Background(),
+		database.WithDataDir(dataDir),
+		database.WithIdleTimeout(database.DefaultIdleTimeout),
+	)
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	log.Printf("Database initialized: %s", dataDir)
+	systemDB := dbManager.SystemDB()
+
+	// Initialize structured loggers
+	zerologWriter := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	storageLogger := zerolog.New(zerologWriter).With().Timestamp().Logger()
+
+	loggerConfig := zap.NewProductionConfig()
+	loggerConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	logger, err := loggerConfig.Build()
+	if err != nil {
+		log.Fatalf("Failed to initialize logger: %v", err)
+	}
+	defer logger.Sync()
+	sugar := logger.Sugar()
+
+	// Initialize mock router adapter (until ClientFactory is implemented)
+	mockRouterPort := router.NewMockAdapter("prod-router")
+
+	troubleshootSvc := troubleshootPkg.NewService(mockRouterPort)
+
+	interfaceSvc := services.NewInterfaceService(services.InterfaceServiceConfig{
+		RouterPort: mockRouterPort,
+		EventBus:   eventBus,
+	})
+
+	// Initialize notification channels
+	channels := initNotificationChannels(eventBus)
+
+	templateService := notifications.NewTemplateService(notifications.TemplateServiceConfig{
+		DB:     systemDB,
+		Logger: sugar,
+	})
+
+	dispatcher := notifications.NewDispatcher(notifications.DispatcherConfig{
+		Channels:        channels,
+		Logger:          sugar,
+		TemplateService: templateService,
+		DB:              systemDB,
+		MaxRetries:      3,
+		InitialBackoff:  1 * time.Second,
+	})
+
+	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
+		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", err)
+	}
+
+	eventBusAdapter := &eventBusAdapter{bus: eventBus}
+
+	escalationEngine := alerts.NewEscalationEngine(alerts.EscalationEngineConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBusAdapter,
+		Logger:     sugar,
+	})
+
+	digestService, err := alerts.NewDigestService(alerts.DigestServiceConfig{
+		DB:         systemDB,
+		Dispatcher: dispatcher,
+		EventBus:   eventBus,
+		Logger:     sugar,
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize digest service: %v", err)
+	}
+
+	digestScheduler := alerts.NewDigestScheduler(alerts.DigestSchedulerConfig{
+		DigestService: digestService,
+		Logger:        sugar,
+	})
+	if err := digestScheduler.Start(context.Background()); err != nil {
+		log.Printf("Warning: failed to start digest scheduler: %v", err)
+	}
+
+	alertService := services.NewAlertService(services.AlertServiceConfig{
+		DB:                  systemDB,
+		EventBus:            eventBus,
+		EscalationCanceller: escalationEngine,
+		DigestService:       nil,
+		Logger:              sugar,
+	})
+
+	alertRuleTemplateService, err := alerts.NewAlertRuleTemplateService(alertService, systemDB)
+	if err != nil {
+		log.Fatalf("Failed to initialize alert rule template service: %v", err)
+	}
+
+	alertEngine := alerts.NewEngine(alerts.EngineConfig{
+		DB:               systemDB,
+		EventBus:         eventBus,
+		Dispatcher:       dispatcher,
+		EscalationEngine: escalationEngine,
+		DigestService:    digestService,
+		Logger:           sugar,
+	})
+	if err := alertEngine.Start(context.Background()); err != nil {
+		log.Fatalf("Failed to start alert engine: %v", err)
+	}
+
+	// Initialize storage, orchestrator, updates, and templates
+	prodServices := initProdServices(prodServiceDeps{
+		eventBus:         eventBus,
+		storagePublisher: storagePublisher,
+		storageLogger:    storageLogger,
+		systemDB:         systemDB,
+		mockRouterPort:   mockRouterPort,
+		pathResolver:     nil, // created inside initProdServices
+		dataDir:          dataDir,
+	})
+
+	// Create server
+	srv := server.New(cfg)
+	server.ApplyProdMiddleware(srv.Echo)
+
+	// Serve embedded frontend
+	fsys, err := fs.Sub(frontendFiles, "dist")
+	if err != nil {
+		log.Fatalf("Error accessing embedded files: %v", err)
+	}
+	frontendHandler := server.NewFrontendHandler(fsys)
+
+	// Setup routes
+	setupProdRoutes(srv.Echo, prodRoutesDeps{
+		eventBus:                 eventBus,
+		systemDB:                 systemDB,
+		troubleshootSvc:          troubleshootSvc,
+		interfaceSvc:             interfaceSvc,
+		alertSvc:                 alertService,
+		alertRuleTemplateSvc:     alertRuleTemplateService,
+		dispatcher:               dispatcher,
+		frontendHandler:          frontendHandler,
+		storageDetector:          prodServices.storageDetector,
+		storageConfig:            prodServices.storageConfig,
+		pathResolver:             prodServices.pathResolver,
+		gatewayManager:           prodServices.gatewayManager,
+		featureRegistry:          prodServices.featureRegistry,
+		instanceManager:          prodServices.instanceManager,
+		portRegistry:             prodServices.portRegistry,
+		vlanAllocator:            prodServices.vlanAllocator,
+		dependencyMgr:            prodServices.dependencyMgr,
+		bootSequenceMgr:          prodServices.bootSequenceMgr,
+		updateSvc:                prodServices.updateSvc,
+		updateScheduler:          prodServices.updateScheduler,
+		serviceTemplateSvc:       prodServices.serviceTemplateSvc,
+		templateInstaller:        prodServices.templateInstaller,
+		templateExporter:         prodServices.templateExporter,
+		templateImporter:         prodServices.templateImporter,
+	})
+
+	// Boot sequence for auto-start services
+	go func() {
+		log.Println("Executing boot sequence for auto-start service instances...")
+		if err := prodServices.bootSequenceMgr.ExecuteBootSequence(context.Background()); err != nil {
+			log.Printf("Boot sequence completed with errors: %v", err)
+		} else {
+			log.Println("Boot sequence completed successfully")
+		}
+	}()
+
+	log.Printf("=== NasNetConnect Server v2.0 ===")
+	log.Printf("Server starting on 0.0.0.0:%s", cfg.Port)
+	log.Printf("Memory limit: 32MB, GC: aggressive, Workers: 2")
+	log.Printf("Frontend: embedded, same-origin")
+	log.Printf("GraphQL endpoint: http://localhost:%s/graphql", cfg.Port)
+	log.Printf("Health check: http://localhost:%s/health", cfg.Port)
+	log.Printf("================================")
+
+	srv.Start(func(ctx context.Context) {
+		if err := alertEngine.Stop(ctx); err != nil {
+			log.Printf("Warning: error stopping alert engine: %v", err)
+		}
+		digestScheduler.Stop()
+		if err := prodServices.updateScheduler.Stop(); err != nil {
+			log.Printf("Warning: error stopping update scheduler: %v", err)
+		}
+		prodServices.storageDetector.Stop()
+		if err := eventBus.Close(); err != nil {
+			log.Printf("Warning: error closing event bus: %v", err)
+		}
+		if err := dbManager.Close(); err != nil {
+			log.Printf("Warning: error closing database: %v", err)
+		}
+	})
+}
+
+// performHealthCheck performs a health check against the production port and exits.
+func performHealthCheck() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "80"
+	}
+	server.PerformHealthCheck(port)
+}

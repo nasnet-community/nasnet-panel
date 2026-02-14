@@ -192,5 +192,17 @@ export type { Category, CategoryMeta, CategoryAccentProviderProps } from './cate
 export { DriftBadge, driftBadgeVariants } from './drift-badge';
 export type { DriftBadgeProps, DriftBadgeStatus } from './drift-badge';
 
+// Form
+export {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+  useFormField,
+} from './form';
+
 // Hooks
 export { useReducedMotion, useMediaQuery } from './hooks';

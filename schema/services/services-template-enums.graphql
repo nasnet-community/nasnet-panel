@@ -1,0 +1,87 @@
+# =============================================================================
+# Service Templates - Enums and TemplateVariable
+# =============================================================================
+
+"""
+Service template category enum
+"""
+enum ServiceTemplateCategory {
+  PRIVACY
+  ANTI_CENSORSHIP
+  MESSAGING
+  GAMING
+  SECURITY
+  NETWORKING
+}
+
+"""
+Template deployment scope
+"""
+enum TemplateScope {
+  """Single service instance"""
+  SINGLE
+
+  """Multiple independent services"""
+  MULTIPLE
+
+  """Chained services (e.g., Tor -> Xray)"""
+  CHAIN
+}
+
+"""
+Template variable type
+"""
+enum TemplateVariableType {
+  STRING
+  NUMBER
+  BOOLEAN
+  ENUM
+  PORT
+  IP
+}
+
+"""
+Template installation status
+"""
+enum TemplateInstallationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+"""
+Configuration variable for a template
+"""
+type TemplateVariable {
+  """Variable name (e.g., 'TOR_NAME')"""
+  name: String!
+
+  """Variable type"""
+  type: TemplateVariableType!
+
+  """Whether the variable is required"""
+  required: Boolean!
+
+  """Default value (can be null)"""
+  default: JSON
+
+  """Human-readable description"""
+  description: String!
+
+  """Display label for UI"""
+  label: String!
+
+  """Regex pattern for validation"""
+  validationPattern: String
+
+  """Minimum value for number types"""
+  minValue: Float
+
+  """Maximum value for number types"""
+  maxValue: Float
+
+  """Allowed values for enum types"""
+  enumValues: [JSON!]
+}

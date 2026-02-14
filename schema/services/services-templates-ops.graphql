@@ -1,0 +1,193 @@
+# =============================================================================
+# Service Template Operations
+# =============================================================================
+
+"""
+Service result from template installation
+"""
+type ServiceResult {
+  """Service name from template"""
+  serviceName: String!
+
+  """Created instance ID"""
+  instanceID: String
+
+  """Status (success/failed/skipped)"""
+  status: String!
+
+  """Error message if failed"""
+  errorMessage: String
+
+  """Creation timestamp"""
+  createdAt: DateTime!
+}
+
+"""
+Template installation progress
+"""
+type TemplateInstallProgress {
+  """Template ID being installed"""
+  templateID: ID!
+
+  """Total number of services"""
+  totalServices: Int!
+
+  """Number of services installed"""
+  installedCount: Int!
+
+  """Current service being installed"""
+  currentService: String
+
+  """Installation status"""
+  status: TemplateInstallationStatus!
+
+  """Error message if failed"""
+  errorMessage: String
+
+  """Installation start time"""
+  startedAt: DateTime!
+
+  """Installation completion time"""
+  completedAt: DateTime
+
+  """Individual service results"""
+  serviceResults: [ServiceResult!]!
+}
+
+"""
+Template installation result
+"""
+type TemplateInstallResult {
+  """Whether installation was successful"""
+  success: Boolean!
+
+  """Created instance IDs"""
+  instanceIDs: [ID!]!
+
+  """Map of service names to instance IDs"""
+  serviceMapping: JSON!
+
+  """Errors encountered"""
+  errors: [String!]
+
+  """Installation progress"""
+  progress: TemplateInstallProgress
+}
+
+"""
+Input for installing a service template
+"""
+input InstallServiceTemplateInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Template ID to install"""
+  templateID: ID!
+
+  """Variable values"""
+  variables: JSON!
+
+  """Dry run (preview only, don't actually install)"""
+  dryRun: Boolean
+}
+
+"""
+Input for exporting services as a template
+"""
+input ExportAsTemplateInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance IDs to export"""
+  instanceIDs: [ID!]!
+
+  """Template name"""
+  name: String!
+
+  """Template description"""
+  description: String!
+
+  """Template category"""
+  category: ServiceTemplateCategory!
+
+  """Template scope"""
+  scope: TemplateScope!
+}
+
+"""
+Input for importing a template
+"""
+input ImportServiceTemplateInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Template JSON data"""
+  templateData: JSON!
+}
+
+extend type Query {
+  """
+  List all service templates (built-in + user-created).
+  Optionally filter by category and/or scope.
+  """
+  serviceTemplates(
+    """Router ID (null for built-in only)"""
+    routerID: ID
+
+    """Filter by category"""
+    category: ServiceTemplateCategory
+
+    """Filter by scope"""
+    scope: TemplateScope
+  ): [ServiceTemplate!]!
+
+  """
+  Get a specific service template by ID.
+  """
+  serviceTemplate(
+    """Template ID"""
+    id: ID!
+  ): ServiceTemplate
+}
+
+extend type Mutation {
+  """
+  Install a service template on a router.
+  Creates one or more service instances based on the template.
+  """
+  installServiceTemplate(input: InstallServiceTemplateInput!): TemplateInstallResult!
+
+  """
+  Export existing service instances as a reusable template.
+  Creates a new user template from running services.
+  """
+  exportAsTemplate(input: ExportAsTemplateInput!): ServiceTemplate!
+
+  """
+  Import a service template from JSON.
+  """
+  importServiceTemplate(input: ImportServiceTemplateInput!): ServiceTemplate!
+
+  """
+  Delete a user-created service template.
+  Built-in templates cannot be deleted.
+  """
+  deleteServiceTemplate(
+    """Router ID"""
+    routerID: ID!
+
+    """Template ID"""
+    templateID: ID!
+  ): Boolean!
+}
+
+extend type Subscription {
+  """
+  Subscribe to template installation progress.
+  Emits progress updates during installation.
+  """
+  templateInstallProgress(
+    """Router ID"""
+    routerID: ID!
+  ): TemplateInstallProgress!
+}

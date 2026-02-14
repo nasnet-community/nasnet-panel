@@ -1,0 +1,101 @@
+# =============================================================================
+# Capability Types - VIF Requirements and Aggregate
+# =============================================================================
+# VIF requirements, router capabilities aggregate, and RouterOS version types.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# VIF Requirements
+# -----------------------------------------------------------------------------
+
+"""
+VIF (Virtual Interface Factory) requirements check result
+"""
+type VIFRequirements {
+  "Whether all VIF requirements are satisfied"
+  met: Boolean!
+  "Whether RouterOS version is sufficient (7.13+)"
+  routerOSVersion: Boolean!
+  "Whether container package is installed"
+  containerPackage: Boolean!
+  "Whether container feature is enabled"
+  containerEnabled: Boolean!
+  "Whether there's sufficient storage (>100MB)"
+  sufficientStorage: Boolean!
+  "Whether network namespace is supported"
+  networkNamespace: Boolean!
+  "Human-readable reasons why VIF is not available"
+  missingReasons: [String!]!
+  "Step-by-step guidance for enabling VIF"
+  guidanceSteps: [VIFGuidanceStep!]!
+}
+
+"""
+Single step in VIF enablement guidance
+"""
+type VIFGuidanceStep {
+  "Step number (1-based)"
+  step: Int!
+  "Short title for the step"
+  title: String!
+  "Detailed instruction"
+  description: String!
+  "Whether this requirement is already met"
+  completed: Boolean!
+  "RouterOS command to execute (if applicable)"
+  routerCommand: String
+}
+
+# -----------------------------------------------------------------------------
+# Router Capabilities (Aggregate)
+# -----------------------------------------------------------------------------
+
+"""
+Complete router capabilities detected from system inspection
+"""
+type RouterCapabilities {
+  "Hardware information"
+  hardware: HardwareInfo!
+  "Software information"
+  software: SoftwareInfo!
+  "Container-specific capabilities"
+  container: ContainerInfo!
+  "Capability entries with support levels"
+  capabilities: [CapabilityEntry!]!
+  "VIF requirements check"
+  vifRequirements: VIFRequirements!
+  "Features supported by this router's version and configuration"
+  supportedFeatures: [FeatureSupport!]!
+  "Features not supported by this router (with upgrade guidance)"
+  unsupportedFeatures: [FeatureSupport!]!
+  "Parsed RouterOS version with comparison helpers"
+  routerOSVersion: RouterOSVersion!
+  "When capabilities were detected"
+  detectedAt: DateTime!
+  "When cache expires (24h TTL)"
+  expiresAt: DateTime!
+  "Whether cache is stale and refresh is in progress"
+  isRefreshing: Boolean!
+}
+
+"""
+Parsed RouterOS version with semantic versioning
+"""
+type RouterOSVersion {
+  "Full version string (e.g., '7.13.2')"
+  raw: String!
+  "Major version number"
+  major: Int!
+  "Minor version number"
+  minor: Int!
+  "Patch version number"
+  patch: Int!
+  "Version channel (stable, beta, rc, long-term)"
+  channel: String
+  "Whether this is a Cloud Hosted Router (CHR)"
+  isCHR: Boolean!
+  "Check if this version supports a specific feature"
+  supportsFeature(featureId: String!): Boolean!
+  "Check if version is at least the given version (e.g., '7.1')"
+  isAtLeast(version: String!): Boolean!
+}

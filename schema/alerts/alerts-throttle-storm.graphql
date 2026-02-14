@@ -1,0 +1,140 @@
+# -----------------------------------------------------------------------------
+# Throttle and Storm Detection Types
+# -----------------------------------------------------------------------------
+
+"""
+Throttle status for an alert rule
+Shows current throttling state and suppressed alert counts
+"""
+type ThrottleStatus {
+  """
+  Alert rule ID
+  """
+  ruleId: ID!
+
+  """
+  Whether the rule is currently throttled
+  """
+  isThrottled: Boolean!
+
+  """
+  Number of alerts suppressed in current throttle window
+  """
+  suppressedCount: Int!
+
+  """
+  When the current throttle window started
+  """
+  windowStart: DateTime
+
+  """
+  When the current throttle window ends
+  """
+  windowEnd: DateTime
+
+  """
+  Throttle groups (if groupByField is configured)
+  """
+  groups: [ThrottleGroupStatus!]!
+}
+
+"""
+Throttle status for a specific group (when groupByField is used)
+"""
+type ThrottleGroupStatus {
+  """
+  Group identifier (value of groupByField)
+  """
+  groupKey: String!
+
+  """
+  Whether this group is currently throttled
+  """
+  isThrottled: Boolean!
+
+  """
+  Number of alerts suppressed for this group
+  """
+  suppressedCount: Int!
+
+  """
+  When the throttle window for this group started
+  """
+  windowStart: DateTime!
+
+  """
+  When the throttle window for this group ends
+  """
+  windowEnd: DateTime!
+}
+
+"""
+Storm detection status
+Shows if alert storm is detected and current metrics
+"""
+type StormStatus {
+  """
+  Whether storm is currently detected
+  """
+  isStormDetected: Boolean!
+
+  """
+  Number of alerts in current window
+  """
+  alertCount: Int!
+
+  """
+  Storm detection threshold
+  """
+  threshold: Int!
+
+  """
+  Window duration in seconds
+  """
+  windowSeconds: Int!
+
+  """
+  When storm detection started
+  """
+  stormStartedAt: DateTime
+
+  """
+  When current window started
+  """
+  windowStart: DateTime!
+
+  """
+  When current window ends
+  """
+  windowEnd: DateTime!
+
+  """
+  Top alert rules contributing to the storm
+  """
+  topRules: [StormRuleContribution!]!
+}
+
+"""
+Alert rule contribution to storm detection
+"""
+type StormRuleContribution {
+  """
+  Alert rule ID
+  """
+  ruleId: ID!
+
+  """
+  Alert rule name
+  """
+  ruleName: String!
+
+  """
+  Number of alerts from this rule in current window
+  """
+  alertCount: Int!
+
+  """
+  Percentage of total alerts
+  """
+  percentage: Float!
+}

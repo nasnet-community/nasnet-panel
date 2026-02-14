@@ -1,0 +1,159 @@
+# -----------------------------------------------------------------------------
+# Network Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Assign a new IP address to an interface
+  """
+  createIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address input"
+    input: IpAddressInput!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing IP address
+  """
+  updateIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address ID"
+    id: ID!
+    "Updated IP address data"
+    input: IpAddressInput!
+  ): IpAddressMutationResult! @capability(requires: ["interface"])
+
+  """
+  Remove an IP address from an interface
+  """
+  deleteIpAddress(
+    "Router ID"
+    routerId: ID!
+    "IP address ID to delete"
+    id: ID!
+  ): IpAddressDeleteResult! @capability(requires: ["interface"])
+
+  """
+  Create a new VLAN interface
+  """
+  createVlan(
+    "Router ID"
+    routerId: ID!
+    "VLAN input data"
+    input: VlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Update an existing VLAN interface
+  """
+  updateVlan(
+    "VLAN ID"
+    id: ID!
+    "Updated VLAN data"
+    input: VlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Delete a VLAN interface
+  """
+  deleteVlan(
+    "VLAN ID to delete"
+    id: ID!
+  ): DeleteResult! @capability(requires: ["interface"])
+
+  """
+  Configure VLAN settings on a bridge port (trunk/access)
+  """
+  configureBridgePortVlan(
+    "Router ID"
+    routerId: ID!
+    "Bridge port ID"
+    portId: ID!
+    "VLAN configuration"
+    input: BridgePortVlanInput!
+  ): VlanMutationResult! @capability(requires: ["interface"])
+
+  """
+  Create a new static route
+  """
+  createRoute(
+    "Router ID"
+    routerId: ID!
+    "Route input data"
+    input: RouteInput!
+  ): RouteMutationResult! @capability(requires: ["routing"])
+
+  """
+  Update an existing route
+  """
+  updateRoute(
+    "Router ID"
+    routerId: ID!
+    "Route ID"
+    id: ID!
+    "Updated route data"
+    input: RouteInput!
+  ): RouteMutationResult! @capability(requires: ["routing"])
+
+  """
+  Delete a route with impact analysis
+  """
+  deleteRoute(
+    "Router ID"
+    routerId: ID!
+    "Route ID to delete"
+    id: ID!
+  ): RouteDeleteResult! @capability(requires: ["routing"])
+}
+
+# -----------------------------------------------------------------------------
+# Network Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to IP address changes (create, update, delete)
+  """
+  ipAddressChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): IpAddressChangeEvent! @capability(requires: ["interface"])
+
+  """
+  Subscribe to VLAN interface changes (create, update, delete)
+  """
+  vlanChanged(
+    "Router ID to monitor"
+    routerId: ID!
+  ): Vlan! @capability(requires: ["interface"])
+
+  """
+  Subscribe to real-time interface statistics updates
+  """
+  interfaceStatsUpdated(
+    "Router ID to monitor"
+    routerId: ID!
+    "Interface ID to monitor"
+    interfaceId: ID!
+    "Polling interval (default: 5s, minimum: 1s)"
+    interval: Duration = "5s"
+  ): InterfaceStats! @capability(requires: ["interface"])
+}
+
+"""
+Event emitted when an IP address changes
+"""
+type IpAddressChangeEvent {
+  "Type of change (CREATED, UPDATED, DELETED)"
+  changeType: ChangeType!
+  "The IP address that changed"
+  ipAddress: IpAddress
+  "IP address ID (for deletions)"
+  ipAddressId: ID!
+  "Timestamp of the change"
+  timestamp: DateTime!
+}
+
+# Note: ChangeType enum is defined in schema.graphql

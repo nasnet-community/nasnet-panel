@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -12,6 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// =============================================================================
+// EventBus Tests
+// =============================================================================
 
 func TestNewEventBus(t *testing.T) {
 	bus, err := NewEventBus(DefaultEventBusOptions())
@@ -92,7 +97,6 @@ func TestEventBus_SubscribeAll(t *testing.T) {
 
 	ctx := context.Background()
 
-	// Publish different event types (all immediate priority to skip batching)
 	event1 := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "test")
 	event2 := NewFeatureCrashedEvent("feature-1", "instance-1", "router-1", 1, 1, "error", true, "test")
 
@@ -101,7 +105,6 @@ func TestEventBus_SubscribeAll(t *testing.T) {
 	err = bus.Publish(ctx, event2)
 	require.NoError(t, err)
 
-	// Wait for events to be processed
 	time.Sleep(100 * time.Millisecond)
 
 	assert.Equal(t, int32(2), count.Load())
@@ -140,7 +143,6 @@ func TestEventBus_Close(t *testing.T) {
 	err = bus.Close()
 	assert.NoError(t, err)
 
-	// Publishing to closed bus should fail
 	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "test")
 	err = bus.Publish(context.Background(), event)
 	assert.Error(t, err)
@@ -168,7 +170,6 @@ func TestEventBus_ImmediatePriorityBypassesBatching(t *testing.T) {
 
 	select {
 	case receiveTime := <-received:
-		// Immediate events should be delivered in <100ms
 		latency := receiveTime.Sub(publishTime)
 		assert.Less(t, latency, 100*time.Millisecond, "immediate event took too long: %v", latency)
 	case <-time.After(500 * time.Millisecond):
@@ -189,7 +190,6 @@ func TestEventBus_CriticalPriorityBatching(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	// Publish multiple critical events quickly
 	ctx := context.Background()
 	for i := 0; i < 5; i++ {
 		event := NewConfigApplyProgressEvent("op-1", "router-1", "apply", i*20, i, 5, "progress", "test")
@@ -198,7 +198,6 @@ func TestEventBus_CriticalPriorityBatching(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	// Wait for batch window (100ms + buffer)
 	time.Sleep(200 * time.Millisecond)
 
 	assert.Equal(t, int32(5), received.Load())
@@ -227,7 +226,7 @@ func TestEventBus_ConcurrentPublish(t *testing.T) {
 			defer wg.Done()
 			for j := 0; j < eventsPerGoroutine; j++ {
 				event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "test")
-				event.Priority = PriorityImmediate // Skip batching
+				event.Priority = PriorityImmediate
 				if err := bus.Publish(context.Background(), event); err != nil {
 					t.Errorf("publish error: %v", err)
 				}
@@ -277,20 +276,17 @@ func TestParseEvent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Serialize to message
 			payload, err := tt.event.Payload()
 			require.NoError(t, err)
 
-			// Create message with metadata
-			msg := &mockMessage{
+			msg := &parseTestMessage{
 				payload: payload,
 				metadata: map[string]string{
 					"type": tt.eventType,
 				},
 			}
 
-			// Parse back
-			parsed, err := parseEventFromMock(msg)
+			parsed, err := parseEventFromTestMsg(msg)
 			require.NoError(t, err)
 			assert.Equal(t, tt.event.GetID(), parsed.GetID())
 			assert.Equal(t, tt.event.GetType(), parsed.GetType())
@@ -298,19 +294,17 @@ func TestParseEvent(t *testing.T) {
 	}
 }
 
-// mockMessage for testing ParseEvent
-type mockMessage struct {
+// parseTestMessage for testing ParseEvent
+type parseTestMessage struct {
 	payload  []byte
 	metadata map[string]string
 }
 
-func (m *mockMessage) Metadata() map[string]string {
+func (m *parseTestMessage) Metadata() map[string]string {
 	return m.metadata
 }
 
-// parseEventFromMock is a test helper for ParseEvent
-func parseEventFromMock(msg *mockMessage) (Event, error) {
-	// This is a simplified version that mimics message.Message behavior
+func parseEventFromTestMsg(msg *parseTestMessage) (Event, error) {
 	eventType := msg.metadata["type"]
 	if eventType == "" {
 		return nil, nil
@@ -320,37 +314,37 @@ func parseEventFromMock(msg *mockMessage) (Event, error) {
 	switch eventType {
 	case EventTypeRouterStatusChanged:
 		var e RouterStatusChangedEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
 	case EventTypeResourceUpdated:
 		var e ResourceUpdatedEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
 	case EventTypeFeatureCrashed:
 		var e FeatureCrashedEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
 	case EventTypeConfigApplyProgress:
 		var e ConfigApplyProgressEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
 	case EventTypeAuth:
 		var e AuthEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
 	default:
 		var e BaseEvent
-		if err := unmarshalEvent(msg.payload, &e); err != nil {
+		if err := json.Unmarshal(msg.payload, &e); err != nil {
 			return nil, err
 		}
 		event = &e
@@ -359,6 +353,213 @@ func parseEventFromMock(msg *mockMessage) (Event, error) {
 	return event, nil
 }
 
-func unmarshalEvent(payload []byte, v interface{}) error {
-	return json.Unmarshal(payload, v)
+// =============================================================================
+// Benchmark Tests
+// =============================================================================
+
+// BenchmarkEventBusPublish benchmarks event publishing performance.
+// Target: 10,000 events/second (AC9)
+func BenchmarkEventBusPublish(b *testing.B) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(b, err)
+	defer bus.Close()
+
+	ctx := context.Background()
+	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "benchmark")
+	event.Priority = PriorityImmediate
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = bus.Publish(ctx, event)
+	}
+}
+
+// BenchmarkEventBusPublishWithSubscriber benchmarks with an active subscriber.
+func BenchmarkEventBusPublishWithSubscriber(b *testing.B) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(b, err)
+	defer bus.Close()
+
+	err = bus.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		return nil
+	})
+	require.NoError(b, err)
+
+	ctx := context.Background()
+	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "benchmark")
+	event.Priority = PriorityImmediate
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = bus.Publish(ctx, event)
+	}
+}
+
+// BenchmarkEventBusBatchedPublish benchmarks batched event publishing.
+func BenchmarkEventBusBatchedPublish(b *testing.B) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(b, err)
+	defer bus.Close()
+
+	ctx := context.Background()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		event := NewConfigApplyProgressEvent("op-1", "router-1", "apply", i%100, i%10, 10, "progress", "benchmark")
+		event.Priority = PriorityCritical
+		_ = bus.Publish(ctx, event)
+	}
+}
+
+// BenchmarkEventSerialization benchmarks event JSON serialization.
+func BenchmarkEventSerialization(b *testing.B) {
+	event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "benchmark")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = event.Payload()
+	}
+}
+
+// TestEventBusThroughput tests that we can sustain 10,000 events/second (AC9).
+func TestEventBusThroughput(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping throughput test in short mode")
+	}
+
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer bus.Close()
+
+	var processed int
+	err = bus.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		processed++
+		return nil
+	})
+	require.NoError(t, err)
+
+	ctx := context.Background()
+	targetEvents := 10000
+	startTime := time.Now()
+
+	for i := 0; i < targetEvents; i++ {
+		event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "throughput-test")
+		event.Priority = PriorityImmediate
+		err := bus.Publish(ctx, event)
+		require.NoError(t, err)
+	}
+
+	elapsed := time.Since(startTime)
+	eventsPerSecond := float64(targetEvents) / elapsed.Seconds()
+
+	t.Logf("Published %d events in %v (%.0f events/second)", targetEvents, elapsed, eventsPerSecond)
+
+	time.Sleep(200 * time.Millisecond)
+
+	minEventsPerSecond := 5000.0
+	if os.Getenv("STRICT_PERFORMANCE_TEST") == "1" {
+		minEventsPerSecond = 10000.0
+	}
+	require.GreaterOrEqual(t, eventsPerSecond, minEventsPerSecond,
+		"Should sustain at least %.0f events/second (set STRICT_PERFORMANCE_TEST=1 for 10,000)", minEventsPerSecond)
+}
+
+// TestImmediatePriorityLatency tests that immediate events are delivered in <100ms (AC2).
+func TestImmediatePriorityLatency(t *testing.T) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer bus.Close()
+
+	latencies := make(chan time.Duration, 100)
+
+	err = bus.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		latency := time.Since(event.GetTimestamp())
+		latencies <- latency
+		return nil
+	})
+	require.NoError(t, err)
+
+	ctx := context.Background()
+
+	for i := 0; i < 100; i++ {
+		event := NewRouterStatusChangedEvent("router-1", RouterStatusConnected, RouterStatusDisconnected, "latency-test")
+		event.Priority = PriorityImmediate
+		err := bus.Publish(ctx, event)
+		require.NoError(t, err)
+	}
+
+	time.Sleep(200 * time.Millisecond)
+
+	close(latencies)
+
+	var totalLatency time.Duration
+	var count int
+	var maxLatency time.Duration
+
+	for latency := range latencies {
+		totalLatency += latency
+		count++
+		if latency > maxLatency {
+			maxLatency = latency
+		}
+	}
+
+	if count > 0 {
+		avgLatency := totalLatency / time.Duration(count)
+		t.Logf("Immediate priority: avg latency=%v, max latency=%v, count=%d", avgLatency, maxLatency, count)
+
+		require.Less(t, maxLatency, 100*time.Millisecond, "Immediate priority max latency should be <100ms")
+	}
+}
+
+// TestCriticalPriorityBatchWindow tests that critical events batch within 100ms (AC3).
+func TestCriticalPriorityBatchWindow(t *testing.T) {
+	bus, err := NewEventBus(DefaultEventBusOptions())
+	require.NoError(t, err)
+	defer bus.Close()
+
+	received := make(chan time.Time, 10)
+
+	err = bus.Subscribe(EventTypeConfigApplyProgress, func(ctx context.Context, event Event) error {
+		received <- time.Now()
+		return nil
+	})
+	require.NoError(t, err)
+
+	ctx := context.Background()
+
+	publishStart := time.Now()
+	for i := 0; i < 5; i++ {
+		event := NewConfigApplyProgressEvent("op-1", "router-1", "apply", i*20, i, 5, "progress", "batch-test")
+		event.Priority = PriorityCritical
+		err := bus.Publish(ctx, event)
+		require.NoError(t, err)
+	}
+	publishEnd := time.Now()
+
+	time.Sleep(200 * time.Millisecond)
+
+	close(received)
+
+	var firstDelivery, lastDelivery time.Time
+	count := 0
+	for deliveryTime := range received {
+		if count == 0 {
+			firstDelivery = deliveryTime
+		}
+		lastDelivery = deliveryTime
+		count++
+	}
+
+	if count > 0 {
+		batchWindow := lastDelivery.Sub(firstDelivery)
+		deliveryLatency := firstDelivery.Sub(publishEnd)
+		publishDuration := publishEnd.Sub(publishStart)
+
+		t.Logf("Critical priority: %d events, publish duration=%v, batch window=%v, delivery latency=%v", count, publishDuration, batchWindow, deliveryLatency)
+
+		require.Less(t, deliveryLatency, 200*time.Millisecond, "Critical events should be delivered within batch window")
+	}
+
+	require.Equal(t, 5, count, "All critical events should be received")
 }

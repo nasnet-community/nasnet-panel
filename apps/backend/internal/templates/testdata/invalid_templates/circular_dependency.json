@@ -1,0 +1,31 @@
+{
+  "id": "circular-test",
+  "name": "Circular Dependency Test",
+  "description": "This template should fail validation due to circular dependencies",
+  "category": "networking",
+  "scope": "multiple",
+  "version": "1.0.0",
+  "author": "Test",
+  "tags": ["test"],
+  "services": [
+    {
+      "serviceType": "xray-core",
+      "name": "service-a",
+      "dependsOn": ["service-c"],
+      "configOverrides": {}
+    },
+    {
+      "serviceType": "xray-core",
+      "name": "service-b",
+      "dependsOn": ["service-a"],
+      "configOverrides": {}
+    },
+    {
+      "serviceType": "xray-core",
+      "name": "service-c",
+      "dependsOn": ["service-b"],
+      "configOverrides": {}
+    }
+  ],
+  "configVariables": []
+}

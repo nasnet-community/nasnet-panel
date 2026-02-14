@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"backend/ent"
+	"backend/generated/ent"
 )
 
 // WithTx executes fn within a database transaction.

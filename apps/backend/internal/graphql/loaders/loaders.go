@@ -19,7 +19,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"backend/ent"
+	"backend/generated/ent"
 )
 
 // ctxKey is the context key type for DataLoaders.

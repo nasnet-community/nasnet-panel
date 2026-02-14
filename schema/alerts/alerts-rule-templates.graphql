@@ -1,0 +1,156 @@
+# =============================================================================
+# Alert Rules and Notifications Schema
+# =============================================================================
+# Defines alert rules, alerts, notification channels, and real-time subscriptions
+# for the NasNetConnect monitoring and alerting system.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Alert Rule Template Types (NAS-18.12)
+# -----------------------------------------------------------------------------
+
+"""
+Alert rule template for quick rule creation
+Pre-configured templates with variables for common alert scenarios
+"""
+type AlertRuleTemplate implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Template name
+  """
+  name: String!
+
+  """
+  Template description
+  """
+  description: String!
+
+  """
+  Template category
+  """
+  category: AlertRuleTemplateCategory!
+
+  """
+  Alert severity level
+  """
+  severity: AlertSeverity!
+
+  """
+  Event type this template monitors
+  """
+  eventType: String!
+
+  """
+  Pre-configured conditions
+  """
+  conditions: [AlertCondition!]!
+
+  """
+  Throttle configuration
+  """
+  throttle: ThrottleConfig
+
+  """
+  Default notification channels
+  """
+  channels: [String!]!
+
+  """
+  Template variables for customization
+  """
+  variables: [AlertRuleTemplateVariable!]!
+
+  """
+  Whether this is a built-in template
+  """
+  isBuiltIn: Boolean!
+
+  """
+  Template version
+  """
+  version: String!
+
+  """
+  Record creation timestamp
+  """
+  createdAt: DateTime!
+
+  """
+  Last update timestamp
+  """
+  updatedAt: DateTime!
+}
+
+"""
+Variable definition for alert rule templates
+"""
+type AlertRuleTemplateVariable {
+  """
+  Variable name (used for substitution)
+  """
+  name: String!
+
+  """
+  Display label
+  """
+  label: String!
+
+  """
+  Variable type
+  """
+  type: AlertRuleTemplateVariableType!
+
+  """
+  Whether this variable is required
+  """
+  required: Boolean!
+
+  """
+  Default value
+  """
+  defaultValue: String
+
+  """
+  Minimum value (for INTEGER, DURATION, PERCENTAGE)
+  """
+  min: Int
+
+  """
+  Maximum value (for INTEGER, DURATION, PERCENTAGE)
+  """
+  max: Int
+
+  """
+  Unit label (e.g., "seconds", "percent", "MB")
+  """
+  unit: String
+
+  """
+  Variable description
+  """
+  description: String
+}
+
+"""
+Preview result for alert rule template
+"""
+type AlertRuleTemplatePreview {
+  """
+  The template being previewed
+  """
+  template: AlertRuleTemplate!
+
+  """
+  Resolved conditions with variable substitution
+  """
+  resolvedConditions: [AlertCondition!]!
+
+  """
+  Validation information
+  """
+  validationInfo: TemplateValidationInfo!
+}

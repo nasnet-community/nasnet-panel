@@ -1,0 +1,154 @@
+# -----------------------------------------------------------------------------
+# IP Address Types
+# -----------------------------------------------------------------------------
+
+"""
+An IP address assigned to an interface
+"""
+type IpAddress implements Node {
+  "Unique IP address identifier"
+  id: ID!
+  "IP address with CIDR notation (e.g., 192.168.10.1/24)"
+  address: String! @validate(format: CIDR) @mikrotik(path: "/ip/address", field: "address")
+  "Network address (calculated from address and netmask)"
+  network: String
+  "Broadcast address (calculated from address and netmask)"
+  broadcast: String
+  "Interface this IP is assigned to"
+  interface: Interface! @mikrotik(path: "/ip/address", field: "interface")
+  "Whether this IP is disabled"
+  disabled: Boolean! @mikrotik(path: "/ip/address", field: "disabled")
+  "Whether this IP was dynamically assigned (via DHCP client)"
+  dynamic: Boolean! @mikrotik(path: "/ip/address", field: "dynamic")
+  "Whether this IP is invalid (conflicting or error state)"
+  invalid: Boolean! @mikrotik(path: "/ip/address", field: "invalid")
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/address", field: "comment")
+}
+
+"""
+Input for creating or updating an IP address
+"""
+input IpAddressInput {
+  "IP address with CIDR notation (e.g., 192.168.10.1/24)"
+  address: String! @validate(format: CIDR)
+  "Interface ID to assign this IP to"
+  interfaceId: ID!
+  "User comment"
+  comment: String @validate(maxLength: 255)
+  "Whether this IP is disabled"
+  disabled: Boolean
+}
+
+"""
+Result of an IP address mutation (create, update)
+"""
+type IpAddressMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated IP address (if successful)"
+  ipAddress: IpAddress
+  "Configuration preview (RouterOS commands)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Result of an IP address deletion with dependency checking
+"""
+type IpAddressDeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Impact analysis for this IP address deletion"
+  impactAnalysis: IpAddressImpactAnalysis
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+"""
+Analysis of the impact of deleting an IP address
+"""
+type IpAddressImpactAnalysis {
+  "Whether this IP is used as a gateway by DHCP servers"
+  usedByDhcpServers: [DhcpServer!]!
+  "Whether this IP is referenced in firewall rules"
+  usedInFirewallRules: [FirewallRuleReference!]!
+  "Whether this IP is used in NAT rules"
+  usedInNatRules: [NatRuleReference!]!
+  "Number of active connections using this IP"
+  activeConnections: Int!
+  "Severity of the deletion"
+  severity: ConfirmationSeverity!
+  "Human-readable impact message"
+  message: String!
+  "List of consequences of deleting this IP"
+  consequences: [String!]!
+  "Whether the IP can be safely deleted"
+  canDelete: Boolean!
+}
+
+"""
+NAT rule reference type (lightweight for dependency tracking).
+For full NAT rule management, see NatRule type in firewall.graphql.
+"""
+type NatRuleReference {
+  "NAT rule ID"
+  id: ID!
+  "Rule chain (srcnat, dstnat)"
+  chain: String!
+  "Action (masquerade, dst-nat, src-nat)"
+  action: String!
+  "Source address"
+  srcAddress: String
+  "Destination address"
+  dstAddress: String
+  "To address (for dst-nat)"
+  toAddress: String
+  "Whether the rule is disabled"
+  disabled: Boolean!
+}
+
+"""
+Result of checking IP address conflicts
+"""
+type IpConflictResult {
+  "Whether the IP conflicts with existing assignments"
+  hasConflict: Boolean!
+  "List of conflicting IP addresses"
+  conflicts: [IpConflict!]!
+  "Human-readable message"
+  message: String!
+}
+
+"""
+Details about an IP address conflict
+"""
+type IpConflict {
+  "Conflicting IP address ID"
+  id: ID!
+  "Conflicting IP address"
+  address: String!
+  "Interface where conflict exists"
+  interface: Interface!
+  "Type of conflict"
+  conflictType: IpConflictType!
+  "Explanation of the conflict"
+  explanation: String!
+}
+
+"""
+Type of IP address conflict
+"""
+enum IpConflictType {
+  "Exact IP address match on different interface"
+  EXACT
+  "IP addresses are in overlapping subnets"
+  SUBNET_OVERLAP
+  "IP is the broadcast address of another subnet"
+  BROADCAST
+  "IP is the network address of another subnet"
+  NETWORK
+}

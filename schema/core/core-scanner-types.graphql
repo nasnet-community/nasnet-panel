@@ -1,0 +1,124 @@
+# =============================================================================
+# Network Scanner Types
+# =============================================================================
+# Types for router auto-discovery and network scanning functionality.
+# Story: NAS-3.4 - Implement Router Auto Scanner
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Scan Status Enum
+# -----------------------------------------------------------------------------
+
+"""
+Status of a network scan operation
+"""
+enum ScanStatus {
+  "Scan is queued and waiting to start"
+  PENDING
+  "Scan is actively running"
+  RUNNING
+  "Scan completed successfully"
+  COMPLETED
+  "Scan was cancelled by user"
+  CANCELLED
+  "Scan failed with an error"
+  FAILED
+}
+
+# -----------------------------------------------------------------------------
+# Core Types
+# -----------------------------------------------------------------------------
+
+"""
+Information about a discovered RouterOS device
+"""
+type RouterOSInfo {
+  "RouterOS version string (e.g., '7.12', '6.49.8')"
+  version: String
+  "Router board name (e.g., 'hAP ac3', 'CCR2004-1G-12S+2XS')"
+  boardName: String
+  "CPU architecture (e.g., 'arm', 'x86', 'mips')"
+  architecture: String
+  "Platform identifier"
+  platform: String
+}
+
+"""
+A device discovered during a network scan.
+Only confirmed MikroTik devices are returned (confidence >= 40).
+"""
+type DiscoveredDevice {
+  "IP address of the discovered device"
+  ip: String!
+  "Hostname (if reverse DNS resolves)"
+  hostname: String
+  "Open ports found on the device"
+  ports: [Int!]!
+  "Device type classification"
+  deviceType: String!
+  "Device vendor (always 'MikroTik' for returned results)"
+  vendor: String
+  "RouterOS-specific information (version, board, architecture)"
+  routerOSInfo: RouterOSInfo
+  "Confidence score for RouterOS detection (40-100)"
+  confidence: Int!
+  "Detected services (mikrotik-api, mikrotik-winbox, mikrotik-rest, etc.)"
+  services: [String!]!
+}
+
+"""
+A network scan task that tracks scan progress and results.
+Scans are asynchronous - start with mutation, poll/subscribe for progress.
+"""
+type ScanTask {
+  "Unique task identifier"
+  id: ID!
+  "Target subnet (CIDR notation, IP range, or gateway scan indicator)"
+  subnet: String!
+  "Current scan status"
+  status: ScanStatus!
+  "Scan progress percentage (0-100)"
+  progress: Int!
+  "Discovered devices (populated as scan progresses)"
+  results: [DiscoveredDevice!]!
+  "When the scan was started"
+  startTime: DateTime!
+  "When the scan completed (null if still running)"
+  endTime: DateTime
+  "Error message if scan failed"
+  error: String
+  "Total IPs to scan (for progress calculation)"
+  totalIPs: Int
+  "Number of IPs scanned so far"
+  scannedIPs: Int
+}
+
+"""
+Real-time progress event for scan subscriptions
+"""
+type ScanProgressEvent {
+  "Task ID this event belongs to"
+  taskId: ID!
+  "Current progress percentage (0-100)"
+  progress: Int!
+  "Number of MikroTik devices found so far"
+  devicesFound: Int!
+  "IP address currently being scanned"
+  currentIP: String
+  "Current scan status"
+  status: ScanStatus!
+  "Timestamp of this progress update"
+  timestamp: DateTime!
+}
+
+# -----------------------------------------------------------------------------
+# Input Types
+# -----------------------------------------------------------------------------
+
+"""
+Input for starting a network scan
+"""
+input ScanNetworkInput {
+  "Target subnet in CIDR notation (e.g., '192.168.88.0/24') or IP range (e.g., '192.168.1.1-192.168.1.100')"
+  subnet: String! @validate(minLength: 7, maxLength: 43)
+}

@@ -1,0 +1,278 @@
+package batch
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+
+	"backend/pkg/router/adapters/mikrotik"
+	"backend/pkg/router/adapters/mikrotik/parser"
+)
+
+// executeCommands routes to the appropriate protocol handler.
+func (job *Job) executeCommands(ctx context.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[BATCH] Job %s panicked: %v", job.ID, r)
+			job.setStatus(JobStatusFailed)
+		}
+	}()
+
+	log.Printf("[BATCH] Job %s using protocol: %s", job.ID, job.Protocol)
+
+	switch job.Protocol {
+	case ProtocolSSH:
+		job.executeViaSSH(ctx)
+	case ProtocolTelnet:
+		job.executeViaTelnet(ctx)
+	case ProtocolAPI, "":
+		job.executeViaAPI(ctx)
+	default:
+		job.addError(0, "protocol", fmt.Sprintf("Unknown protocol: %s", job.Protocol))
+		job.setStatus(JobStatusFailed)
+	}
+}
+
+// executeViaAPI runs commands using RouterOS API protocol.
+func (job *Job) executeViaAPI(ctx context.Context) {
+	var client *mikrotik.ROSClient
+	var err error
+
+	if !job.DryRun {
+		client, err = mikrotik.NewROSClient(mikrotik.ROSClientConfig{
+			Address:  job.RouterIP,
+			Username: job.Username,
+			Password: job.Password,
+			UseTLS:   job.UseTLS,
+			Timeout:  30 * time.Second,
+		})
+		if err != nil {
+			job.addError(0, "connection", fmt.Sprintf("API connection failed: %v", err))
+			job.setStatus(JobStatusFailed)
+			return
+		}
+		defer client.Close()
+	}
+
+	for i, cmd := range job.commands {
+		select {
+		case <-ctx.Done():
+			job.setStatus(JobStatusCancelled)
+			return
+		default:
+		}
+
+		if cmd.Action == "context" || cmd.ParseError != "" {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		job.mu.Lock()
+		job.CurrentCommand = TruncateCommand(cmd.RawCommand, 100)
+		job.mu.Unlock()
+
+		apiCmd, convErr := cmd.ToAPICommand()
+		if convErr != nil {
+			job.addError(cmd.LineNumber, cmd.RawCommand, convErr.Error())
+			job.updateProgress(i+1, 0, 1, 0)
+			if job.RollbackEnabled {
+				job.performRollback(client)
+				return
+			}
+			continue
+		}
+
+		if apiCmd == nil {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		if job.DryRun {
+			log.Printf("[BATCH-API-DRY] Would execute: %s %v", apiCmd.Command, apiCmd.Args)
+			job.updateProgress(i+1, 1, 0, 0)
+		} else {
+			var originalValues map[string]string
+			var targetID string
+			if job.RollbackEnabled && (cmd.Action == "set" || cmd.Action == "remove") {
+				originalValues, targetID = job.fetchOriginalValues(client, cmd)
+			}
+
+			createdID, execErr := job.executeAPICommand(ctx, client, apiCmd, cmd)
+			if execErr != nil {
+				job.addError(cmd.LineNumber, cmd.RawCommand, execErr.Error())
+				job.updateProgress(i+1, 0, 1, 0)
+				if job.RollbackEnabled {
+					job.performRollback(client)
+					return
+				}
+				continue
+			}
+
+			if job.RollbackEnabled {
+				if targetID == "" {
+					targetID = createdID
+				}
+				rollback := parser.GenerateRollback(cmd, targetID, originalValues)
+				if rollback.UndoCommand != nil {
+					job.mu.Lock()
+					job.rollbackStack = append(job.rollbackStack, rollback)
+					job.mu.Unlock()
+				}
+			}
+
+			job.updateProgress(i+1, 1, 0, 0)
+		}
+	}
+
+	job.setStatus(JobStatusCompleted)
+}
+
+// executeViaSSH runs commands using SSH protocol.
+func (job *Job) executeViaSSH(ctx context.Context) {
+	if job.DryRun {
+		job.executeDryRun("SSH")
+		return
+	}
+
+	client, err := mikrotik.NewSSHClient(mikrotik.SSHClientConfig{
+		Address:    job.RouterIP,
+		Username:   job.Username,
+		Password:   job.Password,
+		PrivateKey: job.SSHPrivateKey,
+		Timeout:    30 * time.Second,
+	})
+	if err != nil {
+		job.addError(0, "connection", fmt.Sprintf("SSH connection failed: %v", err))
+		job.setStatus(JobStatusFailed)
+		return
+	}
+	defer client.Close()
+
+	for i, cmd := range job.commands {
+		select {
+		case <-ctx.Done():
+			job.setStatus(JobStatusCancelled)
+			return
+		default:
+		}
+
+		if cmd.ParseError != "" {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		rawCmd := strings.TrimSpace(cmd.RawCommand)
+		if rawCmd == "" || strings.HasPrefix(rawCmd, "#") {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		job.mu.Lock()
+		job.CurrentCommand = TruncateCommand(rawCmd, 100)
+		job.mu.Unlock()
+
+		output, execErr := client.RunCommand(ctx, rawCmd)
+		if execErr != nil {
+			job.addError(cmd.LineNumber, rawCmd, execErr.Error())
+			job.updateProgress(i+1, 0, 1, 0)
+			if job.RollbackEnabled {
+				job.setStatus(JobStatusFailed)
+				return
+			}
+			continue
+		}
+
+		if output != "" {
+			log.Printf("[BATCH-SSH] Output: %s", TruncateCommand(output, 200))
+		}
+		job.updateProgress(i+1, 1, 0, 0)
+	}
+
+	job.setStatus(JobStatusCompleted)
+}
+
+// executeViaTelnet runs commands using Telnet protocol.
+func (job *Job) executeViaTelnet(ctx context.Context) {
+	if job.DryRun {
+		job.executeDryRun("TELNET")
+		return
+	}
+
+	client, err := mikrotik.NewTelnetClient(mikrotik.TelnetClientConfig{
+		Address:  job.RouterIP,
+		Username: job.Username,
+		Password: job.Password,
+		Timeout:  30 * time.Second,
+	})
+	if err != nil {
+		job.addError(0, "connection", fmt.Sprintf("Telnet connection failed: %v", err))
+		job.setStatus(JobStatusFailed)
+		return
+	}
+	defer client.Close()
+
+	for i, cmd := range job.commands {
+		select {
+		case <-ctx.Done():
+			job.setStatus(JobStatusCancelled)
+			return
+		default:
+		}
+
+		if cmd.ParseError != "" {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		rawCmd := strings.TrimSpace(cmd.RawCommand)
+		if rawCmd == "" || strings.HasPrefix(rawCmd, "#") {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		job.mu.Lock()
+		job.CurrentCommand = TruncateCommand(rawCmd, 100)
+		job.mu.Unlock()
+
+		output, execErr := client.RunCommand(ctx, rawCmd)
+		if execErr != nil {
+			job.addError(cmd.LineNumber, rawCmd, execErr.Error())
+			job.updateProgress(i+1, 0, 1, 0)
+			if job.RollbackEnabled {
+				job.setStatus(JobStatusFailed)
+				return
+			}
+			continue
+		}
+
+		if output != "" {
+			log.Printf("[BATCH-TELNET] Output: %s", TruncateCommand(output, 200))
+		}
+		job.updateProgress(i+1, 1, 0, 0)
+	}
+
+	job.setStatus(JobStatusCompleted)
+}
+
+// executeDryRun simulates execution without connecting.
+func (job *Job) executeDryRun(protocol string) {
+	for i, cmd := range job.commands {
+		if cmd.ParseError != "" || cmd.Action == "context" {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		rawCmd := strings.TrimSpace(cmd.RawCommand)
+		if rawCmd == "" || strings.HasPrefix(rawCmd, "#") {
+			job.updateProgress(i+1, 0, 0, 1)
+			continue
+		}
+
+		log.Printf("[BATCH-%s-DRY] Would execute: %s", protocol, TruncateCommand(rawCmd, 100))
+		job.updateProgress(i+1, 1, 0, 0)
+	}
+
+	job.setStatus(JobStatusCompleted)
+}

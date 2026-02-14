@@ -2,9 +2,7 @@ package events
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -18,31 +16,17 @@ type EventHandler func(ctx context.Context, event Event) error
 
 // EventBus defines the interface for publishing and subscribing to events.
 type EventBus interface {
-	// Publish sends an event to all subscribers.
 	Publish(ctx context.Context, event Event) error
-
-	// Subscribe registers a handler for a specific event type.
 	Subscribe(eventType string, handler EventHandler) error
-
-	// SubscribeAll registers a handler for all events.
 	SubscribeAll(handler EventHandler) error
-
-	// Close gracefully shuts down the event bus.
 	Close() error
 }
 
 // EventBusOptions configures the event bus.
 type EventBusOptions struct {
-	// BufferSize is the size of the internal message buffer.
-	BufferSize int
-
-	// Logger is the Watermill logger adapter.
-	Logger watermill.LoggerAdapter
-
-	// EnableReplay enables event replay on startup (requires persistence).
-	EnableReplay bool
-
-	// PersistenceEnabled enables event persistence to database.
+	BufferSize         int
+	Logger             watermill.LoggerAdapter
+	EnableReplay       bool
 	PersistenceEnabled bool
 }
 
@@ -58,16 +42,14 @@ func DefaultEventBusOptions() EventBusOptions {
 
 // eventBus is the Watermill-based implementation of EventBus.
 type eventBus struct {
-	pubsub     *gochannel.GoChannel
-	router     *message.Router
-	handlers   map[string][]EventHandler
-	allHandler []EventHandler
-	mu         sync.RWMutex
-	logger     watermill.LoggerAdapter
-	closed     bool
-	closeMu    sync.RWMutex
-
-	// Priority queues for batching
+	pubsub         *gochannel.GoChannel
+	router         *message.Router
+	handlers       map[string][]EventHandler
+	allHandler     []EventHandler
+	mu             sync.RWMutex
+	logger         watermill.LoggerAdapter
+	closed         bool
+	closeMu        sync.RWMutex
 	priorityQueues *priorityQueueManager
 }
 
@@ -93,9 +75,7 @@ func NewEventBus(opts EventBusOptions) (EventBus, error) {
 		priorityQueues: newPriorityQueueManager(),
 	}
 
-	// Start the priority queue processor
 	go bus.processPriorityQueues()
-
 	return bus, nil
 }
 
@@ -112,14 +92,9 @@ func (eb *eventBus) Publish(ctx context.Context, event Event) error {
 		return fmt.Errorf("event cannot be nil")
 	}
 
-	priority := event.GetPriority()
-
-	// Immediate priority events are published directly
-	if priority == PriorityImmediate {
+	if event.GetPriority() == PriorityImmediate {
 		return eb.publishDirect(ctx, event)
 	}
-
-	// Other priorities go through batching
 	eb.priorityQueues.enqueue(event)
 	return nil
 }
@@ -138,50 +113,37 @@ func (eb *eventBus) publishDirect(ctx context.Context, event Event) error {
 	msg.Metadata.Set("source", event.GetSource())
 
 	eventType := event.GetType()
-
-	// Publish to the specific event type topic
 	if err := eb.pubsub.Publish(eventType, msg); err != nil {
 		return fmt.Errorf("failed to publish to topic %s: %w", eventType, err)
 	}
-
-	// Also publish to the "all" topic for subscribers that want all events
 	if err := eb.pubsub.Publish("all", msg); err != nil {
-		// Log but don't fail - specific topic already got the message
 		eb.logger.Error("failed to publish to 'all' topic", err, nil)
 	}
 
-	// Notify local handlers directly (for faster delivery)
 	eb.notifyLocalHandlers(ctx, event)
-
 	return nil
 }
 
-// notifyLocalHandlers directly calls registered handlers.
 func (eb *eventBus) notifyLocalHandlers(ctx context.Context, event Event) {
 	eb.mu.RLock()
 	handlers := eb.handlers[event.GetType()]
 	allHandlers := eb.allHandler
 	eb.mu.RUnlock()
 
-	// Call type-specific handlers
 	for _, handler := range handlers {
 		go func(h EventHandler) {
 			if err := h(ctx, event); err != nil {
 				eb.logger.Error("handler error", err, watermill.LogFields{
-					"event_type": event.GetType(),
-					"event_id":   event.GetID().String(),
+					"event_type": event.GetType(), "event_id": event.GetID().String(),
 				})
 			}
 		}(handler)
 	}
-
-	// Call all-event handlers
 	for _, handler := range allHandlers {
 		go func(h EventHandler) {
 			if err := h(ctx, event); err != nil {
 				eb.logger.Error("all-handler error", err, watermill.LogFields{
-					"event_type": event.GetType(),
-					"event_id":   event.GetID().String(),
+					"event_type": event.GetType(), "event_id": event.GetID().String(),
 				})
 			}
 		}(handler)
@@ -196,10 +158,8 @@ func (eb *eventBus) Subscribe(eventType string, handler EventHandler) error {
 	if handler == nil {
 		return fmt.Errorf("handler cannot be nil")
 	}
-
 	eb.mu.Lock()
 	defer eb.mu.Unlock()
-
 	eb.handlers[eventType] = append(eb.handlers[eventType], handler)
 	return nil
 }
@@ -209,10 +169,8 @@ func (eb *eventBus) SubscribeAll(handler EventHandler) error {
 	if handler == nil {
 		return fmt.Errorf("handler cannot be nil")
 	}
-
 	eb.mu.Lock()
 	defer eb.mu.Unlock()
-
 	eb.allHandler = append(eb.allHandler, handler)
 	return nil
 }
@@ -227,291 +185,225 @@ func (eb *eventBus) Close() error {
 	eb.closed = true
 	eb.closeMu.Unlock()
 
-	// Stop priority queue processing
 	eb.priorityQueues.stop()
-
-	// Flush any remaining events
 	eb.flushPendingEvents()
 
-	// Close the pubsub
 	if err := eb.pubsub.Close(); err != nil {
 		return fmt.Errorf("failed to close pubsub: %w", err)
 	}
-
 	return nil
 }
 
-// flushPendingEvents publishes any remaining events in the priority queues.
 func (eb *eventBus) flushPendingEvents() {
 	ctx := context.Background()
 	for _, event := range eb.priorityQueues.drainAll() {
 		if err := eb.publishDirect(ctx, event); err != nil {
 			eb.logger.Error("failed to flush pending event", err, watermill.LogFields{
-				"event_id":   event.GetID().String(),
-				"event_type": event.GetType(),
+				"event_id": event.GetID().String(), "event_type": event.GetType(),
 			})
 		}
 	}
 }
 
-// processPriorityQueues processes batched events based on priority.
-func (eb *eventBus) processPriorityQueues() {
-	// Ticker for each priority level
-	criticalTicker := time.NewTicker(100 * time.Millisecond)
-	normalTicker := time.NewTicker(1 * time.Second)
-	lowTicker := time.NewTicker(5 * time.Second)
-	backgroundTicker := time.NewTicker(30 * time.Second)
+// =============================================================================
+// Subscribable Event Bus (Typed Subscription Helpers)
+// =============================================================================
 
-	defer criticalTicker.Stop()
-	defer normalTicker.Stop()
-	defer lowTicker.Stop()
-	defer backgroundTicker.Stop()
+// TypedEventHandler is a handler for a specific event type.
+type TypedEventHandler[T Event] func(ctx context.Context, event T) error
 
-	for {
-		select {
-		case <-criticalTicker.C:
-			eb.flushPriorityQueue(PriorityCritical)
-		case <-normalTicker.C:
-			eb.flushPriorityQueue(PriorityNormal)
-		case <-lowTicker.C:
-			eb.flushPriorityQueue(PriorityLow)
-		case <-backgroundTicker.C:
-			eb.flushPriorityQueue(PriorityBackground)
-		case <-eb.priorityQueues.stopCh:
-			return
-		}
+// SubscribableEventBus extends EventBus with typed subscription helpers.
+type SubscribableEventBus interface {
+	EventBus
+	OnRouterStatusChanged(handler func(ctx context.Context, event *RouterStatusChangedEvent) error) error
+	OnResourceUpdated(handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error
+	OnFeatureCrashed(handler func(ctx context.Context, event *FeatureCrashedEvent) error) error
+	OnConfigApplyProgress(handler func(ctx context.Context, event *ConfigApplyProgressEvent) error) error
+	OnAuth(handler func(ctx context.Context, event *AuthEvent) error) error
+	OnFeatureInstalled(handler func(ctx context.Context, event *FeatureInstalledEvent) error) error
+	OnRouterConnected(handler func(ctx context.Context, event *RouterConnectedEvent) error) error
+	OnRouterDisconnected(handler func(ctx context.Context, event *RouterDisconnectedEvent) error) error
+	OnConfigApplied(handler func(ctx context.Context, event *ConfigAppliedEvent) error) error
+	OnRouterStatusChangedFor(routerID string, handler func(ctx context.Context, event *RouterStatusChangedEvent) error) error
+	OnResourceUpdatedFor(routerID string, handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error
+}
+
+type subscribableEventBus struct {
+	*eventBus
+}
+
+func NewSubscribableEventBus(opts EventBusOptions) (SubscribableEventBus, error) {
+	bus, err := NewEventBus(opts)
+	if err != nil {
+		return nil, err
 	}
-}
-
-// flushPriorityQueue publishes all events in a priority queue.
-func (eb *eventBus) flushPriorityQueue(priority Priority) {
-	eb.closeMu.RLock()
-	if eb.closed {
-		eb.closeMu.RUnlock()
-		return
+	eb, ok := bus.(*eventBus)
+	if !ok {
+		return nil, err
 	}
-	eb.closeMu.RUnlock()
+	return &subscribableEventBus{eventBus: eb}, nil
+}
 
-	events := eb.priorityQueues.drain(priority)
-	ctx := context.Background()
-
-	for _, event := range events {
-		if err := eb.publishDirect(ctx, event); err != nil {
-			eb.logger.Error("failed to publish batched event", err, watermill.LogFields{
-				"event_id":   event.GetID().String(),
-				"event_type": event.GetType(),
-				"priority":   priority.String(),
-			})
+func (eb *subscribableEventBus) OnRouterStatusChanged(handler func(ctx context.Context, event *RouterStatusChangedEvent) error) error {
+	return eb.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*RouterStatusChangedEvent); ok {
+			return handler(ctx, typed)
 		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnResourceUpdated(handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error {
+	wrapper := func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*ResourceUpdatedEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
 	}
-}
-
-// priorityQueueManager manages priority-based event queues.
-type priorityQueueManager struct {
-	queues map[Priority][]Event
-	mu     sync.Mutex
-	stopCh chan struct{}
-}
-
-func newPriorityQueueManager() *priorityQueueManager {
-	return &priorityQueueManager{
-		queues: map[Priority][]Event{
-			PriorityCritical:   make([]Event, 0),
-			PriorityNormal:     make([]Event, 0),
-			PriorityLow:        make([]Event, 0),
-			PriorityBackground: make([]Event, 0),
-		},
-		stopCh: make(chan struct{}),
+	if err := eb.Subscribe(EventTypeResourceCreated, wrapper); err != nil {
+		return err
 	}
-}
-
-func (pq *priorityQueueManager) enqueue(event Event) {
-	pq.mu.Lock()
-	defer pq.mu.Unlock()
-
-	priority := event.GetPriority()
-	pq.queues[priority] = append(pq.queues[priority], event)
-}
-
-func (pq *priorityQueueManager) drain(priority Priority) []Event {
-	pq.mu.Lock()
-	defer pq.mu.Unlock()
-
-	events := pq.queues[priority]
-	pq.queues[priority] = make([]Event, 0)
-	return events
-}
-
-func (pq *priorityQueueManager) drainAll() []Event {
-	pq.mu.Lock()
-	defer pq.mu.Unlock()
-
-	var all []Event
-	for priority := range pq.queues {
-		all = append(all, pq.queues[priority]...)
-		pq.queues[priority] = make([]Event, 0)
+	if err := eb.Subscribe(EventTypeResourceUpdated, wrapper); err != nil {
+		return err
 	}
-	return all
+	return eb.Subscribe(EventTypeResourceDeleted, wrapper)
 }
 
-func (pq *priorityQueueManager) stop() {
-	close(pq.stopCh)
+func (eb *subscribableEventBus) OnFeatureCrashed(handler func(ctx context.Context, event *FeatureCrashedEvent) error) error {
+	return eb.Subscribe(EventTypeFeatureCrashed, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*FeatureCrashedEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
 }
 
-// ParseEvent parses a message back into a typed event.
-func ParseEvent(msg *message.Message) (Event, error) {
-	eventType := msg.Metadata.Get("type")
-	if eventType == "" {
-		return nil, fmt.Errorf("message has no event type in metadata")
+func (eb *subscribableEventBus) OnConfigApplyProgress(handler func(ctx context.Context, event *ConfigApplyProgressEvent) error) error {
+	return eb.Subscribe(EventTypeConfigApplyProgress, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*ConfigApplyProgressEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnAuth(handler func(ctx context.Context, event *AuthEvent) error) error {
+	wrapper := func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*AuthEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
 	}
-
-	var event Event
-	switch eventType {
-	case EventTypeRouterStatusChanged:
-		var e RouterStatusChangedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterStatusChangedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeResourceUpdated, EventTypeResourceCreated, EventTypeResourceDeleted:
-		var e ResourceUpdatedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ResourceUpdatedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeFeatureCrashed:
-		var e FeatureCrashedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal FeatureCrashedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeConfigApplyProgress:
-		var e ConfigApplyProgressEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ConfigApplyProgressEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeAuth, EventTypeAuthSessionRevoked, EventTypeAuthPasswordChanged:
-		var e AuthEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal AuthEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeFeatureInstalled:
-		var e FeatureInstalledEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal FeatureInstalledEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeRouterConnected:
-		var e RouterConnectedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterConnectedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeRouterDisconnected:
-		var e RouterDisconnectedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterDisconnectedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeMetricUpdated:
-		var e MetricUpdatedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal MetricUpdatedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeLogAppended:
-		var e LogAppendedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal LogAppendedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeConfigApplied:
-		var e ConfigAppliedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ConfigAppliedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanStarted:
-		var e DeviceScanStartedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanStartedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanProgress:
-		var e DeviceScanProgressEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanProgressEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanCompleted:
-		var e DeviceScanCompletedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanCompletedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanFailed:
-		var e DeviceScanFailedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanFailedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanCancelled:
-		var e DeviceScanCancelledEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanCancelledEvent: %w", err)
-		}
-		event = &e
-
-	case "alert.throttle.summary":
-		// Import cycle prevention: use dynamic unmarshaling
-		var e BaseEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ThrottleSummaryEvent: %w", err)
-		}
-		event = &e
-
-	case "alert.storm.detected":
-		// Import cycle prevention: use dynamic unmarshaling
-		var e BaseEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal AlertStormDetectedEvent: %w", err)
-		}
-		event = &e
-
-	case "alert.storm.ended":
-		// Import cycle prevention: use dynamic unmarshaling
-		var e BaseEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal AlertStormEndedEvent: %w", err)
-		}
-		event = &e
-
-	default:
-		// For unknown types, return a generic event
-		log.Printf("[EVENTS] Unknown event type: %s", eventType)
-		var e BaseEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal BaseEvent: %w", err)
-		}
-		return &e, nil
+	if err := eb.Subscribe(EventTypeAuth, wrapper); err != nil {
+		return err
 	}
+	if err := eb.Subscribe(EventTypeAuthSessionRevoked, wrapper); err != nil {
+		return err
+	}
+	return eb.Subscribe(EventTypeAuthPasswordChanged, wrapper)
+}
 
-	return event, nil
+func (eb *subscribableEventBus) OnFeatureInstalled(handler func(ctx context.Context, event *FeatureInstalledEvent) error) error {
+	return eb.Subscribe(EventTypeFeatureInstalled, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*FeatureInstalledEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnRouterConnected(handler func(ctx context.Context, event *RouterConnectedEvent) error) error {
+	return eb.Subscribe(EventTypeRouterConnected, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*RouterConnectedEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnRouterDisconnected(handler func(ctx context.Context, event *RouterDisconnectedEvent) error) error {
+	return eb.Subscribe(EventTypeRouterDisconnected, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*RouterDisconnectedEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnConfigApplied(handler func(ctx context.Context, event *ConfigAppliedEvent) error) error {
+	return eb.Subscribe(EventTypeConfigApplied, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*ConfigAppliedEvent); ok {
+			return handler(ctx, typed)
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnRouterStatusChangedFor(routerID string, handler func(ctx context.Context, event *RouterStatusChangedEvent) error) error {
+	return eb.Subscribe(EventTypeRouterStatusChanged, func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*RouterStatusChangedEvent); ok {
+			if typed.RouterID == routerID {
+				return handler(ctx, typed)
+			}
+		}
+		return nil
+	})
+}
+
+func (eb *subscribableEventBus) OnResourceUpdatedFor(routerID string, handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error {
+	wrapper := func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*ResourceUpdatedEvent); ok {
+			if typed.RouterID == routerID {
+				return handler(ctx, typed)
+			}
+		}
+		return nil
+	}
+	if err := eb.Subscribe(EventTypeResourceCreated, wrapper); err != nil {
+		return err
+	}
+	if err := eb.Subscribe(EventTypeResourceUpdated, wrapper); err != nil {
+		return err
+	}
+	return eb.Subscribe(EventTypeResourceDeleted, wrapper)
+}
+
+// ResourceFilter defines criteria for filtering resource events.
+type ResourceFilter struct {
+	RouterID     string
+	ResourceType string
+	ChangeType   ChangeType
+}
+
+// MatchesFilter checks if an event matches the filter criteria.
+func (e *ResourceUpdatedEvent) MatchesFilter(filter ResourceFilter) bool {
+	if filter.RouterID != "" && e.RouterID != filter.RouterID {
+		return false
+	}
+	if filter.ResourceType != "" && e.ResourceType != filter.ResourceType {
+		return false
+	}
+	if filter.ChangeType != "" && e.ChangeType != filter.ChangeType {
+		return false
+	}
+	return true
+}
+
+// OnResourceUpdatedFiltered subscribes to resource updates matching a filter.
+func (eb *subscribableEventBus) OnResourceUpdatedFiltered(filter ResourceFilter, handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error {
+	wrapper := func(ctx context.Context, event Event) error {
+		if typed, ok := event.(*ResourceUpdatedEvent); ok {
+			if typed.MatchesFilter(filter) {
+				return handler(ctx, typed)
+			}
+		}
+		return nil
+	}
+	if err := eb.Subscribe(EventTypeResourceCreated, wrapper); err != nil {
+		return err
+	}
+	if err := eb.Subscribe(EventTypeResourceUpdated, wrapper); err != nil {
+		return err
+	}
+	return eb.Subscribe(EventTypeResourceDeleted, wrapper)
 }

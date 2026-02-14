@@ -1,0 +1,193 @@
+# -----------------------------------------------------------------------------
+# Notification Channel Types
+# -----------------------------------------------------------------------------
+
+"""
+Pushover API usage statistics
+"""
+type PushoverUsage {
+  """
+  Number of messages used this month
+  """
+  used: Int!
+
+  """
+  Number of messages remaining this month
+  """
+  remaining: Int!
+
+  """
+  Monthly message limit
+  """
+  limit: Int!
+
+  """
+  When the usage counter resets
+  """
+  resetAt: DateTime!
+}
+
+"""
+Webhook notification configuration
+"""
+type Webhook implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Human-readable webhook name
+  """
+  name: String!
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Webhook URL endpoint
+  """
+  url: String!
+
+  """
+  HTTP method (default: POST)
+  """
+  method: String!
+
+  """
+  Authentication type
+  """
+  authType: WebhookAuthType!
+
+  """
+  Username for Basic auth
+  """
+  username: String
+
+  """
+  Bearer token (masked, only shown on creation)
+  """
+  bearerToken: String
+
+  """
+  Custom HTTP headers (as JSON object)
+  """
+  headers: JSON
+
+  """
+  Template type for webhook payload
+  """
+  template: WebhookTemplate!
+
+  """
+  Custom template body (for CUSTOM template type)
+  """
+  customTemplate: String
+
+  """
+  Signing secret (masked with ******, never returned in plaintext except on creation)
+  """
+  signingSecretMasked: String
+
+  """
+  Timeout in seconds (default: 10)
+  """
+  timeoutSeconds: Int!
+
+  """
+  Whether to retry failed deliveries
+  """
+  retryEnabled: Boolean!
+
+  """
+  Maximum retry attempts (default: 3)
+  """
+  maxRetries: Int!
+
+  """
+  Whether this webhook is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Record creation timestamp
+  """
+  createdAt: DateTime!
+
+  """
+  Last update timestamp
+  """
+  updatedAt: DateTime!
+
+  """
+  Last successful delivery timestamp
+  """
+  lastDeliveredAt: DateTime
+
+  """
+  Delivery statistics
+  """
+  deliveryStats: WebhookDeliveryStats
+}
+
+"""
+Webhook delivery statistics
+"""
+type WebhookDeliveryStats {
+  """
+  Total deliveries attempted
+  """
+  totalAttempts: Int!
+
+  """
+  Successful deliveries
+  """
+  successCount: Int!
+
+  """
+  Failed deliveries
+  """
+  failureCount: Int!
+
+  """
+  Success rate (0-100)
+  """
+  successRate: Float!
+
+  """
+  Average response time in milliseconds
+  """
+  avgResponseTimeMs: Int
+}
+
+"""
+Result of testing a webhook
+"""
+type WebhookTestResult {
+  """
+  Whether the test was successful
+  """
+  success: Boolean!
+
+  """
+  HTTP status code received
+  """
+  statusCode: Int
+
+  """
+  Response body from webhook endpoint
+  """
+  responseBody: String
+
+  """
+  Response time in milliseconds
+  """
+  responseTimeMs: Int
+
+  """
+  Error message if test failed
+  """
+  errorMessage: String
+}

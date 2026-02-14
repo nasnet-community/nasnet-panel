@@ -6,8 +6,8 @@ import (
 	"text/template"
 	"time"
 
-	"backend/ent/alert"
-	"backend/ent/enttest"
+	"backend/generated/ent/alert"
+	"backend/generated/ent/enttest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

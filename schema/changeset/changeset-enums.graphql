@@ -1,0 +1,95 @@
+# =============================================================================
+# Change Set Enums
+# =============================================================================
+# Status and operation enums for atomic multi-resource operations.
+#
+# Reference: NAS-4.14 - Implement Change Sets
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Change Set Status Enum
+# -----------------------------------------------------------------------------
+
+"""
+Change set lifecycle status
+"""
+enum ChangeSetStatus {
+  "Initial state - adding items, not yet validated"
+  DRAFT
+
+  "Running validation on all items"
+  VALIDATING
+
+  "All items validated, ready to apply"
+  READY
+
+  "Applying resources in dependency order"
+  APPLYING
+
+  "All resources applied successfully"
+  COMPLETED
+
+  "Apply failed, may have partial application"
+  FAILED
+
+  "Rolling back applied changes"
+  ROLLING_BACK
+
+  "Rollback completed successfully"
+  ROLLED_BACK
+
+  "Rollback partially failed - manual intervention needed"
+  PARTIAL_FAILURE
+
+  "User cancelled the operation"
+  CANCELLED
+}
+
+# -----------------------------------------------------------------------------
+# Change Operation Enum
+# -----------------------------------------------------------------------------
+
+"""
+Type of operation to perform on a resource
+"""
+enum ChangeOperation {
+  "Create a new resource"
+  CREATE
+
+  "Update an existing resource"
+  UPDATE
+
+  "Delete an existing resource"
+  DELETE
+}
+
+# -----------------------------------------------------------------------------
+# Change Set Item Status Enum
+# -----------------------------------------------------------------------------
+
+"""
+Status of individual items within a change set
+"""
+enum ChangeSetItemStatus {
+  "Waiting to be applied"
+  PENDING
+
+  "Currently being applied"
+  APPLYING
+
+  "Successfully applied"
+  APPLIED
+
+  "Application failed"
+  FAILED
+
+  "Successfully rolled back"
+  ROLLED_BACK
+
+  "Rollback failed - manual intervention needed"
+  ROLLBACK_FAILED
+
+  "Skipped due to dependency failure"
+  SKIPPED
+}

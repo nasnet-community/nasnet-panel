@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"backend/ent"
+	"backend/generated/ent"
 
 	oklogulid "github.com/oklog/ulid/v2"
 )

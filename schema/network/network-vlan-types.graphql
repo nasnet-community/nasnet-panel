@@ -1,0 +1,146 @@
+# =============================================================================
+# Network Management GraphQL Schema
+# =============================================================================
+# This schema defines types for advanced network management including:
+# - VLAN interfaces (802.1Q)
+# - Bridge port VLAN configuration
+# - Network topology
+#
+# These types extend the base Interface type defined in schema.graphql
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# VLAN Types
+# -----------------------------------------------------------------------------
+
+"""
+A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
+"""
+type Vlan implements Node {
+  "Unique VLAN identifier"
+  id: ID!
+  "VLAN interface name (e.g., vlan10, vlan-guest)"
+  name: String! @validate(minLength: 1, maxLength: 100) @mikrotik(path: "/interface/vlan", field: "name")
+  "802.1Q VLAN ID (1-4094)"
+  vlanId: Int! @validate(min: 1, max: 4094) @mikrotik(path: "/interface/vlan", field: "vlan-id")
+  "Parent interface (bridge or physical interface)"
+  interface: Interface! @mikrotik(path: "/interface/vlan", field: "interface")
+  "MTU setting (optional, inherits from parent if not set)"
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/vlan", field: "mtu")
+  "MAC address of the VLAN interface"
+  macAddress: MAC @mikrotik(path: "/interface/vlan", field: "mac-address")
+  "Whether the VLAN interface is disabled"
+  disabled: Boolean! @mikrotik(path: "/interface/vlan", field: "disabled")
+  "Whether the VLAN interface is running (link up)"
+  running: Boolean! @mikrotik(path: "/interface/vlan", field: "running")
+  "User comment"
+  comment: String @mikrotik(path: "/interface/vlan", field: "comment")
+  "IP addresses assigned to this VLAN"
+  ipAddresses: [IpAddress!]!
+  "Traffic statistics for this VLAN"
+  statistics: InterfaceStats
+}
+
+"""
+Input for creating a new VLAN interface
+"""
+input VlanInput {
+  "VLAN interface name (alphanumeric, hyphens, underscores)"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "802.1Q VLAN ID (1-4094)"
+  vlanId: Int! @validate(min: 1, max: 4094)
+  "Parent interface ID (bridge or physical interface)"
+  interface: ID!
+  "MTU setting (optional, inherits from parent if not set)"
+  mtu: Int @validate(min: 68, max: 65535)
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Filter options for querying VLANs
+"""
+input VlanFilter {
+  "Filter by parent interface ID"
+  parentInterface: ID
+  "Filter by VLAN ID range"
+  vlanIdRange: IntRange
+  "Filter by name containing this string"
+  nameContains: String
+}
+
+"""
+Integer range for filtering
+"""
+input IntRange {
+  "Minimum value (inclusive)"
+  min: Int
+  "Maximum value (inclusive)"
+  max: Int
+}
+
+"""
+Result of a VLAN mutation (create, update)
+"""
+type VlanMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated VLAN (if successful)"
+  vlan: Vlan
+  "Configuration preview (RouterOS commands that will be executed)"
+  preview: ConfigPreview
+  "Errors that occurred during the operation"
+  errors: [MutationError!]
+}
+
+"""
+Result of a delete operation
+"""
+type DeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Errors that occurred during deletion"
+  errors: [MutationError!]
+}
+
+"""
+Preview of RouterOS configuration commands
+"""
+type ConfigPreview {
+  "RouterOS commands to be executed"
+  commands: [String!]!
+  "Warnings about the configuration changes"
+  warnings: [String!]
+  "Resources that will be affected"
+  affectedResources: [AffectedResource!]
+}
+
+"""
+Resource affected by a configuration change
+"""
+type AffectedResource {
+  "Resource type (ip-address, dhcp-server, firewall-rule, etc.)"
+  type: String!
+  "Resource ID"
+  id: ID!
+  "Resource name or description"
+  name: String!
+  "How the resource will be affected (modified, disabled, removed)"
+  impact: ResourceImpact!
+}
+
+"""
+Impact level for affected resources
+"""
+enum ResourceImpact {
+  "Resource will be modified"
+  MODIFIED
+  "Resource will be disabled"
+  DISABLED
+  "Resource will be removed"
+  REMOVED
+  "Connections will be dropped"
+  CONNECTION_DROP
+}

@@ -1,0 +1,128 @@
+# -----------------------------------------------------------------------------
+# Enums - Webhook, Condition, Action, Escalation
+# -----------------------------------------------------------------------------
+
+"""
+Webhook authentication types
+"""
+enum WebhookAuthType {
+  """
+  No authentication required
+  """
+  NONE
+
+  """
+  Bearer token authentication
+  """
+  BEARER
+
+  """
+  HTTP Basic authentication
+  """
+  BASIC
+}
+
+"""
+Webhook template types for predefined formats
+"""
+enum WebhookTemplate {
+  """
+  Generic JSON format
+  """
+  GENERIC
+
+  """
+  Slack incoming webhook format
+  """
+  SLACK
+
+  """
+  Discord webhook format
+  """
+  DISCORD
+
+  """
+  Microsoft Teams webhook format
+  """
+  TEAMS
+
+  """
+  Custom template with user-defined format
+  """
+  CUSTOM
+}
+
+"""
+Condition comparison operators
+"""
+enum ConditionOperator {
+  """
+  Exact match
+  """
+  EQUALS
+
+  """
+  Not equal
+  """
+  NOT_EQUALS
+
+  """
+  Numeric greater than
+  """
+  GREATER_THAN
+
+  """
+  Numeric less than
+  """
+  LESS_THAN
+
+  """
+  String contains
+  """
+  CONTAINS
+
+  """
+  Regular expression match
+  """
+  REGEX
+}
+
+"""
+Alert action types for subscriptions
+"""
+enum AlertAction {
+  """
+  Alert was created/triggered
+  """
+  CREATED
+
+  """
+  Alert was acknowledged
+  """
+  ACKNOWLEDGED
+
+  """
+  Alert was resolved
+  """
+  RESOLVED
+}
+
+"""
+Escalation status (NAS-18.9)
+"""
+enum EscalationStatus {
+  """
+  Escalation is pending/in progress
+  """
+  PENDING
+
+  """
+  Escalation was resolved (alert acknowledged)
+  """
+  RESOLVED
+
+  """
+  Maximum escalation level reached
+  """
+  MAX_REACHED
+}

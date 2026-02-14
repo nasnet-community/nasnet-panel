@@ -1,0 +1,264 @@
+package orchestrator
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+
+	"backend/generated/ent"
+	"backend/generated/ent/serviceinstance"
+	"backend/internal/events"
+	"backend/internal/storage"
+
+	"github.com/rs/zerolog"
+)
+
+// ValidationSummary contains the results of boot-time validation.
+type ValidationSummary struct {
+	TotalChecked   int      // Total instances checked
+	FailedCount    int      // Number of instances that failed validation
+	FailedServices []string // Feature IDs of failed instances
+}
+
+// BootValidator validates instance binaries on container startup.
+// It runs BEFORE the Supervisor starts to ensure all instances have valid binaries.
+type BootValidator struct {
+	db           *ent.Client
+	pathResolver storage.PathResolverPort
+	publisher    *events.Publisher
+	logger       zerolog.Logger
+}
+
+// BootValidatorConfig holds configuration for the BootValidator.
+type BootValidatorConfig struct {
+	DB           *ent.Client
+	PathResolver storage.PathResolverPort
+	EventBus     events.EventBus
+	Logger       zerolog.Logger
+}
+
+// NewBootValidator creates a new BootValidator.
+func NewBootValidator(cfg BootValidatorConfig) (*BootValidator, error) {
+	if cfg.DB == nil {
+		return nil, fmt.Errorf("database client is required")
+	}
+	if cfg.PathResolver == nil {
+		return nil, fmt.Errorf("path resolver is required")
+	}
+	if cfg.EventBus == nil {
+		return nil, fmt.Errorf("event bus is required")
+	}
+
+	publisher := events.NewPublisher(cfg.EventBus, "boot-validator")
+
+	return &BootValidator{
+		db:           cfg.DB,
+		pathResolver: cfg.PathResolver,
+		publisher:    publisher,
+		logger:       cfg.Logger.With().Str("component", "boot-validator").Logger(),
+	}, nil
+}
+
+// ValidateAllInstances validates all INSTALLED and RUNNING instances on boot.
+// This runs before the Supervisor starts to ensure binary integrity.
+func (v *BootValidator) ValidateAllInstances(ctx context.Context) (*ValidationSummary, error) {
+	v.logger.Info().Msg("starting boot-time instance validation")
+
+	// Query all instances that should have binaries available
+	instances, err := v.db.ServiceInstance.Query().
+		Where(serviceinstance.StatusIn(
+			serviceinstance.StatusInstalled,
+			serviceinstance.StatusRunning,
+		)).
+		All(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to query instances: %w", err)
+	}
+
+	v.logger.Info().
+		Int("total_instances", len(instances)).
+		Msg("found instances to validate")
+
+	summary := &ValidationSummary{
+		TotalChecked:   len(instances),
+		FailedCount:    0,
+		FailedServices: []string{},
+	}
+
+	for _, instance := range instances {
+		if err := v.validateInstance(ctx, instance); err != nil {
+			v.logger.Error().
+				Err(err).
+				Str("instance_id", instance.ID).
+				Str("feature_id", instance.FeatureID).
+				Msg("instance validation failed")
+
+			summary.FailedCount++
+			summary.FailedServices = append(summary.FailedServices, instance.FeatureID)
+		}
+	}
+
+	v.logger.Info().
+		Int("total_checked", summary.TotalChecked).
+		Int("failed_count", summary.FailedCount).
+		Strs("failed_services", summary.FailedServices).
+		Msg("boot-time validation complete")
+
+	return summary, nil
+}
+
+// validateInstance validates a single instance's binary integrity.
+func (v *BootValidator) validateInstance(ctx context.Context, instance *ent.ServiceInstance) error {
+	v.logger.Debug().
+		Str("instance_id", instance.ID).
+		Str("feature_id", instance.FeatureID).
+		Str("binary_path", instance.BinaryPath).
+		Msg("validating instance")
+
+	// Check if binary path is set
+	if instance.BinaryPath == "" {
+		return v.markInstanceUnavailable(
+			ctx,
+			instance,
+			"Binary path not configured",
+			"configuration_error",
+		)
+	}
+
+	// Check if binary file exists
+	if _, err := os.Stat(instance.BinaryPath); os.IsNotExist(err) {
+		// Binary file is missing - likely external storage disconnected
+		reason := fmt.Sprintf("Binary file not found: %s (storage may be disconnected)", instance.BinaryPath)
+		return v.markInstanceUnavailable(ctx, instance, reason, "file_not_found")
+	} else if err != nil {
+		// Other filesystem error
+		return v.markInstanceUnavailable(
+			ctx,
+			instance,
+			fmt.Sprintf("Failed to access binary file: %v", err),
+			"file_access_error",
+		)
+	}
+
+	// Verify SHA256 checksum if available
+	if instance.BinaryChecksum != "" {
+		valid, err := v.verifyChecksum(instance.BinaryPath, instance.BinaryChecksum)
+		if err != nil {
+			return v.markInstanceUnavailable(
+				ctx,
+				instance,
+				fmt.Sprintf("Failed to verify binary checksum: %v", err),
+				"checksum_verification_error",
+			)
+		}
+
+		if !valid {
+			// Checksum mismatch - binary has been corrupted or modified
+			reason := fmt.Sprintf("Binary integrity check failed: checksum mismatch (expected: %s)", instance.BinaryChecksum)
+			return v.markInstanceUnavailable(ctx, instance, reason, "checksum_mismatch")
+		}
+	} else {
+		v.logger.Warn().
+			Str("instance_id", instance.ID).
+			Str("feature_id", instance.FeatureID).
+			Msg("no checksum stored - skipping integrity verification")
+	}
+
+	// Binary is valid - clear any previous unavailable_reason
+	if instance.UnavailableReason != "" {
+		v.logger.Info().
+			Str("instance_id", instance.ID).
+			Str("previous_reason", instance.UnavailableReason).
+			Msg("clearing previous unavailable_reason after successful validation")
+
+		_, err := v.db.ServiceInstance.UpdateOneID(instance.ID).
+			ClearUnavailableReason().
+			Save(ctx)
+
+		if err != nil {
+			v.logger.Error().Err(err).Str("instance_id", instance.ID).Msg("failed to clear unavailable_reason")
+			// Non-fatal - continue
+		}
+	}
+
+	v.logger.Debug().
+		Str("instance_id", instance.ID).
+		Str("feature_id", instance.FeatureID).
+		Msg("instance validation passed")
+
+	return nil
+}
+
+// markInstanceUnavailable marks an instance as FAILED with an unavailable_reason.
+func (v *BootValidator) markInstanceUnavailable(
+	ctx context.Context,
+	instance *ent.ServiceInstance,
+	reason string,
+	eventReason string,
+) error {
+	v.logger.Warn().
+		Str("instance_id", instance.ID).
+		Str("feature_id", instance.FeatureID).
+		Str("reason", reason).
+		Msg("marking instance as unavailable")
+
+	// Update instance status to FAILED with unavailable_reason
+	_, err := v.db.ServiceInstance.UpdateOneID(instance.ID).
+		SetStatus(serviceinstance.StatusFailed).
+		SetUnavailableReason(reason).
+		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("failed to update instance status: %w", err)
+	}
+
+	// Emit storage unavailable event
+	if err := v.publisher.PublishStorageUnavailable(
+		ctx,
+		instance.FeatureID,
+		instance.ID,
+		instance.BinaryPath,
+		eventReason,
+	); err != nil {
+		v.logger.Error().Err(err).Msg("failed to publish storage unavailable event")
+		// Non-fatal - continue
+	}
+
+	return fmt.Errorf("instance validation failed: %s", reason)
+}
+
+// verifyChecksum calculates the SHA256 checksum of a file and compares it to the expected value.
+func (v *BootValidator) verifyChecksum(filePath string, expectedChecksum string) (bool, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return false, fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return false, fmt.Errorf("failed to calculate checksum: %w", err)
+	}
+
+	actualChecksum := hex.EncodeToString(hash.Sum(nil))
+
+	// Compare checksums (case-insensitive)
+	expected := strings.ToLower(expectedChecksum)
+	actual := strings.ToLower(actualChecksum)
+
+	if actual != expected {
+		v.logger.Warn().
+			Str("file_path", filePath).
+			Str("expected", expected).
+			Str("actual", actual).
+			Msg("checksum mismatch")
+		return false, nil
+	}
+
+	return true, nil
+}

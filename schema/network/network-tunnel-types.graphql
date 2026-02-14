@@ -1,0 +1,150 @@
+# =============================================================================
+# Tunnel Management Types
+# =============================================================================
+# Support for network tunnels (IPIP, GRE, EoIP, VXLAN) for connecting
+# remote networks securely with L2/L3 overlay capabilities
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Tunnel Types
+# -----------------------------------------------------------------------------
+
+"""
+Network tunnel types supported by MikroTik RouterOS
+"""
+enum TunnelType {
+  "IP-in-IP tunnel (RFC 2003) - Basic L3 encapsulation"
+  IPIP
+  "Generic Routing Encapsulation (RFC 2784) - L3 with optional IPsec"
+  GRE
+  "Ethernet over IP - Layer 2 tunnel for bridge extension"
+  EOIP
+  "Virtual eXtensible LAN (RFC 7348) - L2 overlay network"
+  VXLAN
+  "Secure Socket Tunneling Protocol (future support)"
+  SSTP
+  "Layer 2 Tunneling Protocol (future support)"
+  L2TP
+}
+
+"""
+A network tunnel interface for connecting remote networks
+"""
+type Tunnel implements Node {
+  "Unique tunnel identifier"
+  id: ID!
+  "Tunnel interface name"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$") @mikrotik(path: "/interface/{type}", field: "name")
+  "Tunnel protocol type"
+  type: TunnelType!
+  "Local endpoint IP address"
+  localAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "local-address")
+  "Remote endpoint IP address"
+  remoteAddress: String! @validate(format: IPV4) @mikrotik(path: "/interface/{type}", field: "remote-address")
+  "Operational status of the tunnel"
+  status: InterfaceStatus!
+  "MTU setting for the tunnel interface"
+  mtu: Int @validate(min: 68, max: 65535) @mikrotik(path: "/interface/{type}", field: "mtu")
+  "IPsec profile name (GRE tunnels only)"
+  ipsecProfile: String @mikrotik(path: "/interface/gre", field: "ipsec-profile")
+  "Tunnel ID (EoIP tunnels only, must be unique per remote address pair)"
+  tunnelId: Int @validate(min: 0, max: 65535) @mikrotik(path: "/interface/eoip", field: "tunnel-id")
+  "VXLAN Network Identifier (VXLAN tunnels only)"
+  vni: Int @validate(min: 1, max: 16777215) @mikrotik(path: "/interface/vxlan", field: "vni")
+  "VXLAN port (default 4789)"
+  port: Int @validate(min: 1, max: 65535) @mikrotik(path: "/interface/vxlan", field: "port")
+  "VTEP peer addresses (VXLAN tunnels only)"
+  vtepPeers: [String!] @mikrotik(path: "/interface/vxlan/vteps", field: "remote-ip")
+  "Traffic statistics for this tunnel"
+  statistics: InterfaceStats
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/interface/{type}", field: "comment")
+  "Whether the tunnel is disabled"
+  disabled: Boolean @mikrotik(path: "/interface/{type}", field: "disabled")
+}
+
+"""
+Input for creating or updating a tunnel
+"""
+input TunnelInput {
+  "Tunnel interface name (alphanumeric, hyphens, underscores)"
+  name: String! @validate(minLength: 1, maxLength: 100, pattern: "^[a-zA-Z0-9_-]+$")
+  "Tunnel protocol type"
+  type: TunnelType!
+  "Local endpoint IP address"
+  localAddress: String! @validate(format: IPV4)
+  "Remote endpoint IP address"
+  remoteAddress: String! @validate(format: IPV4)
+  "MTU setting (optional, default calculated based on tunnel type)"
+  mtu: Int @validate(min: 68, max: 65535)
+  "IPsec profile name (GRE tunnels only)"
+  ipsecProfile: String
+  "Tunnel ID (EoIP tunnels only, 0-65535)"
+  tunnelId: Int @validate(min: 0, max: 65535)
+  "VXLAN Network Identifier (VXLAN tunnels only, 1-16777215)"
+  vni: Int @validate(min: 1, max: 16777215)
+  "VXLAN port (default 4789)"
+  port: Int @validate(min: 1, max: 65535)
+  "VTEP peer addresses (VXLAN tunnels only)"
+  vtepPeers: [String!]
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+IPsec profile for GRE tunnel encryption
+"""
+type IpsecProfile {
+  "IPsec profile ID"
+  id: ID!
+  "Profile name"
+  name: String! @mikrotik(path: "/interface/ipsec/profile", field: "name")
+  "User comment"
+  comment: String @mikrotik(path: "/interface/ipsec/profile", field: "comment")
+}
+
+"""
+Result of a tunnel connectivity test
+"""
+type TunnelTestResult {
+  "Whether the remote endpoint is reachable"
+  reachable: Boolean!
+  "Average ping latency in milliseconds (null if unreachable)"
+  latency: Float
+  "Throughput in Mbps (null if iperf not available)"
+  throughput: Float
+  "Path MTU discovered (null if not tested)"
+  mtuPath: Int
+  "Suggestions for common connectivity issues"
+  suggestions: [String!]!
+}
+
+"""
+MTU guidance for tunnel configuration
+"""
+type MtuGuidance {
+  "Tunnel type this guidance applies to"
+  tunnelType: TunnelType!
+  "Protocol overhead in bytes"
+  overhead: Int!
+  "Recommended MTU based on base MTU (typically 1500)"
+  recommendedMtu: Int!
+  "Human-readable explanation of the overhead"
+  explanation: String!
+}
+
+"""
+Result of a tunnel mutation (create, update)
+"""
+type TunnelMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "The created or updated tunnel (if successful)"
+  tunnel: Tunnel
+  "Configuration preview (RouterOS commands)"
+  preview: String
+  "MTU guidance for the tunnel type"
+  mtuGuidance: MtuGuidance
+  "Errors that occurred during the operation"
+  errors: [String!]!
+}

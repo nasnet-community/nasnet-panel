@@ -1,0 +1,109 @@
+# ============================================
+# ISOLATION STATUS TYPES (NAS-8.4)
+# ============================================
+
+"""
+Severity level of an isolation violation.
+"""
+enum IsolationSeverity {
+  """Critical error that blocks instance start"""
+  ERROR
+
+  """Warning that is logged but allows instance start"""
+  WARNING
+
+  """Informational message"""
+  INFO
+}
+
+"""
+An isolation violation detected during pre-start checks.
+Represents a failure in one of the 4 isolation layers.
+"""
+type IsolationViolation {
+  """Which isolation layer failed (IP Binding, Directory, Port Registry, Process Binding)"""
+  layer: String!
+
+  """Severity level of the violation"""
+  severity: IsolationSeverity!
+
+  """Human-readable description of the violation"""
+  message: String!
+
+  """Timestamp when the violation was detected"""
+  timestamp: DateTime!
+}
+
+"""
+Resource limits applied to a service instance via cgroups v2.
+"""
+type ResourceLimits {
+  """Memory limit in megabytes (minimum 16MB)"""
+  memoryMB: Int!
+
+  """CPU usage percentage (0-100)"""
+  cpuPercent: Int
+
+  """Whether resource limits are currently applied (cgroups available)"""
+  applied: Boolean!
+}
+
+"""
+Complete isolation status for a service instance.
+Includes violations and resource limits.
+"""
+type IsolationStatus {
+  """List of isolation violations (empty if all checks passed)"""
+  violations: [IsolationViolation!]!
+
+  """Resource limits applied to the instance"""
+  resourceLimits: ResourceLimits
+
+  """Timestamp of the last isolation verification check"""
+  lastVerified: DateTime
+}
+
+"""
+Input for setting resource limits on a service instance.
+"""
+input SetResourceLimitsInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID"""
+  instanceID: ID!
+
+  """Memory limit in megabytes (minimum 16MB)"""
+  memoryMB: Int! @validate(min: 16)
+
+  """CPU weight for scheduling (0-100, optional)"""
+  cpuWeight: Int @validate(min: 0, max: 100)
+}
+
+"""
+Payload for resource limits mutation.
+"""
+type ResourceLimitsPayload {
+  """Whether the operation succeeded"""
+  success: Boolean!
+
+  """Updated resource limits (null if operation failed)"""
+  resourceLimits: ResourceLimits
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+extend type Query {
+  """
+  Get isolation status for a specific service instance.
+  Returns complete isolation check results and resource limits.
+  """
+  instanceIsolation(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): IsolationStatus!
+}

@@ -6,8 +6,8 @@ import (
 	"math"
 	"time"
 
-	"backend/ent"
-	"backend/graph/model"
+	"backend/generated/ent"
+	"backend/generated/graphql"
 	"backend/internal/events"
 	"backend/internal/router"
 )

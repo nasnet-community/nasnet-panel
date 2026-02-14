@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"backend/ent"
-	"backend/ent/alertrule"
-	"backend/ent/enttest"
+	"backend/generated/ent"
+	"backend/generated/ent/alertrule"
+	"backend/generated/ent/enttest"
 	"backend/internal/events"
 	"backend/internal/notifications"
 	"backend/internal/services"

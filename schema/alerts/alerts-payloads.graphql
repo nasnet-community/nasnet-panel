@@ -1,0 +1,187 @@
+# -----------------------------------------------------------------------------
+# Payload Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert rule mutation payload
+"""
+type AlertRulePayload {
+  """
+  Created/updated alert rule
+  """
+  alertRule: AlertRule
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Alert mutation payload
+"""
+type AlertPayload {
+  """
+  Modified alert
+  """
+  alert: Alert
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Bulk alert mutation payload
+"""
+type BulkAlertPayload {
+  """
+  Number of alerts acknowledged
+  """
+  acknowledgedCount: Int!
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Test notification payload
+"""
+type TestNotificationPayload {
+  """
+  Whether test was successful
+  """
+  success: Boolean!
+
+  """
+  Test result message
+  """
+  message: String
+
+  """
+  Errors encountered during test
+  """
+  errors: [MutationError!]
+}
+
+"""
+Delete operation payload
+"""
+type DeletePayload {
+  """
+  Whether deletion was successful
+  """
+  success: Boolean!
+
+  """
+  ID of deleted item
+  """
+  deletedId: ID
+
+  """
+  Errors encountered during deletion
+  """
+  errors: [MutationError!]
+}
+
+"""
+Alert rule template mutation payload
+"""
+type AlertRuleTemplatePayload {
+  """
+  Created/updated template
+  """
+  template: AlertRuleTemplate
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Alert template mutation payload
+"""
+type AlertTemplatePayload {
+  """
+  Created/updated template
+  """
+  template: AlertTemplate
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Template preview payload
+"""
+type TemplatePreviewPayload {
+  """
+  Preview result
+  """
+  preview: TemplatePreview
+
+  """
+  Errors encountered during preview
+  """
+  errors: [MutationError!]
+}
+
+"""
+Webhook mutation payload
+"""
+type WebhookPayload {
+  """
+  Created/updated webhook
+  """
+  webhook: Webhook
+
+  """
+  Signing secret (only returned on creation, one-time show)
+  """
+  signingSecret: String
+
+  """
+  Errors encountered during mutation
+  """
+  errors: [MutationError!]
+}
+
+"""
+Webhook test mutation payload
+"""
+type WebhookTestPayload {
+  """
+  Test result
+  """
+  result: WebhookTestResult
+
+  """
+  Errors encountered during test
+  """
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Event Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert event for real-time subscriptions
+"""
+type AlertEvent {
+  """
+  The alert that changed
+  """
+  alert: Alert!
+
+  """
+  Type of action that occurred
+  """
+  action: AlertAction!
+}

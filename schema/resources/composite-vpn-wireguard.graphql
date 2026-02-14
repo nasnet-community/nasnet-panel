@@ -1,0 +1,115 @@
+# =============================================================================
+# Composite Resources: VPN / WireGuard
+# =============================================================================
+# WireGuard VPN client resource implementing the 8-layer model.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Concrete Resource Types
+# -----------------------------------------------------------------------------
+
+"""
+WireGuard VPN Client resource implementing 8-layer model
+"""
+type WireGuardClient implements Resource & Node {
+  id: ID!
+  scopedId: String!
+  type: String!
+  category: ResourceCategory!
+
+  # Generic configuration (interface requirement)
+  configuration: JSON
+
+  # Other layers
+  validation: ValidationResult
+  deployment: DeploymentState
+  runtime: RuntimeState
+  telemetry: TelemetryData
+  metadata: ResourceMetadata!
+  relationships: ResourceRelationships
+  platform: PlatformInfo
+
+  # Typed fields (additional to interface)
+  config: WireGuardClientConfig!
+  wireguardDeployment: WireGuardDeployment
+  wireguardRuntime: WireGuardRuntime
+}
+
+"""
+WireGuard client configuration
+"""
+type WireGuardClientConfig {
+  "User-friendly name"
+  name: String!
+
+  "WireGuard private key"
+  privateKey: String! @sensitive
+
+  "Peer public key"
+  peerPublicKey: String!
+
+  "Peer endpoint (IP:port)"
+  peerEndpoint: String!
+
+  "Allowed IPs (CIDR notation)"
+  allowedIPs: [CIDR!]!
+
+  "Persistent keepalive interval"
+  persistentKeepalive: Duration
+
+  "Listen port (0 for auto)"
+  listenPort: Port
+
+  "WAN interface to use"
+  wanInterface: ID
+
+  "Enable kill switch"
+  killSwitch: Boolean
+
+  "DNS servers to use"
+  dnsServers: [IPv4!]
+}
+
+"""
+WireGuard deployment state (router-generated)
+"""
+type WireGuardDeployment {
+  routerResourceId: String
+  appliedAt: DateTime!
+  appliedBy: String
+  routerVersion: Int
+  isInSync: Boolean!
+  drift: DriftInfo
+
+  # WireGuard-specific generated fields
+  "Generated public key"
+  publicKey: String
+  "Assigned interface name"
+  interfaceName: String
+}
+
+"""
+WireGuard runtime state
+"""
+type WireGuardRuntime {
+  isRunning: Boolean!
+  health: RuntimeHealth!
+  errorMessage: String
+  lastUpdated: DateTime!
+
+  # WireGuard-specific runtime
+  "Whether connected to peer"
+  isConnected: Boolean!
+  "Last handshake time"
+  lastHandshake: DateTime
+  "Current endpoint (may differ from configured)"
+  currentEndpoint: String
+  "Bytes transferred in"
+  bytesIn: Size!
+  "Bytes transferred out"
+  bytesOut: Size!
+  "Current active peers count"
+  activePeers: Int!
+}

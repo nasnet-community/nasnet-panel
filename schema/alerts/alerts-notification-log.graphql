@@ -1,0 +1,188 @@
+# -----------------------------------------------------------------------------
+# Notification Log and Digest Types
+# -----------------------------------------------------------------------------
+
+"""
+Notification delivery log entry
+"""
+type NotificationLog implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Alert that triggered this notification
+  """
+  alertId: ID!
+
+  """
+  Notification channel type (email, telegram, pushover, webhook)
+  """
+  channel: String!
+
+  """
+  Webhook ID (if channel is webhook)
+  """
+  webhookId: ID
+
+  """
+  Delivery status
+  """
+  status: NotificationStatus!
+
+  """
+  HTTP status code (for webhooks)
+  """
+  statusCode: Int
+
+  """
+  Response time in milliseconds
+  """
+  responseTimeMs: Int
+
+  """
+  Error message if delivery failed
+  """
+  errorMessage: String
+
+  """
+  Number of retry attempts
+  """
+  retryCount: Int!
+
+  """
+  Request payload sent
+  """
+  requestPayload: JSON
+
+  """
+  Response body received
+  """
+  responseBody: String
+
+  """
+  When delivery was attempted
+  """
+  attemptedAt: DateTime!
+
+  """
+  When delivery was completed (success or final failure)
+  """
+  completedAt: DateTime
+}
+
+"""
+Notification delivery status
+"""
+enum NotificationStatus {
+  """
+  Delivery pending
+  """
+  PENDING
+
+  """
+  Successfully delivered
+  """
+  SUCCESS
+
+  """
+  Delivery failed
+  """
+  FAILED
+
+  """
+  Retrying after failure
+  """
+  RETRYING
+}
+
+"""
+Email digest configuration (NAS-18.11)
+"""
+type DigestConfig {
+  """
+  Whether digest mode is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)
+  """
+  intervalMinutes: Int!
+
+  """
+  Time of day for daily delivery in HH:MM format (optional, for daily digests)
+  """
+  time: String
+
+  """
+  Whether critical alerts bypass digest mode and send immediately
+  """
+  bypassCritical: Boolean!
+
+  """
+  Whether to send digest even when no alerts occurred during the period
+  """
+  sendEmptyDigest: Boolean!
+}
+
+"""
+Email digest configuration input (NAS-18.11)
+"""
+input DigestConfigInput {
+  """
+  Whether digest mode is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Digest interval in minutes (e.g., 60 for hourly, 1440 for daily)
+  """
+  intervalMinutes: Int!
+
+  """
+  Time of day for daily delivery in HH:MM format (optional, for daily digests)
+  """
+  time: String
+
+  """
+  Whether critical alerts bypass digest mode and send immediately (default: true)
+  """
+  bypassCritical: Boolean = true
+
+  """
+  Whether to send digest even when no alerts occurred during the period (default: false)
+  """
+  sendEmptyDigest: Boolean = false
+}
+
+"""
+Digest summary (NAS-18.11)
+"""
+type DigestSummary {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Channel ID this digest was sent to
+  """
+  channelId: String!
+
+  """
+  When the digest was delivered
+  """
+  deliveredAt: DateTime!
+
+  """
+  Number of alerts included in the digest
+  """
+  alertCount: Int!
+
+  """
+  Time period covered by the digest (e.g., "Last hour", "Last 24 hours")
+  """
+  period: String!
+}

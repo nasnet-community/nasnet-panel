@@ -1,0 +1,52 @@
+# -----------------------------------------------------------------------------
+# LTE Modem Types
+# -----------------------------------------------------------------------------
+
+"""
+LTE/cellular modem configuration
+"""
+type LteModem implements Node {
+  "Unique identifier"
+  id: ID!
+
+  "LTE interface name"
+  name: String! @mikrotik(path: "/interface/lte", field: "name")
+
+  "APN (Access Point Name)"
+  apn: String! @mikrotik(path: "/interface/lte", field: "apn")
+
+  "Signal strength (RSSI in dBm)"
+  signalStrength: Int @mikrotik(path: "/interface/lte", field: "rssi")
+
+  "Connection status"
+  running: Boolean! @mikrotik(path: "/interface/lte", field: "running")
+
+  "Operator name"
+  operator: String @mikrotik(path: "/interface/lte", field: "current-operator")
+
+  "Network type (LTE, 3G, etc.)"
+  networkType: String @mikrotik(path: "/interface/lte", field: "current-cellid")
+
+  "PIN code configured"
+  pinConfigured: Boolean!
+
+  "User comment"
+  comment: String @mikrotik(path: "/interface/lte", field: "comment")
+}
+
+"""
+Input for configuring LTE modem
+"""
+input LteModemInput {
+  "LTE interface name"
+  name: String! @validate(minLength: 1, maxLength: 100)
+
+  "APN (Access Point Name)"
+  apn: String! @validate(minLength: 1, maxLength: 100)
+
+  "PIN code (optional, for SIM card)"
+  pin: String @validate(minLength: 4, maxLength: 8, pattern: "^[0-9]+$")
+
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}

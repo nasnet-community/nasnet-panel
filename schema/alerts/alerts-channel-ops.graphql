@@ -1,0 +1,117 @@
+# -----------------------------------------------------------------------------
+# Notification Channel Configuration - Update Input, Queries, Mutations
+# -----------------------------------------------------------------------------
+
+"""
+Input for updating an existing notification channel configuration
+"""
+input UpdateNotificationChannelConfigInput {
+  """
+  New name (optional)
+  """
+  name: String
+
+  """
+  New description (optional)
+  """
+  description: String
+
+  """
+  Enable/disable configuration (optional)
+  """
+  enabled: Boolean
+
+  """
+  Set as default (optional)
+  """
+  isDefault: Boolean
+
+  """
+  New configuration (optional, replaces entire config if provided)
+  """
+  config: JSON
+}
+
+"""
+Payload for channel configuration mutations
+"""
+type ChannelConfigPayload {
+  """
+  The created/updated configuration
+  """
+  config: NotificationChannelConfig
+
+  """
+  Validation or mutation errors
+  """
+  errors: [MutationError!]
+}
+
+extend type Query {
+  """
+  List all notification channel configurations (optionally filtered by type)
+  """
+  notificationChannelConfigs(
+    """
+    Filter by channel type
+    """
+    channelType: ChannelType
+  ): [NotificationChannelConfig!]!
+
+  """
+  Get a specific notification channel configuration by ID
+  """
+  notificationChannelConfig(
+    """
+    Configuration ID
+    """
+    id: ID!
+  ): NotificationChannelConfig
+
+  """
+  Get the default configuration for a specific channel type
+  """
+  defaultNotificationChannelConfig(
+    """
+    Channel type
+    """
+    channelType: ChannelType!
+  ): NotificationChannelConfig
+}
+
+extend type Mutation {
+  """
+  Create a new notification channel configuration (validates before saving)
+  """
+  createNotificationChannelConfig(
+    """
+    Configuration input
+    """
+    input: CreateNotificationChannelConfigInput!
+  ): ChannelConfigPayload!
+
+  """
+  Update an existing notification channel configuration
+  """
+  updateNotificationChannelConfig(
+    """
+    Configuration ID
+    """
+    id: ID!
+
+    """
+    Update input
+    """
+    input: UpdateNotificationChannelConfigInput!
+  ): ChannelConfigPayload!
+
+  """
+  Delete a notification channel configuration (soft delete)
+  """
+  deleteNotificationChannelConfig(
+    """
+    Configuration ID
+    """
+    id: ID!
+  ): DeletePayload!
+}

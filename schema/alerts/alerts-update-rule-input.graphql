@@ -1,0 +1,83 @@
+# -----------------------------------------------------------------------------
+# Input Types - UpdateAlertRuleInput, AlertConditionInput
+# -----------------------------------------------------------------------------
+
+"""
+Input for updating an alert rule
+"""
+input UpdateAlertRuleInput {
+  """
+  Human-readable alert rule name
+  """
+  name: String
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Event type to match
+  """
+  eventType: String
+
+  """
+  Array of conditions
+  """
+  conditions: [AlertConditionInput!]
+
+  """
+  Alert severity level
+  """
+  severity: AlertSeverity
+
+  """
+  Notification channels
+  """
+  channels: [String!]
+
+  """
+  Throttle configuration
+  """
+  throttle: ThrottleConfigInput
+
+  """
+  Quiet hours configuration
+  """
+  quietHours: QuietHoursConfigInput
+
+  """
+  Escalation configuration (NAS-18.9)
+  """
+  escalation: EscalationConfigInput
+
+  """
+  Optional device ID filter
+  """
+  deviceId: ID
+
+  """
+  Whether rule is enabled
+  """
+  enabled: Boolean
+}
+
+"""
+Alert condition input
+"""
+input AlertConditionInput {
+  """
+  Field name to evaluate
+  """
+  field: String!
+
+  """
+  Comparison operator
+  """
+  operator: ConditionOperator!
+
+  """
+  Value to compare against
+  """
+  value: String!
+}

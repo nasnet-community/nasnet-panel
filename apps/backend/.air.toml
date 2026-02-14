@@ -6,7 +6,8 @@ tmp_dir = "tmp"
 
 [build]
   # Build with dev tag for development features (CORS, playground, etc.)
-  cmd = "go build -tags=dev -o ./tmp/backend.exe main.dev.go server_shared.go router_proxy.go scanner.go batch_executor.go batch_handlers.go cli_parser.go ros_client.go ssh_client.go telnet_client.go"
+  # All source files in cmd/nnc/ are compiled automatically by Go
+  cmd = "go build -tags=dev -o ./tmp/backend.exe ./cmd/nnc/"
   bin = "./tmp/backend.exe"
 
   # Watch for changes in these file types
@@ -15,8 +16,8 @@ tmp_dir = "tmp"
   # Directories to exclude from watching
   exclude_dir = ["dist", "tmp", "node_modules", ".git", "graph/generated.go"]
 
-  # Also watch GraphQL schema changes
-  include_dir = [".", "../../schema"]
+  # Also watch GraphQL schema changes and cmd/nnc/ entry points
+  include_dir = [".", "cmd/nnc", "../../schema", "../../libs/data/ent"]
 
   # Stop old process on error
   stop_on_error = true

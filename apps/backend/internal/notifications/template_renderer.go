@@ -3,7 +3,7 @@ package notifications
 import (
 	"context"
 
-	"backend/ent"
+	"backend/generated/ent"
 )
 
 // TemplateRenderer defines the interface for rendering alert notification templates.

@@ -1,0 +1,107 @@
+# VLAN Auto-Allocation & Pool Management (NAS-8.18)
+#
+# This schema defines the GraphQL API for automatic VLAN allocation in the
+# Virtual Interface Factory (VIF) architecture. VLANs are auto-allocated from
+# a configurable pool (default 100-199) when service instances are created.
+#
+# Key features:
+# - Automatic conflict detection with existing router VLANs
+# - Pool status monitoring with utilization warnings
+# - Orphan detection and cleanup reconciliation
+# - Thread-safe allocation via VLANAllocator service
+#
+# Related:
+# - ADR-006: Virtual Interface Factory pattern
+# - ADR-007: 4-layer IP binding isolation (VLANs provide Layer 1)
+# - Story NAS-8.18: VLAN Auto-Allocation & Pool Management
+
+"""
+VLANAllocation represents an automatic VLAN allocation for a service instance.
+
+Each allocation reserves a VLAN ID from the pool and generates a corresponding
+subnet (e.g., 10.8.100.0/24) for network isolation. Allocations are automatically
+created when service instances are provisioned and released when deleted.
+
+The system prevents conflicts with existing router VLANs through automatic
+detection via VlanService composition.
+"""
+type VLANAllocation implements Node {
+  """Unique allocation ID (ULID)"""
+  id: ID!
+
+  """Router ID this VLAN allocation belongs to"""
+  routerID: String!
+
+  """VLAN ID (IEEE 802.1Q range: 1-4094)"""
+  vlanID: Int!
+
+  """Service instance ID that owns this VLAN"""
+  instanceID: String!
+
+  """Service type (e.g., 'tor', 'xray', 'singbox')"""
+  serviceType: String!
+
+  """Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24')"""
+  subnet: String
+
+  """Allocation lifecycle status"""
+  status: VLANAllocationStatus!
+
+  """Timestamp when VLAN was allocated"""
+  allocatedAt: DateTime!
+
+  """Timestamp when VLAN was released (null if still allocated)"""
+  releasedAt: DateTime
+
+  """Router this VLAN belongs to"""
+  router: Router!
+
+  """Service instance that owns this VLAN"""
+  serviceInstance: ServiceInstance!
+}
+
+"""
+VLANAllocationStatus represents the lifecycle state of a VLAN allocation.
+"""
+enum VLANAllocationStatus {
+  """VLAN is currently allocated and in use"""
+  ALLOCATED
+
+  """VLAN is being released (transitional state)"""
+  RELEASING
+
+  """VLAN has been released and is available for reuse"""
+  RELEASED
+}
+
+"""
+VLANPoolStatus represents the current state of the VLAN pool for a router.
+
+Provides utilization metrics and warnings when the pool is approaching exhaustion.
+Useful for capacity planning and monitoring.
+"""
+type VLANPoolStatus {
+  """Router ID this pool status applies to"""
+  routerID: String!
+
+  """Total number of VLANs in the pool (e.g., 100 for range 100-199)"""
+  totalVLANs: Int!
+
+  """Number of currently allocated VLANs"""
+  allocatedVLANs: Int!
+
+  """Number of available VLANs remaining"""
+  availableVLANs: Int!
+
+  """Utilization percentage (0.0 - 100.0)"""
+  utilization: Float!
+
+  """Warning flag if utilization > 80%"""
+  shouldWarn: Boolean!
+
+  """Pool configuration (start VLAN ID)"""
+  poolStart: Int!
+
+  """Pool configuration (end VLAN ID)"""
+  poolEnd: Int!
+}

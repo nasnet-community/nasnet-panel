@@ -1,0 +1,85 @@
+# =============================================================================
+# Network Scanner Operations
+# =============================================================================
+# Queries, mutations, and subscriptions for network scanning.
+# Story: NAS-3.4 - Implement Router Auto Scanner
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+type ScanNetworkPayload {
+  "The created scan task"
+  task: ScanTask
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type CancelScanPayload {
+  "The cancelled scan task"
+  task: ScanTask
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Query Extensions
+# -----------------------------------------------------------------------------
+
+extend type Query {
+  "Get the status of a scan task by ID"
+  scanStatus(taskId: ID!): ScanTask
+
+  "Get scan history (recent scans)"
+  scanHistory(
+    "Maximum number of results to return"
+    limit: Int = 10
+  ): [ScanTask!]!
+}
+
+# -----------------------------------------------------------------------------
+# Mutation Extensions
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Start a network scan for MikroTik routers.
+  Returns a task ID that can be used to track progress via subscription or polling.
+
+  Supported subnet formats:
+  - CIDR: "192.168.88.0/24" (scans 254 usable IPs)
+  - Range: "192.168.1.1-192.168.1.100" (scans specified range)
+  - Single IP: "192.168.88.1" (scans one IP)
+
+  Performance: /24 scan completes in 1-2 seconds with 20 concurrent workers.
+  """
+  scanNetwork(input: ScanNetworkInput!): ScanNetworkPayload!
+
+  """
+  Start an automatic gateway scan.
+  Scans common gateway IPs (192.168.0-255.1) to find MikroTik routers.
+  This is useful when the user doesn't know which subnet to scan.
+
+  Only returns verified MikroTik RouterOS devices (confidence >= 40).
+  """
+  autoScanGateways: ScanNetworkPayload!
+
+  """
+  Cancel a running scan.
+  The scan will stop within 1 second and partial results are preserved.
+  """
+  cancelScan(taskId: ID!): CancelScanPayload!
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Extensions
+# -----------------------------------------------------------------------------
+
+extend type Subscription {
+  """
+  Subscribe to real-time scan progress updates.
+  Emits events every 5% progress or every 2 seconds, whichever is sooner.
+  """
+  scanProgress(taskId: ID!): ScanProgressEvent!
+}

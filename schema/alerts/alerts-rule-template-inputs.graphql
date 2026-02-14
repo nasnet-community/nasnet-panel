@@ -1,0 +1,123 @@
+# -----------------------------------------------------------------------------
+# Input Types - Alert Rule Templates
+# -----------------------------------------------------------------------------
+
+"""
+Input for saving custom alert rule template
+"""
+input SaveAlertRuleTemplateInput {
+  """
+  Template name
+  """
+  name: String!
+
+  """
+  Template description
+  """
+  description: String!
+
+  """
+  Template category
+  """
+  category: AlertRuleTemplateCategory!
+
+  """
+  Alert severity
+  """
+  severity: AlertSeverity!
+
+  """
+  Event type
+  """
+  eventType: String!
+
+  """
+  Alert conditions
+  """
+  conditions: [AlertConditionInput!]!
+
+  """
+  Throttle configuration
+  """
+  throttle: ThrottleConfigInput
+
+  """
+  Notification channels
+  """
+  channels: [String!]!
+
+  """
+  Template variables
+  """
+  variables: [AlertRuleAlertTemplateVariableInput!]
+}
+
+"""
+Variable input for alert rule templates
+"""
+input AlertRuleAlertTemplateVariableInput {
+  """
+  Variable name
+  """
+  name: String!
+
+  """
+  Display label
+  """
+  label: String!
+
+  """
+  Variable type
+  """
+  type: AlertRuleTemplateVariableType!
+
+  """
+  Whether required
+  """
+  required: Boolean!
+
+  """
+  Default value
+  """
+  defaultValue: String
+
+  """
+  Minimum value
+  """
+  min: Int
+
+  """
+  Maximum value
+  """
+  max: Int
+
+  """
+  Unit label
+  """
+  unit: String
+
+  """
+  Description
+  """
+  description: String
+}
+
+"""
+Input for applying an alert template
+"""
+input ApplyAlertTemplateInput {
+  """
+  Template ID to apply
+  """
+  templateId: ID!
+
+  """
+  Variables for template substitution
+  """
+  variables: JSON!
+
+  """
+  Alert rule configuration
+  """
+  ruleConfig: CreateAlertRuleInput!
+}

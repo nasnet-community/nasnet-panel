@@ -6,8 +6,8 @@ import (
 
 	"github.com/graph-gophers/dataloader/v7"
 
-	"backend/ent"
-	"backend/ent/router"
+	"backend/generated/ent"
+	"backend/generated/ent/router"
 )
 
 // RouterLoader batches router lookups by ID.

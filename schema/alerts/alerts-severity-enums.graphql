@@ -1,0 +1,158 @@
+# -----------------------------------------------------------------------------
+# Enums - Severity, Status, Channel, Template Types
+# -----------------------------------------------------------------------------
+
+"""
+Alert rule template categories
+"""
+enum AlertRuleTemplateCategory {
+  """
+  Network connectivity and interface monitoring
+  """
+  NETWORK
+
+  """
+  Security and firewall events
+  """
+  SECURITY
+
+  """
+  Resource usage (CPU, memory, disk)
+  """
+  RESOURCES
+
+  """
+  VPN and tunnel monitoring
+  """
+  VPN
+
+  """
+  DHCP and IP address management
+  """
+  DHCP
+
+  """
+  System events and maintenance
+  """
+  SYSTEM
+
+  """
+  Custom user-defined templates
+  """
+  CUSTOM
+}
+
+"""
+Variable types for alert rule templates
+"""
+enum AlertRuleTemplateVariableType {
+  """
+  String value
+  """
+  STRING
+
+  """
+  Integer value
+  """
+  INTEGER
+
+  """
+  Duration in seconds
+  """
+  DURATION
+
+  """
+  Percentage (0-100)
+  """
+  PERCENTAGE
+}
+
+"""
+Notification channel types
+"""
+enum NotificationChannel {
+  """
+  Email notifications
+  """
+  EMAIL
+
+  """
+  Telegram notifications
+  """
+  TELEGRAM
+
+  """
+  Pushover notifications
+  """
+  PUSHOVER
+
+  """
+  Webhook notifications
+  """
+  WEBHOOK
+
+  """
+  Ntfy.sh notifications
+  """
+  NTFY
+
+  """
+  In-app notifications
+  """
+  INAPP
+}
+
+"""
+Template variable types for notification templates
+"""
+enum AlertTemplateVariableType {
+  """
+  String value
+  """
+  STRING
+
+  """
+  Numeric value
+  """
+  NUMBER
+
+  """
+  Timestamp value
+  """
+  TIMESTAMP
+
+  """
+  Boolean value
+  """
+  BOOLEAN
+
+  """
+  Interface name
+  """
+  INTERFACE
+
+  """
+  IP address
+  """
+  IPADDRESS
+}
+
+"""
+Alert severity levels
+"""
+enum AlertSeverity {
+  """
+  Critical - requires immediate attention
+  """
+  CRITICAL
+
+  """
+  Warning - attention needed soon
+  """
+  WARNING
+
+  """
+  Info - informational only
+  """
+  INFO
+}

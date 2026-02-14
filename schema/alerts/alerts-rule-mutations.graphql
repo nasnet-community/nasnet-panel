@@ -1,0 +1,165 @@
+# -----------------------------------------------------------------------------
+# Mutations - Rule Templates, Alert Rules
+# -----------------------------------------------------------------------------
+
+extend type Mutation {
+  """
+  Apply an alert rule template to create a rule
+  """
+  applyAlertRuleTemplate(
+    """
+    Template ID
+    """
+    templateId: ID!
+    """
+    Variables for substitution
+    """
+    variables: JSON!
+    """
+    Optional customizations
+    """
+    customizations: CreateAlertRuleInput
+  ): AlertRulePayload!
+
+  """
+  Save a custom alert rule template
+  """
+  saveCustomAlertRuleTemplate(
+    """
+    Template input
+    """
+    input: SaveAlertRuleTemplateInput!
+  ): AlertRuleTemplatePayload!
+
+  """
+  Delete a custom alert rule template (built-ins cannot be deleted)
+  """
+  deleteCustomAlertRuleTemplate(
+    """
+    Template ID
+    """
+    id: ID!
+  ): DeletePayload!
+
+  """
+  Import an alert rule template from JSON
+  """
+  importAlertRuleTemplate(
+    """
+    JSON template string
+    """
+    json: String!
+  ): AlertRuleTemplatePayload!
+
+  """
+  Export an alert rule template as JSON
+  """
+  exportAlertRuleTemplate(
+    """
+    Template ID
+    """
+    id: ID!
+  ): String!
+
+  """
+  Apply an alert template to create an alert rule
+  """
+  applyAlertTemplate(
+    """
+    Template application input
+    """
+    input: ApplyAlertTemplateInput!
+  ): AlertRulePayload!
+
+  """
+  Save a custom alert template
+  """
+  saveAlertTemplate(
+    """
+    Template input
+    """
+    input: SaveAlertTemplateInput!
+  ): AlertTemplatePayload!
+
+  """
+  Delete a custom alert template
+  """
+  deleteAlertTemplate(
+    """
+    Template ID
+    """
+    id: ID!
+  ): DeletePayload!
+
+  """
+  Reset alert notification template to system default (deletes custom template)
+  Used for notification template customization per channel
+  Requires authentication
+  """
+  resetAlertTemplate(
+    """
+    Event type to reset template for
+    """
+    eventType: String!
+    """
+    Notification channel to reset template for
+    """
+    channel: NotificationChannel!
+  ): DeletePayload! @auth
+
+  """
+  Preview how a notification template will render with sample data
+  Used for template customization - renders subject and body with validation
+  Requires authentication
+  """
+  previewNotificationTemplate(
+    """
+    Template preview input
+    """
+    input: PreviewNotificationTemplateInput!
+  ): NotificationTemplatePreview! @auth
+
+  """
+  Create a new alert rule
+  """
+  createAlertRule(
+    """
+    Alert rule input
+    """
+    input: CreateAlertRuleInput!
+  ): AlertRulePayload!
+
+  """
+  Update an existing alert rule
+  """
+  updateAlertRule(
+    """
+    Alert rule ID
+    """
+    id: ID!
+    """
+    Update input
+    """
+    input: UpdateAlertRuleInput!
+  ): AlertRulePayload!
+
+  """
+  Toggle alert rule enabled/disabled status
+  """
+  toggleAlertRule(
+    """
+    Alert rule ID
+    """
+    id: ID!
+  ): AlertRulePayload!
+
+  """
+  Delete an alert rule
+  """
+  deleteAlertRule(
+    """
+    Alert rule ID
+    """
+    id: ID!
+  ): DeletePayload!
+}

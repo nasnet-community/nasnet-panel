@@ -1,0 +1,132 @@
+# ============================================
+# ROUTING CHAIN INPUTS AND OPERATIONS
+# ============================================
+
+"""
+Input for creating or updating a multi-hop routing chain.
+"""
+input CreateRoutingChainInput {
+  """Target device identifier"""
+  deviceId: ID!
+
+  """Device MAC address (required if routing_mode=MAC)"""
+  deviceMac: String
+
+  """Device IP address (required if routing_mode=IP)"""
+  deviceIp: String
+
+  """Human-readable device name"""
+  deviceName: String
+
+  """Routing mode (MAC or IP matching)"""
+  routingMode: RoutingMode!
+
+  """Whether to enable kill switch"""
+  killSwitchEnabled: Boolean
+
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode
+
+  """Ordered list of hops (2-5 hops required)"""
+  hops: [ChainHopInput!]!
+}
+
+"""
+Input for a single hop in a chain.
+"""
+input ChainHopInput {
+  """Virtual interface ID for this hop"""
+  interfaceId: ID!
+
+  """1-based position in the chain"""
+  order: Int! @validate(min: 1, max: 5)
+}
+
+"""
+Result of a routing chain mutation.
+"""
+type RoutingChainMutationResult {
+  """Whether the operation succeeded"""
+  success: Boolean!
+
+  """Human-readable message"""
+  message: String
+
+  """The created or updated chain (null if failed)"""
+  chain: RoutingChain
+
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+extend type Query {
+  """
+  Get the routing chain for a specific device, if any.
+  """
+  routingChain(
+    """Router ID"""
+    routerID: ID!
+
+    """Device ID"""
+    deviceID: ID!
+  ): RoutingChain
+
+  """
+  List all routing chains for a router.
+  """
+  routingChains(
+    """Router ID"""
+    routerID: ID!
+  ): [RoutingChain!]!
+}
+
+extend type Mutation {
+  """
+  Create a multi-hop routing chain for a device.
+  Removes any existing single-hop routing for the device.
+  Creates sequential MikroTik mangle rules with Policy-Based Routing (PBR).
+  """
+  createRoutingChain(
+    """Router ID"""
+    routerID: ID!
+
+    """Chain configuration"""
+    input: CreateRoutingChainInput!
+  ): RoutingChainMutationResult!
+
+  """
+  Update an existing routing chain (replaces all hops).
+  Removes the old chain and creates a new one with updated configuration.
+  """
+  updateRoutingChain(
+    """Router ID"""
+    routerID: ID!
+
+    """Chain ID to update"""
+    chainID: ID!
+
+    """New chain configuration"""
+    input: CreateRoutingChainInput!
+  ): RoutingChainMutationResult!
+
+  """
+  Remove a routing chain and all its mangle/route/filter rules from the router.
+  """
+  removeRoutingChain(
+    """Router ID"""
+    routerID: ID!
+
+    """Chain ID to remove"""
+    chainID: ID!
+  ): RoutingChainMutationResult!
+}
+
+extend type Subscription {
+  """
+  Real-time updates when any routing chain changes (create, update, remove, kill switch).
+  """
+  routingChainChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): RoutingChain!
+}

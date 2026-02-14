@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"backend/ent"
+	"backend/generated/ent"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"

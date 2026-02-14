@@ -1,0 +1,95 @@
+# ============================================
+# PORT KNOCKING QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get all port knock sequences for a router.
+  """
+  portKnockSequences(routerId: ID!): [PortKnockSequence!]!
+
+  """
+  Get single port knock sequence by ID.
+  """
+  portKnockSequence(routerId: ID!, id: ID!): PortKnockSequence
+
+  """
+  Get port knock attempt log with filtering.
+  """
+  portKnockLog(
+    routerId: ID!
+    filters: PortKnockLogFilters
+    first: Int
+    after: String
+  ): PortKnockAttemptConnection!
+}
+
+# ============================================
+# PORT KNOCKING MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a new port knock sequence.
+  Generates firewall rules on the router.
+  """
+  createPortKnockSequence(
+    routerId: ID!
+    input: PortKnockSequenceInput!
+  ): PortKnockSequence!
+
+  """
+  Update existing port knock sequence.
+  Regenerates firewall rules.
+  """
+  updatePortKnockSequence(
+    routerId: ID!
+    id: ID!
+    input: PortKnockSequenceInput!
+  ): PortKnockSequence!
+
+  """
+  Delete port knock sequence.
+  Removes all associated firewall rules.
+  """
+  deletePortKnockSequence(
+    routerId: ID!
+    id: ID!
+  ): Boolean!
+
+  """
+  Toggle port knock sequence enabled/disabled.
+  Enables or disables firewall rules.
+  """
+  togglePortKnockSequence(
+    routerId: ID!
+    id: ID!
+    enabled: Boolean!
+  ): PortKnockSequence!
+
+  """
+  Test port knock sequence.
+  Creates temporary rules with short timeout for verification.
+  """
+  testPortKnockSequence(
+    routerId: ID!
+    id: ID!
+  ): TestPortKnockResult!
+}
+
+"""
+Result of test port knock operation.
+"""
+type TestPortKnockResult {
+  """Whether test rules were created successfully"""
+  success: Boolean!
+
+  """Test instructions for user"""
+  testInstructions: String!
+
+  """Message"""
+  message: String!
+
+  """Test rule IDs (will auto-expire)"""
+  testRuleIds: [ID!]!
+}

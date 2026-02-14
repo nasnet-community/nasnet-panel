@@ -1,8 +1,11 @@
 /**
  * Plugin Store Tab Component
- * Displays available plugins for installation on the router
- * Plugins: TOR, Nostr, V2Ray, MTProto
- * 
+ * Displays available services and templates for installation on the router
+ *
+ * Features:
+ * - Services tab: Individual service instances (TOR, Nostr, V2Ray, MTProto)
+ * - Templates tab: Multi-service templates for common use cases
+ *
  * Design follows NasNetConnect UX Direction patterns:
  * - Clean minimal layout with large rounded corners
  * - Card-heavy dashboard style
@@ -10,11 +13,15 @@
  */
 
 import { useState } from 'react';
+import { Route } from '@/routes/router/$id/route';
 import { PluginCard, type Plugin } from '@nasnet/ui/patterns';
-import { 
-  Shield, 
-  Zap, 
-  Lock, 
+import { Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@nasnet/ui/primitives';
+import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
+import type { ServiceTemplate } from '@nasnet/api-client/generated';
+import {
+  Shield,
+  Zap,
+  Lock,
   MessageSquare,
   Info
 } from 'lucide-react';
@@ -147,7 +154,13 @@ const createMockPlugins = (): Plugin[] => [
 ];
 
 export function PluginStoreTab() {
+  const { id: routerId } = Route.useParams();
+  const { toast } = useToast();
   const [plugins, setPlugins] = useState<Plugin[]>(createMockPlugins());
+
+  // Template wizard state
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<ServiceTemplate | null>(null);
 
   /**
    * Handle plugin installation
@@ -202,6 +215,39 @@ export function PluginStoreTab() {
     // TODO: Open configuration dialog/modal
   };
 
+  /**
+   * Handle template installation initiation
+   * Opens the wizard modal with the selected template
+   */
+  const handleTemplateInstall = (template: ServiceTemplate) => {
+    setSelectedTemplate(template);
+    setWizardOpen(true);
+  };
+
+  /**
+   * Handle wizard close
+   * Resets selected template state
+   */
+  const handleWizardClose = () => {
+    setWizardOpen(false);
+    // Delay reset to avoid flash during close animation
+    setTimeout(() => setSelectedTemplate(null), 300);
+  };
+
+  /**
+   * Handle installation completion
+   * Shows success toast and closes wizard
+   */
+  const handleInstallComplete = (instanceIDs: string[]) => {
+    const count = instanceIDs.length;
+    toast({
+      title: 'Template Installed',
+      description: `Successfully installed ${count} service${count !== 1 ? 's' : ''} from template "${selectedTemplate?.name}"`,
+      variant: 'success',
+    });
+    handleWizardClose();
+  };
+
   // Count running plugins
   const runningCount = plugins.filter(p => p.status === 'running').length;
   const installedCount = plugins.filter(p => p.status === 'installed' || p.status === 'running').length;
@@ -209,15 +255,25 @@ export function PluginStoreTab() {
   return (
     <div className="p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Page Header - Clean minimal style */}
+        {/* Page Header */}
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-            Plugin Store
+            Services & Templates
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Enhance your router with privacy and communication tools
+            Install individual services or pre-configured template bundles
           </p>
         </div>
+
+        {/* Tabs Navigation */}
+        <Tabs defaultValue="services" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="services">Services</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+          </TabsList>
+
+          {/* Services Tab Content */}
+          <TabsContent value="services" className="space-y-6">
 
         {/* Status Summary Pills - Following demo pattern */}
         <div className="flex gap-2 flex-wrap">
@@ -262,13 +318,34 @@ export function PluginStoreTab() {
           ))}
         </div>
 
-        {/* Footer Note - Subtle */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            This is a demonstration interface. In production, plugins would be 
-            installed directly on your MikroTik router and managed through the RouterOS API.
-          </p>
-        </div>
+            {/* Footer Note - Subtle */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                This is a demonstration interface. In production, services would be
+                installed directly on your MikroTik router and managed through the RouterOS API.
+              </p>
+            </div>
+          </TabsContent>
+
+          {/* Templates Tab Content */}
+          <TabsContent value="templates">
+            <TemplatesBrowser
+              routerId={routerId}
+              onInstall={handleTemplateInstall}
+            />
+          </TabsContent>
+        </Tabs>
+
+        {/* Template Install Wizard Modal */}
+        {selectedTemplate && (
+          <TemplateInstallWizard
+            routerId={routerId}
+            template={selectedTemplate}
+            open={wizardOpen}
+            onClose={handleWizardClose}
+            onComplete={handleInstallComplete}
+          />
+        )}
       </div>
     </div>
   );

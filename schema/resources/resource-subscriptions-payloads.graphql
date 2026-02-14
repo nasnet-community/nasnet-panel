@@ -1,0 +1,102 @@
+# =============================================================================
+# Resource Mutation Payloads and Subscription Events
+# =============================================================================
+# Payload types for resource mutations and event types for subscriptions.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Mutation Payloads
+# -----------------------------------------------------------------------------
+
+type CreateResourcePayload {
+  "The created resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type UpdateResourcePayload {
+  "The updated resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ValidateResourcePayload {
+  "The validated resource"
+  resource: Resource
+  "Validation result"
+  validation: ValidationResult
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ApplyResourcePayload {
+  "The applied resource"
+  resource: Resource
+  "Operation ID for progress tracking"
+  operationId: ID!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type DeprecateResourcePayload {
+  "The deprecated resource"
+  resource: Resource
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type ArchiveResourcePayload {
+  "Whether archive was successful"
+  success: Boolean!
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+type DeleteResourcePayload {
+  "Whether deletion was successful"
+  success: Boolean!
+  "ID of deleted resource"
+  deletedId: ID
+  "Errors that occurred"
+  errors: [MutationError!]
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Events
+# -----------------------------------------------------------------------------
+
+"""
+Runtime update event for a resource
+"""
+type ResourceRuntimeEvent {
+  "Resource ID (ULID)"
+  id: ID!
+  "Resource type"
+  type: String!
+  "Updated runtime state"
+  runtime: RuntimeState!
+  "Timestamp of update"
+  timestamp: DateTime!
+}
+
+"""
+Lifecycle state change event
+"""
+type ResourceStateEvent {
+  "Resource ID (ULID)"
+  id: ID!
+  "Resource type"
+  type: String!
+  "Previous state"
+  previousState: ResourceLifecycleState!
+  "New state"
+  newState: ResourceLifecycleState!
+  "Error message if state is ERROR"
+  errorMessage: String
+  "Timestamp of change"
+  timestamp: DateTime!
+}

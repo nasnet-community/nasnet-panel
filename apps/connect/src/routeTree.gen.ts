@@ -27,6 +27,7 @@ import { Route as RouterIdIndexRouteImport } from './routes/router/$id/index'
 import { Route as NetworkDhcpIndexRouteImport } from './routes/network/dhcp/index'
 import { Route as SettingsNotificationsWebhooksRouteImport } from './routes/settings/notifications/webhooks'
 import { Route as RouterIdVlansRouteImport } from './routes/router/$id/vlans'
+import { Route as RouterIdRoutingRouteImport } from './routes/router/$id/routing'
 import { Route as RouterIdPluginsRouteImport } from './routes/router/$id/plugins'
 import { Route as RouterIdNetworkRouteImport } from './routes/router/$id/network'
 import { Route as RouterIdLogsRouteImport } from './routes/router/$id/logs'
@@ -39,9 +40,11 @@ import { Route as NetworkDhcpLeasesRouteImport } from './routes/network/dhcp/lea
 import { Route as NetworkDhcpServerIdRouteImport } from './routes/network/dhcp/$serverId'
 import { Route as RouterIdWifiIndexRouteImport } from './routes/router/$id/wifi/index'
 import { Route as RouterIdVpnIndexRouteImport } from './routes/router/$id/vpn/index'
+import { Route as RouterIdServicesIndexRouteImport } from './routes/router/$id/services/index'
 import { Route as RouterIdWifiInterfaceNameRouteImport } from './routes/router/$id/wifi/$interfaceName'
 import { Route as RouterIdVpnServersRouteImport } from './routes/router/$id/vpn/servers'
 import { Route as RouterIdVpnClientsRouteImport } from './routes/router/$id/vpn/clients'
+import { Route as RouterIdServicesTemplatesRouteImport } from './routes/router/$id/services/templates'
 import { Route as RouterIdFirewallTemplatesRouteImport } from './routes/router/$id/firewall/templates'
 import { Route as RouterIdFirewallRawRouteImport } from './routes/router/$id/firewall/raw'
 import { Route as RouterIdFirewallRateLimitingRouteImport } from './routes/router/$id/firewall/rate-limiting'
@@ -142,6 +145,11 @@ const RouterIdVlansRoute = RouterIdVlansRouteImport.update({
   path: '/vlans',
   getParentRoute: () => RouterIdRouteRoute,
 } as any)
+const RouterIdRoutingRoute = RouterIdRoutingRouteImport.update({
+  id: '/routing',
+  path: '/routing',
+  getParentRoute: () => RouterIdRouteRoute,
+} as any)
 const RouterIdPluginsRoute = RouterIdPluginsRouteImport.update({
   id: '/plugins',
   path: '/plugins',
@@ -202,6 +210,11 @@ const RouterIdVpnIndexRoute = RouterIdVpnIndexRouteImport.update({
   path: '/vpn/',
   getParentRoute: () => RouterIdRouteRoute,
 } as any)
+const RouterIdServicesIndexRoute = RouterIdServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => RouterIdRouteRoute,
+} as any)
 const RouterIdWifiInterfaceNameRoute =
   RouterIdWifiInterfaceNameRouteImport.update({
     id: '/wifi/$interfaceName',
@@ -218,6 +231,12 @@ const RouterIdVpnClientsRoute = RouterIdVpnClientsRouteImport.update({
   path: '/vpn/clients',
   getParentRoute: () => RouterIdRouteRoute,
 } as any)
+const RouterIdServicesTemplatesRoute =
+  RouterIdServicesTemplatesRouteImport.update({
+    id: '/services/templates',
+    path: '/services/templates',
+    getParentRoute: () => RouterIdRouteRoute,
+  } as any)
 const RouterIdFirewallTemplatesRoute =
   RouterIdFirewallTemplatesRouteImport.update({
     id: '/templates',
@@ -289,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/routing': typeof RouterIdRoutingRoute
   '/router/$id/vlans': typeof RouterIdVlansRoute
   '/settings/notifications/webhooks': typeof SettingsNotificationsWebhooksRoute
   '/network/dhcp/': typeof NetworkDhcpIndexRoute
@@ -301,9 +321,11 @@ export interface FileRoutesByFullPath {
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
   '/router/$id/wifi/$interfaceName': typeof RouterIdWifiInterfaceNameRoute
+  '/router/$id/services/': typeof RouterIdServicesIndexRoute
   '/router/$id/vpn/': typeof RouterIdVpnIndexRoute
   '/router/$id/wifi/': typeof RouterIdWifiIndexRoute
 }
@@ -331,6 +353,7 @@ export interface FileRoutesByTo {
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/routing': typeof RouterIdRoutingRoute
   '/router/$id/vlans': typeof RouterIdVlansRoute
   '/settings/notifications/webhooks': typeof SettingsNotificationsWebhooksRoute
   '/network/dhcp': typeof NetworkDhcpIndexRoute
@@ -343,9 +366,11 @@ export interface FileRoutesByTo {
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
   '/router/$id/wifi/$interfaceName': typeof RouterIdWifiInterfaceNameRoute
+  '/router/$id/services': typeof RouterIdServicesIndexRoute
   '/router/$id/vpn': typeof RouterIdVpnIndexRoute
   '/router/$id/wifi': typeof RouterIdWifiIndexRoute
 }
@@ -375,6 +400,7 @@ export interface FileRoutesById {
   '/router/$id/logs': typeof RouterIdLogsRoute
   '/router/$id/network': typeof RouterIdNetworkRoute
   '/router/$id/plugins': typeof RouterIdPluginsRoute
+  '/router/$id/routing': typeof RouterIdRoutingRoute
   '/router/$id/vlans': typeof RouterIdVlansRoute
   '/settings/notifications/webhooks': typeof SettingsNotificationsWebhooksRoute
   '/network/dhcp/': typeof NetworkDhcpIndexRoute
@@ -387,9 +413,11 @@ export interface FileRoutesById {
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
+  '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
   '/router/$id/vpn/servers': typeof RouterIdVpnServersRoute
   '/router/$id/wifi/$interfaceName': typeof RouterIdWifiInterfaceNameRoute
+  '/router/$id/services/': typeof RouterIdServicesIndexRoute
   '/router/$id/vpn/': typeof RouterIdVpnIndexRoute
   '/router/$id/wifi/': typeof RouterIdWifiIndexRoute
 }
@@ -420,6 +448,7 @@ export interface FileRouteTypes {
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/routing'
     | '/router/$id/vlans'
     | '/settings/notifications/webhooks'
     | '/network/dhcp/'
@@ -432,9 +461,11 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
     | '/router/$id/wifi/$interfaceName'
+    | '/router/$id/services/'
     | '/router/$id/vpn/'
     | '/router/$id/wifi/'
   fileRoutesByTo: FileRoutesByTo
@@ -462,6 +493,7 @@ export interface FileRouteTypes {
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/routing'
     | '/router/$id/vlans'
     | '/settings/notifications/webhooks'
     | '/network/dhcp'
@@ -474,9 +506,11 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
     | '/router/$id/wifi/$interfaceName'
+    | '/router/$id/services'
     | '/router/$id/vpn'
     | '/router/$id/wifi'
   id:
@@ -505,6 +539,7 @@ export interface FileRouteTypes {
     | '/router/$id/logs'
     | '/router/$id/network'
     | '/router/$id/plugins'
+    | '/router/$id/routing'
     | '/router/$id/vlans'
     | '/settings/notifications/webhooks'
     | '/network/dhcp/'
@@ -517,9 +552,11 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
     | '/router/$id/firewall/templates'
+    | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
     | '/router/$id/vpn/servers'
     | '/router/$id/wifi/$interfaceName'
+    | '/router/$id/services/'
     | '/router/$id/vpn/'
     | '/router/$id/wifi/'
   fileRoutesById: FileRoutesById
@@ -664,6 +701,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterIdVlansRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
+    '/router/$id/routing': {
+      id: '/router/$id/routing'
+      path: '/routing'
+      fullPath: '/router/$id/routing'
+      preLoaderRoute: typeof RouterIdRoutingRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
     '/router/$id/plugins': {
       id: '/router/$id/plugins'
       path: '/plugins'
@@ -748,6 +792,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterIdVpnIndexRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
+    '/router/$id/services/': {
+      id: '/router/$id/services/'
+      path: '/services'
+      fullPath: '/router/$id/services/'
+      preLoaderRoute: typeof RouterIdServicesIndexRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
     '/router/$id/wifi/$interfaceName': {
       id: '/router/$id/wifi/$interfaceName'
       path: '/wifi/$interfaceName'
@@ -767,6 +818,13 @@ declare module '@tanstack/react-router' {
       path: '/vpn/clients'
       fullPath: '/router/$id/vpn/clients'
       preLoaderRoute: typeof RouterIdVpnClientsRouteImport
+      parentRoute: typeof RouterIdRouteRoute
+    }
+    '/router/$id/services/templates': {
+      id: '/router/$id/services/templates'
+      path: '/services/templates'
+      fullPath: '/router/$id/services/templates'
+      preLoaderRoute: typeof RouterIdServicesTemplatesRouteImport
       parentRoute: typeof RouterIdRouteRoute
     }
     '/router/$id/firewall/templates': {
@@ -922,11 +980,14 @@ interface RouterIdRouteRouteChildren {
   RouterIdLogsRoute: typeof RouterIdLogsRoute
   RouterIdNetworkRoute: typeof RouterIdNetworkRoute
   RouterIdPluginsRoute: typeof RouterIdPluginsRoute
+  RouterIdRoutingRoute: typeof RouterIdRoutingRoute
   RouterIdVlansRoute: typeof RouterIdVlansRoute
   RouterIdIndexRoute: typeof RouterIdIndexRoute
+  RouterIdServicesTemplatesRoute: typeof RouterIdServicesTemplatesRoute
   RouterIdVpnClientsRoute: typeof RouterIdVpnClientsRoute
   RouterIdVpnServersRoute: typeof RouterIdVpnServersRoute
   RouterIdWifiInterfaceNameRoute: typeof RouterIdWifiInterfaceNameRoute
+  RouterIdServicesIndexRoute: typeof RouterIdServicesIndexRoute
   RouterIdVpnIndexRoute: typeof RouterIdVpnIndexRoute
   RouterIdWifiIndexRoute: typeof RouterIdWifiIndexRoute
 }
@@ -938,11 +999,14 @@ const RouterIdRouteRouteChildren: RouterIdRouteRouteChildren = {
   RouterIdLogsRoute: RouterIdLogsRoute,
   RouterIdNetworkRoute: RouterIdNetworkRoute,
   RouterIdPluginsRoute: RouterIdPluginsRoute,
+  RouterIdRoutingRoute: RouterIdRoutingRoute,
   RouterIdVlansRoute: RouterIdVlansRoute,
   RouterIdIndexRoute: RouterIdIndexRoute,
+  RouterIdServicesTemplatesRoute: RouterIdServicesTemplatesRoute,
   RouterIdVpnClientsRoute: RouterIdVpnClientsRoute,
   RouterIdVpnServersRoute: RouterIdVpnServersRoute,
   RouterIdWifiInterfaceNameRoute: RouterIdWifiInterfaceNameRoute,
+  RouterIdServicesIndexRoute: RouterIdServicesIndexRoute,
   RouterIdVpnIndexRoute: RouterIdVpnIndexRoute,
   RouterIdWifiIndexRoute: RouterIdWifiIndexRoute,
 }

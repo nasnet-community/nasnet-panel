@@ -107,6 +107,17 @@ type AddChangeSetItemPayload {
 }
 
 """
+AddDependencyInput contains parameters for creating a dependency relationship.
+"""
+input AddDependencyInput {
+  autoStart: Boolean!
+  dependencyType: DependencyType!
+  fromInstanceId: ID!
+  healthTimeoutSeconds: Int!
+  toInstanceId: ID!
+}
+
+"""
 Input for manually adding a new router with full credentials and protocol preference.
 This is the primary input type for the addRouter mutation.
 """
@@ -661,6 +672,18 @@ type ApplyChangeSetPayload {
   status: ChangeSetStatus!
 }
 
+"""Result of applying configuration"""
+type ApplyConfigPayload {
+  """Path to generated config file"""
+  configPath: String
+  """Error messages (if failed)"""
+  errors: [String!]!
+  """Updated service instance (if successful)"""
+  instance: ServiceInstance
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
 """Result of applying a fix"""
 type ApplyFixPayload {
   """Errors that occurred"""
@@ -682,11 +705,70 @@ type ApplyResourcePayload {
   resource: Resource
 }
 
+"""Input for applying service configuration"""
+input ApplyServiceConfigInput {
+  """Configuration to apply (as JSON)"""
+  config: JSON!
+  """Service instance ID"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+}
+
+"""
+Input for applying a validated service import.
+Actually creates/updates the service instance.
+"""
+input ApplyServiceImportInput {
+  """Conflict resolution strategy"""
+  conflictResolution: ConflictResolution!
+  """Device MAC addresses to filter routing rules (optional)"""
+  deviceFilter: [String!]
+  """Service export package (JSON)"""
+  package: JSON!
+  """User-provided values for redacted fields"""
+  redactedFieldValues: JSON!
+  """Router ID to import into"""
+  routerID: ID!
+}
+
+"""Payload for apply service import mutation."""
+type ApplyServiceImportPayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Created or updated service instance (null if failed)"""
+  instance: ServiceInstance
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
 type ArchiveResourcePayload {
   """Errors that occurred"""
   errors: [MutationError!]
   """Whether archive was successful"""
   success: Boolean!
+}
+
+"""Input for assigning device routing."""
+input AssignDeviceRoutingInput {
+  """Device ID to route"""
+  deviceID: String! @validate(minLength: 1, maxLength: 100)
+  """Device IP address (optional)"""
+  deviceIP: String
+  """Device hostname (optional)"""
+  deviceName: String @validate(maxLength: 255)
+  """Service instance ID to route through"""
+  instanceID: ID!
+  """Virtual interface ID to route through"""
+  interfaceID: ID!
+  """Device MAC address"""
+  macAddress: String! @validate(pattern: "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
+  """Router ID"""
+  routerID: ID!
+  """Routing mark"""
+  routingMark: String! @validate(minLength: 1, maxLength: 255)
+  """Routing mode"""
+  routingMode: RoutingMode!
 }
 
 """Authentication error codes"""
@@ -818,6 +900,53 @@ type BatchInterfacePayload {
   succeeded: [Interface!]!
 }
 
+"""
+Binary verification information for a service instance.
+Contains hashes and verification status for security auditing.
+"""
+type BinaryVerification {
+  """SHA256 hash of the original downloaded archive (from checksums.txt)"""
+  archiveHash: String
+  """SHA256 hash of the extracted binary (computed at runtime)"""
+  binaryHash: String
+  """URL where checksums.txt was fetched from"""
+  checksumsURL: String
+  """Whether binary verification is enabled for this instance"""
+  enabled: Boolean!
+  """GPG key ID that signed the checksums file"""
+  gpgKeyID: String
+  """Whether GPG signature verification was performed and passed"""
+  gpgVerified: Boolean!
+  """Verification status (valid, invalid, pending, not_verified)"""
+  status: VerificationStatus!
+  """Timestamp when binary was last verified"""
+  verifiedAt: DateTime
+}
+
+"""BootSequenceEvent represents a real-time boot sequence event."""
+type BootSequenceEvent {
+  errorMessage: String
+  failureCount: Int
+  id: ID!
+  instanceIds: [String!]!
+  layer: Int
+  successCount: Int
+  timestamp: DateTime!
+  type: String!
+}
+
+"""
+BootSequenceProgress represents the current state of the boot sequence.
+"""
+type BootSequenceProgress {
+  currentLayer: Int
+  failedInstances: [String!]!
+  inProgress: Boolean!
+  remainingInstances: [String!]!
+  startedInstances: [String!]!
+  totalLayers: Int
+}
+
 type Bridge implements Node {
   comment: String @mikrotik(path: "/interface/bridge", field: "comment")
   dependentDhcpServers: [DhcpServer!]!
@@ -931,6 +1060,21 @@ type BridgeResource implements Node & Resource {
   validation: ValidationResult
 }
 
+"""
+Bridge status for service instance network setup.
+Combines interface and gateway status for health monitoring.
+"""
+type BridgeStatus {
+  """Any errors encountered"""
+  errors: [String!]
+  """Whether the gateway (if any) is running"""
+  gatewayRunning: Boolean!
+  """The virtual interface"""
+  interface: VirtualInterface
+  """Whether the interface is ready for traffic"""
+  isReady: Boolean!
+}
+
 type BridgeStpStatus {
   lastTopologyChange: DateTime
   rootBridge: Boolean!
@@ -975,6 +1119,14 @@ type BulkAlertPayload {
   errors: [MutationError!]
 }
 
+"""Input for bulk device routing assignment."""
+input BulkAssignRoutingInput {
+  """List of device routing assignments"""
+  assignments: [SingleDeviceRoutingInput!]!
+  """Router ID"""
+  routerID: ID!
+}
+
 """Details of a single failed entry in bulk import."""
 type BulkCreateError {
   """The address that failed"""
@@ -996,6 +1148,28 @@ type BulkCreateResult {
   failedCount: Int!
   """Number of entries successfully created"""
   successCount: Int!
+}
+
+"""Failed routing assignment in bulk operation."""
+type BulkRoutingFailure {
+  """Device ID that failed"""
+  deviceID: String!
+  """Error message"""
+  errorMessage: String!
+  """Device MAC address"""
+  macAddress: String!
+}
+
+"""Result of bulk routing assignment operation."""
+type BulkRoutingResult {
+  """Number of failed assignments"""
+  failureCount: Int!
+  """Failed assignments with error messages"""
+  failures: [BulkRoutingFailure!]!
+  """Number of successful assignments"""
+  successCount: Int!
+  """Successfully assigned routings"""
+  successes: [DeviceRouting!]!
 }
 
 """CIDR notation for network address (e.g., "192.168.1.0/24")"""
@@ -1090,6 +1264,34 @@ enum CapabilityLevel {
   FULL
   """Feature not supported (hide in UI)"""
   NONE
+}
+
+"""
+A single hop in a multi-hop routing chain, referencing one VirtualInterface.
+"""
+type ChainHop implements Node {
+  """Whether this hop is currently healthy"""
+  healthy: Boolean!
+  """Hop ID (ULID)"""
+  id: ID!
+  """Virtual interface for this hop"""
+  interface: VirtualInterface!
+  """Whether kill switch is active for this hop"""
+  killSwitchActive: Boolean!
+  """Latency for this hop in milliseconds (-1 if unreachable)"""
+  latencyMs: Float
+  """1-based position in the chain (1 = first hop, 2 = second, etc.)"""
+  order: Int!
+  """MikroTik routing mark (e.g., chain-abc123-hop1)"""
+  routingMark: String!
+}
+
+"""Input for a single hop in a chain."""
+input ChainHopInput {
+  """Virtual interface ID for this hop"""
+  interfaceId: ID!
+  """1-based position in the chain"""
+  order: Int! @validate(min: 1, max: 5)
 }
 
 """An entry in the change log"""
@@ -1388,6 +1590,16 @@ enum ChannelType {
   WEBHOOK
 }
 
+"""Input for checking port availability."""
+input CheckPortAvailabilityInput {
+  """Port number to check"""
+  port: Int! @validate(min: 1, max: 65535)
+  """Protocol to check"""
+  protocol: PortProtocol!
+  """Router ID to check"""
+  routerID: ID!
+}
+
 """Event emitted when circuit breaker state changes"""
 type CircuitBreakerEvent {
   """Consecutive failures that triggered the change"""
@@ -1430,6 +1642,12 @@ type CircuitBreakerStatus {
   state: CircuitBreakerState!
 }
 
+"""Input for cleaning up orphaned ports."""
+input CleanupOrphanedPortsInput {
+  """Router ID to cleanup (if not provided, cleans all routers)"""
+  routerID: ID
+}
+
 """A composite resource with all related sub-resources"""
 type CompositeResource {
   """All child/related resources"""
@@ -1467,6 +1685,34 @@ enum ConfigApplyStatus {
   VERIFYING
 }
 
+"""Configuration field type for dynamic form generation"""
+enum ConfigFieldType {
+  """Email input"""
+  EMAIL
+  """IP address input"""
+  IP
+  """Multi-select dropdown"""
+  MULTI_SELECT
+  """Number input"""
+  NUMBER
+  """Password input (masked)"""
+  PASSWORD
+  """Port number input"""
+  PORT
+  """Single-select dropdown"""
+  SELECT
+  """Single-line text input"""
+  TEXT
+  """Multi-line text area"""
+  TEXT_AREA
+  """Array of text inputs"""
+  TEXT_ARRAY
+  """Boolean toggle/checkbox"""
+  TOGGLE
+  """URL input"""
+  URL
+}
+
 """Preview of RouterOS configuration commands"""
 type ConfigPreview {
   """Resources that will be affected"""
@@ -1495,12 +1741,109 @@ type ConfigProgress {
   totalSteps: Int
 }
 
+"""Configuration schema for a service type"""
+type ConfigSchema {
+  """Configuration fields"""
+  fields: [ConfigSchemaField!]!
+  """Service type identifier"""
+  serviceType: String!
+  """Schema version"""
+  version: String!
+}
+
+"""Configuration field definition for a service"""
+type ConfigSchemaField {
+  """Default value (as JSON)"""
+  defaultValue: JSON
+  """Field description/help text"""
+  description: String
+  """Field label (display name)"""
+  label: String!
+  """Maximum value (for NUMBER/PORT types)"""
+  max: Int
+  """Minimum value (for NUMBER/PORT types)"""
+  min: Int
+  """Field name (internal identifier)"""
+  name: String!
+  """Options for SELECT/MULTI_SELECT types"""
+  options: [String!]
+  """Placeholder text"""
+  placeholder: String
+  """Whether the field is required"""
+  required: Boolean!
+  """Whether the field contains sensitive data"""
+  sensitive: Boolean!
+  """Field type for UI rendering"""
+  type: ConfigFieldType!
+  """Validation function name"""
+  validateFunc: String
+}
+
+"""Validation error for a configuration field"""
+type ConfigValidationError {
+  """Field name"""
+  field: String!
+  """Error message"""
+  message: String!
+}
+
+"""Service configuration validation result"""
+type ConfigValidationResult {
+  """List of validation errors (empty if valid)"""
+  errors: [ConfigValidationError!]!
+  """Whether the configuration is valid"""
+  valid: Boolean!
+}
+
+"""Input for configuring external storage."""
+input ConfigureExternalStorageInput {
+  """Whether to enable external storage (default: true)"""
+  enabled: Boolean
+  """Absolute path to external storage mount point"""
+  path: String! @validate(minLength: 1, maxLength: 255)
+}
+
+"""Payload for configureExternalStorage mutation."""
+type ConfigureExternalStoragePayload {
+  """Storage configuration after update"""
+  config: StorageConfig
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Storage info for configured path"""
+  storageInfo: StorageInfo
+}
+
+"""Input for configuring health check settings"""
+input ConfigureHealthCheckInput {
+  """Whether to enable auto-restart on failure"""
+  autoRestart: Boolean
+  """Consecutive failures before marking unhealthy (1-10)"""
+  failureThreshold: Int
+  """Instance ID to configure"""
+  instanceID: ID!
+  """Health check interval in seconds (10-300)"""
+  intervalSeconds: Int
+}
+
 """Severity level for confirmation dialogs"""
 enum ConfirmationSeverity {
   """Critical operation requiring explicit confirmation"""
   CRITICAL
   """Standard operation with brief confirmation"""
   STANDARD
+}
+
+"""
+Conflict resolution strategy for service import.
+Determines what happens when an imported service name already exists.
+"""
+enum ConflictResolution {
+  """Overwrite existing instance configuration"""
+  OVERWRITE
+  """Create new instance with renamed name"""
+  RENAME
+  """Skip import, leave existing instance unchanged"""
+  SKIP
 }
 
 """Types of resource conflicts"""
@@ -1900,6 +2243,42 @@ type CreateRouterPayload {
   router: Router
 }
 
+"""Input for creating or updating a multi-hop routing chain."""
+input CreateRoutingChainInput {
+  """Target device identifier"""
+  deviceId: ID!
+  """Device IP address (required if routing_mode=IP)"""
+  deviceIp: String
+  """Device MAC address (required if routing_mode=MAC)"""
+  deviceMac: String
+  """Human-readable device name"""
+  deviceName: String
+  """Ordered list of hops (2-5 hops required)"""
+  hops: [ChainHopInput!]!
+  """Whether to enable kill switch"""
+  killSwitchEnabled: Boolean
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode
+  """Routing mode (MAC or IP matching)"""
+  routingMode: RoutingMode!
+}
+
+"""Input for creating a new routing schedule."""
+input CreateScheduleInput {
+  """Days of week (0=Sunday, 6=Saturday)"""
+  days: [Int!]!
+  """Whether schedule is enabled (default: true)"""
+  enabled: Boolean
+  """End time in HH:MM format (24-hour)"""
+  endTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+  """Device routing ID to schedule"""
+  routingID: ID!
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+  """IANA timezone identifier"""
+  timezone: String! @validate(minLength: 1, maxLength: 64)
+}
+
 """Input for creating a webhook"""
 input CreateWebhookInput {
   """Authentication type (default: NONE)"""
@@ -2123,6 +2502,33 @@ type DeleteRouterPayload {
   success: Boolean!
 }
 
+"""
+DependencyGraph represents the full dependency graph for visualization.
+"""
+type DependencyGraph {
+  edges: [DependencyGraphEdge!]!
+  nodes: [DependencyGraphNode!]!
+}
+
+"""
+DependencyGraphEdge represents a dependency relationship edge in the graph.
+"""
+type DependencyGraphEdge {
+  autoStart: Boolean!
+  dependencyType: DependencyType!
+  fromInstanceId: ID!
+  healthTimeoutSeconds: Int!
+  toInstanceId: ID!
+}
+
+"""DependencyGraphNode represents a service instance node in the graph."""
+type DependencyGraphNode {
+  featureId: String!
+  instanceId: ID!
+  instanceName: String!
+  status: String!
+}
+
 """Status of a required dependency"""
 type DependencyStatus {
   """Whether the dependency is active"""
@@ -2135,6 +2541,18 @@ type DependencyStatus {
   resourceUuid: ID!
   """Current state of the dependency"""
   state: ResourceLifecycleState!
+}
+
+"""DependencyType defines the strength of the dependency relationship."""
+enum DependencyType {
+  """
+  OPTIONAL: Soft dependency - dependent can start even if this dependency is unavailable
+  """
+  OPTIONAL
+  """
+  REQUIRES: Hard dependency - dependent cannot start without this dependency
+  """
+  REQUIRES
 }
 
 """
@@ -2173,6 +2591,127 @@ type Device {
   id: ID!
   """Current resource utilization metrics"""
   resourceMetrics: ResourceMetrics!
+}
+
+"""
+Device routing assignment.
+Maps a client device to a service instance via Policy-Based Routing (PBR).
+"""
+type DeviceRouting {
+  """Whether the assignment is active"""
+  active: Boolean!
+  """When the assignment was created"""
+  createdAt: DateTime!
+  """Device identifier"""
+  deviceID: String!
+  """Device IP address (optional)"""
+  deviceIP: String
+  """Device hostname (optional)"""
+  deviceName: String
+  """Whether this routing has any active schedules"""
+  hasSchedules: Boolean!
+  """Routing assignment ID (ULID)"""
+  id: ID!
+  """Service instance ID"""
+  instanceID: ID!
+  """Virtual interface ID"""
+  interfaceID: ID!
+  """Timestamp when kill switch was last activated"""
+  killSwitchActivatedAt: DateTime
+  """Whether kill switch is currently blocking traffic"""
+  killSwitchActive: Boolean!
+  """Whether kill switch is enabled for this routing"""
+  killSwitchEnabled: Boolean!
+  """Fallback interface ID when kill_switch_mode=FALLBACK_SERVICE"""
+  killSwitchFallbackInterfaceID: String
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode!
+  """RouterOS filter rule ID for kill switch (for O(1) cleanup)"""
+  killSwitchRuleID: String
+  """Device MAC address"""
+  macAddress: String!
+  """RouterOS mangle rule ID (for O(1) removal)"""
+  mangleRuleID: String!
+  """Routing mark"""
+  routingMark: String!
+  """Routing mode (MAC-based or IP-based)"""
+  routingMode: RoutingMode!
+  """All schedules for this device routing"""
+  schedules: [RoutingSchedule!]!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""Device routing change event for subscriptions."""
+type DeviceRoutingEvent {
+  """
+  Event type (assigned, removed, updated, kill_switch_activated, kill_switch_deactivated)
+  """
+  eventType: String!
+  """Event ID"""
+  id: ID!
+  """Router ID"""
+  routerID: ID!
+  """Device routing (null if removed)"""
+  routing: DeviceRouting
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+"""
+Complete device routing matrix.
+Provides all data needed for the device-to-service routing UI.
+"""
+type DeviceRoutingMatrix {
+  """Discovered network devices"""
+  devices: [NetworkDevice!]!
+  """Active virtual interfaces available for routing"""
+  interfaces: [VirtualInterfaceInfo!]!
+  """Current routing assignments"""
+  routings: [DeviceRouting!]!
+  """Summary statistics"""
+  summary: DeviceRoutingMatrixStats!
+}
+
+"""Summary statistics for device routing matrix."""
+type DeviceRoutingMatrixStats {
+  """Active virtual interfaces"""
+  activeInterfaces: Int!
+  """Active routing assignments"""
+  activeRoutings: Int!
+  """Devices discovered via ARP only"""
+  arpOnlyDevices: Int!
+  """Devices discovered via DHCP"""
+  dhcpDevices: Int!
+  """Devices with routing assignments"""
+  routedDevices: Int!
+  """Total discovered devices"""
+  totalDevices: Int!
+  """Devices without routing assignments"""
+  unroutedDevices: Int!
+}
+
+"""
+Per-device traffic breakdown for a service instance.
+Shows which devices are consuming bandwidth through this service.
+"""
+type DeviceTrafficBreakdown {
+  """Device identifier (MAC or IP)"""
+  deviceID: String!
+  """Device hostname (if available)"""
+  deviceName: String
+  """Bytes downloaded by this device"""
+  downloadBytes: Int!
+  """Device IP address"""
+  ipAddress: String
+  """Device MAC address"""
+  macAddress: String
+  """Percentage of total service traffic"""
+  percentOfTotal: Float!
+  """Total bytes (upload + download)"""
+  totalBytes: Int!
+  """Bytes uploaded by this device"""
+  uploadBytes: Int!
 }
 
 """DHCP client configuration for dynamic WAN IP"""
@@ -2249,6 +2788,47 @@ type DiagnosticReport {
   tlsStatus: TLSStatus
 }
 
+"""
+Result of a single diagnostic test.
+Represents the outcome of a health check or connectivity test.
+"""
+type DiagnosticResult implements Node {
+  """Timestamp when test was executed"""
+  createdAt: DateTime!
+  """Detailed information about the test result"""
+  details: String
+  """Test execution duration in milliseconds"""
+  durationMs: Int!
+  """Error message if test failed"""
+  errorMessage: String
+  """Result ID (ULID)"""
+  id: ID!
+  """Instance ID this diagnostic belongs to"""
+  instanceID: ID!
+  """Short message describing the result"""
+  message: String!
+  """Additional test-specific metadata (JSON)"""
+  metadata: JSON
+  """ULID for grouping tests run together"""
+  runGroupID: String
+  """Test result status"""
+  status: DiagnosticStatus!
+  """Test name (e.g., 'tor_socks5', 'process_health')"""
+  testName: String!
+}
+
+"""Diagnostic test status."""
+enum DiagnosticStatus {
+  """Test failed"""
+  FAIL
+  """Test passed successfully"""
+  PASS
+  """Test was skipped"""
+  SKIPPED
+  """Test completed with warnings"""
+  WARNING
+}
+
 """Actionable diagnostic suggestion"""
 type DiagnosticSuggestion {
   """Recommended action to resolve the issue"""
@@ -2261,6 +2841,51 @@ type DiagnosticSuggestion {
   severity: SuggestionSeverity!
   """Short title describing the issue"""
   title: String!
+}
+
+"""
+Complete diagnostic suite for a service type.
+Defines all available tests for a service.
+"""
+type DiagnosticSuite {
+  """Service name (e.g., 'tor', 'singbox', 'adguard')"""
+  serviceName: String!
+  """Available diagnostic tests"""
+  tests: [DiagnosticTest!]!
+}
+
+"""
+A single diagnostic test definition.
+Describes a test that can be run against a service.
+"""
+type DiagnosticTest {
+  """Test category (health, connectivity, dns, http, socks5)"""
+  category: String!
+  """Human-readable description"""
+  description: String!
+  """Unique test identifier"""
+  name: String!
+}
+
+"""
+Real-time diagnostic progress event for subscriptions.
+Emitted as each test completes during a diagnostic run.
+"""
+type DiagnosticsProgress {
+  """Completed tests count"""
+  completedTests: Int!
+  """Instance ID"""
+  instanceID: ID!
+  """Progress (0-100)"""
+  progress: Int!
+  """Test result that just completed"""
+  result: DiagnosticResult!
+  """Run group ID"""
+  runGroupID: String!
+  """Timestamp"""
+  timestamp: DateTime!
+  """Total tests count"""
+  totalTests: Int!
 }
 
 """Email digest configuration (NAS-18.11)"""
@@ -2711,6 +3336,22 @@ enum EscalationStatus {
   RESOLVED
 }
 
+"""Input for exporting services as a template"""
+input ExportAsTemplateInput {
+  """Template category"""
+  category: ServiceTemplateCategory!
+  """Template description"""
+  description: String!
+  """Instance IDs to export"""
+  instanceIDs: [ID!]!
+  """Template name"""
+  name: String!
+  """Router ID"""
+  routerID: ID!
+  """Template scope"""
+  scope: TemplateScope!
+}
+
 """Options for exporting router configuration."""
 input ExportConfigInput {
   """
@@ -2732,6 +3373,30 @@ type ExportConfigPayload {
   """Security warning message about credential handling"""
   securityWarning: String
   """Whether the export was successful"""
+  success: Boolean!
+}
+
+"""Input for exporting a service configuration."""
+input ExportServiceConfigInput {
+  """Whether to include device routing rules"""
+  includeRoutingRules: Boolean!
+  """Instance ID to export"""
+  instanceID: ID!
+  """Whether to redact sensitive fields (passwords, API keys, etc.)"""
+  redactSecrets: Boolean!
+  """Router ID"""
+  routerID: ID!
+}
+
+"""Payload for export service configuration mutation."""
+type ExportServiceConfigPayload {
+  """Download URL for JSON file (15-minute expiry)"""
+  downloadURL: String
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Exported service package (null if failed)"""
+  package: ServiceExportPackage
+  """Whether the operation succeeded"""
   success: Boolean!
 }
 
@@ -2821,6 +3486,31 @@ type FeatureRuntime {
   memoryUsage: Size
   """Devices routed through this feature"""
   routedDevices: Int
+}
+
+"""
+Per-feature storage usage breakdown.
+Shows how much space each feature is consuming and where data is stored.
+"""
+type FeatureStorageUsage {
+  """Binary size in bytes (serialized uint64)"""
+  binarySize: String!
+  """Config files size in bytes (serialized uint64)"""
+  configSize: String!
+  """Runtime data size in bytes (serialized uint64)"""
+  dataSize: String!
+  """Feature identifier (e.g., 'tor', 'sing-box')"""
+  featureId: ID!
+  """Human-readable feature name"""
+  featureName: String!
+  """Number of instances of this feature"""
+  instanceCount: Int!
+  """Primary storage location ('flash' or 'external')"""
+  location: String!
+  """Log files size in bytes (serialized uint64)"""
+  logsSize: String!
+  """Total size across all components in bytes (serialized uint64)"""
+  totalSize: String!
 }
 
 """Feature support information based on RouterOS version"""
@@ -3061,6 +3751,25 @@ enum FrameTypes {
   ADMIT_ONLY_VLAN_TAGGED
 }
 
+"""
+Gateway monitoring information for SOCKS-to-TUN gateway instances.
+Provides visibility into hev-socks5-tunnel processes.
+"""
+type GatewayInfo {
+  """Error message if in ERROR state"""
+  errorMessage: String
+  """Last health check timestamp"""
+  lastHealthCheck: DateTime
+  """Process ID of gateway"""
+  pid: Int
+  """Current gateway state"""
+  state: GatewayState!
+  """TUN interface name (e.g., tun-tor-usa)"""
+  tunName: String
+  """Uptime duration in seconds"""
+  uptime: Int
+}
+
 """Result of checking gateway reachability"""
 type GatewayReachabilityResult {
   """Interface through which gateway is reachable (null if unreachable)"""
@@ -3071,6 +3780,68 @@ type GatewayReachabilityResult {
   message: String!
   """Whether the gateway is reachable"""
   reachable: Boolean!
+}
+
+"""Gateway process state for monitoring"""
+enum GatewayState {
+  """Gateway encountered an error"""
+  ERROR
+  """Service does not need a gateway"""
+  NOT_NEEDED
+  """Gateway is running normally"""
+  RUNNING
+  """Gateway is stopped"""
+  STOPPED
+}
+
+"""Gateway runtime status."""
+enum GatewayStatus {
+  """Gateway process failed to start"""
+  FAILED
+  """Gateway process is running"""
+  RUNNING
+  """Gateway process is starting"""
+  STARTING
+  """Gateway process is stopped"""
+  STOPPED
+}
+
+"""Gateway type for virtual interface routing."""
+enum GatewayType {
+  """HEV SOCKS5 tunnel gateway"""
+  HEV_SOCKS5_TUNNEL
+  """No gateway, direct routing"""
+  NONE
+}
+
+"""Input for generating a QR code for service config."""
+input GenerateConfigQRInput {
+  """QR code image size in pixels (default 256)"""
+  imageSize: Int
+  """Whether to include routing rules"""
+  includeRoutingRules: Boolean!
+  """Instance ID to generate QR code for"""
+  instanceID: ID!
+  """Whether to redact sensitive fields"""
+  redactSecrets: Boolean!
+  """Router ID"""
+  routerID: ID!
+}
+
+"""Payload for generate config QR mutation."""
+type GenerateConfigQRPayload {
+  """QR code data size in bytes (before encoding)"""
+  dataSize: Int
+  """Download URL for PNG file (15-minute expiry)"""
+  downloadURL: String
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Base64-encoded PNG image data"""
+  imageDataBase64: String
+  """PNG image size in bytes"""
+  imageSize: Int
+  """Whether the operation succeeded"""
+  success: Boolean!
 }
 
 """Hardware information detected from router"""
@@ -3117,6 +3888,13 @@ enum HealthCheckStatus {
   UNHEALTHY
   """Health check is starting"""
   UNKNOWN
+}
+
+"""Connection status from health probe checks"""
+enum HealthConnectionState {
+  CONNECTED
+  CONNECTING
+  FAILED
 }
 
 """Overall system health status"""
@@ -3205,6 +3983,87 @@ type ImpactAnalysis {
   warnings: [String!]!
 }
 
+"""
+Input for importing a service configuration.
+Performs validation only, does not apply changes.
+"""
+input ImportServiceConfigInput {
+  """Conflict resolution strategy (required if conflicts exist)"""
+  conflictResolution: ConflictResolution
+  """Device MAC addresses to filter routing rules (optional)"""
+  deviceFilter: [String!]
+  """Dry-run mode (validate only, don't create instance)"""
+  dryRun: Boolean
+  """Service export package (JSON)"""
+  package: JSON!
+  """User-provided values for redacted fields (map of field name to value)"""
+  redactedFieldValues: JSON
+  """Router ID to import into"""
+  routerID: ID!
+}
+
+"""
+Payload for import service configuration mutation.
+Returns validation results without applying changes.
+"""
+type ImportServiceConfigPayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Whether validation succeeded"""
+  valid: Boolean!
+  """Validation result"""
+  validationResult: ImportValidationResult!
+}
+
+"""Input for importing a template"""
+input ImportServiceTemplateInput {
+  """Router ID"""
+  routerID: ID!
+  """Template JSON data"""
+  templateData: JSON!
+}
+
+"""Validation error for service import."""
+type ImportValidationError {
+  """Error code (V400, V403, S600, S602)"""
+  code: String!
+  """Field name (if applicable)"""
+  field: String
+  """Human-readable error message"""
+  message: String!
+  """
+  Validation stage (schema, syntax, cross-resource, dependency, conflict, capability, dry-run)
+  """
+  stage: String!
+}
+
+"""
+Validation result for service import.
+Contains errors, warnings, and redacted field prompts.
+"""
+type ImportValidationResult {
+  """Conflicting service instances (if any)"""
+  conflictingInstances: [ServiceInstance!]
+  """Validation errors (blocking)"""
+  errors: [ImportValidationError!]!
+  """List of fields that were redacted and need user input"""
+  redactedFields: [String!]
+  """Whether user input is required to proceed"""
+  requiresUserInput: Boolean!
+  """Whether the import package passed validation"""
+  valid: Boolean!
+  """Validation warnings (non-blocking)"""
+  warnings: [ImportValidationWarning!]!
+}
+
+"""Validation warning for service import."""
+type ImportValidationWarning {
+  """Warning message"""
+  message: String!
+  """Validation stage"""
+  stage: String!
+}
+
 """Installation progress event."""
 type InstallProgress {
   """Bytes downloaded"""
@@ -3239,14 +4098,51 @@ input InstallServiceInput {
   vlanID: Int @validate(min: 1, max: 4094)
 }
 
+"""Input for installing a service template"""
+input InstallServiceTemplateInput {
+  """Dry run (preview only, don't actually install)"""
+  dryRun: Boolean
+  """Router ID"""
+  routerID: ID!
+  """Template ID to install"""
+  templateID: ID!
+  """Variable values"""
+  variables: JSON!
+}
+
+"""Health status enumeration for service instances"""
+enum InstanceHealthState {
+  CHECKING
+  HEALTHY
+  UNHEALTHY
+  UNKNOWN
+}
+
+"""
+Resource usage details for a single service instance.
+Combines instance metadata with current resource usage.
+"""
+type InstanceResourceUsage {
+  """Feature ID"""
+  featureID: String!
+  """Instance ID"""
+  instanceID: ID!
+  """Instance name"""
+  instanceName: String!
+  """Resource requirements from manifest"""
+  requirements: ResourceRequirements
+  """Current resource usage"""
+  usage: ResourceUsage!
+}
+
 """Instance status change event."""
 type InstanceStatusChanged {
   """Instance ID"""
   instanceID: ID!
   """New status"""
-  newStatus: ServiceStatus!
+  newStatus: ServiceInstanceStatus!
   """Previous status"""
-  previousStatus: ServiceStatus!
+  previousStatus: ServiceInstanceStatus!
   """Timestamp of the change"""
   timestamp: DateTime!
 }
@@ -3563,6 +4459,46 @@ type IpsecProfile {
   name: String! @mikrotik(path: "/interface/ipsec/profile", field: "name")
 }
 
+"""Severity level of an isolation violation."""
+enum IsolationSeverity {
+  """Critical error that blocks instance start"""
+  ERROR
+  """Informational message"""
+  INFO
+  """Warning that is logged but allows instance start"""
+  WARNING
+}
+
+"""
+Complete isolation status for a service instance.
+Includes violations and resource limits.
+"""
+type IsolationStatus {
+  """Timestamp of the last isolation verification check"""
+  lastVerified: DateTime
+  """Resource limits applied to the instance"""
+  resourceLimits: ResourceLimits
+  """List of isolation violations (empty if all checks passed)"""
+  violations: [IsolationViolation!]!
+}
+
+"""
+An isolation violation detected during pre-start checks.
+Represents a failure in one of the 4 isolation layers.
+"""
+type IsolationViolation {
+  """
+  Which isolation layer failed (IP Binding, Directory, Port Registry, Process Binding)
+  """
+  layer: String!
+  """Human-readable description of the violation"""
+  message: String!
+  """Severity level of the violation"""
+  severity: IsolationSeverity!
+  """Timestamp when the violation was detected"""
+  timestamp: DateTime!
+}
+
 """Arbitrary JSON data for flexible configuration"""
 scalar JSON
 
@@ -3578,6 +4514,41 @@ enum JobStatus {
   RUNNING
   """Job has been created"""
   STARTED
+}
+
+"""Kill switch behavior when any hop in a chain fails."""
+enum KillSwitchMode {
+  """Allow direct internet access (no VPN)"""
+  ALLOW_DIRECT
+  """Block all traffic from the device"""
+  BLOCK_ALL
+  """Fall back to a specified service"""
+  FALLBACK_SERVICE
+}
+
+"""
+Kill switch status information for monitoring.
+Provides visibility into kill switch state and activation history.
+"""
+type KillSwitchStatus {
+  """Number of times kill switch has been activated"""
+  activationCount: Int!
+  """Whether kill switch is currently active (blocking traffic)"""
+  active: Boolean!
+  """Whether kill switch is enabled"""
+  enabled: Boolean!
+  """Fallback interface ID (if mode=FALLBACK_SERVICE)"""
+  fallbackInterfaceID: String
+  """Timestamp when kill switch was last activated"""
+  lastActivatedAt: DateTime
+  """
+  Reason for most recent activation (service_down, health_check_failed, etc.)
+  """
+  lastActivationReason: String
+  """Timestamp when kill switch was last deactivated"""
+  lastDeactivatedAt: DateTime
+  """Kill switch behavior mode"""
+  mode: KillSwitchMode!
 }
 
 """Single knock port in sequence."""
@@ -3709,6 +4680,39 @@ type LANNetworkRuntime {
   totalBytesOut: Size!
 }
 
+"""
+A single log entry from a service instance.
+Represents one line of stdout/stderr output with parsed metadata.
+"""
+type LogEntry {
+  """Log severity level"""
+  level: LogLevel!
+  """Log message"""
+  message: String!
+  """Additional parsed metadata (JSON)"""
+  metadata: JSON
+  """Original raw log line"""
+  rawLine: String!
+  """Service source (e.g., 'tor', 'singbox', 'adguard')"""
+  source: String!
+  """Timestamp when the log was generated"""
+  timestamp: DateTime!
+}
+
+"""Log level for service log entries."""
+enum LogLevel {
+  """Debug-level log"""
+  DEBUG
+  """Error log"""
+  ERROR
+  """Informational log"""
+  INFO
+  """Unknown/unparsed log level"""
+  UNKNOWN
+  """Warning log"""
+  WARN
+}
+
 """LTE/cellular modem configuration"""
 type LteModem implements Node {
   """APN (Access Point Name)"""
@@ -3804,6 +4808,11 @@ type Mutation {
   """Add an item to a change set"""
   addChangeSetItem(changeSetId: ID!, input: ChangeSetItemInput!): AddChangeSetItemPayload!
   """
+  Add a new dependency relationship between service instances.
+  Pre-validates that the relationship won't create a cycle.
+  """
+  addDependency(input: AddDependencyInput!): ServiceDependency!
+  """
   Add a new router by entering its IP address and credentials.
   
   This mutation will:
@@ -3841,10 +4850,21 @@ type Mutation {
   """
   applyFirewallTemplate(routerId: ID!, templateId: ID!, variables: JSON!): FirewallTemplateResult!
   """
-  Apply resource to router (transitions VALID → APPLYING → ACTIVE/ERROR)
+  Apply resource to router (transitions VALID -> APPLYING -> ACTIVE/ERROR)
   Follows Apply-Confirm-Merge pattern.
   """
   applyResource(id: ID!, routerId: ID!): ApplyResourcePayload!
+  """
+  Apply configuration to a service instance.
+  Validates, generates config file, and persists to database.
+  """
+  applyServiceConfig(input: ApplyServiceConfigInput!): ApplyConfigPayload!
+  """
+  Apply a validated service import package.
+  Creates or updates service instance based on conflict resolution strategy.
+  Applies routing rules if included.
+  """
+  applyServiceImport(input: ApplyServiceImportInput!): ApplyServiceImportPayload!
   """Apply a suggested fix for a failed diagnostic step"""
   applyTroubleshootFix(
     """Issue code to fix"""
@@ -3852,8 +4872,13 @@ type Mutation {
     """Session ID"""
     sessionId: ID!
   ): ApplyFixPayload!
-  """Archive a resource (transitions DEPRECATED → ARCHIVED)"""
+  """Archive a resource (transitions DEPRECATED -> ARCHIVED)"""
   archiveResource(id: ID!, routerId: ID!): ArchiveResourcePayload!
+  """
+  Assign a device to route through a specific service instance.
+  Creates a MikroTik mangle rule for Policy-Based Routing (PBR).
+  """
+  assignDeviceRouting(input: AssignDeviceRoutingInput!): DeviceRouting!
   """
   Start an automatic gateway scan.
   Scans common gateway IPs (192.168.0-255.1) to find MikroTik routers.
@@ -3864,6 +4889,11 @@ type Mutation {
   autoScanGateways: ScanNetworkPayload!
   """Batch operation on multiple interfaces"""
   batchInterfaceOperation(input: BatchInterfaceInput!, routerId: ID!): BatchInterfacePayload!
+  """
+  Assign multiple devices to routing in a single operation.
+  Each assignment is processed independently (partial success allowed).
+  """
+  bulkAssignRouting(input: BulkAssignRoutingInput!): BulkRoutingResult!
   """
   Bulk create address list entries.
   Processes entries in batches and returns success/failure counts.
@@ -3891,11 +4921,49 @@ type Mutation {
     """New password (must meet policy requirements)"""
     newPassword: String! @sensitive
   ): Boolean! @auth
+  """
+  Manually trigger update check for all instances.
+  Queries GitHub Releases API for new versions.
+  """
+  checkForUpdates(
+    """Router ID"""
+    routerID: ID!
+  ): Int!
   """Perform immediate health check on a router"""
   checkRouterHealth(
     """Router ID"""
     routerId: ID!
   ): HealthCheckResult!
+  """
+  Clean up orphaned port allocations.
+  Removes allocations for service instances that no longer exist.
+  """
+  cleanupOrphanedPorts(input: CleanupOrphanedPortsInput!): OrphanCleanupPayload!
+  """
+  Clean up orphaned VLAN allocations for a router.
+  
+  Finds allocations referencing missing or deleting instances and marks them
+  as RELEASED. Returns the count of cleaned allocations.
+  
+  This mutation is automatically called during system startup reconciliation
+  via InstanceManager.Reconcile(). Manual invocation is useful for:
+  - Recovering from crashes or unclean shutdowns
+  - Debugging allocation issues
+  - Forcing cleanup outside of normal reconciliation
+  
+  Example:
+  ```
+  mutation {
+    cleanupOrphanedVLANs(routerID: "router-123")
+  }
+  ```
+  
+  Returns: Number of allocations cleaned up
+  """
+  cleanupOrphanedVLANs(
+    """Router ID to clean up orphans for"""
+    routerID: String!
+  ): Int!
   """Configure VLAN settings on a bridge port (trunk/access)"""
   configureBridgePortVlan(
     """VLAN configuration"""
@@ -3912,6 +4980,17 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): WANMutationResult! @capability(requires: ["interface"])
+  """
+  Configure external storage path for service binaries.
+  Validates path exists and is writable, then persists to settings.
+  Future installations will use external storage for binaries.
+  """
+  configureExternalStorage(input: ConfigureExternalStorageInput!): ConfigureExternalStoragePayload!
+  """
+  Configure health check settings for a service instance
+  Allows adjusting check interval, failure threshold, and auto-restart behavior
+  """
+  configureHealthCheck(input: ConfigureHealthCheckInput!): ServiceInstanceHealth!
   """Configure LTE modem"""
   configureLteWAN(
     """LTE configuration"""
@@ -3933,6 +5012,8 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): WANMutationResult! @capability(requires: ["interface"])
+  """Configure update schedule and auto-apply policy for an instance."""
+  configureUpdateSchedule(input: UpdateCheckScheduleInput!): ServiceInstance!
   """Configure health check for WAN interface"""
   configureWANHealthCheck(
     """Health check configuration"""
@@ -4009,6 +5090,27 @@ type Mutation {
   ): RouteMutationResult! @capability(requires: ["routing"])
   """Add a new router to manage"""
   createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  """
+  Create a multi-hop routing chain for a device.
+  Removes any existing single-hop routing for the device.
+  Creates sequential MikroTik mangle rules with Policy-Based Routing (PBR).
+  """
+  createRoutingChain(
+    """Chain configuration"""
+    input: CreateRoutingChainInput!
+    """Router ID"""
+    routerID: ID!
+  ): RoutingChainMutationResult!
+  """
+  Create a new routing schedule.
+  Validates time format, timezone, and days. Triggers immediate schedule evaluation.
+  """
+  createSchedule(
+    """Schedule input"""
+    input: CreateScheduleInput!
+    """Router ID"""
+    routerID: ID!
+  ): RoutingSchedule!
   """Create a new tunnel interface"""
   createTunnel(
     """Tunnel configuration"""
@@ -4100,6 +5202,26 @@ type Mutation {
   ): RouteDeleteResult! @capability(requires: ["routing"])
   """Remove a router"""
   deleteRouter(id: ID!): DeleteRouterPayload!
+  """
+  Delete a routing schedule.
+  Triggers immediate schedule evaluation to ensure routing state is correct.
+  """
+  deleteSchedule(
+    """Router ID"""
+    routerID: ID!
+    """Schedule ID to delete"""
+    scheduleID: ID!
+  ): Boolean!
+  """
+  Delete a user-created service template.
+  Built-in templates cannot be deleted.
+  """
+  deleteServiceTemplate(
+    """Router ID"""
+    routerID: ID!
+    """Template ID"""
+    templateID: ID!
+  ): Boolean!
   """Delete a tunnel interface"""
   deleteTunnel(
     """Tunnel ID to delete"""
@@ -4124,7 +5246,7 @@ type Mutation {
     """Webhook ID"""
     id: ID!
   ): DeletePayload!
-  """Deprecate a resource (transitions → DEPRECATED)"""
+  """Deprecate a resource (transitions -> DEPRECATED)"""
   deprecateResource(id: ID!, routerId: ID!): DeprecateResourcePayload!
   """Disable an interface"""
   disableInterface(interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
@@ -4152,11 +5274,22 @@ type Mutation {
     id: ID!
   ): String!
   """
+  Export existing service instances as a reusable template.
+  Creates a new user template from running services.
+  """
+  exportAsTemplate(input: ExportAsTemplateInput!): ServiceTemplate!
+  """
   Export router configuration with optional credential handling.
   Credentials are excluded by default for security.
   If includeCredentials is true, an encryptionKey must be provided.
   """
   exportRouterConfig(input: ExportConfigInput!): ExportConfigPayload! @auth
+  """
+  Export a service configuration as a JSON package.
+  Returns a download URL with 15-minute expiry.
+  Supports secret redaction and routing rule inclusion.
+  """
+  exportServiceConfig(input: ExportServiceConfigInput!): ExportServiceConfigPayload!
   """
   Flush the DNS cache on the router.
   Clears all cached DNS entries and returns before/after statistics.
@@ -4165,16 +5298,35 @@ type Mutation {
     """Device/router ID"""
     deviceId: String!
   ): FlushDnsCacheResult!
+  """
+  Generate a QR code for service configuration sharing.
+  Returns base64-encoded PNG image (256x256 by default).
+  Enforces 2KB size limit for QR code data.
+  """
+  generateConfigQR(input: GenerateConfigQRInput!): GenerateConfigQRPayload!
   """Import an alert rule template from JSON"""
   importAlertRuleTemplate(
     """JSON template string"""
     json: String!
   ): AlertRuleTemplatePayload!
   """
+  Import a service configuration package (validation only).
+  Performs 7-stage validation pipeline without making changes.
+  Returns validation results and conflicts.
+  """
+  importServiceConfig(input: ImportServiceConfigInput!): ImportServiceConfigPayload!
+  """Import a service template from JSON."""
+  importServiceTemplate(input: ImportServiceTemplateInput!): ServiceTemplate!
+  """
   Install a new service instance on a router.
   Downloads the binary, verifies checksum, and creates the instance.
   """
   installService(input: InstallServiceInput!): ServiceInstancePayload!
+  """
+  Install a service template on a router.
+  Creates one or more service instances based on the template.
+  """
+  installServiceTemplate(input: InstallServiceTemplateInput!): TemplateInstallResult!
   """Authenticate and receive a JWT token"""
   login(
     """Password"""
@@ -4204,6 +5356,27 @@ type Mutation {
   removeBridgePort(portId: ID!): DeleteResult!
   """Remove an item from a change set"""
   removeChangeSetItem(changeSetId: ID!, itemId: ID!): RemoveChangeSetItemPayload!
+  """Remove an existing dependency relationship."""
+  removeDependency(input: RemoveDependencyInput!): Boolean!
+  """
+  Remove a device routing assignment.
+  Deletes the MikroTik mangle rule and database record.
+  """
+  removeDeviceRouting(
+    """Device ID to unroute"""
+    deviceID: String!
+    """Router ID"""
+    routerID: ID!
+  ): Boolean!
+  """
+  Remove a routing chain and all its mangle/route/filter rules from the router.
+  """
+  removeRoutingChain(
+    """Chain ID to remove"""
+    chainID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): RoutingChainMutationResult!
   """
   Reset alert notification template to system default (deletes custom template)
   Used for notification template customization per channel
@@ -4221,8 +5394,33 @@ type Mutation {
   Use with caution as it bypasses the backoff protection.
   """
   resetCircuitBreaker(routerId: ID!): CircuitBreakerStatus!
+  """
+  Reset external storage configuration to use flash only.
+  Optionally migrates existing binaries back to flash.
+  """
+  resetExternalStorage(input: ResetExternalStorageInput): ResetExternalStoragePayload!
+  """
+  Remove traffic quota from a service instance.
+  Removes tracking mangle rules and quota configuration.
+  """
+  resetTrafficQuota(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): TrafficQuotaPayload!
   """Restart a service instance."""
   restartInstance(input: RestartInstanceInput!): ServiceInstancePayload!
+  """
+  Manually trigger binary reverification for an instance.
+  Checks if the binary hash matches the stored hash from install-time.
+  """
+  reverifyInstance(
+    """Instance ID to reverify"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): ReverifyPayload!
   """Revoke all sessions for a user (admin only)"""
   revokeAllSessions(
     """User ID to revoke sessions for"""
@@ -4242,6 +5440,16 @@ type Mutation {
   """
   rollbackFirewallTemplate(rollbackId: ID!, routerId: ID!): Boolean!
   """
+  Rollback an instance to its backed-up version.
+  Only works if a backup exists (has_backup=true).
+  """
+  rollbackInstance(
+    """Instance ID to rollback"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): UpdateResult!
+  """
   Run comprehensive diagnostics on a router connection.
   Performs network reachability check, port scanning, TLS validation,
   and authentication testing. Rate limited to 1 request per 10 seconds per router.
@@ -4257,6 +5465,11 @@ type Mutation {
     """DNS lookup parameters"""
     input: DnsLookupInput!
   ): DnsLookupResult!
+  """
+  Manually run diagnostics on a service instance.
+  Executes health checks and connectivity tests.
+  """
+  runServiceDiagnostics(input: RunDiagnosticsInput!): RunDiagnosticsPayload!
   """
   Start a traceroute from the router to the target.
   Returns a job ID for subscription tracking.
@@ -4301,6 +5514,16 @@ type Mutation {
   Performance: /24 scan completes in 1-2 seconds with 20 concurrent workers.
   """
   scanNetwork(input: ScanNetworkInput!): ScanNetworkPayload!
+  """
+  Manually trigger storage detection scan.
+  Useful for detecting newly mounted storage without restart.
+  """
+  scanStorage: ScanStoragePayload!
+  """
+  Enable or update kill switch for a device routing.
+  Creates MikroTik filter rules to block traffic when service is unhealthy.
+  """
+  setKillSwitch(input: SetKillSwitchInput!): DeviceRouting!
   """Set preferred protocol for a router"""
   setPreferredProtocol(
     """Preferred protocol"""
@@ -4308,6 +5531,16 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): SetPreferredProtocolPayload!
+  """
+  Set resource limits for a service instance.
+  Applies cgroups v2 memory limits to the running process.
+  """
+  setResourceLimits(input: SetResourceLimitsInput!): ResourceLimitsPayload!
+  """
+  Set or update traffic quota for a service instance.
+  Creates mangle rules to track traffic and enforces limits.
+  """
+  setTrafficQuota(input: SetTrafficQuotaInput!): TrafficQuotaPayload!
   """Start a service instance."""
   startInstance(input: StartInstanceInput!): ServiceInstancePayload!
   """
@@ -4363,6 +5596,11 @@ type Mutation {
   Enables or disables firewall rules.
   """
   togglePortKnockSequence(enabled: Boolean!, id: ID!, routerId: ID!): PortKnockSequence!
+  """
+  Manually trigger the boot sequence for auto-start instances.
+  Useful for testing or re-running boot sequence after failures.
+  """
+  triggerBootSequence: Boolean!
   """Trigger digest delivery immediately for a channel (NAS-18.11)"""
   triggerDigestNow(
     """Channel ID to trigger digest for"""
@@ -4377,12 +5615,32 @@ type Mutation {
     """Update input"""
     input: UpdateAlertRuleInput!
   ): AlertRulePayload!
+  """
+  Update all instances that have critical updates available.
+  Returns number of instances updated.
+  """
+  updateAllInstances(
+    """Minimum severity to update (default: CRITICAL)"""
+    minSeverity: UpdateSeverity
+    """Router ID"""
+    routerID: ID!
+  ): Int!
   """Update an existing bridge"""
   updateBridge(input: UpdateBridgeInput!, uuid: ID!): BridgeMutationResult!
   """Update bridge port settings"""
   updateBridgePort(input: UpdateBridgePortInput!, portId: ID!): BridgePortMutationResult!
   """Update an item in a change set"""
   updateChangeSetItem(changeSetId: ID!, input: UpdateChangeSetItemInput!, itemId: ID!): UpdateChangeSetItemPayload!
+  """
+  Apply an available update to a service instance.
+  Uses atomic 6-phase update with rollback on failure.
+  """
+  updateInstance(
+    """Instance ID to update"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): UpdateResult!
   """Update interface settings (MTU, comment, ARP mode)"""
   updateInterface(input: UpdateInterfaceInput!, interfaceId: ID!, routerId: ID!): UpdateInterfacePayload!
   """Update an existing IP address"""
@@ -4417,7 +5675,7 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): PortMirrorMutationResult! @capability(requires: ["interface"])
-  """Update resource configuration (transitions to DRAFT → VALIDATING)"""
+  """Update resource configuration (transitions to DRAFT -> VALIDATING)"""
   updateResource(id: ID!, input: UpdateResourceInput!, routerId: ID!): UpdateResourcePayload!
   """Update an existing route"""
   updateRoute(
@@ -4436,6 +5694,30 @@ type Mutation {
   Old credentials are preserved if the test fails.
   """
   updateRouterCredentials(input: CredentialsInput!, routerId: ID!): CredentialUpdatePayload! @auth
+  """
+  Update an existing routing chain (replaces all hops).
+  Removes the old chain and creates a new one with updated configuration.
+  """
+  updateRoutingChain(
+    """Chain ID to update"""
+    chainID: ID!
+    """New chain configuration"""
+    input: CreateRoutingChainInput!
+    """Router ID"""
+    routerID: ID!
+  ): RoutingChainMutationResult!
+  """
+  Update an existing routing schedule.
+  Triggers immediate schedule evaluation.
+  """
+  updateSchedule(
+    """Schedule input"""
+    input: UpdateScheduleInput!
+    """Router ID"""
+    routerID: ID!
+    """Schedule ID to update"""
+    scheduleID: ID!
+  ): RoutingSchedule!
   """Update an existing tunnel interface"""
   updateTunnel(
     """Tunnel ID"""
@@ -4445,6 +5727,41 @@ type Mutation {
     """Router ID"""
     routerId: ID!
   ): TunnelMutationResult! @capability(requires: ["interface"])
+  """
+  Update VLAN pool configuration.
+  
+  Changes the allocatable VLAN range. The new configuration is persisted to
+  GlobalSettings and will be used for all future allocations.
+  
+  Validation:
+  - poolStart must be >= 1 (minimum valid VLAN ID)
+  - poolEnd must be <= 4094 (maximum valid VLAN ID per IEEE 802.1Q)
+  - poolStart must be <= poolEnd
+  - No existing allocations can fall outside the new range
+  
+  Example:
+  ```
+  mutation {
+    updateVLANPoolConfig(poolStart: 200, poolEnd: 299) {
+      routerID
+      totalVLANs
+      poolStart
+      poolEnd
+    }
+  }
+  ```
+  
+  Note: Changing pool config may require application restart to take effect
+  for all service instances.
+  
+  Returns: Updated pool status with new configuration
+  """
+  updateVLANPoolConfig(
+    """Last VLAN ID in the pool (1-4094)"""
+    poolEnd: Int!
+    """First VLAN ID in the pool (1-4094)"""
+    poolStart: Int!
+  ): VLANPoolStatus!
   """Update an existing VLAN interface"""
   updateVlan(
     """VLAN ID"""
@@ -4462,9 +5779,14 @@ type Mutation {
   """Validate a change set (all items)"""
   validateChangeSet(changeSetId: ID!): ValidateChangeSetPayload!
   """
-  Validate resource configuration (transitions DRAFT → VALIDATING → VALID/ERROR)
+  Validate resource configuration (transitions DRAFT -> VALIDATING -> VALID/ERROR)
   """
   validateResource(id: ID!, routerId: ID!): ValidateResourcePayload!
+  """
+  Validate service configuration without applying it.
+  Returns validation errors if any.
+  """
+  validateServiceConfig(input: ValidateServiceConfigInput!): ConfigValidationResult!
   """Verify a fix by re-running the diagnostic step"""
   verifyTroubleshootFix(
     """Session ID"""
@@ -4592,6 +5914,33 @@ type NetworkConfigDetection {
   wanInterface: String!
 }
 
+"""
+Network device discovered via DHCP and ARP.
+Represents a client device on the network that can be routed through service instances.
+"""
+type NetworkDevice {
+  """Whether the device is currently active"""
+  active: Boolean!
+  """Whether device has an ARP entry"""
+  arpEntry: Boolean!
+  """Device identifier (generated from MAC address)"""
+  deviceID: ID!
+  """Whether device has a DHCP lease"""
+  dhcpLease: Boolean!
+  """Hostname from DHCP (optional)"""
+  hostname: String
+  """IP address of the device (optional, may change)"""
+  ipAddress: String
+  """Whether device has a routing assignment"""
+  isRouted: Boolean!
+  """MAC address of the device"""
+  macAddress: String!
+  """Current routing mark (if routed)"""
+  routingMark: String
+  """Source of device discovery (dhcp, arp, or both)"""
+  source: String!
+}
+
 """Relay Node interface for global object identification"""
 interface Node {
   """Globally unique identifier"""
@@ -4604,6 +5953,8 @@ enum NotificationChannel {
   EMAIL
   """In-app notifications"""
   INAPP
+  """Ntfy.sh notifications"""
+  NTFY
   """Pushover notifications"""
   PUSHOVER
   """Telegram notifications"""
@@ -4697,11 +6048,49 @@ type NotificationTemplatePreview {
   subject: String
 }
 
+"""Ntfy.sh notification configuration input"""
+input NtfyChannelInput {
+  """Whether ntfy notifications are enabled"""
+  enabled: Boolean!
+  """Optional password for authentication"""
+  password: String
+  """Message priority (1-5, default: 3)"""
+  priority: Int
+  """Ntfy server URL (e.g., https://ntfy.sh or self-hosted)"""
+  serverUrl: String!
+  """Optional tags for categorization"""
+  tags: [String!]
+  """Topic to publish to"""
+  topic: String!
+  """Optional username for authentication"""
+  username: String
+}
+
 """Operation counts by type"""
 type OperationCounts {
   create: Int!
   delete: Int!
   update: Int!
+}
+
+"""Payload for orphan cleanup mutation."""
+type OrphanCleanupPayload {
+  """Number of orphaned allocations cleaned up"""
+  cleanedCount: Int!
+  """List of allocation IDs that were deleted"""
+  deletedAllocationIDs: [ID!]!
+  """Mutation errors"""
+  errors: [MutationError!]
+}
+
+"""
+Orphaned port allocation that references a non-existent service instance.
+"""
+type OrphanedPort {
+  """Port allocation record"""
+  allocation: PortAllocation!
+  """Reason why this allocation is orphaned"""
+  reason: String!
 }
 
 """Information about pagination in a connection"""
@@ -4785,6 +6174,45 @@ type PlatformLimitation {
 
 """TCP/UDP port number (1-65535)"""
 scalar Port
+
+"""
+A port allocation record tracking which ports are in use by service instances.
+Prevents port conflicts and enables centralized port management.
+"""
+type PortAllocation implements Node {
+  """Allocation timestamp"""
+  allocatedAt: DateTime!
+  """ULID primary key"""
+  id: ID!
+  """Service instance ID that owns this allocation"""
+  instanceID: String!
+  """Optional notes about this port allocation"""
+  notes: String
+  """Port number (1-65535)"""
+  port: Int!
+  """Transport protocol (TCP or UDP)"""
+  protocol: PortProtocol!
+  """The router where this port is allocated"""
+  router: Router
+  """Router ID where this port is allocated"""
+  routerID: String!
+  """The service instance that owns this port allocation"""
+  serviceInstance: ServiceInstance
+  """Service type (e.g., 'tor', 'xray-core', 'adguard-home')"""
+  serviceType: String!
+}
+
+"""Port availability check result."""
+type PortAvailability {
+  """Whether the port is available for allocation"""
+  available: Boolean!
+  """Port number checked"""
+  port: Int!
+  """Protocol checked"""
+  protocol: PortProtocol!
+  """Reason why port is unavailable (if applicable)"""
+  reason: String
+}
 
 """
 Port forward configuration (high-level view).
@@ -4942,6 +6370,18 @@ input PortKnockSequenceInput {
   protectedProtocol: TransportProtocol!
 }
 
+"""Port mapping specification"""
+type PortMapping {
+  """Host port (0 = auto-allocate)"""
+  external: Int!
+  """Container port"""
+  internal: Int!
+  """Protocol (tcp/udp)"""
+  protocol: String!
+  """Purpose description"""
+  purpose: String
+}
+
 """A port mirror configuration for traffic monitoring and analysis"""
 type PortMirror implements Node {
   """User comment"""
@@ -4992,6 +6432,14 @@ enum PortMode {
   ACCESS
   """Trunk port (carries multiple VLANs with tagging)"""
   TRUNK
+}
+
+"""Transport protocol for port allocations."""
+enum PortProtocol {
+  """TCP protocol"""
+  TCP
+  """UDP protocol"""
+  UDP
 }
 
 """Port range string (e.g., "80", "80-443", "80,443,8080")"""
@@ -5204,6 +6652,14 @@ type Query {
     severity: AlertSeverity
   ): AlertConnection!
   """
+  Get available diagnostic tests for a service type.
+  Returns the diagnostic suite definition.
+  """
+  availableDiagnostics(
+    """Service name (e.g., 'tor', 'singbox', 'adguard')"""
+    serviceName: String!
+  ): DiagnosticSuite!
+  """
   Get interfaces available to add to a bridge (not already in any bridge)
   """
   availableInterfacesForBridge(routerId: ID!): [Interface!]!
@@ -5214,10 +6670,30 @@ type Query {
     """Filter by category"""
     category: String
   ): [AvailableService!]!
+  """
+  Get available updates for all instances on a router.
+  Returns instances that have updates available.
+  """
+  availableUpdates(
+    """Router ID"""
+    routerID: ID!
+  ): [UpdateInfo!]!
+  """Get the current boot sequence progress (if running)."""
+  bootSequenceProgress: BootSequenceProgress
   """Get a single bridge by UUID"""
   bridge(uuid: ID!): Bridge
   """Get bridge ports"""
   bridgePorts(bridgeId: ID!): [BridgePort!]!
+  """
+  Get bridge status for a service instance.
+  Includes interface and gateway health status.
+  """
+  bridgeStatus(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): BridgeStatus!
   """Get bridge VLANs"""
   bridgeVlans(bridgeId: ID!): [BridgeVlan!]!
   """List all bridges on a router"""
@@ -5300,14 +6776,81 @@ type Query {
     """Channel type"""
     channelType: ChannelType!
   ): NotificationChannelConfig
+  """Get the full dependency graph for a router (for visualization)."""
+  dependencyGraph(routerId: ID!): DependencyGraph!
   """Detect default gateway from DHCP client or static route"""
   detectGateway(routerId: ID!): String
   """Detect ISP information from WAN IP"""
   detectISP(routerId: ID!): ISPInfo
+  """
+  Detect orphaned port allocations (allocated to non-existent instances).
+  """
+  detectOrphanedPorts(
+    """Router ID to check (if not provided, checks all routers)"""
+    routerID: ID
+  ): [OrphanedPort!]!
+  """
+  Detect orphaned VLAN allocations for a router.
+  
+  An allocation is orphaned if:
+  - Its ServiceInstance no longer exists
+  - Its ServiceInstance is in "deleting" status
+  
+  This is a diagnostic query - use cleanupOrphanedVLANs mutation to actually remove them.
+  
+  Example:
+  ```
+  query {
+    detectOrphanedVLANs(routerID: "router-123") {
+      id
+      vlanID
+      instanceID
+      serviceType
+      allocatedAt
+    }
+  }
+  ```
+  """
+  detectOrphanedVLANs(
+    """Router ID to check for orphans"""
+    routerID: String!
+  ): [VLANAllocation!]!
   """Detect WAN interface from default route"""
   detectWanInterface(routerId: ID!): String!
   """Get a device by ID for resource metrics"""
   device(id: ID!): Device
+  """Get a specific device routing assignment."""
+  deviceRouting(
+    """Router ID"""
+    routerID: ID!
+    """Device routing ID"""
+    routingID: ID!
+  ): DeviceRouting
+  """
+  Get the complete device routing matrix for a router.
+  Includes discovered devices, available interfaces, and current routings.
+  """
+  deviceRoutingMatrix(
+    """Router ID"""
+    routerID: ID!
+  ): DeviceRoutingMatrix!
+  """Get all device routing assignments for a router."""
+  deviceRoutings(
+    """Router ID"""
+    routerID: ID!
+  ): [DeviceRouting!]!
+  """
+  Get diagnostic history for a service instance.
+  Returns past diagnostic results grouped by run_group_id.
+  """
+  diagnosticHistory(
+    """Instance ID"""
+    instanceID: ID!
+    """Maximum number of run groups to return (default 10)"""
+    limit: Int
+    """Router ID"""
+    routerID: ID!
+  ): [StartupDiagnostics!]!
   """Get digest delivery history for a channel (NAS-18.11)"""
   digestHistory(
     """Channel ID to get history for"""
@@ -5344,8 +6887,64 @@ type Query {
     """Device/router ID"""
     deviceId: String!
   ): DnsServers!
+  """
+  Get gateway status for a service instance.
+  Returns gateway state for SOCKS-to-TUN gateways.
+  """
+  gatewayStatus(
+    """Instance ID"""
+    instanceID: ID!
+  ): GatewayInfo!
   """Get system health status"""
   health: HealthStatus!
+  """
+  Get current configuration for a service instance.
+  Returns the persisted configuration from the database.
+  """
+  instanceConfig(
+    """Service instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): JSON!
+  """
+  Get current health status for a service instance
+  Returns null if instance not found or health monitoring not enabled
+  """
+  instanceHealth(
+    """Service instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): ServiceInstanceHealth
+  """
+  Get isolation status for a specific service instance.
+  Returns complete isolation check results and resource limits.
+  """
+  instanceIsolation(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): IsolationStatus!
+  """
+  Get update information for a specific instance.
+  Returns null if no update available.
+  """
+  instanceUpdateInfo(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): UpdateInfo
+  """
+  Get verification status for all instances on a router.
+  Returns only instances with verification enabled.
+  """
+  instanceVerificationStatus(
+    """Router ID"""
+    routerID: ID!
+  ): [BinaryVerification!]!
   """Get a network interface by ID"""
   interface(
     """Interface ID"""
@@ -5406,6 +7005,18 @@ type Query {
     """Router to check"""
     routerId: ID!
   ): FeatureSupport!
+  """Check if a specific port is available for allocation."""
+  isPortAvailable(input: CheckPortAvailabilityInput!): PortAvailability!
+  """
+  Get kill switch status for a specific device routing.
+  Returns current kill switch configuration and state.
+  """
+  killSwitchStatus(
+    """Device ID"""
+    deviceID: String!
+    """Router ID"""
+    routerID: ID!
+  ): KillSwitchStatus!
   """Get current authenticated user"""
   me: User @auth
   """Get all active sessions for the current user"""
@@ -5439,6 +7050,17 @@ type Query {
     """Filter by webhook ID"""
     webhookId: ID
   ): [NotificationLog!]!
+  """
+  List all port allocations, optionally filtered by router, protocol, or service type.
+  """
+  portAllocations(
+    """Filter by protocol"""
+    protocol: PortProtocol
+    """Filter by router ID"""
+    routerID: ID
+    """Filter by service type"""
+    serviceType: String
+  ): [PortAllocation!]!
   """Get all port forwards (high-level view)."""
   portForwards(routerId: ID!): [PortForward!]!
   """Get port knock attempt log with filtering."""
@@ -5533,6 +7155,35 @@ type Query {
     """Filter by route type (STATIC, CONNECTED, DYNAMIC, etc.)"""
     type: RouteType
   ): [Route!]! @capability(requires: ["routing"])
+  """Get the routing chain for a specific device, if any."""
+  routingChain(
+    """Device ID"""
+    deviceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): RoutingChain
+  """List all routing chains for a router."""
+  routingChains(
+    """Router ID"""
+    routerID: ID!
+  ): [RoutingChain!]!
+  """Get a specific routing schedule by ID."""
+  routingSchedule(
+    """Router ID"""
+    routerID: ID!
+    """Schedule ID"""
+    scheduleID: ID!
+  ): RoutingSchedule
+  """
+  Get all schedules for a device routing.
+  Returns schedules ordered by start time.
+  """
+  routingSchedules(
+    """Router ID"""
+    routerID: ID!
+    """Device routing ID"""
+    routingID: ID!
+  ): [RoutingSchedule!]!
   """
   Get firewall rules that reference a specific address list.
   Includes filter, NAT, and mangle rules.
@@ -5550,6 +7201,44 @@ type Query {
     """Search query"""
     query: String!
   ): [AlertTemplate!]!
+  """
+  Get alerts for a specific service instance
+  Filters alerts by source_type='service' and source_id=instanceId
+  """
+  serviceAlerts(
+    """Filter by acknowledged status"""
+    acknowledged: Boolean
+    """Service instance ID to filter alerts for"""
+    instanceId: ID!
+    """Pagination limit"""
+    limit: Int = 50
+    """Pagination offset"""
+    offset: Int = 0
+    """Filter by severity"""
+    severity: AlertSeverity
+  ): AlertConnection!
+  """
+  Get configuration schema for a service type.
+  Returns field definitions for dynamic form generation.
+  """
+  serviceConfigSchema(
+    """Service type (e.g., 'tor', 'sing-box', 'xray')"""
+    serviceType: String!
+  ): ConfigSchema!
+  """Get all dependencies of a service instance (services it depends on)."""
+  serviceDependencies(instanceId: ID!): [ServiceDependency!]!
+  """Get all dependents of a service instance (services that depend on it)."""
+  serviceDependents(instanceId: ID!): [ServiceDependency!]!
+  """
+  Get per-device traffic breakdown for a service instance.
+  Shows which devices are using bandwidth through this service.
+  """
+  serviceDeviceBreakdown(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): [DeviceTrafficBreakdown!]!
   """Get a specific service instance."""
   serviceInstance(
     """Instance ID"""
@@ -5564,10 +7253,74 @@ type Query {
     """Router ID"""
     routerID: ID!
     """Filter by status"""
-    status: ServiceStatus
+    status: ServiceInstanceStatus
   ): [ServiceInstance!]!
+  """
+  Get recent log entries for a service instance.
+  Returns the last N lines from the log file.
+  """
+  serviceLogFile(
+    """Instance ID"""
+    instanceID: ID!
+    """Maximum number of lines to return (default 100)"""
+    maxLines: Int
+    """Router ID"""
+    routerID: ID!
+  ): ServiceLogFile!
+  """Get a specific service template by ID."""
+  serviceTemplate(
+    """Template ID"""
+    id: ID!
+  ): ServiceTemplate
+  """
+  List all service templates (built-in + user-created).
+  Optionally filter by category and/or scope.
+  """
+  serviceTemplates(
+    """Filter by category"""
+    category: ServiceTemplateCategory
+    """Router ID (null for built-in only)"""
+    routerID: ID
+    """Filter by scope"""
+    scope: TemplateScope
+  ): [ServiceTemplate!]!
+  """
+  Get traffic statistics for a service instance.
+  Includes current totals, historical data, and per-device breakdown.
+  """
+  serviceTrafficStats(
+    """Time range for history (hours, default 24)"""
+    historyHours: Int
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): ServiceTrafficStats!
+  """
+  Get current external storage configuration.
+  Returns enabled state and configured path.
+  """
+  storageConfig: StorageConfig!
+  """
+  List all detected storage locations (flash and external).
+  Scans known RouterOS mount points and returns availability.
+  """
+  storageInfo: [StorageInfo!]!
+  """
+  Get comprehensive storage usage breakdown.
+  Shows flash vs external usage and per-feature breakdown.
+  """
+  storageUsage(
+    """Router ID to query storage for (optional, defaults to current router)"""
+    routerId: ID
+  ): StorageUsage!
   """Get all features supported by a router"""
   supportedFeatures(routerId: ID!): [FeatureSupport!]!
+  """Get system-wide resource overview"""
+  systemResources(
+    """Router ID"""
+    routerID: ID!
+  ): SystemResources!
   """Get a troubleshooting session by ID"""
   troubleshootSession(id: ID!): TroubleshootSession
   """Get a specific tunnel by ID"""
@@ -5584,6 +7337,14 @@ type Query {
     """Optional: filter by tunnel type"""
     type: TunnelType
   ): [Tunnel!]! @capability(requires: ["interface"])
+  """
+  Get list of features affected by storage disconnection.
+  Returns features marked as unavailable due to missing storage.
+  """
+  unavailableFeatures(
+    """Router ID to query (optional, defaults to current router)"""
+    routerId: ID
+  ): [ServiceInstance!]!
   """Get features not supported by a router with upgrade guidance"""
   unsupportedFeatures(routerId: ID!): [FeatureSupport!]!
   """Get upgrade recommendation for a specific feature on a router"""
@@ -5597,16 +7358,65 @@ type Query {
   upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!
   """Get current API version"""
   version: String!
+  """Get a specific virtual interface for a service instance."""
+  virtualInterface(
+    """Instance ID"""
+    instanceID: ID!
+    """Router ID"""
+    routerID: ID!
+  ): VirtualInterface
+  """List all virtual interfaces for a router."""
+  virtualInterfaces(
+    """Router ID"""
+    routerID: ID!
+  ): [VirtualInterface!]!
   """Get a specific VLAN by ID"""
   vlan(
     """VLAN ID"""
     id: ID!
   ): Vlan @capability(requires: ["interface"])
+  """
+  List all VLAN allocations with optional filtering.
+  
+  Examples:
+  - vlanAllocations(routerID: "router-123") - All allocations for a router
+  - vlanAllocations(status: ALLOCATED) - All active allocations across all routers
+  - vlanAllocations(routerID: "router-123", status: ALLOCATED) - Active allocations for a router
+  """
+  vlanAllocations(
+    """Filter by router ID"""
+    routerID: String
+    """Filter by allocation status"""
+    status: VLANAllocationStatus
+  ): [VLANAllocation!]!
   """Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.)"""
   vlanDependencies(
     """VLAN ID"""
     id: ID!
   ): VlanDependencies @capability(requires: ["interface"])
+  """
+  Get VLAN pool status for a router.
+  
+  Returns utilization metrics and warning flags. Useful for monitoring
+  pool capacity and planning when to expand the pool or clean up unused instances.
+  
+  Example:
+  ```
+  query {
+    vlanPoolStatus(routerID: "router-123") {
+      totalVLANs
+      allocatedVLANs
+      availableVLANs
+      utilization
+      shouldWarn
+    }
+  }
+  ```
+  """
+  vlanPoolStatus(
+    """Router ID to check pool status for"""
+    routerID: String!
+  ): VLANPoolStatus!
   """Get VLAN topology for a bridge"""
   vlanTopology(
     """Bridge ID"""
@@ -5683,6 +7493,28 @@ input QuietHoursConfigInput {
   timezone: String = "UTC"
 }
 
+"""Action to take when traffic quota is reached."""
+enum QuotaAction {
+  """Send alert notification to user"""
+  ALERT
+  """Log a warning but continue allowing traffic"""
+  LOG_ONLY
+  """Stop the service instance to prevent further traffic"""
+  STOP_SERVICE
+  """Throttle bandwidth to a lower speed"""
+  THROTTLE
+}
+
+"""Quota period for traffic limits."""
+enum QuotaPeriod {
+  """Reset daily at midnight"""
+  DAILY
+  """Reset monthly on the 1st at midnight"""
+  MONTHLY
+  """Reset weekly on Sunday at midnight"""
+  WEEKLY
+}
+
 type ReconnectRouterPayload {
   """Updated connection details"""
   connectionDetails: ConnectionDetails
@@ -5709,6 +7541,29 @@ type RemoveChangeSetItemPayload {
   changeSet: ChangeSet
   """Errors that occurred"""
   errors: [MutationError!]
+}
+
+"""
+RemoveDependencyInput contains parameters for removing a dependency relationship.
+"""
+input RemoveDependencyInput {
+  dependencyId: ID!
+}
+
+"""Input for resetting external storage configuration."""
+input ResetExternalStorageInput {
+  """Whether to move existing binaries back to flash (default: false)"""
+  migrateToFlash: Boolean
+}
+
+"""Payload for resetExternalStorage mutation."""
+type ResetExternalStoragePayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Number of features migrated to flash (if requested)"""
+  featuresMigrated: Int!
+  """Whether reset was successful"""
+  success: Boolean!
 }
 
 """
@@ -5820,6 +7675,20 @@ type ResourceEdge implements Edge {
   node: Resource!
 }
 
+"""Resource usage estimate"""
+type ResourceEstimate {
+  """Disk space needed in MB"""
+  diskSpaceMB: Int!
+  """Number of network ports"""
+  networkPorts: Int!
+  """Total CPU shares"""
+  totalCPUShares: Int!
+  """Total estimated memory in MB"""
+  totalMemoryMB: Int!
+  """Number of VLANs required"""
+  vlansRequired: Int!
+}
+
 """Impact level for affected resources"""
 enum ResourceImpact {
   """Connections will be dropped"""
@@ -5864,6 +7733,26 @@ enum ResourceLifecycleState {
   VALID
   """Backend validation in progress"""
   VALIDATING
+}
+
+"""Resource limits applied to a service instance via cgroups v2."""
+type ResourceLimits {
+  """Whether resource limits are currently applied (cgroups available)"""
+  applied: Boolean!
+  """CPU usage percentage (0-100)"""
+  cpuPercent: Int
+  """Memory limit in megabytes (minimum 16MB)"""
+  memoryMB: Int!
+}
+
+"""Payload for resource limits mutation."""
+type ResourceLimitsPayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Updated resource limits (null if operation failed)"""
+  resourceLimits: ResourceLimits
+  """Whether the operation succeeded"""
+  success: Boolean!
 }
 
 """
@@ -5982,6 +7871,19 @@ input ResourceRelationshipsInput {
   routesVia: ID
 }
 
+"""
+Resource requirements for a service feature (from manifest).
+Defines the minimum and recommended resources for a service.
+"""
+type ResourceRequirements {
+  """CPU weight (priority) for scheduling (0-100)"""
+  cpuWeight: Int!
+  """Minimum RAM required in megabytes"""
+  minRAM: Int!
+  """Recommended RAM for optimal performance in megabytes"""
+  recommendedRAM: Int!
+}
+
 """Runtime update event for a resource"""
 type ResourceRuntimeEvent {
   """Resource ID (ULID)"""
@@ -6010,6 +7912,16 @@ type ResourceStateEvent {
   type: String!
 }
 
+"""Resource status indicating health of resource usage."""
+enum ResourceStatus {
+  """Resource usage is critical (>90%)"""
+  CRITICAL
+  """Resource usage is within acceptable limits (<70%)"""
+  OK
+  """Resource usage is high (70-90%)"""
+  WARNING
+}
+
 """Event emitted when a router resource is updated"""
 type ResourceUpdatedEvent {
   """Type of change (create, update, delete)"""
@@ -6028,12 +7940,43 @@ type ResourceUpdatedEvent {
   version: Int!
 }
 
+"""
+Current resource usage for a service instance.
+Provides real-time memory usage statistics.
+"""
+type ResourceUsage {
+  """Current memory usage in megabytes"""
+  currentMB: Int!
+  """Memory limit in megabytes"""
+  limitMB: Int!
+  """Resource status (ok, warning, critical)"""
+  status: ResourceStatus!
+  """Usage as a percentage of the limit (0-100)"""
+  usagePercent: Float!
+}
+
 """Input for restarting a service instance."""
 input RestartInstanceInput {
   """Instance ID to restart"""
   instanceID: ID!
   """Router ID"""
   routerID: ID!
+}
+
+"""Payload for reverification mutation."""
+type ReverifyPayload {
+  """Current binary hash"""
+  currentHash: String
+  """Error message if verification failed"""
+  errorMessage: String
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Expected binary hash (from install-time)"""
+  expectedHash: String
+  """Instance ID that was reverified"""
+  instanceID: ID!
+  """Whether reverification passed"""
+  success: Boolean!
 }
 
 type RollbackChangeSetPayload {
@@ -6349,7 +8292,7 @@ type RouterEdge implements Edge {
 type RouterOSInfo {
   """CPU architecture (e.g., 'arm', 'x86', 'mips')"""
   architecture: String
-  """Router board name (e.g., 'hAP ac³', 'CCR2004-1G-12S+2XS')"""
+  """Router board name (e.g., 'hAP ac3', 'CCR2004-1G-12S+2XS')"""
   boardName: String
   """Platform identifier"""
   platform: String
@@ -6398,6 +8341,139 @@ type RouterStatusEvent {
   router: Router!
   """Timestamp of the change"""
   timestamp: DateTime!
+}
+
+"""
+A multi-hop routing chain that routes device traffic through multiple services sequentially.
+Example: Device -> VPN -> Tor -> Internet for layered privacy.
+"""
+type RoutingChain implements Node {
+  """Whether this chain is currently active"""
+  active: Boolean!
+  """Chain creation timestamp"""
+  createdAt: DateTime!
+  """Target device identifier"""
+  deviceId: ID!
+  """Device IP address (when routing_mode=IP)"""
+  deviceIp: String
+  """Device MAC address (when routing_mode=MAC)"""
+  deviceMac: String
+  """Human-readable device name"""
+  deviceName: String
+  """Ordered list of service hops in this chain"""
+  hops: [ChainHop!]!
+  """Chain ID (ULID)"""
+  id: ID!
+  """Timestamp when kill switch was last activated"""
+  killSwitchActivatedAt: DateTime
+  """Whether kill switch is currently blocking traffic"""
+  killSwitchActive: Boolean!
+  """Whether kill switch is enabled for this chain"""
+  killSwitchEnabled: Boolean!
+  """Kill switch behavior mode"""
+  killSwitchMode: KillSwitchMode!
+  """Routing mode (MAC or IP matching)"""
+  routingMode: RoutingMode!
+  """Total latency across all hops in milliseconds"""
+  totalLatencyMs: Float
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""Result of a routing chain mutation."""
+type RoutingChainMutationResult {
+  """The created or updated chain (null if failed)"""
+  chain: RoutingChain
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Human-readable message"""
+  message: String
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
+"""Routing mode for device routing assignments."""
+enum RoutingMode {
+  """IP address-based routing (less reliable due to DHCP changes)"""
+  IP
+  """MAC address-based routing (default, more reliable)"""
+  MAC
+}
+
+"""
+A single routing rule for device-to-service routing.
+Represents a MikroTik firewall mangle rule.
+"""
+type RoutingRule {
+  """Action (e.g., 'mark-routing')"""
+  action: String!
+  """Mangle chain (e.g., 'prerouting')"""
+  chain: String!
+  """Comment for rule identification"""
+  comment: String
+  """Destination address"""
+  dstAddress: String
+  """New routing mark to set"""
+  newRoutingMark: String
+  """Protocol (tcp, udp, icmp, etc.)"""
+  protocol: String
+  """Routing mark to match"""
+  routingMark: String
+  """Source address (MAC or IP)"""
+  srcAddress: String
+}
+
+"""
+Time-based schedule for activating/deactivating device routing rules.
+Enables features like parental controls, time-based VPN routing, etc.
+"""
+type RoutingSchedule implements Node {
+  """When the schedule was created"""
+  createdAt: DateTime!
+  """Days of week when schedule is active (0=Sunday, 6=Saturday)"""
+  days: [Int!]!
+  """Whether this schedule is enabled"""
+  enabled: Boolean!
+  """End time in HH:MM format (24-hour)"""
+  endTime: String!
+  """Schedule ID (ULID)"""
+  id: ID!
+  """Whether the schedule window is currently active (computed field)"""
+  isActive: Boolean!
+  """Timestamp when routing was last activated by this schedule"""
+  lastActivated: DateTime
+  """Timestamp when routing was last deactivated by this schedule"""
+  lastDeactivated: DateTime
+  """Device routing ID this schedule controls"""
+  routingID: ID!
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String!
+  """IANA timezone identifier (e.g., 'America/New_York', 'UTC')"""
+  timezone: String!
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""Input for running diagnostics on a service instance."""
+input RunDiagnosticsInput {
+  """Instance ID to run diagnostics on"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+  """Specific test names to run (empty = run all tests)"""
+  testNames: [String!]
+}
+
+"""Payload for run diagnostics mutation."""
+type RunDiagnosticsPayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Diagnostic results"""
+  results: [DiagnosticResult!]
+  """Run group ID linking these results together"""
+  runGroupID: String
+  """Whether the operation succeeded"""
+  success: Boolean!
 }
 
 """Result of running a diagnostic step"""
@@ -6570,6 +8646,16 @@ enum ScanStatus {
   RUNNING
 }
 
+"""Payload for scanStorage mutation."""
+type ScanStoragePayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Number of new storage locations detected"""
+  newStorageCount: Int!
+  """Detected storage locations"""
+  storageInfo: [StorageInfo!]!
+}
+
 """
 A network scan task that tracks scan progress and results.
 Scans are asynchronous - start with mutation, poll/subscribe for progress.
@@ -6595,6 +8681,86 @@ type ScanTask {
   subnet: String!
   """Total IPs to scan (for progress calculation)"""
   totalIPs: Int
+}
+
+"""
+Schedule event for subscriptions.
+Emitted when schedules are created, updated, deleted, or when activation state changes.
+"""
+type ScheduleEvent {
+  """Event type (created, updated, deleted, activated, deactivated)"""
+  eventType: String!
+  """Event ID"""
+  id: ID!
+  """Routing ID (for deleted schedules)"""
+  routingID: ID
+  """Schedule that changed"""
+  schedule: RoutingSchedule
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+"""
+Service configuration sharing event for subscriptions.
+Emitted when configs are exported, imported, or QR codes generated.
+"""
+type ServiceConfigSharedEvent {
+  """Event type (exported, imported, qr_generated)"""
+  eventType: String!
+  """Event ID"""
+  id: ID!
+  """Instance ID"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+  """Service name"""
+  serviceName: String!
+  """Service type"""
+  serviceType: String!
+  """Timestamp"""
+  timestamp: DateTime!
+  """User who performed the action"""
+  userID: String
+}
+
+"""
+ServiceDependency represents a dependency relationship between two service instances.
+Example: A VPN-over-Tor instance depends on a Tor instance being running.
+"""
+type ServiceDependency {
+  autoStart: Boolean!
+  createdAt: DateTime!
+  dependencyType: DependencyType!
+  fromInstance: ServiceInstance!
+  healthTimeoutSeconds: Int!
+  id: ID!
+  toInstance: ServiceInstance!
+  updatedAt: DateTime!
+}
+
+"""
+Export package containing service configuration.
+Used for sharing service configs via JSON or QR code.
+"""
+type ServiceExportPackage {
+  """Binary version"""
+  binaryVersion: String!
+  """Service configuration (JSON)"""
+  config: JSON!
+  """Timestamp when the export was created"""
+  exportedAt: DateTime!
+  """User who exported this configuration"""
+  exportedByUserID: String
+  """Whether secrets are included (not redacted)"""
+  includesSecrets: Boolean!
+  """Optional routing rules for device routing"""
+  routingRules: [RoutingRule!]
+  """Schema version (e.g., "1.0")"""
+  schemaVersion: String!
+  """Service instance name"""
+  serviceName: String!
+  """Service type identifier (e.g., 'tor', 'mtproxy')"""
+  serviceType: String!
 }
 
 """
@@ -6627,11 +8793,48 @@ type ServiceInstance implements Node {
   """Router ID this instance belongs to"""
   routerID: String!
   """Current lifecycle status"""
-  status: ServiceStatus!
+  status: ServiceInstanceStatus!
   """Last update timestamp"""
   updatedAt: DateTime!
+  """Binary verification information (null if verification not enabled)"""
+  verification: BinaryVerification
   """VLAN ID for network isolation"""
   vlanID: Int
+}
+
+"""
+Comprehensive health status for a service instance
+Combines process liveness, connection status, and latency metrics
+"""
+type ServiceInstanceHealth {
+  """Connection status from TCP/HTTP health probe"""
+  connectionStatus: HealthConnectionState!
+  """Number of consecutive health check failures"""
+  consecutiveFails: Int!
+  """
+  Timestamp of when the instance was last healthy (null if never healthy)
+  """
+  lastHealthy: DateTime
+  """
+  Health probe round-trip latency in milliseconds (null if probe hasn't run)
+  """
+  latencyMs: Int
+  """Whether the service process is alive (PID check)"""
+  processAlive: Boolean!
+  """Current health state of the instance"""
+  status: InstanceHealthState!
+  """Instance uptime in seconds (null if not running)"""
+  uptimeSeconds: Int
+}
+
+"""Health check configuration for a service instance"""
+type ServiceInstanceHealthConfig {
+  """Whether to auto-restart on health check failure (default: true)"""
+  autoRestart: Boolean!
+  """Consecutive failures before marking unhealthy (1-10, default: 3)"""
+  failureThreshold: Int!
+  """Health check interval in seconds (10-300, default: 30)"""
+  intervalSeconds: Int!
 }
 
 """Payload for service instance mutations."""
@@ -6643,15 +8846,11 @@ type ServiceInstancePayload {
 }
 
 """Service instance lifecycle status."""
-enum ServiceStatus {
-  """Service is operational with degraded performance"""
-  DEGRADED
+enum ServiceInstanceStatus {
   """Instance is being deleted"""
   DELETING
   """Operation failed"""
   FAILED
-  """Service is fully operational"""
-  HEALTHY
   """Binary installed, ready to start"""
   INSTALLED
   """Binary is being downloaded and installed"""
@@ -6664,8 +8863,152 @@ enum ServiceStatus {
   STOPPED
   """Process is stopping"""
   STOPPING
+}
+
+"""
+Service log file with metadata.
+Represents captured logs from a service instance.
+"""
+type ServiceLogFile {
+  """Timestamp when log file was created"""
+  createdAt: DateTime!
+  """Recent log entries (last N lines)"""
+  entries: [LogEntry!]!
+  """Log file path on router filesystem"""
+  filePath: String!
+  """Instance ID"""
+  instanceID: ID!
+  """Timestamp when log file was last updated"""
+  lastUpdated: DateTime!
+  """Number of log lines available"""
+  lineCount: Int!
+  """Service name"""
+  serviceName: String!
+  """Current log file size in bytes"""
+  sizeBytes: Int!
+}
+
+"""Service result from template installation"""
+type ServiceResult {
+  """Creation timestamp"""
+  createdAt: DateTime!
+  """Error message if failed"""
+  errorMessage: String
+  """Created instance ID"""
+  instanceID: String
+  """Service name from template"""
+  serviceName: String!
+  """Status (success/failed/skipped)"""
+  status: String!
+}
+
+"""Service specification within a template"""
+type ServiceSpec {
+  """Service-specific configuration overrides"""
+  configOverrides: JSON
+  """CPU shares"""
+  cpuShares: Int
+  """Service dependencies (references other services in template)"""
+  dependsOn: [String!]
+  """Memory limit in MB"""
+  memoryLimitMB: Int
+  """Instance name template (supports variables)"""
+  name: String!
+  """Port mappings"""
+  portMappings: [PortMapping!]
+  """Whether this service needs Virtual Interface Factory"""
+  requiresBridge: Boolean
+  """Service type (feature ID like 'tor', 'xray-core')"""
+  serviceType: String!
+  """VLAN ID (null = auto-allocate)"""
+  vlanID: Int
+}
+
+"""Service operational status"""
+enum ServiceStatus {
+  """Service is operational with degraded performance"""
+  DEGRADED
+  """Service is fully operational"""
+  HEALTHY
   """Service is not operational"""
   UNHEALTHY
+}
+
+"""Service template"""
+type ServiceTemplate implements Node {
+  """Template author"""
+  author: String
+  """Template category"""
+  category: ServiceTemplateCategory!
+  """Configuration variables"""
+  configVariables: [TemplateVariable!]!
+  """Creation timestamp"""
+  createdAt: DateTime!
+  """Detailed description"""
+  description: String!
+  """Documentation"""
+  documentation: String
+  """Resource estimates"""
+  estimatedResources: ResourceEstimate
+  """Usage examples"""
+  examples: [String!]
+  """Template ID (ULID)"""
+  id: ID!
+  """Whether this is a built-in template"""
+  isBuiltIn: Boolean!
+  """Template name"""
+  name: String!
+  """Prerequisites"""
+  prerequisites: [String!]
+  """Router ID (null for built-in templates)"""
+  routerID: String
+  """Deployment scope"""
+  scope: TemplateScope!
+  """Services to deploy"""
+  services: [ServiceSpec!]!
+  """Routing suggestions"""
+  suggestedRouting: [SuggestedRoutingRule!]
+  """Search tags"""
+  tags: [String!]
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """Template version"""
+  version: String!
+}
+
+"""Service template category enum"""
+enum ServiceTemplateCategory {
+  ANTI_CENSORSHIP
+  GAMING
+  MESSAGING
+  NETWORKING
+  PRIVACY
+  SECURITY
+}
+
+"""
+Traffic statistics for a service instance.
+Tracks uploaded/downloaded bytes with historical data retention.
+"""
+type ServiceTrafficStats {
+  """Download bytes in current period (day/week/month)"""
+  currentPeriodDownload: Int!
+  """Upload bytes in current period (day/week/month)"""
+  currentPeriodUpload: Int!
+  """Per-device breakdown (if available)"""
+  deviceBreakdown: [DeviceTrafficBreakdown!]!
+  """Historical data points for chart visualization"""
+  history: [TrafficDataPoint!]!
+  """Instance ID"""
+  instanceID: ID!
+  """Timestamp of last statistics update"""
+  lastUpdated: DateTime!
+  """Traffic quota configuration (if set)"""
+  quota: TrafficQuota
+  """Total bytes downloaded (received)"""
+  totalDownloadBytes: Int!
+  """Total bytes uploaded (transmitted)"""
+  totalUploadBytes: Int!
 }
 
 """Active user session"""
@@ -6684,6 +9027,20 @@ type Session {
   userAgent: String
 }
 
+"""Input for setting kill switch on a device routing."""
+input SetKillSwitchInput {
+  """Device ID whose routing should have kill switch"""
+  deviceID: String! @validate(minLength: 1, maxLength: 100)
+  """Whether to enable kill switch"""
+  enabled: Boolean!
+  """Fallback interface ID (required if mode=FALLBACK_SERVICE)"""
+  fallbackInterfaceID: String
+  """Kill switch behavior mode"""
+  mode: KillSwitchMode!
+  """Router ID"""
+  routerID: ID!
+}
+
 type SetPreferredProtocolPayload {
   """Updated connection details"""
   connectionDetails: ConnectionDetails
@@ -6691,6 +9048,54 @@ type SetPreferredProtocolPayload {
   errors: [MutationError!]
   """The updated router"""
   router: Router
+}
+
+"""Input for setting resource limits on a service instance."""
+input SetResourceLimitsInput {
+  """CPU weight for scheduling (0-100, optional)"""
+  cpuWeight: Int @validate(min: 0, max: 100)
+  """Instance ID"""
+  instanceID: ID!
+  """Memory limit in megabytes (minimum 16MB)"""
+  memoryMB: Int! @validate(min: 16)
+  """Router ID"""
+  routerID: ID!
+}
+
+"""Input for setting a traffic quota on a service instance."""
+input SetTrafficQuotaInput {
+  """Action to take when quota is reached"""
+  action: QuotaAction!
+  """Instance ID to set quota on"""
+  instanceID: ID!
+  """Maximum bytes allowed per period (0 = unlimited)"""
+  limitBytes: Int! @validate(min: 0)
+  """Quota period"""
+  period: QuotaPeriod!
+  """Router ID"""
+  routerID: ID!
+  """Warning threshold percentage (0-100, default 80)"""
+  warningThreshold: Int @validate(min: 0, max: 100)
+}
+
+"""Single device routing assignment for bulk operations."""
+input SingleDeviceRoutingInput {
+  """Device ID"""
+  deviceID: String!
+  """Device IP (optional)"""
+  deviceIP: String
+  """Device name (optional)"""
+  deviceName: String
+  """Instance ID"""
+  instanceID: ID!
+  """Interface ID"""
+  interfaceID: ID!
+  """Device MAC address"""
+  macAddress: String!
+  """Routing mark"""
+  routingMark: String!
+  """Routing mode"""
+  routingMode: RoutingMode!
 }
 
 """Size in bytes with optional unit (e.g., "1024", "1k", "1M", "1G")"""
@@ -6728,6 +9133,31 @@ type StartTroubleshootPayload {
   errors: [MutationError!]
   """The created session"""
   session: TroubleshootSession
+}
+
+"""
+Startup diagnostic results collected during instance boot.
+Automatically run when a service starts.
+"""
+type StartupDiagnostics {
+  """Number of tests that failed"""
+  failedCount: Int!
+  """Instance ID"""
+  instanceID: ID!
+  """Overall health status (pass if all tests passed)"""
+  overallStatus: DiagnosticStatus!
+  """Number of tests that passed"""
+  passedCount: Int!
+  """Test results"""
+  results: [DiagnosticResult!]!
+  """Run group ID linking these results together"""
+  runGroupID: String!
+  """Timestamp when diagnostics were run"""
+  timestamp: DateTime!
+  """Total number of tests run"""
+  totalTests: Int!
+  """Number of tests with warnings"""
+  warningCount: Int!
 }
 
 """Static IP WAN configuration"""
@@ -6798,6 +9228,79 @@ input StopInstanceInput {
   routerID: ID!
 }
 
+"""
+Storage breakdown for a specific location (flash or external).
+Shows what types of data are stored and capacity metrics.
+"""
+type StorageBreakdown {
+  """Available free space in bytes (serialized uint64)"""
+  availableBytes: String!
+  """
+  Human-readable description of contents (e.g., 'Configs, DB' or 'Binaries, data')
+  """
+  contents: String!
+  """Storage location type"""
+  locationType: StorageLocationType!
+  """Space threshold status"""
+  thresholdStatus: StorageThresholdStatus!
+  """Total capacity in bytes (serialized uint64)"""
+  totalBytes: String!
+  """Usage percentage (0-100)"""
+  usagePercent: Float!
+  """Used space in bytes (serialized uint64)"""
+  usedBytes: String!
+}
+
+"""
+Storage configuration state.
+Represents the current external storage configuration.
+"""
+type StorageConfig {
+  """Whether external storage is enabled and configured"""
+  enabled: Boolean!
+  """Whether configured storage is currently available"""
+  isAvailable: Boolean!
+  """Configured external storage path (null if not configured)"""
+  path: String
+  """Storage info for configured path (null if not mounted)"""
+  storageInfo: StorageInfo
+  """When the configuration was last updated"""
+  updatedAt: DateTime!
+}
+
+"""
+Information about a storage location (flash or external).
+Represents a detected mount point with capacity and filesystem information.
+"""
+type StorageInfo {
+  """Available free space in bytes (serialized uint64)"""
+  availableBytes: String!
+  """Filesystem type (e.g., 'ext4', 'vfat', 'ntfs')"""
+  filesystem: String!
+  """Storage location type"""
+  locationType: StorageLocationType!
+  """Whether the storage is currently mounted and accessible"""
+  mounted: Boolean!
+  """Absolute path to the mount point (e.g., '/data', '/usb1', '/disk1')"""
+  path: String!
+  """Total capacity in bytes (serialized uint64)"""
+  totalBytes: String!
+  """Usage percentage (0-100, calculated from used/total)"""
+  usagePercent: Float!
+  """Used space in bytes (serialized uint64)"""
+  usedBytes: String!
+}
+
+"""Type of storage location."""
+enum StorageLocationType {
+  """External USB/disk storage (large, removable)"""
+  EXTERNAL
+  """Internal flash memory (limited, persistent)"""
+  FLASH
+  """Unknown storage type"""
+  UNKNOWN
+}
+
 """Storage utilization metrics"""
 type StorageMetrics {
   """Storage usage percentage (0-100)"""
@@ -6806,6 +9309,85 @@ type StorageMetrics {
   total: Float!
   """Used storage in bytes"""
   used: Float!
+}
+
+"""Union type for storage mount/unmount events."""
+union StorageMountEvent = StorageMountedEvent | StorageUnmountedEvent
+
+"""Event emitted when storage is mounted or becomes available."""
+type StorageMountedEvent {
+  """Number of features restored (if reconnection)"""
+  featuresRestored: Int!
+  """Storage path that was mounted"""
+  path: String!
+  """Storage information"""
+  storageInfo: StorageInfo!
+  """Timestamp of the event"""
+  timestamp: DateTime!
+}
+
+"""Event emitted when storage space crosses a threshold."""
+type StorageSpaceEvent {
+  """Available bytes remaining (serialized uint64)"""
+  availableBytes: String!
+  """Storage path"""
+  path: String!
+  """Previous threshold status"""
+  previousStatus: StorageThresholdStatus!
+  """Current threshold status"""
+  status: StorageThresholdStatus!
+  """Timestamp of the event"""
+  timestamp: DateTime!
+  """Current usage percentage"""
+  usagePercent: Float!
+}
+
+"""
+Storage space threshold status.
+Used to trigger warnings and prevent installations when space is low.
+"""
+enum StorageThresholdStatus {
+  """Critical space warning (90-94%)"""
+  CRITICAL
+  """Full - installations blocked (95%+)"""
+  FULL
+  """Low space warning (80-89%)"""
+  LOW
+  """Normal usage (<80%)"""
+  NORMAL
+}
+
+"""Event emitted when storage is unmounted or becomes unavailable."""
+type StorageUnmountedEvent {
+  """List of affected feature IDs"""
+  affectedFeatureIds: [String!]!
+  """Number of features affected (stopped)"""
+  featuresAffected: Int!
+  """Storage path that was unmounted"""
+  path: String!
+  """Timestamp of the event"""
+  timestamp: DateTime!
+}
+
+"""
+Comprehensive storage usage breakdown across flash and external locations.
+Shows how storage is allocated across configs, binaries, data, and per-feature.
+"""
+type StorageUsage {
+  """Timestamp when usage was calculated"""
+  calculatedAt: DateTime!
+  """External storage usage breakdown (null if not configured)"""
+  external: StorageBreakdown
+  """Per-feature storage usage details"""
+  features: [FeatureStorageUsage!]!
+  """Flash memory usage breakdown"""
+  flash: StorageBreakdown!
+  """
+  Total available capacity across all locations in bytes (serialized uint64)
+  """
+  totalCapacityBytes: String!
+  """Total storage usage across all locations in bytes (serialized uint64)"""
+  totalUsedBytes: String!
 }
 
 """Alert rule contribution to storm detection"""
@@ -6872,6 +9454,11 @@ type Subscription {
     """Filter by device ID"""
     deviceId: ID
   ): AlertEvent!
+  """
+  Subscribe to boot sequence events for real-time progress updates.
+  Emits events during system boot when auto-start instances are being started.
+  """
+  bootSequenceEvents: BootSequenceEvent!
   """Subscribe to bridge port changes"""
   bridgePortsChanged(bridgeId: ID!): [BridgePort!]!
   """Subscribe to STP status changes for a bridge"""
@@ -6907,6 +9494,24 @@ type Subscription {
     routerId: ID
   ): HealthCheckResult!
   """
+  Subscribe to device routing changes for a router.
+  Emits events when devices are assigned, removed, or updated.
+  """
+  deviceRoutingChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): DeviceRoutingEvent!
+  """
+  Subscribe to diagnostic progress updates.
+  Emits events as each test completes during a diagnostic run.
+  """
+  diagnosticsProgress(
+    """Instance ID to monitor"""
+    instanceID: ID!
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): DiagnosticsProgress!
+  """
   Subscribe to installation progress events for a router.
   Emits progress updates during binary download and installation.
   """
@@ -6914,6 +9519,18 @@ type Subscription {
     """Router ID to subscribe to"""
     routerID: ID!
   ): InstallProgress!
+  """
+  Real-time health status changes for a service instance
+  Streams updates when health state transitions (HEALTHY ↔ UNHEALTHY)
+  """
+  instanceHealthChanged(
+    """
+    Optional instance ID to filter specific instance (null = all instances on router)
+    """
+    instanceID: ID
+    """Router ID to filter events"""
+    routerID: ID!
+  ): ServiceInstanceHealth!
   """
   Subscribe to instance status changes for a router.
   Emits events when any instance changes state.
@@ -6947,6 +9564,14 @@ type Subscription {
     """Router ID to monitor"""
     routerId: ID!
   ): IpAddressChangeEvent! @capability(requires: ["interface"])
+  """
+  Subscribe to kill switch state changes for a router.
+  Emits events when kill switch is activated, deactivated, or configuration changes.
+  """
+  killSwitchChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): DeviceRoutingEvent!
   """Subscribe to port mirror status changes"""
   portMirrorChanged(
     """Router ID to monitor"""
@@ -6974,6 +9599,16 @@ type Subscription {
   """Subscribe to resource updates (create, update, delete)"""
   resourceUpdated(resourceId: ID): ResourceUpdatedEvent!
   """
+  Subscribe to resource usage changes for a specific instance.
+  Emits updates when memory usage changes significantly or crosses thresholds.
+  """
+  resourceUsageChanged(
+    """Instance ID to monitor"""
+    instanceID: ID!
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ResourceUsage!
+  """
   Subscribe to router addition events.
   Emits when a new router is successfully added to the system.
   """
@@ -6981,10 +9616,79 @@ type Subscription {
   """Subscribe to router status changes"""
   routerStatusChanged(routerId: ID): RouterStatusEvent!
   """
+  Real-time updates when any routing chain changes (create, update, remove, kill switch).
+  """
+  routingChainChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): RoutingChain!
+  """
   Subscribe to real-time scan progress updates.
   Emits events every 5% progress or every 2 seconds, whichever is sooner.
   """
   scanProgress(taskId: ID!): ScanProgressEvent!
+  """
+  Subscribe to schedule changes for a router.
+  Emits events when schedules are created, updated, deleted, or when activation state changes.
+  """
+  scheduleChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ScheduleEvent!
+  """
+  Subscribe to service configuration sharing events.
+  Emits events when configs are exported, imported, or QR codes generated.
+  """
+  serviceConfigShared(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ServiceConfigSharedEvent!
+  """
+  Subscribe to real-time log stream for a service instance.
+  Emits new log entries as they are generated.
+  """
+  serviceLogs(
+    """Instance ID to monitor"""
+    instanceID: ID!
+    """Optional log level filter"""
+    levelFilter: LogLevel
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): LogEntry!
+  """
+  Subscribe to traffic statistics updates for a service instance.
+  Emits updates every 10 seconds with current traffic totals and deltas.
+  """
+  serviceTrafficUpdated(
+    """Instance ID to monitor"""
+    instanceID: ID!
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): TrafficStatsEvent!
+  """
+  Subscribe to storage mount/unmount events.
+  Emits when external storage becomes available or unavailable.
+  """
+  storageMountChanged(
+    """Optional path filter (if not provided, all storage events)"""
+    path: String
+  ): StorageMountEvent!
+  """
+  Subscribe to storage space threshold events.
+  Emits when storage usage crosses 80%, 90%, or 95% thresholds.
+  """
+  storageSpaceChanged(
+    """Optional path filter (if not provided, all storage events)"""
+    path: String
+  ): StorageSpaceEvent!
+  """
+  Subscribe to template installation progress.
+  Emits progress updates during installation.
+  """
+  templateInstallProgress(
+    """Router ID"""
+    routerID: ID!
+  ): TemplateInstallProgress!
   """
   Subscribe to traceroute progress updates.
   Emits an event for each hop discovered and when traceroute completes.
@@ -7003,6 +9707,22 @@ type Subscription {
     """Router ID to monitor"""
     routerId: ID!
   ): Tunnel! @capability(requires: ["interface"])
+  """
+  Subscribe to update progress for a router.
+  Emits progress updates during atomic update process.
+  """
+  updateProgress(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): UpdateProgress!
+  """
+  Subscribe to binary verification events for a router.
+  Emits events when binaries are verified, verification fails, or integrity checks fail.
+  """
+  verificationEvents(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): VerificationEvent!
   """Subscribe to VLAN interface changes (create, update, delete)"""
   vlanChanged(
     """Router ID to monitor"""
@@ -7024,6 +9744,20 @@ type Subscription {
   ): WANInterface! @capability(requires: ["interface"])
 }
 
+"""Routing suggestion for a template"""
+type SuggestedRoutingRule {
+  """Rule description"""
+  description: String!
+  """Destination port filter"""
+  destinationPort: Int
+  """Device name pattern (e.g., 'all', 'phone-*')"""
+  devicePattern: String!
+  """Protocol filter"""
+  protocol: String
+  """Target service name from template"""
+  targetService: String!
+}
+
 """Severity level for diagnostic suggestions"""
 enum SuggestionSeverity {
   """Critical issue blocking connectivity"""
@@ -7034,6 +9768,21 @@ enum SuggestionSeverity {
   INFO
   """Warning that may affect functionality"""
   WARNING
+}
+
+"""
+System-wide resource overview for a router.
+Shows total resources, available resources, and per-instance allocations.
+"""
+type SystemResources {
+  """Total allocated RAM across all instances in megabytes"""
+  allocatedRAM: Int!
+  """Available (unallocated) RAM in megabytes"""
+  availableRAM: Int!
+  """Per-instance resource usage details"""
+  instances: [InstanceResourceUsage!]!
+  """Total RAM available on the router in megabytes"""
+  totalRAM: Int!
 }
 
 """TLS certificate status for secure connections"""
@@ -7121,6 +9870,51 @@ enum TemplateConflictType {
   POSITION_CONFLICT
 }
 
+"""Template installation progress"""
+type TemplateInstallProgress {
+  """Installation completion time"""
+  completedAt: DateTime
+  """Current service being installed"""
+  currentService: String
+  """Error message if failed"""
+  errorMessage: String
+  """Number of services installed"""
+  installedCount: Int!
+  """Individual service results"""
+  serviceResults: [ServiceResult!]!
+  """Installation start time"""
+  startedAt: DateTime!
+  """Installation status"""
+  status: TemplateInstallationStatus!
+  """Template ID being installed"""
+  templateID: ID!
+  """Total number of services"""
+  totalServices: Int!
+}
+
+"""Template installation result"""
+type TemplateInstallResult {
+  """Errors encountered"""
+  errors: [String!]
+  """Created instance IDs"""
+  instanceIDs: [ID!]!
+  """Installation progress"""
+  progress: TemplateInstallProgress
+  """Map of service names to instance IDs"""
+  serviceMapping: JSON!
+  """Whether installation was successful"""
+  success: Boolean!
+}
+
+"""Template installation status"""
+enum TemplateInstallationStatus {
+  COMPLETED
+  FAILED
+  IN_PROGRESS
+  PARTIAL
+  PENDING
+}
+
 """Template preview result"""
 type TemplatePreview {
   """Rendered body after variable substitution"""
@@ -7195,6 +9989,16 @@ input TemplateRuleInput {
   table: FirewallTable!
 }
 
+"""Template deployment scope"""
+enum TemplateScope {
+  """Chained services (e.g., Tor -> Xray)"""
+  CHAIN
+  """Multiple independent services"""
+  MULTIPLE
+  """Single service instance"""
+  SINGLE
+}
+
 """Template validation information"""
 type TemplateValidationInfo {
   """Whether the template is valid with provided variables"""
@@ -7203,6 +10007,40 @@ type TemplateValidationInfo {
   missingVariables: [String!]!
   """Validation warnings"""
   warnings: [String!]!
+}
+
+"""Configuration variable for a template"""
+type TemplateVariable {
+  """Default value (can be null)"""
+  default: JSON
+  """Human-readable description"""
+  description: String!
+  """Allowed values for enum types"""
+  enumValues: [JSON!]
+  """Display label for UI"""
+  label: String!
+  """Maximum value for number types"""
+  maxValue: Float
+  """Minimum value for number types"""
+  minValue: Float
+  """Variable name (e.g., 'TOR_NAME')"""
+  name: String!
+  """Whether the variable is required"""
+  required: Boolean!
+  """Variable type"""
+  type: TemplateVariableType!
+  """Regex pattern for validation"""
+  validationPattern: String
+}
+
+"""Template variable type"""
+enum TemplateVariableType {
+  BOOLEAN
+  ENUM
+  IP
+  NUMBER
+  PORT
+  STRING
 }
 
 """Result of testing all router credentials."""
@@ -7473,6 +10311,93 @@ type TracerouteResult {
   targetIp: String!
   """Total time from start to completion (ms)"""
   totalTimeMs: Float!
+}
+
+"""
+A single traffic data point for time-series visualization.
+Represents traffic volume at a specific timestamp.
+"""
+type TrafficDataPoint {
+  """Bytes downloaded in this interval"""
+  downloadBytes: Int!
+  """Timestamp of this data point"""
+  timestamp: DateTime!
+  """Total bytes (upload + download)"""
+  totalBytes: Int!
+  """Bytes uploaded in this interval"""
+  uploadBytes: Int!
+}
+
+"""
+Traffic quota configuration for a service instance.
+Allows setting bandwidth limits with automated warnings and actions.
+"""
+type TrafficQuota {
+  """Action to take when quota is reached"""
+  action: QuotaAction!
+  """Bytes consumed in current period"""
+  consumedBytes: Int!
+  """Timestamp when quota was created"""
+  createdAt: DateTime!
+  """Quota ID"""
+  id: ID!
+  """Instance ID this quota applies to"""
+  instanceID: ID!
+  """Maximum bytes allowed per period (0 = unlimited)"""
+  limitBytes: Int!
+  """Whether quota limit has been reached"""
+  limitReached: Boolean!
+  """Quota period (daily, weekly, monthly)"""
+  period: QuotaPeriod!
+  """When the current period will reset"""
+  periodEndsAt: DateTime!
+  """When the current period started"""
+  periodStartedAt: DateTime!
+  """Remaining bytes in current period"""
+  remainingBytes: Int!
+  """Timestamp when quota was last updated"""
+  updatedAt: DateTime!
+  """Usage percentage (0-100)"""
+  usagePercent: Float!
+  """Warning threshold percentage (0-100, triggers warning alert)"""
+  warningThreshold: Int!
+  """Whether warning threshold has been exceeded"""
+  warningTriggered: Boolean!
+}
+
+"""Payload for traffic quota mutation."""
+type TrafficQuotaPayload {
+  """Mutation errors"""
+  errors: [MutationError!]
+  """Updated or created quota (null if failed)"""
+  quota: TrafficQuota
+  """Whether the operation succeeded"""
+  success: Boolean!
+}
+
+"""
+Traffic statistics update event for subscriptions.
+Emitted when traffic stats are updated (every 10 seconds).
+"""
+type TrafficStatsEvent {
+  """Download bytes since last update"""
+  deltaDownloadBytes: Int!
+  """Upload bytes since last update"""
+  deltaUploadBytes: Int!
+  """Instance ID"""
+  instanceID: ID!
+  """Whether quota limit was reached"""
+  quotaLimitReached: Boolean!
+  """Whether quota warning was triggered"""
+  quotaWarning: Boolean!
+  """Router ID"""
+  routerID: ID!
+  """Timestamp of this update"""
+  timestamp: DateTime!
+  """Total bytes downloaded"""
+  totalDownloadBytes: Int!
+  """Total bytes uploaded"""
+  totalUploadBytes: Int!
 }
 
 """Transport protocol enum for network traffic."""
@@ -7799,6 +10724,44 @@ type UpdateChangeSetItemPayload {
   errors: [MutationError!]
 }
 
+"""Input for configuring update check schedule for an instance."""
+input UpdateCheckScheduleInput {
+  """Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL)"""
+  autoApplyThreshold: String!
+  """Update check schedule (e.g., '6h', '12h', '24h', 'manual')"""
+  checkSchedule: String!
+  """Instance ID"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+}
+
+"""Available update information for a service instance."""
+type UpdateInfo {
+  """Target architecture"""
+  architecture: String!
+  """Available update version"""
+  availableVersion: String!
+  """Checksum URL for verification"""
+  checksumURL: String
+  """Current installed version"""
+  currentVersion: String!
+  """Download URL for the new binary"""
+  downloadURL: String!
+  """Feature ID"""
+  featureID: String!
+  """Instance ID"""
+  instanceID: ID!
+  """When the update was published"""
+  publishedAt: DateTime!
+  """Release notes/changelog"""
+  releaseNotes: String!
+  """Update severity"""
+  severity: UpdateSeverity!
+  """Binary size in bytes"""
+  sizeBytes: Int!
+}
+
 """Input for updating interface settings"""
 input UpdateInterfaceInput {
   """Interface comment"""
@@ -7847,6 +10810,26 @@ input UpdatePortMirrorInput {
   sourceInterfaceIds: [ID!] @validate(minLength: 1)
 }
 
+"""Update progress during atomic update process."""
+type UpdateProgress {
+  """Feature ID"""
+  featureID: String!
+  """Current version"""
+  fromVersion: String!
+  """Instance ID"""
+  instanceID: ID!
+  """Current stage message"""
+  message: String!
+  """Progress percentage (0-100)"""
+  progress: Int!
+  """Current stage"""
+  stage: UpdateStage!
+  """Timestamp"""
+  timestamp: DateTime!
+  """Target version"""
+  toVersion: String!
+}
+
 """Input for updating resource configuration"""
 input UpdateResourceInput {
   """Updated configuration (partial or full)"""
@@ -7864,6 +10847,28 @@ type UpdateResourcePayload {
   errors: [MutationError!]
   """The updated resource"""
   resource: Resource
+}
+
+"""Update result after completion or failure."""
+type UpdateResult {
+  """Update stages completed"""
+  completedStages: [UpdateStage!]!
+  """Total duration in milliseconds"""
+  durationMs: Int!
+  """Error message (if failed)"""
+  errorMessage: String
+  """Stage where failure occurred (if failed)"""
+  failedStage: UpdateStage
+  """Instance ID"""
+  instanceID: ID!
+  """Whether rollback occurred"""
+  rolledBack: Boolean!
+  """Whether the update succeeded"""
+  success: Boolean!
+  """Timestamp"""
+  timestamp: DateTime!
+  """Version updated to (if successful)"""
+  version: String
 }
 
 """Input for updating router settings"""
@@ -7885,6 +10890,50 @@ type UpdateRouterPayload {
   errors: [MutationError!]
   """The updated router"""
   router: Router
+}
+
+"""Input for updating an existing routing schedule."""
+input UpdateScheduleInput {
+  """Days of week (0=Sunday, 6=Saturday)"""
+  days: [Int!]
+  """Whether schedule is enabled"""
+  enabled: Boolean
+  """End time in HH:MM format (24-hour)"""
+  endTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+  """Start time in HH:MM format (24-hour)"""
+  startTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+  """IANA timezone identifier"""
+  timezone: String @validate(minLength: 1, maxLength: 64)
+}
+
+"""Update severity classification for available updates."""
+enum UpdateSeverity {
+  """Critical security fix - auto-apply recommended"""
+  CRITICAL
+  """Major version with breaking changes"""
+  MAJOR
+  """Minor version with new features"""
+  MINOR
+  """Patch version with bug fixes"""
+  PATCH
+}
+
+"""Update stage during atomic update process."""
+enum UpdateStage {
+  """Backing up current binary"""
+  BACKUP
+  """Finalizing update"""
+  COMMIT
+  """Running config migrations"""
+  MIGRATION
+  """Restoring from backup"""
+  ROLLBACK
+  """Downloading and verifying new binary"""
+  STAGING
+  """Swapping binaries"""
+  SWAP
+  """Validating new version"""
+  VALIDATION
 }
 
 """Input for updating a webhook"""
@@ -8057,6 +11106,78 @@ type VIFRequirements {
   sufficientStorage: Boolean!
 }
 
+"""
+VLANAllocation represents an automatic VLAN allocation for a service instance.
+
+Each allocation reserves a VLAN ID from the pool and generates a corresponding
+subnet (e.g., 10.8.100.0/24) for network isolation. Allocations are automatically
+created when service instances are provisioned and released when deleted.
+
+The system prevents conflicts with existing router VLANs through automatic
+detection via VlanService composition.
+"""
+type VLANAllocation implements Node {
+  """Timestamp when VLAN was allocated"""
+  allocatedAt: DateTime!
+  """Unique allocation ID (ULID)"""
+  id: ID!
+  """Service instance ID that owns this VLAN"""
+  instanceID: String!
+  """Timestamp when VLAN was released (null if still allocated)"""
+  releasedAt: DateTime
+  """Router this VLAN belongs to"""
+  router: Router!
+  """Router ID this VLAN allocation belongs to"""
+  routerID: String!
+  """Service instance that owns this VLAN"""
+  serviceInstance: ServiceInstance!
+  """Service type (e.g., 'tor', 'xray', 'singbox')"""
+  serviceType: String!
+  """Allocation lifecycle status"""
+  status: VLANAllocationStatus!
+  """Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24')"""
+  subnet: String
+  """VLAN ID (IEEE 802.1Q range: 1-4094)"""
+  vlanID: Int!
+}
+
+"""
+VLANAllocationStatus represents the lifecycle state of a VLAN allocation.
+"""
+enum VLANAllocationStatus {
+  """VLAN is currently allocated and in use"""
+  ALLOCATED
+  """VLAN has been released and is available for reuse"""
+  RELEASED
+  """VLAN is being released (transitional state)"""
+  RELEASING
+}
+
+"""
+VLANPoolStatus represents the current state of the VLAN pool for a router.
+
+Provides utilization metrics and warnings when the pool is approaching exhaustion.
+Useful for capacity planning and monitoring.
+"""
+type VLANPoolStatus {
+  """Number of currently allocated VLANs"""
+  allocatedVLANs: Int!
+  """Number of available VLANs remaining"""
+  availableVLANs: Int!
+  """Pool configuration (end VLAN ID)"""
+  poolEnd: Int!
+  """Pool configuration (start VLAN ID)"""
+  poolStart: Int!
+  """Router ID this pool status applies to"""
+  routerID: String!
+  """Warning flag if utilization > 80%"""
+  shouldWarn: Boolean!
+  """Total number of VLANs in the pool (e.g., 100 for range 100-199)"""
+  totalVLANs: Int!
+  """Utilization percentage (0.0 - 100.0)"""
+  utilization: Float!
+}
+
 """VPN tunnel information for routes through VPN"""
 type VPNTunnelInfo {
   """Tunnel name"""
@@ -8098,6 +11219,16 @@ type ValidateResourcePayload {
   resource: Resource
   """Validation result"""
   validation: ValidationResult
+}
+
+"""Input for validating service configuration"""
+input ValidateServiceConfigInput {
+  """Configuration to validate (as JSON)"""
+  config: JSON!
+  """Service instance ID"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
 }
 
 """Field-level validation error with suggestions for fixing."""
@@ -8197,6 +11328,118 @@ enum VariableType {
   SUBNET
   """VLAN ID"""
   VLAN_ID
+}
+
+"""Verification event for subscriptions."""
+type VerificationEvent {
+  """Actual hash (for failures)"""
+  actualHash: String
+  """Archive hash"""
+  archiveHash: String
+  """Binary hash"""
+  binaryHash: String
+  """Event type (verified, verification_failed, integrity_failed)"""
+  eventType: String!
+  """Expected hash (for failures)"""
+  expectedHash: String
+  """Failure reason (for failures)"""
+  failureReason: String
+  """Feature ID"""
+  featureID: String!
+  """GPG key ID"""
+  gpgKeyID: String
+  """GPG verified"""
+  gpgVerified: Boolean!
+  """Instance ID"""
+  instanceID: ID!
+  """Router ID"""
+  routerID: ID!
+  """Suggested action (for failures)"""
+  suggestedAction: String
+  """Timestamp"""
+  timestamp: DateTime!
+}
+
+"""Binary verification status."""
+enum VerificationStatus {
+  """Binary failed verification (hash mismatch)"""
+  INVALID
+  """Verification not performed (disabled or missing data)"""
+  NOT_VERIFIED
+  """Verification in progress"""
+  PENDING
+  """Binary passed verification"""
+  VALID
+}
+
+"""
+Virtual network interface for service instance isolation.
+Each service instance gets its own VLAN interface with routing mark.
+"""
+type VirtualInterface {
+  """When the interface was created"""
+  createdAt: DateTime!
+  """Gateway runtime status"""
+  gatewayStatus: GatewayStatus!
+  """Gateway type (tunnel, direct, etc.)"""
+  gatewayType: GatewayType!
+  """Interface ID (ULID)"""
+  id: ID!
+  """Service instance ID this interface belongs to"""
+  instanceId: ID!
+  """IP address assigned to this interface"""
+  ipAddress: String!
+  """Interface name (e.g., vlan100)"""
+  name: String!
+  """Routing mark for policy routing"""
+  routingMark: String!
+  """Interface lifecycle status"""
+  status: VirtualInterfaceStatus!
+  """Tunnel interface name (for HEV tunnel)"""
+  tunName: String
+  """Last update timestamp"""
+  updatedAt: DateTime!
+  """VLAN ID for network isolation"""
+  vlanId: Int!
+}
+
+"""
+Virtual interface information for routing matrix.
+Simplified view of VirtualInterface for device routing selection.
+"""
+type VirtualInterfaceInfo {
+  """Gateway status"""
+  gatewayStatus: String!
+  """Gateway type"""
+  gatewayType: String!
+  """Interface ID"""
+  id: ID!
+  """Service instance ID"""
+  instanceID: ID!
+  """Service instance name"""
+  instanceName: String!
+  """Interface name (e.g., vlan100)"""
+  interfaceName: String!
+  """IP address"""
+  ipAddress: String!
+  """Routing mark for PBR"""
+  routingMark: String!
+  """Interface status"""
+  status: String!
+  """VLAN ID"""
+  vlanID: Int!
+}
+
+"""Virtual interface lifecycle status."""
+enum VirtualInterfaceStatus {
+  """Interface is active and ready"""
+  ACTIVE
+  """Interface is being created"""
+  CREATING
+  """Interface creation/operation failed"""
+  ERROR
+  """Interface is being removed"""
+  REMOVING
 }
 
 """

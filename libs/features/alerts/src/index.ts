@@ -15,6 +15,8 @@ export { useEmailChannelForm } from './hooks/useEmailChannelForm';
 export type { UseEmailChannelFormOptions, UseEmailChannelFormReturn } from './hooks/useEmailChannelForm';
 export { useWebhookConfigForm } from './hooks/useWebhookConfigForm';
 export type { UseWebhookConfigFormOptions, UseWebhookConfigFormReturn } from './hooks/useWebhookConfigForm';
+export { useNtfyChannelForm } from './hooks/useNtfyChannelForm';
+export type { UseNtfyChannelFormOptions, UseNtfyChannelFormReturn } from './hooks/useNtfyChannelForm';
 
 // Alert Rule Template hooks (NAS-18.12)
 export {
@@ -59,6 +61,12 @@ export { WebhookConfigFormDesktop } from './components/WebhookConfigFormDesktop'
 export type { WebhookConfigFormDesktopProps } from './components/WebhookConfigFormDesktop';
 export { WebhookConfigFormMobile } from './components/WebhookConfigFormMobile';
 export type { WebhookConfigFormMobileProps } from './components/WebhookConfigFormMobile';
+export { NtfyChannelForm } from './components/ChannelForms/NtfyChannelForm';
+export type { NtfyChannelFormProps } from './components/ChannelForms/NtfyChannelForm';
+export { NtfyChannelFormDesktop } from './components/ChannelForms/NtfyChannelFormDesktop';
+export type { NtfyChannelFormDesktopProps } from './components/ChannelForms/NtfyChannelFormDesktop';
+export { NtfyChannelFormMobile } from './components/ChannelForms/NtfyChannelFormMobile';
+export type { NtfyChannelFormMobileProps } from './components/ChannelForms/NtfyChannelFormMobile';
 
 // Alert Rule Template Components (NAS-18.12)
 export {
@@ -120,6 +128,19 @@ export {
 } from './schemas/webhook.schema';
 
 export type { WebhookConfig } from './schemas/webhook.schema';
+
+export {
+  ntfyConfigSchema,
+  defaultNtfyConfig,
+  NTFY_PRIORITY_PRESETS,
+  NTFY_SERVER_PRESETS,
+  isValidNtfyTopic,
+  isValidNtfyServerUrl,
+  formatNtfyTags,
+  parseNtfyTags,
+} from './schemas/ntfy-config.schema';
+
+export type { NtfyConfig } from './schemas/ntfy-config.schema';
 
 // Alert Rule Template schemas (NAS-18.12)
 export {

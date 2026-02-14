@@ -1,0 +1,242 @@
+package resolver
+
+// This file contains service template query and mutation resolvers (NAS-8.9).
+// Subscription resolvers and helpers are in templates_subscriptions.resolvers.go.
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+
+	"backend/generated/graphql"
+	
+	"backend/internal/templates"
+)
+
+// ServiceTemplates lists all service templates (built-in + user-created)
+func (r *queryResolver) ServiceTemplates(ctx context.Context, routerID *string, category *model.ServiceTemplateCategory, scope *model.TemplateScope) ([]*model.ServiceTemplate, error) {
+	r.log.Infow("ServiceTemplates query called",
+		"routerID", routerID,
+		"category", category,
+		"scope", scope)
+
+	// Check if ServiceTemplateService is available
+	if r.ServiceTemplateService == nil {
+		return nil, fmt.Errorf("template service not available")
+	}
+
+	// Convert GraphQL enums to Go types
+	var goCategory *templates.TemplateCategory
+	if category != nil {
+		cat := templates.TemplateCategory(category.String())
+		goCategory = &cat
+	}
+
+	var goScope *templates.TemplateScope
+	if scope != nil {
+		scp := templates.TemplateScope(scope.String())
+		goScope = &scp
+	}
+
+	// Get templates from service
+	templatesList, err := r.ServiceTemplateService.ListTemplates(ctx, goCategory, goScope)
+	if err != nil {
+		r.log.Errorw("failed to list templates", "error", err)
+		return nil, fmt.Errorf("failed to list templates: %w", err)
+	}
+
+	// Convert to GraphQL model
+	result := make([]*model.ServiceTemplate, len(templatesList))
+	for i, tmpl := range templatesList {
+		result[i] = convertTemplateToGraphQL(tmpl)
+	}
+
+	r.log.Infow("ServiceTemplates query completed", "count", len(result))
+	return result, nil
+}
+
+// ServiceTemplate gets a specific template by ID
+func (r *queryResolver) ServiceTemplate(ctx context.Context, id string) (*model.ServiceTemplate, error) {
+	r.log.Infow("ServiceTemplate query called", "id", id)
+
+	// Check if ServiceTemplateService is available
+	if r.ServiceTemplateService == nil {
+		return nil, fmt.Errorf("template service not available")
+	}
+
+	// Get template from service
+	tmpl, err := r.ServiceTemplateService.GetTemplate(ctx, id)
+	if err != nil {
+		r.log.Errorw("failed to get template", "error", err, "id", id)
+		return nil, fmt.Errorf("template not found: %w", err)
+	}
+
+	result := convertTemplateToGraphQL(tmpl)
+	r.log.Infow("ServiceTemplate query completed", "id", id)
+	return result, nil
+}
+
+// InstallServiceTemplate installs a service template on a router
+func (r *mutationResolver) InstallServiceTemplate(ctx context.Context, input model.InstallServiceTemplateInput) (*model.TemplateInstallResult, error) {
+	r.log.Infow("InstallServiceTemplate mutation called",
+		"routerID", input.RouterID,
+		"templateID", input.TemplateID,
+		"dryRun", input.DryRun)
+
+	// Check if TemplateInstaller is available
+	if r.TemplateInstaller == nil {
+		return nil, fmt.Errorf("template installer not available")
+	}
+
+	// Dry run - just validate
+	if input.DryRun.IsSet() && input.DryRun.Value() != nil && *input.DryRun.Value() {
+		if err := r.TemplateInstaller.ValidateTemplate(ctx, input.TemplateID, input.Variables); err != nil {
+			return nil, fmt.Errorf("template validation failed: %w", err)
+		}
+
+		return &model.TemplateInstallResult{
+			Success: true,
+		}, nil
+	}
+
+	// Get router info for architecture and resources
+	// TODO: Query router from database for actual values
+	// For now, use reasonable defaults
+	routerOSVersion := "7.0"
+	architecture := "arm64"
+	availableMemoryMB := 2048
+	availableDiskMB := 10000
+
+	// Get user ID from context (if available)
+	requestedByUID := "system"
+	if userID, ok := ctx.Value("user_id").(string); ok {
+		requestedByUID = userID
+	}
+
+	// Install template
+	resp, err := r.TemplateInstaller.InstallTemplate(ctx, templates.InstallTemplateRequest{
+		RouterID:          input.RouterID,
+		TemplateID:        input.TemplateID,
+		Variables:         input.Variables,
+		RouterOSVersion:   routerOSVersion,
+		Architecture:      architecture,
+		AvailableMemoryMB: availableMemoryMB,
+		AvailableDiskMB:   availableDiskMB,
+		RequestedByUID:    requestedByUID,
+	})
+
+	if err != nil {
+		r.log.Errorw("template installation failed", "error", err, "templateID", input.TemplateID)
+		return &model.TemplateInstallResult{
+			Success: false,
+			Errors:  []string{fmt.Sprintf("Installation failed: %v", err)},
+		}, nil
+	}
+
+	r.log.Infow("template installation completed",
+		"templateID", input.TemplateID,
+		"instanceCount", len(resp.InstanceIDs))
+
+	// Convert map[string]string to map[string]any
+	serviceMapping := make(map[string]any, len(resp.ServiceMapping))
+	for k, v := range resp.ServiceMapping {
+		serviceMapping[k] = v
+	}
+
+	return &model.TemplateInstallResult{
+		Success:        true,
+		InstanceIDs:    resp.InstanceIDs,
+		ServiceMapping: serviceMapping,
+	}, nil
+}
+
+// ExportAsTemplate exports existing service instances as a reusable template
+func (r *mutationResolver) ExportAsTemplate(ctx context.Context, input model.ExportAsTemplateInput) (*model.ServiceTemplate, error) {
+	r.log.Infow("ExportAsTemplate mutation called",
+		"routerID", input.RouterID,
+		"instanceCount", len(input.InstanceIDs))
+
+	// Check if TemplateExporter is available
+	if r.TemplateExporter == nil {
+		return nil, fmt.Errorf("template exporter not available")
+	}
+
+	// Build export request
+	exportReq := templates.ExportTemplateRequest{
+		InstanceIDs:  input.InstanceIDs,
+		RouterID:     input.RouterID,
+		TemplateName: input.Name,
+		Description:  input.Description,
+		Category:     string(input.Category),
+	}
+
+	// Export template
+	tmpl, err := r.TemplateExporter.ExportAsTemplate(ctx, exportReq)
+	if err != nil {
+		r.log.Errorw("template export failed", "error", err)
+		return nil, fmt.Errorf("failed to export template: %w", err)
+	}
+
+	r.log.Infow("template export completed",
+		"templateID", tmpl.ID,
+		"templateName", tmpl.Name,
+		"services", len(tmpl.Services))
+
+	// Convert to GraphQL model
+	return convertTemplateToGraphQL(tmpl), nil
+}
+
+// ImportServiceTemplate imports a service template from JSON
+func (r *mutationResolver) ImportServiceTemplate(ctx context.Context, input model.ImportServiceTemplateInput) (*model.ServiceTemplate, error) {
+	r.log.Infow("ImportServiceTemplate mutation called", "routerID", input.RouterID)
+
+	// Check if TemplateImporter is available
+	if r.TemplateImporter == nil {
+		return nil, fmt.Errorf("template importer not available")
+	}
+
+	// Convert template data map to JSON string
+	templateJSON, err := json.Marshal(input.TemplateData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal template data: %w", err)
+	}
+
+	// Import template
+	tmpl, err := r.TemplateImporter.ImportTemplate(ctx, templates.ImportTemplateRequest{
+		RouterID:     input.RouterID,
+		TemplateJSON: string(templateJSON),
+	})
+
+	if err != nil {
+		r.log.Errorw("template import failed", "error", err)
+		return nil, fmt.Errorf("failed to import template: %w", err)
+	}
+
+	r.log.Infow("template import completed",
+		"templateID", tmpl.ID,
+		"templateName", tmpl.Name)
+
+	// Convert to GraphQL model
+	return convertTemplateToGraphQL(tmpl), nil
+}
+
+// DeleteServiceTemplate deletes a user-created service template
+func (r *mutationResolver) DeleteServiceTemplate(ctx context.Context, routerID string, templateID string) (bool, error) {
+	r.log.Infow("DeleteServiceTemplate mutation called",
+		"routerID", routerID,
+		"templateID", templateID)
+
+	// Check if TemplateImporter is available
+	if r.TemplateImporter == nil {
+		return false, fmt.Errorf("template importer not available")
+	}
+
+	// Delete custom template (the importer will reject deletion of built-in templates)
+	if err := r.TemplateImporter.DeleteCustomTemplate(ctx, routerID, templateID); err != nil {
+		r.log.Errorw("template deletion failed", "error", err, "templateID", templateID)
+		return false, fmt.Errorf("failed to delete template: %w", err)
+	}
+
+	r.log.Infow("template deletion completed", "templateID", templateID)
+	return true, nil
+}

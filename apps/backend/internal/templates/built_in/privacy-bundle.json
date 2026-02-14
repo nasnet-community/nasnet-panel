@@ -1,0 +1,128 @@
+{
+  "id": "privacy-bundle",
+  "name": "Privacy Bundle",
+  "description": "Complete privacy stack with Tor entry node and Xray-core exit point. Routes traffic through Tor for anonymization, then through Xray for additional obfuscation.",
+  "category": "privacy",
+  "scope": "chain",
+  "version": "1.0.0",
+  "author": "NasNetConnect",
+  "tags": ["privacy", "tor", "xray", "anonymization", "obfuscation"],
+  "services": [
+    {
+      "serviceType": "tor",
+      "name": "{{TOR_NAME}}",
+      "configOverrides": {
+        "socksPort": 9050,
+        "controlPort": 9051,
+        "exitNodes": "{us}",
+        "strictNodes": false
+      },
+      "memoryLimitMB": 256,
+      "cpuShares": 512,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": 9050,
+          "external": 0,
+          "protocol": "tcp",
+          "purpose": "SOCKS5 proxy"
+        }
+      ]
+    },
+    {
+      "serviceType": "xray-core",
+      "name": "{{XRAY_NAME}}",
+      "configOverrides": {
+        "inbounds": [
+          {
+            "port": 10808,
+            "protocol": "socks",
+            "settings": {
+              "auth": "noauth",
+              "udp": true
+            }
+          }
+        ],
+        "outbounds": [
+          {
+            "protocol": "socks",
+            "settings": {
+              "servers": [
+                {
+                  "address": "{{TOR_NAME}}",
+                  "port": 9050
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": ["{{TOR_NAME}}"],
+      "memoryLimitMB": 128,
+      "cpuShares": 256,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": 10808,
+          "external": "{{XRAY_EXTERNAL_PORT}}",
+          "protocol": "tcp",
+          "purpose": "Xray SOCKS5 proxy"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "TOR_NAME",
+      "type": "string",
+      "required": true,
+      "default": "tor-privacy",
+      "description": "Name for the Tor service instance",
+      "label": "Tor Instance Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "XRAY_NAME",
+      "type": "string",
+      "required": true,
+      "default": "xray-privacy",
+      "description": "Name for the Xray service instance",
+      "label": "Xray Instance Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "XRAY_EXTERNAL_PORT",
+      "type": "port",
+      "required": false,
+      "default": "10808",
+      "description": "External port for Xray SOCKS5 proxy",
+      "label": "Xray External Port"
+    }
+  ],
+  "suggestedRouting": [
+    {
+      "devicePattern": "all",
+      "targetService": "{{XRAY_NAME}}",
+      "protocol": "all",
+      "description": "Route all device traffic through the privacy chain"
+    }
+  ],
+  "estimatedResources": {
+    "totalMemoryMB": 384,
+    "totalCPUShares": 768,
+    "diskSpaceMB": 150,
+    "networkPorts": 2,
+    "vlansRequired": 2
+  },
+  "prerequisites": [
+    "At least 400MB free memory",
+    "Two available network ports",
+    "Two available VLAN IDs"
+  ],
+  "documentation": "This template creates a chained privacy setup where traffic flows: Device → Xray → Tor → Internet. Tor provides anonymization while Xray adds obfuscation layer. The chain ensures maximum privacy with minimal configuration.",
+  "examples": [
+    "Use for browsing sensitive content anonymously",
+    "Research without revealing your identity",
+    "Accessing blocked content with privacy protection"
+  ]
+}

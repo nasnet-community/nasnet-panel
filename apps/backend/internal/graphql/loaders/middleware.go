@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"backend/ent"
+	"backend/generated/ent"
 )
 
 // Config holds configuration for the DataLoader middleware.

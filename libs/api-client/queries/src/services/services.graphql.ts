@@ -237,3 +237,174 @@ export const SUBSCRIBE_INSTANCE_STATUS_CHANGED = gql`
     }
   }
 `;
+
+// =============================================================================
+// Dependency Management Queries (NAS-8.19)
+// =============================================================================
+
+/**
+ * Get all dependencies of a service instance (services it depends on)
+ */
+export const GET_DEPENDENCIES = gql`
+  query GetDependencies($instanceId: ID!) {
+    serviceDependencies(instanceId: $instanceId) {
+      id
+      fromInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      toInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      dependencyType
+      autoStart
+      healthTimeoutSeconds
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * Get all dependents of a service instance (services that depend on it)
+ */
+export const GET_DEPENDENTS = gql`
+  query GetDependents($instanceId: ID!) {
+    serviceDependents(instanceId: $instanceId) {
+      id
+      fromInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      toInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      dependencyType
+      autoStart
+      healthTimeoutSeconds
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * Get the full dependency graph for a router (for visualization)
+ */
+export const GET_DEPENDENCY_GRAPH = gql`
+  query GetDependencyGraph($routerId: ID!) {
+    dependencyGraph(routerId: $routerId) {
+      nodes {
+        instanceId
+        instanceName
+        featureId
+        status
+      }
+      edges {
+        fromInstanceId
+        toInstanceId
+        dependencyType
+        autoStart
+        healthTimeoutSeconds
+      }
+    }
+  }
+`;
+
+/**
+ * Get the current boot sequence progress (if running)
+ */
+export const GET_BOOT_SEQUENCE_PROGRESS = gql`
+  query GetBootSequenceProgress {
+    bootSequenceProgress {
+      inProgress
+      currentLayer
+      totalLayers
+      startedInstances
+      failedInstances
+      remainingInstances
+    }
+  }
+`;
+
+// =============================================================================
+// Dependency Management Mutations (NAS-8.19)
+// =============================================================================
+
+/**
+ * Add a new dependency relationship between service instances
+ */
+export const ADD_DEPENDENCY = gql`
+  mutation AddDependency($input: AddDependencyInput!) {
+    addDependency(input: $input) {
+      id
+      fromInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      toInstance {
+        id
+        featureID
+        instanceName
+        status
+      }
+      dependencyType
+      autoStart
+      healthTimeoutSeconds
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/**
+ * Remove an existing dependency relationship
+ */
+export const REMOVE_DEPENDENCY = gql`
+  mutation RemoveDependency($input: RemoveDependencyInput!) {
+    removeDependency(input: $input)
+  }
+`;
+
+/**
+ * Manually trigger the boot sequence for auto-start instances
+ */
+export const TRIGGER_BOOT_SEQUENCE = gql`
+  mutation TriggerBootSequence {
+    triggerBootSequence
+  }
+`;
+
+// =============================================================================
+// Dependency Management Subscriptions (NAS-8.19)
+// =============================================================================
+
+/**
+ * Subscribe to boot sequence events
+ */
+export const SUBSCRIBE_BOOT_SEQUENCE_EVENTS = gql`
+  subscription BootSequenceEvents {
+    bootSequenceEvents {
+      id
+      type
+      timestamp
+      layer
+      instanceIds
+      successCount
+      failureCount
+      errorMessage
+    }
+  }
+`;

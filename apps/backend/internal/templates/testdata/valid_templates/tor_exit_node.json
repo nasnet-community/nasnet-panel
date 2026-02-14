@@ -1,0 +1,83 @@
+{
+  "id": "custom-tor-exit",
+  "name": "Custom Tor Exit Node",
+  "description": "Tor exit node with configurable bandwidth and exit policy",
+  "category": "privacy",
+  "scope": "single",
+  "version": "1.0.0",
+  "author": "NasNet Team",
+  "tags": ["tor", "privacy", "exit-node"],
+  "services": [
+    {
+      "serviceType": "tor",
+      "name": "{{EXIT_NODE_NAME}}",
+      "configOverrides": {
+        "exitPolicy": "{{EXIT_POLICY}}",
+        "bandwidthRate": "{{BANDWIDTH_LIMIT}}MB",
+        "contactInfo": "{{CONTACT_EMAIL}}"
+      },
+      "memoryLimitMB": 256,
+      "cpuShares": 512,
+      "requiresBridge": false,
+      "portMappings": [
+        {
+          "internal": 9001,
+          "external": 9001,
+          "protocol": "tcp"
+        },
+        {
+          "internal": 9030,
+          "external": 9030,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "EXIT_NODE_NAME",
+      "description": "Name for the exit node instance",
+      "type": "string",
+      "required": true,
+      "defaultValue": "tor-exit-node"
+    },
+    {
+      "name": "BANDWIDTH_LIMIT",
+      "description": "Maximum bandwidth in MB/s",
+      "type": "number",
+      "required": true,
+      "defaultValue": 100,
+      "minValue": 1,
+      "maxValue": 1000
+    },
+    {
+      "name": "EXIT_POLICY",
+      "description": "Tor exit policy rules",
+      "type": "string",
+      "required": false,
+      "defaultValue": "accept *:80,accept *:443,reject *:*"
+    },
+    {
+      "name": "CONTACT_EMAIL",
+      "description": "Contact email for node operator",
+      "type": "string",
+      "required": false,
+      "defaultValue": "operator@example.com"
+    }
+  ],
+  "estimatedResources": {
+    "memoryMB": 256,
+    "cpuShares": 512,
+    "diskMB": 50,
+    "networkBandwidthMbps": 100
+  },
+  "prerequisites": [
+    "Router must allow outbound connections on ports 9001 and 9030",
+    "Minimum 256MB RAM available"
+  ],
+  "documentation": "This template creates a Tor exit node with customizable bandwidth limits and exit policy. Ensure you understand the legal implications of running an exit node in your jurisdiction.",
+  "examples": [
+    "Fast exit node: BANDWIDTH_LIMIT=500, EXIT_POLICY=accept *:*",
+    "Web-only exit: BANDWIDTH_LIMIT=100, EXIT_POLICY=accept *:80,accept *:443,reject *:*"
+  ]
+}

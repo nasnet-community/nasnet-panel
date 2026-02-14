@@ -1,0 +1,108 @@
+# ============================================
+# VIRTUAL INTERFACE TYPES
+# ============================================
+
+"""
+Virtual network interface for service instance isolation.
+Each service instance gets its own VLAN interface with routing mark.
+"""
+type VirtualInterface {
+  """Interface ID (ULID)"""
+  id: ID!
+
+  """Service instance ID this interface belongs to"""
+  instanceId: ID!
+
+  """Interface name (e.g., vlan100)"""
+  name: String!
+
+  """VLAN ID for network isolation"""
+  vlanId: Int!
+
+  """IP address assigned to this interface"""
+  ipAddress: String!
+
+  """Gateway type (tunnel, direct, etc.)"""
+  gatewayType: GatewayType!
+
+  """Gateway runtime status"""
+  gatewayStatus: GatewayStatus!
+
+  """Tunnel interface name (for HEV tunnel)"""
+  tunName: String
+
+  """Routing mark for policy routing"""
+  routingMark: String!
+
+  """Interface lifecycle status"""
+  status: VirtualInterfaceStatus!
+
+  """When the interface was created"""
+  createdAt: DateTime!
+
+  """Last update timestamp"""
+  updatedAt: DateTime!
+}
+
+"""
+Gateway type for virtual interface routing.
+"""
+enum GatewayType {
+  """No gateway, direct routing"""
+  NONE
+
+  """HEV SOCKS5 tunnel gateway"""
+  HEV_SOCKS5_TUNNEL
+}
+
+"""
+Gateway runtime status.
+"""
+enum GatewayStatus {
+  """Gateway process is stopped"""
+  STOPPED
+
+  """Gateway process is starting"""
+  STARTING
+
+  """Gateway process is running"""
+  RUNNING
+
+  """Gateway process failed to start"""
+  FAILED
+}
+
+"""
+Virtual interface lifecycle status.
+"""
+enum VirtualInterfaceStatus {
+  """Interface is being created"""
+  CREATING
+
+  """Interface is active and ready"""
+  ACTIVE
+
+  """Interface creation/operation failed"""
+  ERROR
+
+  """Interface is being removed"""
+  REMOVING
+}
+
+"""
+Bridge status for service instance network setup.
+Combines interface and gateway status for health monitoring.
+"""
+type BridgeStatus {
+  """The virtual interface"""
+  interface: VirtualInterface
+
+  """Whether the interface is ready for traffic"""
+  isReady: Boolean!
+
+  """Whether the gateway (if any) is running"""
+  gatewayRunning: Boolean!
+
+  """Any errors encountered"""
+  errors: [String!]
+}

@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@nasnet/ui/primitives';
+import { ResourceUsageBar } from '../resource-usage-bar';
 
 import { useServiceCard, formatBytes } from './useServiceCard';
 
@@ -144,6 +145,22 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
             {/* Custom content */}
             {children}
           </div>
+
+          {/* Resource usage bar (compact inline for running instances) */}
+          {isRunning &&
+            service.metrics?.currentMemory !== undefined &&
+            service.metrics?.memoryLimit !== undefined && (
+              <div className="shrink-0 w-48">
+                <ResourceUsageBar
+                  label="Memory"
+                  current={service.metrics.currentMemory}
+                  limit={service.metrics.memoryLimit}
+                  unit="MB"
+                  showLabel={false}
+                  compact={true}
+                />
+              </div>
+            )}
 
           {/* Actions */}
           <div className="shrink-0 flex items-center gap-2">

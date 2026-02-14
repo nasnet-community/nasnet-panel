@@ -1,0 +1,98 @@
+# =============================================================================
+# WAN Link Configuration GraphQL Schema
+# =============================================================================
+# WAN interface types, health monitoring, and connection management
+# Extends base Interface type from schema.graphql
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# WAN Interface Types
+# -----------------------------------------------------------------------------
+
+"""
+WAN interface status with connection details
+"""
+type WANInterface implements Node {
+  "Unique identifier"
+  id: ID!
+
+  "Underlying network interface"
+  interface: Interface! @mikrotik(path: "/interface", field: "name")
+
+  "WAN connection type"
+  type: WANConnectionType!
+
+  "Current connection status"
+  status: WANStatus!
+
+  "Public IP address (if connected)"
+  publicIP: IPv4 @mikrotik(path: "/ip/address", field: "address")
+
+  "Gateway IP address"
+  gateway: IPv4
+
+  "Primary DNS server"
+  primaryDNS: IPv4
+
+  "Secondary DNS server"
+  secondaryDNS: IPv4
+
+  "Connection uptime"
+  uptime: Duration
+
+  "Last connection time"
+  lastConnected: DateTime
+
+  "Health check status"
+  health: WANHealthStatus
+
+  "DHCP client configuration (if type is DHCP)"
+  dhcpClient: DhcpClient
+
+  "PPPoE client configuration (if type is PPPOE)"
+  pppoeClient: PppoeClient
+
+  "Static IP configuration (if type is STATIC)"
+  staticConfig: StaticIPConfig
+
+  "LTE modem configuration (if type is LTE)"
+  lteModem: LteModem
+
+  "Whether this is the default route"
+  isDefaultRoute: Boolean!
+
+  "Traffic statistics"
+  statistics: InterfaceStats
+}
+
+"""
+WAN connection type classification
+"""
+enum WANConnectionType {
+  "DHCP client (dynamic IP)"
+  DHCP
+  "PPPoE dial-up connection"
+  PPPOE
+  "Static IP configuration"
+  STATIC
+  "LTE/cellular connection"
+  LTE
+  "Not configured"
+  NONE
+}
+
+"""
+WAN connection status
+"""
+enum WANStatus {
+  "Connected and online"
+  CONNECTED
+  "Connecting/authenticating"
+  CONNECTING
+  "Disconnected"
+  DISCONNECTED
+  "Connection failed"
+  ERROR
+  "Disabled"
+  DISABLED
+}

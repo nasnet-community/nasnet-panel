@@ -1,0 +1,173 @@
+# -----------------------------------------------------------------------------
+# Webhook Input Types
+# -----------------------------------------------------------------------------
+
+"""
+Input for creating a webhook
+"""
+input CreateWebhookInput {
+  """
+  Human-readable webhook name
+  """
+  name: String!
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Webhook URL endpoint
+  """
+  url: String!
+
+  """
+  HTTP method (default: POST)
+  """
+  method: String = "POST"
+
+  """
+  Authentication type (default: NONE)
+  """
+  authType: WebhookAuthType = NONE
+
+  """
+  Username for Basic auth
+  """
+  username: String
+
+  """
+  Password for Basic auth
+  """
+  password: String
+
+  """
+  Bearer token for Bearer auth
+  """
+  bearerToken: String
+
+  """
+  Custom HTTP headers (as JSON object)
+  """
+  headers: JSON
+
+  """
+  Template type for webhook payload (default: GENERIC)
+  """
+  template: WebhookTemplate = GENERIC
+
+  """
+  Custom template body (required if template is CUSTOM)
+  """
+  customTemplate: String
+
+  """
+  Signing secret for HMAC signature (optional)
+  """
+  signingSecret: String
+
+  """
+  Timeout in seconds (default: 10)
+  """
+  timeoutSeconds: Int = 10
+
+  """
+  Whether to retry failed deliveries (default: true)
+  """
+  retryEnabled: Boolean = true
+
+  """
+  Maximum retry attempts (default: 3)
+  """
+  maxRetries: Int = 3
+
+  """
+  Whether webhook is enabled (default: true)
+  """
+  enabled: Boolean = true
+}
+
+"""
+Input for updating a webhook
+"""
+input UpdateWebhookInput {
+  """
+  Human-readable webhook name
+  """
+  name: String
+
+  """
+  Optional description
+  """
+  description: String
+
+  """
+  Webhook URL endpoint
+  """
+  url: String
+
+  """
+  HTTP method
+  """
+  method: String
+
+  """
+  Authentication type
+  """
+  authType: WebhookAuthType
+
+  """
+  Username for Basic auth
+  """
+  username: String
+
+  """
+  Password for Basic auth (only set if provided)
+  """
+  password: String
+
+  """
+  Bearer token for Bearer auth (only set if provided)
+  """
+  bearerToken: String
+
+  """
+  Custom HTTP headers (as JSON object)
+  """
+  headers: JSON
+
+  """
+  Template type for webhook payload
+  """
+  template: WebhookTemplate
+
+  """
+  Custom template body
+  """
+  customTemplate: String
+
+  """
+  Signing secret for HMAC signature (only set if provided)
+  """
+  signingSecret: String
+
+  """
+  Timeout in seconds
+  """
+  timeoutSeconds: Int
+
+  """
+  Whether to retry failed deliveries
+  """
+  retryEnabled: Boolean
+
+  """
+  Maximum retry attempts
+  """
+  maxRetries: Int
+
+  """
+  Whether webhook is enabled
+  """
+  enabled: Boolean
+}

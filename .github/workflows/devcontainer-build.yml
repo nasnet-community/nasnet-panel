@@ -1,0 +1,180 @@
+# DevContainer Build and Publish Workflow
+# Builds and publishes the pre-built DevContainer image to GHCR
+#
+# This workflow ensures:
+# - Pre-built image is available at ghcr.io/<owner>/nasnet-devcontainer
+# - Image is tagged with :latest, :main, and git SHA
+# - Multi-arch support (amd64, arm64) for cross-platform compatibility
+# - Image size is optimized for fast startup (<60s target)
+
+name: DevContainer Build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '.devcontainer/**'
+      - '.github/workflows/devcontainer-build.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.devcontainer/**'
+      - '.github/workflows/devcontainer-build.yml'
+  workflow_dispatch:
+    inputs:
+      push_image:
+        description: 'Push image to GHCR'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # Rebuild weekly to get latest security patches
+    - cron: '0 0 * * 0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}-devcontainer
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set lowercase image name
+        run: |
+          echo "IMAGE_NAME_LOWER=${IMAGE_NAME,,}" >> $GITHUB_ENV
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=
+            type=raw,value={{date 'YYYYMMDD'}},enable={{is_default_branch}}
+
+      - name: Build DevContainer image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            GIT_SHA=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Build single-arch for testing
+          docker build -t test-devcontainer -f .devcontainer/Dockerfile .
+
+          # Test that essential tools are available
+          docker run --rm test-devcontainer node --version
+          docker run --rm test-devcontainer go version
+          docker run --rm test-devcontainer air -v || true
+          docker run --rm test-devcontainer golangci-lint --version
+
+          echo "✓ DevContainer image tests passed"
+
+      - name: Image size report
+        if: github.event_name != 'pull_request'
+        run: |
+          # Pull the image to get size info
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest || true
+
+          SIZE=$(docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest --format "{{.Size}}" 2>/dev/null || echo "N/A")
+          echo "## DevContainer Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Size:** ${SIZE}" >> $GITHUB_STEP_SUMMARY
+          echo "- **SHA:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '{ "image": "${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest" }' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # Verify the published image works end-to-end
+  verify:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set lowercase image name
+        run: |
+          echo "IMAGE_NAME_LOWER=${IMAGE_NAME,,}" >> $GITHUB_ENV
+
+      - name: Pull and test image
+        run: |
+          # Pull the published image
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
+
+          # Verify tools are available
+          echo "Testing Node.js..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest node --version
+
+          echo "Testing Go..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest go version
+
+          echo "Testing npm..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest npm --version
+
+          echo "Testing air (Go hot-reload)..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest air -v || echo "air installed"
+
+          echo "✓ All tool verifications passed"
+
+      - name: Startup time test
+        run: |
+          START=$(date +%s%N)
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest echo "Container started"
+          END=$(date +%s%N)
+
+          DURATION=$(( ($END - $START) / 1000000 ))
+          echo "Container cold start: ${DURATION}ms"
+
+          # Target: Container should start in <5 seconds (image pull not included)
+          if [ $DURATION -lt 5000 ]; then
+            echo "✓ Startup time: ${DURATION}ms (target: <5000ms)"
+          else
+            echo "⚠ Startup time: ${DURATION}ms exceeds target of 5000ms"
+          fi

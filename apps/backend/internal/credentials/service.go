@@ -9,7 +9,7 @@
 package credentials
 
 import (
-	"backend/ent"
+	"backend/generated/ent"
 	"backend/internal/encryption"
 	"backend/pkg/ulid"
 	"context"

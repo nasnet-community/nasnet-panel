@@ -1,0 +1,36 @@
+{
+  "id": "security-firewall-attack",
+  "name": "Firewall Attack Detected",
+  "description": "Alert when firewall detects potential attack",
+  "category": "SECURITY",
+  "severity": "CRITICAL",
+  "eventType": "firewall.attack.detected",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "ATTACK_COUNT",
+      "label": "Attack Attempt Threshold",
+      "type": "INTEGER",
+      "required": true,
+      "defaultValue": "10",
+      "min": 1,
+      "max": 1000,
+      "unit": "attempts",
+      "description": "Number of attack attempts to trigger alert"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "attack_count",
+      "operator": "GREATER_THAN",
+      "value": "{{ATTACK_COUNT}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 5,
+    "periodSeconds": 300,
+    "groupByField": "source_ip"
+  },
+  "channels": ["email", "inapp"]
+}

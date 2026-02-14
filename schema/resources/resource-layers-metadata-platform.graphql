@@ -1,0 +1,203 @@
+# =============================================================================
+# Resource Layers 6-8: Metadata, Relationships, and Platform
+# =============================================================================
+# Resource lifecycle info, dependency relationships, and platform capabilities.
+#
+# Reference: ADR-012 - Universal State v2
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Layer 6: Resource Metadata
+# -----------------------------------------------------------------------------
+
+"""
+Layer 6: Resource lifecycle info, tags, ownership.
+System-managed with some user-editable fields.
+"""
+type ResourceMetadata {
+  "Resource creation timestamp"
+  createdAt: DateTime!
+
+  "User who created the resource"
+  createdBy: String!
+
+  "Last update timestamp"
+  updatedAt: DateTime!
+
+  "User who last updated the resource"
+  updatedBy: String
+
+  "Current lifecycle state"
+  state: ResourceLifecycleState!
+
+  "Optimistic locking version"
+  version: Int!
+
+  "User-defined tags for organization"
+  tags: [String!]!
+
+  "Resource description"
+  description: String
+
+  "Whether resource is marked as favorite"
+  isFavorite: Boolean!
+
+  "Whether resource is pinned"
+  isPinned: Boolean!
+
+  "Custom user notes"
+  notes: String
+
+  "Audit trail of recent changes"
+  recentChanges: [ChangeLogEntry!]
+}
+
+"""
+An entry in the change log
+"""
+type ChangeLogEntry {
+  "Change timestamp"
+  timestamp: DateTime!
+
+  "User who made the change"
+  user: String!
+
+  "Type of change"
+  changeType: ChangeType!
+
+  "Changed fields"
+  changedFields: [String!]!
+
+  "Brief description of the change"
+  summary: String
+}
+
+# -----------------------------------------------------------------------------
+# Layer 7: Resource Relationships
+# -----------------------------------------------------------------------------
+
+"""
+Layer 7: Dependencies and relationships between resources.
+Combines user-defined relationships and system-discovered dependencies.
+"""
+type ResourceRelationships {
+  "Resources this resource depends on"
+  dependsOn: [ResourceReference!]!
+
+  "Resources that depend on this resource"
+  dependents: [ResourceReference!]!
+
+  "Resource this routes traffic via"
+  routesVia: ResourceReference
+
+  "Resources that route traffic via this resource"
+  routedBy: [ResourceReference!]!
+
+  "Parent resource (for hierarchical resources)"
+  parent: ResourceReference
+
+  "Child resources (for hierarchical resources)"
+  children: [ResourceReference!]!
+
+  "Custom relationships"
+  custom: JSON
+}
+
+"""
+Reference to another resource
+"""
+type ResourceReference {
+  "Resource UUID"
+  uuid: ID!
+
+  "Resource scoped ID"
+  id: String!
+
+  "Resource type"
+  type: String!
+
+  "Resource category"
+  category: ResourceCategory!
+
+  "Current lifecycle state"
+  state: ResourceLifecycleState!
+}
+
+# -----------------------------------------------------------------------------
+# Layer 8: Platform Info
+# -----------------------------------------------------------------------------
+
+"""
+Layer 8: Platform-specific capabilities and field mappings.
+From platform adapter (MikroTik, OpenWrt, VyOS).
+"""
+type PlatformInfo {
+  "Current platform"
+  current: RouterPlatform!
+
+  "Platform-specific capabilities for this resource type"
+  capabilities: PlatformCapabilities!
+
+  "Field mappings between GraphQL and platform-native names"
+  fieldMappings: JSON
+
+  "Platform-specific limitations or constraints"
+  limitations: [PlatformLimitation!]
+
+  "Platform-specific features available"
+  features: [PlatformFeature!]
+}
+
+"""
+Platform capabilities for a resource type
+"""
+type PlatformCapabilities {
+  "Whether this resource type is supported"
+  isSupported: Boolean!
+
+  "Capability level"
+  level: CapabilityLevel!
+
+  "Minimum platform version required"
+  minVersion: String
+
+  "Required packages"
+  requiredPackages: [String!]
+
+  "Capability-specific details"
+  details: JSON
+}
+
+"""
+A platform-specific limitation
+"""
+type PlatformLimitation {
+  "Limitation identifier"
+  code: String!
+
+  "Human-readable description"
+  description: String!
+
+  "Affected fields"
+  affectedFields: [String!]
+
+  "Workaround if available"
+  workaround: String
+}
+
+"""
+A platform-specific feature
+"""
+type PlatformFeature {
+  "Feature identifier"
+  id: String!
+
+  "Feature name"
+  name: String!
+
+  "Whether feature is enabled"
+  enabled: Boolean!
+
+  "Feature description"
+  description: String
+}

@@ -1,0 +1,41 @@
+{
+  "id": "vpn-tunnel-down",
+  "name": "VPN Tunnel Down",
+  "description": "Alert when VPN tunnel goes down",
+  "category": "VPN",
+  "severity": "CRITICAL",
+  "eventType": "vpn.tunnel.down",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "DOWNTIME_SECONDS",
+      "label": "Downtime Threshold",
+      "type": "DURATION",
+      "required": true,
+      "defaultValue": "30",
+      "min": 10,
+      "max": 300,
+      "unit": "seconds",
+      "description": "How long tunnel must be down before alerting"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "tunnel_status",
+      "operator": "EQUALS",
+      "value": "down"
+    },
+    {
+      "field": "duration",
+      "operator": "GREATER_THAN",
+      "value": "{{DOWNTIME_SECONDS}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 300,
+    "groupByField": "tunnel_id"
+  },
+  "channels": ["email", "inapp"]
+}

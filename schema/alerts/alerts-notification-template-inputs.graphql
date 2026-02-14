@@ -1,0 +1,140 @@
+# -----------------------------------------------------------------------------
+# Input Types - Alert Notification Templates
+# -----------------------------------------------------------------------------
+
+"""
+Input for saving a custom alert template
+"""
+input SaveAlertTemplateInput {
+  """
+  Template name
+  """
+  name: String!
+
+  """
+  Template description
+  """
+  description: String!
+
+  """
+  Event type
+  """
+  eventType: String!
+
+  """
+  Notification channel
+  """
+  channel: NotificationChannel!
+
+  """
+  Subject template
+  """
+  subjectTemplate: String
+
+  """
+  Body template
+  """
+  bodyTemplate: String!
+
+  """
+  Template variables
+  """
+  variables: [AlertAlertTemplateVariableInput!]!
+
+  """
+  Tags
+  """
+  tags: [String!]
+
+  """
+  Metadata
+  """
+  metadata: JSON
+}
+
+"""
+Template variable input
+"""
+input AlertAlertTemplateVariableInput {
+  """
+  Variable name
+  """
+  name: String!
+
+  """
+  Display label
+  """
+  label: String!
+
+  """
+  Variable type
+  """
+  type: AlertTemplateVariableType!
+
+  """
+  Whether required
+  """
+  required: Boolean!
+
+  """
+  Default value
+  """
+  defaultValue: String
+
+  """
+  Description
+  """
+  description: String
+
+  """
+  Options for enum types
+  """
+  options: [String!]
+}
+
+"""
+Input for previewing a notification template
+Simpler input for template customization workflow
+"""
+input PreviewNotificationTemplateInput {
+  """
+  Event type for sample data generation
+  """
+  eventType: String!
+
+  """
+  Notification channel
+  """
+  channel: NotificationChannel!
+
+  """
+  Subject template (optional, not all channels use subjects)
+  """
+  subjectTemplate: String
+
+  """
+  Body template with Go template syntax
+  """
+  bodyTemplate: String!
+}
+
+"""
+Notification template preview result
+Simplified preview output for template customization
+"""
+type NotificationTemplatePreview {
+  """
+  Rendered subject line (empty if channel doesn't use subjects)
+  """
+  subject: String
+
+  """
+  Rendered body content
+  """
+  body: String!
+
+  """
+  Validation errors (empty array if valid)
+  """
+  errors: [String!]!
+}

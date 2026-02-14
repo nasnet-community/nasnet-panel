@@ -1,0 +1,36 @@
+{
+  "id": "security-high-bandwidth",
+  "name": "High Bandwidth Usage",
+  "description": "Alert when interface bandwidth exceeds threshold",
+  "category": "SECURITY",
+  "severity": "WARNING",
+  "eventType": "interface.traffic.high",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "BANDWIDTH_MBPS",
+      "label": "Bandwidth Threshold",
+      "type": "INTEGER",
+      "required": true,
+      "defaultValue": "100",
+      "min": 10,
+      "max": 10000,
+      "unit": "Mbps",
+      "description": "Bandwidth usage threshold in Mbps"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "bandwidth_mbps",
+      "operator": "GREATER_THAN",
+      "value": "{{BANDWIDTH_MBPS}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 2,
+    "periodSeconds": 600,
+    "groupByField": "interface_name"
+  },
+  "channels": ["email", "inapp"]
+}

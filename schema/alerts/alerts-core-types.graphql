@@ -1,0 +1,142 @@
+# -----------------------------------------------------------------------------
+# Alert Types - EmailConfig, AlertRule, AlertCondition
+# -----------------------------------------------------------------------------
+
+"""
+Email notification configuration
+"""
+type EmailConfig {
+  """
+  Whether email notifications are enabled
+  """
+  enabled: Boolean!
+
+  """
+  SMTP server hostname
+  """
+  host: String
+
+  """
+  SMTP server port
+  """
+  port: Int
+
+  """
+  SMTP username for authentication
+  """
+  username: String
+
+  """
+  Email sender address
+  """
+  fromAddress: String
+
+  """
+  Email sender display name
+  """
+  fromName: String
+
+  """
+  Array of recipient email addresses
+  """
+  toAddresses: [String!]!
+
+  """
+  Whether to use TLS/SSL
+  """
+  useTLS: Boolean
+
+  """
+  Skip TLS certificate verification (use with caution)
+  """
+  skipVerify: Boolean
+}
+
+"""
+Alert rule defines conditions that trigger notifications when met
+"""
+type AlertRule implements Node {
+  """
+  Globally unique identifier
+  """
+  id: ID!
+
+  """
+  Human-readable alert rule name
+  """
+  name: String!
+
+  """
+  Optional description of what this rule monitors
+  """
+  description: String
+
+  """
+  Event type to match (e.g., 'router.offline', 'interface.down', 'cpu.high')
+  """
+  eventType: String!
+
+  """
+  Array of conditions for event matching
+  """
+  conditions: [AlertCondition!]!
+
+  """
+  Alert severity level
+  """
+  severity: AlertSeverity!
+
+  """
+  Notification channels to use
+  """
+  channels: [String!]!
+
+  """
+  Throttle configuration to prevent alert spam
+  """
+  throttle: ThrottleConfig
+
+  """
+  Quiet hours configuration for non-critical alerts
+  """
+  quietHours: QuietHoursConfig
+
+  """
+  Escalation configuration for unacknowledged alerts (NAS-18.9)
+  """
+  escalation: EscalationConfig
+
+  """
+  Optional device ID filter - rule only applies to this device
+  """
+  deviceId: ID
+
+  """
+  Whether this alert rule is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Record creation timestamp
+  """
+  createdAt: DateTime!
+
+  """
+  Last update timestamp
+  """
+  updatedAt: DateTime!
+
+  """
+  Alerts triggered by this rule
+  """
+  alerts(
+    """
+    Filter by acknowledged status
+    """
+    acknowledged: Boolean
+    """
+    Limit number of results
+    """
+    limit: Int = 50
+  ): [Alert!]!
+}

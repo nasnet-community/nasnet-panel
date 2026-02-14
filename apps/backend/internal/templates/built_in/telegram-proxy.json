@@ -1,0 +1,108 @@
+{
+  "id": "telegram-proxy",
+  "name": "Telegram Proxy (Standalone)",
+  "description": "Standalone MTProxy server for Telegram access in restricted regions. Simple, lightweight, and focused on Telegram connectivity.",
+  "category": "messaging",
+  "scope": "single",
+  "version": "1.0.0",
+  "author": "NasNetConnect",
+  "tags": ["telegram", "mtproxy", "messaging", "proxy"],
+  "services": [
+    {
+      "serviceType": "mtproxy",
+      "name": "{{PROXY_NAME}}",
+      "configOverrides": {
+        "port": "{{PROXY_PORT}}",
+        "secret": "{{PROXY_SECRET}}",
+        "tag": "{{PROXY_TAG}}",
+        "workers": "{{WORKER_COUNT}}"
+      },
+      "memoryLimitMB": "{{MEMORY_LIMIT}}",
+      "cpuShares": 256,
+      "requiresBridge": true,
+      "portMappings": [
+        {
+          "internal": "{{PROXY_PORT}}",
+          "external": "{{PROXY_PORT}}",
+          "protocol": "tcp",
+          "purpose": "MTProxy Telegram proxy"
+        }
+      ]
+    }
+  ],
+  "configVariables": [
+    {
+      "name": "PROXY_NAME",
+      "type": "string",
+      "required": true,
+      "default": "telegram-proxy",
+      "description": "Name for the MTProxy instance",
+      "label": "Proxy Name",
+      "validationPattern": "^[a-z0-9-]{3,32}$"
+    },
+    {
+      "name": "PROXY_PORT",
+      "type": "port",
+      "required": true,
+      "default": "8443",
+      "description": "Port for MTProxy (443 or 8443 recommended for firewall evasion)",
+      "label": "Proxy Port"
+    },
+    {
+      "name": "PROXY_SECRET",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "MTProxy secret key (32 hex characters). Generate with: openssl rand -hex 16",
+      "label": "Secret Key",
+      "validationPattern": "^[0-9a-fA-F]{32}$"
+    },
+    {
+      "name": "PROXY_TAG",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Optional promotional tag from @MTProxybot",
+      "label": "Promotional Tag"
+    },
+    {
+      "name": "WORKER_COUNT",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Number of worker threads (1-8)",
+      "label": "Worker Count",
+      "minValue": 1,
+      "maxValue": 8
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "description": "Memory limit in MB",
+      "label": "Memory Limit (MB)",
+      "minValue": 32,
+      "maxValue": 256
+    }
+  ],
+  "suggestedRouting": [],
+  "estimatedResources": {
+    "totalMemoryMB": 64,
+    "totalCPUShares": 256,
+    "diskSpaceMB": 30,
+    "networkPorts": 1,
+    "vlansRequired": 1
+  },
+  "prerequisites": [
+    "At least 64MB free memory",
+    "One available network port (443 or 8443 recommended)",
+    "MTProxy secret key"
+  ],
+  "documentation": "This template deploys a standalone MTProxy server optimized for Telegram access. MTProxy is officially supported by Telegram and provides reliable connectivity in regions where Telegram is blocked. After deployment, share the proxy link with Telegram users to connect.\n\nTo generate a secret: openssl rand -hex 16\n\nProxy link format: https://t.me/proxy?server=YOUR_IP&port=PORT&secret=SECRET",
+  "examples": [
+    "Share Telegram access with friends in restricted countries",
+    "Maintain Telegram connectivity during blocks",
+    "Run a public Telegram proxy service"
+  ]
+}

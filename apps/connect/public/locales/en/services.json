@@ -1,0 +1,57 @@
+{
+  "services": {
+    "sharing": {
+      "export": {
+        "title": "Export Service Configuration",
+        "button": "Export",
+        "description": "Export this service configuration to share with others",
+        "format": {
+          "label": "Export Format",
+          "json": "JSON File",
+          "qr": "QR Code"
+        },
+        "redactSecrets": "Redact sensitive values",
+        "includeRouting": "Include device routing rules",
+        "download": "Download File",
+        "copy": "Copy to Clipboard",
+        "success": "Configuration exported successfully",
+        "error": "Failed to export configuration",
+        "qrTooLarge": "Config exceeds QR capacity (2KB). Use JSON export instead."
+      },
+      "import": {
+        "title": "Import Service Configuration",
+        "button": "Import",
+        "description": "Import a service configuration from a JSON file",
+        "selectFile": "Select File",
+        "dragDrop": "Drag and drop a file here, or click to browse",
+        "preview": "Preview Configuration",
+        "importing": "Importing configuration...",
+        "complete": "Import Complete",
+        "apply": "Apply Configuration",
+        "cancel": "Cancel",
+        "conflict": {
+          "title": "Instance Name Conflict",
+          "description": "An instance with this name already exists",
+          "skip": "Skip (don't import)",
+          "overwrite": "Overwrite existing instance",
+          "rename": "Rename imported instance"
+        },
+        "errors": {
+          "invalidFormat": "Invalid configuration format",
+          "incompatibleVersion": "Incompatible schema version",
+          "missingService": "Service not installed",
+          "validationFailed": "Configuration validation failed"
+        },
+        "redactedPrompt": "Re-enter sensitive values",
+        "redactedField": "This field was redacted during export",
+        "success": "Configuration imported successfully",
+        "error": "Failed to import configuration"
+      },
+      "qr": {
+        "title": "QR Code",
+        "scan": "Scan to Import",
+        "save": "Save as PNG"
+      }
+    }
+  }
+}

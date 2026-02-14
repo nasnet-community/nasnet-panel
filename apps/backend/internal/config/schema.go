@@ -1,0 +1,244 @@
+package config
+
+import (
+	"encoding/json"
+	"fmt"
+	"net"
+)
+
+// ConfigField represents a single configuration field in a service config schema.
+type ConfigField struct {
+	Name         string      `json:"name"`
+	Type         string      `json:"type"` // "string", "int", "bool", "ip", "port", "enum"
+	Required     bool        `json:"required"`
+	Default      interface{} `json:"default,omitempty"`
+	Description  string      `json:"description"`
+	EnumValues   []string    `json:"enum_values,omitempty"` // For enum type
+	Min          *int        `json:"min,omitempty"`         // For int/port types
+	Max          *int        `json:"max,omitempty"`         // For int/port types
+	Sensitive    bool        `json:"sensitive"`             // Marks sensitive fields (passwords, keys)
+	Placeholder  string      `json:"placeholder,omitempty"` // UI placeholder text
+	ValidateFunc string      `json:"validate_func,omitempty"`
+}
+
+// ConfigSchema defines the configuration schema for a service type.
+type ConfigSchema struct {
+	ServiceType string        `json:"service_type"`
+	Version     string        `json:"version"`
+	Fields      []ConfigField `json:"fields"`
+}
+
+// Validate validates the configuration schema.
+func (s *ConfigSchema) Validate() error {
+	if s.ServiceType == "" {
+		return fmt.Errorf("service_type is required")
+	}
+	if s.Version == "" {
+		return fmt.Errorf("version is required")
+	}
+	if len(s.Fields) == 0 {
+		return fmt.Errorf("at least one field is required")
+	}
+
+	// Validate each field
+	fieldNames := make(map[string]bool)
+	for i, field := range s.Fields {
+		if field.Name == "" {
+			return fmt.Errorf("field at index %d: name is required", i)
+		}
+		if fieldNames[field.Name] {
+			return fmt.Errorf("duplicate field name: %s", field.Name)
+		}
+		fieldNames[field.Name] = true
+
+		if field.Type == "" {
+			return fmt.Errorf("field %s: type is required", field.Name)
+		}
+
+		validTypes := map[string]bool{
+			"string": true,
+			"int":    true,
+			"bool":   true,
+			"ip":     true,
+			"port":   true,
+			"enum":   true,
+		}
+		if !validTypes[field.Type] {
+			return fmt.Errorf("field %s: invalid type %s", field.Name, field.Type)
+		}
+
+		// Enum type must have enum_values
+		if field.Type == "enum" && len(field.EnumValues) == 0 {
+			return fmt.Errorf("field %s: enum type requires enum_values", field.Name)
+		}
+
+		// Validate default value type if provided
+		if field.Default != nil {
+			if err := validateFieldValue(field.Name, field.Type, field.Default, field.EnumValues); err != nil {
+				return fmt.Errorf("field %s: default value invalid: %w", field.Name, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// ValidateConfig validates a user configuration against the schema.
+func (s *ConfigSchema) ValidateConfig(config map[string]interface{}) error {
+	// Check required fields
+	for _, field := range s.Fields {
+		value, exists := config[field.Name]
+
+		if !exists {
+			if field.Required {
+				return fmt.Errorf("required field %s is missing", field.Name)
+			}
+			continue
+		}
+
+		// Validate field value type and constraints
+		if err := validateFieldValue(field.Name, field.Type, value, field.EnumValues); err != nil {
+			return err
+		}
+
+		// Validate min/max for int/port types
+		if (field.Type == "int" || field.Type == "port") && value != nil {
+			var intVal int
+			switch v := value.(type) {
+			case int:
+				intVal = v
+			case float64:
+				intVal = int(v)
+			default:
+				return fmt.Errorf("field %s: expected int, got %T", field.Name, value)
+			}
+
+			if field.Min != nil && intVal < *field.Min {
+				return fmt.Errorf("field %s: value %d is less than minimum %d", field.Name, intVal, *field.Min)
+			}
+			if field.Max != nil && intVal > *field.Max {
+				return fmt.Errorf("field %s: value %d is greater than maximum %d", field.Name, intVal, *field.Max)
+			}
+		}
+	}
+
+	// Check for unknown fields
+	fieldMap := make(map[string]bool)
+	for _, field := range s.Fields {
+		fieldMap[field.Name] = true
+	}
+	for key := range config {
+		if !fieldMap[key] {
+			return fmt.Errorf("unknown field: %s", key)
+		}
+	}
+
+	return nil
+}
+
+// validateFieldValue validates a field value against its type.
+func validateFieldValue(fieldName, fieldType string, value interface{}, enumValues []string) error {
+	if value == nil {
+		return nil
+	}
+
+	switch fieldType {
+	case "string":
+		if _, ok := value.(string); !ok {
+			return fmt.Errorf("field %s: expected string, got %T", fieldName, value)
+		}
+
+	case "int":
+		switch value.(type) {
+		case int, float64:
+			// Valid
+		default:
+			return fmt.Errorf("field %s: expected int, got %T", fieldName, value)
+		}
+
+	case "bool":
+		if _, ok := value.(bool); !ok {
+			return fmt.Errorf("field %s: expected bool, got %T", fieldName, value)
+		}
+
+	case "ip":
+		strVal, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("field %s: expected IP address string, got %T", fieldName, value)
+		}
+		if net.ParseIP(strVal) == nil {
+			return fmt.Errorf("field %s: invalid IP address: %s", fieldName, strVal)
+		}
+
+	case "port":
+		var intVal int
+		switch v := value.(type) {
+		case int:
+			intVal = v
+		case float64:
+			intVal = int(v)
+		default:
+			return fmt.Errorf("field %s: expected port number, got %T", fieldName, value)
+		}
+		if intVal < 1 || intVal > 65535 {
+			return fmt.Errorf("field %s: port must be between 1 and 65535, got %d", fieldName, intVal)
+		}
+
+	case "enum":
+		strVal, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("field %s: expected enum string, got %T", fieldName, value)
+		}
+		validEnum := false
+		for _, enumVal := range enumValues {
+			if strVal == enumVal {
+				validEnum = true
+				break
+			}
+		}
+		if !validEnum {
+			return fmt.Errorf("field %s: invalid enum value %s (must be one of: %v)", fieldName, strVal, enumValues)
+		}
+
+	default:
+		return fmt.Errorf("field %s: unsupported type %s", fieldName, fieldType)
+	}
+
+	return nil
+}
+
+// MergeWithDefaults merges user config with default values from the schema.
+func (s *ConfigSchema) MergeWithDefaults(userConfig map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	// Start with default values
+	for _, field := range s.Fields {
+		if field.Default != nil {
+			result[field.Name] = field.Default
+		}
+	}
+
+	// Override with user-provided values
+	for key, value := range userConfig {
+		result[key] = value
+	}
+
+	return result
+}
+
+// ToJSON serializes the schema to JSON.
+func (s *ConfigSchema) ToJSON() ([]byte, error) {
+	return json.Marshal(s)
+}
+
+// FromJSON deserializes a schema from JSON.
+func FromJSON(data []byte) (*ConfigSchema, error) {
+	var schema ConfigSchema
+	if err := json.Unmarshal(data, &schema); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal schema: %w", err)
+	}
+	if err := schema.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid schema: %w", err)
+	}
+	return &schema, nil
+}

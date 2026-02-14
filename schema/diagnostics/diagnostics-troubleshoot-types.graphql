@@ -1,0 +1,197 @@
+# =============================================================================
+# Internet Troubleshooting (No Internet Wizard)
+# =============================================================================
+# This schema provides types and operations for diagnosing internet connectivity
+# issues on routers, running automated diagnostics, and applying fixes.
+# Story: NAS-5.11 - Implement No Internet Troubleshooting Wizard
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Internet Troubleshooting Types
+# -----------------------------------------------------------------------------
+
+"""
+Diagnostic step identifier for internet troubleshooting
+"""
+enum TroubleshootStepType {
+  "Check WAN interface status"
+  WAN
+  "Ping default gateway"
+  GATEWAY
+  "Ping external internet server"
+  INTERNET
+  "Test DNS resolution"
+  DNS
+  "Verify NAT/masquerade rules"
+  NAT
+}
+
+"""
+Status of a diagnostic step
+"""
+enum TroubleshootStepStatus {
+  "Step not yet started"
+  PENDING
+  "Step currently executing"
+  RUNNING
+  "Step completed successfully"
+  PASSED
+  "Step failed"
+  FAILED
+  "Step skipped"
+  SKIPPED
+}
+
+"""
+Confidence level for a fix suggestion
+"""
+enum FixConfidence {
+  "High confidence this fix will resolve the issue"
+  HIGH
+  "Medium confidence, may resolve the issue"
+  MEDIUM
+  "Low confidence, worth trying as last resort"
+  LOW
+}
+
+"""
+Status of a fix application
+"""
+enum FixApplicationStatus {
+  "Fix is available but not yet applied"
+  AVAILABLE
+  "Fix is being applied"
+  APPLYING
+  "Fix was applied successfully"
+  APPLIED
+  "Fix application failed"
+  FAILED
+  "Fix was applied but issue persists"
+  ISSUE_PERSISTS
+}
+
+"""
+Result of a single diagnostic step
+"""
+type TroubleshootStepResult {
+  "Whether the check passed"
+  success: Boolean!
+  "User-friendly message about the result"
+  message: String!
+  "Technical details for debugging"
+  details: String
+  "Execution time in milliseconds"
+  executionTimeMs: Int!
+  "Detected error code"
+  issueCode: String
+  "Target that was checked (IP, interface name, etc.)"
+  target: String
+}
+
+"""
+Suggested fix for a failed diagnostic step
+"""
+type TroubleshootFixSuggestion {
+  "Unique issue code (e.g., WAN_DISABLED, NO_DEFAULT_ROUTE)"
+  issueCode: String!
+  "User-friendly fix title"
+  title: String!
+  "Detailed explanation of what will be fixed"
+  explanation: String!
+  "Confidence level for this fix"
+  confidence: FixConfidence!
+  "Whether user confirmation is required before applying"
+  requiresConfirmation: Boolean!
+  "Whether this is a manual fix (requires user action)"
+  isManualFix: Boolean!
+  "Manual steps if this cannot be automated"
+  manualSteps: [String!]
+  "RouterOS command that will be executed"
+  command: String
+  "Rollback command if fix needs to be reverted"
+  rollbackCommand: String
+}
+
+"""
+ISP contact information
+"""
+type ISPInfo {
+  "ISP name"
+  name: String!
+  "ISP support phone number"
+  phone: String
+  "ISP support website URL"
+  url: String
+}
+
+"""
+A single step in the troubleshooting wizard
+"""
+type TroubleshootStep {
+  "Step type/ID"
+  id: TroubleshootStepType!
+  "Step display name"
+  name: String!
+  "Step description"
+  description: String!
+  "Current status of this step"
+  status: TroubleshootStepStatus!
+  "Result of executing this step"
+  result: TroubleshootStepResult
+  "Suggested fix if step failed"
+  fix: TroubleshootFixSuggestion
+  "When the step started"
+  startedAt: DateTime
+  "When the step completed"
+  completedAt: DateTime
+}
+
+"""
+Complete troubleshooting session
+"""
+type TroubleshootSession {
+  "Unique session identifier"
+  id: ID!
+  "Router being diagnosed"
+  routerId: ID!
+  "All diagnostic steps"
+  steps: [TroubleshootStep!]!
+  "Current step index (0-based)"
+  currentStepIndex: Int!
+  "Overall session status"
+  status: TroubleshootSessionStatus!
+  "Detected WAN interface name"
+  wanInterface: String
+  "Detected default gateway IP"
+  gateway: String
+  "Detected ISP information"
+  ispInfo: ISPInfo
+  "Fixes that have been applied"
+  appliedFixes: [String!]!
+  "When the session started"
+  startedAt: DateTime!
+  "When the session completed"
+  completedAt: DateTime
+}
+
+"""
+Overall status of a troubleshooting session
+"""
+enum TroubleshootSessionStatus {
+  "Session created but not started"
+  IDLE
+  "Detecting network configuration"
+  INITIALIZING
+  "Running diagnostic steps"
+  RUNNING
+  "Waiting for user decision on fix"
+  AWAITING_FIX_DECISION
+  "Applying a fix"
+  APPLYING_FIX
+  "Verifying fix worked"
+  VERIFYING_FIX
+  "Session completed"
+  COMPLETED
+  "Session was cancelled"
+  CANCELLED
+}

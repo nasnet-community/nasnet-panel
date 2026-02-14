@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/router"
 
 	"github.com/oklog/ulid/v2"

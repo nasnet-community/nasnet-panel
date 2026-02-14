@@ -1,0 +1,137 @@
+# ============================================
+# GATEWAY TYPES
+# ============================================
+
+"""
+Gateway monitoring information for SOCKS-to-TUN gateway instances.
+Provides visibility into hev-socks5-tunnel processes.
+"""
+type GatewayInfo {
+  """Current gateway state"""
+  state: GatewayState!
+
+  """TUN interface name (e.g., tun-tor-usa)"""
+  tunName: String
+
+  """Process ID of gateway"""
+  pid: Int
+
+  """Uptime duration in seconds"""
+  uptime: Int
+
+  """Last health check timestamp"""
+  lastHealthCheck: DateTime
+
+  """Error message if in ERROR state"""
+  errorMessage: String
+}
+
+"""Gateway process state for monitoring"""
+enum GatewayState {
+  """Gateway is running normally"""
+  RUNNING
+
+  """Gateway is stopped"""
+  STOPPED
+
+  """Gateway encountered an error"""
+  ERROR
+
+  """Service does not need a gateway"""
+  NOT_NEEDED
+}
+
+# ============================================
+# BINARY VERIFICATION TYPES
+# ============================================
+
+"""
+Binary verification information for a service instance.
+Contains hashes and verification status for security auditing.
+"""
+type BinaryVerification {
+  """Whether binary verification is enabled for this instance"""
+  enabled: Boolean!
+
+  """SHA256 hash of the original downloaded archive (from checksums.txt)"""
+  archiveHash: String
+
+  """SHA256 hash of the extracted binary (computed at runtime)"""
+  binaryHash: String
+
+  """Whether GPG signature verification was performed and passed"""
+  gpgVerified: Boolean!
+
+  """GPG key ID that signed the checksums file"""
+  gpgKeyID: String
+
+  """URL where checksums.txt was fetched from"""
+  checksumsURL: String
+
+  """Timestamp when binary was last verified"""
+  verifiedAt: DateTime
+
+  """Verification status (valid, invalid, pending, not_verified)"""
+  status: VerificationStatus!
+}
+
+"""
+Binary verification status.
+"""
+enum VerificationStatus {
+  """Binary passed verification"""
+  VALID
+
+  """Binary failed verification (hash mismatch)"""
+  INVALID
+
+  """Verification in progress"""
+  PENDING
+
+  """Verification not performed (disabled or missing data)"""
+  NOT_VERIFIED
+}
+
+"""
+Verification event for subscriptions.
+"""
+type VerificationEvent {
+  """Instance ID"""
+  instanceID: ID!
+
+  """Feature ID"""
+  featureID: String!
+
+  """Router ID"""
+  routerID: ID!
+
+  """Event type (verified, verification_failed, integrity_failed)"""
+  eventType: String!
+
+  """Archive hash"""
+  archiveHash: String
+
+  """Binary hash"""
+  binaryHash: String
+
+  """Expected hash (for failures)"""
+  expectedHash: String
+
+  """Actual hash (for failures)"""
+  actualHash: String
+
+  """GPG verified"""
+  gpgVerified: Boolean!
+
+  """GPG key ID"""
+  gpgKeyID: String
+
+  """Failure reason (for failures)"""
+  failureReason: String
+
+  """Suggested action (for failures)"""
+  suggestedAction: String
+
+  """Timestamp"""
+  timestamp: DateTime!
+}

@@ -3,9 +3,8 @@ package mikrotik
 import (
 	"context"
 	"fmt"
-	"strings"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/router"
 )
 
@@ -87,8 +86,10 @@ func (a *MikroTikAdapter) CreatePortMirror(
 
 	// Determine which mirror fields to set based on direction
 	direction := model.MirrorDirectionBoth
-	if input.Direction != nil {
-		direction = *input.Direction
+	if input.Direction.IsSet() {
+		if val := input.Direction.Value(); val != nil {
+			direction = *val
+		}
 	}
 
 	// Update each source port with mirror settings
@@ -105,8 +106,10 @@ func (a *MikroTikAdapter) CreatePortMirror(
 			args["mirror-egress"] = destInterface
 		}
 
-		if input.Comment != nil && *input.Comment != "" {
-			args["comment"] = *input.Comment
+		if input.Comment.IsSet() {
+			if val := input.Comment.Value(); val != nil && *val != "" {
+				args["comment"] = *val
+			}
 		}
 
 		cmd := router.Command{
@@ -139,7 +142,10 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 	}
 
 	// If source interfaces or destination changed, we need to clear old config and set new
-	if input.SourceInterfaceIds != nil || input.DestinationInterfaceID != nil {
+	sourceChanged := input.SourceInterfaceIds.IsSet()
+	destChanged := input.DestinationInterfaceID.IsSet()
+
+	if sourceChanged || destChanged {
 		// Clear existing mirror settings on old source ports
 		for _, source := range existingMirror.SourceInterfaces {
 			clearArgs := map[string]string{
@@ -159,9 +165,11 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 			}
 		}
 
-		// Set new configuration
-		sourceIDs := input.SourceInterfaceIds
-		if sourceIDs == nil {
+		// Determine new source IDs
+		var sourceIDs []string
+		if sourceChanged {
+			sourceIDs = input.SourceInterfaceIds.Value()
+		} else {
 			// Use existing sources
 			sourceIDs = make([]string, len(existingMirror.SourceInterfaces))
 			for i, src := range existingMirror.SourceInterfaces {
@@ -169,19 +177,24 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 			}
 		}
 
-		destID := input.DestinationInterfaceID
-		if destID == nil {
-			destID = &existingMirror.DestinationInterface.ID
+		// Determine new destination
+		destID := existingMirror.DestinationInterface.ID
+		if destChanged {
+			if val := input.DestinationInterfaceID.Value(); val != nil {
+				destID = *val
+			}
 		}
 
-		destInterface, err := a.getInterfaceName(ctx, *destID)
+		destInterface, err := a.getInterfaceName(ctx, destID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get destination interface: %w", err)
 		}
 
 		direction := existingMirror.Direction
-		if input.Direction != nil {
-			direction = *input.Direction
+		if input.Direction.IsSet() {
+			if val := input.Direction.Value(); val != nil {
+				direction = *val
+			}
 		}
 
 		for _, sourceID := range sourceIDs {
@@ -197,8 +210,10 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 				args["mirror-egress"] = destInterface
 			}
 
-			if input.Comment != nil {
-				args["comment"] = *input.Comment
+			if input.Comment.IsSet() {
+				if val := input.Comment.Value(); val != nil {
+					args["comment"] = *val
+				}
 			}
 
 			cmd := router.Command{
@@ -217,15 +232,17 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 	}
 
 	// Only updating direction or comment on existing ports
-	if input.Direction != nil || input.Comment != nil {
+	if input.Direction.IsSet() || input.Comment.IsSet() {
 		destInterface, err := a.getInterfaceName(ctx, existingMirror.DestinationInterface.ID)
 		if err != nil {
 			return nil, err
 		}
 
 		direction := existingMirror.Direction
-		if input.Direction != nil {
-			direction = *input.Direction
+		if input.Direction.IsSet() {
+			if val := input.Direction.Value(); val != nil {
+				direction = *val
+			}
 		}
 
 		for _, source := range existingMirror.SourceInterfaces {
@@ -246,8 +263,10 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 				args["mirror-egress"] = destInterface
 			}
 
-			if input.Comment != nil {
-				args["comment"] = *input.Comment
+			if input.Comment.IsSet() {
+				if val := input.Comment.Value(); val != nil {
+					args["comment"] = *val
+				}
 			}
 
 			cmd := router.Command{
@@ -479,6 +498,7 @@ func addPortToGroup(groups map[string]*portMirrorGroup, dest string, direction m
 		sourceIface := &model.Interface{
 			ID:   getString(port, ".id"),
 			Name: ifaceName,
+			Type: model.InterfaceTypeOther,
 		}
 		group.sources = append(group.sources, sourceIface)
 	}
@@ -493,6 +513,7 @@ func createInterfaceStub(name string) *model.Interface {
 	return &model.Interface{
 		ID:   name,
 		Name: name,
+		Type: model.InterfaceTypeOther,
 	}
 }
 
@@ -506,9 +527,9 @@ func getString(data map[string]interface{}, key string) string {
 // validateBridgeMember checks if an interface is a bridge member.
 func (a *MikroTikAdapter) validateBridgeMember(ctx context.Context, interfaceID string) error {
 	cmd := router.Command{
-		Path:   "/interface/bridge/port",
-		Action: "print",
-		Query:  map[string]string{".id": interfaceID},
+		Path:        "/interface/bridge/port",
+		Action:      "print",
+		QueryFilter: map[string]string{".id": interfaceID},
 	}
 
 	result, err := a.Execute(ctx, cmd)
@@ -526,9 +547,9 @@ func (a *MikroTikAdapter) validateBridgeMember(ctx context.Context, interfaceID 
 // validateInterface checks if an interface exists.
 func (a *MikroTikAdapter) validateInterface(ctx context.Context, interfaceID string) error {
 	cmd := router.Command{
-		Path:   "/interface",
-		Action: "print",
-		Query:  map[string]string{".id": interfaceID},
+		Path:        "/interface",
+		Action:      "print",
+		QueryFilter: map[string]string{".id": interfaceID},
 	}
 
 	result, err := a.Execute(ctx, cmd)
@@ -546,10 +567,10 @@ func (a *MikroTikAdapter) validateInterface(ctx context.Context, interfaceID str
 // getInterfaceName retrieves the name of an interface by ID.
 func (a *MikroTikAdapter) getInterfaceName(ctx context.Context, interfaceID string) (string, error) {
 	cmd := router.Command{
-		Path:   "/interface",
-		Action: "print",
-		Query:  map[string]string{".id": interfaceID},
-		Props:  []string{"name"},
+		Path:        "/interface",
+		Action:      "print",
+		QueryFilter: map[string]string{".id": interfaceID},
+		Props:       []string{"name"},
 	}
 
 	result, err := a.Execute(ctx, cmd)
@@ -576,9 +597,9 @@ func (a *MikroTikAdapter) GetPortMirrorStats(
 ) (*model.PortMirrorStats, error) {
 	// Query interface statistics
 	cmd := router.Command{
-		Path:   "/interface",
-		Action: "print",
-		Query:  map[string]string{".id": destinationInterfaceID},
+		Path:        "/interface",
+		Action:      "print",
+		QueryFilter: map[string]string{".id": destinationInterfaceID},
 		Props: []string{
 			"tx-byte", "rx-byte",
 			"tx-packet", "rx-packet",
@@ -598,10 +619,9 @@ func (a *MikroTikAdapter) GetPortMirrorStats(
 	stats := result[0]
 
 	// Calculate mirrored traffic (this is an approximation based on RX traffic)
-	// In reality, mirrored traffic stats would need to be tracked separately
-	mirroredBytes := getString(stats, "rx-byte")
-	mirroredPackets := getString(stats, "rx-packet")
-	drops := parseInt(stats, "rx-drop") + parseInt(stats, "tx-drop")
+	mirroredBytes := model.Size(getString(stats, "rx-byte"))
+	mirroredPackets := model.Size(getString(stats, "rx-packet"))
+	drops := parseIntFromMap(stats, "rx-drop") + parseIntFromMap(stats, "tx-drop")
 
 	return &model.PortMirrorStats{
 		MirroredBytes:   mirroredBytes,
@@ -611,7 +631,7 @@ func (a *MikroTikAdapter) GetPortMirrorStats(
 	}, nil
 }
 
-func parseInt(data map[string]interface{}, key string) int {
+func parseIntFromMap(data map[string]interface{}, key string) int {
 	if val, ok := data[key].(int); ok {
 		return val
 	}
@@ -622,7 +642,6 @@ func parseInt(data map[string]interface{}, key string) int {
 		return int(val)
 	}
 	if val, ok := data[key].(string); ok {
-		// Try to parse string to int
 		var result int
 		fmt.Sscanf(val, "%d", &result)
 		return result

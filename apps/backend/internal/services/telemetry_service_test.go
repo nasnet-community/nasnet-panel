@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"backend/graph/model"
+	"backend/generated/graphql"
 	"backend/internal/events"
 
 	"github.com/stretchr/testify/assert"

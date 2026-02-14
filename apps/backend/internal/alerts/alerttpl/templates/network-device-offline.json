@@ -1,0 +1,41 @@
+{
+  "id": "network-device-offline",
+  "name": "Device Offline Alert",
+  "description": "Alert when a monitored device goes offline for a specified duration",
+  "category": "NETWORK",
+  "severity": "CRITICAL",
+  "eventType": "device.offline",
+  "isBuiltIn": true,
+  "version": "1.0.0",
+  "variables": [
+    {
+      "name": "DURATION_SECONDS",
+      "label": "Offline Duration",
+      "type": "DURATION",
+      "required": true,
+      "defaultValue": "60",
+      "min": 30,
+      "max": 3600,
+      "unit": "seconds",
+      "description": "How long the device must be offline before alerting"
+    }
+  ],
+  "conditions": [
+    {
+      "field": "status",
+      "operator": "EQUALS",
+      "value": "offline"
+    },
+    {
+      "field": "duration",
+      "operator": "GREATER_THAN",
+      "value": "{{DURATION_SECONDS}}"
+    }
+  ],
+  "throttle": {
+    "maxAlerts": 1,
+    "periodSeconds": 300,
+    "groupByField": "device_id"
+  },
+  "channels": ["email", "inapp"]
+}

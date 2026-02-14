@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"backend/ent"
-	"backend/ent/enttest"
-	"backend/ent/alertrule"
+	"backend/generated/ent"
+	"backend/generated/ent/enttest"
+	"backend/generated/ent/alertrule"
 	"backend/internal/events"
 	"backend/internal/notifications"
 	"go.uber.org/zap/zaptest"

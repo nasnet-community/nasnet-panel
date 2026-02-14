@@ -1,0 +1,105 @@
+# =============================================================================
+# Platform, Capability, and Infrastructure Directives
+# =============================================================================
+# Platform mapping (@mikrotik, @openwrt, @vyos), capability gating
+# (@capability), real-time (@realtime), caching (@cache), migration
+# (@migrateFrom), and auth (@auth) directives.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Platform Mapping Directives
+# -----------------------------------------------------------------------------
+# These directives map GraphQL fields to platform-specific API paths.
+# The resolver layer uses these to translate operations to router commands.
+# -----------------------------------------------------------------------------
+
+"""
+Maps field to MikroTik RouterOS API path and command
+"""
+directive @mikrotik(
+  "RouterOS API path (e.g., '/ip/address', '/interface/ethernet')"
+  path: String!
+  "Field name in RouterOS response if different from GraphQL field"
+  field: String
+  "RouterOS command (print, add, set, remove) - defaults to contextual"
+  cmd: String
+) on FIELD_DEFINITION | OBJECT
+
+"""
+Maps field to OpenWrt ubus call
+"""
+directive @openwrt(
+  "Ubus namespace and method (e.g., 'network.interface', 'system.board')"
+  ubus: String!
+  "Method to call (list, call, etc.)"
+  method: String
+  "Field name in ubus response if different from GraphQL field"
+  field: String
+) on FIELD_DEFINITION | OBJECT
+
+"""
+Maps field to VyOS configuration path
+"""
+directive @vyos(
+  "VyOS configuration path (e.g., 'interfaces ethernet eth0')"
+  path: String!
+  "Field name in VyOS response if different from GraphQL field"
+  field: String
+) on FIELD_DEFINITION | OBJECT
+
+# -----------------------------------------------------------------------------
+# Capability Directive
+# -----------------------------------------------------------------------------
+# Gates field access based on router capabilities.
+# -----------------------------------------------------------------------------
+directive @capability(
+  "List of required capability identifiers"
+  requires: [String!]!
+) on FIELD_DEFINITION | OBJECT
+
+# -----------------------------------------------------------------------------
+# Subscription Directive
+# -----------------------------------------------------------------------------
+directive @realtime(
+  "Update interval in milliseconds"
+  interval: Int
+  "Topic/channel name for pub/sub"
+  topic: String
+) on FIELD_DEFINITION
+
+# -----------------------------------------------------------------------------
+# Caching Directive
+# -----------------------------------------------------------------------------
+directive @cache(
+  "Maximum age in seconds"
+  maxAge: Int!
+  "Cache scope (PRIVATE for user-specific, PUBLIC for shared)"
+  scope: CacheScope
+) on FIELD_DEFINITION
+
+enum CacheScope {
+  PRIVATE
+  PUBLIC
+}
+
+# -----------------------------------------------------------------------------
+# Deprecated with migration hint
+# -----------------------------------------------------------------------------
+directive @migrateFrom(
+  "The old field/type name this replaces"
+  field: String!
+  "Version when migration should be complete"
+  removeInVersion: String
+) on FIELD_DEFINITION | OBJECT | INPUT_FIELD_DEFINITION
+
+# -----------------------------------------------------------------------------
+# Auth Directive
+# -----------------------------------------------------------------------------
+"""
+Requires authentication to access this field.
+Optionally requires a specific role or permission.
+"""
+directive @auth(
+  "Required role or permission level (e.g., 'admin', 'operator', 'viewer')"
+  requires: String
+) on FIELD_DEFINITION | OBJECT

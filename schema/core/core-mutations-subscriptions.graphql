@@ -1,0 +1,87 @@
+# =============================================================================
+# Core Mutations and Subscriptions
+# =============================================================================
+# Root Mutation and Subscription types for router, capability, and interface
+# management.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Mutation Root
+# -----------------------------------------------------------------------------
+
+type Mutation {
+  # Router Management
+  "Add a new router to manage"
+  createRouter(input: CreateRouterInput!): CreateRouterPayload!
+  "Update router settings"
+  updateRouter(id: ID!, input: UpdateRouterInput!): UpdateRouterPayload!
+  "Remove a router"
+  deleteRouter(id: ID!): DeleteRouterPayload!
+  "Test connection to a router"
+  testRouterConnection(id: ID!): TestConnectionPayload!
+  "Connect to a router"
+  connectRouter(id: ID!): ConnectRouterPayload!
+  "Disconnect from a router"
+  disconnectRouter(id: ID!): DisconnectRouterPayload!
+
+  # Capability Management
+  "Force refresh router capabilities (invalidates cache)"
+  refreshCapabilities(routerId: ID!): RefreshCapabilitiesPayload!
+
+  # Interface Management
+  "Update interface settings (MTU, comment, ARP mode)"
+  updateInterface(
+    routerId: ID!
+    interfaceId: ID!
+    input: UpdateInterfaceInput!
+  ): UpdateInterfacePayload!
+
+  "Enable an interface"
+  enableInterface(
+    routerId: ID!
+    interfaceId: ID!
+  ): UpdateInterfacePayload!
+
+  "Disable an interface"
+  disableInterface(
+    routerId: ID!
+    interfaceId: ID!
+  ): UpdateInterfacePayload!
+
+  "Batch operation on multiple interfaces"
+  batchInterfaceOperation(
+    routerId: ID!
+    input: BatchInterfaceInput!
+  ): BatchInterfacePayload!
+
+  # Device Scanning mutations are defined in scanner.graphql
+}
+
+# -----------------------------------------------------------------------------
+# Subscription Root
+# -----------------------------------------------------------------------------
+
+type Subscription {
+  "Subscribe to router status changes"
+  routerStatusChanged(routerId: ID): RouterStatusEvent!
+
+  "Subscribe to real-time resource metrics updates"
+  resourceMetrics(
+    "Device ID to monitor"
+    deviceId: ID!
+  ): ResourceMetrics! @realtime(interval: 2000)
+
+  "Subscribe to interface traffic updates"
+  interfaceTraffic(
+    routerId: ID!
+    interfaceId: ID
+  ): InterfaceTrafficEvent! @realtime(interval: 1000)
+
+  "Subscribe to resource updates (create, update, delete)"
+  resourceUpdated(resourceId: ID): ResourceUpdatedEvent!
+
+  "Subscribe to configuration apply progress"
+  configApplyProgress(operationId: ID!): ConfigProgress!
+
+  # Device scan subscriptions are defined in scanner.graphql
+}

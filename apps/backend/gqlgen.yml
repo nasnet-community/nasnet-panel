@@ -10,36 +10,32 @@
 # Schema files location (relative to this config file)
 # Fragment files are excluded (fragments are for client-side queries only)
 schema:
-  - "../../schema/scalars.graphql"
-  - "../../schema/directives.graphql"
-  - "../../schema/schema.graphql"
-  - "../../schema/auth.graphql"
-  - "../../schema/connection.graphql"
-  - "../../schema/credentials.graphql"
-  - "../../schema/scanner.graphql"
-  - "../../schema/resource-layers.graphql"
-  - "../../schema/change-set.graphql"
-  - "../../schema/diagnostics.graphql"
-  - "../../schema/alerts.graphql"
-  - "../../schema/router-add.graphql"
-  - "../../schema/resource.graphql"
-  - "../../schema/composite-resources.graphql"
-  - "../../schema/network.graphql"
-  - "../../schema/bridge.graphql"
-  - "../../schema/wan.graphql"
-  - "../../schema/firewall.graphql"
+  - "../../schema/*.graphql"
+  - "../../schema/core/*.graphql"
+  - "../../schema/alerts/*.graphql"
+  - "../../schema/services/*.graphql"
+  - "../../schema/network/*.graphql"
+  - "../../schema/firewall/*.graphql"
+  - "../../schema/diagnostics/*.graphql"
+  - "../../schema/wan/*.graphql"
+  - "../../schema/resources/*.graphql"
+  - "../../schema/changeset/*.graphql"
+  - "../../schema/storage/*.graphql"
 
 # Generated server code
 exec:
-  filename: graph/generated.go
-  package: graph
+  layout: single-file
+  filename: generated/graphql/generated.go
+  package: graphql
 
 # Generated model structs
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: generated/graphql/models.go
+  package: graphql
 
 # Resolver implementation
+# Resolvers are manually maintained in graph/resolver/
+# This config points gqlgen to them but doesn't regenerate them
 resolver:
   layout: follow-schema
   dir: graph/resolver
@@ -49,6 +45,7 @@ resolver:
 # Automatically bind Go types to GraphQL types
 autobind:
   - "backend/graph/model"
+  - "backend/generated/graphql"
 
 # Custom scalar mappings
 models:

@@ -1,0 +1,306 @@
+//go:build !dev
+// +build !dev
+
+package main
+
+import (
+	"context"
+	"log"
+	"log/slog"
+	"path/filepath"
+	"time"
+
+	"github.com/rs/zerolog"
+
+	"nasnet/data/ent"
+	"backend/internal/events"
+	"backend/internal/features"
+	"backend/internal/features/updates"
+	"backend/internal/network"
+	"backend/internal/notifications"
+	channelshttp "backend/internal/notifications/channels/http"
+	"backend/internal/notifications/channels/push"
+	"backend/internal/orchestrator"
+	"backend/internal/router"
+	"backend/internal/services"
+	"backend/internal/storage"
+	"backend/internal/templates"
+	"backend/internal/vif"
+)
+
+// prodServiceDeps holds dependencies for initializing production services.
+type prodServiceDeps struct {
+	eventBus         events.EventBus
+	storagePublisher *events.Publisher
+	storageLogger    zerolog.Logger
+	systemDB         *ent.Client
+	mockRouterPort   *router.MockAdapter
+	pathResolver     storage.PathResolverPort // nil; created inside
+	dataDir          string
+}
+
+// prodServices holds all initialized production service instances.
+type prodServices struct {
+	storageDetector    *storage.StorageDetector
+	storageConfig      *storage.StorageConfigService
+	pathResolver       storage.PathResolverPort
+	gatewayManager     orchestrator.GatewayPort
+	featureRegistry    *features.FeatureRegistry
+	instanceManager    *orchestrator.InstanceManager
+	portRegistry       *network.PortRegistry
+	vlanAllocator      *network.VLANAllocator
+	dependencyMgr      *orchestrator.DependencyManager
+	bootSequenceMgr    *orchestrator.BootSequenceManager
+	updateSvc          *features.UpdateService
+	updateScheduler    *features.UpdateScheduler
+	serviceTemplateSvc *templates.TemplateService
+	templateInstaller  *templates.TemplateInstaller
+	templateExporter   *templates.TemplateExporter
+	templateImporter   *templates.TemplateImporter
+}
+
+// initNotificationChannels creates all notification channels.
+func initNotificationChannels(eventBus events.EventBus) map[string]notifications.Channel {
+	return map[string]notifications.Channel{
+		"email":    channelshttp.NewEmailChannel(channelshttp.EmailConfig{}),
+		"telegram": push.NewTelegramChannel(push.TelegramConfig{}),
+		"pushover": push.NewPushoverChannel(push.PushoverConfig{}),
+		"webhook":  channelshttp.NewWebhookChannel(channelshttp.WebhookConfig{}),
+		"inapp":    push.NewInAppChannel(eventBus),
+	}
+}
+
+// initProdServices initializes storage, VIF, orchestrator, updates, and templates.
+func initProdServices(deps prodServiceDeps) prodServices {
+	// ========== Storage Infrastructure ==========
+	storageDetector := storage.NewStorageDetector(storage.DefaultStorageDetectorConfig(
+		deps.storagePublisher, deps.storageLogger,
+	))
+	storageDetector.Start()
+
+	storageConfigService := storage.NewStorageConfigService(
+		deps.systemDB, storageDetector, deps.storagePublisher, deps.storageLogger,
+	)
+
+	pathResolver := storage.NewDefaultPathResolver(storage.DefaultPathResolverConfig())
+
+	bootValidator, err := orchestrator.NewBootValidator(orchestrator.BootValidatorConfig{
+		DB: deps.systemDB, PathResolver: pathResolver,
+		EventBus: deps.eventBus, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create boot validator: %v", err)
+	}
+	bootSummary, err := bootValidator.ValidateAllInstances(context.Background())
+	if err != nil {
+		log.Printf("Warning: boot validation encountered errors: %v", err)
+	}
+	if bootSummary != nil {
+		log.Printf("Boot validation: %d checked, %d failed", bootSummary.TotalChecked, bootSummary.FailedCount)
+	}
+
+	// ========== Virtual Interface Factory (VIF) ==========
+	vlanAllocVIF := vif.NewSimpleVLANAllocator(100, 199)
+
+	interfaceFactory := vif.NewInterfaceFactory(vif.InterfaceFactoryConfig{
+		RouterPort: deps.mockRouterPort, Store: deps.systemDB,
+		EventBus: deps.eventBus, ParentIface: "ether1",
+	})
+
+	gatewayManager, err := vif.NewGatewayManager(vif.GatewayManagerConfig{
+		Supervisor: orchestrator.NewProcessSupervisor(orchestrator.ProcessSupervisorConfig{Logger: deps.storageLogger}), PathResolver: pathResolver,
+		HevBinaryPath: "/app/hev-socks5-tunnel", Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create gateway manager: %v", err)
+	}
+
+	bridgeOrchestrator := vif.NewBridgeOrchestrator(vif.BridgeOrchestratorConfig{
+		InterfaceFactory: interfaceFactory, GatewayManager: gatewayManager,
+		VLANAllocator: vlanAllocVIF, Store: deps.systemDB,
+		EventBus: deps.eventBus, RouterPort: deps.mockRouterPort,
+	})
+
+	// ========== Service Instance Orchestrator ==========
+	featureRegistry, err := features.NewFeatureRegistry()
+	if err != nil {
+		log.Fatalf("Failed to create feature registry: %v", err)
+	}
+
+	downloadManager := features.NewDownloadManager(deps.eventBus, "/var/nasnet/downloads")
+	processSupervisor := orchestrator.NewProcessSupervisor(orchestrator.ProcessSupervisorConfig{Logger: deps.storageLogger})
+
+	portRegistry, err := network.NewPortRegistry(network.PortRegistryConfig{
+		Store: deps.systemDB, Logger: slog.Default(),
+		ReservedPorts: []int{22, 53, 80, 443, 8080, 8291, 8728, 8729},
+	})
+	if err != nil {
+		log.Fatalf("Failed to create port registry: %v", err)
+	}
+
+	vlanAllocator, err := network.NewVLANAllocator(network.VLANAllocatorConfig{
+		Store: deps.systemDB, Logger: slog.Default(),
+		VlanService: &vlanServiceAdapter{svc: services.NewVlanService(deps.mockRouterPort)},
+	})
+	if err != nil {
+		log.Fatalf("Failed to create VLAN allocator: %v", err)
+	}
+
+	configValidator := orchestrator.NewConfigValidatorAdapter(deps.storageLogger)
+
+	isolationVerifier, err := orchestrator.NewIsolationVerifier(orchestrator.IsolationVerifierConfig{
+		PortRegistry: portRegistry, ConfigBindingValidator: configValidator,
+		EventBus: deps.eventBus, Logger: deps.storageLogger, AllowedBaseDir: "/data/services",
+	})
+	if err != nil {
+		log.Fatalf("Failed to create isolation verifier: %v", err)
+	}
+
+	resourceLimiter, err := orchestrator.NewResourceLimiter(orchestrator.ResourceLimiterConfig{
+		EventBus: deps.eventBus, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create resource limiter: %v", err)
+	}
+
+	instanceManager, err := orchestrator.NewInstanceManager(orchestrator.InstanceManagerConfig{
+		Registry: featureRegistry, DownloadMgr: downloadManager,
+		Supervisor: processSupervisor, Gateway: gatewayManager,
+		Store: deps.systemDB, EventBus: deps.eventBus,
+		PathResolver: pathResolver, PortRegistry: portRegistry,
+		VLANAllocator: vlanAllocator, BridgeOrchestrator: bridgeOrchestrator,
+		IsolationVerifier: isolationVerifier, ResourceLimiter: resourceLimiter,
+		Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create instance manager: %v", err)
+	}
+
+	dependencyManager, err := orchestrator.NewDependencyManager(orchestrator.DependencyManagerConfig{
+		Store: deps.systemDB, EventBus: deps.eventBus, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create dependency manager: %v", err)
+	}
+
+	bootSequenceManager, err := orchestrator.NewBootSequenceManager(orchestrator.BootSequenceManagerConfig{
+		DependencyMgr: dependencyManager, InstanceMgr: instanceManager,
+		Store: deps.systemDB, EventBus: deps.eventBus, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create boot sequence manager: %v", err)
+	}
+
+	// ========== Service Update Manager ==========
+	githubClient := updates.NewGitHubClient()
+
+	updateService, err := updates.NewUpdateService(updates.UpdateServiceConfig{
+		GitHubClient: githubClient,
+		ManifestRepo: "nasnetconnect/features",
+		Architecture: "amd64",
+	})
+	if err != nil {
+		log.Fatalf("Failed to create update service: %v", err)
+	}
+
+	_ = events.NewPublisher(deps.eventBus, "binary-verifier")
+	updateVerifier := &updates.Verifier{}
+
+	journalPath := filepath.Join(deps.dataDir, "update-journal.db")
+	updateJournal, err := updates.NewUpdateJournal(journalPath)
+	if err != nil {
+		log.Fatalf("Failed to create update journal: %v", err)
+	}
+
+	updateMigratorRegistry := &updates.MigratorRegistry{}
+	healthCheckerAdapter := &instanceHealthAdapter{manager: instanceManager}
+
+	updateEngine, err := updates.NewUpdateEngine(updates.UpdateEngineConfig{
+		DownloadManager: adaptDownloadManager(downloadManager),
+		Verifier: updateVerifier,
+		Journal: updateJournal,
+		MigratorRegistry: updateMigratorRegistry,
+		PathResolver: pathResolver,
+		BaseDir: deps.dataDir,
+		EventBus: deps.eventBus,
+		Logger: deps.storageLogger,
+		HealthChecker: healthCheckerAdapter,
+		InstanceStopper: &instanceStopperAdapter{manager: instanceManager},
+		InstanceStarter: &instanceStarterAdapter{manager: instanceManager},
+	})
+	if err != nil {
+		log.Fatalf("Failed to create update engine: %v", err)
+	}
+	if err := updateEngine.RecoverFromCrash(context.Background()); err != nil {
+		log.Printf("Warning: boot-time update recovery encountered errors: %v", err)
+	}
+
+	updateScheduler, err := updates.NewUpdateScheduler(updates.UpdateSchedulerConfig{
+		UpdateService: updateService, UpdateEngine: updateEngine,
+		Store: deps.systemDB, EventBus: deps.eventBus, Logger: deps.storageLogger,
+		CheckInterval: 6 * time.Hour, QuietHoursStart: "02:00",
+		QuietHoursEnd: "06:00", Timezone: "UTC",
+	})
+	if err != nil {
+		log.Fatalf("Failed to create update scheduler: %v", err)
+	}
+	if err := updateScheduler.Start(); err != nil {
+		log.Printf("Warning: failed to start update scheduler: %v", err)
+	}
+
+	// ========== Service Template System ==========
+	serviceTemplateSvc, err := templates.NewTemplateService(templates.TemplateServiceConfig{
+		InstanceManager: instanceManager,
+		DependencyManager: dependencyManager,
+		EventBus: deps.eventBus,
+		Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create service template service: %v", err)
+	}
+
+	templateValidator := templates.NewTemplateValidator(templates.TemplateValidatorConfig{
+		Logger: deps.storageLogger,
+	})
+
+	templateInstaller, err := templates.NewTemplateInstaller(templates.TemplateInstallerConfig{
+		TemplateService: serviceTemplateSvc, InstanceManager: instanceManager,
+		DependencyManager: dependencyManager, EventBus: deps.eventBus, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create template installer: %v", err)
+	}
+
+	templateExporter, err := templates.NewTemplateExporter(templates.TemplateExporterConfig{
+		Store: deps.systemDB, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create template exporter: %v", err)
+	}
+
+	templateImporter, err := templates.NewTemplateImporter(templates.TemplateImporterConfig{
+		Store: deps.systemDB, Validator: templateValidator, Logger: deps.storageLogger,
+	})
+	if err != nil {
+		log.Fatalf("Failed to create template importer: %v", err)
+	}
+
+	return prodServices{
+		storageDetector:    storageDetector,
+		storageConfig:      storageConfigService,
+		pathResolver:       pathResolver,
+		gatewayManager:     gatewayManager,
+		featureRegistry:    featureRegistry,
+		instanceManager:    instanceManager,
+		portRegistry:       portRegistry,
+		vlanAllocator:      vlanAllocator,
+		dependencyMgr:      dependencyManager,
+		bootSequenceMgr:    bootSequenceManager,
+		updateSvc:          updateService,
+		updateScheduler:    updateScheduler,
+		serviceTemplateSvc: serviceTemplateSvc,
+		templateInstaller:  templateInstaller,
+		templateExporter:   templateExporter,
+		templateImporter:   templateImporter,
+	}
+}

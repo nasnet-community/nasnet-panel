@@ -1,0 +1,145 @@
+# -----------------------------------------------------------------------------
+# Routing Types
+# -----------------------------------------------------------------------------
+
+"""
+Route type for static and dynamic routing
+"""
+type Route implements Node {
+  "Route ID"
+  id: ID!
+  "Destination network in CIDR notation"
+  destination: CIDR! @mikrotik(path: "/ip/route", field: "dst-address")
+  "Gateway address"
+  gateway: IPv4 @mikrotik(path: "/ip/route", field: "gateway")
+  "Interface used for this route"
+  interface: String @mikrotik(path: "/ip/route", field: "interface")
+  "Route distance/metric (1-255)"
+  distance: Int! @validate(min: 1, max: 255) @mikrotik(path: "/ip/route", field: "distance")
+  "Routing mark for policy routing"
+  routingMark: String @mikrotik(path: "/ip/route", field: "routing-mark")
+  "Routing table name (main, vpn, etc.)"
+  routingTable: String @mikrotik(path: "/ip/route", field: "routing-table")
+  "Route type (static, connected, dynamic, BGP, OSPF)"
+  type: RouteType!
+  "Route scope"
+  scope: RouteScope!
+  "User comment"
+  comment: String @validate(maxLength: 255) @mikrotik(path: "/ip/route", field: "comment")
+  "Whether the route is active"
+  active: Boolean!
+  "Whether the route is disabled"
+  disabled: Boolean @mikrotik(path: "/ip/route", field: "disabled")
+}
+
+"""
+Route type classification
+"""
+enum RouteType {
+  "Static route (manually configured)"
+  STATIC
+  "Connected route (directly connected network)"
+  CONNECTED
+  "Dynamic route (learned via routing protocol)"
+  DYNAMIC
+  "BGP route"
+  BGP
+  "OSPF route"
+  OSPF
+}
+
+"""
+Route scope
+"""
+enum RouteScope {
+  "Global route (forwarded between interfaces)"
+  GLOBAL
+  "Link-local route (not forwarded)"
+  LINK
+  "Host-local route"
+  HOST
+}
+
+"""
+Input for creating or updating a route
+"""
+input RouteInput {
+  "Destination network in CIDR notation"
+  destination: CIDR!
+  "Gateway address (optional if interface is provided)"
+  gateway: IPv4
+  "Interface used for this route (optional if gateway is provided)"
+  interface: String
+  "Route distance/metric (1-255, default: 1)"
+  distance: Int @validate(min: 1, max: 255)
+  "Routing mark for policy routing"
+  routingMark: String
+  "Routing table name (default: main)"
+  routingTable: String
+  "User comment"
+  comment: String @validate(maxLength: 255)
+}
+
+"""
+Result of a route mutation (create, update)
+"""
+type RouteMutationResult {
+  "Whether the operation succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "The created or updated route (if successful)"
+  route: Route
+}
+
+"""
+Result of a route deletion with impact analysis
+"""
+type RouteDeleteResult {
+  "Whether the deletion succeeded"
+  success: Boolean!
+  "Success or error message"
+  message: String
+  "Impact analysis for this route deletion"
+  impactAnalysis: RouteImpactAnalysis!
+}
+
+"""
+Analysis of the impact of deleting a route
+"""
+type RouteImpactAnalysis {
+  "Whether this is the default route (0.0.0.0/0)"
+  isDefaultRoute: Boolean!
+  "Description of affected traffic"
+  affectedTraffic: String!
+  "Severity of the deletion (CRITICAL for default route, STANDARD for others)"
+  severity: ConfirmationSeverity!
+  "Human-readable message about the impact"
+  message: String!
+  "List of consequences of deleting this route"
+  consequences: [String!]!
+}
+
+"""
+Severity level for confirmation dialogs
+"""
+enum ConfirmationSeverity {
+  "Critical operation requiring explicit confirmation"
+  CRITICAL
+  "Standard operation with brief confirmation"
+  STANDARD
+}
+
+"""
+Result of checking gateway reachability
+"""
+type GatewayReachabilityResult {
+  "Whether the gateway is reachable"
+  reachable: Boolean!
+  "Ping latency in milliseconds (null if unreachable)"
+  latency: Int
+  "Interface through which gateway is reachable (null if unreachable)"
+  interface: String
+  "Human-readable message about reachability"
+  message: String!
+}

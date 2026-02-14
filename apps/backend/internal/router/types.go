@@ -261,8 +261,14 @@ type Command struct {
 	// ID is an optional resource ID for targeted operations.
 	ID string
 
-	// Query is an optional query filter for print operations.
+	// Query is an optional query filter for print operations (string format).
 	Query string
+
+	// QueryFilter is an optional key-value filter for print operations.
+	QueryFilter map[string]string
+
+	// Props specifies which properties to return for print operations.
+	Props []string
 }
 
 // CommandResult contains the result of a command execution.
