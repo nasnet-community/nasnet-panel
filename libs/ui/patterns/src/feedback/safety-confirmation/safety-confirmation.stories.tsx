@@ -8,12 +8,14 @@
  */
 
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import { Button } from '@nasnet/ui/primitives';
 
 import { SafetyConfirmation } from './safety-confirmation';
+
 import type { SafetyConfirmationProps } from './safety-confirmation.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * # SafetyConfirmation

@@ -6,7 +6,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '@tanstack/react-router';
+
 import { PageHeader } from '@nasnet/ui/patterns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
@@ -52,7 +53,8 @@ const mockWANs: WANInterfaceData[] = [
 ];
 
 export function WANManagementPage() {
-  const { routerId } = useParams<{ routerId: string }>();
+  const params = useParams({ strict: false });
+  const routerId = (params as Record<string, string>)['routerId'] ?? (params as Record<string, string>)['id'];
   const navigate = useNavigate();
 
   // State
@@ -136,7 +138,7 @@ export function WANManagementPage() {
    */
   const handleViewDetails = useCallback(
     (wanId: string) => {
-      navigate(`/dashboard/wan/${wanId}`);
+      navigate({ to: `/dashboard/wan/${wanId}` });
     },
     [navigate]
   );
@@ -182,7 +184,6 @@ export function WANManagementPage() {
       <PageHeader
         title="WAN Management"
         description="Configure and monitor WAN connections for internet connectivity"
-        icon={<Globe className="h-6 w-6" />}
       />
 
       {/* Main Content */}
@@ -320,7 +321,7 @@ export function WANManagementPage() {
           {configMode === 'dhcp' && (
             <DhcpClientForm
               routerId={routerId || ''}
-              onSuccess={handleConfigSuccess}
+              onSubmit={() => handleConfigSuccess()}
               onCancel={handleConfigCancel}
             />
           )}
@@ -336,7 +337,7 @@ export function WANManagementPage() {
           {configMode === 'static' && (
             <StaticIPForm
               routerId={routerId || ''}
-              onSuccess={handleConfigSuccess}
+              onSubmit={() => handleConfigSuccess()}
               onCancel={handleConfigCancel}
             />
           )}
@@ -351,7 +352,7 @@ export function WANManagementPage() {
 
           {configMode === 'health' && selectedWAN && (
             <HealthCheckForm
-              routerId={routerId || ''}
+              routerID={routerId || ''}
               wanID={selectedWAN}
               onSuccess={handleConfigSuccess}
               onCancel={handleConfigCancel}

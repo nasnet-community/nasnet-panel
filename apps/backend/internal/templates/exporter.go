@@ -26,13 +26,13 @@ type TemplateExporterConfig struct {
 
 // ExportTemplateRequest contains parameters for exporting a template
 type ExportTemplateRequest struct {
-	InstanceIDs []string // One or more instances to export as template
-	RouterID    string
+	InstanceIDs  []string // One or more instances to export as template
+	RouterID     string
 	TemplateName string
-	Description string
-	Category    string
-	Author      string
-	Tags        []string
+	Description  string
+	Category     string
+	Author       string
+	Tags         []string
 }
 
 // NewTemplateExporter creates a new template exporter
@@ -50,7 +50,7 @@ func NewTemplateExporter(cfg TemplateExporterConfig) (*TemplateExporter, error) 
 // ExportAsTemplate exports running instance(s) as a reusable template
 // For single instance: creates a single-scope template
 // For multiple instances: creates a multi-scope template with dependencies
-func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemplateRequest) (*ServiceTemplate, error) {
+func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemplateRequest) (*ServiceTemplate, error) { //nolint:gocyclo // template export logic
 	if len(req.InstanceIDs) == 0 {
 		return nil, fmt.Errorf("at least one instance ID is required")
 	}
@@ -139,12 +139,12 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 		nameVar := fmt.Sprintf("%s_NAME", strings.ToUpper(instance.FeatureID))
 		if !variableMap[nameVar] {
 			configVariables = append(configVariables, TemplateVariable{
-				Name:             nameVar,
-				Type:             VarTypeString,
-				Required:         true,
-				Default:          instance.InstanceName,
-				Description:      fmt.Sprintf("Name for the %s instance", instance.FeatureID),
-				Label:            "Service Name",
+				Name:              nameVar,
+				Type:              VarTypeString,
+				Required:          true,
+				Default:           instance.InstanceName,
+				Description:       fmt.Sprintf("Name for the %s instance", instance.FeatureID),
+				Label:             "Service Name",
 				ValidationPattern: "^[a-z0-9-]{3,32}$",
 			})
 			variableMap[nameVar] = true
@@ -153,8 +153,8 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 
 	// Add memory limit variable
 	if !variableMap["MEMORY_LIMIT"] {
-		min := float64(64)
-		max := float64(1024)
+		minVal := float64(64)
+		maxVal := float64(1024)
 		configVariables = append(configVariables, TemplateVariable{
 			Name:        "MEMORY_LIMIT",
 			Type:        VarTypeNumber,
@@ -162,14 +162,14 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 			Default:     256,
 			Description: "Memory limit in MB",
 			Label:       "Memory Limit (MB)",
-			MinValue:    &min,
-			MaxValue:    &max,
+			MinValue:    &minVal,
+			MaxValue:    &maxVal,
 		})
 	}
 
 	// Extract dependency graph if multi-service
 	suggestedRouting := []SuggestedRoutingRule{}
-	if len(instances) > 1 {
+	if len(instances) > 1 { //nolint:nestif // template field validation
 		// Query dependencies
 		deps, err := te.store.ServiceDependency.Query().
 			Where(
@@ -193,10 +193,10 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 
 				if fromName != "" && toName != "" {
 					suggestedRouting = append(suggestedRouting, SuggestedRoutingRule{
-						DevicePattern:  "*",
-						TargetService:  toName,
-						Protocol:       "all",
-						Description:    fmt.Sprintf("Route traffic through %s", toName),
+						DevicePattern: "*",
+						TargetService: toName,
+						Protocol:      "all",
+						Description:   fmt.Sprintf("Route traffic through %s", toName),
 					})
 				}
 			}
@@ -236,21 +236,21 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 
 	// Build template
 	template := &ServiceTemplate{
-		ID:                  generateTemplateID(req.TemplateName),
-		Name:                req.TemplateName,
-		Description:         req.Description,
-		Category:            category,
-		Scope:               scope,
-		Version:             "1.0.0",
-		Author:              req.Author,
-		Tags:                req.Tags,
-		Services:            services,
-		ConfigVariables:     configVariables,
-		SuggestedRouting:    suggestedRouting,
-		EstimatedResources:  estimatedResources,
-		Prerequisites:       te.generatePrerequisites(instances, estimatedResources),
-		Documentation:       te.generateDocumentation(instances, scope),
-		Examples:            te.generateExamples(instances),
+		ID:                 generateTemplateID(req.TemplateName),
+		Name:               req.TemplateName,
+		Description:        req.Description,
+		Category:           category,
+		Scope:              scope,
+		Version:            "1.0.0",
+		Author:             req.Author,
+		Tags:               req.Tags,
+		Services:           services,
+		ConfigVariables:    configVariables,
+		SuggestedRouting:   suggestedRouting,
+		EstimatedResources: estimatedResources,
+		Prerequisites:      te.generatePrerequisites(instances, estimatedResources),
+		Documentation:      te.generateDocumentation(instances, scope),
+		Examples:           te.generateExamples(instances),
 	}
 
 	te.logger.Info().
@@ -266,7 +266,7 @@ func (te *TemplateExporter) ExportAsTemplate(ctx context.Context, req ExportTemp
 
 // Helper functions
 
-func (te *TemplateExporter) generateVariableName(featureID, configKey string) string {
+func (te *TemplateExporter) generateVariableName(_ string, configKey string) string { //nolint:gocritic // paramTypeCombine produces less readable code
 	// Convert config key to uppercase variable name
 	// Example: "bind_port" -> "BIND_PORT"
 	upper := strings.ToUpper(configKey)
@@ -279,7 +279,7 @@ func (te *TemplateExporter) humanizeKey(key string) string {
 	// Example: "bind_port" -> "Bind Port"
 	words := strings.Split(key, "_")
 	for i, word := range words {
-		words[i] = strings.Title(strings.ToLower(word))
+		words[i] = strings.ToUpper(string(strings.ToLower(word)[0])) + strings.ToLower(word)[1:]
 	}
 	return strings.Join(words, " ")
 }
@@ -304,12 +304,12 @@ func (te *TemplateExporter) inferVariableType(value interface{}) VariableType {
 func (te *TemplateExporter) requiresBridge(featureID string) bool {
 	// Services that typically require network bridge
 	bridgeServices := map[string]bool{
-		"tor":      true,
-		"xray":     true,
-		"singbox":  true,
-		"mtproxy":  true,
-		"psiphon":  true,
-		"adguard":  false,
+		"tor":     true,
+		"xray":    true,
+		"singbox": true,
+		"mtproxy": true,
+		"psiphon": true,
+		"adguard": false,
 	}
 
 	required, ok := bridgeServices[featureID]
@@ -334,7 +334,7 @@ func (te *TemplateExporter) extractPortMappings(instance *ent.ServiceInstance) [
 	return mappings
 }
 
-func (te *TemplateExporter) generatePrerequisites(instances []*ent.ServiceInstance, resources ResourceEstimate) []string {
+func (te *TemplateExporter) generatePrerequisites(_ []*ent.ServiceInstance, resources ResourceEstimate) []string {
 	prereqs := []string{
 		fmt.Sprintf("At least %dMB free memory", resources.TotalMemoryMB),
 	}
@@ -351,24 +351,25 @@ func (te *TemplateExporter) generatePrerequisites(instances []*ent.ServiceInstan
 }
 
 func (te *TemplateExporter) generateDocumentation(instances []*ent.ServiceInstance, scope TemplateScope) string {
-	doc := "This template was exported from running service instances.\n\n"
+	var doc strings.Builder
+	doc.WriteString("This template was exported from running service instances.\n\n")
 
 	if scope == ScopeSingle {
-		doc += fmt.Sprintf("**Service:** %s\n\n", instances[0].FeatureID)
+		fmt.Fprintf(&doc, "**Service:** %s\n\n", instances[0].FeatureID)
 	} else {
-		doc += "**Services:**\n"
+		doc.WriteString("**Services:**\n")
 		for _, inst := range instances {
-			doc += fmt.Sprintf("- %s (%s)\n", inst.InstanceName, inst.FeatureID)
+			fmt.Fprintf(&doc, "- %s (%s)\n", inst.InstanceName, inst.FeatureID)
 		}
-		doc += "\n"
+		doc.WriteString("\n")
 	}
 
-	doc += "**Setup:**\n"
-	doc += "1. Customize configuration variables as needed\n"
-	doc += "2. Deploy the template to your router\n"
-	doc += "3. Services will be installed and configured automatically\n"
+	doc.WriteString("**Setup:**\n")
+	doc.WriteString("1. Customize configuration variables as needed\n")
+	doc.WriteString("2. Deploy the template to your router\n")
+	doc.WriteString("3. Services will be installed and configured automatically\n")
 
-	return doc
+	return doc.String()
 }
 
 func (te *TemplateExporter) generateExamples(instances []*ent.ServiceInstance) []string {
@@ -388,4 +389,3 @@ func generateTemplateID(name string) string {
 	sanitized = strings.ReplaceAll(sanitized, "_", "-")
 	return sanitized
 }
-

@@ -14,13 +14,25 @@ func ApplyProdMiddleware(e *echo.Echo) {
 	// No CORS in production (same-origin)
 	// No logger middleware by default (can be enabled via env)
 	if os.Getenv("ENABLE_LOGGING") == "true" {
-		e.Use(middleware.Logger())
+		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+			LogStatus:  true,
+			LogMethod:  true,
+			LogURI:     true,
+			LogError:   true,
+			LogLatency: true,
+		}))
 	}
 }
 
 // ApplyDevMiddleware configures development middleware (logging, CORS, recovery).
 func ApplyDevMiddleware(e *echo.Echo) {
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus:  true,
+		LogMethod:  true,
+		LogURI:     true,
+		LogError:   true,
+		LogLatency: true,
+	}))
 	e.Use(middleware.Recover())
 
 	// CORS middleware for development (allow all origins)

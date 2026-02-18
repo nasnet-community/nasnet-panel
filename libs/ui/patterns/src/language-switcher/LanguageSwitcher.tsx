@@ -1,5 +1,13 @@
-import { Globe } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
+import { Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+import {
+  supportedLanguages,
+  languageNames,
+  type SupportedLanguage,
+} from '@nasnet/core/i18n';
 import {
   Button,
   DropdownMenu,
@@ -8,13 +16,6 @@ import {
   DropdownMenuTrigger,
   cn,
 } from '@nasnet/ui/primitives';
-import {
-  supportedLanguages,
-  languageNames,
-  type SupportedLanguage,
-} from '@nasnet/core/i18n';
-import { useTranslation } from 'react-i18next';
-import { useCallback, useState } from 'react';
 
 /**
  * LanguageSwitcher Props

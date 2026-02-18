@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
-import { LazyDnsTab } from '@/app/routes/router-panel/tabs/lazy';
 import { Skeleton } from '@nasnet/ui/primitives';
+
+import { LazyDnsTab } from '@/app/routes/router-panel/tabs/lazy';
 
 /**
  * DNS Route - Code-split for optimal bundle size

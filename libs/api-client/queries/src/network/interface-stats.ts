@@ -224,7 +224,7 @@ export function useInterfaceStatsHistoryQuery({
   >(GET_INTERFACE_STATS_HISTORY, {
     variables: { routerId, interfaceId, timeRange, interval },
     skip,
-    ...options,
+    ...(options as any),
   });
 }
 
@@ -261,6 +261,6 @@ export function useInterfaceStatsSubscription({
   >(INTERFACE_STATS_UPDATED, {
     variables: { routerId, interfaceId, interval },
     skip,
-    ...options,
+    ...(options as any),
   });
 }

@@ -132,7 +132,6 @@ func (c *memoryCache) IsRefreshing(routerID string) bool {
 type Service struct {
 	detector Detector
 	cache    Cache
-	mu       sync.RWMutex
 }
 
 // NewService creates a new capability service.
@@ -150,6 +149,7 @@ func (s *Service) GetCapabilities(ctx context.Context, routerID string, portGett
 	if caps, ok := s.cache.Get(routerID); ok {
 		// Check if stale and trigger background refresh
 		if caps.IsStale() && !s.cache.IsRefreshing(routerID) {
+			//nolint:contextcheck // backgroundRefresh creates its own context for async work
 			go s.backgroundRefresh(routerID, portGetter)
 		}
 		return caps, nil

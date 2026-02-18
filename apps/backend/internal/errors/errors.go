@@ -30,33 +30,33 @@ const (
 // - S6xx: Resource errors
 const (
 	// Platform errors (P1xx)
-	CodePlatformNotSupported    = "P100"
-	CodeCapabilityNotAvailable  = "P101"
-	CodeVersionTooOld           = "P102"
-	CodePackageMissing          = "P103"
+	CodePlatformNotSupported   = "P100"
+	CodeCapabilityNotAvailable = "P101"
+	CodeVersionTooOld          = "P102"
+	CodePackageMissing         = "P103"
 
 	// Protocol errors (R2xx)
-	CodeConnectionFailed        = "R200"
-	CodeConnectionTimeout       = "R201"
-	CodeProtocolError           = "R202"
-	CodeAllProtocolsFailed      = "R203"
-	CodeAuthenticationFailed    = "R204"
-	CodeCommandFailed           = "R205"
+	CodeConnectionFailed     = "R200"
+	CodeConnectionTimeout    = "R201"
+	CodeProtocolError        = "R202"
+	CodeAllProtocolsFailed   = "R203"
+	CodeAuthenticationFailed = "R204"
+	CodeCommandFailed        = "R205"
 
 	// Network errors (N3xx)
-	CodeHostUnreachable         = "N300"
-	CodeDNSResolutionFailed     = "N301"
-	CodeNetworkTimeout          = "N302"
-	CodePortClosed              = "N303"
+	CodeHostUnreachable     = "N300"
+	CodeDNSResolutionFailed = "N301"
+	CodeNetworkTimeout      = "N302"
+	CodePortClosed          = "N303"
 
 	// Validation errors (V4xx)
-	CodeValidationFailed        = "V400"
-	CodeSchemaValidationFailed  = "V401"
-	CodeReferenceNotFound       = "V402"
-	CodeCircularDependency      = "V403"
-	CodeConflictDetected        = "V404"
-	CodeInvalidFormat           = "V405"
-	CodeOutOfRange              = "V406"
+	CodeValidationFailed       = "V400"
+	CodeSchemaValidationFailed = "V401"
+	CodeReferenceNotFound      = "V402"
+	CodeCircularDependency     = "V403"
+	CodeConflictDetected       = "V404"
+	CodeInvalidFormat          = "V405"
+	CodeOutOfRange             = "V406"
 
 	// Auth errors (A5xx)
 	CodeAuthFailed              = "A500"
@@ -66,11 +66,11 @@ const (
 	CodeAccessDenied            = "A504"
 
 	// Resource errors (S6xx)
-	CodeResourceNotFound        = "S600"
-	CodeResourceLocked          = "S601"
-	CodeInvalidStateTransition  = "S602"
-	CodeDependencyNotReady      = "S603"
-	CodeResourceBusy            = "S604"
+	CodeResourceNotFound       = "S600"
+	CodeResourceLocked         = "S601"
+	CodeInvalidStateTransition = "S602"
+	CodeDependencyNotReady     = "S603"
+	CodeResourceBusy           = "S604"
 )
 
 // RouterError is the base error type for all NasNetConnect errors.
@@ -151,7 +151,7 @@ type PlatformError struct {
 }
 
 // NewPlatformError creates a new platform error.
-func NewPlatformError(code string, message string, platform string) *PlatformError {
+func NewPlatformError(code, message, platform string) *PlatformError {
 	return &PlatformError{
 		RouterError: &RouterError{
 			Code:        code,
@@ -182,7 +182,7 @@ type ProtocolError struct {
 }
 
 // NewProtocolError creates a new protocol error.
-func NewProtocolError(code string, message string, protocol string) *ProtocolError {
+func NewProtocolError(code, message, protocol string) *ProtocolError {
 	return &ProtocolError{
 		RouterError: &RouterError{
 			Code:        code,
@@ -257,7 +257,7 @@ type AuthError struct {
 }
 
 // NewAuthError creates a new authentication/authorization error.
-func NewAuthError(code string, message string) *AuthError {
+func NewAuthError(code, message string) *AuthError {
 	return &AuthError{
 		RouterError: &RouterError{
 			Code:        code,
@@ -296,7 +296,7 @@ type NetworkError struct {
 }
 
 // NewNetworkError creates a new network error.
-func NewNetworkError(code string, message string, host string) *NetworkError {
+func NewNetworkError(code, message, host string) *NetworkError {
 	return &NetworkError{
 		RouterError: &RouterError{
 			Code:        code,
@@ -336,7 +336,7 @@ type ResourceError struct {
 }
 
 // NewResourceError creates a new resource error.
-func NewResourceError(code string, message string, resourceType, resourceID string) *ResourceError {
+func NewResourceError(code, message, resourceType, resourceID string) *ResourceError {
 	return &ResourceError{
 		RouterError: &RouterError{
 			Code:        code,

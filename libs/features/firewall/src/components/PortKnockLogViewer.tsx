@@ -68,9 +68,9 @@ export interface PortKnockLogViewerProps {
 // ============================================================================
 
 function StatusBadge({ status }: { status: string }) {
-  const variantMap: Record<string, { variant: 'success' | 'destructive' | 'warning'; icon: any }> = {
+  const variantMap: Record<string, { variant: 'success' | 'error' | 'warning'; icon: typeof CheckCircle }> = {
     success: { variant: 'success', icon: CheckCircle },
-    failed: { variant: 'destructive', icon: XCircle },
+    failed: { variant: 'error', icon: XCircle },
     partial: { variant: 'warning', icon: AlertTriangle },
   };
 
@@ -89,9 +89,11 @@ function StatusBadge({ status }: { status: string }) {
 // Filter Bar Component
 // ============================================================================
 
+type KnockStatusFilter = 'all' | 'partial' | 'success' | 'failed';
+
 interface FilterBarProps {
   statusFilter: string;
-  onStatusFilterChange: (status: string) => void;
+  onStatusFilterChange: (status: KnockStatusFilter) => void;
   ipFilter: string;
   onIpFilterChange: (ip: string) => void;
   autoRefresh: boolean;
@@ -121,7 +123,7 @@ function FilterBar({
         />
       </div>
       <div className="w-full sm:w-48">
-        <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+        <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as KnockStatusFilter)}>
           <SelectTrigger data-testid="status-filter">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
@@ -196,7 +198,7 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
       attempt.sequenceName,
       attempt.sourceIP,
       attempt.status,
-      `${attempt.progress.current}/${attempt.progress.total}`,
+      `${attempt.progress}`,
       attempt.portsHit.join(' → '),
     ]);
 
@@ -295,12 +297,12 @@ export function PortKnockLogViewer({ className }: PortKnockLogViewerProps) {
                             'bg-amber-500'
                           )}
                           style={{
-                            width: `${(attempt.progress.current / attempt.progress.total) * 100}%`,
+                            width: `${(() => { const parts = attempt.progress.split('/'); return parts.length === 2 ? (parseInt(parts[0]) / parseInt(parts[1])) * 100 : 0; })()}%`,
                           }}
                         />
                       </div>
                       <span className="text-xs text-muted-foreground font-mono">
-                        {attempt.progress.current}/{attempt.progress.total}
+                        {attempt.progress}
                       </span>
                     </div>
                   </TableCell>

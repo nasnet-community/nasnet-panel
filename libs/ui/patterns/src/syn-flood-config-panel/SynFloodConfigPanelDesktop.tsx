@@ -23,9 +23,10 @@ import {
   Alert,
   AlertDescription,
 } from '@nasnet/ui/primitives';
-import { ConfirmationDialog } from '../confirmation-dialog';
 
+import { ConfirmationDialog } from '../confirmation-dialog';
 import { SYN_FLOOD_PRESETS } from './types';
+
 import type { UseSynFloodConfigPanelReturn } from './use-syn-flood-config-panel';
 
 export interface SynFloodConfigPanelDesktopProps {

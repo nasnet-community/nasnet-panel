@@ -27,6 +27,8 @@ const config: CodegenConfig = {
     '!libs/core-ui-qwik/**/*',
     // Exclude setup wizard (separate app)
     '!libs/star-setup/**/*',
+    // Exclude Storybook files (may have syntax incompatibilities)
+    '!libs/**/*.stories.tsx',
   ],
 
   // Ignore validation for build performance

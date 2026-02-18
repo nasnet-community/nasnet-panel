@@ -268,9 +268,8 @@ export function ServiceAlertsTabDesktop({
             <TableRow>
               <TableHead className="w-[50px]">
                 <Checkbox
-                  checked={allSelected}
-                  indeterminate={someSelected}
-                  onCheckedChange={(checked) => {
+                  checked={someSelected ? 'indeterminate' : allSelected}
+                  onCheckedChange={(checked: any) => {
                     if (checked) {
                       selectAll();
                     } else {

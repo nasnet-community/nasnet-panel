@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+// Field name constants for disabled/enabled translation.
+const (
+	fieldDisabled = "disabled"
+	fieldEnabled  = "enabled"
+)
+
 // ResponseTranslator handles converting MikroTik responses to GraphQL format.
 type ResponseTranslator struct {
 	registry *FieldMappingRegistry
@@ -93,7 +99,7 @@ func (rt *ResponseTranslator) translateValue(path, mikrotikField string, value i
 	// Handle enabled/disabled inversion:
 	// When MikroTik field is "disabled" but GraphQL field is "enabled",
 	// the boolean value must be inverted.
-	invertBool := hasMapping && mikrotikField == "disabled" && graphqlField == "enabled"
+	invertBool := hasMapping && mikrotikField == fieldDisabled && graphqlField == fieldEnabled
 
 	// Convert string values based on field type
 	strVal, isString := value.(string)
@@ -151,6 +157,15 @@ func (rt *ResponseTranslator) convertByType(value string, fieldType FieldType) i
 	case FieldTypeList:
 		return ParseMikroTikList(value)
 
+	case FieldTypeString:
+		return value
+
+	case FieldTypeMAC:
+		return value
+
+	case FieldTypeIP:
+		return value
+
 	default:
 		return value
 	}
@@ -165,7 +180,7 @@ func (rt *ResponseTranslator) autoConvert(field, value string) interface{} {
 	}
 
 	// Handle disabled/enabled pattern
-	if field == "disabled" {
+	if field == fieldDisabled {
 		return ParseMikroTikBool(value)
 	}
 
@@ -185,14 +200,14 @@ func (rt *ResponseTranslator) autoConvert(field, value string) interface{} {
 // TransformDisabledToEnabled converts the "disabled" field to "enabled" with inverted value.
 // This is useful for GraphQL schemas that use "enabled" instead of "disabled".
 func (rt *ResponseTranslator) TransformDisabledToEnabled(record map[string]interface{}) map[string]interface{} {
-	if disabled, ok := record["disabled"]; ok {
-		delete(record, "disabled")
+	if disabled, ok := record[fieldDisabled]; ok {
+		delete(record, fieldDisabled)
 		// Invert the boolean value
 		switch v := disabled.(type) {
 		case bool:
-			record["enabled"] = !v
+			record[fieldEnabled] = !v
 		case string:
-			record["enabled"] = !ParseMikroTikBool(v)
+			record[fieldEnabled] = !ParseMikroTikBool(v)
 		}
 	}
 	return record

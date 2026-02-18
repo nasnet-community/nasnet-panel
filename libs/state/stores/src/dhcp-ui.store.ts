@@ -133,5 +133,5 @@ export const useLeaseSearch = () => useDHCPUIStore((state) => state.leaseSearch)
 export const useLeaseStatusFilter = () => useDHCPUIStore((state) => state.leaseStatusFilter);
 export const useLeaseServerFilter = () => useDHCPUIStore((state) => state.leaseServerFilter);
 export const useSelectedLeases = () => useDHCPUIStore((state) => state.selectedLeases);
-export const useWizardDraft = () => useDHCPUIStore((state) => state.wizardDraft);
+export const useDHCPWizardDraft = () => useDHCPUIStore((state) => state.wizardDraft);
 export const useShowPoolVisualization = () => useDHCPUIStore((state) => state.showPoolVisualization);

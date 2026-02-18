@@ -22,8 +22,8 @@ import {
   Card,
   CardHeader,
   CardContent,
+  cn,
 } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/core/utils';
 import { useDnsLookup } from './useDnsLookup';
 import { dnsLookupFormSchema, type DnsLookupFormValues } from './dnsLookup.schema';
 import { DNS_RECORD_TYPES } from './DnsLookupTool.types';
@@ -44,7 +44,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
     setValue,
     formState: { errors, isValid },
   } = useForm<DnsLookupFormValues>({
-    resolver: zodResolver(dnsLookupFormSchema),
+    resolver: zodResolver(dnsLookupFormSchema) as any,
     mode: 'onChange',
     defaultValues: {
       recordType: 'A',

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import {
   Cloud,
   CreditCard,
@@ -35,6 +35,8 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu';
 import { Button } from '../button';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof DropdownMenu> = {
   title: 'Primitives/DropdownMenu',

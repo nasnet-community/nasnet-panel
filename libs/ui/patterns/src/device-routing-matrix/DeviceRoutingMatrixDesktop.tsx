@@ -6,7 +6,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import type { ColumnDef } from '@tanstack/react-table';
+
 import {
   CheckIcon,
   XMarkIcon,
@@ -29,9 +29,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@nasnet/ui/primitives';
+
 import { VirtualizedTable } from '../virtualization';
 import { useDeviceRoutingMatrix } from './useDeviceRoutingMatrix';
+
 import type { DeviceRoutingMatrixProps, NetworkDevice } from './types';
+import type { ColumnDef } from '@tanstack/react-table';
 
 /**
  * Desktop presenter for DeviceRoutingMatrix

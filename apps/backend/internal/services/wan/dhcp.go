@@ -6,12 +6,22 @@ import (
 	"log"
 	"time"
 
+	"backend/internal/utils"
+
 	"backend/internal/events"
 	"backend/internal/router"
-	"backend/internal/utils"
+)
+
+const (
+	dhcpTrue       = "true"
+	dhcpBound      = "bound"
+	dhcpSearching  = "searching"
+	dhcpRequesting = "requesting"
 )
 
 // ConfigureDHCPClient configures DHCP client on a WAN interface.
+//
+//nolint:gocyclo // DHCP configuration complexity
 func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, input DhcpClientInput) (*WANInterfaceData, error) {
 	log.Printf("[WANService] Configuring DHCP client on router %s, interface %s", routerID, input.Interface)
 
@@ -35,8 +45,8 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 					Action: "remove",
 					Args:   map[string]string{".id": id},
 				}
-				if _, err := s.routerPort.ExecuteCommand(ctx, removeCmd); err != nil {
-					return nil, fmt.Errorf("failed to remove existing DHCP client: %w", err)
+				if _, removeErr := s.routerPort.ExecuteCommand(ctx, removeCmd); removeErr != nil {
+					return nil, fmt.Errorf("failed to remove existing DHCP client: %w", removeErr)
 				}
 			}
 		}
@@ -64,7 +74,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 		return nil, fmt.Errorf("failed to add DHCP client: %w", err)
 	}
 	if !addResult.Success {
-		return nil, fmt.Errorf("DHCP client configuration failed: %s", addResult.Error)
+		return nil, fmt.Errorf("DHCP client configuration failed: %w", addResult.Error)
 	}
 
 	log.Printf("[WANService] DHCP client configured successfully on interface %s", input.Interface)
@@ -96,7 +106,7 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 		wanData.DhcpClient = &DhcpClientData{
 			ID:              dhcpData[".id"],
 			Interface:       input.Interface,
-			Disabled:        dhcpData["disabled"] == "true",
+			Disabled:        dhcpData["disabled"] == dhcpTrue,
 			AddDefaultRoute: input.AddDefaultRoute,
 			UsePeerDNS:      input.UsePeerDNS,
 			UsePeerNTP:      input.UsePeerNTP,
@@ -107,14 +117,18 @@ func (s *WANService) ConfigureDHCPClient(ctx context.Context, routerID string, i
 			Comment:         input.Comment,
 		}
 
-		if dhcpData["status"] == "bound" {
-			wanData.Status = "CONNECTED"
+		const statusConnected = "CONNECTED"
+		const statusConnecting = "CONNECTING"
+
+		switch dhcpData["status"] {
+		case dhcpBound:
+			wanData.Status = statusConnected
 			wanData.PublicIP = dhcpData["address"]
 			wanData.Gateway = dhcpData["gateway"]
 			wanData.LastConnected = time.Now()
-		} else if dhcpData["status"] == "searching" || dhcpData["status"] == "requesting" {
-			wanData.Status = "CONNECTING"
-		} else {
+		case dhcpSearching, dhcpRequesting:
+			wanData.Status = statusConnecting
+		default:
 			wanData.Status = "DISCONNECTED"
 		}
 

@@ -10,9 +10,11 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/portallocation"
+	entpredicate "backend/generated/ent/predicate"
 	"backend/generated/ent/router"
 	"backend/generated/ent/serviceinstance"
-	"backend/pkg/ulid"
+	"backend/generated/ent/vlanallocation"
+	"backend/internal/common/ulid"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -21,6 +23,455 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// =============================================================================
+// StorePort adapter for *ent.Client
+// =============================================================================
+
+// entStoreAdapter wraps *ent.Client to satisfy the StorePort interface.
+type entStoreAdapter struct {
+	client *ent.Client
+}
+
+func (a *entStoreAdapter) VLANAllocation() VLANAllocationRepo {
+	return &entVLANAllocationRepo{client: a.client.VLANAllocation}
+}
+
+func (a *entStoreAdapter) PortAllocation() PortAllocationRepo {
+	return &entPortAllocationRepo{client: a.client.PortAllocation}
+}
+
+func (a *entStoreAdapter) GlobalSettings() GlobalSettingsRepo {
+	return &entGlobalSettingsRepo{client: a.client.GlobalSettings}
+}
+
+func (a *entStoreAdapter) ServiceInstance() ServiceInstanceRepo {
+	return &entServiceInstanceRepo{client: a.client.ServiceInstance}
+}
+
+// --- PortAllocationRepo ---
+
+type entPortAllocationRepo struct {
+	client *ent.PortAllocationClient
+}
+
+func (r *entPortAllocationRepo) Query() PortAllocationQuery {
+	return &entPortAllocationQuery{q: r.client.Query()}
+}
+
+func (r *entPortAllocationRepo) Create() PortAllocationCreate {
+	return &entPortAllocationCreate{c: r.client.Create()}
+}
+
+func (r *entPortAllocationRepo) Delete() PortAllocationDelete {
+	return &entPortAllocationDelete{d: r.client.Delete()}
+}
+
+func (r *entPortAllocationRepo) DeleteOne(allocation PortAllocationEntity) PortAllocationDelete {
+	// Use ID-based delete since we can't recover the raw *ent.PortAllocation.
+	return &entPortAllocationDelete{d: r.client.Delete().Where(portallocation.IDEQ(allocation.GetID()))}
+}
+
+// --- PortAllocationQuery ---
+
+type entPortAllocationQuery struct {
+	q *ent.PortAllocationQuery
+}
+
+func (q *entPortAllocationQuery) Where(predicates ...interface{}) PortAllocationQuery {
+	ps := make([]entpredicate.PortAllocation, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.PortAllocation); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entPortAllocationQuery{q: q.q.Where(ps...)}
+}
+
+func (q *entPortAllocationQuery) All(ctx context.Context) ([]PortAllocationEntity, error) {
+	allocs, err := q.q.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]PortAllocationEntity, len(allocs))
+	for i, a := range allocs {
+		result[i] = &portAllocEntityWrapper{raw: a}
+	}
+	return result, nil
+}
+
+// portAllocEntityWrapper wraps *ent.PortAllocation to satisfy PortAllocationEntity.
+type portAllocEntityWrapper struct {
+	raw *ent.PortAllocation
+}
+
+func (w *portAllocEntityWrapper) GetID() string       { return w.raw.ID }
+func (w *portAllocEntityWrapper) GetRouterID() string { return w.raw.RouterID }
+func (w *portAllocEntityWrapper) GetPort() int        { return w.raw.Port }
+func (w *portAllocEntityWrapper) GetProtocol() string { return string(w.raw.Protocol) }
+func (w *portAllocEntityWrapper) GetInstanceID() string { return w.raw.InstanceID }
+
+func (q *entPortAllocationQuery) Exist(ctx context.Context) (bool, error) {
+	return q.q.Exist(ctx)
+}
+
+func (q *entPortAllocationQuery) Aggregate(aggFunc interface{}) PortAllocationAggregate {
+	fn, ok := aggFunc.(ent.AggregateFunc)
+	if !ok {
+		return &entPortAllocationAggregate{invalid: true}
+	}
+	return &entPortAllocationAggregate{q: q.q.Aggregate(fn)}
+}
+
+// --- PortAllocationAggregate ---
+
+type entPortAllocationAggregate struct {
+	q       *ent.PortAllocationSelect
+	invalid bool
+}
+
+func (a *entPortAllocationAggregate) Int(ctx context.Context) (int, error) {
+	if a.invalid {
+		return 0, fmt.Errorf("invalid aggregate function")
+	}
+	return a.q.Int(ctx)
+}
+
+// --- PortAllocationCreate ---
+
+type entPortAllocationCreate struct {
+	c *ent.PortAllocationCreate
+}
+
+func (c *entPortAllocationCreate) SetID(id string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetID(id)}
+}
+
+func (c *entPortAllocationCreate) SetRouterID(routerID string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetRouterID(routerID)}
+}
+
+func (c *entPortAllocationCreate) SetPort(port int) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetPort(port)}
+}
+
+func (c *entPortAllocationCreate) SetProtocol(protocol string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetProtocol(portallocation.Protocol(protocol))}
+}
+
+func (c *entPortAllocationCreate) SetInstanceID(instanceID string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetInstanceID(instanceID)}
+}
+
+func (c *entPortAllocationCreate) SetServiceType(serviceType string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetServiceType(serviceType)}
+}
+
+func (c *entPortAllocationCreate) SetNillableNotes(notes *string) PortAllocationCreate {
+	return &entPortAllocationCreate{c: c.c.SetNillableNotes(notes)}
+}
+
+func (c *entPortAllocationCreate) Save(ctx context.Context) (PortAllocationEntity, error) {
+	raw, err := c.c.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &portAllocEntityWrapper{raw: raw}, nil
+}
+
+// --- PortAllocationDelete ---
+
+type entPortAllocationDelete struct {
+	d *ent.PortAllocationDelete
+}
+
+func (d *entPortAllocationDelete) Where(predicates ...interface{}) PortAllocationDelete {
+	ps := make([]entpredicate.PortAllocation, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.PortAllocation); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entPortAllocationDelete{d: d.d.Where(ps...)}
+}
+
+func (d *entPortAllocationDelete) Exec(ctx context.Context) (int, error) {
+	return d.d.Exec(ctx)
+}
+
+// --- PortAllocationDeleteOne (wraps *ent.PortAllocationDeleteOne) ---
+
+type entPortAllocationDeleteOne struct {
+	d *ent.PortAllocationDeleteOne
+}
+
+func (d *entPortAllocationDeleteOne) Where(predicates ...interface{}) PortAllocationDelete {
+	// DeleteOne does not support Where; return self unchanged.
+	return d
+}
+
+func (d *entPortAllocationDeleteOne) Exec(ctx context.Context) (int, error) {
+	if err := d.d.Exec(ctx); err != nil {
+		return 0, err
+	}
+	return 1, nil
+}
+
+// --- ServiceInstanceRepo ---
+
+type entServiceInstanceRepo struct {
+	client *ent.ServiceInstanceClient
+}
+
+func (r *entServiceInstanceRepo) Query() ServiceInstanceQuery {
+	return &entServiceInstanceQuery{q: r.client.Query()}
+}
+
+// --- ServiceInstanceQuery ---
+
+type entServiceInstanceQuery struct {
+	q *ent.ServiceInstanceQuery
+}
+
+func (q *entServiceInstanceQuery) Where(predicates ...interface{}) ServiceInstanceQuery {
+	ps := make([]entpredicate.ServiceInstance, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.ServiceInstance); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entServiceInstanceQuery{q: q.q.Where(ps...)}
+}
+
+func (q *entServiceInstanceQuery) Only(ctx context.Context) (ServiceInstanceEntity, error) {
+	raw, err := q.q.Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &serviceInstanceEntityWrapper{raw: raw}, nil
+}
+
+// serviceInstanceEntityWrapper wraps *ent.ServiceInstance to satisfy ServiceInstanceEntity.
+type serviceInstanceEntityWrapper struct {
+	raw *ent.ServiceInstance
+}
+
+func (w *serviceInstanceEntityWrapper) GetID() string     { return w.raw.ID }
+func (w *serviceInstanceEntityWrapper) GetStatus() string { return string(w.raw.Status) }
+
+// --- VLANAllocationRepo ---
+
+type entVLANAllocationRepo struct {
+	client *ent.VLANAllocationClient
+}
+
+func (r *entVLANAllocationRepo) Query() VLANAllocationQuery {
+	return &entVLANAllocationQuery{q: r.client.Query()}
+}
+
+func (r *entVLANAllocationRepo) Create() VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: r.client.Create()}
+}
+
+func (r *entVLANAllocationRepo) Update() VLANAllocationUpdate {
+	return &entVLANAllocationUpdate{u: r.client.Update()}
+}
+
+func (r *entVLANAllocationRepo) Delete() VLANAllocationDelete {
+	return &entVLANAllocationDeleteAdapter{d: r.client.Delete()}
+}
+
+func (r *entVLANAllocationRepo) DeleteOne(allocation VLANAllocationEntity) VLANAllocationDelete {
+	return &entVLANAllocationDeleteAdapter{d: r.client.Delete().Where(vlanallocation.IDEQ(allocation.GetID()))}
+}
+
+// --- VLANAllocationQuery ---
+
+type entVLANAllocationQuery struct {
+	q *ent.VLANAllocationQuery
+}
+
+func (q *entVLANAllocationQuery) Where(predicates ...interface{}) VLANAllocationQuery {
+	ps := make([]entpredicate.VLANAllocation, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.VLANAllocation); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entVLANAllocationQuery{q: q.q.Where(ps...)}
+}
+
+func (q *entVLANAllocationQuery) All(ctx context.Context) ([]VLANAllocationEntity, error) {
+	allocs, err := q.q.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]VLANAllocationEntity, len(allocs))
+	for i, a := range allocs {
+		result[i] = &vlanAllocEntityWrapper{raw: a}
+	}
+	return result, nil
+}
+
+func (q *entVLANAllocationQuery) Only(ctx context.Context) (VLANAllocationEntity, error) {
+	raw, err := q.q.Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &vlanAllocEntityWrapper{raw: raw}, nil
+}
+
+func (q *entVLANAllocationQuery) Exist(ctx context.Context) (bool, error) {
+	return q.q.Exist(ctx)
+}
+
+func (q *entVLANAllocationQuery) Count(ctx context.Context) (int, error) {
+	return q.q.Count(ctx)
+}
+
+// --- VLANAllocationCreate ---
+
+type entVLANAllocationCreate struct {
+	c *ent.VLANAllocationCreate
+}
+
+func (c *entVLANAllocationCreate) SetID(id string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetID(id)}
+}
+
+func (c *entVLANAllocationCreate) SetRouterID(routerID string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetRouterID(routerID)}
+}
+
+func (c *entVLANAllocationCreate) SetVlanID(vlanID int) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetVlanID(vlanID)}
+}
+
+func (c *entVLANAllocationCreate) SetInstanceID(instanceID string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetInstanceID(instanceID)}
+}
+
+func (c *entVLANAllocationCreate) SetServiceType(serviceType string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetServiceType(serviceType)}
+}
+
+func (c *entVLANAllocationCreate) SetSubnet(subnet string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetSubnet(subnet)}
+}
+
+func (c *entVLANAllocationCreate) SetStatus(status string) VLANAllocationCreate {
+	return &entVLANAllocationCreate{c: c.c.SetStatus(vlanallocation.Status(status))}
+}
+
+func (c *entVLANAllocationCreate) Save(ctx context.Context) (VLANAllocationEntity, error) {
+	raw, err := c.c.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &vlanAllocEntityWrapper{raw: raw}, nil
+}
+
+// --- VLANAllocationUpdate ---
+
+type entVLANAllocationUpdate struct {
+	u *ent.VLANAllocationUpdate
+}
+
+func (u *entVLANAllocationUpdate) Where(predicates ...interface{}) VLANAllocationUpdate {
+	ps := make([]entpredicate.VLANAllocation, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.VLANAllocation); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entVLANAllocationUpdate{u: u.u.Where(ps...)}
+}
+
+func (u *entVLANAllocationUpdate) SetStatus(status string) VLANAllocationUpdate {
+	return &entVLANAllocationUpdate{u: u.u.SetStatus(vlanallocation.Status(status))}
+}
+
+func (u *entVLANAllocationUpdate) SetValue(values map[string]interface{}) VLANAllocationUpdate {
+	return u
+}
+
+func (u *entVLANAllocationUpdate) Save(ctx context.Context) (int, error) {
+	return u.u.Save(ctx)
+}
+
+// --- VLANAllocationDelete ---
+
+type entVLANAllocationDeleteAdapter struct {
+	d *ent.VLANAllocationDelete
+}
+
+func (d *entVLANAllocationDeleteAdapter) Where(predicates ...interface{}) VLANAllocationDelete {
+	ps := make([]entpredicate.VLANAllocation, 0, len(predicates))
+	for _, p := range predicates {
+		if pred, ok := p.(entpredicate.VLANAllocation); ok {
+			ps = append(ps, pred)
+		}
+	}
+	return &entVLANAllocationDeleteAdapter{d: d.d.Where(ps...)}
+}
+
+func (d *entVLANAllocationDeleteAdapter) Exec(ctx context.Context) (int, error) {
+	return d.d.Exec(ctx)
+}
+
+// --- VLANAllocationEntity wrapper ---
+
+type vlanAllocEntityWrapper struct {
+	raw *ent.VLANAllocation
+}
+
+func (w *vlanAllocEntityWrapper) GetID() string          { return w.raw.ID }
+func (w *vlanAllocEntityWrapper) GetRouterID() string    { return w.raw.RouterID }
+func (w *vlanAllocEntityWrapper) GetVlanID() int         { return w.raw.VlanID }
+func (w *vlanAllocEntityWrapper) GetInstanceID() string  { return w.raw.InstanceID }
+func (w *vlanAllocEntityWrapper) GetServiceType() string { return w.raw.ServiceType }
+func (w *vlanAllocEntityWrapper) GetSubnet() string      { return w.raw.Subnet }
+func (w *vlanAllocEntityWrapper) GetStatus() string      { return string(w.raw.Status) }
+
+func (w *vlanAllocEntityWrapper) Update() VLANAllocationUpdateOne {
+	return &entVLANAllocationUpdateOneWrapper{u: w.raw.Update()}
+}
+
+// --- VLANAllocationUpdateOne wrapper ---
+
+type entVLANAllocationUpdateOneWrapper struct {
+	u *ent.VLANAllocationUpdateOne
+}
+
+func (u *entVLANAllocationUpdateOneWrapper) SetStatus(status string) VLANAllocationUpdateOne {
+	return &entVLANAllocationUpdateOneWrapper{u: u.u.SetStatus(vlanallocation.Status(status))}
+}
+
+func (u *entVLANAllocationUpdateOneWrapper) Save(ctx context.Context) (VLANAllocationEntity, error) {
+	raw, err := u.u.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &vlanAllocEntityWrapper{raw: raw}, nil
+}
+
+// --- GlobalSettingsRepo (minimal stub - not used by port registry tests) ---
+
+type entGlobalSettingsRepo struct {
+	client *ent.GlobalSettingsClient
+}
+
+func (r *entGlobalSettingsRepo) Query() GlobalSettingsQuery {
+	panic("GlobalSettings.Query not used in port registry tests")
+}
+
+func (r *entGlobalSettingsRepo) Create() GlobalSettingsCreate {
+	panic("GlobalSettings.Create not used in port registry tests")
+}
+
+func (r *entGlobalSettingsRepo) Update() GlobalSettingsUpdate {
+	panic("GlobalSettings.Update not used in port registry tests")
+}
 
 // openTestClient creates an ent client for testing with in-memory SQLite.
 func openTestClient(t *testing.T) *ent.Client {
@@ -85,7 +536,7 @@ func TestNewPortRegistry(t *testing.T) {
 		require.NoError(t, err)
 
 		registry, err := NewPortRegistry(PortRegistryConfig{
-			Store: client,
+			Store: &entStoreAdapter{client: client},
 		})
 
 		require.NoError(t, err)
@@ -109,7 +560,7 @@ func TestNewPortRegistry(t *testing.T) {
 
 		customReserved := []int{5000, 6000, 7000}
 		registry, err := NewPortRegistry(PortRegistryConfig{
-			Store:         client,
+			Store:         &entStoreAdapter{client: client},
 			ReservedPorts: customReserved,
 		})
 
@@ -143,7 +594,7 @@ func TestPortRegistry_AllocatePort(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store:  client,
+		Store:  &entStoreAdapter{client: client},
 		Logger: slog.Default(),
 	})
 	require.NoError(t, err)
@@ -192,7 +643,7 @@ func TestPortRegistry_AllocatePort_AutoIncrement(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -240,7 +691,7 @@ func TestPortRegistry_AllocatePort_DifferentServices(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -283,7 +734,7 @@ func TestPortRegistry_AllocatePort_DuplicateError(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -324,7 +775,7 @@ func TestPortRegistry_IsPortAvailable(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -374,7 +825,7 @@ func TestPortRegistry_ReleasePort(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -427,7 +878,7 @@ func TestPortRegistry_DetectOrphans(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -483,7 +934,7 @@ func TestPortRegistry_DetectOrphans(t *testing.T) {
 	orphans, err = registry.DetectOrphans(ctx, routerID)
 	require.NoError(t, err)
 	assert.Len(t, orphans, 1)
-	assert.Equal(t, deletedInstanceID, orphans[0].InstanceID)
+	assert.Equal(t, deletedInstanceID, orphans[0].GetInstanceID())
 }
 
 // TestPortRegistry_CleanupOrphans tests orphan cleanup.
@@ -499,7 +950,7 @@ func TestPortRegistry_CleanupOrphans(t *testing.T) {
 	routerID, instanceID := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 
@@ -597,7 +1048,7 @@ func TestPortRegistry_ConcurrentAllocations(t *testing.T) {
 	routerID, _ := setupTestData(t, ctx, client)
 
 	registry, err := NewPortRegistry(PortRegistryConfig{
-		Store: client,
+		Store: &entStoreAdapter{client: client},
 	})
 	require.NoError(t, err)
 

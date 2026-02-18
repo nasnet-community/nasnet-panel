@@ -158,11 +158,11 @@ func (p *tableParser) findHeader(lines []string) (headerLineIdx int, columns []C
 
 // extractColumns extracts column positions from a header line.
 func (p *tableParser) extractColumns(header string) []ColumnInfo {
-	var columns []ColumnInfo
-
 	// Find all column name positions
 	re := regexp.MustCompile(`\S+`)
 	matches := re.FindAllStringIndex(header, -1)
+
+	columns := make([]ColumnInfo, 0, len(matches))
 
 	for i, match := range matches {
 		name := strings.TrimSpace(header[match[0]:match[1]])
@@ -190,8 +190,8 @@ func (p *tableParser) extractColumns(header string) []ColumnInfo {
 }
 
 // parseDataRow parses a single data row using column positions.
-func (p *tableParser) parseDataRow(line string, columns []ColumnInfo, flagDefs map[rune]string) (map[string]any, *ParseWarning) {
-	if len(line) == 0 {
+func (p *tableParser) parseDataRow(line string, columns []ColumnInfo, _flagDefs map[rune]string) (map[string]any, *ParseWarning) {
+	if line == "" {
 		return nil, nil
 	}
 
@@ -273,17 +273,18 @@ func (p *tableParser) extractRowPrefix(line string) (rowNum string, flags TableF
 			continue
 		}
 
-		if ch >= '0' && ch <= '9' {
+		switch {
+		case ch >= '0' && ch <= '9':
 			if inFlags {
 				// Number after flags means we're past the prefix
 				break
 			}
 			inNumber = true
 			numBuilder.WriteByte(ch)
-		} else if isRowFlag(ch) {
+		case isRowFlag(ch):
 			inFlags = true
 			flagBuilder.WriteByte(ch)
-		} else {
+		default:
 			// Non-flag, non-number character means data starts here
 			break
 		}

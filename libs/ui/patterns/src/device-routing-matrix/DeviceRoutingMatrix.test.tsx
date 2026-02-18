@@ -8,11 +8,14 @@
  * @see ADR-018: Headless + Platform Presenters Pattern
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
+import { usePlatform } from '@nasnet/ui/layouts';
+
 import { DeviceRoutingMatrix } from './DeviceRoutingMatrix';
+
 import type {
   DeviceRoutingMatrixData,
   DeviceRoutingActions,
@@ -86,8 +89,6 @@ vi.mock('./DeviceRoutingMatrixMobile', () => ({
     </div>
   )),
 }));
-
-import { usePlatform } from '@nasnet/ui/layouts';
 
 // Mock data
 const mockDevices: NetworkDevice[] = [

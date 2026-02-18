@@ -9,13 +9,13 @@ import (
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alerttemplate"
 	"backend/generated/ent/enttest"
+
 	"backend/internal/events"
 
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 // setupTestEnv creates an in-memory database and template service for testing.

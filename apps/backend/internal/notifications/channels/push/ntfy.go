@@ -13,6 +13,13 @@ import (
 	"backend/internal/notifications"
 )
 
+// Severity level constants used in ntfy priority mapping.
+const (
+	severityCritical = "CRITICAL"
+	severityWarning  = "WARNING"
+	severityInfo     = "INFO"
+)
+
 // NtfyChannel delivers notifications via ntfy.sh.
 type NtfyChannel struct {
 	config NtfyConfig
@@ -76,36 +83,14 @@ func (n *NtfyChannel) Send(ctx context.Context, notification notifications.Notif
 	}
 
 	topicURL := strings.TrimRight(n.config.ServerURL, "/") + "/" + n.config.Topic
-	priority := n.getPriority(notification.Severity)
-
-	payload := map[string]interface{}{
-		"topic":    n.config.Topic,
-		"title":    notification.Title,
-		"message":  notification.Message,
-		"priority": priority,
-	}
-
-	switch notification.Severity {
-	case "CRITICAL":
-		payload["tags"] = []string{"rotating_light", "alert"}
-	case "WARNING":
-		payload["tags"] = []string{"warning"}
-	case "INFO":
-		payload["tags"] = []string{"information_source"}
-	}
-
-	if notification.Data != nil {
-		if alertID, ok := notification.Data["alert_id"].(string); ok && alertID != "" {
-			payload["click"] = fmt.Sprintf("https://nasnet.local/alerts/%s", alertID)
-		}
-	}
+	payload := n.buildPayload(notification)
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", topicURL, strings.NewReader(string(jsonData)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, topicURL, strings.NewReader(string(jsonData)))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
@@ -118,47 +103,84 @@ func (n *NtfyChannel) Send(ctx context.Context, notification notifications.Notif
 
 	resp, err := n.client.Do(req)
 	if err != nil {
-		if ctx.Err() != nil {
-			return fmt.Errorf("connection timeout: %w", err)
-		}
-		if strings.Contains(err.Error(), "SSRF protection") {
-			return fmt.Errorf("security error: %w", err)
-		}
-		return fmt.Errorf("network error: %w", err)
+		return n.classifyClientError(ctx, err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		var errorResp struct {
-			Error string `json:"error"`
-		}
-		_ = json.NewDecoder(resp.Body).Decode(&errorResp)
+	return n.handleResponseStatus(resp)
+}
 
-		switch resp.StatusCode {
-		case 400:
-			return fmt.Errorf("invalid request: %s", errorResp.Error)
-		case 401, 403:
-			return fmt.Errorf("unauthorized: invalid bearer token")
-		case 429:
-			return fmt.Errorf("quota_exceeded: rate limit reached")
-		case 500, 502, 503, 504:
-			return fmt.Errorf("temporary server error: HTTP %d", resp.StatusCode)
-		default:
-			if errorResp.Error != "" {
-				return fmt.Errorf("ntfy API error: %s", errorResp.Error)
-			}
-			return fmt.Errorf("ntfy API returned status %d", resp.StatusCode)
+// buildPayload constructs the ntfy JSON payload from the notification.
+func (n *NtfyChannel) buildPayload(notification notifications.Notification) map[string]interface{} {
+	payload := map[string]interface{}{
+		"topic":    n.config.Topic,
+		"title":    notification.Title,
+		"message":  notification.Message,
+		"priority": n.getPriority(notification.Severity),
+	}
+
+	switch notification.Severity {
+	case severityCritical:
+		payload["tags"] = []string{"rotating_light", "alert"}
+	case severityWarning:
+		payload["tags"] = []string{"warning"}
+	case severityInfo:
+		payload["tags"] = []string{"information_source"}
+	}
+
+	if notification.Data != nil {
+		if alertID, ok := notification.Data["alert_id"].(string); ok && alertID != "" {
+			payload["click"] = fmt.Sprintf("https://nasnet.local/alerts/%s", alertID)
 		}
 	}
 
-	return nil
+	return payload
+}
+
+// classifyClientError categorizes HTTP client errors.
+func (n *NtfyChannel) classifyClientError(ctx context.Context, err error) error {
+	if ctx.Err() != nil {
+		return fmt.Errorf("connection timeout: %w", err)
+	}
+	if strings.Contains(err.Error(), "SSRF protection") {
+		return fmt.Errorf("security error: %w", err)
+	}
+	return fmt.Errorf("network error: %w", err)
+}
+
+// handleResponseStatus checks the HTTP response status and returns an appropriate error.
+func (n *NtfyChannel) handleResponseStatus(resp *http.Response) error {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return nil
+	}
+
+	var errorResp struct {
+		Error string `json:"error"`
+	}
+	_ = json.NewDecoder(resp.Body).Decode(&errorResp) //nolint:errcheck // best-effort decode
+
+	switch resp.StatusCode {
+	case http.StatusBadRequest:
+		return fmt.Errorf("invalid request: %s", errorResp.Error)
+	case http.StatusUnauthorized, http.StatusForbidden:
+		return fmt.Errorf("unauthorized: invalid bearer token")
+	case http.StatusTooManyRequests:
+		return fmt.Errorf("quota_exceeded: rate limit reached")
+	case http.StatusInternalServerError, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return fmt.Errorf("temporary server error: HTTP %d", resp.StatusCode)
+	default:
+		if errorResp.Error != "" {
+			return fmt.Errorf("ntfy API error: %s", errorResp.Error)
+		}
+		return fmt.Errorf("ntfy API returned status %d", resp.StatusCode)
+	}
 }
 
 func (n *NtfyChannel) getPriority(severity string) int {
 	switch severity {
-	case "CRITICAL":
+	case severityCritical:
 		return 5
-	case "WARNING":
+	case severityWarning:
 		return 4
 	default:
 		return 3
@@ -216,7 +238,7 @@ func (n *NtfyChannel) Test(ctx context.Context, config map[string]interface{}) e
 	testNotification := notifications.Notification{
 		Title:    "NasNetConnect Test",
 		Message:  "ntfy.sh notifications are configured correctly!",
-		Severity: "INFO",
+		Severity: severityInfo,
 	}
 	return n.Send(ctx, testNotification)
 }

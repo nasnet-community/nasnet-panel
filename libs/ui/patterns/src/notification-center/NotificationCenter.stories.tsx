@@ -4,12 +4,16 @@
  * Interactive stories demonstrating notification center functionality.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import React, { useState, useEffect } from 'react';
-import { Button } from '@nasnet/ui/primitives';
-import { NotificationCenter } from './NotificationCenter';
+import React, { useState , useEffect } from 'react';
+
+
 import { useAlertNotificationStore } from '@nasnet/state/stores';
 import type { AlertSeverity } from '@nasnet/state/stores';
+import { Button } from '@nasnet/ui/primitives';
+
+import { NotificationCenter } from './NotificationCenter';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock notifications generator
 function generateMockNotifications(count: number) {

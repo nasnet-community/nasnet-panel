@@ -11,16 +11,20 @@ import {
   useRef,
   useEffect,
   forwardRef,
+  useState,
 } from 'react';
+
 import {
   motion,
   AnimatePresence,
   useDragControls,
   type PanInfo,
 } from 'framer-motion';
+
+import { cn } from '@nasnet/ui/primitives';
+
 import { useAnimation, useAnimationOptional } from './AnimationProvider';
 import { bottomSheet, backdrop, reducedMotionFade } from './presets';
-import { cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -352,6 +356,3 @@ export function useBottomSheet(initialOpen = false) {
 
   return { isOpen, open, close, toggle, setIsOpen };
 }
-
-// Missing import
-import { useState } from 'react';

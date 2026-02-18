@@ -7,8 +7,9 @@
  * @module @nasnet/core/forms/useZodForm
  */
 
-import { useForm, type UseFormReturn, type UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn, type UseFormProps } from 'react-hook-form';
+
 import type { ZodSchema, z } from 'zod';
 
 /**
@@ -55,7 +56,8 @@ export function useZodForm<T extends ZodSchema>(
   const { schema, mode = 'onBlur', ...restOptions } = options;
 
   return useForm<z.infer<T>>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema as any),
     mode, // Default to onBlur for better performance
     ...restOptions,
   });

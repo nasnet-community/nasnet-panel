@@ -8,10 +8,11 @@
  * @see ADR-018: Headless + Platform Presenters Pattern
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 
 import { useDependencyGraph } from './use-dependency-graph';
+
 import type {
   UseDependencyGraphConfig,
   DependencyGraphNode,

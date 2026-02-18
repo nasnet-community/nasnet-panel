@@ -7,22 +7,23 @@
  * @see NAS-4A.20: Build Device Discovery Card Component
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
 import { DeviceCard } from './device-card';
+import { DeviceCardCompact } from './device-card-compact';
 import { DeviceCardDesktop } from './device-card-desktop';
 import { DeviceCardMobile } from './device-card-mobile';
-import { DeviceCardCompact } from './device-card-compact';
 import {
   useDeviceCard,
   formatMacAddress,
   DEVICE_ICON_MAP,
   DEVICE_TYPE_LABELS,
 } from './use-device-card';
-import type { DiscoveredDevice, DeviceType } from './device-card.types';
+
+import type { DiscoveredDevice } from './device-card.types';
 
 // Note: vitest-axe matchers are extended in setup.ts
 

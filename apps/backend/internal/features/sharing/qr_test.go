@@ -18,7 +18,7 @@ func TestGenerateQR_MTProxy(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -63,7 +63,7 @@ func TestGenerateQR_SizeLimit(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Create oversized config (> 2KB)
 	largeConfig := make(map[string]interface{})
@@ -105,7 +105,7 @@ func TestGenerateQR_PNGValidation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -161,7 +161,7 @@ func TestGenerateQR_DefaultOptions(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock event publishing
 	mockEventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
@@ -194,7 +194,7 @@ func TestGenerateQR_EventPublishing(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Capture event
 	var capturedEvent *QRCodeGeneratedEvent

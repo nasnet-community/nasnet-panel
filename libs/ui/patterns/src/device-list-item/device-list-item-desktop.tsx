@@ -12,6 +12,7 @@
 import * as React from 'react';
 
 import { cn, Badge } from '@nasnet/ui/primitives';
+
 import { StatusBadge } from '../status-badge';
 
 import type { DeviceListItemPresenterProps } from './device-list-item.types';
@@ -120,7 +121,7 @@ export function DeviceListItemDesktop({
       </div>
 
       {/* Status */}
-      <StatusBadge status={device.status} size="sm" />
+      <StatusBadge status={device.status} />
 
       {/* Static lease indicator */}
       {state.isStatic && (

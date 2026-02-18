@@ -104,8 +104,8 @@ type AuditLogger interface {
 	Log(ctx context.Context, event AuditEvent) error
 }
 
-// AuthServiceConfig configures the auth service
-type AuthServiceConfig struct {
+// Config configures the auth service
+type Config struct {
 	JWTService        *JWTService
 	PasswordService   *PasswordService
 	UserRepository    UserRepository
@@ -113,8 +113,8 @@ type AuthServiceConfig struct {
 	AuditLogger       AuditLogger
 }
 
-// AuthService orchestrates authentication operations
-type AuthService struct {
+// Service orchestrates authentication operations
+type Service struct {
 	jwt      *JWTService
 	password *PasswordService
 	users    UserRepository
@@ -122,8 +122,8 @@ type AuthService struct {
 	audit    AuditLogger
 }
 
-// NewAuthService creates a new authentication service
-func NewAuthService(config AuthServiceConfig) (*AuthService, error) {
+// NewService creates a new authentication service
+func NewService(config Config) (*Service, error) {
 	if config.JWTService == nil {
 		return nil, errors.New("JWT service is required")
 	}
@@ -137,7 +137,7 @@ func NewAuthService(config AuthServiceConfig) (*AuthService, error) {
 		return nil, errors.New("session repository is required")
 	}
 
-	return &AuthService{
+	return &Service{
 		jwt:      config.JWTService,
 		password: config.PasswordService,
 		users:    config.UserRepository,
@@ -163,7 +163,7 @@ type LoginResult struct {
 }
 
 // Login authenticates a user and creates a new session
-func (s *AuthService) Login(ctx context.Context, input LoginInput) (*LoginResult, error) {
+func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, error) {
 	// Get user by username
 	user, err := s.users.GetByUsername(ctx, input.Username)
 	if err != nil {
@@ -207,8 +207,8 @@ func (s *AuthService) Login(ctx context.Context, input LoginInput) (*LoginResult
 		CreatedAt:    now,
 	}
 
-	if err := s.sessions.Create(ctx, session); err != nil {
-		return nil, err
+	if authErr := s.sessions.Create(ctx, session); authErr != nil {
+		return nil, authErr
 	}
 
 	// Generate JWT token
@@ -222,8 +222,10 @@ func (s *AuthService) Login(ctx context.Context, input LoginInput) (*LoginResult
 		return nil, err
 	}
 
-	// Update last login
-	_ = s.users.UpdateLastLogin(ctx, user.ID, now)
+	// Update last login (ignore errors, this is best-effort)
+	if err := s.users.UpdateLastLogin(ctx, user.ID, now); err != nil {
+		_ = err
+	}
 
 	// Log success
 	s.logAuditEvent(ctx, "auth.login.success", &user.ID, &user.Username, input.IP, input.UserAgent, map[string]interface{}{
@@ -239,7 +241,7 @@ func (s *AuthService) Login(ctx context.Context, input LoginInput) (*LoginResult
 }
 
 // Logout invalidates a session
-func (s *AuthService) Logout(ctx context.Context, sessionID string, ip, userAgent string) error {
+func (s *Service) Logout(ctx context.Context, sessionID, ip, userAgent string) error {
 	session, err := s.sessions.GetByID(ctx, sessionID)
 	if err != nil {
 		return ErrSessionNotFound
@@ -258,7 +260,7 @@ func (s *AuthService) Logout(ctx context.Context, sessionID string, ip, userAgen
 }
 
 // ValidateSession validates a session and returns session info
-func (s *AuthService) ValidateSession(ctx context.Context, sessionID string) (*Session, error) {
+func (s *Service) ValidateSession(ctx context.Context, sessionID string) (*Session, error) {
 	session, err := s.sessions.GetByID(ctx, sessionID)
 	if err != nil {
 		return nil, ErrSessionNotFound
@@ -274,8 +276,10 @@ func (s *AuthService) ValidateSession(ctx context.Context, sessionID string) (*S
 		return nil, ErrSessionExpired
 	}
 
-	// Update last activity
-	_ = s.sessions.UpdateLastActivity(ctx, sessionID, time.Now())
+	// Update last activity (ignore errors, this is best-effort)
+	if err := s.sessions.UpdateLastActivity(ctx, sessionID, time.Now()); err != nil {
+		_ = err
+	}
 
 	return session, nil
 }
@@ -291,7 +295,7 @@ type ChangePasswordInput struct {
 }
 
 // ChangePassword changes a user's password and revokes other sessions
-func (s *AuthService) ChangePassword(ctx context.Context, input ChangePasswordInput) error {
+func (s *Service) ChangePassword(ctx context.Context, input ChangePasswordInput) error {
 	// Get user
 	user, err := s.users.GetByID(ctx, input.UserID)
 	if err != nil {
@@ -319,9 +323,13 @@ func (s *AuthService) ChangePassword(ctx context.Context, input ChangePasswordIn
 
 	// Revoke all other sessions (security measure)
 	if input.CurrentSession != "" {
-		_ = s.sessions.RevokeAllForUserExcept(ctx, user.ID, input.CurrentSession, "password_changed")
+		if err := s.sessions.RevokeAllForUserExcept(ctx, user.ID, input.CurrentSession, "password_changed"); err != nil {
+			_ = err
+		}
 	} else {
-		_ = s.sessions.RevokeAllForUser(ctx, user.ID, "password_changed")
+		if err := s.sessions.RevokeAllForUser(ctx, user.ID, "password_changed"); err != nil {
+			_ = err
+		}
 	}
 
 	// Log password change
@@ -331,7 +339,7 @@ func (s *AuthService) ChangePassword(ctx context.Context, input ChangePasswordIn
 }
 
 // RevokeAllSessions revokes all sessions for a user (admin operation)
-func (s *AuthService) RevokeAllSessions(ctx context.Context, targetUserID string, adminID string, ip, userAgent string) error {
+func (s *Service) RevokeAllSessions(ctx context.Context, targetUserID, adminID, ip, userAgent string) error {
 	// Get target user
 	targetUser, err := s.users.GetByID(ctx, targetUserID)
 	if err != nil {
@@ -353,32 +361,32 @@ func (s *AuthService) RevokeAllSessions(ctx context.Context, targetUserID string
 }
 
 // GetCurrentUser retrieves the current user by ID
-func (s *AuthService) GetCurrentUser(ctx context.Context, userID string) (*User, error) {
+func (s *Service) GetCurrentUser(ctx context.Context, userID string) (*User, error) {
 	return s.users.GetByID(ctx, userID)
 }
 
 // GetUserSessions retrieves all active sessions for a user
-func (s *AuthService) GetUserSessions(ctx context.Context, userID string) ([]*Session, error) {
+func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]*Session, error) {
 	return s.sessions.GetActiveForUser(ctx, userID)
 }
 
 // ValidatePassword validates a password against the policy
-func (s *AuthService) ValidatePassword(password string) error {
+func (s *Service) ValidatePassword(password string) error {
 	return s.password.ValidatePassword(password)
 }
 
 // JWTService returns the JWT service for token operations
-func (s *AuthService) JWTService() *JWTService {
+func (s *Service) JWTService() *JWTService {
 	return s.jwt
 }
 
 // PasswordService returns the password service
-func (s *AuthService) PasswordService() *PasswordService {
+func (s *Service) PasswordService() *PasswordService {
 	return s.password
 }
 
 // logAuditEvent logs an audit event if audit logger is configured
-func (s *AuthService) logAuditEvent(ctx context.Context, eventType string, userID, username *string, ip, userAgent string, details map[string]interface{}) {
+func (s *Service) logAuditEvent(ctx context.Context, eventType string, userID, username *string, ip, userAgent string, details map[string]interface{}) {
 	if s.audit == nil {
 		return
 	}
@@ -398,5 +406,7 @@ func (s *AuthService) logAuditEvent(ctx context.Context, eventType string, userI
 		event.CorrelationID = reqID
 	}
 
-	_ = s.audit.Log(ctx, event)
+	if err := s.audit.Log(ctx, event); err != nil {
+		_ = err
+	}
 }

@@ -8,14 +8,12 @@ import (
 )
 
 // GetBridgeVlans retrieves all VLANs for a bridge.
-func (s *BridgeService) GetBridgeVlans(ctx context.Context, bridgeID string) ([]*BridgeVlanData, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) GetBridgeVlans(ctx context.Context, bridgeID string) ([]*VlanData, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/vlan",
 		Action: "print",
 		Query:  fmt.Sprintf("?bridge=%s", bridgeID),
@@ -33,11 +31,9 @@ func (s *BridgeService) GetBridgeVlans(ctx context.Context, bridgeID string) ([]
 }
 
 // CreateBridgeVlan creates a VLAN entry on a bridge.
-func (s *BridgeService) CreateBridgeVlan(ctx context.Context, bridgeID string, input *CreateBridgeVlanInput) (*BridgeVlanData, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) CreateBridgeVlan(ctx context.Context, bridgeID string, input *CreateBridgeVlanInput) (*VlanData, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
 	args := map[string]string{
@@ -53,7 +49,7 @@ func (s *BridgeService) CreateBridgeVlan(ctx context.Context, bridgeID string, i
 		args["untagged"] = input.UntaggedPortIDs[0]
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/vlan",
 		Action: "add",
 		Args:   args,
@@ -71,14 +67,12 @@ func (s *BridgeService) CreateBridgeVlan(ctx context.Context, bridgeID string, i
 }
 
 // DeleteBridgeVlan deletes a VLAN entry from a bridge.
-func (s *BridgeService) DeleteBridgeVlan(ctx context.Context, uuid string) error {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) DeleteBridgeVlan(ctx context.Context, uuid string) error {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return err
 	}
 
-	_, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/vlan",
 		Action: "remove",
 		ID:     uuid,
@@ -91,14 +85,12 @@ func (s *BridgeService) DeleteBridgeVlan(ctx context.Context, uuid string) error
 }
 
 // GetStpStatus retrieves STP status for a bridge.
-func (s *BridgeService) GetStpStatus(ctx context.Context, bridgeID string) (*BridgeStpStatusData, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) GetStpStatus(ctx context.Context, bridgeID string) (*StpStatusData, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge",
 		Action: "monitor",
 		Args: map[string]string{

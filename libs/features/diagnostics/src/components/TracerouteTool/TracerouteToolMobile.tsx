@@ -69,7 +69,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
     watch,
     formState: { errors, isValid },
   } = useForm<TracerouteFormValues>({
-    resolver: zodResolver(tracerouteFormSchema),
+    resolver: zodResolver(tracerouteFormSchema) as any,
     mode: 'onChange',
     defaultValues: {
       target: '',
@@ -140,7 +140,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       const hostname = hop.hostname && hop.hostname !== hop.address ? `(${hop.hostname})` : '';
 
       const probeLatencies = hop.probes
-        .map((probe) => (probe.success && probe.latencyMs !== null ? `${probe.latencyMs.toFixed(1)} ms` : '*'))
+        .map((probe) => (probe.success && probe.latencyMs != null ? `${probe.latencyMs.toFixed(1)} ms` : '*'))
         .join('  ');
 
       lines.push(`${hopNum}  ${address} ${hostname}  ${probeLatencies}`);

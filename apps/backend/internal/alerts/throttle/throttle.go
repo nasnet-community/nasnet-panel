@@ -167,7 +167,7 @@ func (g *groupThrottleState) cleanup(now time.Time, window time.Duration) {
 }
 
 // ShouldAllow checks if an alert should be allowed based on throttle rules.
-func (tm *Manager) ShouldAllow(ruleID string, eventData map[string]interface{}, config Config) (bool, string) {
+func (tm *Manager) ShouldAllow(ruleID string, eventData map[string]interface{}, config Config) (allowed bool, reason string) {
 	if config.MaxAlerts <= 0 || config.PeriodSeconds <= 0 {
 		return true, ""
 	}
@@ -186,7 +186,7 @@ func (tm *Manager) ShouldAllow(ruleID string, eventData map[string]interface{}, 
 
 	groupKey := "default"
 	if config.GroupByField != "" {
-		if value, exists := GetFieldValue(config.GroupByField, eventData); exists {
+		if value, innerExists := GetFieldValue(config.GroupByField, eventData); innerExists {
 			groupKey = ToString(value)
 		}
 	}

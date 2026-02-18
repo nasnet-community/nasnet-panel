@@ -6,8 +6,64 @@ import (
 	"time"
 
 	"backend/generated/ent/enttest"
+
 	"backend/internal/events"
+	"backend/internal/router"
 )
+
+// MockRouterPort is a mock implementation for testing
+type MockRouterPort struct {
+	commands       []router.Command
+	nextID         string
+	queryResources []map[string]string
+}
+
+func NewMockRouterPort() *MockRouterPort {
+	return &MockRouterPort{
+		commands: make([]router.Command, 0),
+		nextID:   "*1",
+	}
+}
+
+func (m *MockRouterPort) Connect(ctx context.Context) error {
+	return nil
+}
+
+func (m *MockRouterPort) Disconnect() error {
+	return nil
+}
+
+func (m *MockRouterPort) IsConnected() bool {
+	return true
+}
+
+func (m *MockRouterPort) Health(ctx context.Context) router.HealthStatus {
+	return router.HealthStatus{Status: router.StatusConnected}
+}
+
+func (m *MockRouterPort) Capabilities() router.PlatformCapabilities {
+	return router.PlatformCapabilities{}
+}
+
+func (m *MockRouterPort) Info() (*router.RouterInfo, error) {
+	return &router.RouterInfo{}, nil
+}
+
+func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+	m.commands = append(m.commands, cmd)
+	return &router.CommandResult{
+		Success: true,
+		ID:      m.nextID,
+	}, nil
+}
+
+func (m *MockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+	return &router.StateResult{Resources: m.queryResources}, nil
+}
+
+func (m *MockRouterPort) Protocol() router.Protocol {
+	return router.ProtocolREST
+}
 
 // TestKillSwitchListener_HealthEventActivation tests activation on unhealthy transition.
 func TestKillSwitchListener_HealthEventActivation(t *testing.T) {
@@ -73,10 +129,10 @@ func TestKillSwitchListener_HealthEventActivation(t *testing.T) {
 		"tor",
 		testInstance.ID,
 		testRouter.ID,
-		"HEALTHY",   // Previous state
-		"UNHEALTHY", // Current state
-		3,           // Consecutive fails
-		5000,        // Latency ms
+		"HEALTHY",                       // Previous state
+		"UNHEALTHY",                     // Current state
+		3,                               // Consecutive fails
+		5000,                            // Latency ms
 		time.Now().Add(-10*time.Minute), // Last healthy 10 minutes ago
 	)
 

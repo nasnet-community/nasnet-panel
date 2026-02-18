@@ -40,16 +40,14 @@ function parseDurationToMs(duration: string): number {
   const value = parseInt(match[1], 10);
   const unit = match[2];
 
-  switch (unit) {
-    case 's':
-      return value * 1000;
-    case 'm':
-      return value * 60 * 1000;
-    case 'h':
-      return value * 60 * 60 * 1000;
-    default:
-      return 5000;
+  if (unit === 's') {
+    return value * 1000;
+  } else if (unit === 'm') {
+    return value * 60 * 1000;
+  } else if (unit === 'h') {
+    return value * 60 * 60 * 1000;
   }
+  return 5000; // fallback
 }
 
 /**
@@ -98,7 +96,7 @@ export function useInterfaceStatsPanel({
   const { data: subscriptionData } = useInterfaceStatsSubscription({
     routerId,
     interfaceId,
-    interval: pollingInterval,
+    interval: pollingInterval as any,
   });
 
   // Current stats (prefer subscription data over initial query)
@@ -157,15 +155,17 @@ export function useInterfaceStatsPanel({
   // Update previous stats for rate calculation
   // Wait for one interval before storing, so we have a proper delta
   useEffect(() => {
-    if (currentStats && currentStats !== previousStatsRef.current) {
-      const intervalMs = parseDurationToMs(pollingInterval);
-      const timer = setTimeout(() => {
-        setPreviousStats(currentStats);
-        previousStatsRef.current = currentStats;
-      }, intervalMs);
-
-      return () => clearTimeout(timer);
+    if (!currentStats || currentStats === previousStatsRef.current) {
+      return;
     }
+
+    const intervalMs = parseDurationToMs(pollingInterval);
+    const timer = setTimeout(() => {
+      setPreviousStats(currentStats);
+      previousStatsRef.current = currentStats;
+    }, intervalMs);
+
+    return () => clearTimeout(timer);
   }, [currentStats, pollingInterval]);
 
   // Check if interface has any errors

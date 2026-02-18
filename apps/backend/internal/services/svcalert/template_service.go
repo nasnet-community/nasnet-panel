@@ -322,6 +322,7 @@ func (s *AlertTemplateService) SearchTemplates(ctx context.Context, query string
 		if searchPattern.MatchString(tmpl.Name) ||
 			searchPattern.MatchString(tmpl.Description) ||
 			searchPattern.MatchString(tmpl.EventType) {
+
 			results = append(results, tmpl)
 			continue
 		}

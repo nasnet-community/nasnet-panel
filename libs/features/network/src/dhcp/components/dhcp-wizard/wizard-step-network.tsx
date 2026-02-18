@@ -24,8 +24,8 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
   const defaultGateway = interfaceData?.interfaceIP?.split('/')[0] || '';
 
   const form = useForm<NetworkStepFormData>({
-    resolver: zodResolver(networkStepSchema),
-    defaultValues: stepper.getStepData('network') || {
+    resolver: zodResolver(networkStepSchema) as never,
+    defaultValues: (stepper.getStepData('network') as NetworkStepFormData) || {
       gateway: defaultGateway,
       dnsServers: [defaultGateway], // Default to router IP as DNS
       leaseTime: '1d',
@@ -36,7 +36,7 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'dnsServers',
+    name: 'dnsServers' as never,
   });
 
   // Save form data when proceeding
@@ -58,14 +58,11 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
         <div>
           <Label htmlFor="gateway">
             Default Gateway
-            <FieldHelp>
-              Router IP address that clients will use as their default gateway
-            </FieldHelp>
+            <FieldHelp field="dhcp.gateway" />
           </Label>
           <IPInput
-            id="gateway"
-            {...form.register('gateway')}
-            error={form.formState.errors.gateway?.message}
+            value={form.watch('gateway') || ''}
+            onChange={(value: string) => form.setValue('gateway', value)}
             placeholder="e.g., 192.168.1.1"
           />
         </div>
@@ -83,9 +80,8 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
                   DNS Server {index + 1}
                 </Label>
                 <IPInput
-                  id={`dns-${index}`}
-                  {...form.register(`dnsServers.${index}`)}
-                  error={form.formState.errors.dnsServers?.[index]?.message}
+                  value={form.watch(`dnsServers.${index}`) || ''}
+                  onChange={(value: string) => form.setValue(`dnsServers.${index}`, value)}
                   placeholder="e.g., 8.8.8.8"
                 />
               </div>
@@ -131,9 +127,7 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
         <div>
           <Label htmlFor="lease-time">
             Lease Time
-            <FieldHelp>
-              How long clients can use an IP address before renewal
-            </FieldHelp>
+            <FieldHelp field="dhcp.leaseTime" />
           </Label>
           <Select
             value={form.watch('leaseTime')}
@@ -166,9 +160,7 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
           <div>
             <Label htmlFor="domain">
               Domain Name
-              <FieldHelp>
-                DNS search domain for clients (e.g., home.local)
-              </FieldHelp>
+              <FieldHelp field="dhcp.domain" />
             </Label>
             <Input
               id="domain"
@@ -180,14 +172,11 @@ export function WizardStepNetwork({ stepper }: WizardStepNetworkProps) {
           <div>
             <Label htmlFor="ntp-server">
               NTP Server
-              <FieldHelp>
-                Time server IP address for client time synchronization
-              </FieldHelp>
+              <FieldHelp field="dhcp.ntpServer" />
             </Label>
             <IPInput
-              id="ntp-server"
-              {...form.register('ntpServer')}
-              error={form.formState.errors.ntpServer?.message}
+              value={form.watch('ntpServer') || ''}
+              onChange={(value: string) => form.setValue('ntpServer', value)}
               placeholder="e.g., pool.ntp.org or IP address"
             />
           </div>

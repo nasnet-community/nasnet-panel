@@ -1,8 +1,10 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { Network, Users, ChevronRight, Loader2 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock DHCPSummaryCard for Storybook since it depends on TanStack Router
 interface MockDHCPSummaryCardProps {

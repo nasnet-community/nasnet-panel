@@ -11,6 +11,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
+
 import {
   Monitor,
   Smartphone,
@@ -22,7 +23,6 @@ import {
   Wifi,
   Cable,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 import type {
   UseDeviceCardConfig,
@@ -30,6 +30,8 @@ import type {
   DeviceType,
   ConnectionType,
 } from './device-card.types';
+import type { LucideIcon } from 'lucide-react';
+
 
 /**
  * Confidence threshold for showing indicator

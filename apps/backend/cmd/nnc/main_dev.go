@@ -15,22 +15,23 @@ import (
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
-	"backend/generated/graphql"
+	"backend/graph"
 	"backend/graph/resolver"
 	"backend/internal/alerts"
 	"backend/internal/database"
 	"backend/internal/dns"
 	"backend/internal/encryption"
-	"backend/internal/events"
 	"backend/internal/graphql/loaders"
 	"backend/internal/notifications"
 	channelshttp "backend/internal/notifications/channels/http"
 	"backend/internal/notifications/channels/push"
-	"backend/internal/router"
 	scannerPkg "backend/internal/scanner"
 	"backend/internal/server"
 	"backend/internal/services"
 	troubleshootPkg "backend/internal/troubleshoot"
+
+	"backend/internal/events"
+	"backend/internal/router"
 )
 
 func init() {
@@ -39,9 +40,27 @@ func init() {
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Development MikroTik server initialized")
+
+	ServerVersion = "development-v2.0"
 }
 
-func init() { ServerVersion = "development-v2.0" }
+// eventBusAdapter adapts events.EventBus to alerts.EventBus interface.
+type eventBusAdapter struct {
+	bus events.EventBus
+}
+
+func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error {
+	if e, ok := event.(events.Event); ok {
+		return a.bus.Publish(ctx, e)
+	}
+	return a.bus.Publish(ctx, events.NewGenericEvent("custom.event", events.PriorityNormal, "alert-service", map[string]interface{}{
+		"data": event,
+	}))
+}
+
+func (a *eventBusAdapter) Close() error {
+	return a.bus.Close()
+}
 
 func run() {
 	cfg := server.DefaultDevConfig()
@@ -101,7 +120,12 @@ func run() {
 	if err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
 	}
-	defer logger.Sync()
+	defer func() {
+		if syncErr := logger.Sync(); syncErr != nil {
+			// Ignore sync errors on stderr/stdout (common on Linux/Windows)
+			log.Printf("Warning: Failed to sync logger: %v\n", syncErr)
+		}
+	}()
 	sugar := logger.Sugar()
 
 	// Initialize notification system
@@ -115,8 +139,8 @@ func run() {
 		Channels: channels, Logger: sugar, TemplateService: templateService,
 		DB: systemDB, MaxRetries: 3, InitialBackoff: 1 * time.Second,
 	})
-	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
-		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", err)
+	if subscribeErr := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); subscribeErr != nil {
+		log.Fatalf("Failed to subscribe dispatcher to alert events: %v", subscribeErr)
 	}
 
 	// Initialize alert system
@@ -228,7 +252,7 @@ type devRoutesDeps struct {
 
 // setupDevRoutes configures all HTTP routes for development.
 func setupDevRoutes(e *echo.Echo, deps devRoutesDeps) {
-	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
+	resolv := resolver.NewResolverWithConfig(resolver.Config{
 		EventBus:            deps.eventBus,
 		ScannerService:      deps.scannerSvc,
 		RouterService:       deps.routerSvc,

@@ -8,8 +8,10 @@
  */
 
 import React from 'react';
+
 import { HistoryPanelDesktop } from './HistoryPanelDesktop';
 import { HistoryPanelMobile } from './HistoryPanelMobile';
+
 import type { HistoryPanelProps } from './types';
 
 /**

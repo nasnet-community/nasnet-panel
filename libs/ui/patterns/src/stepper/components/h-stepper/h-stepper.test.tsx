@@ -7,16 +7,16 @@
  * @see NAS-4A.16: Build Horizontal Stepper (Header Pattern)
  */
 
-import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { HStepper } from './h-stepper';
-import { HStepperProgress } from './h-stepper-progress';
 import { HStepperItem } from './h-stepper-item';
+import { HStepperProgress } from './h-stepper-progress';
 import { useStepper } from '../../hooks/use-stepper';
+
 import type { StepConfig, StepperConfig } from '../../hooks/use-stepper.types';
 
 // ===== Test Helpers =====

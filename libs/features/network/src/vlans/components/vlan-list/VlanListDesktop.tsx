@@ -65,7 +65,7 @@ export function VlanListDesktop({
   // Get unique parent interfaces for filter dropdown
   const parentInterfaces = useMemo(() => {
     const uniqueInterfaces = new Map<string, string>();
-    allVlans.forEach((vlan) => {
+    allVlans.forEach((vlan: any) => {
       uniqueInterfaces.set(vlan.interface.id, vlan.interface.name);
     });
     return Array.from(uniqueInterfaces.entries()).map(([id, name]) => ({
@@ -78,9 +78,8 @@ export function VlanListDesktop({
   const columns = useMemo<DataTableColumn<Vlan>[]>(
     () => [
       {
-        id: 'name',
+        key: 'name',
         header: 'Name',
-        accessorKey: 'name',
         cell: (vlan) => (
           <div className="flex flex-col gap-1">
             <span className="font-medium">{vlan.name}</span>
@@ -93,9 +92,8 @@ export function VlanListDesktop({
         ),
       },
       {
-        id: 'vlanId',
+        key: 'vlanId',
         header: 'VLAN ID',
-        accessorKey: 'vlanId',
         cell: (vlan) => (
           <Badge variant="outline" className="font-mono">
             {vlan.vlanId}
@@ -103,7 +101,7 @@ export function VlanListDesktop({
         ),
       },
       {
-        id: 'interface',
+        key: 'interface',
         header: 'Parent Interface',
         cell: (vlan) => (
           <div className="flex flex-col gap-1">
@@ -115,7 +113,7 @@ export function VlanListDesktop({
         ),
       },
       {
-        id: 'mtu',
+        key: 'mtu',
         header: 'MTU',
         cell: (vlan) => (
           <span className="font-mono text-sm">
@@ -124,11 +122,11 @@ export function VlanListDesktop({
         ),
       },
       {
-        id: 'status',
+        key: 'status',
         header: 'Status',
         cell: (vlan) => {
           if (vlan.disabled) {
-            return <Badge variant="muted">Disabled</Badge>;
+            return <Badge variant="secondary">Disabled</Badge>;
           }
           return vlan.running ? (
             <Badge variant="success">Running</Badge>
@@ -138,7 +136,7 @@ export function VlanListDesktop({
         },
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
         cell: (vlan) => (
           <div className="flex items-center gap-2 justify-end">
@@ -228,14 +226,12 @@ export function VlanListDesktop({
       </DataTableToolbar>
 
       {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={vlans}
-        loading={loading}
-        error={error?.message}
+      <DataTable<Vlan & Record<string, unknown>>
+        columns={columns as DataTableColumn<Vlan & Record<string, unknown>>[]}
+        data={vlans as (Vlan & Record<string, unknown>)[]}
+        isLoading={loading}
         emptyMessage="No VLANs found"
         onRowClick={(vlan) => setSelectedVlanId(vlan.id)}
-        getRowId={(vlan) => vlan.id}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -248,9 +244,9 @@ export function VlanListDesktop({
             ? `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
             : ''
         }
-        confirmText="Delete"
+        consequences={['This action cannot be undone']}
+        confirmText="DELETE"
         onConfirm={handleConfirmedDelete}
-        variant="danger"
       />
     </div>
   );

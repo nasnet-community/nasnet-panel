@@ -82,7 +82,7 @@ func (s *service) GetAllUpgradeRecommendations(currentVersion Version, isCHR boo
 }
 
 // determinePriority assigns a priority level based on the feature type.
-func determinePriority(featureID string, isMajorUpgrade bool) UpgradePriority {
+func determinePriority(featureID string, _isMajorUpgrade bool) UpgradePriority {
 	// Security-related features are critical
 	securityFeatures := map[string]bool{
 		"api_ssl": true,
@@ -241,7 +241,7 @@ func buildImpact(current, required Version, isMajor bool) UpgradeImpact {
 }
 
 // buildWarnings generates warnings for the upgrade.
-func buildWarnings(current, required Version, fc *FeatureCompatibility, isMajor bool) []string {
+func buildWarnings(current, _ Version, fc *FeatureCompatibility, isMajor bool) []string {
 	warnings := make([]string, 0)
 
 	if isMajor {

@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
+
 import type {
   ServiceInstanceHealth,
   InstanceHealthState,
   HealthConnectionState
 } from '@nasnet/api-client/generated/types';
-import type { RuntimeState } from '../resource-health-indicator/types';
+import type { RuntimeState } from '@nasnet/core/types';
 
 /**
  * Maps GraphQL InstanceHealthState to UI RuntimeState
@@ -14,7 +15,7 @@ export function mapHealthStateToRuntimeState(state: InstanceHealthState): Runtim
     case 'HEALTHY':
       return 'HEALTHY';
     case 'UNHEALTHY':
-      return 'CRITICAL';
+      return 'FAILED';
     case 'CHECKING':
       return 'DEGRADED';
     case 'UNKNOWN':

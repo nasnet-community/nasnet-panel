@@ -102,9 +102,9 @@ func (s *TemplateService) PreviewTemplate(ctx context.Context, routerID, templat
 	}
 
 	// Resolve template rules with variable substitution
-	resolvedRules, err := s.resolveTemplateRules(template.Rules, variables)
-	if err != nil {
-		return nil, fmt.Errorf("failed to resolve template rules: %w", err)
+	resolvedRules, resolveErr := s.resolveTemplateRules(template.Rules, variables)
+	if resolveErr != nil {
+		return nil, fmt.Errorf("failed to resolve template rules: %w", resolveErr)
 	}
 
 	// Detect conflicts (simplified implementation - would need router state)
@@ -138,6 +138,8 @@ func (s *TemplateService) validateVariables(template *Template, variables map[st
 }
 
 // resolveTemplateRules substitutes variables in rule properties
+//
+//nolint:unparam // error kept for interface compatibility
 func (s *TemplateService) resolveTemplateRules(rules []TemplateRule, variables map[string]interface{}) ([]TemplateRule, error) {
 	resolved := make([]TemplateRule, len(rules))
 
@@ -249,15 +251,13 @@ func (s *TemplateService) ApplyTemplate(ctx context.Context, routerID, templateI
 	}
 
 	// Check for conflicts
-	if len(preview.Conflicts) > 0 {
-		// In a real implementation, we might allow overrides or handle conflicts
-		// For now, we'll proceed anyway
-	}
+	// In a real implementation, we might allow overrides or handle conflicts
+	// For now, proceed regardless of conflicts
 
 	// Store current firewall state for rollback
-	currentRules, err := s.getCurrentFirewallRules(ctx, routerPort)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch current rules: %w", err)
+	currentRules, currentErr := s.getCurrentRules(ctx, routerPort)
+	if currentErr != nil {
+		return nil, fmt.Errorf("failed to fetch current rules: %w", currentErr)
 	}
 
 	// Apply each rule to the router
@@ -298,8 +298,8 @@ func (s *TemplateService) ApplyTemplate(ctx context.Context, routerID, templateI
 	}, nil
 }
 
-// getCurrentFirewallRules fetches current firewall rules from the router
-func (s *TemplateService) getCurrentFirewallRules(ctx context.Context, routerPort RouterPort) ([]FirewallRule, error) {
+// getCurrentRules fetches current firewall rules from the router
+func (s *TemplateService) getCurrentRules(ctx context.Context, routerPort RouterPort) ([]Rule, error) {
 	// This would call the router to get existing rules
 	// For now, return empty slice
 	// In real implementation:
@@ -308,11 +308,13 @@ func (s *TemplateService) getCurrentFirewallRules(ctx context.Context, routerPor
 	// 3. Query /ip/firewall/mangle/print
 	// 4. Combine and return
 
-	return []FirewallRule{}, nil
+	return []Rule{}, nil
 }
 
 // applyRuleToRouter applies a single rule to the router
-func (s *TemplateService) applyRuleToRouter(ctx context.Context, routerPort RouterPort, rule TemplateRule) (string, error) {
+//
+//nolint:unparam // error kept for interface compatibility
+func (s *TemplateService) applyRuleToRouter(_ context.Context, _ RouterPort, _ TemplateRule) (string, error) {
 	// This would use the RouterPort interface to add the rule
 	// Based on the rule.Table, call the appropriate MikroTik command:
 	// - FILTER: /ip/firewall/filter/add

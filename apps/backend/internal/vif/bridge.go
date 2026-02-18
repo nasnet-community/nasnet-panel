@@ -6,8 +6,9 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/virtualinterface"
-	"backend/internal/events"
 	"backend/internal/features"
+
+	"backend/internal/events"
 	"backend/internal/router"
 
 	"github.com/rs/zerolog/log"
@@ -56,6 +57,7 @@ func (b *BridgeOrchestrator) SetupBridge(
 	instance *ent.ServiceInstance,
 	manifest *features.Manifest,
 ) (*ent.VirtualInterface, error) {
+
 	log.Info().
 		Str("instance_id", instance.ID).
 		Str("feature_id", manifest.ID).
@@ -96,16 +98,16 @@ func (b *BridgeOrchestrator) SetupBridge(
 	if m, ok := instance.Config["mode"].(string); ok {
 		mode = m
 	}
-	if b.gatewayManager.NeedsGateway(manifest, mode) {
+	if b.gatewayManager.NeedsGateway(manifest, mode) { //nolint:nestif // bridge state management
 		log.Info().Str("instance_id", instance.ID).Msg("Gateway required for this service")
 
 		// Start gateway (handles all config generation internally)
-		if err := b.gatewayManager.StartGateway(ctx, instance, manifest); err != nil {
+		if gwErr := b.gatewayManager.StartGateway(ctx, instance, manifest); gwErr != nil {
 			// Gateway failed - cleanup interface
 			if cleanupErr := b.interfaceFactory.RemoveInterface(ctx, instance.ID); cleanupErr != nil {
 				log.Error().Err(cleanupErr).Msg("Failed to cleanup interface after gateway failure")
 			}
-			return nil, fmt.Errorf("failed to start gateway: %w", err)
+			return nil, fmt.Errorf("failed to start gateway: %w", gwErr)
 		}
 	} else {
 		log.Info().Str("instance_id", instance.ID).Msg("No gateway needed for this service")
@@ -148,6 +150,7 @@ func (b *BridgeOrchestrator) TeardownBridge(
 	ctx context.Context,
 	instanceID string,
 ) error {
+
 	log.Info().Str("instance_id", instanceID).Msg("Tearing down virtual interface bridge")
 
 	// Load ServiceInstance

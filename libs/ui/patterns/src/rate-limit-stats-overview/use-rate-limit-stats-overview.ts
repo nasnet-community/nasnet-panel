@@ -6,7 +6,11 @@
  */
 
 import { useState, useMemo } from 'react';
+
 import { useRateLimitStats } from '@nasnet/api-client/queries';
+
+import { POLLING_INTERVAL_CONFIGS } from './types';
+
 import type {
   RateLimitStatsOverviewProps,
   StatsOverviewState,
@@ -15,7 +19,6 @@ import type {
   ChartDataPoint,
   ExportData,
 } from './types';
-import { POLLING_INTERVAL_CONFIGS } from './types';
 
 /**
  * useRateLimitStatsOverview Hook

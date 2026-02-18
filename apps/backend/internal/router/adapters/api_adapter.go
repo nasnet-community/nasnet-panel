@@ -13,13 +13,13 @@ import (
 
 	"backend/internal/router"
 
-	"github.com/go-routeros/routeros/v3"
+	"github.com/go-routeros/routeros/v3" //nolint:misspell // RouterOS product name
 )
 
 // APIAdapter implements RouterPort for the RouterOS Binary API (port 8728/8729).
 type APIAdapter struct {
 	config     router.AdapterConfig
-	client     *routeros.Client
+	client     *routeros.Client //nolint:misspell // routeros is a Go package name, not a misspelling
 	routerInfo *router.RouterInfo
 	caps       router.PlatformCapabilities
 	health     router.HealthStatus
@@ -84,7 +84,7 @@ func (a *APIAdapter) Connect(ctx context.Context) error {
 
 	if a.useTLS {
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: true, // RouterOS often uses self-signed certs
+			InsecureSkipVerify: true, //nolint:gosec // required for router TLS connections
 		}
 		conn, err = tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
 	} else {
@@ -104,7 +104,7 @@ func (a *APIAdapter) Connect(ctx context.Context) error {
 		}
 	}
 
-	client, err := routeros.NewClient(conn)
+	client, err := routeros.NewClient(conn) //nolint:misspell // routeros is correct
 	if err != nil {
 		conn.Close()
 		a.health.Status = router.StatusError
@@ -310,24 +310,28 @@ func (a *APIAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, err
 
 	info := &router.RouterInfo{}
 
-	if len(reply.Re) > 0 {
+	if len(reply.Re) > 0 { //nolint:nestif // router response parsing
 		resource := reply.Re[0].Map
 
 		if v, ok := resource["version"]; ok {
 			info.Version = parseAPIVersion(v)
 		}
+
 		if v, ok := resource["board-name"]; ok {
 			info.BoardName = v
 			info.Model = v
 		}
+
 		if v, ok := resource["platform"]; ok {
 			if info.Model == "" {
 				info.Model = v
 			}
 		}
+
 		if v, ok := resource["architecture-name"]; ok {
 			info.Architecture = v
 		}
+
 		if v, ok := resource["uptime"]; ok {
 			info.Uptime = parseUptime(v)
 		}
@@ -344,7 +348,7 @@ func (a *APIAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, err
 	return info, nil
 }
 
-// detectCapabilities determines what features the router supports.
+// detectCapabilities determines what features the router supports. //nolint:nestif
 func (a *APIAdapter) detectCapabilities() router.PlatformCapabilities {
 	caps := router.PlatformCapabilities{
 		SupportsREST:      false,
@@ -368,6 +372,7 @@ func (a *APIAdapter) detectCapabilities() router.PlatformCapabilities {
 		model := strings.ToLower(a.routerInfo.Model)
 		if strings.Contains(model, "wap") || strings.Contains(model, "hap") ||
 			strings.Contains(model, "wifi") || strings.Contains(model, "wireless") {
+
 			caps.HasWireless = true
 		}
 	}
@@ -389,9 +394,9 @@ func buildAPIPath(path, action string) string {
 
 	// Add action
 	if action != "" {
-		path = path + "/" + action
+		path += "/" + action
 	} else {
-		path = path + "/print"
+		path += "/print"
 	}
 
 	return path
@@ -399,7 +404,7 @@ func buildAPIPath(path, action string) string {
 
 // buildAPIArgs builds the API command arguments.
 func buildAPIArgs(args map[string]string, id, query string) []string {
-	var result []string
+	result := make([]string, 0, len(args)+2)
 
 	// Add ID if specified
 	if id != "" {
@@ -433,10 +438,13 @@ func parseAPIVersion(versionStr string) router.RouterOSVersion {
 	re := regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?`)
 	matches := re.FindStringSubmatch(versionStr)
 	if len(matches) >= 3 {
-		v.Major, _ = strconv.Atoi(matches[1])
-		v.Minor, _ = strconv.Atoi(matches[2])
+		major, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
+		minor, _ := strconv.Atoi(matches[2]) //nolint:errcheck // regex guarantees numeric match
+		v.Major = major
+		v.Minor = minor
 		if len(matches) >= 4 && matches[3] != "" {
-			v.Patch, _ = strconv.Atoi(matches[3])
+			patch, _ := strconv.Atoi(matches[3]) //nolint:errcheck // regex guarantees numeric match
+			v.Patch = patch
 		}
 	}
 

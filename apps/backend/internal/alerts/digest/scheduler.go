@@ -42,14 +42,14 @@ func (ds *Scheduler) Start(ctx context.Context) error {
 }
 
 // ScheduleNext schedules the next digest delivery for a channel based on its configuration.
-func (ds *Scheduler) ScheduleNext(channelID string, digestConfig DigestConfig) {
+func (ds *Scheduler) ScheduleNext(channelID string, digestConfig Config) {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()
 
 	if timer, exists := ds.timers[channelID]; exists {
 		timer.Stop()
 		delete(ds.timers, channelID)
-		ds.log.Debugw("cancelled existing digest timer", "channel_id", channelID)
+		ds.log.Debugw("canceled existing digest timer", "channel_id", channelID)
 	}
 
 	nextDelivery, err := ds.calculateNextDeliveryTime(digestConfig, time.Now())
@@ -89,7 +89,7 @@ func (ds *Scheduler) Reschedule(channelID string) {
 	if timer, exists := ds.timers[channelID]; exists {
 		timer.Stop()
 		delete(ds.timers, channelID)
-		ds.log.Debugw("rescheduled digest timer cancelled", "channel_id", channelID)
+		ds.log.Debugw("rescheduled digest timer canceled", "channel_id", channelID)
 	}
 
 	ds.log.Infow("digest timer rescheduled (config must be provided via ScheduleNext)",
@@ -105,7 +105,7 @@ func (ds *Scheduler) Stop() {
 
 	for channelID, timer := range ds.timers {
 		timer.Stop()
-		ds.log.Debugw("cancelled digest timer", "channel_id", channelID)
+		ds.log.Debugw("canceled digest timer", "channel_id", channelID)
 	}
 
 	ds.timers = make(map[string]*time.Timer)
@@ -116,7 +116,7 @@ func (ds *Scheduler) Stop() {
 }
 
 // deliverDigest is the timer callback that delivers a digest and reschedules.
-func (ds *Scheduler) deliverDigest(channelID string, digestConfig DigestConfig) {
+func (ds *Scheduler) deliverDigest(channelID string, digestConfig Config) {
 	ds.wg.Add(1)
 	defer ds.wg.Done()
 
@@ -157,12 +157,12 @@ func (ds *Scheduler) GetScheduledChannels() []string {
 }
 
 // GetNextDeliveryTime returns the next scheduled delivery time for a channel.
-func (ds *Scheduler) GetNextDeliveryTime(channelID string, config DigestConfig) (time.Time, error) {
+func (ds *Scheduler) GetNextDeliveryTime(channelID string, config Config) (time.Time, error) {
 	return ds.calculateNextDeliveryTime(config, time.Now())
 }
 
 // calculateNextDeliveryTime calculates the next delivery time based on digest configuration.
-func (ds *Scheduler) calculateNextDeliveryTime(config DigestConfig, now time.Time) (time.Time, error) {
+func (ds *Scheduler) calculateNextDeliveryTime(config Config, now time.Time) (time.Time, error) {
 	location, err := time.LoadLocation(config.Timezone)
 	if err != nil {
 		ds.log.Warnw("invalid timezone, using UTC",
@@ -186,7 +186,7 @@ func (ds *Scheduler) calculateNextDeliveryTime(config DigestConfig, now time.Tim
 }
 
 // calculateNextHourlyDelivery calculates the next hourly delivery time.
-func (ds *Scheduler) calculateNextHourlyDelivery(now time.Time, config DigestConfig, location *time.Location) (time.Time, error) {
+func (ds *Scheduler) calculateNextHourlyDelivery(now time.Time, config Config, location *time.Location) (time.Time, error) {
 	minute := 0
 	if config.Schedule != "" {
 		_, err := fmt.Sscanf(config.Schedule, "%d", &minute)
@@ -217,7 +217,7 @@ func (ds *Scheduler) calculateNextHourlyDelivery(now time.Time, config DigestCon
 }
 
 // calculateNextDailyDelivery calculates the next daily delivery time.
-func (ds *Scheduler) calculateNextDailyDelivery(now time.Time, config DigestConfig, location *time.Location) (time.Time, error) {
+func (ds *Scheduler) calculateNextDailyDelivery(now time.Time, config Config, location *time.Location) (time.Time, error) {
 	var hour, minute int
 	_, err := fmt.Sscanf(config.Schedule, "%d:%d", &hour, &minute)
 	if err != nil {
@@ -245,7 +245,7 @@ func (ds *Scheduler) calculateNextDailyDelivery(now time.Time, config DigestConf
 }
 
 // applyQuietHours adjusts delivery time if it falls within quiet hours.
-func (ds *Scheduler) applyQuietHours(deliveryTime time.Time, quietHoursJSON string, location *time.Location) time.Time {
+func (ds *Scheduler) applyQuietHours(deliveryTime time.Time, _ string, _ *time.Location) time.Time {
 	ds.log.Debugw("quiet hours check skipped (requires JSON parsing)",
 		"delivery_time", deliveryTime.Format(time.RFC3339))
 

@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"backend/internal/services/base"
+
 	"backend/internal/events"
 	"backend/internal/router"
 
@@ -18,26 +20,67 @@ type mockRouterPort struct {
 	ExecuteFunc func(ctx context.Context, command string) (*router.CommandResult, error)
 }
 
-func (m *mockRouterPort) Execute(ctx context.Context, command string) (*router.CommandResult, error) {
+func (m *mockRouterPort) Connect(_ context.Context) error {
+	return nil
+}
+
+func (m *mockRouterPort) Disconnect() error {
+	return nil
+}
+
+func (m *mockRouterPort) IsConnected() bool {
+	return true
+}
+
+func (m *mockRouterPort) Health(_ context.Context) router.HealthStatus {
+	return router.HealthStatus{Status: router.StatusConnected}
+}
+
+func (m *mockRouterPort) Capabilities() router.PlatformCapabilities {
+	return router.PlatformCapabilities{}
+}
+
+func (m *mockRouterPort) Info() (*router.RouterInfo, error) {
+	return &router.RouterInfo{}, nil
+}
+
+func (m *mockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 	if m.ExecuteFunc != nil {
-		return m.ExecuteFunc(ctx, command)
+		// For compatibility with old Execute signature
+		return m.ExecuteFunc(ctx, cmd.Path)
 	}
 	return &router.CommandResult{Success: true}, nil
 }
 
-// mockEventBus implements events.EventBus for testing
-type mockEventBus struct {
-	PublishFunc func(event interface{}) error
+func (m *mockRouterPort) QueryState(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
+	return &router.StateResult{Resources: []map[string]string{}}, nil
 }
 
-func (m *mockEventBus) Publish(event interface{}) error {
+func (m *mockRouterPort) Protocol() router.Protocol {
+	return router.ProtocolREST
+}
+
+// mockEventBus implements events.EventBus for testing
+type mockEventBus struct {
+	PublishFunc func(ctx context.Context, event events.Event) error
+}
+
+func (m *mockEventBus) Publish(ctx context.Context, event events.Event) error {
 	if m.PublishFunc != nil {
-		return m.PublishFunc(event)
+		return m.PublishFunc(ctx, event)
 	}
 	return nil
 }
 
-func (m *mockEventBus) Subscribe(topic string, handler interface{}) error {
+func (m *mockEventBus) Subscribe(eventType string, handler events.EventHandler) error {
+	return nil
+}
+
+func (m *mockEventBus) SubscribeAll(handler events.EventHandler) error {
+	return nil
+}
+
+func (m *mockEventBus) Close() error {
 	return nil
 }
 
@@ -49,7 +92,7 @@ func TestUndoStore_Add(t *testing.T) {
 	store := NewUndoStore()
 	defer store.Stop()
 
-	previousState := &BridgeData{
+	previousState := &Data{
 		UUID: "bridge-1",
 		Name: "br-test",
 	}
@@ -66,7 +109,7 @@ func TestUndoStore_Add(t *testing.T) {
 	assert.NotNil(t, op.PreviousState)
 
 	// Verify previous state can be unmarshaled
-	var retrieved BridgeData
+	var retrieved Data
 	err = json.Unmarshal(op.PreviousState, &retrieved)
 	require.NoError(t, err)
 	assert.Equal(t, "bridge-1", retrieved.UUID)
@@ -86,7 +129,7 @@ func TestUndoStore_Expiration(t *testing.T) {
 	store := NewUndoStore()
 	defer store.Stop()
 
-	previousState := &BridgeData{UUID: "bridge-1"}
+	previousState := &Data{UUID: "bridge-1"}
 	operationID, err := store.Add("delete", "bridge", previousState)
 	require.NoError(t, err)
 
@@ -110,7 +153,7 @@ func TestUndoStore_Delete(t *testing.T) {
 	store := NewUndoStore()
 	defer store.Stop()
 
-	operationID, err := store.Add("update", "bridge", &BridgeData{})
+	operationID, err := store.Add("update", "bridge", &Data{})
 	require.NoError(t, err)
 
 	// Verify exists
@@ -130,7 +173,7 @@ func TestUndoStore_CleanupExpired(t *testing.T) {
 	defer store.Stop()
 
 	// Add operation that expires quickly
-	operationID, err := store.Add("create", "bridge", &BridgeData{})
+	operationID, err := store.Add("create", "bridge", &Data{})
 	require.NoError(t, err)
 
 	// Manually set expiration to past
@@ -167,7 +210,7 @@ func TestUndoStore_ConcurrentAccess(t *testing.T) {
 		go func(index int) {
 			defer func() { done <- true }()
 
-			previousState := &BridgeData{
+			previousState := &Data{
 				UUID: string(rune('a' + index)),
 			}
 
@@ -203,7 +246,7 @@ func TestUndoStore_ConcurrentAccess(t *testing.T) {
 // =============================================================================
 
 func TestBridgeService_ParseBridgeFromMap(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	t.Run("complete bridge data", func(t *testing.T) {
 		data := map[string]string{
@@ -281,7 +324,7 @@ func TestBridgeService_ParseBridgeFromMap(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridges(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	t.Run("multiple bridges", func(t *testing.T) {
 		data := []map[string]string{
@@ -310,7 +353,7 @@ func TestBridgeService_ParseBridges(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridgePortFromMap(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	t.Run("complete port data", func(t *testing.T) {
 		data := map[string]string{
@@ -355,7 +398,7 @@ func TestBridgeService_ParseBridgePortFromMap(t *testing.T) {
 		port, err := service.parseBridgePortFromMap(data)
 		require.NoError(t, err)
 		assert.Equal(t, "*2", port.UUID)
-		assert.Equal(t, 1, port.PVID)            // Default PVID
+		assert.Equal(t, 1, port.PVID)                 // Default PVID
 		assert.Equal(t, "admit-all", port.FrameTypes) // Default frame-types
 		assert.False(t, port.IngressFiltering)
 		assert.Equal(t, []int{}, port.TaggedVlans)
@@ -381,7 +424,7 @@ func TestBridgeService_ParseBridgePortFromMap(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridgeVlanFromMap(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	t.Run("complete VLAN data", func(t *testing.T) {
 		data := map[string]string{
@@ -417,7 +460,7 @@ func TestBridgeService_ParseBridgeVlanFromMap(t *testing.T) {
 }
 
 func TestBridgeService_ParseStpStatus(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	t.Run("root bridge", func(t *testing.T) {
 		data := []map[string]string{
@@ -490,7 +533,7 @@ func TestBridgeService_GetBridges(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -521,7 +564,7 @@ func TestBridgeService_GetBridge(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -556,7 +599,7 @@ func TestBridgeService_GetBridgePorts(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -591,7 +634,7 @@ func TestBridgeService_GetBridgeVlans(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -621,7 +664,7 @@ func TestBridgeService_GetStpStatus(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -648,7 +691,7 @@ func TestBridgeService_GetBridges_RouterError(t *testing.T) {
 		},
 	}
 
-	service := NewBridgeService(BridgeServiceConfig{
+	service := NewService(base.ServiceConfig{
 		RouterPort: mockPort,
 		EventBus:   &mockEventBus{},
 	})
@@ -660,7 +703,7 @@ func TestBridgeService_GetBridges_RouterError(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridgeFromMap_InvalidMTU(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	data := map[string]string{
 		".id":  "*1",
@@ -675,7 +718,7 @@ func TestBridgeService_ParseBridgeFromMap_InvalidMTU(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridgeFromMap_InvalidPriority(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	data := map[string]string{
 		".id":      "*1",
@@ -690,7 +733,7 @@ func TestBridgeService_ParseBridgeFromMap_InvalidPriority(t *testing.T) {
 }
 
 func TestBridgeService_ParseBridgeFromMap_InvalidPVID(t *testing.T) {
-	service := &BridgeService{}
+	service := &Service{}
 
 	data := map[string]string{
 		".id":  "*1",

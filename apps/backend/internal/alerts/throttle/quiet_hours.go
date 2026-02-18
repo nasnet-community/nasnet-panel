@@ -24,7 +24,7 @@ func NewQuietHoursFilter() *QuietHoursFilter {
 
 // ShouldSuppress checks if an alert should be suppressed due to quiet hours.
 // Returns (suppress bool, reason string).
-func (qh *QuietHoursFilter) ShouldSuppress(config QuietHoursConfig, severity string, now time.Time) (bool, string) {
+func (qh *QuietHoursFilter) ShouldSuppress(config QuietHoursConfig, severity string, now time.Time) (suppress bool, reason string) {
 	if config.StartTime == "" || config.EndTime == "" {
 		return false, ""
 	}
@@ -130,50 +130,85 @@ func ParseQuietHoursConfig(configJSON map[string]interface{}) (QuietHoursConfig,
 	}
 
 	if daysOfWeekRaw, ok := configJSON["daysOfWeek"]; ok && daysOfWeekRaw != nil {
-		switch days := daysOfWeekRaw.(type) {
-		case []interface{}:
-			config.DaysOfWeek = make([]int, 0, len(days))
-			for i, day := range days {
-				var dayInt int
-				switch d := day.(type) {
-				case float64:
-					dayInt = int(d)
-				case int:
-					dayInt = d
-				default:
-					return config, fmt.Errorf("daysOfWeek[%d] must be an integer (0-6)", i)
-				}
-				if dayInt < 0 || dayInt > 6 {
-					return config, fmt.Errorf("daysOfWeek[%d] must be between 0 (Sunday) and 6 (Saturday), got %d", i, dayInt)
-				}
-				config.DaysOfWeek = append(config.DaysOfWeek, dayInt)
-			}
-		case []int:
-			for i, day := range days {
-				if day < 0 || day > 6 {
-					return config, fmt.Errorf("daysOfWeek[%d] must be between 0 (Sunday) and 6 (Saturday), got %d", i, day)
-				}
-			}
-			config.DaysOfWeek = days
-		default:
-			return config, fmt.Errorf("daysOfWeek must be an array of integers")
+		days, err := parseDaysOfWeek(daysOfWeekRaw)
+		if err != nil {
+			return config, err
 		}
+		config.DaysOfWeek = days
 	}
 
-	_, err := time.LoadLocation(config.Timezone)
-	if err != nil {
-		return config, fmt.Errorf("invalid timezone '%s': %w", config.Timezone, err)
+	if err := validateQuietHoursTimezone(config.Timezone); err != nil {
+		return config, err
 	}
 
-	var hour, minute int
-	if _, err := fmt.Sscanf(config.StartTime, "%d:%d", &hour, &minute); err != nil {
-		return config, fmt.Errorf("invalid startTime format (expected HH:MM): %w", err)
+	if err := validateTimeFormat(config.StartTime, "startTime"); err != nil {
+		return config, err
 	}
-	if _, err := fmt.Sscanf(config.EndTime, "%d:%d", &hour, &minute); err != nil {
-		return config, fmt.Errorf("invalid endTime format (expected HH:MM): %w", err)
+	if err := validateTimeFormat(config.EndTime, "endTime"); err != nil {
+		return config, err
 	}
 
 	return config, nil
+}
+
+// parseDaysOfWeek parses the daysOfWeek value from JSON into a validated []int.
+func parseDaysOfWeek(raw interface{}) ([]int, error) {
+	switch days := raw.(type) {
+	case []interface{}:
+		result := make([]int, 0, len(days))
+		for i, day := range days {
+			dayInt, err := toDayInt(day, i)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, dayInt)
+		}
+		return result, nil
+	case []int:
+		for i, day := range days {
+			if day < 0 || day > 6 {
+				return nil, fmt.Errorf("daysOfWeek[%d] must be between 0 (Sunday) and 6 (Saturday), got %d", i, day)
+			}
+		}
+		return days, nil
+	default:
+		return nil, fmt.Errorf("daysOfWeek must be an array of integers")
+	}
+}
+
+// toDayInt converts a single day value to a validated int (0-6).
+func toDayInt(day interface{}, index int) (int, error) {
+	var dayInt int
+	switch d := day.(type) {
+	case float64:
+		dayInt = int(d)
+	case int:
+		dayInt = d
+	default:
+		return 0, fmt.Errorf("daysOfWeek[%d] must be an integer (0-6)", index)
+	}
+	if dayInt < 0 || dayInt > 6 {
+		return 0, fmt.Errorf("daysOfWeek[%d] must be between 0 (Sunday) and 6 (Saturday), got %d", index, dayInt)
+	}
+	return dayInt, nil
+}
+
+// validateQuietHoursTimezone validates that the timezone string is a valid IANA timezone.
+func validateQuietHoursTimezone(timezone string) error {
+	_, err := time.LoadLocation(timezone)
+	if err != nil {
+		return fmt.Errorf("invalid timezone '%s': %w", timezone, err)
+	}
+	return nil
+}
+
+// validateTimeFormat validates that a time string is in HH:MM format.
+func validateTimeFormat(timeStr, fieldName string) error {
+	var hour, minute int
+	if _, err := fmt.Sscanf(timeStr, "%d:%d", &hour, &minute); err != nil {
+		return fmt.Errorf("invalid %s format (expected HH:MM): %w", fieldName, err)
+	}
+	return nil
 }
 
 // GetNextDeliveryTime calculates when queued alerts should be delivered.

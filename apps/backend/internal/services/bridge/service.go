@@ -5,42 +5,36 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"backend/internal/services/base"
+
 	"backend/internal/events"
 	"backend/internal/router"
 )
 
-// BridgeService provides bridge configuration operations for MikroTik routers.
+// Service provides bridge configuration operations for MikroTik routers.
 // It manages bridges, ports, VLANs, and STP status with 10-second undo support.
-type BridgeService struct {
-	routerPort router.RouterPort
-	eventBus   events.EventBus
-	undoStore  *UndoStore
+type Service struct {
+	base.Service
+	eventBus  events.EventBus
+	undoStore *UndoStore
 }
 
-// BridgeServiceConfig holds configuration for BridgeService.
-type BridgeServiceConfig struct {
-	RouterPort router.RouterPort
-	EventBus   events.EventBus
-}
-
-// NewBridgeService creates a new bridge service.
-func NewBridgeService(config BridgeServiceConfig) *BridgeService {
-	return &BridgeService{
-		routerPort: config.RouterPort,
-		eventBus:   config.EventBus,
-		undoStore:  NewUndoStore(),
+// NewService creates a new bridge service.
+func NewService(config base.ServiceConfig) *Service {
+	return &Service{
+		Service:   base.NewService(config.RouterPort),
+		eventBus:  config.EventBus,
+		undoStore: NewUndoStore(),
 	}
 }
 
 // GetBridges retrieves all bridges from a router.
-func (s *BridgeService) GetBridges(ctx context.Context, routerID string) ([]*BridgeData, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) GetBridges(ctx context.Context, routerID string) ([]*Data, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge",
 		Action: "print",
 	})
@@ -78,7 +72,7 @@ func (s *BridgeService) GetBridges(ctx context.Context, routerID string) ([]*Bri
 }
 
 // GetBridge retrieves a single bridge by UUID.
-func (s *BridgeService) GetBridge(ctx context.Context, uuid string) (*BridgeData, error) {
+func (s *Service) GetBridge(ctx context.Context, uuid string) (*Data, error) {
 	bridges, err := s.GetBridges(ctx, "")
 	if err != nil {
 		return nil, err
@@ -92,34 +86,33 @@ func (s *BridgeService) GetBridge(ctx context.Context, uuid string) (*BridgeData
 }
 
 // CreateBridge creates a new bridge.
-func (s *BridgeService) CreateBridge(ctx context.Context, routerID string, input *CreateBridgeInput) (*BridgeData, string, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) CreateBridge(ctx context.Context, routerID string, input *CreateBridgeInput) (*Data, string, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, "", err
 	}
 
-	args := map[string]string{"name": input.Name}
+	builder := base.NewCommandArgsBuilder().AddString("name", input.Name)
 	if input.Protocol != "" {
-		args["protocol"] = input.Protocol
+		builder.AddString("protocol", input.Protocol)
 	}
 	if input.Priority > 0 {
-		args["priority"] = fmt.Sprintf("%d", input.Priority)
+		builder.AddInt("priority", input.Priority)
 	}
 	if input.VlanFiltering {
-		args["vlan-filtering"] = "yes"
+		builder.AddBool("vlan-filtering", true)
 	}
 	if input.PVID > 0 {
-		args["pvid"] = fmt.Sprintf("%d", input.PVID)
+		builder.AddInt("pvid", input.PVID)
 	}
 	if input.MTU > 0 {
-		args["mtu"] = fmt.Sprintf("%d", input.MTU)
+		builder.AddInt("mtu", input.MTU)
 	}
 	if input.Comment != "" {
-		args["comment"] = input.Comment
+		builder.AddString("comment", input.Comment)
 	}
+	args := builder.Build()
 
-	cmdResult, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	cmdResult, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge",
 		Action: "add",
 		Args:   args,
@@ -142,57 +135,34 @@ func (s *BridgeService) CreateBridge(ctx context.Context, routerID string, input
 }
 
 // UpdateBridge updates an existing bridge.
-func (s *BridgeService) UpdateBridge(ctx context.Context, uuid string, input *UpdateBridgeInput) (*BridgeData, string, error) {
+func (s *Service) UpdateBridge(ctx context.Context, uuid string, input *UpdateBridgeInput) (*Data, string, error) {
 	previousState, err := s.GetBridge(ctx, uuid)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get current bridge state: %w", err)
 	}
 
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+	if connErr := s.EnsureConnected(ctx); connErr != nil {
+		return nil, "", connErr
 	}
 
-	args := make(map[string]string)
-	if input.Protocol != nil {
-		args["protocol"] = *input.Protocol
-	}
-	if input.Priority != nil {
-		args["priority"] = fmt.Sprintf("%d", *input.Priority)
-	}
-	if input.VlanFiltering != nil {
-		if *input.VlanFiltering {
-			args["vlan-filtering"] = "yes"
-		} else {
-			args["vlan-filtering"] = "no"
-		}
-	}
-	if input.PVID != nil {
-		args["pvid"] = fmt.Sprintf("%d", *input.PVID)
-	}
-	if input.MTU != nil {
-		args["mtu"] = fmt.Sprintf("%d", *input.MTU)
-	}
-	if input.Disabled != nil {
-		if *input.Disabled {
-			args["disabled"] = "yes"
-		} else {
-			args["disabled"] = "no"
-		}
-	}
-	if input.Comment != nil {
-		args["comment"] = *input.Comment
-	}
+	args := base.NewCommandArgsBuilder().
+		AddOptionalString("protocol", input.Protocol).
+		AddOptionalInt("priority", input.Priority).
+		AddOptionalBool("vlan-filtering", input.VlanFiltering).
+		AddOptionalInt("pvid", input.PVID).
+		AddOptionalInt("mtu", input.MTU).
+		AddOptionalBool("disabled", input.Disabled).
+		AddOptionalString("comment", input.Comment).
+		Build()
 
-	_, err = s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, execErr := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge",
 		Action: "set",
 		ID:     uuid,
 		Args:   args,
 	})
-	if err != nil {
-		return nil, "", fmt.Errorf("failed to update bridge: %w", err)
+	if execErr != nil {
+		return nil, "", fmt.Errorf("failed to update bridge: %w", execErr)
 	}
 
 	updatedBridge, err := s.GetBridge(ctx, uuid)
@@ -209,25 +179,23 @@ func (s *BridgeService) UpdateBridge(ctx context.Context, uuid string, input *Up
 }
 
 // DeleteBridge deletes a bridge.
-func (s *BridgeService) DeleteBridge(ctx context.Context, uuid string) (string, error) {
+func (s *Service) DeleteBridge(ctx context.Context, uuid string) (string, error) {
 	previousState, err := s.GetBridge(ctx, uuid)
 	if err != nil {
 		return "", fmt.Errorf("failed to get current bridge state: %w", err)
 	}
 
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+	if connErr := s.EnsureConnected(ctx); connErr != nil {
+		return "", connErr
 	}
 
-	_, err = s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, execErr := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge",
 		Action: "remove",
 		ID:     uuid,
 	})
-	if err != nil {
-		return "", fmt.Errorf("failed to delete bridge: %w", err)
+	if execErr != nil {
+		return "", fmt.Errorf("failed to delete bridge: %w", execErr)
 	}
 
 	operationID, err := s.undoStore.Add("delete", "bridge", previousState)
@@ -239,7 +207,7 @@ func (s *BridgeService) DeleteBridge(ctx context.Context, uuid string) (string, 
 }
 
 // UndoBridgeOperation reverts a bridge operation (within 10-second window).
-func (s *BridgeService) UndoBridgeOperation(ctx context.Context, operationID string) (*BridgeData, error) {
+func (s *Service) UndoBridgeOperation(ctx context.Context, operationID string) (*Data, error) {
 	op, err := s.undoStore.Get(operationID)
 	if err != nil {
 		return nil, err
@@ -250,7 +218,7 @@ func (s *BridgeService) UndoBridgeOperation(ctx context.Context, operationID str
 		return nil, fmt.Errorf("undo create not yet implemented")
 
 	case "update":
-		var previousState BridgeData
+		var previousState Data
 		if err := json.Unmarshal(op.PreviousState, &previousState); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal previous state: %w", err)
 		}
@@ -273,7 +241,7 @@ func (s *BridgeService) UndoBridgeOperation(ctx context.Context, operationID str
 		return restoredBridge, nil
 
 	case "delete":
-		var previousState BridgeData
+		var previousState Data
 		if err := json.Unmarshal(op.PreviousState, &previousState); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal previous state: %w", err)
 		}
@@ -300,14 +268,14 @@ func (s *BridgeService) UndoBridgeOperation(ctx context.Context, operationID str
 	}
 }
 
-// GetBridgeImpact analyzes the impact of deleting a bridge.
-func (s *BridgeService) GetBridgeImpact(ctx context.Context, uuid string) (*BridgeImpact, error) {
+// GetImpact analyzes the impact of deleting a bridge.
+func (s *Service) GetImpact(ctx context.Context, uuid string) (*Impact, error) {
 	b, err := s.GetBridge(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
 
-	impact := &BridgeImpact{
+	impact := &Impact{
 		PortsToRelease:      make([]string, 0),
 		IPAddressesToRemove: make([]string, 0),
 		DHCPServersAffected: make([]string, 0),

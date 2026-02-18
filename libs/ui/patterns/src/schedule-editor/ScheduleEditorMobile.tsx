@@ -8,9 +8,15 @@
  */
 
 import { memo } from 'react';
-import { Controller } from 'react-hook-form';
-import { Clock, Calendar, Info, Trash2, Zap } from 'lucide-react';
 
+import { Clock, Calendar, Info, Trash2, Zap } from 'lucide-react';
+import { Controller } from 'react-hook-form';
+
+import {
+  DAYS_OF_WEEK,
+  DAY_PRESETS,
+  type DayPresetKey,
+} from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -18,23 +24,16 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
   Badge,
-  Label,
-} from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
+  Label} from '@nasnet/ui/primitives';
 
-import {
-  DAYS_OF_WEEK,
-  DAY_PRESETS,
-  type DayPresetKey,
-} from '@nasnet/core/types/services/schedule.types';
-
+import { RHFFormField } from '../rhf-form-field';
 import { useScheduleEditor } from './use-schedule-editor';
+
 import type { ScheduleEditorProps } from './types';
 
 /**
@@ -141,7 +140,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                 control={control}
                 render={({ field }) => (
                   <div className="flex flex-wrap gap-2">
-                    {DAYS_OF_WEEK.map((day) => {
+                    {DAYS_OF_WEEK.map((day: { value: number; label: string; short: string }) => {
                       const isSelected = field.value?.includes(day.value) || false;
                       return (
                         <button

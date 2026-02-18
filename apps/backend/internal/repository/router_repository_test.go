@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"backend/generated/ent"
+	"backend/internal/common/ulid"
 	"backend/internal/repository"
-	"backend/pkg/ulid"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,10 +18,10 @@ func TestRouterRepository_CreateWithSecrets(t *testing.T) {
 	ctx := context.Background()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil, // Not needed for these tests
-		EventBus: nil, // Not needed for these tests
-		CleanupQueue:   nil, // Not needed for these tests
+		SystemDB:     client,
+		DBManager:    nil, // Not needed for these tests
+		EventBus:     nil, // Not needed for these tests
+		CleanupQueue: nil, // Not needed for these tests
 	})
 
 	t.Run("creates router with secrets in transaction", func(t *testing.T) {
@@ -104,10 +104,10 @@ func TestRouterRepository_GetWithRelations(t *testing.T) {
 	counter := repository.NewQueryCounter()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil,
-		EventBus: nil,
-		CleanupQueue:   nil,
+		SystemDB:     client,
+		DBManager:    nil,
+		EventBus:     nil,
+		CleanupQueue: nil,
 	})
 
 	t.Run("returns router with secrets eager loaded", func(t *testing.T) {
@@ -156,10 +156,10 @@ func TestRouterRepository_GetByHost(t *testing.T) {
 	ctx := context.Background()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil,
-		EventBus: nil,
-		CleanupQueue:   nil,
+		SystemDB:     client,
+		DBManager:    nil,
+		EventBus:     nil,
+		CleanupQueue: nil,
 	})
 
 	t.Run("returns router by host:port", func(t *testing.T) {
@@ -196,10 +196,10 @@ func TestRouterRepository_UpdateStatus(t *testing.T) {
 	ctx := context.Background()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil,
-		EventBus: nil,
-		CleanupQueue:   nil,
+		SystemDB:     client,
+		DBManager:    nil,
+		EventBus:     nil,
+		CleanupQueue: nil,
 	})
 
 	t.Run("updates router status", func(t *testing.T) {
@@ -242,10 +242,10 @@ func TestRouterRepository_ListWithCapabilities(t *testing.T) {
 	ctx := context.Background()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil,
-		EventBus: nil,
-		CleanupQueue:   nil,
+		SystemDB:     client,
+		DBManager:    nil,
+		EventBus:     nil,
+		CleanupQueue: nil,
 	})
 
 	// Create test routers
@@ -316,10 +316,10 @@ func TestRouterRepository_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	repo := repository.NewRouterRepository(repository.RouterRepositoryConfig{
-		SystemDB:       client,
-		DBManager:      nil,
-		EventBus: nil,
-		CleanupQueue:   nil, // No cleanup queue in this test
+		SystemDB:     client,
+		DBManager:    nil,
+		EventBus:     nil,
+		CleanupQueue: nil, // No cleanup queue in this test
 	})
 
 	t.Run("deletes router and secrets", func(t *testing.T) {

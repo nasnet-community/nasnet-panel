@@ -7,16 +7,16 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useRateLimitEditor } from './use-rate-limit-editor';
+import { describe, it, expect, vi } from 'vitest';
+
+import { useRateLimitEditor , validateSourceAddress, validateAddressListName } from './use-rate-limit-editor';
 import {
   mockDropRule,
   mockTarpitRule,
   mockAddToListRule,
   emptyRuleInput,
 } from '../__test-utils__/rate-limit-fixtures';
-import { validateSourceAddress, validateAddressListName } from './use-rate-limit-editor';
 
 describe('useRateLimitEditor', () => {
   const mockOnSubmit = vi.fn();

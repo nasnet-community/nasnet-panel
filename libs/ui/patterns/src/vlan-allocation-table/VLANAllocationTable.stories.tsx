@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { VLANAllocationTable } from './VLANAllocationTable';
+
 import type { VLANAllocation } from './VLANAllocationTable';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof VLANAllocationTable> = {
   title: 'Patterns/VLAN/VLANAllocationTable',

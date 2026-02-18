@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"backend/internal/router"
 )
@@ -15,7 +14,7 @@ type MockRouterPort struct {
 	connected   bool
 }
 
-func (m *MockRouterPort) Connect(ctx context.Context) error {
+func (m *MockRouterPort) Connect(_ context.Context) error {
 	m.connected = true
 	return nil
 }
@@ -29,7 +28,7 @@ func (m *MockRouterPort) IsConnected() bool {
 	return m.connected
 }
 
-func (m *MockRouterPort) Health(ctx context.Context) router.HealthStatus {
+func (m *MockRouterPort) Health(_ context.Context) router.HealthStatus {
 	status := router.StatusDisconnected
 	if m.connected {
 		status = router.StatusConnected
@@ -52,7 +51,7 @@ func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command)
 	return &router.CommandResult{}, nil
 }
 
-func (m *MockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+func (m *MockRouterPort) QueryState(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 	return &router.StateResult{}, nil
 }
 
@@ -97,7 +96,7 @@ func TestGetAddressLists(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockPort := &MockRouterPort{
-				executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+				executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 					return &router.CommandResult{RawOutput: tt.mockOutput}, nil
 				},
 			}
@@ -146,7 +145,7 @@ func TestGetAddressListEntriesPagination(t *testing.T) {
 .id=*5 list=test address=192.168.1.5 dynamic=false disabled=false`
 
 	mockPort := &MockRouterPort{
-		executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+		executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 			return &router.CommandResult{RawOutput: mockOutput}, nil
 		},
 	}
@@ -264,7 +263,7 @@ func TestCreateAddressListEntry(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockPort := &MockRouterPort{
-				executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+				executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 					if cmd.Action == "add" {
 						return &router.CommandResult{
 							ID:        "*100",
@@ -302,7 +301,7 @@ func TestBulkCreateAddressListEntries(t *testing.T) {
 	}
 
 	mockPort := &MockRouterPort{
-		executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+		executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 			// Simulate failure for "invalid" address
 			if args, ok := cmd.Args["address"]; ok && args == "invalid" {
 				return nil, fmt.Errorf("invalid address")
@@ -347,7 +346,7 @@ func TestDeleteAddressListEntry(t *testing.T) {
 	service := NewAddressListService()
 
 	mockPort := &MockRouterPort{
-		executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+		executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 			if cmd.Action == "remove" {
 				return &router.CommandResult{}, nil
 			}
@@ -492,8 +491,4 @@ func TestParseAddressListEntry(t *testing.T) {
 
 func stringPtr(s string) *string {
 	return &s
-}
-
-func timePtr(t time.Time) *time.Time {
-	return &t
 }

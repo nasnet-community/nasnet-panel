@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"backend/internal/common/ulid"
+
 	routerpkg "backend/internal/router"
-	"backend/pkg/ulid"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,7 +19,7 @@ func TestRoutingMatrixService_MergeDevices(t *testing.T) {
 	defer client.Close()
 
 	mockRouter := &MockRouterPort{
-		queryFunc: func(ctx context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
+		queryFunc: func(_ context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
 			if query.Path == "/ip/dhcp-server/lease" {
 				// Return DHCP leases
 				return &routerpkg.StateResult{
@@ -133,7 +134,7 @@ func TestRoutingMatrixService_GetMatrix(t *testing.T) {
 	// Create device routing assignment
 	_, err = client.DeviceRouting.Create().
 		SetDeviceID("dev-aabbccddeeff01").
-		SetMacAddress("aa:bb:cc:dd:ee:01").
+		SetMACAddress("aa:bb:cc:dd:ee:01").
 		SetRoutingMark("mark-test").
 		SetInstanceID(instanceID).
 		SetMangleRuleID("*mangle-1").
@@ -141,7 +142,7 @@ func TestRoutingMatrixService_GetMatrix(t *testing.T) {
 	require.NoError(t, err)
 
 	mockRouter := &MockRouterPort{
-		queryFunc: func(ctx context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
+		queryFunc: func(_ context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
 			if query.Path == "/ip/dhcp-server/lease" {
 				return &routerpkg.StateResult{
 					Resources: []map[string]string{
@@ -221,7 +222,7 @@ func TestRoutingMatrixService_EmptyMatrix(t *testing.T) {
 	defer client.Close()
 
 	mockRouter := &MockRouterPort{
-		queryFunc: func(ctx context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
+		queryFunc: func(_ context.Context, query routerpkg.StateQuery) (*routerpkg.StateResult, error) {
 			return &routerpkg.StateResult{Resources: []map[string]string{}}, nil
 		},
 	}

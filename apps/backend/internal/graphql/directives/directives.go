@@ -73,7 +73,7 @@ const (
 // Validation patterns for predefined formats.
 var formatPatterns = map[ValidateFormat]*regexp.Regexp{
 	FormatEmail:    regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`),
-	FormatURL:      regexp.MustCompile(`^https?://[^\s/$.?#].[^\s]*$`),
+	FormatURL:      regexp.MustCompile(`^https?://[^\s/$.?#].\S*$`),
 	FormatUUID:     regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`),
 	FormatIPv4:     regexp.MustCompile(`^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`),
 	FormatIPv6:     regexp.MustCompile(`^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^(?:[0-9a-fA-F]{1,4}:){1,7}:$`),
@@ -86,7 +86,7 @@ var formatPatterns = map[ValidateFormat]*regexp.Regexp{
 // Validate implements the @validate directive handler.
 // It validates field values against min, max, minLength, maxLength, pattern, and format constraints.
 func (d *Directives) Validate(ctx context.Context, obj interface{}, next graphql.Resolver,
-	min *int, max *int, minLength *int, maxLength *int, pattern *string, format *ValidateFormat) (interface{}, error) {
+	minVal *int, maxVal *int, minLength *int, maxLength *int, pattern *string, format *ValidateFormat) (interface{}, error) {
 
 	if !d.config.ValidateEnabled {
 		return next(ctx)
@@ -98,70 +98,109 @@ func (d *Directives) Validate(ctx context.Context, obj interface{}, next graphql
 	}
 
 	if val == nil {
-		return val, nil
+		//nolint:nilnil // nil is valid for nullable directive
+		return nil, nil
 	}
 
 	fieldCtx := graphql.GetFieldContext(ctx)
 	fieldPath := fieldCtx.Path().String()
 	fieldName := fieldCtx.Field.Name
 
-	// Numeric validation (min/max)
-	if min != nil || max != nil {
-		if numVal, ok := toInt64(val); ok {
-			if min != nil && numVal < int64(*min) {
-				return nil, createValidationError(ctx, fieldPath, fieldName, val,
-					fmt.Sprintf("value %d is less than minimum %d", numVal, *min),
-					fmt.Sprintf("Use a value >= %d", *min),
-					"validation/numeric-range")
-			}
-			if max != nil && numVal > int64(*max) {
-				return nil, createValidationError(ctx, fieldPath, fieldName, val,
-					fmt.Sprintf("value %d is greater than maximum %d", numVal, *max),
-					fmt.Sprintf("Use a value <= %d", *max),
-					"validation/numeric-range")
-			}
-		}
+	if err := validateNumericRange(ctx, val, fieldPath, fieldName, minVal, maxVal); err != nil {
+		return nil, err
 	}
 
-	// String validation (minLength/maxLength/pattern/format)
-	if strVal, ok := val.(string); ok {
-		if minLength != nil && len(strVal) < *minLength {
-			return nil, createValidationError(ctx, fieldPath, fieldName, val,
-				fmt.Sprintf("string length %d is less than minimum %d", len(strVal), *minLength),
-				fmt.Sprintf("Use a string with at least %d characters", *minLength),
-				"validation/string-length")
-		}
-		if maxLength != nil && len(strVal) > *maxLength {
-			return nil, createValidationError(ctx, fieldPath, fieldName, val,
-				fmt.Sprintf("string length %d exceeds maximum %d", len(strVal), *maxLength),
-				fmt.Sprintf("Use a string with at most %d characters", *maxLength),
-				"validation/string-length")
-		}
-		if pattern != nil {
-			re, err := regexp.Compile(*pattern)
-			if err != nil {
-				return nil, fmt.Errorf("invalid validation pattern: %w", err)
-			}
-			if !re.MatchString(strVal) {
-				return nil, createValidationError(ctx, fieldPath, fieldName, val,
-					fmt.Sprintf("value does not match required pattern"),
-					fmt.Sprintf("Value must match pattern: %s", *pattern),
-					"validation/pattern")
-			}
-		}
-		if format != nil {
-			if re, exists := formatPatterns[*format]; exists {
-				if !re.MatchString(strVal) {
-					return nil, createValidationError(ctx, fieldPath, fieldName, val,
-						fmt.Sprintf("value is not a valid %s", strings.ToLower(string(*format))),
-						fmt.Sprintf("Provide a valid %s format", strings.ToLower(string(*format))),
-						"validation/format")
-				}
-			}
-		}
+	if err := validateStringConstraints(ctx, val, fieldPath, fieldName, minLength, maxLength, pattern, format); err != nil {
+		return nil, err
 	}
 
 	return val, nil
+}
+
+// validateNumericRange checks min/max constraints on numeric values.
+func validateNumericRange(ctx context.Context, val interface{}, fieldPath, fieldName string, minVal, maxVal *int) error {
+	if minVal == nil && maxVal == nil {
+		return nil
+	}
+	numVal, ok := toInt64(val)
+	if !ok {
+		return nil
+	}
+	if minVal != nil && numVal < int64(*minVal) {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			fmt.Sprintf("value %d is less than minimum %d", numVal, *minVal),
+			fmt.Sprintf("Use a value >= %d", *minVal),
+			"validation/numeric-range")
+	}
+	if maxVal != nil && numVal > int64(*maxVal) {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			fmt.Sprintf("value %d is greater than maximum %d", numVal, *maxVal),
+			fmt.Sprintf("Use a value <= %d", *maxVal),
+			"validation/numeric-range")
+	}
+	return nil
+}
+
+// validateStringConstraints checks minLength, maxLength, pattern, and format on string values.
+func validateStringConstraints(ctx context.Context, val interface{}, fieldPath, fieldName string,
+	minLength, maxLength *int, pattern *string, format *ValidateFormat) error {
+
+	strVal, ok := val.(string)
+	if !ok {
+		return nil
+	}
+	if minLength != nil && len(strVal) < *minLength {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			fmt.Sprintf("string length %d is less than minimum %d", len(strVal), *minLength),
+			fmt.Sprintf("Use a string with at least %d characters", *minLength),
+			"validation/string-length")
+	}
+	if maxLength != nil && len(strVal) > *maxLength {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			fmt.Sprintf("string length %d exceeds maximum %d", len(strVal), *maxLength),
+			fmt.Sprintf("Use a string with at most %d characters", *maxLength),
+			"validation/string-length")
+	}
+	if err := validatePattern(ctx, strVal, fieldPath, fieldName, val, pattern); err != nil {
+		return err
+	}
+	return validateFormat(ctx, strVal, fieldPath, fieldName, val, format)
+}
+
+// validatePattern checks if a string matches the given regex pattern.
+func validatePattern(ctx context.Context, strVal, fieldPath, fieldName string, val interface{}, pattern *string) error {
+	if pattern == nil {
+		return nil
+	}
+	re, err := regexp.Compile(*pattern)
+	if err != nil {
+		return fmt.Errorf("invalid validation pattern: %w", err)
+	}
+	if !re.MatchString(strVal) {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			"value does not match required pattern",
+			fmt.Sprintf("Value must match pattern: %s", *pattern),
+			"validation/pattern")
+	}
+	return nil
+}
+
+// validateFormat checks if a string matches a predefined format (EMAIL, IPV4, etc.).
+func validateFormat(ctx context.Context, strVal, fieldPath, fieldName string, val interface{}, format *ValidateFormat) error {
+	if format == nil {
+		return nil
+	}
+	re, exists := formatPatterns[*format]
+	if !exists {
+		return nil
+	}
+	if !re.MatchString(strVal) {
+		return createValidationError(ctx, fieldPath, fieldName, val,
+			fmt.Sprintf("value is not a valid %s", strings.ToLower(string(*format))),
+			fmt.Sprintf("Provide a valid %s format", strings.ToLower(string(*format))),
+			"validation/format")
+	}
+	return nil
 }
 
 // =============================================================================
@@ -328,18 +367,18 @@ func (d *Directives) Capability(ctx context.Context, obj interface{}, next graph
 	}
 
 	// Check all required capabilities
-	var missing []string
+	var missingCaps []string
 	for _, req := range requires {
 		if !caps.Capabilities[req] {
-			missing = append(missing, req)
+			missingCaps = append(missingCaps, req)
 		}
 	}
 
-	if len(missing) > 0 {
+	if len(missingCaps) > 0 {
 		fieldCtx := graphql.GetFieldContext(ctx)
 		return nil, createCapabilityError(ctx, fieldCtx.Path().String(), fieldCtx.Field.Name,
-			missing,
-			fmt.Sprintf("Router does not support required capabilities: %s", strings.Join(missing, ", ")),
+			missingCaps,
+			fmt.Sprintf("Router does not support required capabilities: %s", strings.Join(missingCaps, ", ")),
 			"capability/unsupported")
 	}
 
@@ -351,7 +390,7 @@ func (d *Directives) Capability(ctx context.Context, obj interface{}, next graph
 // =============================================================================
 
 // createValidationError creates a GraphQL error with validation extensions.
-func createValidationError(ctx context.Context, fieldPath, fieldName string, value interface{}, message, suggestedFix, docsPath string) *gqlerror.Error {
+func createValidationError(ctx context.Context, fieldPath, _ string, value interface{}, message, suggestedFix, docsPath string) *gqlerror.Error {
 	requestID := internalerrors.GetRequestID(ctx)
 
 	return &gqlerror.Error{
@@ -371,7 +410,7 @@ func createValidationError(ctx context.Context, fieldPath, fieldName string, val
 }
 
 // createAuthError creates a GraphQL error for authentication/authorization failures.
-func createAuthError(ctx context.Context, fieldPath, fieldName, message, suggestedFix, docsPath string) *gqlerror.Error {
+func createAuthError(ctx context.Context, fieldPath, _, message, suggestedFix, docsPath string) *gqlerror.Error {
 	requestID := internalerrors.GetRequestID(ctx)
 
 	return &gqlerror.Error{
@@ -390,21 +429,21 @@ func createAuthError(ctx context.Context, fieldPath, fieldName, message, suggest
 }
 
 // createCapabilityError creates a GraphQL error for capability check failures.
-func createCapabilityError(ctx context.Context, fieldPath, fieldName string, missing []string, message, docsPath string) *gqlerror.Error {
+func createCapabilityError(ctx context.Context, fieldPath, _ string, missing []string, message, docsPath string) *gqlerror.Error {
 	requestID := internalerrors.GetRequestID(ctx)
 
 	return &gqlerror.Error{
 		Message: message,
 		Path:    graphql.GetPath(ctx),
 		Extensions: map[string]interface{}{
-			"code":               "C403",
-			"category":           "capability",
-			"field":              fieldPath,
+			"code":                "C403",
+			"category":            "capability",
+			"field":               fieldPath,
 			"missingCapabilities": missing,
-			"suggestedFix":       "This feature requires router hardware or software capabilities that are not available",
-			"docsUrl":            fmt.Sprintf("https://docs.nasnetconnect.io/api/errors/%s", docsPath),
-			"requestId":          requestID,
-			"recoverable":        false,
+			"suggestedFix":        "This feature requires router hardware or software capabilities that are not available",
+			"docsUrl":             fmt.Sprintf("https://docs.nasnetconnect.io/api/errors/%s", docsPath),
+			"requestId":           requestID,
+			"recoverable":         false,
 		},
 	}
 }

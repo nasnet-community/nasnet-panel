@@ -273,7 +273,10 @@ func (s *Service) RecordAttempt(routerID string, attempt ConnectionAttempt) {
 
 // GetAttempts retrieves recorded attempts for a router.
 func (s *Service) GetAttempts(routerID string, limit int) []ConnectionAttempt {
-	attempts, _ := s.GetConnectionAttempts(context.Background(), routerID, limit)
+	attempts, err := s.GetConnectionAttempts(context.Background(), routerID, limit)
+	if err != nil {
+		return []ConnectionAttempt{}
+	}
 	return attempts
 }
 
@@ -312,7 +315,7 @@ func (s *Service) checkRateLimit(routerID string) error {
 }
 
 // testAuthentication tests authentication against the router.
-func (s *Service) testAuthentication(ctx context.Context, routerID, host string, ports []PortStatus) AuthStatus {
+func (s *Service) testAuthentication(ctx context.Context, routerID, _host string, ports []PortStatus) AuthStatus {
 	status := AuthStatus{Tested: false}
 
 	// Check if we have credentials provider

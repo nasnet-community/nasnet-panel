@@ -31,6 +31,7 @@ func NewKillSwitchActivatedEvent(
 	routingID, deviceID, macAddress, instanceID, mode, reason, healthStatus string,
 	activatedAt time.Time,
 ) *KillSwitchActivatedEvent {
+
 	return &KillSwitchActivatedEvent{
 		BaseEvent:    events.NewBaseEvent(events.EventTypeServiceKillSwitch, events.PriorityImmediate, "kill-switch-listener"),
 		RoutingID:    routingID,
@@ -67,6 +68,7 @@ func NewKillSwitchDeactivatedEvent(
 	routingID, deviceID, macAddress, instanceID, mode, activeFor, reason string,
 	deactivatedAt time.Time,
 ) *KillSwitchDeactivatedEvent {
+
 	return &KillSwitchDeactivatedEvent{
 		BaseEvent:     events.NewBaseEvent("killswitch.deactivated", events.PriorityNormal, "kill-switch-listener"),
 		RoutingID:     routingID,

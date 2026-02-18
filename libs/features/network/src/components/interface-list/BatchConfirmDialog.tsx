@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  Button,
   Badge,
 } from '@nasnet/ui/primitives';
 import { BatchInterfaceAction } from '@nasnet/api-client/generated';
@@ -50,6 +49,7 @@ export function BatchConfirmDialog({
       }, 1000);
       return () => clearInterval(timer);
     }
+    return undefined;
   }, [open, isCritical]);
 
   if (!action) return null;
@@ -61,13 +61,13 @@ export function BatchConfirmDialog({
     : 'Update';
 
   return (
-    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
             {actionLabel} {interfaces.length} Interface{interfaces.length !== 1 ? 's' : ''}?
-          </AlertDialogTitle>
-          <AlertDialogDescription asChild>
+          </DialogTitle>
+          <DialogDescription asChild>
             <div className="space-y-3">
               {isCritical && (
                 <div className="p-3 border border-destructive bg-destructive/10 rounded-md">
@@ -107,7 +107,7 @@ export function BatchConfirmDialog({
                           </Badge>
                         </div>
                         {isGateway && (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="error" className="text-xs">
                             Gateway
                           </Badge>
                         )}
@@ -123,11 +123,11 @@ export function BatchConfirmDialog({
                 </p>
               )}
             </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button
             onClick={onConfirm}
             disabled={isCritical && countdown > 0}
             className={isCritical ? 'bg-destructive hover:bg-destructive/90' : ''}
@@ -135,9 +135,9 @@ export function BatchConfirmDialog({
             {isCritical && countdown > 0
               ? `Confirm (${countdown})`
               : `Confirm ${actionLabel}`}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

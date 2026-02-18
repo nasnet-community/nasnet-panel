@@ -228,7 +228,6 @@ export const OUI_DATABASE: Record<string, string> = {
   '7C:1E:52': 'Microsoft Corporation',
 
   // Amazon Technologies
-  '00:13:72': 'Amazon Technologies',
   '00:17:88': 'Amazon Technologies',
   '00:1C:C0': 'Amazon Technologies',
   '00:1F:0D': 'Amazon Technologies',
@@ -295,7 +294,6 @@ export const OUI_DATABASE: Record<string, string> = {
 
   // Aruba Networks (HPE)
   '00:0B:86': 'Aruba Networks',
-  '00:1A:1E': 'Aruba Networks',
   '00:24:6C': 'Aruba Networks',
   '20:4C:03': 'Aruba Networks',
   '24:DE:C6': 'Aruba Networks',

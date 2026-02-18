@@ -3,11 +3,12 @@
 package ent
 
 import (
-	"backend/generated/ent/servicedependency"
-	"backend/generated/ent/serviceinstance"
 	"fmt"
 	"strings"
 	"time"
+
+	"backend/generated/ent/servicedependency"
+	"backend/generated/ent/serviceinstance"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

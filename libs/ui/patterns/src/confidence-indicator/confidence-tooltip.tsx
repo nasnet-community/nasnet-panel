@@ -14,11 +14,12 @@ import { Pencil, Info } from 'lucide-react';
 
 import { Button, cn } from '@nasnet/ui/primitives';
 
-import type { UseConfidenceIndicatorReturn } from './confidence-indicator.types';
 import {
   ConfidenceIndicatorBase,
   ConfidenceLevelLabel,
 } from './confidence-indicator-base';
+
+import type { UseConfidenceIndicatorReturn } from './confidence-indicator.types';
 
 export interface ConfidenceTooltipContentProps {
   /**

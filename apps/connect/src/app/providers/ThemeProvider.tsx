@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
-import { useThemeStore, getSystemTheme, type ThemeState } from '@nasnet/state/stores';
+
+import { useThemeStore, type ThemeState } from '@nasnet/state/stores';
 
 /**
  * ThemeProvider Component

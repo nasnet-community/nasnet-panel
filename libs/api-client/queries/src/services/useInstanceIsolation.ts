@@ -8,7 +8,7 @@
  */
 
 import { gql, useQuery, useMutation, type QueryHookOptions, type MutationHookOptions } from '@apollo/client';
-import type { IsolationStatus, ResourceLimits, ResourceLimitsInput } from '@nasnet/api-client/generated';
+import type { IsolationStatus, ResourceLimits, SetResourceLimitsInput } from '@nasnet/api-client/generated';
 
 /**
  * GraphQL query for instance isolation status
@@ -153,7 +153,7 @@ export function useInstanceIsolation(
  * function ResourceLimitEditor({ routerID, instanceID }) {
  *   const [setLimits, { loading }] = useSetResourceLimits();
  *
- *   const handleSave = async (limits: ResourceLimitsInput) => {
+ *   const handleSave = async (limits: SetResourceLimitsInput) => {
  *     const result = await setLimits({
  *       variables: {
  *         input: { routerID, instanceID },

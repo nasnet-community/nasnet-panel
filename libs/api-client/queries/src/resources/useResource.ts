@@ -210,7 +210,7 @@ function buildResourceQuery(layers: ResourceLayerSelection) {
         ${fragments.join('\n        ')}
       }
     }
-    ${fragmentDefs.map((f) => f.loc?.source.body || '').join('\n')}
+    ${fragmentDefs.map((f: any) => f.loc?.source.body || '').join('\n')}
   `;
 }
 
@@ -326,15 +326,15 @@ export function useResource<TConfig = unknown>(
   }, [data?.resource, subscriptionData?.resourceRuntime]);
 
   // Extract individual layers for convenience
-  const layers = useMemo(() => ({
-    validation: resource?.validation,
-    deployment: resource?.deployment,
-    runtime: resource?.runtime,
-    telemetry: resource?.telemetry,
+  const layers = useMemo((): UseResourceResult<TConfig>['layers'] => ({
+    validation: resource?.validation ?? undefined,
+    deployment: resource?.deployment ?? undefined,
+    runtime: resource?.runtime ?? undefined,
+    telemetry: resource?.telemetry ?? undefined,
     metadata: resource?.metadata,
-    relationships: resource?.relationships,
-    platform: resource?.platform,
-  }), [resource]);
+    relationships: resource?.relationships ?? undefined,
+    platform: resource?.platform ?? undefined,
+  } as UseResourceResult<TConfig>['layers']), [resource]);
 
   return {
     resource,

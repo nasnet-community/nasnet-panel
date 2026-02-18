@@ -87,14 +87,14 @@ func NewQuietHoursQueueManager(opts ...QuietHoursQueueOption) *QuietHoursQueueMa
 }
 
 // ShouldQueue checks if a notification should be queued due to quiet hours.
-func (qm *QuietHoursQueueManager) ShouldQueue(severity string) (bool, string) {
+func (qm *QuietHoursQueueManager) ShouldQueue(severity string) (shouldQueue bool, reason string) {
 	now := qm.clock.Now()
 	suppress, reason := qm.filter.ShouldSuppress(qm.config, severity, now)
 	return suppress, reason
 }
 
 // Enqueue adds a notification to the queue for a specific channel.
-func (qm *QuietHoursQueueManager) Enqueue(notification QueuedNotification) error {
+func (qm *QuietHoursQueueManager) Enqueue(notification *QueuedNotification) error {
 	qm.mu.Lock()
 	defer qm.mu.Unlock()
 
@@ -116,7 +116,7 @@ func (qm *QuietHoursQueueManager) Enqueue(notification QueuedNotification) error
 	notification.QueuedAt = now
 	notification.TTLExpiresAt = now.Add(24 * time.Hour)
 
-	queue.notifications = append(queue.notifications, notification)
+	queue.notifications = append(queue.notifications, *notification)
 	return nil
 }
 
@@ -202,7 +202,9 @@ func (qm *QuietHoursQueueManager) processQueues() {
 				go func(notifications []QueuedNotification) {
 					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 					defer cancel()
-					_ = qm.deliveryCallback(ctx, notifications)
+					if err := qm.deliveryCallback(ctx, notifications); err != nil {
+						_ = err
+					}
 				}(toDeliver)
 			}
 		}

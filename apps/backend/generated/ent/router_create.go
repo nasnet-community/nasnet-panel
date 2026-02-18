@@ -3,6 +3,11 @@
 package ent
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/portknocksequence"
@@ -12,10 +17,6 @@ import (
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/vlanallocation"
-	"context"
-	"errors"
-	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

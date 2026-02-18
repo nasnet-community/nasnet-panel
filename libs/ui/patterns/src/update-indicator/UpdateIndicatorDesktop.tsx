@@ -5,7 +5,9 @@
  */
 
 import * as React from 'react';
+
 import { ShieldAlert, AlertCircle, ArrowUp, CheckCircle, Info, ExternalLink, RotateCcw } from 'lucide-react';
+
 import {
   cn,
   Button,
@@ -18,8 +20,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@nasnet/ui/primitives';
+
 import { UpdateProgressBar } from './UpdateProgressBar';
 import { useUpdateIndicator } from './useUpdateIndicator';
+
 import type { UpdateIndicatorProps } from './types';
 
 /**
@@ -59,6 +63,23 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
   const state = useUpdateIndicator(props);
   const [isOpen, setIsOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    // Keyboard shortcut (Ctrl+U to update) - defined inside effect to avoid dependency issues
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'u' && !state.updateDisabled) {
+        e.preventDefault();
+        state.handleUpdate();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, state]);
+
   // Don't render if no update available and not updating
   if (!state.hasUpdate && !props.isUpdating) {
     return null;
@@ -67,21 +88,6 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
   const SeverityIcon = state.severityConfig
     ? SEVERITY_ICONS[props.severity!]
     : Info;
-
-  // Keyboard shortcut (Ctrl+U to update)
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'u' && isOpen && !state.updateDisabled) {
-        e.preventDefault();
-        state.handleUpdate();
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen, state.updateDisabled, state.handleUpdate]);
 
   return (
     <TooltipProvider>

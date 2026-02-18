@@ -1,19 +1,21 @@
-const { FlatCompat } = require('@eslint/eslintrc');
-const js = require('@eslint/js');
-const tsParser = require('@typescript-eslint/parser');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
-const nxPlugin = require('@nx/eslint-plugin');
-const reactHooksPlugin = require('eslint-plugin-react-hooks');
-const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
-const importPlugin = require('eslint-plugin-import');
-const i18nextPlugin = require('eslint-plugin-i18next');
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import nxPlugin from '@nx/eslint-plugin';
+import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import importPlugin from 'eslint-plugin-import';
+import i18nextPlugin from 'eslint-plugin-i18next';
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: import.meta.dirname,
   recommendedConfig: js.configs.recommended,
 });
 
-module.exports = [
+export default [
   {
     ignores: [
       '**/dist',
@@ -155,8 +157,24 @@ module.exports = [
       '@nx/enforce-module-boundaries': [
         'error',
         {
-          enforceBuildableLibDependency: true,
-          allow: [],
+          enforceBuildableLibDependency: false,
+          allow: [
+            '@nasnet/api-client/queries',
+            '@nasnet/api-client/queries/*',
+            '@nasnet/api-client/generated',
+            '@nasnet/features/firewall',
+            '@nasnet/features/network',
+            '@nasnet/features/services',
+            '@nasnet/features/alerts',
+            '@nasnet/features/diagnostics',
+            '@nasnet/features/dashboard',
+            '@nasnet/features/logs',
+            '@nasnet/features/wireless',
+            '@nasnet/features/router-discovery',
+            '@nasnet/features/configuration-import',
+            '@nasnet/ui/patterns',
+            '@nasnet/ui/layouts',
+          ],
           depConstraints: [
             // Apps can depend on everything
             {
@@ -164,6 +182,9 @@ module.exports = [
               onlyDependOnLibsWithTags: [
                 'scope:core',
                 'scope:ui',
+                'scope:ui-primitives',
+                'scope:ui-patterns',
+                'scope:ui-layouts',
                 'scope:features',
                 'scope:api-client',
                 'scope:state',
@@ -175,6 +196,9 @@ module.exports = [
               sourceTag: 'scope:features',
               onlyDependOnLibsWithTags: [
                 'scope:ui',
+                'scope:ui-primitives',
+                'scope:ui-patterns',
+                'scope:ui-layouts',
                 'scope:core',
                 'scope:api-client',
                 'scope:state',
@@ -244,6 +268,24 @@ module.exports = [
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  // Storybook stories: render functions use hooks but aren't React components
+  {
+    files: ['**/*.stories.ts', '**/*.stories.tsx'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  // Test template files (not executed directly)
+  {
+    files: ['**/*.template.ts', '**/*.template.tsx'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
 ];

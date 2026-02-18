@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { type Tree, addProjectConfiguration } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { Tree, addProjectConfiguration } from '@nx/devkit';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import componentGenerator from './generator';
 
 describe('component generator', () => {

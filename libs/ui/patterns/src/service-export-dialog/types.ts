@@ -3,7 +3,7 @@
  * Pattern component for exporting service configurations
  */
 
-import type { ServiceInstance } from '@nasnet/api-client/queries/services';
+import type { ServiceInstance } from '@nasnet/api-client/queries';
 
 /**
  * Export format options

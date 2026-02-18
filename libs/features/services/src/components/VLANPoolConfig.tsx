@@ -5,6 +5,7 @@
  * Allows configuring the allocatable VLAN range (1-4094).
  */
 
+import type React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -102,14 +103,16 @@ export function VLANPoolConfig({
       }
 
       await updatePoolConfig(values);
-      toast.success('VLAN pool configuration updated successfully');
+      toast({ title: 'VLAN pool configuration updated successfully', variant: 'default' });
       onSuccess?.();
     } catch (error) {
-      toast.error(
-        error instanceof Error
+      toast({
+        title: 'Error',
+        description: error instanceof Error
           ? error.message
-          : 'Failed to update VLAN pool configuration'
-      );
+          : 'Failed to update VLAN pool configuration',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -126,17 +129,17 @@ export function VLANPoolConfig({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Pool Start */}
           <RHFFormField
-            control={form.control}
+            control={form.control as any}
             name="poolStart"
             label="Pool Start"
             description="First allocatable VLAN ID (minimum 1)"
-            render={({ field }) => (
+            renderInput={({ field }: { field: any }) => (
               <Input
                 {...field}
                 type="number"
                 min={1}
                 max={4094}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   field.onChange(parseInt(e.target.value, 10) || 0)
                 }
               />
@@ -145,17 +148,17 @@ export function VLANPoolConfig({
 
           {/* Pool End */}
           <RHFFormField
-            control={form.control}
+            control={form.control as any}
             name="poolEnd"
             label="Pool End"
             description="Last allocatable VLAN ID (maximum 4094)"
-            render={({ field }) => (
+            renderInput={({ field }: { field: any }) => (
               <Input
                 {...field}
                 type="number"
                 min={1}
                 max={4094}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   field.onChange(parseInt(e.target.value, 10) || 0)
                 }
               />

@@ -20,8 +20,8 @@ func TestManifestValidation(t *testing.T) {
 				DockerImage:    "test/image",
 				DockerTag:      "latest",
 				Architectures:  []string{"amd64"},
-				MinRAM:         10485760,  // 10MB
-				RecommendedRAM: 20971520,  // 20MB
+				MinRAM:         10485760, // 10MB
+				RecommendedRAM: 20971520, // 20MB
 				CPUWeight:      50,
 			},
 			wantError: false,
@@ -82,8 +82,8 @@ func TestManifestValidation(t *testing.T) {
 				DockerImage:    "test/image",
 				DockerTag:      "latest",
 				Architectures:  []string{"amd64"},
-				MinRAM:         20971520,  // 20MB
-				RecommendedRAM: 10485760,  // 10MB
+				MinRAM:         20971520, // 20MB
+				RecommendedRAM: 10485760, // 10MB
 				CPUWeight:      50,
 			},
 			wantError: true,
@@ -124,11 +124,11 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "missing ID",
 			manifest: Manifest{
-				Name:           "Test Feature",
-				Version:        "1.0.0",
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"amd64"},
+				Name:          "Test Feature",
+				Version:       "1.0.0",
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"amd64"},
 			},
 			wantError: true,
 			errorMsg:  "manifest ID is required",
@@ -136,12 +136,12 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "invalid ID format",
 			manifest: Manifest{
-				ID:             "Test Feature!", // Invalid: uppercase and special char
-				Name:           "Test Feature",
-				Version:        "1.0.0",
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"amd64"},
+				ID:            "Test Feature!", // Invalid: uppercase and special char
+				Name:          "Test Feature",
+				Version:       "1.0.0",
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"amd64"},
 			},
 			wantError: true,
 			errorMsg:  "manifest ID must contain only lowercase letters, numbers, hyphens, and underscores",
@@ -149,11 +149,11 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "missing name",
 			manifest: Manifest{
-				ID:             "test-feature",
-				Version:        "1.0.0",
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"amd64"},
+				ID:            "test-feature",
+				Version:       "1.0.0",
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"amd64"},
 			},
 			wantError: true,
 			errorMsg:  "manifest name is required",
@@ -161,12 +161,12 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "invalid version format",
 			manifest: Manifest{
-				ID:             "test-feature",
-				Name:           "Test Feature",
-				Version:        "1.0", // Invalid: not semantic version
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"amd64"},
+				ID:            "test-feature",
+				Name:          "Test Feature",
+				Version:       "1.0", // Invalid: not semantic version
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"amd64"},
 			},
 			wantError: true,
 			errorMsg:  "manifest version must be in semantic version format",
@@ -174,12 +174,12 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "valid semantic version with prerelease",
 			manifest: Manifest{
-				ID:             "test-feature",
-				Name:           "Test Feature",
-				Version:        "1.0.0-beta",
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"amd64"},
+				ID:            "test-feature",
+				Name:          "Test Feature",
+				Version:       "1.0.0-beta",
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"amd64"},
 			},
 			wantError: false,
 		},
@@ -198,12 +198,12 @@ func TestManifestValidation(t *testing.T) {
 		{
 			name: "invalid architecture",
 			manifest: Manifest{
-				ID:             "test-feature",
-				Name:           "Test Feature",
-				Version:        "1.0.0",
-				DockerImage:    "test/image",
-				DockerTag:      "latest",
-				Architectures:  []string{"invalid-arch"},
+				ID:            "test-feature",
+				Name:          "Test Feature",
+				Version:       "1.0.0",
+				DockerImage:   "test/image",
+				DockerTag:     "latest",
+				Architectures: []string{"invalid-arch"},
 			},
 			wantError: true,
 			errorMsg:  "invalid architecture: invalid-arch",

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { useConnectionStore, type ConnectionStore } from '@nasnet/state/stores';
+
+import { useConnectionStore, type ConnectionState, type ConnectionActions } from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 
 /**
@@ -25,7 +26,7 @@ import { useToast } from '@nasnet/ui/primitives';
  * - Requires shadcn/ui Toast provider to be configured
  */
 export function useConnectionToast() {
-  const state = useConnectionStore((store: ConnectionStore) => store.state);
+  const state = useConnectionStore((store: ConnectionState & ConnectionActions) => store.state);
   const { toast } = useToast();
   const previousStateRef = useRef(state);
 

@@ -14,6 +14,7 @@
  */
 
 import { useCallback, useMemo } from 'react';
+
 import { toast } from 'sonner';
 
 import {
@@ -75,7 +76,24 @@ export interface PromiseToastMessages<T> {
 /**
  * Return type for useToast hook
  */
+/**
+ * Options for the generic toast() method (shadcn-compatible API)
+ */
+export interface GenericToastOptions {
+  title?: string;
+  description?: string;
+  variant?: 'default' | 'destructive';
+  duration?: number | null;
+  action?: NotificationAction;
+}
+
 export interface UseToastReturn {
+  /**
+   * Generic toast method (shadcn-compatible API)
+   * Accepts { title, description, variant } for compatibility
+   */
+  toast: (options: GenericToastOptions) => string;
+
   /**
    * Show a success toast
    */
@@ -275,6 +293,20 @@ export function useToast(): UseToastReturn {
     toast.dismiss();
   }, [clearAllNotifications]);
 
+  const genericToast = useCallback(
+    (options: GenericToastOptions): string => {
+      const type = options.variant === 'destructive' ? 'error' : 'info';
+      return addNotification({
+        type,
+        title: options.title ?? '',
+        message: options.description,
+        duration: options.duration,
+        action: options.action,
+      });
+    },
+    [addNotification]
+  );
+
   const promiseToast = useCallback(
     async <T,>(
       promise: Promise<T>,
@@ -326,6 +358,7 @@ export function useToast(): UseToastReturn {
 
   return useMemo(
     () => ({
+      toast: genericToast,
       success,
       error,
       warning,
@@ -336,7 +369,7 @@ export function useToast(): UseToastReturn {
       dismissAll,
       promise: promiseToast,
     }),
-    [success, error, warning, info, progressToast, update, dismiss, dismissAll, promiseToast]
+    [genericToast, success, error, warning, info, progressToast, update, dismiss, dismissAll, promiseToast]
   );
 }
 

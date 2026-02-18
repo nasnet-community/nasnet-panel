@@ -30,6 +30,7 @@
  */
 
 import { setup, assign, fromPromise } from 'xstate';
+
 import type {
   ConfigPipelineContext,
   ConfigPipelineEvent,
@@ -353,8 +354,9 @@ export function createConfigPipelineMachine<TConfig = unknown>(
       },
       validating: {
         description: 'Running 7-stage validation pipeline',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         invoke: {
-          src: 'runValidationPipeline',
+          src: 'runValidationPipeline' as any,
           input: ({ context }) => context.pendingConfig as TConfig,
           onDone: [
             {
@@ -457,8 +459,9 @@ export function createConfigPipelineMachine<TConfig = unknown>(
       },
       rollback: {
         description: 'Executing rollback to previous state',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         invoke: {
-          src: 'executeRollback',
+          src: 'executeRollback' as any,
           input: ({ context }) => context.rollbackData as TConfig,
           onDone: 'rolled_back',
           onError: {

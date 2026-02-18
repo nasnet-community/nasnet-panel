@@ -160,12 +160,12 @@ func TestNullAuditLogger(t *testing.T) {
 func TestSanitizeDetails(t *testing.T) {
 	t.Run("redacts sensitive fields", func(t *testing.T) {
 		details := map[string]interface{}{
-			"username":    "testuser",
-			"password":    "secret123",
-			"token":       "eyJhbGc...",
-			"api_key":     "nas_abc123",
-			"secret":      "confidential",
-			"safe_field":  "visible",
+			"username":   "testuser",
+			"password":   "secret123",
+			"token":      "eyJhbGc...",
+			"api_key":    "nas_abc123",
+			"secret":     "confidential",
+			"safe_field": "visible",
 		}
 
 		sanitized := sanitizeDetails(details)

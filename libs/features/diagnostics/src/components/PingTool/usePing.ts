@@ -148,7 +148,7 @@ export function usePing({
       // Subscription completed (server closed it)
       if (snapshot.matches('running')) {
         // If we're still running, transition to complete
-        send({ type: 'COMPLETE' });
+        send({ type: 'STOP' });
       }
     },
     onError: (subscriptionError) => {

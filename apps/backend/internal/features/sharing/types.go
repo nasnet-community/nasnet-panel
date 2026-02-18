@@ -1,8 +1,9 @@
 package sharing
 
 import (
-	"backend/pkg/manifest"
 	"sync"
+
+	"backend/internal/common/manifest"
 )
 
 // FeatureRegistry provides access to feature manifests.
@@ -11,7 +12,7 @@ import (
 // The features.FeatureRegistry provides these methods; callers should
 // construct a sharing.FeatureRegistry adapter when wiring dependencies.
 type FeatureRegistry struct {
-	mu       sync.RWMutex
+	mu              sync.RWMutex
 	getManifestFunc func(id string) (*manifest.Manifest, error)
 }
 

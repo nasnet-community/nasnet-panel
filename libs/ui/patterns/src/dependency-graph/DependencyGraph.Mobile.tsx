@@ -8,6 +8,7 @@
  */
 
 import * as React from 'react';
+
 import { ChevronDown, ChevronRight, GitBranch, AlertCircle } from 'lucide-react';
 
 import {
@@ -21,7 +22,8 @@ import {
   Skeleton,
 } from '@nasnet/ui/primitives';
 
-import { StatusBadge } from '../status-badge';
+import { StatusIndicator } from '../status-indicator';
+
 import type { DependencyGraphPresenterProps, EnhancedNode } from './dependency-graph.types';
 
 /**
@@ -197,7 +199,7 @@ function NodeCard({ node, isSelected, onSelect }: NodeCardProps) {
       aria-pressed={isSelected}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <StatusBadge status={node.status as 'online' | 'offline' | 'pending'} size="sm" />
+        <StatusIndicator status={node.status as 'online' | 'offline' | 'pending'} size="sm" />
         <div className="flex flex-col items-start min-w-0">
           <span className="text-sm font-medium truncate w-full text-left">
             {node.instanceName}

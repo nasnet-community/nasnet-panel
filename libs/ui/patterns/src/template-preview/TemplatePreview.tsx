@@ -25,6 +25,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { TemplatePreviewDesktop } from './TemplatePreviewDesktop';
 import { TemplatePreviewMobile } from './TemplatePreviewMobile';
+
 import type { UseTemplatePreviewReturn } from './use-template-preview';
 
 export interface TemplatePreviewProps {

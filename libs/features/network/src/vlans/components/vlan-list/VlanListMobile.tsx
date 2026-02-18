@@ -92,7 +92,7 @@ export function VlanListMobile({
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
                 {(parentInterfaceFilter || searchQuery) && (
-                  <Badge variant="primary" className="ml-2">
+                  <Badge variant="default" className="ml-2">
                     Active
                   </Badge>
                 )}
@@ -114,10 +114,10 @@ export function VlanListMobile({
                     >
                       All Interfaces
                     </Button>
-                    {Array.from(
-                      new Set(allVlans.map((v) => v.interface.id))
-                    ).map((ifaceId) => {
-                      const iface = allVlans.find((v) => v.interface.id === ifaceId)?.interface;
+                    {(Array.from(
+                      new Set(allVlans.map((v: any) => v.interface.id as string))
+                    ) as string[]).map((ifaceId: string) => {
+                      const iface = allVlans.find((v: any) => v.interface.id === ifaceId)?.interface;
                       if (!iface) return null;
                       return (
                         <Button
@@ -195,7 +195,7 @@ export function VlanListMobile({
         </Card>
       )}
 
-      {!loading && !error && vlans.map((vlan) => (
+      {!loading && !error && vlans.map((vlan: any) => (
         <Card
           key={vlan.id}
           className="p-4 space-y-3"
@@ -239,7 +239,7 @@ export function VlanListMobile({
           {/* Status Badge */}
           <div className="flex items-center gap-2">
             {vlan.disabled ? (
-              <Badge variant="muted">Disabled</Badge>
+              <Badge variant="secondary">Disabled</Badge>
             ) : vlan.running ? (
               <Badge variant="success">Running</Badge>
             ) : (
@@ -288,9 +288,9 @@ export function VlanListMobile({
             ? `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
             : ''
         }
-        confirmText="Delete"
+        consequences={['This action cannot be undone']}
+        confirmText="DELETE"
         onConfirm={handleConfirmedDelete}
-        variant="danger"
       />
     </div>
   );

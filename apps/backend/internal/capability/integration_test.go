@@ -269,7 +269,7 @@ func (p *mockCHRPort) QueryState(ctx context.Context, query StateQuery) (*StateR
 	case "/system/package":
 		return &StateResult{
 			Resources: []map[string]string{
-				{"name": "routeros"},
+				{"name": "routers"},
 				{"name": "dhcp"},
 				{"name": "security"},
 				{"name": "ppp"},
@@ -281,7 +281,7 @@ func (p *mockCHRPort) QueryState(ctx context.Context, query StateQuery) (*StateR
 	case "/system/routerboard":
 		return &StateResult{
 			Resources: []map[string]string{{
-				"model":        "CHR",
+				"model":         "CHR",
 				"serial-number": "MOCK12345",
 			}},
 			Count: 1,

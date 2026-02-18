@@ -147,11 +147,10 @@ export function useInstallTemplate(
         installServiceTemplate: {
           __typename: 'TemplateInstallResult',
           success: true,
-          instanceIDs: [], // Will be populated by real response
+          instanceIDs: [],
           serviceMapping: {},
           errors: [],
           progress: {
-            __typename: 'TemplateInstallProgress',
             templateID: input.templateID,
             totalServices: 0,
             installedCount: 0,
@@ -161,8 +160,8 @@ export function useInstallTemplate(
             startedAt: new Date().toISOString(),
             completedAt: null,
             serviceResults: [],
-          },
-        },
+          } as any,
+        } as any,
       },
       // Update cache manually to add in-progress instances
       update: (cache, { data: mutationData }) => {

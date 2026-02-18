@@ -7,7 +7,7 @@ import (
 
 	"backend/generated/ent/enttest"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // TestNewTrafficAggregator tests creating a new aggregator instance

@@ -21,10 +21,10 @@ func (va *VLANAllocator) CleanupOrphans(ctx context.Context, routerID string) (i
 	defer va.mu.Unlock()
 
 	// Query all allocated VLANs for this router
-	allocations, err := va.store.VLANAllocation.Query().
+	allocations, err := va.store.VLANAllocation().Query().
 		Where(
 			vlanallocation.RouterIDEQ(routerID),
-			vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+			vlanallocation.StatusEQ("allocated"),
 		).
 		All(ctx)
 
@@ -36,8 +36,8 @@ func (va *VLANAllocator) CleanupOrphans(ctx context.Context, routerID string) (i
 
 	for _, alloc := range allocations {
 		// Check if instance exists
-		instance, err := va.store.ServiceInstance.Query().
-			Where(serviceinstance.IDEQ(alloc.InstanceID)).
+		instance, err := va.store.ServiceInstance().Query().
+			Where(serviceinstance.IDEQ(alloc.GetInstanceID())).
 			Only(ctx)
 
 		isOrphan := false
@@ -48,34 +48,34 @@ func (va *VLANAllocator) CleanupOrphans(ctx context.Context, routerID string) (i
 				isOrphan = true
 			} else {
 				va.logger.Error("failed to query service instance",
-					"instance_id", alloc.InstanceID,
+					"instance_id", alloc.GetInstanceID(),
 					"error", err)
 				continue
 			}
 		}
 
 		// Check if instance is in "deleting" status
-		if !isOrphan && instance.Status == serviceinstance.StatusDeleting {
+		if !isOrphan && instance.GetStatus() == "deleting" {
 			isOrphan = true
 		}
 
 		if isOrphan {
 			// Mark as released
 			_, err := alloc.Update().
-				SetStatus(vlanallocation.StatusReleased).
+				SetStatus("released").
 				Save(ctx)
 
 			if err != nil {
 				va.logger.Error("failed to release orphaned allocation",
-					"allocation_id", alloc.ID,
-					"router_id", alloc.RouterID,
-					"vlan_id", alloc.VlanID,
+					"allocation_id", alloc.GetID(),
+					"router_id", alloc.GetRouterID(),
+					"vlan_id", alloc.GetVlanID(),
 					"error", err)
 				continue
 			}
 
 			// Remove from cache
-			cacheKey := va.cacheKey(alloc.RouterID, alloc.VlanID)
+			cacheKey := va.cacheKey(alloc.GetRouterID(), alloc.GetVlanID())
 			delete(va.cache, cacheKey)
 
 			cleanedCount++
@@ -93,14 +93,14 @@ func (va *VLANAllocator) CleanupOrphans(ctx context.Context, routerID string) (i
 
 // DetectOrphans finds orphaned VLAN allocations without removing them.
 // Useful for reporting/diagnostics before cleanup.
-func (va *VLANAllocator) DetectOrphans(ctx context.Context, routerID string) ([]*ent.VLANAllocation, error) {
+func (va *VLANAllocator) DetectOrphans(ctx context.Context, routerID string) ([]VLANAllocationEntity, error) {
 	va.mu.RLock()
 	defer va.mu.RUnlock()
 
-	allocations, err := va.store.VLANAllocation.Query().
+	allocations, err := va.store.VLANAllocation().Query().
 		Where(
 			vlanallocation.RouterIDEQ(routerID),
-			vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+			vlanallocation.StatusEQ("allocated"),
 		).
 		All(ctx)
 
@@ -108,11 +108,11 @@ func (va *VLANAllocator) DetectOrphans(ctx context.Context, routerID string) ([]
 		return nil, fmt.Errorf("failed to query allocations: %w", err)
 	}
 
-	var orphans []*ent.VLANAllocation
+	var orphans []VLANAllocationEntity
 
 	for _, alloc := range allocations {
-		instance, err := va.store.ServiceInstance.Query().
-			Where(serviceinstance.IDEQ(alloc.InstanceID)).
+		instance, err := va.store.ServiceInstance().Query().
+			Where(serviceinstance.IDEQ(alloc.GetInstanceID())).
 			Only(ctx)
 
 		if err != nil {
@@ -121,12 +121,12 @@ func (va *VLANAllocator) DetectOrphans(ctx context.Context, routerID string) ([]
 				continue
 			}
 			va.logger.Error("failed to query service instance",
-				"instance_id", alloc.InstanceID,
+				"instance_id", alloc.GetInstanceID(),
 				"error", err)
 			continue
 		}
 
-		if instance.Status == serviceinstance.StatusDeleting {
+		if instance.GetStatus() == "deleting" {
 			orphans = append(orphans, alloc)
 		}
 	}

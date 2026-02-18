@@ -6,11 +6,12 @@
 package credentials
 
 import (
-	"backend/internal/encryption"
 	"context"
 	"os"
 	"testing"
 	"time"
+
+	"backend/internal/encryption"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

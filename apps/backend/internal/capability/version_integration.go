@@ -53,6 +53,7 @@ func (i *VersionCapabilityIntegration) GetFeatureSupport(
 	featureID string,
 	isCHR bool,
 ) *FeatureSupportInfo {
+
 	v := ConvertToCompatibilityVersion(caps.Software.Version)
 	support := i.compatSvc.GetFeatureSupport(featureID, v, isCHR)
 
@@ -193,6 +194,7 @@ func (i *VersionCapabilityIntegration) EnhanceCapabilities(caps *Capabilities, i
 	}
 
 	// Enhance ZeroTier capability
+	//nolint:nestif // acceptable nesting for conditional setting
 	if i.compatSvc.IsFeatureSupported("zerotier", v, isCHR) {
 		zt := i.compatSvc.GetFeatureCompatibility("zerotier")
 		if zt != nil && len(zt.RequiredPackages) > 0 {

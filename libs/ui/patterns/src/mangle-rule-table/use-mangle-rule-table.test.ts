@@ -9,10 +9,13 @@
  * - Column definitions
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useMangleRuleTable } from './use-mangle-rule-table';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import type { MangleRule } from '@nasnet/core/types';
+
+import { useMangleRuleTable } from './use-mangle-rule-table';
+
 
 const mockRules: MangleRule[] = [
   {

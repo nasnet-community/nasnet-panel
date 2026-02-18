@@ -1,9 +1,7 @@
 import * as React from 'react';
-import { cn } from '@nasnet/ui/primitives';
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import { ScrollArea } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
+
 import type { DriftedField, DriftResult } from '@nasnet/state/stores';
+import { cn , Card, CardContent, CardHeader, CardTitle , ScrollArea , Badge } from '@nasnet/ui/primitives';
 
 /**
  * Drift Diff Viewer Component

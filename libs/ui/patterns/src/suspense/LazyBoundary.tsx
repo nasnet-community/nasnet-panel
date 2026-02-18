@@ -63,7 +63,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.props.onError?.(error, errorInfo);
     console.error('LazyBoundary caught an error:', error, errorInfo);
   }
@@ -72,7 +72,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     this.setState({ hasError: false, error: null });
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       const { fallback } = this.props;
 
@@ -342,7 +342,8 @@ export function preloadComponent(importFn: () => Promise<unknown>): void {
  * </LazyBoundary>
  * ```
  */
-export function createLazyWithPreload<T extends ComponentType<unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createLazyWithPreload<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ): [React.LazyExoticComponent<T>, () => void] {
   const LazyComponent = React.lazy(importFn);

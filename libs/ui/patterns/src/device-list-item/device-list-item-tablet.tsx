@@ -10,9 +10,11 @@
  */
 
 import * as React from 'react';
+
 import { ChevronDown } from 'lucide-react';
 
 import { cn, Badge } from '@nasnet/ui/primitives';
+
 import { StatusBadge } from '../status-badge';
 
 import type { DeviceListItemPresenterProps } from './device-list-item.types';
@@ -45,9 +47,6 @@ export function DeviceListItemTablet({
   return (
     <div
       id={id}
-      role="listitem"
-      aria-label={state.ariaLabel}
-      aria-expanded={state.isExpanded}
       className={cn(
         'border border-border rounded-lg',
         'overflow-hidden',
@@ -59,6 +58,8 @@ export function DeviceListItemTablet({
       <button
         type="button"
         onClick={handleClick}
+        aria-label={state.ariaLabel}
+        aria-expanded={state.isExpanded}
         className={cn(
           'w-full px-4 py-3 text-left',
           'flex items-center gap-3',
@@ -105,7 +106,7 @@ export function DeviceListItemTablet({
           </div>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm text-muted-foreground">{state.ipAddress}</span>
-            <StatusBadge status={device.status} size="sm" />
+            <StatusBadge status={device.status} />
           </div>
           <div className="text-xs text-muted-foreground mt-0.5">
             {state.deviceTypeLabel} · Connected {state.connectionDuration}

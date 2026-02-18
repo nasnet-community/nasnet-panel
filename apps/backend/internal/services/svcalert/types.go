@@ -7,7 +7,7 @@ import (
 	"backend/generated/ent/alertrule"
 )
 
-// EscalationCanceller defines the interface for cancelling alert escalations.
+// EscalationCanceller defines the interface for canceling alert escalations.
 // This avoids circular dependency between alerts and services packages.
 type EscalationCanceller interface {
 	CancelEscalation(ctx context.Context, alertID string, reason string) error

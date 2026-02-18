@@ -5,17 +5,17 @@ import (
 	"testing"
 )
 
-// mockGenerator is a mock implementation of ConfigGenerator for testing
+// mockGenerator is a mock implementation of Generator for testing
 type mockGenerator struct {
 	serviceType string
-	schema      *ConfigSchema
+	schema      *Schema
 }
 
 func (m *mockGenerator) GetServiceType() string {
 	return m.serviceType
 }
 
-func (m *mockGenerator) GetSchema() *ConfigSchema {
+func (m *mockGenerator) GetSchema() *Schema {
 	return m.schema
 }
 
@@ -38,10 +38,10 @@ func (m *mockGenerator) GetConfigFormat() string {
 func newMockGenerator(serviceType string) *mockGenerator {
 	return &mockGenerator{
 		serviceType: serviceType,
-		schema: &ConfigSchema{
+		schema: &Schema{
 			ServiceType: serviceType,
 			Version:     "1.0.0",
-			Fields: []ConfigField{
+			Fields: []Field{
 				{Name: "port", Type: "int", Required: true},
 			},
 		},

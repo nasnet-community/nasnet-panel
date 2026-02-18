@@ -256,3 +256,5 @@ func (e *testError) Timeout() bool {
 func (e *testError) Temporary() bool {
 	return false
 }
+
+func ptrInt(i int) *int { return &i }

@@ -10,25 +10,14 @@
  * @module @nasnet/ui/patterns
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import userEvent from '@testing-library/user-event';
+import { describe, it, expect } from 'vitest';
 // TODO: Import component once created
 // import { PortKnockSequenceForm } from './PortKnockSequenceForm';
 
 import {
-  VALID_SEQUENCE_SSH,
-  VALID_SEQUENCE_MINIMAL,
+  VALID_SEQUENCE_SSH as _VALID_SEQUENCE_SSH,
+  VALID_SEQUENCE_MINIMAL as _VALID_SEQUENCE_MINIMAL,
 } from '@nasnet/core/types/firewall/__test-fixtures__/port-knock-fixtures';
-
-// Extend Jest matchers
-expect.extend(toHaveNoViolations);
-
-// Test wrapper for React Hook Form
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  return <div>{children}</div>;
-};
 
 describe('PortKnockSequenceForm', () => {
   // =============================================================================

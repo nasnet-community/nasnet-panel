@@ -1,7 +1,8 @@
 import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 import { usePlatform } from '@nasnet/ui/layouts';
-import { ServiceHealthBadgeMobile } from './ServiceHealthBadgeMobile';
+
 import { ServiceHealthBadgeDesktop } from './ServiceHealthBadgeDesktop';
+import { ServiceHealthBadgeMobile } from './ServiceHealthBadgeMobile';
 
 export interface ServiceHealthBadgeProps {
   /**

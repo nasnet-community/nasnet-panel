@@ -6,25 +6,29 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+
 	"backend/generated/ent"
 
 	"backend/internal/alerts"
-	"backend/internal/events"
 	"backend/internal/notifications"
 	channelshttp "backend/internal/notifications/channels/http"
 	"backend/internal/notifications/channels/push"
 	"backend/internal/services"
+
+	"backend/internal/events"
 )
 
 // AlertComponents holds all initialized alert system components.
 type AlertComponents struct {
-	Dispatcher           *notifications.Dispatcher
-	EscalationEngine     *alerts.EscalationEngine
-	DigestService        *alerts.DigestService
-	DigestScheduler      *alerts.DigestScheduler
-	AlertService         *services.AlertService
+	Dispatcher               *notifications.Dispatcher
+	EscalationEngine         *alerts.EscalationEngine
+	DigestService            *alerts.DigestService
+	DigestScheduler          *alerts.DigestScheduler
+	AlertService             *services.AlertService
+	AlertTemplateService     *services.AlertTemplateService
+	TemplateService          notifications.TemplateRenderer
 	AlertRuleTemplateService *alerts.AlertRuleTemplateService
-	AlertEngine          *alerts.Engine
+	AlertEngine              *alerts.Engine
 }
 
 // InitializeAlertSystem creates and initializes the complete alert system.
@@ -86,14 +90,14 @@ func InitializeAlertSystem(
 	log.Printf("Escalation engine initialized")
 
 	// Initialize Digest Service
-	digestService, err := alerts.NewDigestService(alerts.DigestServiceConfig{
+	digestService, digestErr := alerts.NewDigestService(alerts.DigestServiceConfig{
 		DB:         systemDB,
 		Dispatcher: dispatcher,
 		EventBus:   eventBus,
 		Logger:     sugar,
 	})
-	if err != nil {
-		return nil, err
+	if digestErr != nil {
+		return nil, digestErr
 	}
 	log.Printf("Digest service initialized")
 
@@ -104,8 +108,8 @@ func InitializeAlertSystem(
 	})
 
 	// Start digest scheduler
-	if err := digestScheduler.Start(ctx); err != nil {
-		log.Printf("Warning: failed to start digest scheduler: %v", err)
+	if schedErr := digestScheduler.Start(ctx); schedErr != nil {
+		log.Printf("Warning: failed to start digest scheduler: %v", schedErr)
 	} else {
 		log.Printf("Digest scheduler started")
 	}
@@ -121,9 +125,9 @@ func InitializeAlertSystem(
 	log.Printf("Alert service initialized")
 
 	// Initialize Alert Rule Template Service
-	alertRuleTemplateService, err := alerts.NewAlertRuleTemplateService(alertService, systemDB)
-	if err != nil {
-		return nil, err
+	alertRuleTemplateService, templateErr := alerts.NewAlertRuleTemplateService(alertService, systemDB)
+	if templateErr != nil {
+		return nil, templateErr
 	}
 	log.Printf("Alert rule template service initialized with 15 built-in templates")
 
@@ -137,19 +141,32 @@ func InitializeAlertSystem(
 		Logger:           sugar,
 	})
 
-	if err := alertEngine.Start(ctx); err != nil {
-		return nil, err
+	if engineErr := alertEngine.Start(ctx); engineErr != nil {
+		return nil, engineErr
 	}
 	log.Printf("Alert engine started and monitoring events")
 
+	// Initialize Alert Template Service (for notification formatting)
+	alertTemplateService, err := services.NewAlertTemplateService(services.AlertTemplateServiceConfig{
+		DB:           systemDB,
+		Logger:       sugar,
+		AlertService: alertService,
+	})
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Alert template service initialized with 6 built-in templates")
+
 	return &AlertComponents{
-		Dispatcher:           dispatcher,
-		EscalationEngine:     escalationEngine,
-		DigestService:        digestService,
-		DigestScheduler:      digestScheduler,
-		AlertService:         alertService,
+		Dispatcher:               dispatcher,
+		EscalationEngine:         escalationEngine,
+		DigestService:            digestService,
+		DigestScheduler:          digestScheduler,
+		AlertService:             alertService,
+		AlertTemplateService:     alertTemplateService,
+		TemplateService:          templateService,
 		AlertRuleTemplateService: alertRuleTemplateService,
-		AlertEngine:          alertEngine,
+		AlertEngine:              alertEngine,
 	}, nil
 }
 

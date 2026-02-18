@@ -7,12 +7,10 @@
  * @module @nasnet/ui/patterns/rhf-form-field
  */
 
-import * as React from 'react';
-
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { useFieldArray, useFormContext, type FieldValues, type Path, type ArrayPath, type FieldArray } from 'react-hook-form';
+import { useFieldArray, useFormContext, type FieldValues, type ArrayPath, type FieldArray } from 'react-hook-form';
 
-import { Button , cn } from '@nasnet/ui/primitives';
+import { Button, cn } from '@nasnet/ui/primitives';
 
 export interface FormArrayFieldProps<TFieldValues extends FieldValues = FieldValues> {
   /** Field name matching the array in the form schema */

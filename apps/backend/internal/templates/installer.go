@@ -3,12 +3,12 @@ package templates
 import (
 	"context"
 	"fmt"
-	"regexp"
-	"strings"
 	"time"
 
+	"backend/internal/orchestrator/dependencies"
+	"backend/internal/orchestrator/lifecycle"
+
 	"backend/internal/events"
-	"backend/internal/orchestrator"
 
 	"github.com/rs/zerolog"
 )
@@ -16,8 +16,8 @@ import (
 // TemplateInstaller orchestrates template installation with dependency ordering and event emission
 type TemplateInstaller struct {
 	templateService   *TemplateService
-	instanceManager   *orchestrator.InstanceManager
-	dependencyManager *orchestrator.DependencyManager
+	instanceManager   *lifecycle.InstanceManager
+	dependencyManager *dependencies.DependencyManager
 	eventBus          events.EventBus
 	publisher         *events.Publisher
 	logger            zerolog.Logger
@@ -26,8 +26,8 @@ type TemplateInstaller struct {
 // TemplateInstallerConfig holds configuration for the template installer
 type TemplateInstallerConfig struct {
 	TemplateService   *TemplateService
-	InstanceManager   *orchestrator.InstanceManager
-	DependencyManager *orchestrator.DependencyManager
+	InstanceManager   *lifecycle.InstanceManager
+	DependencyManager *dependencies.DependencyManager
 	EventBus          events.EventBus
 	Logger            zerolog.Logger
 }
@@ -81,7 +81,7 @@ func NewTemplateInstaller(cfg TemplateInstallerConfig) (*TemplateInstaller, erro
 
 // InstallTemplate is the main entry point for template installation
 // It performs two-phase variable resolution, dependency-ordered installation, and emits events
-func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTemplateRequest) (*InstallTemplateResponse, error) {
+func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTemplateRequest) (*InstallTemplateResponse, error) { //nolint:gocyclo,maintidx // installation orchestration is inherently complex
 	startedAt := time.Now()
 
 	// Get template
@@ -169,7 +169,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			ti.rollbackInstances(ctx, instanceIDs)
 
 			// Emit failure event
-			ti.publisher.PublishTemplateInstallFailed(
+			_ = ti.publisher.PublishTemplateInstallFailed( //nolint:errcheck // best-effort event publish
 				ctx,
 				template.ID,
 				template.Name,
@@ -190,7 +190,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		}
 
 		// Create instance
-		instance, err := ti.instanceManager.CreateInstance(ctx, orchestrator.CreateInstanceRequest{
+		instance, err := ti.instanceManager.CreateInstance(ctx, lifecycle.CreateInstanceRequest{
 			FeatureID:         serviceSpec.ServiceType,
 			InstanceName:      serviceSpec.Name,
 			RouterID:          req.RouterID,
@@ -206,7 +206,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 			ti.rollbackInstances(ctx, instanceIDs)
 
 			// Emit failure event
-			ti.publisher.PublishTemplateInstallFailed(
+			_ = ti.publisher.PublishTemplateInstallFailed( //nolint:errcheck // best-effort event publish
 				ctx,
 				template.ID,
 				template.Name,
@@ -270,7 +270,7 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 	}
 
 	// Add dependencies between services if DependencyManager is configured
-	if ti.dependencyManager != nil {
+	if ti.dependencyManager != nil { //nolint:nestif // dependency resolution
 		// Parse suggested routing rules to create dependencies
 		for _, rule := range template.SuggestedRouting {
 			// Find target instance ID
@@ -342,194 +342,4 @@ func (ti *TemplateInstaller) InstallTemplate(ctx context.Context, req InstallTem
 		ServiceMapping: serviceMapping,
 		Message:        fmt.Sprintf("Successfully installed %d services from template %s", installedCount, template.Name),
 	}, nil
-}
-
-// resolveServiceConfig resolves variable references in service configuration
-// Supports nested maps and arrays with {{VARIABLE_NAME}} syntax
-func (ti *TemplateInstaller) resolveServiceConfig(config map[string]interface{}, variables map[string]interface{}) (map[string]interface{}, error) {
-	resolved := make(map[string]interface{})
-
-	for key, value := range config {
-		resolvedValue, err := ti.resolveValue(value, variables)
-		if err != nil {
-			return nil, fmt.Errorf("failed to resolve key %s: %w", key, err)
-		}
-		resolved[key] = resolvedValue
-	}
-
-	return resolved, nil
-}
-
-// resolveValue recursively resolves a single value (string, map, array)
-func (ti *TemplateInstaller) resolveValue(value interface{}, variables map[string]interface{}) (interface{}, error) {
-	switch v := value.(type) {
-	case string:
-		return ti.resolveString(v, variables)
-	case map[string]interface{}:
-		return ti.resolveServiceConfig(v, variables)
-	case []interface{}:
-		resolved := make([]interface{}, len(v))
-		for i, item := range v {
-			resolvedItem, err := ti.resolveValue(item, variables)
-			if err != nil {
-				return nil, fmt.Errorf("failed to resolve array item %d: %w", i, err)
-			}
-			resolved[i] = resolvedItem
-		}
-		return resolved, nil
-	default:
-		// Non-string values (int, bool, etc.) are returned as-is
-		return value, nil
-	}
-}
-
-// resolveString resolves variable references in a string using {{VARIABLE_NAME}} syntax
-func (ti *TemplateInstaller) resolveString(input string, variables map[string]interface{}) (interface{}, error) {
-	// Pattern: {{VARIABLE_NAME}}
-	pattern := regexp.MustCompile(`\{\{([A-Z_][A-Z0-9_.]*)\}\}`)
-
-	// Check if the entire string is a single variable reference
-	if pattern.MatchString(input) && strings.TrimSpace(input) == pattern.FindString(input) {
-		// Return the actual value (preserving type)
-		varName := pattern.FindStringSubmatch(input)[1]
-		if value, ok := variables[varName]; ok {
-			return value, nil
-		}
-		return nil, fmt.Errorf("variable {{%s}} not found", varName)
-	}
-
-	// Otherwise, perform string substitution
-	resolved := pattern.ReplaceAllStringFunc(input, func(match string) string {
-		// Extract variable name from {{VARIABLE_NAME}}
-		varName := pattern.FindStringSubmatch(match)[1]
-
-		if value, ok := variables[varName]; ok {
-			return fmt.Sprintf("%v", value)
-		}
-
-		// Variable not found - return placeholder
-		ti.logger.Warn().Str("variable", varName).Msg("variable not found during resolution")
-		return match
-	})
-
-	return resolved, nil
-}
-
-// rollbackInstances deletes all created instances on installation failure
-func (ti *TemplateInstaller) rollbackInstances(ctx context.Context, instanceIDs []string) {
-	ti.logger.Warn().
-		Int("instance_count", len(instanceIDs)).
-		Msg("rolling back template installation - deleting created instances")
-
-	for _, instanceID := range instanceIDs {
-		// Get instance to check status
-		instance, exists := ti.instanceManager.Supervisor().Get(instanceID)
-		if exists && instance != nil {
-			// Stop instance if running
-			if instance.State() == orchestrator.ProcessStateRunning {
-				if err := ti.instanceManager.StopInstance(ctx, instanceID); err != nil {
-					ti.logger.Error().Err(err).Str("instance_id", instanceID).Msg("failed to stop instance during rollback")
-				}
-			}
-		}
-
-		// Delete instance
-		if err := ti.instanceManager.DeleteInstance(ctx, instanceID); err != nil {
-			ti.logger.Error().Err(err).Str("instance_id", instanceID).Msg("failed to delete instance during rollback")
-		} else {
-			ti.logger.Info().Str("instance_id", instanceID).Msg("instance deleted during rollback")
-		}
-	}
-}
-
-// ValidateTemplate validates a template before installation
-// Checks variable references, service types, and dependency cycles
-func (ti *TemplateInstaller) ValidateTemplate(ctx context.Context, templateID string, variables map[string]interface{}) error {
-	template, err := ti.templateService.GetTemplate(ctx, templateID)
-	if err != nil {
-		return fmt.Errorf("failed to get template: %w", err)
-	}
-
-	// Validate all required variables are provided
-	for _, configVar := range template.ConfigVariables {
-		if configVar.Required {
-			if _, ok := variables[configVar.Name]; !ok {
-				return fmt.Errorf("required variable %s not provided", configVar.Name)
-			}
-		}
-	}
-
-	// Validate variable types
-	for _, configVar := range template.ConfigVariables {
-		value, ok := variables[configVar.Name]
-		if !ok {
-			continue // Already checked required variables above
-		}
-
-		// Type validation
-		if err := ti.validateVariableType(configVar, value); err != nil {
-			return fmt.Errorf("invalid variable %s: %w", configVar.Name, err)
-		}
-	}
-
-	return nil
-}
-
-// validateVariableType validates that a variable value matches its expected type
-func (ti *TemplateInstaller) validateVariableType(configVar TemplateVariable, value interface{}) error {
-	switch configVar.Type {
-	case VarTypeString:
-		if _, ok := value.(string); !ok {
-			return fmt.Errorf("expected string, got %T", value)
-		}
-	case VarTypeNumber:
-		switch v := value.(type) {
-		case int, int32, int64, float32, float64:
-			// Valid numeric types
-		case string:
-			// Try to parse string as number
-			var num float64
-			if _, err := fmt.Sscanf(v, "%f", &num); err != nil {
-				return fmt.Errorf("expected number, got unparseable string: %v", err)
-			}
-		default:
-			return fmt.Errorf("expected number, got %T", value)
-		}
-	case VarTypeBoolean:
-		if _, ok := value.(bool); !ok {
-			// Also accept string representations
-			if strVal, ok := value.(string); ok {
-				if strVal != "true" && strVal != "false" {
-					return fmt.Errorf("expected boolean, got string %s", strVal)
-				}
-			} else {
-				return fmt.Errorf("expected boolean, got %T", value)
-			}
-		}
-	case VarTypePort:
-		// Port should be a number between 1-65535
-		var portNum int
-		switch v := value.(type) {
-		case int:
-			portNum = v
-		case int32:
-			portNum = int(v)
-		case int64:
-			portNum = int(v)
-		case float64:
-			portNum = int(v)
-		case string:
-			if _, err := fmt.Sscanf(v, "%d", &portNum); err != nil {
-				return fmt.Errorf("expected port number, got unparseable string: %v", err)
-			}
-		default:
-			return fmt.Errorf("expected port number, got %T", value)
-		}
-
-		if portNum < 1 || portNum > 65535 {
-			return fmt.Errorf("port must be between 1-65535, got %d", portNum)
-		}
-	}
-
-	return nil
 }

@@ -14,7 +14,7 @@
  */
 
 import * as React from 'react';
-import { toast, type ExternalToast } from 'sonner';
+
 import {
   CheckCircle2,
   XCircle,
@@ -25,6 +25,7 @@ import {
   ChevronUp,
   X,
 } from 'lucide-react';
+import { toast, type ExternalToast } from 'sonner';
 
 import {
   useNotificationStore,

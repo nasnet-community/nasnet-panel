@@ -22,7 +22,8 @@ import {
   Dialog,
   DialogPortal,
   DialogOverlay,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { CommandItem } from './CommandItem';
 import { useCommandPalette } from './useCommandPalette';

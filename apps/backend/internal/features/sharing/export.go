@@ -1,14 +1,16 @@
 package sharing
 
 import (
-	"backend/generated/ent"
-	"backend/internal/events"
-	"backend/internal/router"
 	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
 	"time"
+
+	"backend/generated/ent"
+
+	"backend/internal/events"
+	"backend/internal/router"
 )
 
 // ServiceExportPackage represents an exported service configuration
@@ -43,8 +45,8 @@ type ExportOptions struct {
 	UserID              string
 }
 
-// SharingService handles service configuration export/import
-type SharingService struct {
+// Service handles service configuration export/import
+type Service struct {
 	entClient       *ent.Client
 	routerPort      router.RouterPort
 	eventBus        events.EventBus
@@ -58,15 +60,16 @@ type AuditService interface {
 	LogImport(ctx context.Context, instanceID, userID string) error
 }
 
-// NewSharingService creates a new sharing service with dependencies
-func NewSharingService(
+// NewService creates a new sharing service with dependencies
+func NewService(
 	entClient *ent.Client,
 	routerPort router.RouterPort,
 	eventBus events.EventBus,
 	featureRegistry *FeatureRegistry,
 	auditService AuditService,
-) *SharingService {
-	return &SharingService{
+) *Service {
+
+	return &Service{
 		entClient:       entClient,
 		routerPort:      routerPort,
 		eventBus:        eventBus,
@@ -74,6 +77,9 @@ func NewSharingService(
 		auditService:    auditService,
 	}
 }
+
+// redactedValue is the placeholder for redacted sensitive field values.
+const redactedValue = "***REDACTED***"
 
 // sensitivePatterns are field name patterns that indicate sensitive data
 var sensitivePatterns = []*regexp.Regexp{
@@ -88,7 +94,7 @@ var sensitivePatterns = []*regexp.Regexp{
 }
 
 // Export exports a service instance configuration
-func (s *SharingService) Export(ctx context.Context, instanceID string, options ExportOptions) (*ServiceExportPackage, error) {
+func (s *Service) Export(ctx context.Context, instanceID string, options ExportOptions) (*ServiceExportPackage, error) {
 	// Fetch service instance from database
 	instance, err := s.entClient.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
@@ -168,18 +174,18 @@ func (s *SharingService) Export(ctx context.Context, instanceID string, options 
 }
 
 // redactSecrets removes sensitive fields from config based on schema directives and pattern matching
-func (s *SharingService) redactSecrets(config map[string]interface{}, configSchema json.RawMessage) map[string]interface{} {
+func (s *Service) redactSecrets(config map[string]interface{}, configSchema json.RawMessage) map[string]interface{} {
 	redacted := make(map[string]interface{})
 
 	// Parse schema to find @sensitive fields
 	var schema map[string]interface{}
-	if len(configSchema) > 0 {
+	if len(configSchema) > 0 { //nolint:nestif // export schema processing
 		if err := json.Unmarshal(configSchema, &schema); err == nil {
 			// Schema successfully parsed, use it for directive-based redaction
 			if properties, ok := schema["properties"].(map[string]interface{}); ok {
 				for key, value := range config {
 					if s.isSensitiveField(key, properties) {
-						redacted[key] = "***REDACTED***"
+						redacted[key] = redactedValue
 					} else {
 						redacted[key] = value
 					}
@@ -192,7 +198,7 @@ func (s *SharingService) redactSecrets(config map[string]interface{}, configSche
 	// Fallback: pattern-based redaction if schema parsing failed
 	for key, value := range config {
 		if s.matchesSensitivePattern(key) {
-			redacted[key] = "***REDACTED***"
+			redacted[key] = redactedValue
 		} else {
 			redacted[key] = value
 		}
@@ -202,7 +208,7 @@ func (s *SharingService) redactSecrets(config map[string]interface{}, configSche
 }
 
 // isSensitiveField checks if a field has @sensitive directive in schema
-func (s *SharingService) isSensitiveField(fieldName string, properties map[string]interface{}) bool {
+func (s *Service) isSensitiveField(fieldName string, properties map[string]interface{}) bool {
 	if prop, ok := properties[fieldName].(map[string]interface{}); ok {
 		if sensitive, ok := prop["@sensitive"].(bool); ok && sensitive {
 			return true
@@ -218,7 +224,7 @@ func (s *SharingService) isSensitiveField(fieldName string, properties map[strin
 }
 
 // matchesSensitivePattern checks if field name matches sensitive patterns
-func (s *SharingService) matchesSensitivePattern(fieldName string) bool {
+func (s *Service) matchesSensitivePattern(fieldName string) bool {
 	for _, pattern := range sensitivePatterns {
 		if pattern.MatchString(fieldName) {
 			return true
@@ -228,7 +234,7 @@ func (s *SharingService) matchesSensitivePattern(fieldName string) bool {
 }
 
 // fetchRoutingRules queries mangle rules from router for this service instance
-func (s *SharingService) fetchRoutingRules(ctx context.Context, instanceID string) ([]RoutingRule, error) {
+func (s *Service) fetchRoutingRules(ctx context.Context, instanceID string) ([]RoutingRule, error) {
 	// Query mangle rules via RouterPort
 	query := router.StateQuery{
 		Path: "/ip/firewall/mangle",
@@ -243,7 +249,7 @@ func (s *SharingService) fetchRoutingRules(ctx context.Context, instanceID strin
 	}
 
 	// Parse result into routing rules
-	var rules []RoutingRule
+	rules := make([]RoutingRule, 0, len(result.Resources))
 	for _, resource := range result.Resources {
 		rules = append(rules, RoutingRule{
 			Chain:          resource["chain"],
@@ -260,7 +266,6 @@ func (s *SharingService) fetchRoutingRules(ctx context.Context, instanceID strin
 	return rules, nil
 }
 
-
 // ExportError represents an error during export operation
 type ExportError struct {
 	Code    string
@@ -274,12 +279,12 @@ func (e *ExportError) Error() string {
 // ServiceConfigExportedEvent is emitted when a service config is exported
 type ServiceConfigExportedEvent struct {
 	events.BaseEvent
-	InstanceID          string `json:"instanceId"`
-	ServiceType         string `json:"serviceType"`
-	ServiceName         string `json:"serviceName"`
-	IncludesSecrets     bool   `json:"includesSecrets"`
+	InstanceID           string `json:"instanceId"`
+	ServiceType          string `json:"serviceType"`
+	ServiceName          string `json:"serviceName"`
+	IncludesSecrets      bool   `json:"includesSecrets"`
 	IncludesRoutingRules bool   `json:"includesRoutingRules"`
-	ExportedByUserID    string `json:"exportedByUserId,omitempty"`
+	ExportedByUserID     string `json:"exportedByUserId,omitempty"`
 }
 
 // Payload returns the JSON-serialized event payload
@@ -293,6 +298,7 @@ func NewServiceConfigExportedEvent(
 	includesSecrets, includesRoutingRules bool,
 	exportedByUserID, source string,
 ) *ServiceConfigExportedEvent {
+
 	return &ServiceConfigExportedEvent{
 		BaseEvent:            events.NewBaseEvent("service.config.exported", events.PriorityNormal, source),
 		InstanceID:           instanceID,

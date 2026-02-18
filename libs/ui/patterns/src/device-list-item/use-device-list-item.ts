@@ -10,7 +10,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
-import type { LucideIcon } from 'lucide-react';
+
 import * as Icons from 'lucide-react';
 
 import { DEVICE_TYPE_ICONS, DEVICE_TYPE_LABELS } from '@nasnet/core/utils';
@@ -19,6 +19,7 @@ import type {
   UseDeviceListItemConfig,
   UseDeviceListItemReturn,
 } from './device-list-item.types';
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * Headless hook for DeviceListItem component

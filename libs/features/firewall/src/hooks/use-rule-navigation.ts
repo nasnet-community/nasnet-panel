@@ -104,9 +104,9 @@ export function useRuleNavigation({
     (ruleId: string): void => {
       // Navigate to filter rules page with highlight query param
       navigate({
-        to: '/router/$id/firewall/filter',
-        params: { id: routerId },
-        search: { highlight: ruleId },
+        to: '/router/$id/firewall' as any,
+        params: { id: routerId } as any,
+        search: { highlight: ruleId } as any,
       });
     },
     [navigate, routerId]
@@ -134,7 +134,7 @@ export function useRuleNavigation({
       }
 
       // Navigate to the rule
-      navigateToRule(rule.id);
+      navigateToRule(rule.id!);
     },
     [findRuleByPrefix, navigateToRule]
   );

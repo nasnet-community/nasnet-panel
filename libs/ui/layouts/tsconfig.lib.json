@@ -3,7 +3,6 @@
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "declaration": true,
-    "declarationMap": true,
     "types": ["vite/client"],
     "composite": false,
     "tsBuildInfoFile": "../../../dist/out-tsc/ui-layouts.tsbuildinfo",

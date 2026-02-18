@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { useThemeStore, getSystemTheme } from './theme.store';
 
 describe('useThemeStore', () => {

@@ -22,7 +22,7 @@ func NewMockRouterPort() *MockRouterPort {
 	}
 }
 
-func (m *MockRouterPort) Connect(ctx context.Context) error {
+func (m *MockRouterPort) Connect(_ context.Context) error {
 	return nil
 }
 
@@ -34,7 +34,7 @@ func (m *MockRouterPort) IsConnected() bool {
 	return true
 }
 
-func (m *MockRouterPort) Health(ctx context.Context) router.HealthStatus {
+func (m *MockRouterPort) Health(_ context.Context) router.HealthStatus {
 	return router.HealthStatus{Status: router.StatusConnected}
 }
 
@@ -46,7 +46,7 @@ func (m *MockRouterPort) Info() (*router.RouterInfo, error) {
 	return &router.RouterInfo{}, nil
 }
 
-func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+func (m *MockRouterPort) ExecuteCommand(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 	m.commands = append(m.commands, cmd)
 	if m.executeError != nil {
 		return nil, m.executeError
@@ -57,7 +57,7 @@ func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command)
 	}, nil
 }
 
-func (m *MockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+func (m *MockRouterPort) QueryState(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 	if m.queryError != nil {
 		return nil, m.queryError
 	}

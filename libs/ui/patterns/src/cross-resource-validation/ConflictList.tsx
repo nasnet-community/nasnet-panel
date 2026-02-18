@@ -14,6 +14,7 @@ import { AlertCircle, AlertTriangle, Info, CheckCircle2, Filter } from 'lucide-r
 import { Button, cn, Badge } from '@nasnet/ui/primitives';
 
 import { ConflictCard } from './ConflictCard';
+
 import type { ResourceConflict, ConflictSeverity } from './types';
 
 export interface ConflictListProps {

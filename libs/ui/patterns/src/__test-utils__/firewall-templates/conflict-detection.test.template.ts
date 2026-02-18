@@ -11,7 +11,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import type { TemplateRule, TemplateConflict } from '@nasnet/core/types';
+
 // TODO: Uncomment once implementation exists
 // import { detectConflicts, hasConflict } from '../utils/template-validator';
 import {

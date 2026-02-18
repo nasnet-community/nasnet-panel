@@ -6,21 +6,24 @@ import (
 	"testing"
 	"time"
 
-	"backend/generated/ent"
-	"backend/generated/ent/alertrule"
-	"backend/generated/ent/enttest"
-	"backend/internal/events"
-	"backend/internal/notifications"
-	"backend/internal/services"
 	"go.uber.org/zap/zaptest"
 
-	_ "github.com/mattn/go-sqlite3"
+	"backend/generated/ent/alert"
+	"backend/generated/ent/alertrule"
+	"backend/generated/ent/enttest"
+	"backend/internal/notifications"
+	"backend/internal/services"
+
+	"backend/internal/events"
+
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // TestEndToEndAlertFlow verifies the complete alert flow from rule creation to notification delivery.
 //
-// Flow: Create Rule → Start Engine → Publish Event → Alert Created → AlertCreatedEvent Published
-//       → Dispatcher Receives Event → Notification Dispatched → Channels Receive Notification
+// Flow: Create Rule → Start Engine → Publish Event → Alert Created → AlertCreatedEvent Published.
+//
+//	→ Dispatcher Receives Event → Notification Dispatched → Channels Receive Notification
 func TestEndToEndAlertFlow(t *testing.T) {
 	// Setup
 	ctx := context.Background()
@@ -123,7 +126,7 @@ func TestEndToEndAlertFlow(t *testing.T) {
 
 	// Step 5: Verify alert was created in database
 	alerts, err := client.Alert.Query().
-		Where(ent.Alert.RuleID(rule.ID)).
+		Where(alert.RuleID(rule.ID)).
 		All(ctx)
 	if err != nil {
 		t.Fatalf("Failed to query alerts: %v", err)
@@ -289,7 +292,7 @@ func TestEndToEndWithMultipleChannels(t *testing.T) {
 	time.Sleep(300 * time.Millisecond)
 
 	// Verify alert created
-	alerts, err := client.Alert.Query().Where(ent.Alert.RuleID(rule.ID)).All(ctx)
+	alerts, err := client.Alert.Query().Where(alert.RuleID(rule.ID)).All(ctx)
 	if err != nil {
 		t.Fatalf("Failed to query alerts: %v", err)
 	}
@@ -398,7 +401,7 @@ func TestEndToEndWithDisabledRule(t *testing.T) {
 	time.Sleep(300 * time.Millisecond)
 
 	// Verify NO alert was created (rule is disabled)
-	alerts, err := client.Alert.Query().Where(ent.Alert.RuleID(rule.ID)).All(ctx)
+	alerts, err := client.Alert.Query().Where(alert.RuleID(rule.ID)).All(ctx)
 	if err != nil {
 		t.Fatalf("Failed to query alerts: %v", err)
 	}
@@ -434,6 +437,10 @@ func (c *TrackingChannel) Send(ctx context.Context, notification notifications.N
 
 func (c *TrackingChannel) Test(ctx context.Context, config map[string]interface{}) error {
 	return nil
+}
+
+func (c *TrackingChannel) Name() string {
+	return "tracking"
 }
 
 // stringPtr is a helper to create string pointers.

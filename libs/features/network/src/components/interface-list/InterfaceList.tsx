@@ -38,10 +38,10 @@ export function InterfaceList({ routerId }: InterfaceListProps) {
   // Filtered interfaces (client-side filtering)
   const filteredInterfaces = useMemo(() => {
     return interfaces
-      .filter((iface) => !filters.type || iface.type === filters.type)
-      .filter((iface) => !filters.status || iface.status === filters.status)
+      .filter((iface: any) => !filters.type || iface.type === filters.type)
+      .filter((iface: any) => !filters.status || iface.status === filters.status)
       .filter(
-        (iface) =>
+        (iface: any) =>
           !filters.search ||
           iface.name.toLowerCase().includes(filters.search.toLowerCase())
       );

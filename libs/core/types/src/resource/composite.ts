@@ -208,7 +208,6 @@ export function aggregateCompositeStatus(
       }
       if (runtime.health === 'DEGRADED') {
         degradedCount++;
-        // @ts-expect-error - Pre-existing type error, tracked separately
       } else if (runtime.health === 'CRITICAL') {
         errorCount++;
       }

@@ -1,6 +1,6 @@
 package features
 
-import "backend/pkg/registry"
+import "backend/internal/registry"
 
 // VerifyError is an alias for pkg/registry.VerifyError.
 type VerifyError = registry.VerifyError
@@ -15,11 +15,3 @@ var VerifySHA256 = registry.VerifySHA256
 // CalculateSHA256 calculates the SHA256 checksum of a file.
 // Delegates to pkg/registry.CalculateSHA256.
 var CalculateSHA256 = registry.CalculateSHA256
-
-// equalChecksums compares two checksums in a case-insensitive manner.
-// Delegates to pkg/registry.EqualChecksums.
-var equalChecksums = registry.EqualChecksums
-
-// getFilename extracts the filename from a full path.
-// Delegates to pkg/registry.GetFilename.
-var getFilename = registry.GetFilename

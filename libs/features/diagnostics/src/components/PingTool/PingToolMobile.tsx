@@ -52,7 +52,7 @@ export const PingToolMobile = memo(function PingToolMobile({
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<PingFormValues>({
-    resolver: zodResolver(pingFormSchema),
+    resolver: zodResolver(pingFormSchema) as any,
     mode: 'onChange',
     defaultValues: {
       target: '',

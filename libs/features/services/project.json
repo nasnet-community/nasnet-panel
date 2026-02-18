@@ -1,0 +1,15 @@
+{
+  "name": "@nasnet/features/services",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/features/services/src",
+  "projectType": "library",
+  "tags": ["type:lib", "scope:features"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/features/services/tsconfig.lib.json"
+      }
+    }
+  }
+}

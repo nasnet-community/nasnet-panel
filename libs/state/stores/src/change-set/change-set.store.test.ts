@@ -3,8 +3,9 @@
  * @see NAS-4.14: Implement Change Sets (Atomic Multi-Resource Operations)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   useChangeSetStore,
   selectActiveChangeSet,
@@ -423,7 +424,7 @@ describe('useChangeSetStore', () => {
     it('should update item status', () => {
       const { updateItemStatus, getChangeSet } = useChangeSetStore.getState();
 
-      const itemId = getChangeSet(changeSetId)?.items[0].id!;
+      const itemId = getChangeSet(changeSetId)?.items[0].id ?? '';
 
       act(() => {
         updateItemStatus(changeSetId, itemId, 'APPLYING');
@@ -468,7 +469,7 @@ describe('useChangeSetStore', () => {
       const { markApplying, markFailed, getChangeSet, updateItemStatus } =
         useChangeSetStore.getState();
 
-      const itemId = getChangeSet(changeSetId)?.items[0].id!;
+      const itemId = getChangeSet(changeSetId)?.items[0].id ?? '';
 
       act(() => {
         markApplying(changeSetId);
@@ -492,7 +493,7 @@ describe('useChangeSetStore', () => {
       const { markApplying, markRolledBack, getChangeSet, updateItemStatus } =
         useChangeSetStore.getState();
 
-      const itemId = getChangeSet(changeSetId)?.items[0].id!;
+      const itemId = getChangeSet(changeSetId)?.items[0].id ?? '';
 
       act(() => {
         markApplying(changeSetId);

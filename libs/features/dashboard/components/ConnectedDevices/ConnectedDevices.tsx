@@ -188,7 +188,7 @@ export function ConnectedDevices({
             {lastUpdated && isStale && (
               <>
                 <span className="text-muted-foreground">·</span>
-                <StaleIndicator lastUpdated={lastUpdated} />
+                <StaleIndicator isStale={isStale} lastUpdated={lastUpdated} />
               </>
             )}
           </div>

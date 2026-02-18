@@ -13,7 +13,7 @@ func NewConflictDetector() *ConflictDetector {
 }
 
 // DetectConflicts analyzes template rules against existing rules
-func (cd *ConflictDetector) DetectConflicts(templateRules []TemplateRule, existingRules []FirewallRule) []Conflict {
+func (cd *ConflictDetector) DetectConflicts(templateRules []TemplateRule, existingRules []Rule) []Conflict {
 	conflicts := make([]Conflict, 0)
 
 	for _, templateRule := range templateRules {
@@ -42,12 +42,13 @@ func (cd *ConflictDetector) DetectConflicts(templateRules []TemplateRule, existi
 }
 
 // findDuplicate checks if a template rule duplicates an existing rule
-func (cd *ConflictDetector) findDuplicate(templateRule TemplateRule, existingRules []FirewallRule) *FirewallRule {
+func (cd *ConflictDetector) findDuplicate(templateRule TemplateRule, existingRules []Rule) *Rule {
 	for _, existing := range existingRules {
 		// Compare basic properties
 		if existing.Table != templateRule.Table ||
 			existing.Chain != templateRule.Chain ||
 			existing.Action != templateRule.Action {
+
 			continue
 		}
 
@@ -80,7 +81,7 @@ func (cd *ConflictDetector) propertiesMatch(template, existing map[string]interf
 }
 
 // detectChainConflict checks for chain-level conflicts
-func (cd *ConflictDetector) detectChainConflict(templateRule TemplateRule, existingRules []FirewallRule) *Conflict {
+func (cd *ConflictDetector) detectChainConflict(templateRule TemplateRule, existingRules []Rule) *Conflict {
 	// Check for conflicting actions in same chain
 	// For example, a "drop all" rule would conflict with subsequent "accept" rules
 
@@ -105,7 +106,7 @@ func (cd *ConflictDetector) detectChainConflict(templateRule TemplateRule, exist
 }
 
 // isDropAll checks if a rule is a drop/reject all rule
-func (cd *ConflictDetector) isDropAll(rule FirewallRule) bool {
+func (cd *ConflictDetector) isDropAll(rule Rule) bool {
 	action := strings.ToLower(rule.Action)
 	if action != "drop" && action != "reject" {
 		return false
@@ -116,7 +117,7 @@ func (cd *ConflictDetector) isDropAll(rule FirewallRule) bool {
 }
 
 // detectIPOverlap checks for overlapping IP ranges
-func (cd *ConflictDetector) detectIPOverlap(templateRule TemplateRule, existingRules []FirewallRule) *Conflict {
+func (cd *ConflictDetector) detectIPOverlap(templateRule TemplateRule, existingRules []Rule) *Conflict {
 	// This would implement CIDR overlap detection
 	// For example:
 	// - 192.168.1.0/24 overlaps with 192.168.1.0/16
@@ -128,7 +129,7 @@ func (cd *ConflictDetector) detectIPOverlap(templateRule TemplateRule, existingR
 }
 
 // formatDuplicateMessage creates a user-friendly message for duplicate rules
-func (cd *ConflictDetector) formatDuplicateMessage(template TemplateRule, existing FirewallRule) string {
+func (cd *ConflictDetector) formatDuplicateMessage(_ TemplateRule, existing Rule) string {
 	return "A rule with similar configuration already exists in " +
 		existing.Chain + " chain. " +
 		"Applying this template may create duplicate rules."

@@ -4,13 +4,14 @@
  * Comprehensive stories demonstrating all PreFlightDialog states and scenarios.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
 import { Button } from '@nasnet/ui/primitives';
 
 import { PreFlightDialog } from './PreFlightDialog';
+
 import type { InsufficientResourcesError } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof PreFlightDialog> = {
   title: 'Patterns/PreFlightDialog',

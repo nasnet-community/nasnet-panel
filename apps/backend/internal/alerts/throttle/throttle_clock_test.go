@@ -10,9 +10,9 @@ import (
 func TestThrottleManager_WithMockClock(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     2,
 		PeriodSeconds: 60, // 1 minute
 	}
@@ -58,9 +58,9 @@ func TestThrottleManager_WithMockClock(t *testing.T) {
 
 // TestThrottleManager_DefaultClock verifies backward compatibility with real clock
 func TestThrottleManager_DefaultClock(t *testing.T) {
-	tm := NewThrottleManager() // No options - should use RealClock
+	tm := NewManager() // No options - should use RealClock
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     1,
 		PeriodSeconds: 1,
 	}
@@ -93,9 +93,9 @@ func TestThrottleManager_DefaultClock(t *testing.T) {
 func TestThrottleManager_DeterministicTiming(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     3,
 		PeriodSeconds: 300, // 5 minutes
 		GroupByField:  "interface",
@@ -140,10 +140,10 @@ func TestThrottleManager_DeterministicTiming(t *testing.T) {
 func TestThrottleManager_MultipleRules(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config1 := ThrottleConfig{MaxAlerts: 1, PeriodSeconds: 60}
-	config2 := ThrottleConfig{MaxAlerts: 1, PeriodSeconds: 120}
+	config1 := Config{MaxAlerts: 1, PeriodSeconds: 60}
+	config2 := Config{MaxAlerts: 1, PeriodSeconds: 120}
 
 	eventData := map[string]interface{}{"test": "data"}
 

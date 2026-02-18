@@ -8,15 +8,19 @@
  */
 
 import * as React from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   FormProvider as RHFProvider,
   useForm,
 } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { ZodSchema, z } from 'zod';
-import type { NasFormProviderProps, ValidationResult } from './types';
-import { useValidationPipeline } from './useValidationPipeline';
+
 import { mapBackendErrorsToForm } from './mapBackendErrors';
+import { useValidationPipeline } from './useValidationPipeline';
+
+import type { NasFormProviderProps, ValidationResult } from './types';
+import type { ZodSchema, z } from 'zod';
+
 
 /**
  * Context for accessing form-level state.
@@ -89,7 +93,8 @@ export function NasFormProvider<T extends ZodSchema>({
 
   // Initialize React Hook Form with Zod resolver
   const methods = useForm<z.infer<T>>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema as any),
     defaultValues: defaultValues as z.infer<T>,
     mode: 'onBlur', // Validate on blur for better performance
   });

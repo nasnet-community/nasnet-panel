@@ -4,11 +4,14 @@
  * Tests for RAW rule editor pattern component using React Testing Library.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { RawRuleEditor } from './RawRuleEditor';
+import { describe, it, expect, vi } from 'vitest';
+
 import type { RawRule } from '@nasnet/core/types';
+
+import { RawRuleEditor } from './RawRuleEditor';
+
 
 // Mock platform hook
 vi.mock('@nasnet/ui/layouts', () => ({

@@ -17,4 +17,4 @@ export type {
   TimeRange,
   PortRange,
 } from './firewall-log-filters.types';
-export { DEFAULT_FILTER_STATE } from './firewall-log-filters.types';
+export { DEFAULT_FIREWALL_LOG_FILTER_STATE as DEFAULT_FILTER_STATE } from '@nasnet/core/types';

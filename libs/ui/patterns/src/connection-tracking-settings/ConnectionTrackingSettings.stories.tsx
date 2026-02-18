@@ -14,14 +14,15 @@
  * Story: NAS-7.4 - Implement Connection Tracking
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionTrackingSettings, useConnectionTrackingSettings } from './ConnectionTrackingSettings';
 import {
   mockDefaultSettings,
   mockModifiedSettings,
   mockDisabledSettings,
 } from '../__test-utils__/connection-tracking-fixtures';
+
 import type { ConnectionTrackingSettings as SettingsType } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Wrapper component to use the hook
 function ConnectionTrackingSettingsWrapper({

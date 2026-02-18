@@ -19,6 +19,16 @@ import (
 	"backend/internal/router"
 )
 
+// REST API action strings
+const (
+	actionPrint  = "print"
+	actionGet    = "get"
+	actionAdd    = "add"
+	actionSet    = "set"
+	actionRemove = "remove"
+	actionDelete = "delete"
+)
+
 // RESTAdapter implements RouterPort for the RouterOS 7.1+ REST API.
 type RESTAdapter struct {
 	config     router.AdapterConfig
@@ -76,7 +86,7 @@ func NewRESTAdapter(config router.AdapterConfig) (*RESTAdapter, error) {
 
 	if config.UseTLS {
 		transport.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true, // RouterOS often uses self-signed certs
+			InsecureSkipVerify: true, //nolint:gosec // required for router TLS connections
 			MinVersion:         tls.VersionTLS10,
 		}
 	}
@@ -124,7 +134,7 @@ func (a *RESTAdapter) Connect(ctx context.Context) error {
 	duration := time.Since(start)
 
 	// Parse router info from resource
-	a.routerInfo = a.parseRouterInfo(resource)
+	a.routerInfo = a.parseRouterInfo(ctx, resource)
 	a.caps = a.detectCapabilities()
 
 	// Verify REST API is supported
@@ -203,13 +213,13 @@ func (a *RESTAdapter) ExecuteCommand(ctx context.Context, cmd router.Command) (*
 	var err error
 
 	switch cmd.Action {
-	case "print", "get", "":
+	case actionPrint, actionGet, "":
 		result, err = a.executePrint(ctx, cmd)
-	case "add":
+	case actionAdd:
 		result, err = a.executeAdd(ctx, cmd)
-	case "set":
+	case actionSet:
 		result, err = a.executeSet(ctx, cmd)
-	case "remove", "delete":
+	case actionRemove, actionDelete:
 		result, err = a.executeRemove(ctx, cmd)
 	default:
 		// Generic POST for other actions
@@ -271,14 +281,14 @@ func (a *RESTAdapter) Protocol() router.Protocol {
 }
 
 // doRequest performs an HTTP request with authentication.
-func (a *RESTAdapter) doRequest(ctx context.Context, method, path string, body interface{}) ([]byte, int, error) {
+func (a *RESTAdapter) doRequest(ctx context.Context, method, path string, body interface{}) (respBody []byte, statusCode int, err error) {
 	url := a.baseURL + path
 
 	var reqBody io.Reader
 	if body != nil {
-		jsonBody, err := json.Marshal(body)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to marshal request body: %w", err)
+		jsonBody, reqErr := json.Marshal(body)
+		if reqErr != nil {
+			return nil, 0, fmt.Errorf("failed to marshal request body: %w", reqErr)
 		}
 		reqBody = bytes.NewBuffer(jsonBody)
 	}
@@ -298,17 +308,19 @@ func (a *RESTAdapter) doRequest(ctx context.Context, method, path string, body i
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, resp.StatusCode, fmt.Errorf("failed to read response: %w", err)
+		statusCode = resp.StatusCode
+		return respBody, statusCode, err
 	}
 
-	return respBody, resp.StatusCode, nil
+	statusCode = resp.StatusCode
+	return respBody, statusCode, nil
 }
 
 // getSystemResource fetches /system/resource for version detection.
 func (a *RESTAdapter) getSystemResource(ctx context.Context) (map[string]interface{}, error) {
-	body, status, err := a.doRequest(ctx, "GET", "/system/resource", nil)
+	body, status, err := a.doRequest(ctx, http.MethodGet, "/system/resource", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +349,7 @@ func (a *RESTAdapter) getSystemResource(ctx context.Context) (map[string]interfa
 }
 
 // parseRouterInfo extracts router information from system resource response.
-func (a *RESTAdapter) parseRouterInfo(resource map[string]interface{}) *router.RouterInfo {
+func (a *RESTAdapter) parseRouterInfo(ctx context.Context, resource map[string]interface{}) *router.RouterInfo {
 	info := &router.RouterInfo{}
 
 	if v, ok := resource["version"].(string); ok {
@@ -364,15 +376,17 @@ func (a *RESTAdapter) parseRouterInfo(resource map[string]interface{}) *router.R
 	}
 
 	// Try to get identity
-	identityBody, status, err := a.doRequest(context.Background(), "GET", "/system/identity", nil)
-	if err == nil && status == 200 {
+	identityBody, status, err := a.doRequest(ctx, http.MethodGet, "/system/identity", nil)
+	if err == nil && status == 200 { //nolint:nestif // response parsing logic
 		var identity map[string]interface{}
+
 		if json.Unmarshal(identityBody, &identity) == nil {
 			if name, ok := identity["name"].(string); ok {
 				info.Identity = name
 			}
 		} else {
 			var identities []map[string]interface{}
+
 			if json.Unmarshal(identityBody, &identities) == nil && len(identities) > 0 {
 				if name, ok := identities[0]["name"].(string); ok {
 					info.Identity = name
@@ -404,6 +418,7 @@ func (a *RESTAdapter) detectCapabilities() router.PlatformCapabilities {
 		model := strings.ToLower(a.routerInfo.Model)
 		if strings.Contains(model, "wap") || strings.Contains(model, "hap") ||
 			strings.Contains(model, "wifi") || strings.Contains(model, "wireless") {
+
 			caps.HasWireless = true
 		}
 	}
@@ -419,7 +434,7 @@ func (a *RESTAdapter) executePrint(ctx context.Context, cmd router.Command) (*ro
 		path = path + "/" + cmd.ID
 	}
 
-	body, status, err := a.doRequest(ctx, "GET", path, nil)
+	body, status, err := a.doRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +446,7 @@ func (a *RESTAdapter) executePrint(ctx context.Context, cmd router.Command) (*ro
 func (a *RESTAdapter) executeAdd(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 	path := buildRESTPath(cmd.Path)
 
-	body, status, err := a.doRequest(ctx, "PUT", path, cmd.Args)
+	body, status, err := a.doRequest(ctx, http.MethodPut, path, cmd.Args)
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +466,7 @@ func (a *RESTAdapter) executeAdd(ctx context.Context, cmd router.Command) (*rout
 	return result, nil
 }
 
-// executeSet handles set operations.
+// executeSet handles set operations. //nolint:nestif
 func (a *RESTAdapter) executeSet(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 	if cmd.ID == "" {
 		return nil, fmt.Errorf("ID is required for set operation")
@@ -459,7 +474,7 @@ func (a *RESTAdapter) executeSet(ctx context.Context, cmd router.Command) (*rout
 
 	path := buildRESTPath(cmd.Path) + "/" + cmd.ID
 
-	body, status, err := a.doRequest(ctx, "PATCH", path, cmd.Args)
+	body, status, err := a.doRequest(ctx, http.MethodPatch, path, cmd.Args)
 	if err != nil {
 		return nil, err
 	}
@@ -467,7 +482,7 @@ func (a *RESTAdapter) executeSet(ctx context.Context, cmd router.Command) (*rout
 	return a.parseResponse(body, status)
 }
 
-// executeRemove handles remove operations.
+// executeRemove handles remove operations. //nolint:nestif
 func (a *RESTAdapter) executeRemove(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 	if cmd.ID == "" {
 		return nil, fmt.Errorf("ID is required for remove operation")
@@ -475,7 +490,7 @@ func (a *RESTAdapter) executeRemove(ctx context.Context, cmd router.Command) (*r
 
 	path := buildRESTPath(cmd.Path) + "/" + cmd.ID
 
-	body, status, err := a.doRequest(ctx, "DELETE", path, nil)
+	body, status, err := a.doRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -491,7 +506,7 @@ func (a *RESTAdapter) executeGenericAction(ctx context.Context, cmd router.Comma
 		path = path + "/" + cmd.Action
 	}
 
-	body, status, err := a.doRequest(ctx, "POST", path, cmd.Args)
+	body, status, err := a.doRequest(ctx, http.MethodPost, path, cmd.Args)
 	if err != nil {
 		return nil, err
 	}
@@ -516,32 +531,37 @@ func (a *RESTAdapter) parseResponse(body []byte, status int) (*router.CommandRes
 		return result, nil
 	}
 
-	if status >= 400 {
+	if status >= 400 { //nolint:nestif // error handling
 		// Try to parse error message
 		var errResp map[string]interface{}
+
 		if json.Unmarshal(body, &errResp) == nil {
 			if msg, ok := errResp["message"].(string); ok {
 				result.Error = fmt.Errorf("%s", msg)
 				return result, nil
 			}
+
 			if detail, ok := errResp["detail"].(string); ok {
 				result.Error = fmt.Errorf("%s", detail)
 				return result, nil
 			}
 		}
+
 		result.Error = fmt.Errorf("request failed with status %d: %s", status, string(body))
 		return result, nil
 	}
 
 	// Parse successful response
-	if len(body) > 0 {
+	if len(body) > 0 { //nolint:nestif // error handling
 		// Try array first (most common)
 		var items []map[string]interface{}
+
 		if err := json.Unmarshal(body, &items); err == nil {
 			result.Data = convertToStringMaps(items)
 		} else {
 			// Try single object
 			var item map[string]interface{}
+
 			if err := json.Unmarshal(body, &item); err == nil {
 				result.Data = convertToStringMaps([]map[string]interface{}{item})
 			}
@@ -561,9 +581,7 @@ func buildRESTPath(path string) string {
 	}
 
 	// Remove /rest prefix if present
-	if strings.HasPrefix(path, "/rest") {
-		path = path[5:]
-	}
+	path = strings.TrimPrefix(path, "/rest")
 
 	return path
 }
@@ -582,10 +600,13 @@ func parseRouterOSVersion(versionStr string) router.RouterOSVersion {
 	re := regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?`)
 	matches := re.FindStringSubmatch(versionStr)
 	if len(matches) >= 3 {
-		v.Major, _ = strconv.Atoi(matches[1])
-		v.Minor, _ = strconv.Atoi(matches[2])
+		major, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
+		minor, _ := strconv.Atoi(matches[2]) //nolint:errcheck // regex guarantees numeric match
+		v.Major = major
+		v.Minor = minor
 		if len(matches) >= 4 && matches[3] != "" {
-			v.Patch, _ = strconv.Atoi(matches[3])
+			patch, _ := strconv.Atoi(matches[3]) //nolint:errcheck // regex guarantees numeric match
+			v.Patch = patch
 		}
 	}
 
@@ -601,7 +622,7 @@ func parseUptime(uptime string) time.Duration {
 	matches := re.FindAllStringSubmatch(uptime, -1)
 
 	for _, match := range matches {
-		val, _ := strconv.Atoi(match[1])
+		val, _ := strconv.Atoi(match[1]) //nolint:errcheck // regex guarantees numeric match
 		switch match[2] {
 		case "w":
 			total += time.Duration(val) * 7 * 24 * time.Hour

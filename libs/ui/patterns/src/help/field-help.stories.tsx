@@ -9,7 +9,6 @@
 
 import * as React from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { Label, Input, cn } from '@nasnet/ui/primitives';
 
@@ -24,7 +23,9 @@ import {
   useFieldHelp,
   useHelpMode,
 } from './index';
+
 import type { HelpContent } from './help.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * FieldHelp displays contextual help for form fields with Simple/Technical mode toggle.

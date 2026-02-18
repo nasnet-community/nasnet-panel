@@ -2,8 +2,8 @@ package oui
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -28,7 +28,7 @@ type BatchVendorResponse struct {
 
 // HandleVendorLookup handles GET /api/oui/:mac
 //
-// Returns vendor name for a given MAC address
+// # Returns vendor name for a given MAC address
 //
 // Response:
 //
@@ -59,16 +59,20 @@ func HandleVendorLookup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "public, max-age=86400") // Cache for 24 hours
 
+	statusCode := http.StatusOK
 	if !found {
-		w.WriteHeader(http.StatusNotFound)
+		statusCode = http.StatusNotFound
 	}
-
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// Cannot change status code at this point, just log the error
+		log.Printf("ERROR: Failed to encode vendor lookup response: %v", err)
+	}
 }
 
 // HandleBatchVendorLookup handles POST /api/oui/batch
 //
-// Performs batch lookup for multiple MAC addresses
+// # Performs batch lookup for multiple MAC addresses
 //
 // Request body:
 //
@@ -111,12 +115,16 @@ func HandleBatchVendorLookup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "public, max-age=86400") // Cache for 24 hours
 
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// Cannot change status code at this point, just log the error
+		log.Printf("ERROR: Failed to encode batch vendor lookup response: %v", err)
+	}
 }
 
 // HandleOUIStats handles GET /api/oui/stats
 //
-// Returns statistics about the OUI database
+// # Returns statistics about the OUI database
 //
 // Response:
 //
@@ -130,7 +138,11 @@ func HandleOUIStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// Cannot change status code at this point, just log the error
+		log.Printf("ERROR: Failed to encode OUI stats response: %v", err)
+	}
 }
 
 // RegisterRoutes registers OUI lookup routes with the router
@@ -148,20 +160,4 @@ func RegisterRoutes(router *mux.Router) {
 
 	// Stats
 	router.HandleFunc("/api/oui/stats", HandleOUIStats).Methods("GET")
-}
-
-// normalizeMAC normalizes a MAC address to the format AA:BB:CC:DD:EE:FF
-func normalizeMAC(mac string) string {
-	// Remove separators
-	cleaned := strings.ReplaceAll(mac, ":", "")
-	cleaned = strings.ReplaceAll(cleaned, "-", "")
-	cleaned = strings.ToUpper(cleaned)
-
-	if len(cleaned) != 12 {
-		return mac // Return original if invalid
-	}
-
-	// Add colons
-	return cleaned[0:2] + ":" + cleaned[2:4] + ":" + cleaned[4:6] + ":" +
-		cleaned[6:8] + ":" + cleaned[8:10] + ":" + cleaned[10:12]
 }

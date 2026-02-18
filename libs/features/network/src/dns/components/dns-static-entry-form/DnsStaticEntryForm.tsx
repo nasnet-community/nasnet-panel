@@ -79,7 +79,7 @@ export function DnsStaticEntryForm({
   loading = false,
   mode = 'create',
 }: DnsStaticEntryFormProps) {
-  const form = useForm<DNSStaticEntryFormValues>({
+  const form = useForm({
     resolver: zodResolver(dnsStaticEntrySchema),
     defaultValues: {
       name: initialValues.name || '',
@@ -115,7 +115,7 @@ export function DnsStaticEntryForm({
 
   return (
     <Card>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit as any)}>
         <CardHeader>
           <CardTitle>
             {mode === 'create' ? 'Add Static DNS Entry' : 'Edit Static DNS Entry'}

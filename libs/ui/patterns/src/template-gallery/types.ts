@@ -5,18 +5,17 @@
  * Provides filtering, sorting, and selection for firewall templates.
  */
 
-// Import template types from test fixtures (temporary until types are in core)
-// These types should eventually be moved to @nasnet/core/types
+// Import template types from core types
 export type {
   FirewallTemplate,
   TemplateCategory,
   TemplateComplexity,
   TemplateVariable,
   TemplateRule,
-} from '../__test-utils__/firewall-templates/template-fixtures';
+} from '@nasnet/core/types';
 
-// Re-export for local use
-import type { FirewallTemplate, TemplateCategory, TemplateComplexity } from '../__test-utils__/firewall-templates/template-fixtures';
+// Import for local use
+import type { FirewallTemplate, TemplateCategory, TemplateComplexity } from '@nasnet/core/types';
 
 /**
  * Template filter criteria

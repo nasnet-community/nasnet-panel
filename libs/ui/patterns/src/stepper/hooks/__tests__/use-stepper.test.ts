@@ -11,6 +11,7 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { useStepper } from '../use-stepper';
+
 import type { StepConfig, StepperConfig, ValidationResult } from '../use-stepper.types';
 
 // ===== Test Helpers =====

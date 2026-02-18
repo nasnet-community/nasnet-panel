@@ -9,8 +9,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { ResourceBudgetPanel } from './ResourceBudgetPanel';
-import type { ServiceInstanceResource, SystemResourceTotals } from './types';
 import { useResourceBudgetPanel } from './useResourceBudgetPanel';
+
+import type { ServiceInstanceResource, SystemResourceTotals } from './types';
 
 describe('ResourceBudgetPanel', () => {
   const mockInstances: ServiceInstanceResource[] = [

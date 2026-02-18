@@ -8,9 +8,13 @@
  */
 
 import * as React from 'react';
+
 import { GripVertical } from 'lucide-react';
+
 import { cn } from '@nasnet/ui/primitives';
+
 import { MIN_TOUCH_TARGET } from '../config';
+
 import type { DragHandleProps } from '../types';
 
 // ============================================================================

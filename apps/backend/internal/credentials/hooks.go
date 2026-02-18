@@ -2,11 +2,12 @@
 package credentials
 
 import (
+	"context"
+	"fmt"
+
 	"backend/generated/ent"
 	"backend/generated/ent/hook"
 	"backend/internal/encryption"
-	"context"
-	"fmt"
 )
 
 // RegisterHooks registers encryption hooks on the ent client.
@@ -36,7 +37,7 @@ func encryptionHook(encService *encryption.Service) ent.Hook {
 		return hook.RouterSecretFunc(func(ctx context.Context, m *ent.RouterSecretMutation) (ent.Value, error) {
 			// Check if this is a Create or Update operation
 			op := m.Op()
-			if op.Is(ent.OpCreate) || op.Is(ent.OpUpdate) || op.Is(ent.OpUpdateOne) {
+			if op.Is(ent.OpCreate) || op.Is(ent.OpUpdate) || op.Is(ent.OpUpdateOne) { //nolint:nestif // credential validation
 				// Handle username encryption if set
 				if username, ok := m.EncryptedUsername(); ok {
 					// Check if it's already encrypted (base64 encoded)

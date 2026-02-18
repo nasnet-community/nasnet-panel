@@ -13,6 +13,20 @@
  */
 
 import { useNavigate } from '@tanstack/react-router';
+import { 
+  Shield, 
+  Wifi, 
+  RotateCcw, 
+  ShieldCheck,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Loader2,
+} from 'lucide-react';
+
+import { useRouterInfo, useRouterResource, useRouterboard , useDHCPLeases, useDHCPServers, useDHCPPools , useVPNStats, usePPPActive } from '@nasnet/api-client/queries';
+import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
 import {
   SystemInfoCard,
   ResourceGauge,
@@ -24,23 +38,7 @@ import {
   VPNClientsSummary,
   StatusPills,
 } from '@nasnet/ui/patterns';
-import type { QuickAction, StatusPill, ConnectedVPNClient } from '@nasnet/ui/patterns';
-import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
-import { useDHCPLeases, useDHCPServers, useDHCPPools } from '@nasnet/api-client/queries';
-import { useVPNStats, usePPPActive } from '@nasnet/api-client/queries';
-import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
-import { useConnectionStore } from '@nasnet/state/stores';
-import { 
-  Shield, 
-  Wifi, 
-  RotateCcw, 
-  ShieldCheck,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  Loader2,
-} from 'lucide-react';
-import type { NetworkStatus } from '@nasnet/ui/patterns';
+import type { QuickAction, StatusPill, ConnectedVPNClient , NetworkStatus } from '@nasnet/ui/patterns';
 
 export function OverviewTab() {
   const navigate = useNavigate();
@@ -70,7 +68,7 @@ export function OverviewTab() {
   const { data: dhcpPools } = useDHCPPools(routerIp);
 
   // Fetch VPN stats
-  const { data: vpnStats, isLoading: vpnLoading } = useVPNStats(routerIp);
+  const { data: _vpnStats, isLoading: vpnLoading } = useVPNStats(routerIp);
   const { data: pppActive } = usePPPActive(routerIp);
 
   // Calculate CPU status
@@ -126,7 +124,6 @@ export function OverviewTab() {
 
   // Get VPN connected clients count
   const vpnConnectedCount = pppActive?.length || 0;
-  const vpnActiveClients = vpnStats?.activeClients || 0;
 
   // Get active DHCP leases count
   const activeDhcpLeases = dhcpLeases?.filter(l => l.status === 'bound' || !l.status)?.length || 0;

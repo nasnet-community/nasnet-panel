@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/security/nat-rule-builder
  */
 
-import type { NATRuleInput } from '@nasnet/core/types/firewall';
+import type { NATRuleInput } from '@nasnet/core/types';
 
 /**
  * NAT Rule Builder Props

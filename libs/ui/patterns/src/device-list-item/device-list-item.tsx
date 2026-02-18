@@ -13,11 +13,12 @@ import { useCallback } from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { DeviceListItemProps } from './device-list-item.types';
-import { useDeviceListItem } from './use-device-list-item';
+import { DeviceListItemDesktop } from './device-list-item-desktop';
 import { DeviceListItemMobile } from './device-list-item-mobile';
 import { DeviceListItemTablet } from './device-list-item-tablet';
-import { DeviceListItemDesktop } from './device-list-item-desktop';
+import { useDeviceListItem } from './use-device-list-item';
+
+import type { DeviceListItemProps } from './device-list-item.types';
 
 /**
  * DeviceListItem Component

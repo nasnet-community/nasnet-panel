@@ -14,10 +14,13 @@
  * - visibleFields computed correctly
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useMangleRuleEditor, validateMarkName } from './use-mangle-rule-editor';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import type { MangleRule } from '@nasnet/core/types';
+
+import { useMangleRuleEditor, validateMarkName } from './use-mangle-rule-editor';
+
 
 describe('useMangleRuleEditor', () => {
   describe('Initialization', () => {

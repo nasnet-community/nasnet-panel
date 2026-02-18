@@ -5,13 +5,14 @@
  */
 
 import { useNavigate } from '@tanstack/react-router';
-import { Route } from '@/routes/router/$id/wifi/$interfaceName';
 import { ArrowLeft } from 'lucide-react';
-import { WirelessInterfaceDetail } from '@nasnet/features/wireless';
+
 import { useWirelessInterfaceDetail } from '@nasnet/api-client/queries';
+import { WirelessInterfaceDetail } from '@nasnet/features/wireless';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { ROUTES } from '@nasnet/core/constants';
+
+import { Route } from '@/routes/router/$id/wifi/$interfaceName';
 
 /**
  * WiFi Interface Detail Page

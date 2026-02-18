@@ -12,11 +12,11 @@ import (
 // access mode ports cannot have tagged VLANs.
 type SemanticStage struct{}
 
-func (s *SemanticStage) Number() int    { return 3 }
-func (s *SemanticStage) Name() string   { return "semantic" }
+func (s *SemanticStage) Number() int  { return 3 }
+func (s *SemanticStage) Name() string { return "semantic" }
 
 // Validate checks semantic correctness of the configuration.
-func (s *SemanticStage) Validate(_ context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *SemanticStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	if input.Operation == "delete" {
@@ -39,12 +39,12 @@ func (s *SemanticStage) Validate(_ context.Context, input *validation.StageInput
 	return result
 }
 
-func (s *SemanticStage) validateBridgePort(input *validation.StageInput, result *validation.ValidationResult) {
-	bridgeID, _ := input.Fields["bridge"].(string)
-	ifaceID, _ := input.Fields["interface"].(string)
+func (s *SemanticStage) validateBridgePort(input *validation.StageInput, result *validation.Result) {
+	bridgeID, _ := input.Fields["bridge"].(string)   //nolint:errcheck // validation error
+	ifaceID, _ := input.Fields["interface"].(string) //nolint:errcheck // type assertion - zero value is acceptable
 
 	if bridgeID != "" && ifaceID != "" && bridgeID == ifaceID {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      3,
 			StageName:  "semantic",
 			Severity:   validation.SeverityError,
@@ -56,11 +56,11 @@ func (s *SemanticStage) validateBridgePort(input *validation.StageInput, result 
 	}
 
 	// Access mode ports should not have tagged VLANs
-	frameTypes, _ := input.Fields["frame-types"].(string)
+	frameTypes, _ := input.Fields["frame-types"].(string) //nolint:errcheck // type assertion
 	if frameTypes == "admit-only-untagged-and-priority-tagged" {
 		if tagged, ok := input.Fields["tagged-vlans"]; ok {
 			if taggedList, isList := tagged.([]int); isList && len(taggedList) > 0 {
-				result.AddError(&validation.ValidationError{
+				result.AddError(&validation.Error{
 					Stage:      3,
 					StageName:  "semantic",
 					Severity:   validation.SeverityError,
@@ -74,10 +74,10 @@ func (s *SemanticStage) validateBridgePort(input *validation.StageInput, result 
 	}
 }
 
-func (s *SemanticStage) validateVLAN(input *validation.StageInput, result *validation.ValidationResult) {
+func (s *SemanticStage) validateVLAN(input *validation.StageInput, result *validation.Result) {
 	// VLAN 1 warning
 	if vlanID, ok := input.Fields["vlan-id"].(int); ok && vlanID == 1 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      3,
 			StageName:  "semantic",
 			Severity:   validation.SeverityWarning,
@@ -89,14 +89,14 @@ func (s *SemanticStage) validateVLAN(input *validation.StageInput, result *valid
 	}
 }
 
-func (s *SemanticStage) validateRoute(input *validation.StageInput, result *validation.ValidationResult) {
-	gateway, hasGateway := input.Fields["gateway"]
-	iface, hasIface := input.Fields["interface"]
+func (s *SemanticStage) validateRoute(input *validation.StageInput, result *validation.Result) {
+	_, hasGateway := input.Fields["gateway"]
+	_, hasIface := input.Fields["interface"]
 
 	if !hasGateway && !hasIface {
 		// Only warn for create; update may modify only other fields
 		if input.Operation == "create" {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:      3,
 				StageName:  "semantic",
 				Severity:   validation.SeverityError,
@@ -110,7 +110,7 @@ func (s *SemanticStage) validateRoute(input *validation.StageInput, result *vali
 
 	// Default route warning
 	if dst, ok := input.Fields["dst-address"].(string); ok && dst == "0.0.0.0/0" {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     3,
 			StageName: "semantic",
 			Severity:  validation.SeverityWarning,
@@ -119,18 +119,15 @@ func (s *SemanticStage) validateRoute(input *validation.StageInput, result *vali
 			Code:      "DEFAULT_ROUTE_CHANGE",
 		})
 	}
-
-	_ = gateway
-	_ = iface
 }
 
-func (s *SemanticStage) validateFirewallRule(input *validation.StageInput, result *validation.ValidationResult) {
-	action, _ := input.Fields["action"].(string)
-	chain, _ := input.Fields["chain"].(string)
+func (s *SemanticStage) validateFirewallRule(input *validation.StageInput, result *validation.Result) {
+	action, _ := input.Fields["action"].(string) //nolint:errcheck // type assertion
+	chain, _ := input.Fields["chain"].(string)   //nolint:errcheck // type assertion
 
 	// Warn about accept-all rules
 	if action == "accept" && len(input.Fields) <= 3 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      3,
 			StageName:  "semantic",
 			Severity:   validation.SeverityWarning,
@@ -143,7 +140,7 @@ func (s *SemanticStage) validateFirewallRule(input *validation.StageInput, resul
 
 	// Warn about drop in input chain
 	if action == "drop" && chain == "input" {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     3,
 			StageName: "semantic",
 			Severity:  validation.SeverityWarning,
@@ -154,11 +151,11 @@ func (s *SemanticStage) validateFirewallRule(input *validation.StageInput, resul
 	}
 }
 
-func (s *SemanticStage) validateIPAddress(input *validation.StageInput, result *validation.ValidationResult) {
+func (s *SemanticStage) validateIPAddress(input *validation.StageInput, result *validation.Result) {
 	// Warn about assigning addresses in common private ranges used by MikroTik defaults
 	if addr, ok := input.Fields["address"].(string); ok {
 		if addr == "192.168.88.1/24" {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:      3,
 				StageName:  "semantic",
 				Severity:   validation.SeverityWarning,

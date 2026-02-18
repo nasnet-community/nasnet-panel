@@ -534,7 +534,7 @@ export const subscribeConnectionState = useConnectionStore.subscribe;
 
 // ===== Type Exports =====
 
-export type { ConnectionState, ConnectionActions };
+// Types are already exported inline above
 
 // Re-export legacy type for backward compatibility
 export type ConnectionStateType = 'connected' | 'disconnected' | 'reconnecting';

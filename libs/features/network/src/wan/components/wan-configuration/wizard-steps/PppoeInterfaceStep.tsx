@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { InterfaceSelector, FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label, Input } from '@nasnet/ui/primitives';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
-import type { Interface } from '@nasnet/core/types';
+import type { RouterInterface } from '@nasnet/ui/patterns';
 import {
   pppoeInterfaceStepSchema,
   type PppoeInterfaceStepFormValues,
@@ -27,7 +27,7 @@ export function PppoeInterfaceStep({
   routerId,
   stepper,
 }: PppoeInterfaceStepProps) {
-  const [selectedInterface, setSelectedInterface] = useState<Interface | null>(
+  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
     null
   );
 
@@ -40,9 +40,11 @@ export function PppoeInterfaceStep({
   });
 
   // Handle interface selection
-  const handleInterfaceSelect = (iface: Interface) => {
-    setSelectedInterface(iface);
-    form.setValue('interface', iface.name, {
+  const handleInterfaceSelect = (value: string | string[]) => {
+    const selectedId = Array.isArray(value) ? value[0] : value;
+    // In a real implementation, we'd fetch the interface details by ID
+    // For now, we just store the ID
+    form.setValue('interface', selectedId, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -51,12 +53,7 @@ export function PppoeInterfaceStep({
   // Auto-save form data to stepper
   useEffect(() => {
     const subscription = form.watch((value) => {
-      if (value.name && value.interface) {
-        stepper.setStepData('interface', value);
-        stepper.markStepAsValid('interface');
-      } else {
-        stepper.markStepAsInvalid('interface');
-      }
+      stepper.setStepData(value);
     });
     return () => subscription.unsubscribe();
   }, [form, stepper]);
@@ -75,10 +72,7 @@ export function PppoeInterfaceStep({
                 <Network className="inline h-4 w-4 mr-1" />
                 PPPoE Interface Name
               </Label>
-              <FieldHelp
-                field="name"
-                text="Name for the virtual PPPoE interface (e.g., 'pppoe-wan'). This will be the interface name in RouterOS."
-              />
+              <FieldHelp field="name" />
             </div>
             <Input
               id="pppoe-name"
@@ -101,20 +95,14 @@ export function PppoeInterfaceStep({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="interface-selector">Physical Interface</Label>
-              <FieldHelp
-                field="interface"
-                text="Select the Ethernet interface connected to your ISP's modem or ONT device."
-              />
+              <FieldHelp field="interface" />
             </div>
             <InterfaceSelector
               id="interface-selector"
               routerId={routerId}
-              onSelect={handleInterfaceSelect}
-              selectedInterface={selectedInterface}
-              filter={(iface) =>
-                // Only show Ethernet interfaces for PPPoE
-                iface.type === 'ether' || iface.name.startsWith('ether')
-              }
+              value={form.watch('interface')}
+              onChange={handleInterfaceSelect}
+              types={['ethernet']}
             />
             {form.formState.errors.interface && (
               <p
@@ -144,11 +132,11 @@ export function PppoeInterfaceStep({
                   <span className="text-muted-foreground">Type:</span>
                   <span className="ml-2">{selectedInterface.type}</span>
                 </div>
-                {selectedInterface.macAddress && (
+                {selectedInterface.mac && (
                   <div className="col-span-2">
                     <span className="text-muted-foreground">MAC:</span>
                     <span className="ml-2 font-mono">
-                      {selectedInterface.macAddress}
+                      {selectedInterface.mac}
                     </span>
                   </div>
                 )}

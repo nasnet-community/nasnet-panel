@@ -3,11 +3,12 @@
 package ent
 
 import (
-	"backend/generated/ent/router"
-	"backend/generated/ent/routersecret"
 	"fmt"
 	"strings"
 	"time"
+
+	"backend/generated/ent/router"
+	"backend/generated/ent/routersecret"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

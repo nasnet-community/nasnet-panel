@@ -72,6 +72,6 @@ export type {
   UsePortInputReturn,
   PortMode,
   PortProtocol,
-  PortRange,
+  PortRange as PortInputRange,
   PortSuggestion,
 } from './port-input.types';

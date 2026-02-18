@@ -17,7 +17,7 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/dist/apps/backend"],
-      "options": { "command": "node tools/copy-frontend.mjs && cd apps/backend && go build -ldflags=\"-s -w\" -o ../../dist/apps/backend/backend main.prod.go server_shared.go router_proxy.go scanner.go batch_executor.go batch_handlers.go cli_parser.go ros_client.go ssh_client.go telnet_client.go", "cwd": "." },
+      "options": { "command": "node tools/copy-frontend.mjs && cd apps/backend && go build -tags=prod -ldflags=\"-s -w\" -o ../../dist/apps/backend/backend ./cmd/nnc/", "cwd": "." },
       "dependsOn": ["connect:build"]
     },
     "codegen": {
@@ -35,11 +35,15 @@
     },
     "lint": {
       "executor": "nx:run-commands",
-      "options": { "command": "command -v golangci-lint >/dev/null 2>&1 && golangci-lint run --config ../../.golangci.yml ./... || (echo 'golangci-lint not installed, skipping Go lint (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)' && exit 0)", "cwd": "apps/backend" }
+      "options": { "command": "node -e \"const{execSync}=require('child_process');try{execSync('golangci-lint version',{stdio:'ignore'});execSync('golangci-lint run --tests=false --allow-parallel-runners --config ../../.golangci.yml ./...',{stdio:'inherit',cwd:'.'});}catch(e){if(e.status)process.exit(e.status);console.log('golangci-lint not installed, skipping (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)');}\"", "cwd": "apps/backend" }
     },
     "lint:fix": {
       "executor": "nx:run-commands",
-      "options": { "command": "command -v golangci-lint >/dev/null 2>&1 && golangci-lint run --config ../../.golangci.yml --fix ./... || echo 'golangci-lint not installed'", "cwd": "apps/backend" }
+      "options": { "command": "node -e \"const{execSync}=require('child_process');try{execSync('golangci-lint version',{stdio:'ignore'});execSync('golangci-lint run --tests=false --allow-parallel-runners --config ../../.golangci.yml --fix ./...',{stdio:'inherit',cwd:'.'});}catch(e){if(e.status)process.exit(e.status);console.log('golangci-lint not installed, skipping');}\"", "cwd": "apps/backend" }
+    },
+    "build:check": {
+      "executor": "nx:run-commands",
+      "options": { "command": "go build ./cmd/nnc/", "cwd": "apps/backend" }
     },
     "typecheck": {
       "executor": "nx:run-commands",

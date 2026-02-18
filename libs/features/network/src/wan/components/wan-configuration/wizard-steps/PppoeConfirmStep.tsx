@@ -26,12 +26,7 @@ export function PppoeConfirmStep({
   result,
   onSubmit,
 }: PppoeConfirmStepProps) {
-  const optionsData = stepper.getStepData('options');
-
-  // Mark step as valid when rendered
-  useEffect(() => {
-    stepper.markStepAsValid('confirm');
-  }, [stepper]);
+  const optionsData = stepper.getStepData<any>('options');
 
   // Success state
   if (result?.success) {
@@ -91,7 +86,7 @@ export function PppoeConfirmStep({
         <p className="text-center text-muted-foreground max-w-md">
           {error.message}
         </p>
-        <Button variant="outline" onClick={() => stepper.goToStep('interface')}>
+        <Button variant="outline" onClick={() => stepper.goTo(0)}>
           Start Over
         </Button>
       </div>

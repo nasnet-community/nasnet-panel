@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/raw-rule-editor
  */
 
-import type { RawRule, RawRuleInput } from '@nasnet/core/types/firewall';
+import type { RawRule, RawRuleInput } from '@nasnet/core/types';
 
 /**
  * RawRuleEditor Props

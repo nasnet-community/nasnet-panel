@@ -13,6 +13,7 @@ import (
 	"backend/generated/ent/router"
 	"backend/internal/connection"
 	"backend/internal/encryption"
+
 	"backend/internal/events"
 )
 
@@ -88,6 +89,8 @@ func (s *RouterService) DB() *ent.Client {
 // Per AC1: Given a valid router ID, when connectRouter(id) mutation is called,
 // then the backend updates the active router context, verifies connectivity,
 // and returns the updated router with status CONNECTED.
+//
+//nolint:gocyclo,nestif // complex router connection flow
 func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectResult, error) {
 	// 1. Lookup router by ID
 	routerEntity, err := s.db.Router.Get(ctx, routerID)
@@ -108,7 +111,7 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 	}
 
 	// 3. Build connection config
-	config := connection.ConnectionConfig{
+	config := connection.Config{
 		Host:              routerEntity.Host,
 		Port:              routerEntity.Port,
 		PreferredProtocol: connection.ProtocolREST, // Default to REST, will fallback
@@ -126,7 +129,7 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 
 	// 4. Attempt connection through connection manager
 	if s.connManager != nil {
-		if err := s.connManager.Connect(ctx, routerID, config); err != nil {
+		if connErr := s.connManager.Connect(ctx, routerID, config); connErr != nil {
 			// Update router status to offline
 			_, updateErr := s.db.Router.UpdateOneID(routerID).
 				SetStatus(router.StatusOffline).
@@ -139,12 +142,12 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 			return &ConnectResult{
 				Router:    routerEntity,
 				Connected: false,
-				Error:     err.Error(),
+				Error:     connErr.Error(),
 			}, nil
 		}
 
 		// Get connection details for protocol/version info
-		conn, _ := s.connManager.GetConnection(routerID)
+		conn, _ := s.connManager.GetConnection(routerID) //nolint:errcheck // connection error handled downstream
 		var protocol, version string
 		if conn != nil {
 			status := conn.GetStatus()
@@ -156,12 +159,12 @@ func (s *RouterService) Connect(ctx context.Context, routerID string) (*ConnectR
 		}
 
 		// 5. Update router status to online
-		updatedRouter, err := s.db.Router.UpdateOneID(routerID).
+		updatedRouter, statusErr := s.db.Router.UpdateOneID(routerID).
 			SetStatus(router.StatusOnline).
 			SetLastSeen(time.Now()).
 			Save(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to update router status: %w", err)
+		if statusErr != nil {
+			return nil, fmt.Errorf("failed to update router status: %w", statusErr)
 		}
 
 		// 6. Publish RouterConnectedEvent
@@ -216,10 +219,11 @@ func (s *RouterService) Disconnect(ctx context.Context, routerID string) (*Disco
 	}
 
 	// 2. Disconnect via connection manager
+	//nolint:contextcheck // disconnect manages own context
 	if s.connManager != nil {
-		if err := s.connManager.Disconnect(routerID, connection.DisconnectReasonManual); err != nil {
+		if discErr := s.connManager.Disconnect(routerID, connection.DisconnectReasonManual); discErr != nil {
 			// Connection might not exist, which is fine
-			fmt.Printf("[RouterService] Note: disconnect returned: %v\n", err)
+			fmt.Printf("[RouterService] Note: disconnect returned: %v\n", discErr)
 		}
 	}
 

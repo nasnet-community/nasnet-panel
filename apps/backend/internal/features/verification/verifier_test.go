@@ -568,8 +568,8 @@ func TestVerifyArchive_GPGRequiredNotImplemented(t *testing.T) {
 		t.Fatalf("Failed to create checksums file: %v", err)
 	}
 
-	// Create VerificationSpec with GPG required but TrustOnFirstUse=false
-	spec := &VerificationSpec{
+	// Create Spec with GPG required but TrustOnFirstUse=false
+	spec := &Spec{
 		Enabled:         true,
 		ChecksumsURL:    "https://example.com/checksums.txt",
 		RequireGPG:      true,

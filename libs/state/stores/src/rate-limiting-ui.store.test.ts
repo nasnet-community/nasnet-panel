@@ -5,10 +5,13 @@
  * Story: NAS-7.11 - Implement Connection Rate Limiting - Task 7
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useRateLimitingUIStore } from './rate-limiting-ui.store';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import type { RateLimitRule } from '@nasnet/core/types';
+
+import { useRateLimitingUIStore } from './rate-limiting-ui.store';
+
 
 describe('useRateLimitingUIStore', () => {
   // Clear localStorage before each test

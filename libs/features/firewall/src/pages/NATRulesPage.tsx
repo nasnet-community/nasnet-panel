@@ -180,7 +180,7 @@ export function NATRulesPage() {
 
   // Filter rules by selected chain
   const filteredRules =
-    selectedChain === 'all' ? rules : rules?.filter((r) => r.chain === selectedChain);
+    selectedChain === 'all' ? rules : rules?.filter((r) => (r.chain as string) === selectedChain);
 
   // ========================================
   // Handlers
@@ -338,7 +338,7 @@ export function NATRulesPage() {
         routerId={routerIp}
         initialRule={
           editingRule
-            ? {
+            ? ({
                 chain: editingRule.chain,
                 action: editingRule.action,
                 protocol: editingRule.protocol,
@@ -351,7 +351,7 @@ export function NATRulesPage() {
                 toAddresses: editingRule.toAddresses,
                 toPorts: editingRule.toPorts,
                 comment: editingRule.comment,
-              }
+              } as any)
             : undefined
         }
         open={showAddRule}

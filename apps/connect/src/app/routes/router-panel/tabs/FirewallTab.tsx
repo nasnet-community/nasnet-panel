@@ -7,6 +7,16 @@
  */
 
 import { useState, useCallback } from 'react';
+
+import { Settings2, BarChart3 } from 'lucide-react';
+
+import {
+  useFilterRules,
+  useMoveFilterRule,
+  useDeleteFilterRule,
+  useToggleFilterRule,
+} from '@nasnet/api-client/queries/firewall';
+import type { FirewallRule , FirewallChain } from '@nasnet/core/types';
 import {
   ServicesStatus,
   ChainSummaryCards,
@@ -15,16 +25,10 @@ import {
   FirewallQuickStats,
   RecentFirewallActivity,
   FirewallDetailTabs,
-} from '@nasnet/features/firewall';
-import { RuleEfficiencyReport, UnusedRulesFilter } from '@nasnet/ui/patterns';
-import { useCounterSettingsStore } from '@nasnet/features/firewall';
-import {
-  useFilterRules,
-  useMoveFilterRule,
-  useDeleteFilterRule,
-  useToggleFilterRule,
-} from '@nasnet/api-client/queries/firewall';
+ useCounterSettingsStore } from '@nasnet/features/firewall';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { RuleEfficiencyReport, UnusedRulesFilter } from '@nasnet/ui/patterns';
+import type { Suggestion } from '@nasnet/ui/patterns/rule-efficiency-report/types';
 import {
   Button,
   Dialog,
@@ -43,9 +47,8 @@ import {
   CardContent,
   useToast,
 } from '@nasnet/ui/primitives';
-import { Settings2, BarChart3 } from 'lucide-react';
-import type { FirewallChain } from '@nasnet/core/types';
-import type { Suggestion } from '@nasnet/ui/patterns/rule-efficiency-report/types';
+
+
 
 export function FirewallTab() {
   const [selectedChain, setSelectedChain] = useState<FirewallChain | null>(null);
@@ -283,7 +286,7 @@ export function FirewallTab() {
             </DialogDescription>
           </DialogHeader>
           <RuleEfficiencyReport
-            rules={rules || []}
+            rules={(rules || []) as FirewallRule[]}
             onApplySuggestion={handleApplySuggestion}
             onPreview={handlePreviewSuggestion}
           />

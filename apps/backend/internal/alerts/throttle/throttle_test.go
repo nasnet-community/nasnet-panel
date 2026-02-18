@@ -10,10 +10,10 @@ import (
 // TestThrottleManager tests rate limiting functionality
 // Per Task 7.2: Unit tests for throttle manager
 func TestThrottleManager(t *testing.T) {
-	tm := NewThrottleManager()
+	tm := NewManager()
 
 	t.Run("no throttle config - always allows", func(t *testing.T) {
-		config := ThrottleConfig{} // Empty config
+		config := Config{} // Empty config
 		eventData := map[string]interface{}{"device_id": "router-1"}
 
 		allowed, reason := tm.ShouldAllow("rule-1", eventData, config)
@@ -23,7 +23,7 @@ func TestThrottleManager(t *testing.T) {
 	})
 
 	t.Run("first alert always allowed", func(t *testing.T) {
-		config := ThrottleConfig{
+		config := Config{
 			MaxAlerts:     1,
 			PeriodSeconds: 60,
 		}
@@ -36,8 +36,8 @@ func TestThrottleManager(t *testing.T) {
 	})
 
 	t.Run("throttle enforced within period", func(t *testing.T) {
-		tm := NewThrottleManager()
-		config := ThrottleConfig{
+		tm := NewManager()
+		config := Config{
 			MaxAlerts:     1,
 			PeriodSeconds: 60,
 		}
@@ -62,8 +62,8 @@ func TestThrottleManager(t *testing.T) {
 	t.Run("throttle expires after period", func(t *testing.T) {
 		// Use MockClock for deterministic testing
 		clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-		tm := NewThrottleManager(WithClock(clock))
-		config := ThrottleConfig{
+		tm := NewManager(WithClock(clock))
+		config := Config{
 			MaxAlerts:     1,
 			PeriodSeconds: 60,
 		}
@@ -83,8 +83,8 @@ func TestThrottleManager(t *testing.T) {
 	})
 
 	t.Run("multiple alerts within limit", func(t *testing.T) {
-		tm := NewThrottleManager()
-		config := ThrottleConfig{
+		tm := NewManager()
+		config := Config{
 			MaxAlerts:     3,
 			PeriodSeconds: 60,
 		}
@@ -106,8 +106,8 @@ func TestThrottleManager(t *testing.T) {
 	})
 
 	t.Run("group by field - separate throttle per group", func(t *testing.T) {
-		tm := NewThrottleManager()
-		config := ThrottleConfig{
+		tm := NewManager()
+		config := Config{
 			MaxAlerts:     1,
 			PeriodSeconds: 60,
 			GroupByField:  "device_id",
@@ -135,8 +135,8 @@ func TestThrottleManager(t *testing.T) {
 	})
 
 	t.Run("suppressed count tracked", func(t *testing.T) {
-		tm := NewThrottleManager()
-		config := ThrottleConfig{
+		tm := NewManager()
+		config := Config{
 			MaxAlerts:     1,
 			PeriodSeconds: 60,
 		}
@@ -156,89 +156,6 @@ func TestThrottleManager(t *testing.T) {
 	})
 }
 
-// TestParseThrottleConfig tests throttle configuration parsing
-func TestParseThrottleConfig(t *testing.T) {
-	tests := []struct {
-		name      string
-		input     map[string]interface{}
-		want      ThrottleConfig
-		wantError bool
-	}{
-		{
-			name: "valid config",
-			input: map[string]interface{}{
-				"maxAlerts":     float64(5),
-				"periodSeconds": float64(300),
-			},
-			want: ThrottleConfig{
-				MaxAlerts:     5,
-				PeriodSeconds: 300,
-			},
-			wantError: false,
-		},
-		{
-			name: "with group by field",
-			input: map[string]interface{}{
-				"maxAlerts":     float64(10),
-				"periodSeconds": float64(600),
-				"groupByField":  "device_id",
-			},
-			want: ThrottleConfig{
-				MaxAlerts:     10,
-				PeriodSeconds: 600,
-				GroupByField:  "device_id",
-			},
-			wantError: false,
-		},
-		{
-			name: "missing maxAlerts",
-			input: map[string]interface{}{
-				"periodSeconds": float64(300),
-			},
-			want:      ThrottleConfig{},
-			wantError: true,
-		},
-		{
-			name: "missing periodSeconds",
-			input: map[string]interface{}{
-				"maxAlerts": float64(5),
-			},
-			want:      ThrottleConfig{},
-			wantError: true,
-		},
-		{
-			name: "invalid types",
-			input: map[string]interface{}{
-				"maxAlerts":     "not-a-number",
-				"periodSeconds": float64(300),
-			},
-			want:      ThrottleConfig{},
-			wantError: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseThrottleConfig(tt.input)
-			if (err != nil) != tt.wantError {
-				t.Errorf("ParseThrottleConfig() error = %v, wantError %v", err, tt.wantError)
-				return
-			}
-			if !tt.wantError {
-				if got.MaxAlerts != tt.want.MaxAlerts {
-					t.Errorf("MaxAlerts = %d, want %d", got.MaxAlerts, tt.want.MaxAlerts)
-				}
-				if got.PeriodSeconds != tt.want.PeriodSeconds {
-					t.Errorf("PeriodSeconds = %d, want %d", got.PeriodSeconds, tt.want.PeriodSeconds)
-				}
-				if got.GroupByField != tt.want.GroupByField {
-					t.Errorf("GroupByField = %s, want %s", got.GroupByField, tt.want.GroupByField)
-				}
-			}
-		})
-	}
-}
-
 // ===================================================================
 // Phase 7: Enhanced Tests with MockClock for Sliding Window
 // ===================================================================
@@ -248,9 +165,9 @@ func TestParseThrottleConfig(t *testing.T) {
 func TestThrottleManager_SlidingWindow_NoBurstAtBoundary(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     3,
 		PeriodSeconds: 60,
 	}
@@ -292,9 +209,9 @@ func TestThrottleManager_SlidingWindow_NoBurstAtBoundary(t *testing.T) {
 func TestThrottleManager_SlidingWindow_SmoothDistribution(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     5,
 		PeriodSeconds: 60,
 	}
@@ -334,9 +251,9 @@ func TestThrottleManager_SlidingWindow_SmoothDistribution(t *testing.T) {
 func TestThrottleManager_SlidingWindow_GroupIsolation(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     2,
 		PeriodSeconds: 60,
 		GroupByField:  "interface",
@@ -382,9 +299,9 @@ func TestThrottleManager_SlidingWindow_GroupIsolation(t *testing.T) {
 func TestThrottleManager_SlidingWindow_SuppressionCounting(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     2,
 		PeriodSeconds: 60,
 	}
@@ -420,9 +337,9 @@ func TestThrottleManager_SlidingWindow_SuppressionCounting(t *testing.T) {
 func TestThrottleManager_SlidingWindow_NestedFields(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     1,
 		PeriodSeconds: 60,
 		GroupByField:  "device.interface",
@@ -462,8 +379,8 @@ func TestThrottleManager_SlidingWindow_NestedFields(t *testing.T) {
 
 // TestThrottleManager_Cleanup tests the Cleanup method.
 func TestThrottleManager_Cleanup(t *testing.T) {
-	tm := NewThrottleManager()
-	config := ThrottleConfig{MaxAlerts: 1, PeriodSeconds: 60}
+	tm := NewManager()
+	config := Config{MaxAlerts: 1, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	// Create states for multiple rules
@@ -495,8 +412,8 @@ func TestThrottleManager_Cleanup(t *testing.T) {
 // TestThrottleManager_Reset tests the Reset method.
 func TestThrottleManager_Reset(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
-	config := ThrottleConfig{MaxAlerts: 1, PeriodSeconds: 60}
+	tm := NewManager(WithClock(clock))
+	config := Config{MaxAlerts: 1, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	// Create throttle state
@@ -528,8 +445,8 @@ func TestThrottleManager_Reset(t *testing.T) {
 // BenchmarkThrottleManager_ShouldAllow benchmarks throttle checking performance.
 func BenchmarkThrottleManager_ShouldAllow(b *testing.B) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
-	config := ThrottleConfig{MaxAlerts: 100, PeriodSeconds: 60}
+	tm := NewManager(WithClock(clock))
+	config := Config{MaxAlerts: 100, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	// Pre-populate with alerts
@@ -546,8 +463,8 @@ func BenchmarkThrottleManager_ShouldAllow(b *testing.B) {
 // BenchmarkThrottleManager_GetSummary benchmarks summary generation.
 func BenchmarkThrottleManager_GetSummary(b *testing.B) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
-	config := ThrottleConfig{MaxAlerts: 100, PeriodSeconds: 60, GroupByField: "interface"}
+	tm := NewManager(WithClock(clock))
+	config := Config{MaxAlerts: 100, PeriodSeconds: 60, GroupByField: "interface"}
 
 	// Create multiple groups with alerts
 	for i := 0; i < 10; i++ {

@@ -4,9 +4,11 @@
  * Interactive stories for bogon filter dialog.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { BogonFilterDialog } from './BogonFilterDialog';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
   title: 'Patterns/Firewall/BogonFilterDialog',

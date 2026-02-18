@@ -4,8 +4,11 @@
  */
 
 import { useMemo } from 'react';
-import type { DHCPServer, DHCPLease, DHCPPool, DHCPClient } from '@nasnet/core/types';
+
 import { Users, PieChart, Server, Network, Globe } from 'lucide-react';
+
+import type { DHCPServer, DHCPLease, DHCPPool, DHCPClient } from '@nasnet/core/types';
+
 import { calculatePoolSize, getUtilizationTextColor, getUtilizationBgColor } from '../utils';
 
 interface DHCPStatusHeroProps {

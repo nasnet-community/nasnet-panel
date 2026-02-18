@@ -7,7 +7,7 @@
 
 import { z } from 'zod';
 
-// Import template types from fixtures (temporary until in core)
+// Import template types from core types
 export type {
   FirewallTemplate,
   TemplateVariable,
@@ -16,16 +16,16 @@ export type {
   TemplateConflict,
   ImpactAnalysis,
   VariableType,
-} from '../__test-utils__/firewall-templates/template-fixtures';
+} from '@nasnet/core/types';
 
-// Re-export for local use
+// Import for local use
 import type {
   FirewallTemplate,
   TemplateVariable,
   TemplateRule,
   TemplatePreviewResult,
   VariableType,
-} from '../__test-utils__/firewall-templates/template-fixtures';
+} from '@nasnet/core/types';
 
 /**
  * Template variable values (key-value pairs)

@@ -100,7 +100,7 @@ func (s *SessionStore) GetByRouterID(routerID string) []*Session {
 
 	var sessions []*Session
 	for _, session := range s.sessions {
-		if session.RouterID == routerID && session.Status != SessionStatusCompleted && session.Status != SessionStatusCancelled {
+		if session.RouterID == routerID && session.Status != SessionStatusCompleted && session.Status != SessionStatusCanceled {
 			sessions = append(sessions, session)
 		}
 	}
@@ -118,14 +118,14 @@ func (s *SessionStore) cleanupLoop() {
 	}
 }
 
-// cleanup removes sessions that have been completed/cancelled for longer than TTL.
+// cleanup removes sessions that have been completed/canceled for longer than TTL.
 func (s *SessionStore) cleanup() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	now := time.Now()
 	for id, session := range s.sessions {
-		if session.Status == SessionStatusCompleted || session.Status == SessionStatusCancelled {
+		if session.Status == SessionStatusCompleted || session.Status == SessionStatusCanceled {
 			if session.CompletedAt != nil && now.Sub(*session.CompletedAt) > s.sessionTTL {
 				delete(s.sessions, id)
 			}

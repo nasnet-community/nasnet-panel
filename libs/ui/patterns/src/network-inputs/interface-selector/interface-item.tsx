@@ -26,6 +26,7 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { InterfaceTypeIcon } from './interface-type-icon';
+
 import type { InterfaceItemProps, InterfaceStatus } from './interface-selector.types';
 
 /**

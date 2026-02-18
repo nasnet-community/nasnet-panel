@@ -25,13 +25,13 @@ export function useVlanList(routerId: string) {
   // Filtered VLANs
   const filteredVlans = useMemo(() => {
     return vlans
-      .filter((vlan) =>
+      .filter((vlan: any) =>
         vlan.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .filter((vlan) =>
+      .filter((vlan: any) =>
         !parentInterfaceFilter || vlan.interface.id === parentInterfaceFilter
       )
-      .filter((vlan) => {
+      .filter((vlan: any) => {
         if (!vlanIdRangeFilter) return true;
         const { min, max } = vlanIdRangeFilter;
         if (min !== undefined && vlan.vlanId < min) return false;
@@ -58,9 +58,9 @@ export function useVlanList(routerId: string) {
         } else {
           // Show error messages
           const errors = result.data?.errors || [];
-          errors.forEach((err) => toast.error(err.message));
+          errors.forEach((err: { message: string }) => toast.error(err.message));
         }
-      } catch (err) {
+      } catch (err: unknown) {
         toast.error('Failed to delete VLAN');
       }
     },
@@ -87,7 +87,7 @@ export function useVlanList(routerId: string) {
 
   // Select all
   const selectAll = useCallback(() => {
-    setSelectedIds(new Set(filteredVlans.map((v) => v.id)));
+    setSelectedIds(new Set(filteredVlans.map((v: any) => v.id)));
   }, [filteredVlans]);
 
   // Clear filters

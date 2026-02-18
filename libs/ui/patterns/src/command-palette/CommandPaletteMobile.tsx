@@ -22,9 +22,9 @@ import {
   Sheet,
   SheetPortal,
   SheetOverlay,
-  SheetContent,
   SheetClose,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { CommandItem } from './CommandItem';
 import { useCommandPalette } from './useCommandPalette';

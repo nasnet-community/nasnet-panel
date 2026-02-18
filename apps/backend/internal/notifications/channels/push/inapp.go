@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"backend/internal/events"
 	"backend/internal/notifications"
+
+	"backend/internal/events"
 )
 
 // InAppChannel delivers notifications via GraphQL subscription dispatch.

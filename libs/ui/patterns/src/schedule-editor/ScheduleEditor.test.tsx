@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { ScheduleEditor } from './ScheduleEditor';
 
 describe('ScheduleEditor', () => {

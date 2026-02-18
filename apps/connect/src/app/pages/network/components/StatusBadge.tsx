@@ -3,7 +3,8 @@
  * Dashboard Pro style with pulse animation for running state
  */
 
-import { InterfaceStatus } from '@nasnet/core/types';
+import { type InterfaceStatus } from '@nasnet/core/types';
+
 import { cn } from '@/lib/utils';
 
 interface StatusBadgeProps {

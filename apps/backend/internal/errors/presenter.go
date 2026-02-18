@@ -138,12 +138,12 @@ func presentUnknownError(ctx context.Context, err error, requestID string, isPro
 	}
 
 	extensions := map[string]interface{}{
-		"code":        "I500",
-		"category":    string(CategoryInternal),
-		"recoverable": false,
-		"requestId":   requestID,
+		"code":         "I500",
+		"category":     string(CategoryInternal),
+		"recoverable":  false,
+		"requestId":    requestID,
 		"suggestedFix": "An unexpected error occurred. Please try again or contact support.",
-		"docsUrl":     DocsURL("I500"),
+		"docsUrl":      DocsURL("I500"),
 	}
 
 	gqlErr := &gqlerror.Error{
@@ -211,19 +211,19 @@ func ToGraphQLError(ctx context.Context, err error) *gqlerror.Error {
 
 // NewGraphQLValidationError creates a GraphQL error for validation failures.
 // This is a convenience function for use in resolvers.
-func NewGraphQLValidationError(ctx context.Context, field string, message string, value interface{}) *gqlerror.Error {
+func NewGraphQLValidationError(ctx context.Context, field, message string, value interface{}) *gqlerror.Error {
 	valErr := NewValidationError(field, value, message)
 	return ErrorPresenter(ctx, valErr)
 }
 
 // NewGraphQLAuthError creates a GraphQL error for auth failures.
-func NewGraphQLAuthError(ctx context.Context, message string, code string) *gqlerror.Error {
+func NewGraphQLAuthError(ctx context.Context, message, code string) *gqlerror.Error {
 	authErr := NewAuthError(code, message)
 	return ErrorPresenter(ctx, authErr)
 }
 
 // NewGraphQLProtocolError creates a GraphQL error for protocol failures.
-func NewGraphQLProtocolError(ctx context.Context, message string, protocol string, routerID string) *gqlerror.Error {
+func NewGraphQLProtocolError(ctx context.Context, message, protocol, routerID string) *gqlerror.Error {
 	protoErr := NewProtocolError(CodeProtocolError, message, protocol)
 	if routerID != "" {
 		protoErr = protoErr.WithRouter(routerID, "")

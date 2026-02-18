@@ -58,8 +58,7 @@ export async function executeDiagnosticStep(
       details: result.details,
       executionTimeMs: result.executionTimeMs,
       issueCode: result.issueCode,
-      target: result.target,
-    };
+    } as DiagnosticResult;
   } catch (error) {
     const executionTimeMs = Date.now() - startTime;
     return {

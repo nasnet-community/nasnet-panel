@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
-    "types": ["node"]
+    "composite": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "types": ["node", "vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
   "exclude": [
@@ -11,19 +14,11 @@
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/**/*.spec.js",
-    "src/**/*.spec.jsx"
+    "src/**/*.spec.jsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
   ],
-  "references": [
-    {
-      "path": "../../ui/primitives/tsconfig.lib.json"
-    },
-    {
-      "path": "../../core/types/tsconfig.lib.json"
-    },
-    {
-      "path": "../../core/utils/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }
 
 

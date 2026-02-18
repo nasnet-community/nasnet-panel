@@ -15,12 +15,13 @@
  */
 
 import { memo, useMemo } from 'react';
+
 import { ArrowRight, ArrowDown, Filter, Package, Router } from 'lucide-react';
 
-import { Card, Badge, Button } from '@nasnet/ui/primitives';
+import type { MangleChain } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
+import { Card, Badge, Button } from '@nasnet/ui/primitives';
 
-import type { MangleChain } from '@nasnet/core/types/firewall';
 
 // ============================================================================
 // Types

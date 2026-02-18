@@ -7,6 +7,8 @@
 
 import * as React from 'react';
 
+import { Filter, Shield } from 'lucide-react';
+
 import {
   Button,
   Card,
@@ -24,21 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
   Checkbox,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from '@nasnet/ui/primitives';
+
 import { EmptyState } from '../empty-state';
 import { VirtualizedList } from '../virtualization';
+import { WHITELIST_TIMEOUT_PRESETS } from './types';
 
 import type { BlockedIP } from './types';
 import type { UseBlockedIPsTableReturn } from './use-blocked-ips-table';
-import { WHITELIST_TIMEOUT_PRESETS } from './types';
 
 export interface BlockedIPsTableMobileProps {
   /** Blocked IPs table hook return value */
@@ -296,18 +291,10 @@ export function BlockedIPsTableMobile({
       return (
         <div className="flex flex-col items-center justify-center h-full p-6">
           <EmptyState
-            icon="filter"
+            icon={Filter}
             title="No matching blocked IPs"
             description="Try adjusting your filters"
-            action={
-              <Button
-                variant="outline"
-                onClick={clearFilter}
-                className="min-h-[44px]"
-              >
-                Clear Filters
-              </Button>
-            }
+            action={{ label: 'Clear Filters', onClick: clearFilter, variant: 'outline' }}
           />
         </div>
       );
@@ -316,7 +303,7 @@ export function BlockedIPsTableMobile({
     return (
       <div className="flex flex-col items-center justify-center h-full p-6">
         <EmptyState
-          icon="shield"
+          icon={Shield}
           title="No blocked IPs"
           description="There are currently no blocked IP addresses from rate limiting"
         />
@@ -473,7 +460,7 @@ export function BlockedIPsTableMobile({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Timeout</label>
+              <label htmlFor="timeout-select" className="text-sm font-medium">Timeout</label>
               <Select value={whitelistTimeout} onValueChange={setWhitelistTimeout}>
                 <SelectTrigger>
                   <SelectValue />
@@ -488,8 +475,9 @@ export function BlockedIPsTableMobile({
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Comment (optional)</label>
+              <label htmlFor="whitelist-comment" className="text-sm font-medium">Comment (optional)</label>
               <Input
+                id="whitelist-comment"
                 value={whitelistComment}
                 onChange={(e) => setWhitelistComment(e.target.value)}
                 placeholder="Reason for whitelisting"
@@ -508,22 +496,24 @@ export function BlockedIPsTableMobile({
       </Dialog>
 
       {/* Remove Confirmation Dialog */}
-      <AlertDialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove Blocked IP</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Blocked IP</DialogTitle>
+            <DialogDescription>
               Are you sure you want to remove {removeIP} from the blocked list? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRemoveDialogOpen(false)} className="min-h-[44px]">
+              Cancel
+            </Button>
+            <Button onClick={handleRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
               Remove
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bulk Whitelist Dialog */}
       <Dialog open={bulkWhitelistDialogOpen} onOpenChange={setBulkWhitelistDialogOpen}>
@@ -536,7 +526,7 @@ export function BlockedIPsTableMobile({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Timeout</label>
+              <label htmlFor="bulk-timeout-select" className="text-sm font-medium">Timeout</label>
               <Select value={bulkWhitelistTimeout} onValueChange={setBulkWhitelistTimeout}>
                 <SelectTrigger>
                   <SelectValue />
@@ -563,22 +553,24 @@ export function BlockedIPsTableMobile({
       </Dialog>
 
       {/* Bulk Remove Confirmation Dialog */}
-      <AlertDialog open={bulkRemoveDialogOpen} onOpenChange={setBulkRemoveDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove Selected Blocked IPs</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={bulkRemoveDialogOpen} onOpenChange={setBulkRemoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Selected Blocked IPs</DialogTitle>
+            <DialogDescription>
               Are you sure you want to remove {selectedIPs.length} blocked IP{selectedIPs.length !== 1 ? 's' : ''}? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBulkRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkRemoveDialogOpen(false)} className="min-h-[44px]">
+              Cancel
+            </Button>
+            <Button onClick={handleBulkRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
               Remove All
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

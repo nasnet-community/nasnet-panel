@@ -1,6 +1,6 @@
 package updates
 
-import "backend/pkg/registry"
+import "backend/internal/registry"
 
 // GitHubRelease is an alias for pkg/registry.GitHubRelease.
 type GitHubRelease = registry.GitHubRelease
@@ -14,3 +14,6 @@ type GitHubClient = registry.GitHubClient
 // NewGitHubClient creates a new GitHub API client.
 // Delegates to pkg/registry.NewGitHubClient.
 var NewGitHubClient = registry.NewGitHubClient
+
+// WithHTTPClient is an alias for pkg/registry.WithHTTPClient.
+var WithHTTPClient = registry.WithHTTPClient

@@ -3,12 +3,13 @@
 package ent
 
 import (
-	"backend/generated/ent/internal"
-	"backend/generated/ent/predicate"
-	"backend/generated/ent/routercapability"
 	"context"
 	"fmt"
 	"math"
+
+	"backend/generated/ent/internal"
+	"backend/generated/ent/predicate"
+	"backend/generated/ent/routercapability"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

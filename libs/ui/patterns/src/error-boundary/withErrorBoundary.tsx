@@ -9,7 +9,9 @@
  */
 
 import * as React from 'react';
+
 import { ComponentErrorBoundary, type ComponentErrorBoundaryProps } from './ComponentErrorBoundary';
+
 import type { ErrorBoundaryFallbackProps } from './ErrorBoundary';
 
 /**
@@ -86,7 +88,7 @@ export function withErrorBoundary<P extends object>(
 
   WrappedComponent.displayName = `withErrorBoundary(${componentName})`;
 
-  return WrappedComponent as React.ComponentType<P>;
+  return WrappedComponent as unknown as React.ComponentType<P>;
 }
 
 /**

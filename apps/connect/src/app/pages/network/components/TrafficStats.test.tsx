@@ -2,10 +2,13 @@
  * TrafficStats Component Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+
+import { type TrafficStatistics } from '@nasnet/core/types';
+
 import { TrafficStats } from './TrafficStats';
-import { TrafficStatistics } from '@nasnet/core/types';
+
 
 describe('TrafficStats', () => {
   const mockStats: TrafficStatistics = {

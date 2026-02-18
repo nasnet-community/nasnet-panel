@@ -3,11 +3,12 @@
 package ent
 
 import (
-	"backend/generated/ent/globalsettings"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	"backend/generated/ent/globalsettings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

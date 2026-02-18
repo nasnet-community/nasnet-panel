@@ -11,13 +11,14 @@
  * @see NAS-4.24: Implement Undo/Redo History
  */
 
+import { useHistoryStore, pushHistoryAction } from './history.store';
+
 import type {
   UndoableAction,
   UndoableActionInput,
   HistoryActionType,
   ActionScope,
 } from './types';
-import { useHistoryStore, pushHistoryAction } from './history.store';
 
 // =============================================================================
 // Factory Functions

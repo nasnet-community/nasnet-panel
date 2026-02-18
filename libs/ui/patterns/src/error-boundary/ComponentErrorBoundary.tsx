@@ -15,9 +15,12 @@
  */
 
 import * as React from 'react';
+
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
-import { ErrorBoundary, type ErrorBoundaryFallbackProps } from './ErrorBoundary';
+
 import { cn, Button, Card, CardContent } from '@nasnet/ui/primitives';
+
+import { ErrorBoundary, type ErrorBoundaryFallbackProps } from './ErrorBoundary';
 
 /**
  * Props for ComponentErrorBoundary

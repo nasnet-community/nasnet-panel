@@ -34,7 +34,7 @@ type WebhookConfig struct {
 // NewWebhookChannel creates a new webhook notification channel.
 func NewWebhookChannel(config WebhookConfig) *WebhookChannel {
 	if config.Method == "" {
-		config.Method = "POST"
+		config.Method = nethttp.MethodPost
 	}
 	return &WebhookChannel{
 		config: config,
@@ -254,7 +254,7 @@ func isPrivateIP(ip net.IP) bool {
 
 // ParseWebhookConfig converts a map to WebhookConfig.
 func ParseWebhookConfig(config map[string]interface{}) (WebhookConfig, error) {
-	cfg := WebhookConfig{Method: "POST"}
+	cfg := WebhookConfig{Method: nethttp.MethodPost}
 
 	urlStr, ok := config["url"].(string)
 	if !ok || urlStr == "" {

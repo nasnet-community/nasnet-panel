@@ -1,5 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/react';
-
 import {
   Table,
   TableBody,
@@ -10,6 +8,9 @@ import {
   TableRow,
   TableFooter,
 } from './table';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 const meta: Meta<typeof Table> = {
   title: 'Primitives/Table',

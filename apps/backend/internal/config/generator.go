@@ -7,14 +7,14 @@ import (
 	"text/template"
 )
 
-// ConfigGenerator is the strategy interface for generating service configurations.
+// Generator is the strategy interface for generating service configurations.
 // Each service type (Tor, sing-box, Xray, etc.) implements this interface.
-type ConfigGenerator interface {
+type Generator interface {
 	// GetServiceType returns the service type identifier (e.g., "tor", "sing-box").
 	GetServiceType() string
 
 	// GetSchema returns the configuration schema for this service type.
-	GetSchema() *ConfigSchema
+	GetSchema() *Schema
 
 	// Generate generates the service configuration file content from user config.
 	// Parameters:
@@ -39,12 +39,12 @@ type ConfigGenerator interface {
 // BaseGenerator provides common functionality for all config generators.
 type BaseGenerator struct {
 	ServiceType string
-	Schema      *ConfigSchema
+	Schema      *Schema
 	Template    *template.Template
 }
 
 // NewBaseGenerator creates a new BaseGenerator.
-func NewBaseGenerator(serviceType string, schema *ConfigSchema, tmpl *template.Template) *BaseGenerator {
+func NewBaseGenerator(serviceType string, schema *Schema, tmpl *template.Template) *BaseGenerator {
 	return &BaseGenerator{
 		ServiceType: serviceType,
 		Schema:      schema,
@@ -58,7 +58,7 @@ func (g *BaseGenerator) GetServiceType() string {
 }
 
 // GetSchema returns the configuration schema.
-func (g *BaseGenerator) GetSchema() *ConfigSchema {
+func (g *BaseGenerator) GetSchema() *Schema {
 	return g.Schema
 }
 

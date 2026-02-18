@@ -5,6 +5,13 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createActor } from 'xstate';
+
+import type {
+  ChangeSet,
+  ChangeSetItem,
+  ChangeSetValidationResult,
+} from '@nasnet/core/types';
+
 import {
   createChangeSetMachine,
   isChangeSetProcessing,
@@ -13,11 +20,6 @@ import {
   getChangeSetMachineStateDescription,
   type ChangeSetMachineConfig,
 } from './changeSetMachine';
-import type {
-  ChangeSet,
-  ChangeSetItem,
-  ChangeSetValidationResult,
-} from '@nasnet/core/types';
 
 // Mock dependencies
 vi.mock('@nasnet/core/utils', () => ({

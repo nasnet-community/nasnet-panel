@@ -195,51 +195,47 @@ export function AuthProvider({
 }: AuthProviderProps) {
   // Get auth store state and actions
   const {
-    accessToken,
+    token: accessToken,
     refreshToken: storedRefreshToken,
-    expiresAt,
+    tokenExpiry: expiresAt,
     user,
     isAuthenticated,
-    isLoading,
-    setTokens,
-    clearTokens,
-    setUser,
+    isRefreshing: isLoading,
+    setAuth,
+    clearAuth,
   } = useAuthStore();
 
   // Enable automatic token refresh
   useTokenRefresh({
-    enabled: enableAutoRefresh && isAuthenticated && !!onRefreshToken,
-    onRefresh: onRefreshToken
+    refreshTokenFn: onRefreshToken
       ? async () => {
           const result = await onRefreshToken();
-          setTokens(
-            result.accessToken,
-            result.refreshToken ?? storedRefreshToken ?? '',
-            result.expiresIn
-          );
+          return {
+            token: result.accessToken,
+            expiresAt: new Date(Date.now() + result.expiresIn * 1000),
+            refreshToken: result.refreshToken,
+          };
         }
-      : async () => {},
-    onError: (error) => {
-      console.error('Token refresh failed:', error);
-      clearTokens();
+      : async () => { throw new Error('No refresh function provided'); },
+    onReauthRequired: () => {
+      clearAuth();
       onSessionExpired?.();
     },
   });
 
   // Login handler
   const login = useCallback(
-    (accessToken: string, refreshToken: string, expiresIn: number, user: User) => {
-      setTokens(accessToken, refreshToken, expiresIn);
-      setUser(user);
+    (accessToken: string, refreshToken: string, expiresIn: number, loginUser: User) => {
+      setAuth(accessToken, loginUser as any, new Date(Date.now() + expiresIn * 1000), refreshToken);
     },
-    [setTokens, setUser]
+    [setAuth]
   );
 
   // Logout handler
   const logout = useCallback(() => {
-    clearTokens();
+    clearAuth();
     onSessionExpired?.();
-  }, [clearTokens, onSessionExpired]);
+  }, [clearAuth, onSessionExpired]);
 
   // Refresh token handler
   const refreshTokenFn = useCallback(async (): Promise<boolean> => {
@@ -247,16 +243,19 @@ export function AuthProvider({
 
     try {
       const result = await onRefreshToken();
-      setTokens(
-        result.accessToken,
-        result.refreshToken ?? storedRefreshToken ?? '',
-        result.expiresIn
-      );
+      if (user) {
+        setAuth(
+          result.accessToken,
+          user as any,
+          new Date(Date.now() + result.expiresIn * 1000),
+          result.refreshToken ?? storedRefreshToken ?? undefined
+        );
+      }
       return true;
     } catch {
       return false;
     }
-  }, [onRefreshToken, setTokens, storedRefreshToken]);
+  }, [onRefreshToken, setAuth, user, storedRefreshToken]);
 
   // Permission helpers
   const hasPermission = useCallback(
@@ -287,12 +286,15 @@ export function AuthProvider({
     if (!onRefreshToken) return;
 
     const result = await onRefreshToken();
-    setTokens(
-      result.accessToken,
-      result.refreshToken ?? storedRefreshToken ?? '',
-      result.expiresIn
-    );
-  }, [onRefreshToken, setTokens, storedRefreshToken]);
+    if (user) {
+      setAuth(
+        result.accessToken,
+        user as any,
+        new Date(Date.now() + result.expiresIn * 1000),
+        result.refreshToken ?? storedRefreshToken ?? undefined
+      );
+    }
+  }, [onRefreshToken, setAuth, user, storedRefreshToken]);
 
   // Memoize context value
   const value = useMemo<AuthContextValue>(
@@ -407,4 +409,3 @@ export function RequireAuth({
   return <>{children}</>;
 }
 
-export type { AuthContextValue, AuthProviderProps, RequireAuthProps, User };

@@ -134,7 +134,7 @@ func TestDetector_DetectPackages(t *testing.T) {
 		{
 			name: "full package list",
 			packages: []map[string]string{
-				{"name": "routeros"},
+				{"name": "routers"},
 				{"name": "container"},
 				{"name": "wireless"},
 				{"name": "routing"},
@@ -147,7 +147,7 @@ func TestDetector_DetectPackages(t *testing.T) {
 		{
 			name: "minimal packages",
 			packages: []map[string]string{
-				{"name": "routeros"},
+				{"name": "routers"},
 			},
 			wantContainer:  false,
 			wantWireless:   false,
@@ -156,7 +156,7 @@ func TestDetector_DetectPackages(t *testing.T) {
 		{
 			name: "wireless wave2 package",
 			packages: []map[string]string{
-				{"name": "routeros"},
+				{"name": "routers"},
 				{"name": "wifiwave2"},
 			},
 			wantContainer:  false,
@@ -244,17 +244,17 @@ func TestDetector_ContainerCapabilities(t *testing.T) {
 			wantNetNamespace: true,
 		},
 		{
-			name:     "no container package",
-			version:  "7.13",
-			arch:     "arm64",
-			packages: []map[string]string{},
+			name:      "no container package",
+			version:   "7.13",
+			arch:      "arm64",
+			packages:  []map[string]string{},
 			wantLevel: LevelNone,
 		},
 		{
-			name:     "old RouterOS version",
-			version:  "6.49",
-			arch:     "arm64",
-			packages: []map[string]string{},
+			name:      "old RouterOS version",
+			version:   "6.49",
+			arch:      "arm64",
+			packages:  []map[string]string{},
 			wantLevel: LevelNone,
 		},
 	}
@@ -411,8 +411,8 @@ func TestDetector_VIFCapabilities(t *testing.T) {
 // TestParseVersion tests version string parsing.
 func TestParseVersion(t *testing.T) {
 	tests := []struct {
-		input   string
-		want    RouterOSVersion
+		input string
+		want  RouterOSVersion
 	}{
 		{
 			input: "7.12",
@@ -486,11 +486,11 @@ func TestParseSize(t *testing.T) {
 // TestRouterOSVersion_VersionChecks tests version check methods.
 func TestRouterOSVersion_VersionChecks(t *testing.T) {
 	tests := []struct {
-		version           RouterOSVersion
-		wantSupportsREST  bool
-		wantSupportsVIF   bool
+		version                RouterOSVersion
+		wantSupportsREST       bool
+		wantSupportsVIF        bool
 		wantSupportsContainers bool
-		wantSupportsWireGuard bool
+		wantSupportsWireGuard  bool
 	}{
 		{
 			version:                RouterOSVersion{Major: 7, Minor: 1},

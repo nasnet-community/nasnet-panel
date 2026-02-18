@@ -59,9 +59,9 @@ export function useStorageMountChanged(
     SUBSCRIBE_STORAGE_MOUNT_CHANGED,
     {
       variables: { path },
-      onData: ({ data: subscriptionData }) => {
-        if (subscriptionData?.storageMountChanged && onMountChanged) {
-          onMountChanged(subscriptionData.storageMountChanged);
+      onData: ({ data: subscriptionData }: any) => {
+        if (subscriptionData?.data?.storageMountChanged && onMountChanged) {
+          onMountChanged(subscriptionData.data.storageMountChanged);
         }
       },
     }
@@ -90,9 +90,9 @@ export function useStorageSpaceChanged(
     SUBSCRIBE_STORAGE_SPACE_CHANGED,
     {
       variables: { path },
-      onData: ({ data: subscriptionData }) => {
-        if (subscriptionData?.storageSpaceChanged && onSpaceChanged) {
-          onSpaceChanged(subscriptionData.storageSpaceChanged);
+      onData: ({ data: subscriptionData }: any) => {
+        if (subscriptionData?.data?.storageSpaceChanged && onSpaceChanged) {
+          onSpaceChanged(subscriptionData.data.storageSpaceChanged);
         }
       },
     }

@@ -87,7 +87,7 @@ func (p *terseParser) Parse(ctx context.Context, raw string, hints ParseHints) (
 		}
 
 		resource, warning := p.parseTerseLine(line, lineNum+1)
-		if resource != nil && len(resource) > 0 {
+		if len(resource) > 0 {
 			result.Resources = append(result.Resources, p.normalizer.NormalizeResource(resource))
 		}
 		if warning != nil {
@@ -168,7 +168,7 @@ func splitTersePairs(line string) []string {
 }
 
 // parseTerseKeyValue parses a single key=value pair.
-func parseTerseKeyValue(pair string) (key string, value string, ok bool) {
+func parseTerseKeyValue(pair string) (key, value string, ok bool) {
 	idx := strings.Index(pair, "=")
 	if idx <= 0 {
 		return "", "", false
@@ -181,6 +181,7 @@ func parseTerseKeyValue(pair string) (key string, value string, ok bool) {
 	if len(value) >= 2 {
 		if (value[0] == '"' && value[len(value)-1] == '"') ||
 			(value[0] == '\'' && value[len(value)-1] == '\'') {
+
 			value = value[1 : len(value)-1]
 		}
 	}

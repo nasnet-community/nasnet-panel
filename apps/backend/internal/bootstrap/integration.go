@@ -1,0 +1,95 @@
+package bootstrap
+
+import (
+	"log"
+
+	"github.com/rs/zerolog"
+	"go.uber.org/zap"
+
+	"backend/generated/ent"
+	"backend/internal/config"
+	"backend/internal/credentials"
+	"backend/internal/encryption"
+	"backend/internal/events"
+	"backend/internal/features"
+	"backend/internal/features/sharing"
+	"backend/internal/network"
+	"backend/internal/notifications"
+	"backend/internal/router"
+	"backend/internal/services/integration"
+	"backend/internal/storage"
+)
+
+// IntegrationComponents holds all initialized integration service components.
+type IntegrationComponents struct {
+	WebhookService    *integration.WebhookService
+	SharingService    *sharing.Service
+	ConfigService     *config.Service
+	CredentialService *credentials.Service
+}
+
+// InitializeIntegrationServices creates and initializes integration services.
+// This includes:
+// - Webhook service (webhook CRUD with encryption and SSRF protection)
+// - Sharing service (service configuration export/import)
+// - Config service (configuration generation and management)
+func InitializeIntegrationServices(
+	systemDB *ent.Client,
+	eventBus events.EventBus,
+	encryptionService *encryption.Service,
+	dispatcher *notifications.Dispatcher,
+	routerPort *router.MockAdapter,
+	featureRegistry *features.FeatureRegistry,
+	configRegistry *config.Registry,
+	pathResolver storage.PathResolverPort,
+	portRegistry *network.PortRegistry,
+	vlanAllocator *network.VLANAllocator,
+	logger zerolog.Logger,
+	zapLogger *zap.SugaredLogger,
+) (*IntegrationComponents, error) {
+	// 1. Webhook Service - webhook CRUD with encryption
+	webhookService := integration.NewWebhookService(integration.WebhookServiceConfig{
+		DB:         systemDB,
+		Encryption: encryptionService,
+		Dispatcher: dispatcher,
+		EventBus:   eventBus,
+		Logger:     zapLogger,
+	})
+	log.Printf("Webhook service initialized (AES-256-GCM encryption + SSRF protection)")
+
+	// 2. Sharing Service - service configuration export/import
+	// Note: AuditService is optional (nil for now)
+	// Note: SharingService expects its own FeatureRegistry type, not features.FeatureRegistry
+	// For now, skip this service until we create the proper adapter
+	var sharingService *sharing.Service
+	log.Printf("Sharing service: deferred (requires FeatureRegistry adapter)")
+
+	// 3. Config Service - configuration generation and management
+	configService, err := config.NewService(config.Config{
+		Registry:      configRegistry,
+		Store:         systemDB,
+		EventBus:      eventBus,
+		PathResolver:  pathResolver,
+		PortRegistry:  portRegistry,
+		VLANAllocator: vlanAllocator,
+		Logger:        logger,
+	})
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Config service initialized (validate → generate → write → publish)")
+
+	// 4. Credential Service - initialize here since we have encryption service
+	credentialService, err := credentials.NewService(encryptionService)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Credential service initialized (encrypted storage)")
+
+	return &IntegrationComponents{
+		WebhookService:    webhookService,
+		SharingService:    sharingService,
+		ConfigService:     configService,
+		CredentialService: credentialService,
+	}, nil
+}

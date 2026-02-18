@@ -1,9 +1,11 @@
-import { Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { ApolloProvider } from '@nasnet/api-client/core';
-import { ThemeProvider } from './ThemeProvider';
-import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
 import { I18nProvider, DirectionProvider } from '@nasnet/core/i18n';
+import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
+
+import { ThemeProvider } from './ThemeProvider';
+
 
 const queryClient = new QueryClient();
 

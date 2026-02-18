@@ -11,9 +11,11 @@
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-12-implement-port-knocking.md
  */
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useCallback, useMemo } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
 import {
   PortKnockSequenceSchema,
   type PortKnockSequenceInput,
@@ -268,6 +270,6 @@ export function usePortKnockSequenceForm(
     reorderKnockPorts,
     preview,
     isLockoutRisk,
-    onSubmit: handleSubmit,
+    onSubmit: handleSubmit as any,
   };
 }

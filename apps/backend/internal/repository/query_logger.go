@@ -147,48 +147,48 @@ func (ql *QueryLogger) LogQuery(query string, args []interface{}, duration time.
 //	}
 var QueryBaselines = struct {
 	// RouterRepository
-	RouterGetWithRelations    int
+	RouterGetWithRelations     int
 	RouterListWithCapabilities int
-	RouterCreateWithSecrets   int
-	RouterUpdateStatus        int
-	RouterDelete              int
-	RouterGetByHost           int
+	RouterCreateWithSecrets    int
+	RouterUpdateStatus         int
+	RouterDelete               int
+	RouterGetByHost            int
 
 	// UserRepository
-	UserCreate           int
-	UserGetByUsername    int
-	UserGetByID          int
-	UserGetWithSessions  int
-	UserUpdatePassword   int
-	UserVerifyPassword   int
-	UserUpdateLastLogin  int
+	UserCreate          int
+	UserGetByUsername   int
+	UserGetByID         int
+	UserGetWithSessions int
+	UserUpdatePassword  int
+	UserVerifyPassword  int
+	UserUpdateLastLogin int
 
 	// FeatureRepository
-	FeatureGet                int
+	FeatureGet                 int
 	FeatureGetWithDependencies int
-	FeatureList               int
+	FeatureList                int
 }{
 	// RouterRepository baselines
-	RouterGetWithRelations:    1, // Single query with eager loading (WithSecrets)
+	RouterGetWithRelations:     1, // Single query with eager loading (WithSecrets)
 	RouterListWithCapabilities: 1, // Single query with eager loading
-	RouterCreateWithSecrets:   2, // INSERT router + INSERT secret (within transaction)
-	RouterUpdateStatus:        2, // SELECT router (for previous status) + UPDATE
-	RouterDelete:              2, // DELETE secrets + DELETE router (within transaction)
-	RouterGetByHost:           1, // Single query
+	RouterCreateWithSecrets:    2, // INSERT router + INSERT secret (within transaction)
+	RouterUpdateStatus:         2, // SELECT router (for previous status) + UPDATE
+	RouterDelete:               2, // DELETE secrets + DELETE router (within transaction)
+	RouterGetByHost:            1, // Single query
 
 	// UserRepository baselines
-	UserCreate:           2, // SELECT exists + INSERT (could be optimized with upsert)
-	UserGetByUsername:    1, // Single query
-	UserGetByID:          1, // Single query
-	UserGetWithSessions:  1, // Single query with eager loading
-	UserUpdatePassword:   2, // SELECT exists + UPDATE
-	UserVerifyPassword:   1, // Single query
-	UserUpdateLastLogin:  1, // Single UPDATE
+	UserCreate:          2, // SELECT exists + INSERT (could be optimized with upsert)
+	UserGetByUsername:   1, // Single query
+	UserGetByID:         1, // Single query
+	UserGetWithSessions: 1, // Single query with eager loading
+	UserUpdatePassword:  2, // SELECT exists + UPDATE
+	UserVerifyPassword:  1, // Single query
+	UserUpdateLastLogin: 1, // Single UPDATE
 
 	// FeatureRepository baselines
-	FeatureGet:                1, // Single query
+	FeatureGet:                 1, // Single query
 	FeatureGetWithDependencies: 1, // Single query (will increase with proper deps in Epic 8)
-	FeatureList:               1, // Single query
+	FeatureList:                1, // Single query
 }
 
 // =============================================================================

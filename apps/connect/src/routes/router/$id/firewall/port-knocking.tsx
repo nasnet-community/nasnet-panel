@@ -7,10 +7,12 @@
  * @see NAS-7.12: Implement Port Knocking - Task 5
  */
 
+import { lazy } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { lazy } from 'react';
 
 // Lazy-load the PortKnockingPage component
 const LazyPortKnockingPage = lazy(() =>

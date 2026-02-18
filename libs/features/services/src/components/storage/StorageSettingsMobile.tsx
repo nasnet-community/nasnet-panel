@@ -133,7 +133,7 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
             <Badge
               variant={
                 isStorageDisconnected
-                  ? 'destructive'
+                  ? 'error'
                   : isStorageConfigured
                   ? 'default'
                   : 'secondary'

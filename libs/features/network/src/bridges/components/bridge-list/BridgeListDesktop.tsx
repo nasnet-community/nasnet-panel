@@ -48,9 +48,8 @@ export function BridgeListDesktop({
   const columns = useMemo<DataTableColumn<Bridge>[]>(
     () => [
       {
-        id: 'name',
+        key: 'name',
         header: 'Name',
-        accessorKey: 'name',
         cell: (bridge) => (
           <div className="flex flex-col gap-1">
             <span className="font-medium">{bridge.name}</span>
@@ -63,11 +62,11 @@ export function BridgeListDesktop({
         ),
       },
       {
-        id: 'ports',
+        key: 'ports',
         header: 'Ports',
         cell: (bridge) => {
           const portCount = bridge.ports?.length || 0;
-          const portNames = bridge.ports?.slice(0, 3).map((p) => p.interfaceName).join(', ');
+          const portNames = bridge.ports?.slice(0, 3).map((p) => p.interface.name).join(', ');
           const remaining = portCount - 3;
 
           return (
@@ -84,48 +83,46 @@ export function BridgeListDesktop({
         },
       },
       {
-        id: 'protocol',
+        key: 'protocol',
         header: 'STP Protocol',
-        accessorKey: 'protocol',
         cell: (bridge) => {
-          const protocol = bridge.protocol || 'none';
+          const protocol = bridge.protocol;
           const variant =
-            protocol === 'none'
-              ? 'muted'
-              : protocol === 'rstp'
+            protocol === 'NONE'
+              ? 'secondary'
+              : protocol === 'RSTP'
               ? 'success'
               : 'info';
 
           return (
             <Badge variant={variant}>
-              {protocol.toUpperCase()}
+              {protocol}
             </Badge>
           );
         },
       },
       {
-        id: 'vlan-filtering',
+        key: 'vlan-filtering',
         header: 'VLAN Filtering',
         cell: (bridge) => (
-          <Badge variant={bridge.vlanFiltering ? 'info' : 'muted'}>
+          <Badge variant={bridge.vlanFiltering ? 'info' : 'secondary'}>
             {bridge.vlanFiltering ? 'Enabled' : 'Disabled'}
           </Badge>
         ),
       },
       {
-        id: 'mac-address',
+        key: 'mac-address',
         header: 'MAC Address',
-        accessorKey: 'macAddress',
         cell: (bridge) => (
           <code className="text-xs font-mono">{bridge.macAddress}</code>
         ),
       },
       {
-        id: 'status',
+        key: 'status',
         header: 'Status',
         cell: (bridge) => {
           if (bridge.disabled) {
-            return <Badge variant="muted">Disabled</Badge>;
+            return <Badge variant="secondary">Disabled</Badge>;
           }
           return bridge.running ? (
             <Badge variant="success">Running</Badge>
@@ -146,7 +143,7 @@ export function BridgeListDesktop({
 
   const confirmDelete = async () => {
     if (bridgeToDelete) {
-      await handleDelete(bridgeToDelete.uuid);
+      await handleDelete(bridgeToDelete.id);
       setDeleteConfirmOpen(false);
       setBridgeToDelete(null);
     }
@@ -225,20 +222,12 @@ export function BridgeListDesktop({
       </DataTableToolbar>
 
       {/* Table */}
-      <DataTable
-        columns={columns}
-        data={bridges}
-        loading={loading}
-        error={error}
-        selectedIds={selectedIds}
-        onSelectRow={(row) => toggleSelection(row.uuid)}
-        onSelectAll={selectAll}
-        onClearSelection={clearSelection}
-        onRowClick={(row) => setSelectedBridgeId(row.uuid)}
-        onRefresh={refetch}
+      <DataTable<Bridge & Record<string, unknown>>
+        columns={columns as DataTableColumn<Bridge & Record<string, unknown>>[]}
+        data={bridges as (Bridge & Record<string, unknown>)[]}
+        isLoading={loading}
         emptyMessage="No bridges configured"
-        emptyDescription="Create a bridge to connect multiple interfaces"
-        aria-label="Bridge list"
+        onRowClick={(row) => setSelectedBridgeId(row.id)}
       />
 
       {/* Delete Confirmation */}
@@ -247,8 +236,6 @@ export function BridgeListDesktop({
           open={deleteConfirmOpen}
           onOpenChange={setDeleteConfirmOpen}
           title={`Delete Bridge "${bridgeToDelete.name}"?`}
-          severity="error"
-          urgency="critical"
           description="Deleting this bridge will disconnect all ports and may disrupt network connectivity."
           consequences={[
             `${bridgeToDelete.ports?.length || 0} ports will be released`,
@@ -256,7 +243,7 @@ export function BridgeListDesktop({
               ? `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
               : undefined,
           ].filter(Boolean) as string[]}
-          confirmWord="DELETE"
+          confirmText="DELETE"
           onConfirm={confirmDelete}
           onCancel={() => {
             setDeleteConfirmOpen(false);

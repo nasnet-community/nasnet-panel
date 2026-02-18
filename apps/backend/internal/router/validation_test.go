@@ -244,10 +244,10 @@ func TestAddRouterInputValidator_Validate(t *testing.T) {
 		invalidPort := -1
 
 		errs := validator.Validate(AddRouterInputData{
-			Host:     "",         // Invalid
+			Host:     "",           // Invalid
 			Port:     &invalidPort, // Invalid
-			Username: "",         // Invalid
-			Password: "",         // Invalid
+			Username: "",           // Invalid
+			Password: "",           // Invalid
 		})
 
 		assert.True(t, errs.HasErrors())

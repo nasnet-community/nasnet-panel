@@ -4,11 +4,26 @@
  * Import official types from @nasnet/core/types and add form-specific types.
  */
 
-// Import official type from core
-import type { ConnectionTrackingSettings } from '@nasnet/core/types';
-
-// Re-export for convenience
-export type { ConnectionTrackingSettings };
+/**
+ * Connection tracking settings (matches MikroTik's /ip/firewall/connection/tracking)
+ */
+export interface ConnectionTrackingSettings {
+  enabled: boolean;
+  maxEntries: number;
+  genericTimeout: number;
+  tcpEstablishedTimeout: number;
+  tcpTimeWaitTimeout: number;
+  tcpCloseTimeout: number;
+  tcpSynSentTimeout: number;
+  tcpSynReceivedTimeout: number;
+  tcpFinWaitTimeout: number;
+  tcpCloseWaitTimeout: number;
+  tcpLastAckTimeout: number;
+  udpTimeout: number;
+  udpStreamTimeout: number;
+  icmpTimeout: number;
+  looseTracking: boolean;
+}
 
 /**
  * Form values for connection tracking settings

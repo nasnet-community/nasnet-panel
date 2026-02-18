@@ -11,10 +11,11 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { VerificationBadgeProps } from './verification-badge.types';
 import { useVerificationBadge } from './use-verification-badge';
 import { VerificationBadgeDesktop } from './VerificationBadge.Desktop';
 import { VerificationBadgeMobile } from './VerificationBadge.Mobile';
+
+import type { VerificationBadgeProps } from './verification-badge.types';
 
 /**
  * Verification Badge Component

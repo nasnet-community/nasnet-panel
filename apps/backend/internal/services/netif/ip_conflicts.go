@@ -10,12 +10,15 @@ import (
 )
 
 // CheckConflict checks for IP address conflicts.
+//
+//nolint:gocyclo // dependency analysis inherently complex
 func (s *IPAddressService) CheckConflict(
 	ctx context.Context,
 	routerID, address string,
 	interfaceName *string,
 	excludeID *string,
 ) (*ConflictResult, error) {
+
 	ip, network, err := net.ParseCIDR(address)
 	if err != nil {
 		return nil, fmt.Errorf("invalid CIDR: %w", err)
@@ -99,10 +102,13 @@ func (s *IPAddressService) CheckConflict(
 }
 
 // GetDependencies checks what depends on an IP address.
+//
+//nolint:gocyclo // dependency analysis inherently complex
 func (s *IPAddressService) GetDependencies(
 	ctx context.Context,
 	routerID, ipID string,
 ) (*DependencyResult, error) {
+
 	ipAddr, err := s.GetIPAddress(ctx, routerID, ipID)
 	if err != nil {
 		return nil, err
@@ -162,7 +168,7 @@ func (s *IPAddressService) GetDependencies(
 	return result, nil
 }
 
-func (s *IPAddressService) fetchDHCPServers(ctx context.Context, routerID string) ([]DHCPServerInfo, error) {
+func (s *IPAddressService) fetchDHCPServers(ctx context.Context, _routerID string) ([]DHCPServerInfo, error) {
 	cmd := router.Command{
 		Path:   "/ip/dhcp-server/network",
 		Action: "print",
@@ -178,13 +184,13 @@ func (s *IPAddressService) fetchDHCPServers(ctx context.Context, routerID string
 			Name:      data["name"],
 			Interface: data["interface"],
 			Gateway:   data["gateway"],
-			Disabled:  data["disabled"] == "true",
+			Disabled:  data["disabled"] == trueValue,
 		})
 	}
 	return servers, nil
 }
 
-func (s *IPAddressService) fetchRoutes(ctx context.Context, routerID string) ([]RouteInfo, error) {
+func (s *IPAddressService) fetchRoutes(ctx context.Context, _routerID string) ([]RouteInfo, error) {
 	cmd := router.Command{
 		Path:   "/ip/route",
 		Action: "print",
@@ -200,13 +206,13 @@ func (s *IPAddressService) fetchRoutes(ctx context.Context, routerID string) ([]
 			Destination: data["dst-address"],
 			Gateway:     data["gateway"],
 			Interface:   data["interface"],
-			Active:      data["active"] == "true",
+			Active:      data["active"] == trueValue,
 		})
 	}
 	return routes, nil
 }
 
-func (s *IPAddressService) fetchNATRules(ctx context.Context, routerID string) ([]NATRuleInfo, error) {
+func (s *IPAddressService) fetchNATRules(ctx context.Context, _routerID string) ([]NATRuleInfo, error) {
 	cmd := router.Command{
 		Path:   "/ip/firewall/nat",
 		Action: "print",
@@ -224,13 +230,13 @@ func (s *IPAddressService) fetchNATRules(ctx context.Context, routerID string) (
 			SrcAddress: data["src-address"],
 			DstAddress: data["dst-address"],
 			ToAddress:  data["to-address"],
-			Disabled:   data["disabled"] == "true",
+			Disabled:   data["disabled"] == trueValue,
 		})
 	}
 	return rules, nil
 }
 
-func (s *IPAddressService) fetchFirewallRules(ctx context.Context, routerID string) ([]FirewallRuleInfo, error) {
+func (s *IPAddressService) fetchFirewallRules(ctx context.Context, _routerID string) ([]FirewallRuleInfo, error) {
 	cmd := router.Command{
 		Path:   "/ip/firewall/filter",
 		Action: "print",
@@ -249,7 +255,7 @@ func (s *IPAddressService) fetchFirewallRules(ctx context.Context, routerID stri
 			DstAddress:   data["dst-address"],
 			InInterface:  data["in-interface"],
 			OutInterface: data["out-interface"],
-			Disabled:     data["disabled"] == "true",
+			Disabled:     data["disabled"] == trueValue,
 		})
 	}
 	return rules, nil

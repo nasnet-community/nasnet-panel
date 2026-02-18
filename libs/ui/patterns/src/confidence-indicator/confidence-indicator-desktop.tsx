@@ -18,12 +18,13 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
 import {
   ConfidenceIndicatorBase,
   ConfidenceLevelLabel,
 } from './confidence-indicator-base';
 import { ConfidenceTooltipCompact } from './confidence-tooltip';
+
+import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
 
 /**
  * Desktop Presenter for Confidence Indicator

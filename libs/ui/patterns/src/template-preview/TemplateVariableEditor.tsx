@@ -5,8 +5,8 @@
  * Integrates with React Hook Form.
  */
 
-import * as React from 'react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+
+import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import {
   Input,
@@ -143,7 +143,7 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
                 <SelectValue placeholder={getPlaceholder(variable)} />
               </SelectTrigger>
               <SelectContent>
-                {variable.options.map((option) => (
+                {variable.options?.map((option: string) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>

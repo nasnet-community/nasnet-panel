@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -14,7 +15,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // SQLite driver for database/sql
 )
 
 const (
@@ -28,9 +29,9 @@ const (
 	SystemDBFile = "system.db"
 )
 
-// DatabaseManager manages the hybrid database architecture with a single system.db
+// Manager manages the hybrid database architecture with a single system.db
 // for fleet coordination and lazy-loaded router-{id}.db files for per-router isolation.
-type DatabaseManager struct {
+type Manager struct {
 	// systemClient is the ent client for system.db (always open)
 	systemClient *ent.Client
 
@@ -64,27 +65,27 @@ type routerDBEntry struct {
 	lastUsed time.Time
 }
 
-// ManagerOption configures a DatabaseManager.
-type ManagerOption func(*DatabaseManager)
+// ManagerOption configures a Manager.
+type ManagerOption func(*Manager)
 
 // WithIdleTimeout sets the idle timeout for router databases.
 func WithIdleTimeout(d time.Duration) ManagerOption {
-	return func(dm *DatabaseManager) {
+	return func(dm *Manager) {
 		dm.idleTimeout = d
 	}
 }
 
 // WithDataDir sets the data directory for database files.
 func WithDataDir(dir string) ManagerOption {
-	return func(dm *DatabaseManager) {
+	return func(dm *Manager) {
 		dm.dataDir = dir
 	}
 }
 
-// NewManager creates a new DatabaseManager with the given options.
+// NewManager creates a new Manager with the given options.
 // It opens the system database and runs integrity checks.
-func NewManager(ctx context.Context, opts ...ManagerOption) (*DatabaseManager, error) {
-	dm := &DatabaseManager{
+func NewManager(ctx context.Context, opts ...ManagerOption) (*Manager, error) {
+	dm := &Manager{
 		routerDBs:   make(map[string]*routerDBEntry),
 		dataDir:     DefaultDataDir,
 		idleTimeout: DefaultIdleTimeout,
@@ -96,8 +97,8 @@ func NewManager(ctx context.Context, opts ...ManagerOption) (*DatabaseManager, e
 	}
 
 	// Ensure data directory exists
-	if err := os.MkdirAll(dm.dataDir, 0755); err != nil {
-		return nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to create data directory", err).
+	if err := os.MkdirAll(dm.dataDir, 0o755); err != nil {
+		return nil, NewError(ErrCodeDBConnectionFailed, "failed to create data directory", err).
 			WithPath(dm.dataDir)
 	}
 
@@ -111,14 +112,14 @@ func NewManager(ctx context.Context, opts ...ManagerOption) (*DatabaseManager, e
 }
 
 // openSystemDB opens the system database with WAL mode and integrity checks.
-func (dm *DatabaseManager) openSystemDB(ctx context.Context, path string) error {
+func (dm *Manager) openSystemDB(ctx context.Context, path string) error {
 	startTime := time.Now()
 
 	// Open with modernc.org/sqlite driver and time format support
 	dsn := fmt.Sprintf("file:%s?_time_format=sqlite", path)
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
-		return NewDatabaseError(ErrCodeDBConnectionFailed, "failed to open system database", err).
+		return NewError(ErrCodeDBConnectionFailed, "failed to open system database", err).
 			WithPath(path)
 	}
 
@@ -138,7 +139,7 @@ func (dm *DatabaseManager) openSystemDB(ctx context.Context, path string) error 
 	for _, pragma := range pragmas {
 		if _, err := db.ExecContext(ctx, pragma); err != nil {
 			db.Close()
-			return NewDatabaseError(ErrCodeDBConnectionFailed, "failed to set PRAGMA", err).
+			return NewError(ErrCodeDBConnectionFailed, "failed to set PRAGMA", err).
 				WithPath(path).
 				WithContext("pragma", pragma)
 		}
@@ -148,12 +149,12 @@ func (dm *DatabaseManager) openSystemDB(ctx context.Context, path string) error 
 	var integrityResult string
 	if err := db.QueryRowContext(ctx, "PRAGMA quick_check").Scan(&integrityResult); err != nil {
 		db.Close()
-		return NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
+		return NewError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
 			WithPath(path)
 	}
 	if integrityResult != "ok" {
 		db.Close()
-		return NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity check failed", nil).
+		return NewError(ErrCodeDBIntegrityFailed, "integrity check failed", nil).
 			WithPath(path).
 			WithContext("result", integrityResult)
 	}
@@ -166,7 +167,7 @@ func (dm *DatabaseManager) openSystemDB(ctx context.Context, path string) error 
 	if err := client.Schema.Create(ctx); err != nil {
 		client.Close()
 		db.Close()
-		return NewDatabaseError(ErrCodeDBMigrationFailed, "schema migration failed", err).
+		return NewError(ErrCodeDBMigrationFailed, "schema migration failed", err).
 			WithPath(path)
 	}
 
@@ -179,28 +180,28 @@ func (dm *DatabaseManager) openSystemDB(ctx context.Context, path string) error 
 
 // SystemDB returns the ent client for the system database.
 // This is always available and never closes during the manager's lifetime.
-func (dm *DatabaseManager) SystemDB() *ent.Client {
+func (dm *Manager) SystemDB() *ent.Client {
 	return dm.systemClient
 }
 
 // SystemDBPath returns the path to the system database file.
-func (dm *DatabaseManager) SystemDBPath() string {
+func (dm *Manager) SystemDBPath() string {
 	return filepath.Join(dm.dataDir, SystemDBFile)
 }
 
 // RouterDBPath returns the path to a router-specific database file.
-func (dm *DatabaseManager) RouterDBPath(routerID string) string {
+func (dm *Manager) RouterDBPath(routerID string) string {
 	return filepath.Join(dm.dataDir, fmt.Sprintf("router-%s.db", routerID))
 }
 
 // GetRouterDB returns the ent client for a router-specific database.
 // The database is lazy-loaded on first access and cached.
 // An idle timeout triggers automatic closure after inactivity.
-func (dm *DatabaseManager) GetRouterDB(ctx context.Context, routerID string) (*ent.Client, error) {
+func (dm *Manager) GetRouterDB(ctx context.Context, routerID string) (*ent.Client, error) {
 	dm.closeMu.RLock()
 	if dm.closed {
 		dm.closeMu.RUnlock()
-		return nil, NewDatabaseError(ErrCodeDBClosed, "database manager is closed", nil)
+		return nil, NewError(ErrCodeDBClosed, "database manager is closed", nil)
 	}
 	dm.closeMu.RUnlock()
 
@@ -247,14 +248,14 @@ func (dm *DatabaseManager) GetRouterDB(ctx context.Context, routerID string) (*e
 }
 
 // openRouterDB opens a router-specific database with WAL mode.
-func (dm *DatabaseManager) openRouterDB(ctx context.Context, path string, routerID string) (*ent.Client, *sql.DB, error) {
+func (dm *Manager) openRouterDB(ctx context.Context, path, routerID string) (*ent.Client, *sql.DB, error) {
 	startTime := time.Now()
 
 	// Open with modernc.org/sqlite driver and time format support
 	dsn := fmt.Sprintf("file:%s?_time_format=sqlite", path)
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
-		return nil, nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to open router database", err).
+		return nil, nil, NewError(ErrCodeDBConnectionFailed, "failed to open router database", err).
 			WithPath(path).
 			WithRouterID(routerID)
 	}
@@ -275,7 +276,7 @@ func (dm *DatabaseManager) openRouterDB(ctx context.Context, path string, router
 	for _, pragma := range pragmas {
 		if _, err := db.ExecContext(ctx, pragma); err != nil {
 			db.Close()
-			return nil, nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to set PRAGMA", err).
+			return nil, nil, NewError(ErrCodeDBConnectionFailed, "failed to set PRAGMA", err).
 				WithPath(path).
 				WithRouterID(routerID).
 				WithContext("pragma", pragma)
@@ -286,7 +287,7 @@ func (dm *DatabaseManager) openRouterDB(ctx context.Context, path string, router
 	var integrityResult string
 	if err := db.QueryRowContext(ctx, "PRAGMA quick_check").Scan(&integrityResult); err != nil {
 		db.Close()
-		return nil, nil, NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
+		return nil, nil, NewError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
 			WithPath(path).
 			WithRouterID(routerID)
 	}
@@ -304,7 +305,7 @@ func (dm *DatabaseManager) openRouterDB(ctx context.Context, path string, router
 	if err := client.Schema.Create(ctx); err != nil {
 		client.Close()
 		db.Close()
-		return nil, nil, NewDatabaseError(ErrCodeDBMigrationFailed, "schema migration failed", err).
+		return nil, nil, NewError(ErrCodeDBMigrationFailed, "schema migration failed", err).
 			WithPath(path).
 			WithRouterID(routerID)
 	}
@@ -314,7 +315,7 @@ func (dm *DatabaseManager) openRouterDB(ctx context.Context, path string, router
 }
 
 // touchActivity resets the idle timer for a router database.
-func (dm *DatabaseManager) touchActivity(routerID string) {
+func (dm *Manager) touchActivity(routerID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
@@ -325,7 +326,7 @@ func (dm *DatabaseManager) touchActivity(routerID string) {
 }
 
 // closeRouterDB closes a router database after idle timeout.
-func (dm *DatabaseManager) closeRouterDB(routerID string) {
+func (dm *Manager) closeRouterDB(routerID string) {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
@@ -343,12 +344,12 @@ func (dm *DatabaseManager) closeRouterDB(routerID string) {
 }
 
 // IsSystemDBOpen returns true if the system database is open.
-func (dm *DatabaseManager) IsSystemDBOpen() bool {
+func (dm *Manager) IsSystemDBOpen() bool {
 	return dm.systemClient != nil
 }
 
 // IsRouterDBLoaded returns true if a router database is currently loaded.
-func (dm *DatabaseManager) IsRouterDBLoaded(routerID string) bool {
+func (dm *Manager) IsRouterDBLoaded(routerID string) bool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	_, exists := dm.routerDBs[routerID]
@@ -356,14 +357,14 @@ func (dm *DatabaseManager) IsRouterDBLoaded(routerID string) bool {
 }
 
 // LoadedRouterCount returns the number of currently loaded router databases.
-func (dm *DatabaseManager) LoadedRouterCount() int {
+func (dm *Manager) LoadedRouterCount() int {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 	return len(dm.routerDBs)
 }
 
 // Close closes all database connections.
-func (dm *DatabaseManager) Close() error {
+func (dm *Manager) Close() error {
 	dm.closeMu.Lock()
 	dm.closed = true
 	dm.closeMu.Unlock()
@@ -398,7 +399,7 @@ func (dm *DatabaseManager) Close() error {
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("errors during close: %v", errs)
+		return errors.Join(errs...)
 	}
 
 	log.Printf("[database] All databases closed")
@@ -407,7 +408,7 @@ func (dm *DatabaseManager) Close() error {
 
 // ForceCloseRouterDB immediately closes a specific router database.
 // This is useful for maintenance operations.
-func (dm *DatabaseManager) ForceCloseRouterDB(routerID string) error {
+func (dm *Manager) ForceCloseRouterDB(routerID string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
@@ -418,11 +419,11 @@ func (dm *DatabaseManager) ForceCloseRouterDB(routerID string) error {
 
 	entry.timer.Stop()
 	if err := entry.client.Close(); err != nil {
-		return NewDatabaseError(ErrCodeDBConnectionFailed, "failed to close router client", err).
+		return NewError(ErrCodeDBConnectionFailed, "failed to close router client", err).
 			WithRouterID(routerID)
 	}
 	if err := entry.db.Close(); err != nil {
-		return NewDatabaseError(ErrCodeDBConnectionFailed, "failed to close router database", err).
+		return NewError(ErrCodeDBConnectionFailed, "failed to close router database", err).
 			WithRouterID(routerID)
 	}
 	delete(dm.routerDBs, routerID)
@@ -433,7 +434,7 @@ func (dm *DatabaseManager) ForceCloseRouterDB(routerID string) error {
 
 // DeleteRouterDB closes and deletes a router's database file.
 // This is used when removing a router from the fleet.
-func (dm *DatabaseManager) DeleteRouterDB(routerID string) error {
+func (dm *Manager) DeleteRouterDB(routerID string) error {
 	// Close if open
 	if err := dm.ForceCloseRouterDB(routerID); err != nil {
 		return err
@@ -442,7 +443,7 @@ func (dm *DatabaseManager) DeleteRouterDB(routerID string) error {
 	// Delete file
 	path := dm.RouterDBPath(routerID)
 	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
-		return NewDatabaseError(ErrCodeDBConnectionFailed, "failed to delete router database file", err).
+		return NewError(ErrCodeDBConnectionFailed, "failed to delete router database file", err).
 			WithPath(path).
 			WithRouterID(routerID)
 	}
@@ -456,7 +457,7 @@ func (dm *DatabaseManager) DeleteRouterDB(routerID string) error {
 }
 
 // GetRouterDBStats returns statistics about a router database.
-func (dm *DatabaseManager) GetRouterDBStats(routerID string) (lastUsed time.Time, loaded bool) {
+func (dm *Manager) GetRouterDBStats(routerID string) (lastUsed time.Time, loaded bool) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 

@@ -16,33 +16,33 @@ export interface PortNodeProps {
  */
 export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNodeProps) {
   // Determine STP role badge variant
-  const getRoleBadgeVariant = (role: string): 'success' | 'info' | 'warning' | 'muted' => {
+  const getRoleBadgeVariant = (role: string): 'success' | 'info' | 'warning' | 'secondary' => {
     switch (role.toLowerCase()) {
       case 'root':
-        return 'success'; // Green for root port
+        return 'success';
       case 'designated':
-        return 'info'; // Blue for designated
+        return 'info';
       case 'alternate':
       case 'backup':
-        return 'warning'; // Amber for alternate/backup
+        return 'warning';
       case 'disabled':
       default:
-        return 'muted'; // Gray for disabled
+        return 'secondary';
     }
   };
 
   // Determine STP state badge variant
-  const getStateBadgeVariant = (state: string): 'success' | 'warning' | 'muted' => {
+  const getStateBadgeVariant = (state: string): 'success' | 'warning' | 'secondary' => {
     switch (state.toLowerCase()) {
       case 'forwarding':
-        return 'success'; // Green for forwarding
+        return 'success';
       case 'blocking':
       case 'listening':
       case 'learning':
-        return 'warning'; // Amber for transitional states
+        return 'warning';
       case 'disabled':
       default:
-        return 'muted'; // Gray for disabled
+        return 'secondary';
     }
   };
 
@@ -50,7 +50,7 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
     <div
       className="group relative flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
       role="listitem"
-      aria-label={`Port ${port.interfaceName}`}
+      aria-label={`Port ${port.interface.name}`}
     >
       {/* Port Icon/Connector */}
       <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -71,7 +71,7 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
       <div className="flex-1 min-w-0">
         {/* Interface Name */}
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-sm truncate">{port.interfaceName}</span>
+          <span className="font-medium text-sm truncate">{port.interface.name}</span>
           {port.edge && (
             <Badge variant="info" className="text-xs">
               Edge
@@ -120,8 +120,8 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          onClick={() => onEdit(port.uuid)}
-          aria-label={`Edit ${port.interfaceName} settings`}
+          onClick={() => onEdit(port.id)}
+          aria-label={`Edit ${port.interface.name} settings`}
         >
           <Settings className="h-4 w-4" />
         </Button>
@@ -129,9 +129,9 @@ export function PortNode({ port, onRemove, onEdit, isRemoving = false }: PortNod
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-destructive hover:text-destructive"
-          onClick={() => onRemove(port.uuid)}
+          onClick={() => onRemove(port.id)}
           disabled={isRemoving}
-          aria-label={`Remove ${port.interfaceName} from bridge`}
+          aria-label={`Remove ${port.interface.name} from bridge`}
         >
           <X className="h-4 w-4" />
         </Button>

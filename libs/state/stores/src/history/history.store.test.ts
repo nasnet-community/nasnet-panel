@@ -6,8 +6,9 @@
  * @see NAS-4.24: Implement Undo/Redo History
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import {
   useHistoryStore,
   MAX_ACTIONS,
@@ -21,6 +22,7 @@ import {
   clearAllHistory,
   clearPageScopedHistory,
 } from './history.store';
+
 import type { UndoableActionInput } from './types';
 
 // Helper to create a test action

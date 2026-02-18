@@ -64,7 +64,7 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* IP Address Input with CIDR */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="address"
               render={({ field }) => (
                 <FormItem>
@@ -147,7 +147,7 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
 
             {/* Interface Selector */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="interfaceId"
               render={({ field }) => (
                 <FormItem>
@@ -189,7 +189,7 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
 
             {/* Comment Field */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="comment"
               render={({ field }) => (
                 <FormItem>
@@ -211,7 +211,7 @@ export function IPAddressFormDesktop(props: IPAddressFormProps) {
 
             {/* Disabled Toggle */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="disabled"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">

@@ -176,7 +176,7 @@ export function VlanTopologyMobile({
                         </div>
 
                         {vlan.disabled ? (
-                          <Badge variant="muted" className="shrink-0">
+                          <Badge variant="secondary" className="shrink-0">
                             Disabled
                           </Badge>
                         ) : vlan.running ? (

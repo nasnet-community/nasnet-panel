@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestParseRouterOSDnsCacheStats(t *testing.T) {
+func TestParseRouterOSCacheStats(t *testing.T) {
 	tests := []struct {
-		name           string
-		input          string
-		expectedMax    int64
-		expectedUsed   int64
+		name            string
+		input           string
+		expectedMax     int64
+		expectedUsed    int64
 		expectedPercent float64
 	}{
 		{
@@ -17,39 +17,39 @@ func TestParseRouterOSDnsCacheStats(t *testing.T) {
 			input: `cache-size: 2048KiB
 cache-used: 1024KiB
 servers: 8.8.8.8`,
-			expectedMax:    2048 * 1024,
-			expectedUsed:   1024 * 1024,
+			expectedMax:     2048 * 1024,
+			expectedUsed:    1024 * 1024,
 			expectedPercent: 50.0,
 		},
 		{
 			name: "Full cache",
 			input: `cache-size: 2048KiB
 cache-used: 2048KiB`,
-			expectedMax:    2048 * 1024,
-			expectedUsed:   2048 * 1024,
+			expectedMax:     2048 * 1024,
+			expectedUsed:    2048 * 1024,
 			expectedPercent: 100.0,
 		},
 		{
 			name: "Empty cache",
 			input: `cache-size: 2048KiB
 cache-used: 0KiB`,
-			expectedMax:    2048 * 1024,
-			expectedUsed:   0,
+			expectedMax:     2048 * 1024,
+			expectedUsed:    0,
 			expectedPercent: 0.0,
 		},
 		{
 			name: "Large cache",
 			input: `cache-size: 10240KiB
 cache-used: 5120KiB`,
-			expectedMax:    10240 * 1024,
-			expectedUsed:   5120 * 1024,
+			expectedMax:     10240 * 1024,
+			expectedUsed:    5120 * 1024,
 			expectedPercent: 50.0,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stats := parseRouterOSDnsCacheStats(tt.input)
+			stats := parseRouterOSCacheStats(tt.input)
 
 			if stats.CacheMaxBytes != tt.expectedMax {
 				t.Errorf("CacheMaxBytes: expected %d, got %d", tt.expectedMax, stats.CacheMaxBytes)
@@ -74,12 +74,12 @@ cache-used: 5120KiB`,
 func TestSortBenchmarkResults(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    []DnsBenchmarkServerResult
+		input    []BenchmarkServerResult
 		expected []string // Expected server order
 	}{
 		{
 			name: "All reachable, sorted by response time",
-			input: []DnsBenchmarkServerResult{
+			input: []BenchmarkServerResult{
 				{Server: "8.8.8.8", ResponseTimeMs: 50, Success: true},
 				{Server: "1.1.1.1", ResponseTimeMs: 20, Success: true},
 				{Server: "9.9.9.9", ResponseTimeMs: 100, Success: true},
@@ -88,7 +88,7 @@ func TestSortBenchmarkResults(t *testing.T) {
 		},
 		{
 			name: "Mix of reachable and unreachable",
-			input: []DnsBenchmarkServerResult{
+			input: []BenchmarkServerResult{
 				{Server: "8.8.8.8", ResponseTimeMs: 50, Success: true},
 				{Server: "1.2.3.4", ResponseTimeMs: -1, Success: false},
 				{Server: "1.1.1.1", ResponseTimeMs: 20, Success: true},
@@ -97,7 +97,7 @@ func TestSortBenchmarkResults(t *testing.T) {
 		},
 		{
 			name: "All unreachable",
-			input: []DnsBenchmarkServerResult{
+			input: []BenchmarkServerResult{
 				{Server: "1.2.3.4", ResponseTimeMs: -1, Success: false},
 				{Server: "5.6.7.8", ResponseTimeMs: -1, Success: false},
 			},
@@ -107,7 +107,7 @@ func TestSortBenchmarkResults(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			results := make([]DnsBenchmarkServerResult, len(tt.input))
+			results := make([]BenchmarkServerResult, len(tt.input))
 			copy(results, tt.input)
 
 			sortBenchmarkResults(results)
@@ -121,7 +121,7 @@ func TestSortBenchmarkResults(t *testing.T) {
 	}
 }
 
-func TestParseRouterOSDnsServers_Detailed(t *testing.T) {
+func TestParseRouterOSServers_Detailed(t *testing.T) {
 	tests := []struct {
 		name              string
 		input             string
@@ -160,7 +160,7 @@ func TestParseRouterOSDnsServers_Detailed(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			servers := parseRouterOSDnsServers(tt.input)
+			servers := parseRouterOSServers(tt.input)
 
 			if servers.Primary != tt.expectedPrimary {
 				t.Errorf("Primary: expected %s, got %s", tt.expectedPrimary, servers.Primary)

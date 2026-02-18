@@ -1,0 +1,44 @@
+# Build artifacts
+*.exe
+*.test
+*.dll
+*.so
+*.dylib
+
+# Test coverage
+*.out
+coverage.txt
+cover.html
+
+# Build logs
+*-errors.txt
+*-output.log
+codegen-output.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+nul
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Air hot-reload temp
+tmp-main
+
+# Go workspace
+go.work
+go.work.sum

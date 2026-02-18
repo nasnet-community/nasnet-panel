@@ -162,7 +162,6 @@ export function useVirtualList<T>(options: UseVirtualListOptions<T>): UseVirtual
     overscan: isVirtualized ? overscan : items.length, // Render all if not virtualized
     horizontal,
     initialOffset,
-    scrollBehavior: smoothScroll ? 'smooth' : 'auto',
     getItemKey: getItemKeyFn,
     onChange: (instance) => {
       if (onScroll) {

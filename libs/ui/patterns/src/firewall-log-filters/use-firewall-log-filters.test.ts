@@ -13,9 +13,11 @@
  * @see NAS-7.9: Implement Firewall Logging
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
 import { useFirewallLogFilters } from './use-firewall-log-filters';
+
 import type { FirewallLogFilterState } from './firewall-log-filters.types';
 
 describe('useFirewallLogFilters', () => {

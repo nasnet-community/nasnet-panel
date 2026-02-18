@@ -243,12 +243,12 @@ func Test_StorageDetector_EmitsEventsOnTransition(t *testing.T) {
 // Test_PathResolver_FlashStorage verifies flash storage path resolution.
 func Test_PathResolver_FlashStorage(t *testing.T) {
 	tests := []struct {
-		name           string
-		serviceName    string
-		pathType       string
-		expectedPath   string
-		expectedRoot   string
-		alwaysFlash    bool // Some paths MUST always use flash
+		name         string
+		serviceName  string
+		pathType     string
+		expectedPath string
+		expectedRoot string
+		alwaysFlash  bool // Some paths MUST always use flash
 	}{
 		{
 			name:         "binary path on flash (external disabled)",

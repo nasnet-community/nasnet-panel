@@ -9,14 +9,13 @@
  */
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { gql } from '@apollo/client';
 import { apolloClient } from '@nasnet/api-client/core';
 import type {
   RoutingSchedule,
   CreateScheduleInput,
   UpdateScheduleInput,
-  Query,
-  Mutation,
-} from '../../generated/types';
+} from '@nasnet/api-client/generated';
 
 // =============================================================================
 // Types
@@ -70,7 +69,7 @@ export interface RoutingScheduleVariables {
 /**
  * Query to fetch all schedules for a device routing
  */
-const GET_ROUTING_SCHEDULES = `
+const GET_ROUTING_SCHEDULES = gql`
   query GetRoutingSchedules($routerID: ID!, $routingID: ID!) {
     routingSchedules(routerID: $routerID, routingID: $routingID) {
       id
@@ -91,7 +90,7 @@ const GET_ROUTING_SCHEDULES = `
 /**
  * Query to fetch a single schedule by ID
  */
-const GET_ROUTING_SCHEDULE = `
+const GET_ROUTING_SCHEDULE = gql`
   query GetRoutingSchedule($routerID: ID!, $scheduleID: ID!) {
     routingSchedule(routerID: $routerID, scheduleID: $scheduleID) {
       id
@@ -112,7 +111,7 @@ const GET_ROUTING_SCHEDULE = `
 /**
  * Mutation to create a new schedule
  */
-const CREATE_SCHEDULE = `
+const CREATE_SCHEDULE = gql`
   mutation CreateSchedule($routerID: ID!, $input: CreateScheduleInput!) {
     createSchedule(routerID: $routerID, input: $input) {
       id
@@ -133,7 +132,7 @@ const CREATE_SCHEDULE = `
 /**
  * Mutation to update an existing schedule
  */
-const UPDATE_SCHEDULE = `
+const UPDATE_SCHEDULE = gql`
   mutation UpdateSchedule($routerID: ID!, $scheduleID: ID!, $input: UpdateScheduleInput!) {
     updateSchedule(routerID: $routerID, scheduleID: $scheduleID, input: $input) {
       id
@@ -154,7 +153,7 @@ const UPDATE_SCHEDULE = `
 /**
  * Mutation to delete a schedule
  */
-const DELETE_SCHEDULE = `
+const DELETE_SCHEDULE = gql`
   mutation DeleteSchedule($routerID: ID!, $scheduleID: ID!) {
     deleteSchedule(routerID: $routerID, scheduleID: $scheduleID)
   }
@@ -188,13 +187,13 @@ async function fetchRoutingSchedules(
   routerID: string,
   routingID: string
 ): Promise<RoutingSchedule[]> {
-  const { data } = await apolloClient.query<Query>({
+  const { data } = await apolloClient.query({
     query: GET_ROUTING_SCHEDULES,
     variables: { routerID, routingID },
     fetchPolicy: 'network-only',
   });
 
-  return data.routingSchedules;
+  return data.routingSchedules as RoutingSchedule[];
 }
 
 /**
@@ -204,20 +203,20 @@ async function fetchRoutingSchedule(
   routerID: string,
   scheduleID: string
 ): Promise<RoutingSchedule | null> {
-  const { data } = await apolloClient.query<Query>({
+  const { data } = await apolloClient.query({
     query: GET_ROUTING_SCHEDULE,
     variables: { routerID, scheduleID },
     fetchPolicy: 'network-only',
   });
 
-  return data.routingSchedule || null;
+  return (data.routingSchedule as RoutingSchedule) || null;
 }
 
 /**
  * Create a new routing schedule
  */
 async function createSchedule(variables: CreateScheduleVariables): Promise<RoutingSchedule> {
-  const { data } = await apolloClient.mutate<Mutation>({
+  const { data } = await apolloClient.mutate({
     mutation: CREATE_SCHEDULE,
     variables,
   });
@@ -226,14 +225,14 @@ async function createSchedule(variables: CreateScheduleVariables): Promise<Routi
     throw new Error('Failed to create schedule');
   }
 
-  return data.createSchedule;
+  return data.createSchedule as RoutingSchedule;
 }
 
 /**
  * Update an existing routing schedule
  */
 async function updateSchedule(variables: UpdateScheduleVariables): Promise<RoutingSchedule> {
-  const { data } = await apolloClient.mutate<Mutation>({
+  const { data } = await apolloClient.mutate({
     mutation: UPDATE_SCHEDULE,
     variables,
   });
@@ -242,19 +241,19 @@ async function updateSchedule(variables: UpdateScheduleVariables): Promise<Routi
     throw new Error('Failed to update schedule');
   }
 
-  return data.updateSchedule;
+  return data.updateSchedule as RoutingSchedule;
 }
 
 /**
  * Delete a routing schedule
  */
 async function deleteSchedule(variables: DeleteScheduleVariables): Promise<boolean> {
-  const { data } = await apolloClient.mutate<Mutation>({
+  const { data } = await apolloClient.mutate({
     mutation: DELETE_SCHEDULE,
     variables,
   });
 
-  return data?.deleteSchedule ?? false;
+  return (data?.deleteSchedule as boolean) ?? false;
 }
 
 // =============================================================================
@@ -378,11 +377,11 @@ export function useUpdateSchedule() {
       // Optimistically update all schedule queries that contain this schedule
       previousSchedules.forEach(([queryKey, schedules]) => {
         if (schedules) {
-          queryClient.setQueryData<RoutingSchedule[]>(
+          queryClient.setQueryData(
             queryKey,
             schedules.map((schedule) =>
               schedule.id === scheduleID
-                ? { ...schedule, ...input, updatedAt: new Date().toISOString() }
+                ? { ...schedule, ...input, updatedAt: new Date().toISOString() } as any
                 : schedule
             )
           );
@@ -394,9 +393,9 @@ export function useUpdateSchedule() {
         scheduleKeys.byId(routerID, scheduleID)
       );
       if (previousSchedule) {
-        queryClient.setQueryData<RoutingSchedule>(
+        queryClient.setQueryData(
           scheduleKeys.byId(routerID, scheduleID),
-          { ...previousSchedule, ...input, updatedAt: new Date().toISOString() }
+          { ...previousSchedule, ...input, updatedAt: new Date().toISOString() } as any
         );
       }
 

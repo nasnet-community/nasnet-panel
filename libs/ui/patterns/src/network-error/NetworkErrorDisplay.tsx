@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+
 import {
   WifiOff,
   Wifi,
@@ -21,7 +22,9 @@ import {
   Clock,
   CheckCircle,
 } from 'lucide-react';
+
 import { cn, Button, Card, CardContent } from '@nasnet/ui/primitives';
+
 import { useNetworkStatus } from '../offline-indicator';
 
 /**

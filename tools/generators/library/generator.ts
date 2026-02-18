@@ -1,12 +1,13 @@
+import * as path from 'path';
+
 import {
-  Tree,
+  type Tree,
   formatFiles,
   generateFiles,
   names,
   updateJson,
   joinPathFragments,
 } from '@nx/devkit';
-import * as path from 'path';
 
 export interface LibraryGeneratorSchema {
   name: string;

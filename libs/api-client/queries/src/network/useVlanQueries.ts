@@ -47,6 +47,7 @@ export function useVlans(
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [subData, loading, subError, refetch]);
 
   // Extract VLANs from response

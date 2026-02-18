@@ -1,4 +1,4 @@
-import { usePlatform } from '@nasnet/ui/patterns';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { ServiceConfigFormMobile } from './ServiceConfigFormMobile';
 import { ServiceConfigFormDesktop } from './ServiceConfigFormDesktop';
 import type { UseServiceConfigFormReturn } from '../../hooks/useServiceConfigForm';

@@ -316,10 +316,10 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
   // Refs
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const rangeStartRef = useRef<HTMLInputElement | null>(null);
-  const rangeEndRef = useRef<HTMLInputElement | null>(null);
-  const suggestionsRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const rangeStartRef = useRef<HTMLInputElement>(null);
+  const rangeEndRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // Determine current input value

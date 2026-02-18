@@ -7,10 +7,12 @@
  * @see NAS-7.X: Implement RAW Firewall Rules - Phase B - Task 12
  */
 
+import { lazy } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { lazy } from 'react';
 
 // Lazy-load the RawPage component
 const LazyRawPage = lazy(() =>

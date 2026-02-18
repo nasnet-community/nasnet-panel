@@ -13,10 +13,10 @@ type XrayGenerator struct {
 
 // NewXrayGenerator creates a new Xray config generator.
 func NewXrayGenerator() *XrayGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "xray",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "protocol",
 				Type:        "enum",
@@ -92,14 +92,18 @@ func (g *XrayGenerator) Generate(instanceID string, config map[string]interface{
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
+	//nolint:errcheck // type assertion uses zero value default
 	protocol, _ := config["protocol"].(string)
 	port := getIntValue(config, "port", 10443)
+	//nolint:errcheck // type assertion uses zero value default
 	uuid, _ := config["uuid"].(string)
+	//nolint:errcheck // type assertion uses zero value default
 	tlsEnabled, _ := config["tls_enabled"].(bool)
+	//nolint:errcheck // type assertion uses zero value default
 	logLevel, _ := config["log_level"].(string)
 
 	// Build inbound settings based on protocol
@@ -114,8 +118,8 @@ func (g *XrayGenerator) Generate(instanceID string, config map[string]interface{
 	// Build TLS configuration if enabled
 	var streamSettings map[string]interface{}
 	if tlsEnabled {
-		tlsCertPath, _ := config["tls_cert_path"].(string)
-		tlsKeyPath, _ := config["tls_key_path"].(string)
+		tlsCertPath, _ := config["tls_cert_path"].(string) //nolint:errcheck // type assertion uses zero value default
+		tlsKeyPath, _ := config["tls_key_path"].(string)   //nolint:errcheck // type assertion uses zero value default
 
 		streamSettings = map[string]interface{}{
 			"security": "tls",
@@ -174,18 +178,18 @@ func (g *XrayGenerator) Generate(instanceID string, config map[string]interface{
 // Validate performs Xray-specific validation.
 func (g *XrayGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Validate UUID format (basic check)
-	uuid, _ := config["uuid"].(string)
+	uuid, _ := config["uuid"].(string) //nolint:errcheck // type assertion uses zero value default
 	if len(uuid) != 36 {
 		return fmt.Errorf("uuid must be in UUID format (36 characters), got %d", len(uuid))
 	}
 
 	// If TLS is enabled, cert and key paths are required
-	tlsEnabled, _ := config["tls_enabled"].(bool)
+	tlsEnabled, _ := config["tls_enabled"].(bool) //nolint:errcheck // type assertion uses zero value default
 	if tlsEnabled {
 		certPath, hasCert := config["tls_cert_path"].(string)
 		keyPath, hasKey := config["tls_key_path"].(string)

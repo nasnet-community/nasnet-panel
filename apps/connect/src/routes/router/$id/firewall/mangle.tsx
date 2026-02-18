@@ -7,10 +7,12 @@
  * @see NAS-7.5: Implement Mangle Rules - Task 19
  */
 
+import { lazy } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { lazy } from 'react';
 
 // Lazy-load the ManglePage component
 const LazyManglePage = lazy(() =>

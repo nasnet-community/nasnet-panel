@@ -30,10 +30,11 @@ import {
   Skeleton,
 } from '@nasnet/ui/primitives';
 
-import { useInterfaceSelector } from './use-interface-selector';
 import { InterfaceItem } from './interface-item';
-import { InterfaceTypeIcon } from './interface-type-icon';
 import { InterfaceTypeFilter } from './interface-type-filter';
+import { InterfaceTypeIcon } from './interface-type-icon';
+import { useInterfaceSelector } from './use-interface-selector';
+
 import type { InterfaceSelectorDesktopProps } from './interface-selector.types';
 
 /**
@@ -97,6 +98,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
       }, 50);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isOpen]);
 
   // Keyboard navigation

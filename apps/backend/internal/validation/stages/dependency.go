@@ -11,15 +11,15 @@ import (
 // Prevents removing resources that other resources depend on.
 type DependencyStage struct{}
 
-func (s *DependencyStage) Number() int    { return 5 }
-func (s *DependencyStage) Name() string   { return "dependency" }
+func (s *DependencyStage) Number() int  { return 5 }
+func (s *DependencyStage) Name() string { return "dependency" }
 
 // Validate checks for dependency violations.
-func (s *DependencyStage) Validate(_ context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *DependencyStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	// Only relevant for delete and certain update operations
-	if input.Operation != "delete" {
+	if input.Operation != operationDelete {
 		return result
 	}
 
@@ -28,7 +28,7 @@ func (s *DependencyStage) Validate(_ context.Context, input *validation.StageInp
 		s.checkBridgeDependencies(input, result)
 	case "ip-address":
 		s.checkIPDependencies(input, result)
-	case "vlan":
+	case resourceTypeVLAN:
 		s.checkVLANDependencies(input, result)
 	}
 
@@ -36,7 +36,7 @@ func (s *DependencyStage) Validate(_ context.Context, input *validation.StageInp
 }
 
 // checkBridgeDependencies checks what depends on a bridge being deleted.
-func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, result *validation.ValidationResult) {
+func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, result *validation.Result) {
 	bridgeID := input.ResourceID
 
 	// Check bridge ports
@@ -48,7 +48,7 @@ func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, 
 		}
 	}
 	if portCount > 0 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      5,
 			StageName:  "dependency",
 			Severity:   validation.SeverityWarning,
@@ -67,7 +67,7 @@ func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, 
 	}
 	for _, addr := range ipAddrs {
 		if addr["interface"] == bridgeName || addr["interface"] == bridgeID {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     5,
 				StageName: "dependency",
 				Severity:  validation.SeverityError,
@@ -82,7 +82,7 @@ func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, 
 	dhcpServers := input.RelatedResources["dhcp-server"]
 	for _, srv := range dhcpServers {
 		if srv["interface"] == bridgeName || srv["interface"] == bridgeID {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     5,
 				StageName: "dependency",
 				Severity:  validation.SeverityError,
@@ -95,7 +95,7 @@ func (s *DependencyStage) checkBridgeDependencies(input *validation.StageInput, 
 }
 
 // checkIPDependencies checks what depends on an IP address being deleted.
-func (s *DependencyStage) checkIPDependencies(input *validation.StageInput, result *validation.ValidationResult) {
+func (s *DependencyStage) checkIPDependencies(input *validation.StageInput, result *validation.Result) {
 	addr := ""
 	if input.CurrentState != nil {
 		addr = input.CurrentState["address"]
@@ -105,7 +105,7 @@ func (s *DependencyStage) checkIPDependencies(input *validation.StageInput, resu
 	routes := input.RelatedResources["route"]
 	for _, route := range routes {
 		if route["gateway"] == addr {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     5,
 				StageName: "dependency",
 				Severity:  validation.SeverityWarning,
@@ -120,7 +120,7 @@ func (s *DependencyStage) checkIPDependencies(input *validation.StageInput, resu
 	natRules := input.RelatedResources["nat-rule"]
 	for _, rule := range natRules {
 		if rule["to-addresses"] == addr || rule["src-address"] == addr {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     5,
 				StageName: "dependency",
 				Severity:  validation.SeverityWarning,
@@ -133,7 +133,7 @@ func (s *DependencyStage) checkIPDependencies(input *validation.StageInput, resu
 }
 
 // checkVLANDependencies checks what depends on a VLAN being deleted.
-func (s *DependencyStage) checkVLANDependencies(input *validation.StageInput, result *validation.ValidationResult) {
+func (s *DependencyStage) checkVLANDependencies(input *validation.StageInput, result *validation.Result) {
 	vlanName := ""
 	if input.CurrentState != nil {
 		vlanName = input.CurrentState["name"]
@@ -143,7 +143,7 @@ func (s *DependencyStage) checkVLANDependencies(input *validation.StageInput, re
 	ipAddrs := input.RelatedResources["ip-address"]
 	for _, addr := range ipAddrs {
 		if addr["interface"] == vlanName || addr["interface"] == input.ResourceID {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     5,
 				StageName: "dependency",
 				Severity:  validation.SeverityError,

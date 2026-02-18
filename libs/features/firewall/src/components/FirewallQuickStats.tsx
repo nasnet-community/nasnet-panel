@@ -41,7 +41,7 @@ export function FirewallQuickStats({ className }: FirewallQuickStatsProps) {
 
     const stats: Record<string, ChainStats> = {};
 
-    rules.forEach((rule: FirewallRule) => {
+    (rules as FirewallRule[]).forEach((rule: FirewallRule) => {
       if (!stats[rule.chain]) {
         stats[rule.chain] = {
           chain: rule.chain,

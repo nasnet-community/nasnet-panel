@@ -4,11 +4,13 @@
  * Demonstrates FirewallLogStats component variants and use cases.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 
 import type { FirewallLogEntry } from '@nasnet/core/types';
+
 import { FirewallLogStats } from './FirewallLogStats';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ============================================================================
 // Test Data Generators

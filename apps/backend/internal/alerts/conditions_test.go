@@ -1,12 +1,12 @@
-// Package alerts implements alert engine testing
+// Package alerts implements alert engine testing.
 package alerts
 
 import (
 	"testing"
 )
 
-// TestEvaluateConditions tests condition evaluation logic
-// Per Task 7.1: Unit tests for condition evaluation logic (100% coverage)
+// TestEvaluateConditions tests condition evaluation logic.
+// Per Task 7.1: Unit tests for condition evaluation logic (100% coverage).
 func TestEvaluateConditions(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -141,7 +141,7 @@ func TestEvaluateConditions(t *testing.T) {
 			want: false,
 		},
 		{
-			name: "empty conditions array",
+			name:       "empty conditions array",
 			conditions: []Condition{},
 			eventData: map[string]interface{}{
 				"status": "online",
@@ -160,7 +160,7 @@ func TestEvaluateConditions(t *testing.T) {
 	}
 }
 
-// TestParseConditions tests condition parsing from JSON
+// TestParseConditions tests condition parsing from JSON.
 func TestParseConditions(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -213,7 +213,7 @@ func TestParseConditions(t *testing.T) {
 	}
 }
 
-// TestGetFieldValue tests nested field extraction
+// TestGetFieldValue tests nested field extraction.
 func TestGetFieldValue(t *testing.T) {
 	tests := []struct {
 		name      string

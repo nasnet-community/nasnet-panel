@@ -7,9 +7,17 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
+
 	"backend/internal/router"
 
 	"github.com/rs/zerolog/log"
+)
+
+// MikroTik boolean string constants for reconciliation checks.
+const (
+	reconcileBoolYes  = "yes"
+	reconcileBoolTrue = "true"
+	reconcileBoolNo   = "no"
 )
 
 // ReconcileChainRules reconciles routing chains after restart by comparing
@@ -113,7 +121,7 @@ func (cr *ChainRouter) ReconcileChainRules(ctx context.Context, routerID string)
 }
 
 // fetchExistingRules queries the router for existing mangle and filter rules.
-func (cr *ChainRouter) fetchExistingRules(ctx context.Context) (map[string]map[string]string, map[string]map[string]string, error) {
+func (cr *ChainRouter) fetchExistingRules(ctx context.Context) (mangleRules, filterRules map[string]map[string]string, err error) {
 	mangleResult, err := cr.router.ExecuteCommand(ctx, router.Command{
 		Path: "/ip/firewall/mangle", Action: "print",
 	})
@@ -153,13 +161,14 @@ func (cr *ChainRouter) reconcileKillSwitchState(
 	existingFilterRules map[string]map[string]string,
 	filterComment string,
 ) {
+
 	filterRule, exists := existingFilterRules[filterComment]
 	if !exists {
 		return
 	}
 
 	disabled := filterRule["disabled"]
-	isDisabled := (disabled == "yes" || disabled == "true")
+	isDisabled := (disabled == reconcileBoolYes || disabled == reconcileBoolTrue)
 	shouldBeDisabled := !chain.KillSwitchActive
 
 	if isDisabled != shouldBeDisabled {
@@ -174,7 +183,7 @@ func (cr *ChainRouter) reconcileKillSwitchState(
 			Action: "set",
 			Args: map[string]string{
 				".id":      filterRule[".id"],
-				"disabled": map[bool]string{true: "yes", false: "no"}[shouldBeDisabled],
+				"disabled": map[bool]string{true: reconcileBoolYes, false: reconcileBoolNo}[shouldBeDisabled],
 			},
 		}
 		if _, err := cr.router.ExecuteCommand(ctx, setCmd); err != nil {
@@ -190,57 +199,57 @@ func (cr *ChainRouter) removeOrphanedRules(
 	existingMangleRules, existingFilterRules map[string]map[string]string,
 	removedCount *int,
 ) {
-	for comment := range existingMangleRules {
-		if len(comment) > 9 && comment[:9] == "nnc-chain" {
-			found := false
-			for _, chain := range chains {
-				if len(comment) > len(chain.ID)+10 && comment[10:10+len(chain.ID)] == chain.ID {
-					found = true
-					break
-				}
-			}
 
-			if !found {
-				log.Info().Str("comment", comment).Msg("Removing orphaned mangle rule")
-				ruleID := existingMangleRules[comment][".id"]
-				cmd := router.Command{
-					Path: "/ip/firewall/mangle", Action: "remove",
-					Args: map[string]string{".id": ruleID},
-				}
-				if _, err := cr.router.ExecuteCommand(ctx, cmd); err != nil {
-					log.Warn().Err(err).Msg("Failed to remove orphaned mangle rule")
-				} else {
-					*removedCount++
-				}
-			}
+	cr.removeOrphanedRulesByType(ctx, chains, existingMangleRules, "nnc-chain", 9, 10,
+		"/ip/firewall/mangle", "orphaned mangle rule", removedCount)
+	cr.removeOrphanedRulesByType(ctx, chains, existingFilterRules, "nnc-chainks", 11, 12,
+		"/ip/firewall/filter", "orphaned kill switch rule", removedCount)
+}
+
+// removeOrphanedRulesByType removes orphaned rules of a specific type (mangle or filter).
+func (cr *ChainRouter) removeOrphanedRulesByType(
+	ctx context.Context,
+	chains []*ent.RoutingChain,
+	rules map[string]map[string]string,
+	prefix string,
+	prefixLen int,
+	idOffset int,
+	firewallPath string,
+	ruleKind string,
+	removedCount *int,
+) {
+
+	for comment, rule := range rules {
+		if len(comment) <= prefixLen || comment[:prefixLen] != prefix {
+			continue
+		}
+
+		if cr.commentMatchesAnyChain(comment, chains, idOffset) {
+			continue
+		}
+
+		log.Info().Str("comment", comment).Msgf("Removing %s", ruleKind)
+
+		cmd := router.Command{
+			Path: firewallPath, Action: "remove",
+			Args: map[string]string{".id": rule[".id"]},
+		}
+		if _, err := cr.router.ExecuteCommand(ctx, cmd); err != nil {
+			log.Warn().Err(err).Msgf("Failed to remove %s", ruleKind)
+		} else {
+			*removedCount++
 		}
 	}
+}
 
-	for comment := range existingFilterRules {
-		if len(comment) > 11 && comment[:11] == "nnc-chainks" {
-			found := false
-			for _, chain := range chains {
-				if len(comment) > len(chain.ID)+12 && comment[12:12+len(chain.ID)] == chain.ID {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				log.Info().Str("comment", comment).Msg("Removing orphaned kill switch rule")
-				ruleID := existingFilterRules[comment][".id"]
-				cmd := router.Command{
-					Path: "/ip/firewall/filter", Action: "remove",
-					Args: map[string]string{".id": ruleID},
-				}
-				if _, err := cr.router.ExecuteCommand(ctx, cmd); err != nil {
-					log.Warn().Err(err).Msg("Failed to remove orphaned filter rule")
-				} else {
-					*removedCount++
-				}
-			}
+// commentMatchesAnyChain checks if a rule comment matches any existing chain ID.
+func (cr *ChainRouter) commentMatchesAnyChain(comment string, chains []*ent.RoutingChain, idOffset int) bool {
+	for _, chain := range chains {
+		if len(comment) > len(chain.ID)+idOffset && comment[idOffset:idOffset+len(chain.ID)] == chain.ID {
+			return true
 		}
 	}
+	return false
 }
 
 // convertChainToInput converts a chain entity to CreateRoutingChainInput for recreation.

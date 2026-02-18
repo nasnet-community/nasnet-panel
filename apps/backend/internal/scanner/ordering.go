@@ -96,10 +96,12 @@ func calculateIPPriority(ip string) int {
 // - CIDR: "192.168.88.0/24"
 // - Range: "192.168.1.1-192.168.1.100"
 // - Single IP: "192.168.88.1"
+//
+//nolint:gocyclo // IP range parsing
 func ParseIPRange(subnet string) ([]string, error) {
 	var ips []string
-
-	if strings.Contains(subnet, "/") {
+	switch {
+	case strings.Contains(subnet, "/"):
 		// CIDR notation
 		_, ipNet, err := net.ParseCIDR(subnet)
 		if err != nil {
@@ -118,7 +120,7 @@ func ParseIPRange(subnet string) ([]string, error) {
 				break
 			}
 		}
-	} else if strings.Contains(subnet, "-") {
+	case strings.Contains(subnet, "-"):
 		// Range notation (e.g., 192.168.1.1-192.168.1.100)
 		parts := strings.Split(subnet, "-")
 		if len(parts) != 2 {
@@ -149,7 +151,7 @@ func ParseIPRange(subnet string) ([]string, error) {
 			}
 			incrementIP(current)
 		}
-	} else {
+	default:
 		// Single IP
 		if net.ParseIP(subnet) == nil {
 			return nil, fmt.Errorf("invalid IP format: %s", subnet)

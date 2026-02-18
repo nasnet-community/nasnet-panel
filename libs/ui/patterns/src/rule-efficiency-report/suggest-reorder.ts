@@ -6,6 +6,7 @@
  */
 
 import type { FirewallRule } from '@nasnet/core/types';
+
 import type { Suggestion, ReorderOpportunity, SuggestionSeverity } from './types';
 
 /**

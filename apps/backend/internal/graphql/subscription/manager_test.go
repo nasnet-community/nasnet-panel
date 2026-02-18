@@ -28,7 +28,7 @@ func TestSubscribe(t *testing.T) {
 
 	ch := make(chan events.Event, 10)
 
-	id, err := m.Subscribe(SubscriptionOptions{
+	id, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityNormal,
@@ -47,7 +47,7 @@ func TestUnsubscribe(t *testing.T) {
 
 	ch := make(chan events.Event, 10)
 
-	id, err := m.Subscribe(SubscriptionOptions{
+	id, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityNormal,
@@ -75,7 +75,7 @@ func TestHandleEvent(t *testing.T) {
 
 	ch := make(chan events.Event, 10)
 
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityNormal,
@@ -109,7 +109,7 @@ func TestEventFiltering(t *testing.T) {
 	ch := make(chan events.Event, 10)
 
 	// Subscribe only to resource events
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeResourceUpdated},
 		Channel:    ch,
 		Priority:   events.PriorityNormal,
@@ -143,7 +143,7 @@ func TestPriorityFiltering(t *testing.T) {
 	ch := make(chan events.Event, 10)
 
 	// Subscribe only to immediate/critical events
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{"*"},
 		Channel:    ch,
 		Priority:   events.PriorityCritical, // Only immediate and critical
@@ -197,7 +197,7 @@ func TestCustomFilter(t *testing.T) {
 
 	// Subscribe with custom filter for specific router
 	targetRouterID := "router-123"
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityBackground,
@@ -250,7 +250,7 @@ func TestChannelFullDropsEvents(t *testing.T) {
 	// Create a very small channel
 	ch := make(chan events.Event, 1)
 
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityBackground,
@@ -280,7 +280,7 @@ func TestClose(t *testing.T) {
 	m := NewManager(nil)
 
 	ch := make(chan events.Event, 10)
-	_, err := m.Subscribe(SubscriptionOptions{
+	_, err := m.Subscribe(Options{
 		EventTypes: []string{events.EventTypeRouterStatusChanged},
 		Channel:    ch,
 		Priority:   events.PriorityNormal,
@@ -295,7 +295,7 @@ func TestClose(t *testing.T) {
 	assert.Equal(t, 0, stats.ActiveSubscriptions)
 
 	// New subscriptions should fail
-	_, err = m.Subscribe(SubscriptionOptions{
+	_, err = m.Subscribe(Options{
 		Channel: ch,
 	})
 	assert.Equal(t, ErrManagerClosed, err)

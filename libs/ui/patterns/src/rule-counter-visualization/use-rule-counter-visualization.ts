@@ -200,6 +200,7 @@ export function useRuleCounterVisualization({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [counter, calculateRates, pollingInterval]);
 
   return {

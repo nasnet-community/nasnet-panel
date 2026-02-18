@@ -269,13 +269,13 @@ export function RateLimitingPage() {
               </Alert>
 
               {/* SYN Flood Config Panel */}
-              <SynFloodConfigPanel />
+              <SynFloodConfigPanel configHook={{} as any} />
             </TabsContent>
 
             {/* Statistics Tab */}
             <TabsContent value="statistics" className="p-4 m-0 space-y-6">
               {/* Stats Overview */}
-              <RateLimitStatsOverview />
+              <RateLimitStatsOverview routerId={routerIp} />
 
               {/* Blocked IPs Table */}
               {!hasBlockedIPs ? (
@@ -290,7 +290,7 @@ export function RateLimitingPage() {
                       {t('rateLimiting.fieldHelp.whitelistInfo')}
                     </p>
                   </div>
-                  <BlockedIPsTable />
+                  <BlockedIPsTable blockedIPsTable={{} as any} />
                 </div>
               )}
             </TabsContent>
@@ -317,7 +317,13 @@ export function RateLimitingPage() {
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">
-            <RateLimitRuleEditor rule={editingRule} onClose={closeRuleEditor} />
+            <RateLimitRuleEditor
+              routerId={routerIp}
+              initialRule={editingRule || undefined}
+              open={showRuleEditor}
+              onClose={closeRuleEditor}
+              onSave={async () => { closeRuleEditor(); }}
+            />
           </div>
         </SheetContent>
       </Sheet>

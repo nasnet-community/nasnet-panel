@@ -1,8 +1,9 @@
 package credentials
 
 import (
-	"backend/internal/encryption"
 	"testing"
+
+	"backend/internal/encryption"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
 	"github.com/sony/gobreaker/v2"
 	"go.uber.org/zap"
 
@@ -16,22 +15,22 @@ import (
 // Manager handles connection lifecycle for all routers.
 // It implements the ConnectionManager interface from the story specification.
 type Manager struct {
-	pool              *ConnectionPool
-	cbFactory         *CircuitBreakerFactory
-	eventBus          events.EventBus
-	logger            *zap.Logger
-	clientFactory     ClientFactory
-	backoffConfig     BackoffConfig
-	healthConfig      HealthConfig
-	mu                sync.RWMutex
-	closed            bool
-	wg                sync.WaitGroup
+	pool          *Pool
+	cbFactory     *CircuitBreakerFactory
+	eventBus      events.EventBus
+	logger        *zap.Logger
+	clientFactory ClientFactory
+	backoffConfig BackoffConfig
+	healthConfig  HealthConfig
+	mu            sync.RWMutex
+	closed        bool
+	wg            sync.WaitGroup
 }
 
 // ClientFactory creates protocol-specific clients for routers.
 type ClientFactory interface {
 	// CreateClient creates a client for connecting to a router.
-	CreateClient(ctx context.Context, config ConnectionConfig) (RouterClient, error)
+	CreateClient(ctx context.Context, config Config) (RouterClient, error)
 }
 
 // HealthConfig holds configuration for health monitoring.
@@ -78,8 +77,9 @@ func NewManager(
 	logger *zap.Logger,
 	config ManagerConfig,
 ) *Manager {
+
 	m := &Manager{
-		pool:          NewConnectionPool(),
+		pool:          NewPool(),
 		eventBus:      eventBus,
 		logger:        logger.Named("connection-manager"),
 		clientFactory: clientFactory,
@@ -104,7 +104,7 @@ func (m *Manager) onCircuitBreakerStateChange(routerID string, from, to gobreake
 	// Update connection status
 	conn := m.pool.Get(routerID)
 	if conn != nil {
-		conn.UpdateStatus(func(status *ConnectionStatus) {
+		conn.UpdateStatus(func(status *Status) {
 			status.CircuitBreakerState = stateToString(to)
 		})
 	}
@@ -133,13 +133,13 @@ func (m *Manager) GetConnection(routerID string) (*Connection, error) {
 }
 
 // GetOrCreateConnection returns the connection for a router, creating one if needed.
-func (m *Manager) GetOrCreateConnection(routerID string, config ConnectionConfig) *Connection {
+func (m *Manager) GetOrCreateConnection(routerID string, config Config) *Connection {
 	cb := m.cbFactory.Create(routerID)
 	return m.pool.GetOrCreate(routerID, config, cb)
 }
 
 // Connect establishes a connection to a router.
-func (m *Manager) Connect(ctx context.Context, routerID string, config ConnectionConfig) error {
+func (m *Manager) Connect(ctx context.Context, routerID string, config Config) error {
 	m.mu.RLock()
 	if m.closed {
 		m.mu.RUnlock()
@@ -161,15 +161,15 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Connectio
 	prevState := conn.Status.State
 
 	// Update state to connecting
-	conn.UpdateStatus(func(status *ConnectionStatus) {
-		_ = status.SetConnecting()
+	conn.UpdateStatus(func(status *Status) {
+		_ = status.SetConnecting() //nolint:errcheck // state transition failure is non-fatal, connection attempt proceeds regardless
 	})
 
 	// Publish state change event
-	m.publishStatusChange(routerID, prevState, StateConnecting, "")
+	m.publishStatusChange(ctx, routerID, prevState, StateConnecting, "")
 
 	// Attempt connection through circuit breaker
-	_, err := conn.CircuitBreaker.ExecuteWithContext(ctx, func(ctx context.Context) (any, error) {
+	cbResult, err := conn.CircuitBreaker.ExecuteWithContext(ctx, func(ctx context.Context) (any, error) {
 		client, err := m.clientFactory.CreateClient(ctx, config)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create client: %w", err)
@@ -184,29 +184,32 @@ func (m *Manager) Connect(ctx context.Context, routerID string, config Connectio
 
 	if err != nil {
 		// Connection failed
-		conn.UpdateStatus(func(status *ConnectionStatus) {
-			_ = status.SetError(err.Error())
+		conn.UpdateStatus(func(status *Status) {
+			_ = status.SetError(err.Error()) //nolint:errcheck // state transition failure is non-fatal, error is already being returned
 		})
-		m.publishStatusChange(routerID, StateConnecting, StateError, err.Error())
+		m.publishStatusChange(ctx, routerID, StateConnecting, StateError, err.Error())
 
 		// Check if we should auto-reconnect
 		if !conn.IsManuallyDisconnected() && conn.CircuitBreaker != nil && !conn.CircuitBreaker.IsOpen() {
-			m.startReconnection(conn)
+			m.startReconnection(ctx, conn)
 		}
 
 		return err
 	}
 
 	// Connection successful
-	client := err.(RouterClient)
+	client, ok := cbResult.(RouterClient)
+	if !ok {
+		return fmt.Errorf("unexpected result type from circuit breaker")
+	}
 	conn.SetClient(client)
-	conn.UpdateStatus(func(status *ConnectionStatus) {
-		_ = status.SetConnected(string(client.Protocol()), client.Version())
+	conn.UpdateStatus(func(status *Status) {
+		_ = status.SetConnected(string(client.Protocol()), client.Version()) //nolint:errcheck // state transition failure is non-fatal, client is already connected
 	})
-	m.publishStatusChange(routerID, StateConnecting, StateConnected, "")
+	m.publishStatusChange(ctx, routerID, StateConnecting, StateConnected, "")
 
 	// Start health monitoring
-	m.startHealthMonitoring(conn)
+	m.startHealthMonitoring(ctx, conn)
 
 	m.logger.Info("router connected",
 		zap.String("routerID", routerID),
@@ -244,11 +247,13 @@ func (m *Manager) Disconnect(routerID string, reason DisconnectReason) error {
 	}
 
 	// Update status
-	conn.UpdateStatus(func(status *ConnectionStatus) {
-		_ = status.SetDisconnected(reason)
+	conn.UpdateStatus(func(status *Status) {
+		_ = status.SetDisconnected(reason) //nolint:errcheck // state transition failure is non-fatal during disconnect
 	})
 
-	m.publishStatusChange(routerID, prevState, StateDisconnected, reason.String())
+	// Use background context for disconnect event publishing
+	bgCtx := context.Background()
+	m.publishStatusChange(bgCtx, routerID, prevState, StateDisconnected, reason.String())
 
 	m.logger.Info("router disconnected",
 		zap.String("routerID", routerID),
@@ -281,242 +286,11 @@ func (m *Manager) Reconnect(ctx context.Context, routerID string) error {
 	return m.Connect(ctx, routerID, conn.Config())
 }
 
-// startReconnection starts the automatic reconnection process.
-func (m *Manager) startReconnection(conn *Connection) {
-	// Cancel any existing reconnection
-	conn.CancelReconnect()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	conn.SetReconnectCancel(cancel)
-
-	m.wg.Add(1)
-	go func() {
-		defer m.wg.Done()
-		m.reconnectLoop(ctx, conn)
-	}()
-}
-
-// reconnectLoop attempts to reconnect with exponential backoff.
-func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
-	routerID := conn.RouterID
-	prevState := conn.Status.State
-
-	// Update state to reconnecting
-	conn.UpdateStatus(func(status *ConnectionStatus) {
-		_ = status.SetReconnecting(0, time.Now())
-	})
-	m.publishStatusChange(routerID, prevState, StateReconnecting, "")
-
-	b := NewExponentialBackoffWithContext(ctx, m.backoffConfig)
-	attempt := 0
-
-	operation := func() error {
-		// Check if manually disconnected
-		if conn.IsManuallyDisconnected() {
-			return backoff.Permanent(fmt.Errorf("manually disconnected"))
-		}
-
-		// Check if circuit breaker is open
-		if conn.CircuitBreaker != nil && conn.CircuitBreaker.IsOpen() {
-			return backoff.Permanent(fmt.Errorf("circuit breaker open"))
-		}
-
-		attempt++
-		conn.UpdateStatus(func(status *ConnectionStatus) {
-			status.ReconnectAttempts = attempt
-		})
-
-		m.logger.Info("reconnection attempt",
-			zap.String("routerID", routerID),
-			zap.Int("attempt", attempt),
-		)
-
-		// Try to connect
-		_, err := conn.CircuitBreaker.ExecuteWithContext(ctx, func(ctx context.Context) (any, error) {
-			client, err := m.clientFactory.CreateClient(ctx, conn.Config())
-			if err != nil {
-				return nil, err
-			}
-			if err := client.Connect(ctx); err != nil {
-				return nil, err
-			}
-			return client, nil
-		})
-
-		if err != nil {
-			conn.UpdateStatus(func(status *ConnectionStatus) {
-				status.LastError = err.Error()
-				now := time.Now()
-				status.LastErrorTime = &now
-			})
-			return err
-		}
-
-		// Success
-		client := err.(RouterClient)
-		conn.SetClient(client)
-		return nil
-	}
-
-	err := backoff.Retry(operation, b)
-
-	if err != nil {
-		// Reconnection failed permanently
-		if conn.IsManuallyDisconnected() {
-			conn.UpdateStatus(func(status *ConnectionStatus) {
-				_ = status.SetDisconnected(DisconnectReasonManual)
-			})
-			m.publishStatusChange(routerID, StateReconnecting, StateDisconnected, "manual")
-		} else {
-			conn.UpdateStatus(func(status *ConnectionStatus) {
-				_ = status.SetError(err.Error())
-			})
-			m.publishStatusChange(routerID, StateReconnecting, StateError, err.Error())
-		}
-		return
-	}
-
-	// Reconnection successful
-	client := conn.GetClient()
-	conn.UpdateStatus(func(status *ConnectionStatus) {
-		_ = status.SetConnected(string(client.Protocol()), client.Version())
-	})
-	m.publishStatusChange(routerID, StateReconnecting, StateConnected, "")
-
-	// Start health monitoring
-	m.startHealthMonitoring(conn)
-
-	m.logger.Info("router reconnected",
-		zap.String("routerID", routerID),
-		zap.Int("attempts", attempt),
-	)
-}
-
-// startHealthMonitoring starts the health check routine for a connection.
-func (m *Manager) startHealthMonitoring(conn *Connection) {
-	// Cancel any existing health monitoring
-	conn.CancelHealthCheck()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	conn.SetHealthCancel(cancel)
-
-	m.wg.Add(1)
-	go func() {
-		defer m.wg.Done()
-		m.healthCheckLoop(ctx, conn)
-	}()
-}
-
-// healthCheckLoop periodically checks the health of a connection.
-func (m *Manager) healthCheckLoop(ctx context.Context, conn *Connection) {
-	ticker := time.NewTicker(m.healthConfig.Interval)
-	defer ticker.Stop()
-
-	routerID := conn.RouterID
-	consecutiveFailures := 0
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			// Don't health check if not connected
-			if conn.Status.State != StateConnected {
-				continue
-			}
-
-			client := conn.GetClient()
-			if client == nil {
-				continue
-			}
-
-			// Perform health check with timeout
-			checkCtx, checkCancel := context.WithTimeout(ctx, m.healthConfig.Timeout)
-			err := client.Ping(checkCtx)
-			checkCancel()
-
-			if err != nil {
-				consecutiveFailures++
-				conn.Status.RecordHealthCheck(false)
-
-				m.logger.Warn("health check failed",
-					zap.String("routerID", routerID),
-					zap.Int("consecutiveFailures", consecutiveFailures),
-					zap.Error(err),
-				)
-
-				// Check if threshold exceeded
-				if consecutiveFailures >= m.healthConfig.FailureThreshold {
-					m.logger.Error("health check threshold exceeded, initiating reconnection",
-						zap.String("routerID", routerID),
-						zap.Int("failures", consecutiveFailures),
-					)
-
-					// Trigger reconnection
-					prevState := conn.Status.State
-					conn.UpdateStatus(func(status *ConnectionStatus) {
-						_ = status.SetReconnecting(0, time.Now())
-					})
-					m.publishStatusChange(routerID, prevState, StateReconnecting, "health_check_failed")
-
-					// Start reconnection
-					m.startReconnection(conn)
-					return
-				}
-			} else {
-				consecutiveFailures = 0
-				conn.Status.RecordHealthCheck(true)
-			}
-		}
-	}
-}
-
-// publishStatusChange publishes a RouterStatusChangedEvent.
-func (m *Manager) publishStatusChange(routerID string, from, to ConnectionState, errorMsg string) {
-	if m.eventBus == nil {
-		return
-	}
-
-	fromStatus := toRouterStatus(from)
-	toStatus := toRouterStatus(to)
-
-	event := events.NewRouterStatusChangedEvent(routerID, toStatus, fromStatus, "connection-manager")
-	if errorMsg != "" {
-		event.ErrorMessage = errorMsg
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
-
-	if err := m.eventBus.Publish(ctx, event); err != nil {
-		m.logger.Error("failed to publish status change event",
-			zap.String("routerID", routerID),
-			zap.Error(err),
-		)
-	}
-}
-
-// toRouterStatus converts a ConnectionState to events.RouterStatus.
-func toRouterStatus(state ConnectionState) events.RouterStatus {
-	switch state {
-	case StateConnected:
-		return events.RouterStatusConnected
-	case StateDisconnected:
-		return events.RouterStatusDisconnected
-	case StateConnecting, StateReconnecting:
-		return events.RouterStatusReconnecting
-	case StateError:
-		return events.RouterStatusError
-	default:
-		return events.RouterStatusUnknown
-	}
-}
-
 // GetStatus returns the connection status for a router.
-func (m *Manager) GetStatus(routerID string) (ConnectionStatus, error) {
+func (m *Manager) GetStatus(routerID string) (Status, error) {
 	conn := m.pool.Get(routerID)
 	if conn == nil {
-		return ConnectionStatus{}, fmt.Errorf("connection not found for router %s", routerID)
+		return Status{}, fmt.Errorf("connection not found for router %s", routerID)
 	}
 	return conn.GetStatus(), nil
 }
@@ -550,7 +324,7 @@ func (m *Manager) RemoveConnection(routerID string) error {
 	}
 
 	// Disconnect first
-	_ = m.Disconnect(routerID, DisconnectReasonShutdown)
+	_ = m.Disconnect(routerID, DisconnectReasonShutdown) //nolint:errcheck // best-effort disconnect before pool removal
 
 	// Remove from pool
 	m.pool.Remove(routerID)

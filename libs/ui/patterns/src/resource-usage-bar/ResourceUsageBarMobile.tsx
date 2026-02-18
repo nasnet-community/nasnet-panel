@@ -13,8 +13,9 @@ import { AlertCircle, AlertTriangle, Check, Circle, HelpCircle } from 'lucide-re
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { ResourceUsageBarProps, UsageStatus } from './types';
 import { useResourceUsageBar } from './useResourceUsageBar';
+
+import type { ResourceUsageBarProps, UsageStatus } from './types';
 
 // ===== Constants =====
 

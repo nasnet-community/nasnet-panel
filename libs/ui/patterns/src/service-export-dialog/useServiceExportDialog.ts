@@ -4,10 +4,12 @@
  */
 
 import { useState, useCallback } from 'react';
+
 import {
   useExportService,
   useGenerateConfigQR,
-} from '@nasnet/api-client/queries/services';
+} from '@nasnet/api-client/queries';
+
 import type { ServiceExportDialogProps, ExportOptions, ExportState, ExportFormat } from './types';
 
 export function useServiceExportDialog(props: ServiceExportDialogProps) {
@@ -72,15 +74,16 @@ export function useServiceExportDialog(props: ServiceExportDialogProps) {
           includeRoutingRules,
         });
 
-        if (result.data?.success && result.data.downloadURL) {
+        const exportPayload = result.data?.exportServiceConfig;
+        if (exportPayload?.success && exportPayload.downloadURL) {
           setState((prev) => ({
             ...prev,
             step: 'complete',
-            downloadURL: result.data.downloadURL,
+            downloadURL: exportPayload.downloadURL!,
           }));
-          onExportComplete?.('json', result.data.downloadURL);
+          onExportComplete?.('json', exportPayload.downloadURL!);
         } else {
-          const errorMsg = result.data?.errors?.[0]?.message || 'Export failed';
+          const errorMsg = exportPayload?.errors?.[0]?.message || 'Export failed';
           setState((prev) => ({
             ...prev,
             step: 'configure',
@@ -97,16 +100,17 @@ export function useServiceExportDialog(props: ServiceExportDialogProps) {
           imageSize: qrImageSize,
         });
 
-        if (result.data?.imageDataBase64) {
+        const qrPayload = result.data?.generateConfigQR;
+        if (qrPayload?.imageDataBase64) {
           setState((prev) => ({
             ...prev,
             step: 'complete',
-            qrImageData: result.data.imageDataBase64,
-            downloadURL: result.data.downloadURL,
+            qrImageData: qrPayload.imageDataBase64!,
+            downloadURL: qrPayload.downloadURL ?? undefined,
           }));
-          onExportComplete?.('qr', result.data.downloadURL);
+          onExportComplete?.('qr', qrPayload.downloadURL ?? '');
         } else {
-          const errorMsg = result.data?.errors?.[0]?.message || 'QR generation failed';
+          const errorMsg = qrPayload?.errors?.[0]?.message || 'QR generation failed';
           setState((prev) => ({
             ...prev,
             step: 'configure',

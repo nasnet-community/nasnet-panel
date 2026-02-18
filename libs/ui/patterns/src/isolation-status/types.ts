@@ -7,7 +7,7 @@
  * @module @nasnet/ui/patterns/isolation-status
  */
 
-import type { IsolationStatus as GraphQLIsolationStatus, IsolationViolation, ResourceLimits, ResourceLimitsInput } from '@nasnet/api-client/generated';
+import type { IsolationStatus as GraphQLIsolationStatus, IsolationViolation, ResourceLimits, SetResourceLimitsInput } from '@nasnet/api-client/generated';
 
 /**
  * Isolation health classification (UI-friendly version)
@@ -128,7 +128,7 @@ export interface UseIsolationStatusReturn {
   /**
    * Handler for saving resource limits
    */
-  handleSaveLimits: (limits: ResourceLimitsInput) => Promise<void>;
+  handleSaveLimits: (limits: SetResourceLimitsInput) => Promise<void>;
 
   /**
    * Handler for refreshing isolation status

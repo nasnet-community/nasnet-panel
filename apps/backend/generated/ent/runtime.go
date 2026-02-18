@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertdigestentry"
 	"backend/generated/ent/alertescalation"
@@ -38,7 +40,6 @@ import (
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
 	"backend/internal/ent-schema/schema"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -2054,7 +2055,7 @@ func init() {
 			return nil
 		}
 	}()
-	schemaversionFields := schema.SchemaVersion{}.Fields()
+	schemaversionFields := schema.Version{}.Fields()
 	_ = schemaversionFields
 	// schemaversionDescName is the schema descriptor for name field.
 	schemaversionDescName := schemaversionFields[2].Descriptor()

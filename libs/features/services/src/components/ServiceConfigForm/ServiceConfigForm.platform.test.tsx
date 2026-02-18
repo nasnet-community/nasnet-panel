@@ -4,15 +4,11 @@ import { ServiceConfigForm } from './ServiceConfigForm';
 import type { UseServiceConfigFormReturn } from '../../hooks/useServiceConfigForm';
 
 // Mock the usePlatform hook
-vi.mock('@nasnet/ui/patterns', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@nasnet/ui/patterns')>();
-  return {
-    ...actual,
-    usePlatform: vi.fn(),
-  };
-});
+vi.mock('@nasnet/ui/layouts', () => ({
+  usePlatform: vi.fn(),
+}));
 
-import { usePlatform } from '@nasnet/ui/patterns';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 const mockUsePlatform = vi.mocked(usePlatform);
 

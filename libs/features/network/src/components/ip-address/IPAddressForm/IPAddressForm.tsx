@@ -49,4 +49,4 @@ function IPAddressFormComponent(props: IPAddressFormProps) {
 export const IPAddressForm = memo(IPAddressFormComponent);
 
 // Set display name for React DevTools
-(IPAddressForm as React.FC).displayName = 'IPAddressForm';
+(IPAddressForm as { displayName?: string }).displayName = 'IPAddressForm';

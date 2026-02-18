@@ -4,15 +4,14 @@
  * Unit tests for the NotificationBell pattern component.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
-import { NotificationBell } from './NotificationBell';
-import { NotificationBellDesktop } from './NotificationBell.Desktop';
-import { NotificationBellMobile } from './NotificationBell.Mobile';
+import { describe, it, expect, vi } from 'vitest';
 
 import type { InAppNotification } from '@nasnet/state/stores';
+
+import { NotificationBellDesktop } from './NotificationBell.Desktop';
+import { NotificationBellMobile } from './NotificationBell.Mobile';
 
 // Mock notifications
 const mockNotifications: InAppNotification[] = [

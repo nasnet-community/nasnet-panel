@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
-import { LazyDHCPTab } from '@/app/routes/router-panel/tabs/lazy';
 import { Skeleton } from '@nasnet/ui/primitives';
+
+import { LazyDHCPTab } from '@/app/routes/router-panel/tabs/lazy';
 
 /**
  * DHCP Route - Code-split for optimal bundle size

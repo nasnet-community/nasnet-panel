@@ -3,10 +3,11 @@
 package ent
 
 import (
+	"context"
+
 	"backend/generated/ent/diagnosticresult"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
-	"context"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

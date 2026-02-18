@@ -5,27 +5,35 @@
  * Touch-friendly with large tap targets and simplified layout.
  */
 
-import { Bell } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Bell } from 'lucide-react';
 
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
+import type { AlertSeverity } from '@nasnet/state/stores';
 import {
+  Button,
+  Badge,
   Sheet,
   SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  ScrollArea,
+  Separator,
+  Skeleton,
+  cn,
 } from '@nasnet/ui/primitives';
-import { ScrollArea } from '@nasnet/ui/primitives';
-import { Separator } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
 
-import type { AlertSeverity } from '@nasnet/state/stores';
-import type { NotificationBellProps } from './types';
+
+
+
+
+
+
 import { useNotificationBell } from './useNotificationBell';
+
+import type { NotificationBellProps } from './types';
+
 
 /**
  * Get badge variant for alert severity
@@ -153,7 +161,6 @@ export function NotificationBellMobile(props: NotificationBellProps) {
                       'w-full text-left px-4 py-4 min-h-[88px] active:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset',
                       !notification.read && 'bg-primary/5'
                     )}
-                    role="button"
                     tabIndex={0}
                     aria-label={`${notification.title} - ${notification.message}`}
                   >

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"runtime"
 	"sync"
@@ -17,7 +18,6 @@ import (
 type ScannerPool struct {
 	maxWorkers  int
 	tasks       chan ScanTask
-	wg          sync.WaitGroup
 	mu          sync.RWMutex
 	activeTasks map[string]*ScanTask
 }
@@ -48,7 +48,8 @@ func NewScannerPool(maxWorkers int) *ScannerPool {
 
 func (p *ScannerPool) worker() {
 	for task := range p.tasks {
-		processScanTask(&task)
+		ctx := context.Background()
+		processScanTask(ctx, &task)
 	}
 }
 
@@ -87,12 +88,6 @@ func echoHealthHandler(c echo.Context) error {
 		Memory:    m.Alloc / 1024 / 1024,
 		Version:   ServerVersion,
 		Uptime:    uptime.String(),
-	})
-}
-
-func echoErrorResponse(c echo.Context, statusCode int, err string, message string) error {
-	return c.JSON(statusCode, ErrorResponse{
-		Error: err, Message: message, Timestamp: time.Now().Unix(),
 	})
 }
 
@@ -165,11 +160,18 @@ func echoOUIStatsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"entries": size, "loaded": size > 0})
 }
 
-// errorResponse sends a JSON error (legacy http.ResponseWriter version).
-func errorResponse(w http.ResponseWriter, statusCode int, err string, message string) {
+// writeJSONResponse sends a JSON response and logs encoding errors.
+func writeJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(ErrorResponse{
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("ERROR: Failed to encode JSON response: %v", err)
+	}
+}
+
+// errorResponse sends a JSON error (legacy http.ResponseWriter version).
+func errorResponse(w http.ResponseWriter, statusCode int, err, message string) {
+	writeJSONResponse(w, statusCode, ErrorResponse{
 		Error: err, Message: message, Timestamp: time.Now().Unix(),
 	})
 }

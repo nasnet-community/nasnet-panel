@@ -95,6 +95,7 @@ export function useServiceInstances(
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [subData, loading, subError, refetch]);
 
   const instances = (data?.serviceInstances ?? []) as ServiceInstance[];

@@ -12,7 +12,7 @@ import (
 )
 
 // GetRoutingChain retrieves a routing chain by device ID.
-func (cr *ChainRouter) GetRoutingChain(ctx context.Context, routerID string, deviceID string) (*ent.RoutingChain, error) {
+func (cr *ChainRouter) GetRoutingChain(ctx context.Context, routerID, deviceID string) (*ent.RoutingChain, error) {
 	chain, err := cr.store.RoutingChain.
 		Query().
 		Where(

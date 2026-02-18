@@ -84,7 +84,7 @@ export type NetworkStepFormData = z.infer<typeof networkStepSchema>;
  * Combined wizard schema (all steps)
  */
 export const dhcpWizardSchema = interfaceStepSchema
-  .merge(poolStepSchema)
+  .merge(z.object({ poolStart: ipv4Schema, poolEnd: ipv4Schema }))
   .merge(networkStepSchema)
   .merge(
     z.object({

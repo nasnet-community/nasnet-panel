@@ -7,9 +7,27 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 3
  */
 
-import * as React from 'react';
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@nasnet/ui/utils';
+
 import {
   Form,
   FormField,
@@ -35,26 +53,10 @@ import {
   TableRow,
   Badge,
   Card,
-} from '@nasnet/ui/primitives';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Plus, Trash2, AlertTriangle } from 'lucide-react';
+ cn } from '@nasnet/ui/primitives';
+
 import { PortKnockVisualizer } from '../port-knock-visualizer';
+
 import type { UsePortKnockSequenceFormReturn } from './use-port-knock-sequence-form';
 
 // ============================================================================
@@ -208,7 +210,7 @@ export function PortKnockSequenceFormDesktop({
       {/* Left Column: Form */}
       <div className="space-y-6">
         <Form {...form}>
-          <form onSubmit={formState.onSubmit} className="space-y-6">
+          <form onSubmit={formState.onSubmit as any} className="space-y-6">
             {/* Sequence Name */}
             <FormField
               control={form.control}
@@ -310,7 +312,7 @@ export function PortKnockSequenceFormDesktop({
                         const selected = COMMON_SERVICES.find((s) => s.port === parseInt(val, 10));
                         if (selected) {
                           field.onChange(selected.port);
-                          form.setValue('protectedProtocol', selected.protocol);
+                          form.setValue('protectedProtocol', selected.protocol as 'tcp' | 'udp');
                         }
                       }}
                     >

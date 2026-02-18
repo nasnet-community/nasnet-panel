@@ -4,6 +4,7 @@
  */
 
 import { WirelessInterfaceList } from '@nasnet/features/wireless';
+
 import { SectionHeader } from '../../network/components/SectionHeader';
 
 interface WifiInterfaceListProps {

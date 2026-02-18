@@ -13,6 +13,8 @@ var matrixFS embed.FS
 
 // Service provides access to the RouterOS version compatibility matrix.
 // It supports lazy loading, caching, and hot-reload.
+//
+//nolint:interfacebloat // interface defines router compatibility contract
 type Service interface {
 	// LoadMatrix loads or reloads the compatibility matrix from the embedded YAML file.
 	LoadMatrix() error

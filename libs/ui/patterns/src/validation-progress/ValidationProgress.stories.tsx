@@ -7,8 +7,8 @@
 import { ValidationProgress } from './ValidationProgress';
 import { ValidationStage } from './ValidationStage';
 
-import type { Meta, StoryObj } from '@storybook/react';
 import type { ValidationStageResult, ValidationStageName } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ValidationProgress> = {
   title: 'Patterns/Forms/ValidationProgress',

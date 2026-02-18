@@ -2,15 +2,14 @@
  * ServiceLogViewer Desktop Presenter
  *
  * Desktop-optimized presenter for ServiceLogViewer pattern.
- * Features virtual scrolling with react-window for performance.
+ * Features virtual scrolling with @tanstack/react-virtual for performance.
  *
  * @see NAS-8.12: Service Logs & Diagnostics
  * @see ADR-018: Headless Platform Presenters
  */
 
 import * as React from 'react';
-import { FixedSizeList as List } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   Search,
   X,
@@ -56,7 +55,7 @@ const ROW_HEIGHT = 32;
  * Desktop presenter for ServiceLogViewer
  *
  * Features:
- * - Virtual scrolling with react-window
+ * - Virtual scrolling with @tanstack/react-virtual
  * - Searchable with live filtering
  * - Log level filtering with counts
  * - Auto-scroll toggle
@@ -85,6 +84,15 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
   } = useServiceLogViewer(props);
 
   const [copySuccess, setCopySuccess] = React.useState(false);
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  // Setup virtualizer
+  const rowVirtualizer = useVirtualizer({
+    count: searchResults.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ROW_HEIGHT,
+    overscan: 5,
+  });
 
   const handleCopy = async () => {
     try {
@@ -103,43 +111,6 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
   const handleClearSearch = () => {
     setSearchQuery('');
   };
-
-  // Row renderer for react-window
-  const Row = React.useCallback(
-    ({ index, style }: { index: number; style: React.CSSProperties }) => {
-      const entry = searchResults[index];
-      const bgColor = getLogLevelBgColor(entry.level);
-      const textColor = getLogLevelColor(entry.level);
-
-      return (
-        <div
-          style={style}
-          className={`
-            flex items-center px-3 border-b border-border
-            font-mono text-xs leading-none
-            cursor-pointer hover:bg-accent/50 transition-colors
-            ${bgColor}
-          `}
-          onClick={() => onEntryClick?.(entry)}
-          role="row"
-          tabIndex={0}
-          aria-label={`Log entry: ${entry.level} - ${entry.message}`}
-        >
-          <span className="text-muted-foreground w-24 shrink-0">
-            {formatLogTimestamp(entry.timestamp)}
-          </span>
-          <span className={`w-16 shrink-0 font-bold ${textColor}`}>
-            [{entry.level}]
-          </span>
-          <span className="text-muted-foreground w-32 shrink-0 truncate">
-            {entry.source}
-          </span>
-          <span className="flex-1 truncate">{entry.message}</span>
-        </div>
-      );
-    },
-    [searchResults, onEntryClick]
-  );
 
   return (
     <Card className={className}>
@@ -274,20 +245,58 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
 
         {/* Virtual scrolling log list */}
         {searchResults.length > 0 && (
-          <div className="h-[500px] border-t border-border">
-            <AutoSizer>
-              {({ height, width }) => (
-                <List
-                  height={height}
-                  itemCount={searchResults.length}
-                  itemSize={ROW_HEIGHT}
-                  width={width}
-                  className="scrollbar-thin"
-                >
-                  {Row}
-                </List>
-              )}
-            </AutoSizer>
+          <div
+            ref={parentRef}
+            className="h-[500px] border-t border-border overflow-auto scrollbar-thin"
+          >
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const entry = searchResults[virtualRow.index];
+                const bgColor = getLogLevelBgColor(entry.level);
+                const textColor = getLogLevelColor(entry.level);
+
+                return (
+                  <div
+                    key={virtualRow.index}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: `${virtualRow.size}px`,
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                    className={`
+                      flex items-center px-3 border-b border-border
+                      font-mono text-xs leading-none
+                      cursor-pointer hover:bg-accent/50 transition-colors
+                      ${bgColor}
+                    `}
+                    onClick={() => onEntryClick?.(entry)}
+                    role="row"
+                    tabIndex={0}
+                    aria-label={`Log entry: ${entry.level} - ${entry.message}`}
+                  >
+                    <span className="text-muted-foreground w-24 shrink-0">
+                      {formatLogTimestamp(entry.timestamp)}
+                    </span>
+                    <span className={`w-16 shrink-0 font-bold ${textColor}`}>
+                      [{entry.level}]
+                    </span>
+                    <span className="text-muted-foreground w-32 shrink-0 truncate">
+                      {entry.source}
+                    </span>
+                    <span className="flex-1 truncate">{entry.message}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </CardContent>

@@ -75,7 +75,7 @@ export function PortForwardWizardDialog({
 
   // React Hook Form setup
   const form = useForm<PortForward>({
-    resolver: zodResolver(PortForwardSchema),
+    resolver: zodResolver(PortForwardSchema) as any,
     defaultValues: {
       protocol: 'tcp',
       externalPort: 80,
@@ -96,7 +96,7 @@ export function PortForwardWizardDialog({
         id: 'external',
         title: 'External Settings',
         description: 'Configure external port and interface',
-        validate: async () => {
+        validate: async (): Promise<any> => {
           const externalPort = form.getValues('externalPort');
           const protocol = form.getValues('protocol');
           const wanInterface = form.getValues('wanInterface');
@@ -129,7 +129,7 @@ export function PortForwardWizardDialog({
         id: 'internal',
         title: 'Internal Settings',
         description: 'Configure internal IP and port',
-        validate: async () => {
+        validate: async (): Promise<any> => {
           const internalIP = form.getValues('internalIP');
           const internalPort = form.getValues('internalPort');
           const externalPort = form.getValues('externalPort');
@@ -191,7 +191,7 @@ export function PortForwardWizardDialog({
 
       // Create port forward using mutation hook
       await createPortForward.mutateAsync({
-        protocol: formData.protocol,
+        protocol: formData.protocol as any,
         dstPort: formData.externalPort.toString(),
         toAddresses: formData.internalIP,
         toPorts: (formData.internalPort || formData.externalPort).toString(),
@@ -216,7 +216,7 @@ export function PortForwardWizardDialog({
       toast({
         title: 'Failed to Create Port Forward',
         description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
+        variant: 'error',
       });
     }
   };

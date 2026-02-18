@@ -134,7 +134,7 @@ export function WizardStepReview({ stepper }: WizardStepReviewProps) {
         title="RouterOS Commands"
         description="Commands that will be executed on the router"
       >
-        <ConfigPreview commands={commands} />
+        <ConfigPreview script={commands.map((c) => c.command).join('\n')} />
       </FormSection>
     </div>
   );

@@ -1,19 +1,24 @@
 import * as React from 'react';
-import { cn, Button } from '@nasnet/ui/primitives';
+
+import type {
+  DriftResult,
+  DriftResolutionAction,
+  DriftResolutionRequest,
+} from '@nasnet/state/stores';
 import {
+  cn,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Alert,
+  AlertDescription,
+  AlertTitle,
 } from '@nasnet/ui/primitives';
-import { Alert, AlertDescription, AlertTitle } from '@nasnet/ui/primitives';
-import type {
-  DriftResult,
-  DriftResolutionAction,
-  DriftResolutionRequest,
-} from '@nasnet/state/stores';
+
 import { DriftDiffViewer } from './DriftDiffViewer';
 
 /**

@@ -18,6 +18,7 @@ export * from './bridge-queries.graphql';
 export * from './useBridgeQueries';
 export * from './useBridgeMutations';
 export * from './useRoutes';
+export * from './useRouteLookup';
 export * from './vlan-queries.graphql';
 export * from './useVlanQueries';
 export * from './useVlanMutations';

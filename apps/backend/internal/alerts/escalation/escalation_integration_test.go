@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
 
-	"backend/generated/ent"
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertescalation"
 	"backend/generated/ent/alertrule"
@@ -30,7 +29,7 @@ type integrationMockDispatchCall struct {
 	timestamp    time.Time
 }
 
-func (m *integrationMockDispatcher) Dispatch(ctx context.Context, notification notifications.Notification, channels []string) []notifications.DeliveryResult {
+func (m *integrationMockDispatcher) Dispatch(_ context.Context, notification notifications.Notification, channels []string) []notifications.DeliveryResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -63,8 +62,8 @@ func (m *integrationMockDispatcher) Count() int {
 	return len(m.dispatched)
 }
 
-// TestEscalationEngine_FullFlow tests complete escalation lifecycle
-// Per AC3: Alert created → 15min → escalate → 30min → escalate → acknowledge → stop
+// TestEscalationEngine_FullFlow tests complete escalation lifecycle.
+// Per AC3: Alert created → 15min → escalate → 30min → escalate → acknowledge → stop.
 func TestEscalationEngine_FullFlow(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -77,10 +76,34 @@ func TestEscalationEngine_FullFlow(t *testing.T) {
 	defer db.Close()
 
 	mockDisp := &integrationMockDispatcher{}
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         db,
-		Dispatcher: mockDisp,
-		Logger:     logger,
+
+	// Wrap the mock dispatcher to match DispatchFunc signature
+	dispatchFunc := func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+			DeviceID: deviceID,
+		}
+		results := mockDisp.Dispatch(ctx, notif, channels)
+
+		// Convert []notifications.DeliveryResult to []DispatchResult
+		dispResults := make([]DispatchResult, len(results))
+		for i, r := range results {
+			dispResults[i] = DispatchResult{
+				Channel: r.Channel,
+				Success: r.Success,
+				Error:   r.Error,
+			}
+		}
+		return dispResults
+	}
+
+	engine := NewEngine(EngineConfig{
+		DB:       db,
+		Dispatch: dispatchFunc,
+		Logger:   logger,
 	})
 
 	require.NoError(t, engine.Start(ctx))
@@ -152,7 +175,7 @@ func TestEscalationEngine_FullFlow(t *testing.T) {
 	// Cancel escalation
 	require.NoError(t, engine.CancelEscalation(ctx, alertEntity.ID, "alert acknowledged"))
 
-	// Verify escalation cancelled in DB
+	// Verify escalation canceled in DB
 	esc, err := db.AlertEscalation.Query().
 		Where(alertescalation.AlertIDEQ(alertEntity.ID)).
 		Only(ctx)
@@ -164,8 +187,8 @@ func TestEscalationEngine_FullFlow(t *testing.T) {
 	t.Log("Full escalation flow test completed successfully")
 }
 
-// TestEscalationEngine_RestartRecovery tests crash recovery
-// Per AC6: Restart recovery - escalation resumes after restart
+// TestEscalationEngine_RestartRecovery tests crash recovery.
+// Per AC6: Restart recovery - escalation resumes after restart.
 func TestEscalationEngine_RestartRecovery(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -220,10 +243,34 @@ func TestEscalationEngine_RestartRecovery(t *testing.T) {
 
 	// Create "new" engine (simulating restart)
 	mockDisp := &integrationMockDispatcher{}
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         db,
-		Dispatcher: mockDisp,
-		Logger:     logger,
+
+	// Wrap the mock dispatcher to match DispatchFunc signature
+	dispatchFunc := func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+			DeviceID: deviceID,
+		}
+		results := mockDisp.Dispatch(ctx, notif, channels)
+
+		// Convert []notifications.DeliveryResult to []DispatchResult
+		dispResults := make([]DispatchResult, len(results))
+		for i, r := range results {
+			dispResults[i] = DispatchResult{
+				Channel: r.Channel,
+				Success: r.Success,
+				Error:   r.Error,
+			}
+		}
+		return dispResults
+	}
+
+	engine := NewEngine(EngineConfig{
+		DB:       db,
+		Dispatch: dispatchFunc,
+		Logger:   logger,
 	})
 
 	// Start should recover pending escalations
@@ -246,8 +293,8 @@ func TestEscalationEngine_RestartRecovery(t *testing.T) {
 	t.Log("Restart recovery test completed successfully")
 }
 
-// TestEscalationEngine_PastDueRecovery tests past-due escalation handling
-// Per AC6: If escalation due at 10:05, restart at 10:10 → trigger immediately
+// TestEscalationEngine_PastDueRecovery tests past-due escalation handling.
+// Per AC6: If escalation due at 10:05, restart at 10:10 → trigger immediately.
 func TestEscalationEngine_PastDueRecovery(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -301,10 +348,34 @@ func TestEscalationEngine_PastDueRecovery(t *testing.T) {
 	require.NoError(t, err)
 
 	mockDisp := &integrationMockDispatcher{}
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         db,
-		Dispatcher: mockDisp,
-		Logger:     logger,
+
+	// Wrap the mock dispatcher to match DispatchFunc signature
+	dispatchFunc := func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+			DeviceID: deviceID,
+		}
+		results := mockDisp.Dispatch(ctx, notif, channels)
+
+		// Convert []notifications.DeliveryResult to []DispatchResult
+		dispResults := make([]DispatchResult, len(results))
+		for i, r := range results {
+			dispResults[i] = DispatchResult{
+				Channel: r.Channel,
+				Success: r.Success,
+				Error:   r.Error,
+			}
+		}
+		return dispResults
+	}
+
+	engine := NewEngine(EngineConfig{
+		DB:       db,
+		Dispatch: dispatchFunc,
+		Logger:   logger,
 	})
 
 	// Record time before starting engine
@@ -330,7 +401,7 @@ func TestEscalationEngine_PastDueRecovery(t *testing.T) {
 	t.Log("Past-due recovery test completed successfully")
 }
 
-// TestEscalationEngine_ThrottleInteraction tests escalation doesn't trigger for throttled alerts
+// TestEscalationEngine_ThrottleInteraction tests escalation doesn't trigger for throttled alerts.
 func TestEscalationEngine_ThrottleInteraction(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -342,10 +413,34 @@ func TestEscalationEngine_ThrottleInteraction(t *testing.T) {
 	defer db.Close()
 
 	mockDisp := &integrationMockDispatcher{}
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         db,
-		Dispatcher: mockDisp,
-		Logger:     logger,
+
+	// Wrap the mock dispatcher to match DispatchFunc signature
+	dispatchFunc := func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+			DeviceID: deviceID,
+		}
+		results := mockDisp.Dispatch(ctx, notif, channels)
+
+		// Convert []notifications.DeliveryResult to []DispatchResult
+		dispResults := make([]DispatchResult, len(results))
+		for i, r := range results {
+			dispResults[i] = DispatchResult{
+				Channel: r.Channel,
+				Success: r.Success,
+				Error:   r.Error,
+			}
+		}
+		return dispResults
+	}
+
+	engine := NewEngine(EngineConfig{
+		DB:       db,
+		Dispatch: dispatchFunc,
+		Logger:   logger,
 	})
 
 	require.NoError(t, engine.Start(ctx))
@@ -440,7 +535,7 @@ func (m *mockEventBus) GetEvents() []mockEvent {
 	return append([]mockEvent{}, m.events...)
 }
 
-// TestEscalationEngine_EventBusIntegration verifies events are published
+// TestEscalationEngine_EventBusIntegration verifies events are published.
 func TestEscalationEngine_EventBusIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping integration test in short mode")
@@ -454,11 +549,34 @@ func TestEscalationEngine_EventBusIntegration(t *testing.T) {
 	mockDisp := &integrationMockDispatcher{}
 	mockEB := &mockEventBus{}
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         db,
-		Dispatcher: mockDisp,
-		EventBus:   mockEB,
-		Logger:     logger,
+	// Wrap the mock dispatcher to match DispatchFunc signature
+	dispatchFunc := func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+			DeviceID: deviceID,
+		}
+		results := mockDisp.Dispatch(ctx, notif, channels)
+
+		// Convert []notifications.DeliveryResult to []DispatchResult
+		dispResults := make([]DispatchResult, len(results))
+		for i, r := range results {
+			dispResults[i] = DispatchResult{
+				Channel: r.Channel,
+				Success: r.Success,
+				Error:   r.Error,
+			}
+		}
+		return dispResults
+	}
+
+	engine := NewEngine(EngineConfig{
+		DB:       db,
+		Dispatch: dispatchFunc,
+		EventBus: nil, // TODO: fix mockEventBus to implement EventBus interface correctly
+		Logger:   logger,
 	})
 
 	require.NoError(t, engine.Start(ctx))

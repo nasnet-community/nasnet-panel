@@ -62,7 +62,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
 
   // Fetch service instances
   const {
-    data: instances,
+    instances,
     loading,
     error,
     refetch,
@@ -130,7 +130,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
   const services: Service[] = React.useMemo(() => {
     if (!instances) return [];
 
-    return instances.map((instance) => ({
+    return instances.map((instance: any) => ({
       id: instance.id,
       name: instance.instanceName,
       description: `${instance.featureID} service instance`,
@@ -205,11 +205,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
           case 'start':
             await Promise.all(
               instanceIds.map((id) =>
-                startInstance({
-                  variables: {
-                    input: { routerID: routerId, instanceID: id },
-                  },
-                })
+                startInstance({ routerID: routerId, instanceID: id })
               )
             );
             break;
@@ -217,11 +213,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
           case 'stop':
             await Promise.all(
               instanceIds.map((id) =>
-                stopInstance({
-                  variables: {
-                    input: { routerID: routerId, instanceID: id },
-                  },
-                })
+                stopInstance({ routerID: routerId, instanceID: id })
               )
             );
             break;
@@ -229,11 +221,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
           case 'restart':
             await Promise.all(
               instanceIds.map((id) =>
-                restartInstance({
-                  variables: {
-                    input: { routerID: routerId, instanceID: id },
-                  },
-                })
+                restartInstance({ routerID: routerId, instanceID: id })
               )
             );
             break;
@@ -242,11 +230,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
             // Confirmation handled by InstanceManager
             await Promise.all(
               instanceIds.map((id) =>
-                deleteInstance({
-                  variables: {
-                    input: { routerID: routerId, instanceID: id },
-                  },
-                })
+                deleteInstance({ routerID: routerId, instanceID: id })
               )
             );
             break;
@@ -489,19 +473,15 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
       {/* Import dialog */}
       <ServiceImportDialog
         open={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-        routerId={routerId}
-        onSuccess={async (instanceId) => {
+        onOpenChange={(open: boolean) => {
+          if (!open) setImportDialogOpen(false);
+        }}
+        routerID={routerId}
+        onImportComplete={async (instanceId: string) => {
           // Refetch instances
           await refetch();
           // Navigate to new instance detail page
           console.log('Import successful, navigate to:', instanceId);
-        }}
-        onMissingService={(serviceType) => {
-          // Close import, open install dialog
-          setImportDialogOpen(false);
-          setInstallDialogOpen(true);
-          // TODO: Pre-select serviceType in install dialog
         }}
       />
     </div>

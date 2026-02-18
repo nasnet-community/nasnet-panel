@@ -149,7 +149,7 @@ export function ConflictCard({
               <Badge
                 variant={
                   conflict.severity === 'error'
-                    ? 'destructive'
+                    ? 'error'
                     : conflict.severity === 'warning'
                     ? 'default'
                     : 'secondary'
@@ -302,7 +302,7 @@ function ResolutionOption({
             </Badge>
           )}
           {resolution.destructive && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="error" className="text-xs">
               Destructive
             </Badge>
           )}

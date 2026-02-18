@@ -154,36 +154,36 @@ func GetComplexity(ctx context.Context) (OperationComplexity, bool) {
 	return c, ok
 }
 
-// ComplexityHandler is a gqlgen operation middleware that tracks complexity.
-type ComplexityHandler struct{}
+// Handler is a gqlgen operation middleware that tracks complexity.
+type Handler struct{}
 
-// NewComplexityHandler creates a new complexity handler.
-func NewComplexityHandler() *ComplexityHandler {
-	return &ComplexityHandler{}
+// NewHandler creates a new complexity handler.
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 // InterceptOperation implements graphql.OperationInterceptor.
 // Note: Complexity is calculated by gqlgen's complexity extension, not here.
 // This handler reads complexity from context if set by the complexity limit extension.
-func (h *ComplexityHandler) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
+func (h *Handler) InterceptOperation(ctx context.Context, next graphql.OperationHandler) graphql.ResponseHandler {
 	return next(ctx)
 }
 
-// ComplexityResponseMiddleware adds complexity headers to the response.
-type ComplexityResponseMiddleware struct{}
+// ResponseMiddleware adds complexity headers to the response.
+type ResponseMiddleware struct{}
 
 // ExtensionName returns the extension name.
-func (m *ComplexityResponseMiddleware) ExtensionName() string {
+func (m *ResponseMiddleware) ExtensionName() string {
 	return "ComplexityResponse"
 }
 
 // Validate is called on server startup.
-func (m *ComplexityResponseMiddleware) Validate(_ graphql.ExecutableSchema) error {
+func (m *ResponseMiddleware) Validate(_ graphql.ExecutableSchema) error {
 	return nil
 }
 
 // InterceptResponse adds complexity headers.
-func (m *ComplexityResponseMiddleware) InterceptResponse(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
+func (m *ResponseMiddleware) InterceptResponse(ctx context.Context, next graphql.ResponseHandler) *graphql.Response {
 	resp := next(ctx)
 
 	// Get complexity from context if set

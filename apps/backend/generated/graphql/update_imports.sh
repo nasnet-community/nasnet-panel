@@ -6,7 +6,7 @@ set -e
 
 echo "🔄 Updating GraphQL imports..."
 
-# Step 1: Update exec imports (backend/graph → backend/generated/graphql)
+# Step 1: Update exec imports (backend/graph → backend/graph/model)
 echo "📦 Updating exec imports in 7 files..."
 for file in \
   "cmd/nnc/main_dev.go" \
@@ -18,14 +18,14 @@ for file in \
 do
   if [ -f "$file" ]; then
     echo "  - $file"
-    # Replace "backend/graph" with "backend/generated/graphql" (not affecting backend/graph/model or backend/graph/resolver)
-    sed -i 's|"backend/graph"$|"backend/generated/graphql"|g' "$file"
+    # Replace "backend/graph" with "backend/graph/model" (not affecting backend/graph/model or backend/graph/resolver)
+    sed -i 's|"backend/graph"$|"backend/graph/model"|g' "$file"
   else
     echo "  ⚠️  File not found: $file"
   fi
 done
 
-# Step 2: Update model imports (backend/graph/model → backend/generated/graphql)
+# Step 2: Update model imports (backend/graph/model → backend/graph/model)
 # This is more complex - we need to analyze which files use generated types vs custom scalars
 echo ""
 echo "📦 Finding files that import backend/graph/model..."
@@ -37,7 +37,7 @@ echo ""
 echo "⚠️  MANUAL STEP REQUIRED:"
 echo "  Not all files should be updated automatically."
 echo "  Files using custom scalars (IPv4, MAC, CIDR, etc.) should keep backend/graph/model"
-echo "  Files using generated types (Input, Payload, etc.) should change to backend/generated/graphql"
+echo "  Files using generated types (Input, Payload, etc.) should change to backend/graph/model"
 echo ""
 echo "  Review these files manually or use the analyze_imports.sh script"
 
@@ -58,6 +58,6 @@ echo "Next steps:"
 echo "  1. Review graph/resolver/*.go files"
 echo "  2. For each file, check if it uses:"
 echo "     - Custom scalars (keep backend/graph/model)"
-echo "     - Generated types (change to backend/generated/graphql)"
+echo "     - Generated types (change to backend/graph/model)"
 echo "  3. Run: go build ./..."
 echo "  4. Run: go test ./..."

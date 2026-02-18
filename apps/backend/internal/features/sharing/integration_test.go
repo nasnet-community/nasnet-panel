@@ -1,16 +1,17 @@
 package sharing
 
 import (
-	"backend/generated/ent"
-	"backend/generated/ent/serviceinstance"
-	"backend/internal/events"
-	"backend/internal/router"
 	"context"
 	"encoding/json"
 	"testing"
 	"time"
 
+	"backend/generated/ent"
+
+	"backend/internal/router"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +24,7 @@ func TestExportImportRoundTrip(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	_ = NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock event publishing
 	mockEventBus.On("Publish", context.Background(), &ServiceConfigExportedEvent{}).Return(nil)
@@ -36,9 +37,9 @@ func TestExportImportRoundTrip(t *testing.T) {
 		InstanceName:  "Tor Exit Node",
 		BinaryVersion: "0.4.7.13",
 		Config: map[string]interface{}{
-			"port":       9050,
-			"exitPolicy": "accept *:80",
-			"nickname":   "MyTorNode",
+			"port":        9050,
+			"exitPolicy":  "accept *:80",
+			"nickname":    "MyTorNode",
 			"contactInfo": "admin@example.com",
 		},
 	}
@@ -71,8 +72,8 @@ func TestExportImportRoundTrip(t *testing.T) {
 	assert.Equal(t, pkg.IncludesSecrets, importedPkg.IncludesSecrets, "Includes secrets flag preserved")
 	assert.Equal(t, pkg.ExportedByUserID, importedPkg.ExportedByUserID, "User ID preserved")
 
-	// Verify config fields preserved
-	assert.Equal(t, pkg.Config["port"], importedPkg.Config["port"], "Port preserved")
+	// Verify config fields preserved (note: JSON unmarshaling converts ints to float64)
+	assert.Equal(t, float64(9050), importedPkg.Config["port"], "Port preserved")
 	assert.Equal(t, pkg.Config["exitPolicy"], importedPkg.Config["exitPolicy"], "Exit policy preserved")
 	assert.Equal(t, pkg.Config["nickname"], importedPkg.Config["nickname"], "Nickname preserved")
 	assert.Equal(t, pkg.Config["contactInfo"], importedPkg.Config["contactInfo"], "Contact info preserved")
@@ -87,7 +88,7 @@ func TestExportWithRouting_ImportWithMissingDevices(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock router query for mangle rules (export)
 	mockRouter.On("QueryState", context.Background(), router.StateQuery{
@@ -172,12 +173,12 @@ func TestQRCodeRoundTrip(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	require.NoError(t, err)
 
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock event publishing
 	var capturedEvent *QRCodeGeneratedEvent
-	mockEventBus.On("Publish", context.Background(), &QRCodeGeneratedEvent{}).Run(func(args interface{}) {
-		if event, ok := args.(*QRCodeGeneratedEvent); ok {
+	mockEventBus.On("Publish", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		if event, ok := args.Get(1).(*QRCodeGeneratedEvent); ok {
 			capturedEvent = event
 		}
 	}).Return(nil)

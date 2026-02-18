@@ -12,7 +12,10 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
+import { Pencil, Copy, Trash2, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
+import type { RateLimitRule } from '@nasnet/core/types';
 import {
   Card,
   CardContent,
@@ -26,18 +29,15 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Skeleton,
 } from '@nasnet/ui/primitives';
-import { Pencil, Copy, Trash2, ChevronRight } from 'lucide-react';
-import type { RateLimitRule } from '@nasnet/core/types';
+
 import type { RateLimitRulesTablePresenterProps } from './types';
 
 // ============================================================================
@@ -46,8 +46,8 @@ import type { RateLimitRulesTablePresenterProps } from './types';
 
 function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'destructive' | 'warning' | 'info'> = {
-    drop: 'destructive',
+  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+    drop: 'error',
     tarpit: 'warning',
     'add-to-list': 'info',
   };
@@ -283,25 +283,32 @@ export function RateLimitRulesTableMobile({
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Rate Limit Rule?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Rate Limit Rule?</DialogTitle>
+            <DialogDescription>
               This action cannot be undone. The rule will be permanently removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2">
-            <AlertDialogAction
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2">
+            <Button
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 min-h-[44px] w-full"
+              variant="destructive"
+              className="min-h-[44px] w-full"
             >
               Delete Rule
-            </AlertDialogAction>
-            <AlertDialogCancel className="min-h-[44px] w-full">Cancel</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+            <Button
+              onClick={closeDelete}
+              variant="outline"
+              className="min-h-[44px] w-full"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Statistics Panel */}
       {statsRule && (

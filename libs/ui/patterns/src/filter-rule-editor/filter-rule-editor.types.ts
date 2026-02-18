@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/filter-rule-editor
  */
 
-import type { FilterRule, FilterRuleInput } from '@nasnet/core/types/firewall';
+import type { FilterRule, FilterRuleInput } from '@nasnet/core/types';
 
 /**
  * FilterRuleEditor Props

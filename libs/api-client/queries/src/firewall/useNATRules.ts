@@ -251,7 +251,7 @@ export function useCreatePortForward(routerIp: string) {
       disabled?: boolean;
     }) => {
       const rule: Partial<NATRule> = {
-        chain: 'dstnat',
+        chain: 'dstnat' as any,
         action: 'dst-nat',
         protocol: config.protocol,
         dstPort: config.dstPort,
@@ -293,7 +293,7 @@ export function useCreateMasqueradeRule(routerIp: string) {
       disabled?: boolean;
     }) => {
       const rule: Partial<NATRule> = {
-        chain: 'srcnat',
+        chain: 'srcnat' as any,
         action: 'masquerade',
         outInterface: config.outInterface,
         srcAddress: config.srcAddress,

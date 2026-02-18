@@ -11,9 +11,7 @@ import {
   Skeleton,
   SkeletonCard,
   SkeletonChart,
-  SkeletonText,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
 
 export interface DashboardSkeletonProps {
   /** Additional CSS classes */

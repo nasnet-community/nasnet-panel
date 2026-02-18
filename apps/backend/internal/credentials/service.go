@@ -9,14 +9,14 @@
 package credentials
 
 import (
-	"backend/generated/ent"
-	"backend/internal/encryption"
-	"backend/pkg/ulid"
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
+
+	"backend/generated/ent"
+	"backend/internal/common/ulid"
+	"backend/internal/encryption"
 )
 
 // Service error definitions
@@ -65,7 +65,6 @@ type UpdateInput struct {
 // Service manages router credentials with automatic encryption/decryption.
 type Service struct {
 	encService *encryption.Service
-	mu         sync.RWMutex
 }
 
 // NewService creates a new credential service with the given encryption service.
@@ -105,12 +104,12 @@ func (s *Service) Create(ctx context.Context, client *ent.Client, routerID strin
 	// Encrypt credentials
 	encUsername, err := s.encService.Encrypt(input.Username)
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %v", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: username: %w", ErrEncryptionFailed, err)
 	}
 
 	encPassword, err := s.encService.Encrypt(input.Password)
 	if err != nil {
-		return nil, fmt.Errorf("%w: password: %v", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: password: %w", ErrEncryptionFailed, err)
 	}
 
 	// Generate ULID for the secret
@@ -153,12 +152,12 @@ func (s *Service) Update(ctx context.Context, client *ent.Client, routerID strin
 	// Encrypt new credentials
 	encUsername, err := s.encService.Encrypt(input.Username)
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %v", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: username: %w", ErrEncryptionFailed, err)
 	}
 
 	encPassword, err := s.encService.Encrypt(input.Password)
 	if err != nil {
-		return nil, fmt.Errorf("%w: password: %v", ErrEncryptionFailed, err)
+		return nil, fmt.Errorf("%w: password: %w", ErrEncryptionFailed, err)
 	}
 
 	// Update the secret
@@ -191,12 +190,12 @@ func (s *Service) Get(ctx context.Context, client *ent.Client, routerID string) 
 	// Decrypt credentials
 	username, err := s.encService.Decrypt(string(secret.EncryptedUsername))
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %v", ErrDecryptionFailed, err)
+		return nil, fmt.Errorf("%w: username: %w", ErrDecryptionFailed, err)
 	}
 
 	password, err := s.encService.Decrypt(string(secret.EncryptedPassword))
 	if err != nil {
-		return nil, fmt.Errorf("%w: password: %v", ErrDecryptionFailed, err)
+		return nil, fmt.Errorf("%w: password: %w", ErrDecryptionFailed, err)
 	}
 
 	return &Credentials{
@@ -223,7 +222,7 @@ func (s *Service) GetInfo(ctx context.Context, client *ent.Client, routerID stri
 	// Decrypt only the username (safe to display)
 	username, err := s.encService.Decrypt(string(secret.EncryptedUsername))
 	if err != nil {
-		return nil, fmt.Errorf("%w: username: %v", ErrDecryptionFailed, err)
+		return nil, fmt.Errorf("%w: username: %w", ErrDecryptionFailed, err)
 	}
 
 	return &CredentialInfo{
@@ -269,9 +268,9 @@ func SanitizeForLog(creds *Credentials) map[string]interface{} {
 		return nil
 	}
 	return map[string]interface{}{
-		"username":    creds.Username,
-		"password":    "[REDACTED]",
-		"key_version": creds.KeyVersion,
+		"username":     creds.Username,
+		"password":     "[REDACTED]",
+		"key_version":  creds.KeyVersion,
 		"last_updated": creds.LastUpdated,
 	}
 }

@@ -60,7 +60,7 @@ export interface SessionExpiringDialogProps {
  * Hook for session expiring state
  */
 export function useSessionExpiring(warningThreshold = 300) {
-  const { accessToken, expiresAt, logout, isAuthenticated } = useAuthStore();
+  const { token: accessToken, tokenExpiry: expiresAt, clearAuth: logout, isAuthenticated } = useAuthStore();
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isExpiring, setIsExpiring] = useState(false);
 
@@ -302,4 +302,3 @@ export function SessionExpiringDialog({
   );
 }
 
-export type { SessionExpiringDialogProps };

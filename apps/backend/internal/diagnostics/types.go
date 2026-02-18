@@ -97,12 +97,12 @@ type DiagnosticReport struct {
 
 // ConnectionAttempt records a single protocol connection attempt.
 type ConnectionAttempt struct {
-	Protocol     Protocol       `json:"protocol"`
-	StartedAt    time.Time      `json:"startedAt"`
-	EndedAt      time.Time      `json:"endedAt"`
-	Success      bool           `json:"success"`
-	ErrorCode    *string        `json:"errorCode,omitempty"`
-	ErrorMessage *string        `json:"errorMessage,omitempty"`
+	Protocol      Protocol       `json:"protocol"`
+	StartedAt     time.Time      `json:"startedAt"`
+	EndedAt       time.Time      `json:"endedAt"`
+	Success       bool           `json:"success"`
+	ErrorCode     *string        `json:"errorCode,omitempty"`
+	ErrorMessage  *string        `json:"errorMessage,omitempty"`
 	ErrorCategory *ErrorCategory `json:"errorCategory,omitempty"`
 }
 

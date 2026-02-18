@@ -9,88 +9,88 @@ import (
 
 func TestGetTemplate(t *testing.T) {
 	tests := []struct {
-		name        string
-		channel     string
+		name         string
+		channel      string
 		templateName string
-		wantErr     bool
+		wantErr      bool
 	}{
 		{
-			name:        "email subject template exists",
-			channel:     "email",
+			name:         "email subject template exists",
+			channel:      "email",
 			templateName: "default-subject",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "email html body template exists",
-			channel:     "email",
+			name:         "email html body template exists",
+			channel:      "email",
 			templateName: "default-body.html",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "email text body template exists",
-			channel:     "email",
+			name:         "email text body template exists",
+			channel:      "email",
 			templateName: "default-body.txt",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "telegram message template exists",
-			channel:     "telegram",
+			name:         "telegram message template exists",
+			channel:      "telegram",
 			templateName: "default-message",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "pushover title template exists",
-			channel:     "pushover",
+			name:         "pushover title template exists",
+			channel:      "pushover",
 			templateName: "default-title",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "pushover message template exists",
-			channel:     "pushover",
+			name:         "pushover message template exists",
+			channel:      "pushover",
 			templateName: "default-message",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "webhook payload template exists",
-			channel:     "webhook",
+			name:         "webhook payload template exists",
+			channel:      "webhook",
 			templateName: "default-payload",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "inapp title template exists",
-			channel:     "inapp",
+			name:         "inapp title template exists",
+			channel:      "inapp",
 			templateName: "default-title",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "inapp message template exists",
-			channel:     "inapp",
+			name:         "inapp message template exists",
+			channel:      "inapp",
 			templateName: "default-message",
-			wantErr:     false,
+			wantErr:      false,
 		},
 		{
-			name:        "non-existent template returns error",
-			channel:     "email",
+			name:         "non-existent template returns error",
+			channel:      "email",
 			templateName: "non-existent",
-			wantErr:     true,
+			wantErr:      true,
 		},
 		{
-			name:        "non-existent channel returns error",
-			channel:     "sms",
+			name:         "non-existent channel returns error",
+			channel:      "sms",
 			templateName: "default-message",
-			wantErr:     true,
+			wantErr:      true,
 		},
 		{
-			name:        "empty channel returns error",
-			channel:     "",
+			name:         "empty channel returns error",
+			channel:      "",
 			templateName: "default-message",
-			wantErr:     true,
+			wantErr:      true,
 		},
 		{
-			name:        "empty template name returns error",
-			channel:     "email",
+			name:         "empty template name returns error",
+			channel:      "email",
 			templateName: "",
-			wantErr:     true,
+			wantErr:      true,
 		},
 	}
 
@@ -110,10 +110,10 @@ func TestGetTemplate(t *testing.T) {
 
 func TestGetAllTemplatesForChannel(t *testing.T) {
 	tests := []struct {
-		name        string
-		channel     string
-		wantCount   int
-		wantErr     bool
+		name      string
+		channel   string
+		wantCount int
+		wantErr   bool
 	}{
 		{
 			name:      "email channel has 3 templates",
@@ -212,9 +212,9 @@ func TestTemplateFuncMap(t *testing.T) {
 
 func TestValidateTemplate(t *testing.T) {
 	tests := []struct {
-		name     string
-		content  string
-		wantErr  bool
+		name    string
+		content string
+		wantErr bool
 	}{
 		{
 			name:    "valid template",
@@ -250,28 +250,28 @@ func TestValidateTemplate(t *testing.T) {
 
 func TestTemplateExists(t *testing.T) {
 	tests := []struct {
-		name        string
-		channel     string
+		name         string
+		channel      string
 		templateName string
-		want        bool
+		want         bool
 	}{
 		{
-			name:        "existing template",
-			channel:     "email",
+			name:         "existing template",
+			channel:      "email",
 			templateName: "default-subject",
-			want:        true,
+			want:         true,
 		},
 		{
-			name:        "non-existing template",
-			channel:     "email",
+			name:         "non-existing template",
+			channel:      "email",
 			templateName: "non-existent",
-			want:        false,
+			want:         false,
 		},
 		{
-			name:        "non-existing channel",
-			channel:     "sms",
+			name:         "non-existing channel",
+			channel:      "sms",
 			templateName: "default-message",
-			want:        false,
+			want:         false,
 		},
 	}
 
@@ -318,44 +318,44 @@ func TestTemplateRendering(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		channel     string
+		name         string
+		channel      string
 		templateName string
 		checkContent []string // Strings that should appear in rendered output
 	}{
 		{
-			name:        "email subject renders correctly",
-			channel:     "email",
+			name:         "email subject renders correctly",
+			channel:      "email",
 			templateName: "default-subject",
 			checkContent: []string{"CRITICAL", "Router Offline", "Office-Router-01"},
 		},
 		{
-			name:        "email html body renders correctly",
-			channel:     "email",
+			name:         "email html body renders correctly",
+			channel:      "email",
 			templateName: "default-body.html",
 			checkContent: []string{"CRITICAL", "Router Offline", "192.168.1.1", "Suggested Actions"},
 		},
 		{
-			name:        "email text body renders correctly",
-			channel:     "email",
+			name:         "email text body renders correctly",
+			channel:      "email",
 			templateName: "default-body.txt",
 			checkContent: []string{"CRITICAL", "Router Offline", "192.168.1.1", "SUGGESTED ACTIONS"},
 		},
 		{
-			name:        "telegram message renders correctly",
-			channel:     "telegram",
+			name:         "telegram message renders correctly",
+			channel:      "telegram",
 			templateName: "default-message",
 			checkContent: []string{"CRITICAL", "Router Offline", "router.offline"},
 		},
 		{
-			name:        "pushover title renders correctly",
-			channel:     "pushover",
+			name:         "pushover title renders correctly",
+			channel:      "pushover",
 			templateName: "default-title",
 			checkContent: []string{"CRITICAL", "Router Offline"},
 		},
 		{
-			name:        "inapp title renders correctly",
-			channel:     "inapp",
+			name:         "inapp title renders correctly",
+			channel:      "inapp",
 			templateName: "default-title",
 			checkContent: []string{"Router Offline"},
 		},

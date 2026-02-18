@@ -8,13 +8,14 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
+
 import {
   BOGON_RANGES,
   getBogonCategoryDescription,
   getBogonSecurityRec,
   type BogonCategory,
+  type RawRule,
 } from '@nasnet/core/types';
-import type { RawRule } from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -33,7 +34,7 @@ export interface UseBogonFilterDialogReturn {
   /** Selected interface */
   selectedInterface: string;
   /** Set selected interface */
-  setSelectedInterface: (interface: string) => void;
+  setSelectedInterface: (iface: string) => void;
 
   /** Selected categories */
   selectedCategories: Set<BogonCategory>;

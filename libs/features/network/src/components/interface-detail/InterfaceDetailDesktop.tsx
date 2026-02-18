@@ -72,7 +72,7 @@ export function InterfaceDetailDesktop({
                       iface.status === 'UP'
                         ? 'success'
                         : iface.status === 'DOWN'
-                        ? 'destructive'
+                        ? 'error'
                         : 'secondary'
                     }
                   >

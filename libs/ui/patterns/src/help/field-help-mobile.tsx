@@ -13,9 +13,10 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { FieldHelpMobileProps } from './help.types';
 import { HelpIcon } from './help-icon';
 import { HelpSheet } from './help-sheet';
+
+import type { FieldHelpMobileProps } from './help.types';
 
 /**
  * FieldHelpMobile - Mobile presenter for field help

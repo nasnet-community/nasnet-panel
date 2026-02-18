@@ -15,10 +15,11 @@ import * as React from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
 
-import type { FieldHelpProps } from './help.types';
-import { useFieldHelp } from './use-field-help';
 import { FieldHelpDesktop } from './field-help-desktop';
 import { FieldHelpMobile } from './field-help-mobile';
+import { useFieldHelp } from './use-field-help';
+
+import type { FieldHelpProps } from './help.types';
 
 /**
  * FieldHelp - Auto-detecting contextual help component

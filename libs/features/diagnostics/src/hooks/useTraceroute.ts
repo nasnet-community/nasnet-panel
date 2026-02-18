@@ -143,7 +143,7 @@ export function useTraceroute(options: UseTracerouteOptions): UseTracerouteRetur
         case 'COMPLETE':
           if (finalResult) {
             setResult(finalResult);
-            setHops(finalResult.hops); // Use final authoritative hop list
+            setHops([...finalResult.hops]); // Use final authoritative hop list
             setIsRunning(false);
             setProgress(100);
             setJobId(null);

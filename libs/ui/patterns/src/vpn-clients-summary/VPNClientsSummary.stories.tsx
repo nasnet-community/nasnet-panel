@@ -1,6 +1,6 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+
 import {
   Shield,
   ChevronRight,
@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@nasnet/ui/primitives';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock types and components for Storybook
 type VPNProtocol = 'wireguard' | 'openvpn' | 'l2tp' | 'pptp' | 'sstp' | 'ikev2';

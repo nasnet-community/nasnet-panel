@@ -7,6 +7,8 @@
 
 import * as React from 'react';
 
+import { FileText } from 'lucide-react';
+
 import {
   Badge,
   Button,
@@ -19,11 +21,12 @@ import {
   AlertDescription,
   cn,
 } from '@nasnet/ui/primitives';
-import { EmptyState } from '../empty-state';
 
+import { EmptyState } from '../empty-state';
 import { TemplateVariableEditor } from './TemplateVariableEditor';
-import type { UseTemplatePreviewReturn } from './use-template-preview';
+
 import type { TemplateRule, TemplateConflict, ImpactAnalysis } from './template-preview.types';
+import type { UseTemplatePreviewReturn } from './use-template-preview';
 
 export interface TemplatePreviewMobileProps {
   /** Template preview hook return value */
@@ -66,7 +69,7 @@ function RuleCard({ rule, index }: RuleCardProps) {
               rule.action === 'accept'
                 ? 'default'
                 : rule.action === 'drop'
-                  ? 'destructive'
+                  ? 'error'
                   : 'outline'
             }
             className="text-xs"
@@ -109,7 +112,7 @@ function ConflictCard({ conflict, index }: ConflictCardProps) {
   return (
     <Card className="p-3 border-destructive">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <Badge variant="destructive" className="text-xs">
+        <Badge variant="error" className="text-xs">
           {conflict.type}
         </Badge>
         <span className="text-xs text-muted-foreground">#{index + 1}</span>
@@ -174,7 +177,7 @@ function ImpactSummary({ impactAnalysis }: ImpactSummaryProps) {
         <Card className="p-3">
           <p className="text-xs font-semibold mb-2">Affected Chains</p>
           <div className="flex flex-wrap gap-1">
-            {impactAnalysis.affectedChains.map((chain) => (
+            {impactAnalysis.affectedChains.map((chain: string) => (
               <Badge key={chain} variant="outline" className="text-xs">
                 {chain}
               </Badge>
@@ -189,7 +192,7 @@ function ImpactSummary({ impactAnalysis }: ImpactSummaryProps) {
           <AlertDescription>
             <p className="font-semibold text-xs mb-2">Warnings:</p>
             <ul className="list-disc list-inside space-y-1">
-              {impactAnalysis.warnings.map((warning, index) => (
+              {impactAnalysis.warnings.map((warning: string, index: number) => (
                 <li key={index} className="text-xs">
                   {warning}
                 </li>
@@ -305,12 +308,13 @@ export function TemplatePreviewMobile({
               <AccordionContent className="px-4 pt-4">
                 {previewResult.resolvedRules && previewResult.resolvedRules.length > 0 ? (
                   <div className="space-y-2">
-                    {previewResult.resolvedRules.map((rule, index) => (
+                    {previewResult.resolvedRules.map((rule: TemplateRule, index: number) => (
                       <RuleCard key={index} rule={rule} index={index} />
                     ))}
                   </div>
                 ) : (
                   <EmptyState
+                    icon={FileText}
                     title="No rules"
                     description="No rules found in this template."
                   />
@@ -326,7 +330,7 @@ export function TemplatePreviewMobile({
                 <div className="flex items-center gap-2">
                   <span className="font-semibold">Conflicts</span>
                   {hasConflicts ? (
-                    <Badge variant="destructive" className="text-xs">
+                    <Badge variant="error" className="text-xs">
                       {previewResult.conflicts?.length || 0}
                     </Badge>
                   ) : (
@@ -345,7 +349,7 @@ export function TemplatePreviewMobile({
                         applying.
                       </AlertDescription>
                     </Alert>
-                    {previewResult.conflicts.map((conflict, index) => (
+                    {previewResult.conflicts.map((conflict: TemplateConflict, index: number) => (
                       <ConflictCard key={index} conflict={conflict} index={index} />
                     ))}
                   </div>
@@ -382,6 +386,7 @@ export function TemplatePreviewMobile({
 
         {!previewResult && (
           <EmptyState
+            icon={FileText}
             title="No preview generated"
             description="Configure the variables and generate a preview to see the resolved rules."
             className="mt-8"

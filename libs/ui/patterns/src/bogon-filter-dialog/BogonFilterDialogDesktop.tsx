@@ -8,8 +8,11 @@
  */
 
 import { memo, useState } from 'react';
+
 import { Shield, AlertTriangle, Check, Info } from 'lucide-react';
 
+import { useBatchCreateRawRules } from '@nasnet/api-client/queries';
+import type { BatchProgress } from '@nasnet/api-client/queries';
 import {
   Dialog,
   DialogContent,
@@ -17,8 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Select,
@@ -29,13 +31,12 @@ import {
   Checkbox,
   Alert,
   AlertDescription,
-  Progress,
-} from '@nasnet/ui/primitives';
+  Progress} from '@nasnet/ui/primitives';
 
-import { useBatchCreateRawRules } from '@nasnet/api-client/queries';
 import { useBogonFilterDialog } from './use-bogon-filter-dialog';
+
 import type { BogonFilterDialogProps } from './bogon-filter-dialog.types';
-import type { BatchProgress } from '@nasnet/api-client/queries';
+
 
 /**
  * Desktop presenter for bogon filter dialog.
@@ -96,7 +97,7 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
         <div className="space-y-6">
           {/* Interface Selection */}
           <div>
-            <label className="text-sm font-medium mb-2 block">
+            <label htmlFor="wan-interface-select" className="text-sm font-medium mb-2 block">
               WAN Interface
             </label>
             <Select
@@ -133,7 +134,7 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
           {/* Category Selection */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-medium">
+              <label htmlFor="bogon-categories" className="text-sm font-medium">
                 Bogon Categories ({dialog.selectedCategories.size} selected)
               </label>
               <div className="flex gap-2">

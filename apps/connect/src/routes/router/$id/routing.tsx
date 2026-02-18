@@ -6,6 +6,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { DeviceRoutingPage } from '@nasnet/features/services';
 
 export const Route = createFileRoute('/router/$id/routing')({

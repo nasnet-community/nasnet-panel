@@ -30,15 +30,15 @@ import (
 
 // IntegrationTestContext holds shared test infrastructure.
 type IntegrationTestContext struct {
-	DB             *ent.Client
-	EventBus       events.EventBus
-	MockPublisher  *mockEventPublisher
-	PathResolver   *storage.DefaultPathResolver
-	BootValidator  *orchestrator.BootValidator
-	TempDir        string
-	FlashDir       string
-	ExternalDir    string
-	t              *testing.T
+	DB            *ent.Client
+	EventBus      events.EventBus
+	MockPublisher *mockEventPublisher
+	PathResolver  *storage.DefaultPathResolver
+	BootValidator *orchestrator.BootValidator
+	TempDir       string
+	FlashDir      string
+	ExternalDir   string
+	t             *testing.T
 }
 
 // mockEventPublisher records published events for verification.

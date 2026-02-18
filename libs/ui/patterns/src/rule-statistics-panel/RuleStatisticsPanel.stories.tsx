@@ -2,12 +2,15 @@
  * RuleStatisticsPanel Storybook Stories
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { RuleStatisticsPanel } from './RuleStatisticsPanel';
-import { Button } from '@nasnet/ui/primitives';
+
 import type { FilterRule } from '@nasnet/core/types';
+import { Button } from '@nasnet/ui/primitives';
+
+import { RuleStatisticsPanel } from './RuleStatisticsPanel';
+
 import type { CounterHistoryEntry } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Mock filter rule

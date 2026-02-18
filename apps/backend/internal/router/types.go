@@ -115,6 +115,8 @@ type HealthStatus struct {
 }
 
 // RouterInfo contains router identity and system information.
+//
+//nolint:revive // type name is appropriately specific
 type RouterInfo struct {
 	// Model is the router hardware model (e.g., "RB4011iGS+5HacQ2HnD-IN").
 	Model string
@@ -139,6 +141,8 @@ type RouterInfo struct {
 }
 
 // RouterOSVersion represents a parsed RouterOS version.
+//
+//nolint:revive // type name is appropriately specific
 type RouterOSVersion struct {
 	// Major version number (e.g., 7).
 	Major int

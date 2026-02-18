@@ -3,10 +3,12 @@
  * Epic 5 - Story 5.4: DHCP Leases and Active Connections Display
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { DeviceListItem } from './device-list-item';
 import type { ConnectedDeviceEnriched } from '@nasnet/core/types';
 import { DeviceType } from '@nasnet/core/types';
+
+import { DeviceListItem } from './device-list-item';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof DeviceListItem> = {
   title: 'Patterns/Domain/DeviceListItem',

@@ -35,12 +35,14 @@
 
 import * as React from 'react';
 import { useRef, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@nasnet/ui/primitives';
-import { useReducedMotion } from '@nasnet/ui/primitives';
 
-import { VStepperItem } from './v-stepper-item';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import { cn , useReducedMotion } from '@nasnet/ui/primitives';
+
 import { VStepperConnector } from './v-stepper-connector';
+import { VStepperItem } from './v-stepper-item';
+
 import type { VStepperProps } from './v-stepper.types';
 
 // ===== Live Region Component =====
@@ -136,9 +138,8 @@ export function VStepper({
         className={cn('p-4 space-y-1', className)}
         style={{ width: widthStyle }}
         aria-label={ariaLabel}
-        role="navigation"
       >
-        <ol role="list" className="space-y-1">
+        <ol className="space-y-1">
           <AnimatePresence initial={false}>
             {steps.map((step, index) => {
               const stepState = stepStates.get(step.id);

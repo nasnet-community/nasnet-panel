@@ -8,9 +8,10 @@
  */
 
 import { useState } from 'react';
+
 import * as Icons from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import {
+
+import { cn ,
   Card,
   Badge,
   Button,
@@ -21,6 +22,7 @@ import {
   Label,
   ScrollArea,
 } from '@nasnet/ui/primitives';
+
 
 import type { IsolationStatusPresenterProps } from './types';
 
@@ -52,7 +54,7 @@ export function IsolationStatusMobile({
   const Icon = Icons[state.iconName];
 
   const handleSave = async () => {
-    await state.handleSaveLimits(limits);
+    await state.handleSaveLimits(limits as any);
     setEditMode(false);
   };
 
@@ -158,7 +160,7 @@ export function IsolationStatusMobile({
                   return (
                     <Alert
                       key={index}
-                      variant={violation.color === 'destructive' ? 'error' : 'default'}
+                      variant={violation.color === 'destructive' ? 'destructive' : 'default'}
                       className={cn(
                         'text-left',
                         violation.color === 'warning' && 'border-semantic-warning bg-semantic-warning/5',
@@ -169,9 +171,9 @@ export function IsolationStatusMobile({
                       <AlertDescription>
                         <div className="font-medium mb-1">{violation.layerLabel}</div>
                         <div className="text-sm">{violation.violation.message}</div>
-                        {violation.violation.details && (
+                        {violation.violation.layer && (
                           <div className="text-xs text-muted-foreground mt-2 font-mono">
-                            {violation.violation.details}
+                            {violation.violation.layer}
                           </div>
                         )}
                       </AlertDescription>

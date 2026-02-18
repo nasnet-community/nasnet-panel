@@ -9,13 +9,9 @@
  */
 
 import { useMemo, useCallback } from 'react';
+
 import type { Resource, DeploymentState } from '@nasnet/core/types';
-import {
-  DriftStatus,
-  type DriftResult,
-  type DriftDetectionOptions,
-  DEFAULT_DRIFT_OPTIONS,
-} from './types';
+
 import {
   computeConfigHash,
   omitExcludedFields,
@@ -23,6 +19,12 @@ import {
   hasQuickDrift,
   isDeploymentStale,
 } from './driftUtils';
+import {
+  DriftStatus,
+  type DriftResult,
+  type DriftDetectionOptions,
+  DEFAULT_DRIFT_OPTIONS,
+} from './types';
 
 // =============================================================================
 // Types

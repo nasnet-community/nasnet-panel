@@ -8,7 +8,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Shield,
@@ -16,7 +16,16 @@ import {
   Info,
   Trash2,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  FilterChainSchema,
+  FilterActionSchema,
+  ConnectionStateSchema,
+  getActionColor,
+  getActionDescription,
+  FILTER_SUGGESTED_LOG_PREFIXES as SUGGESTED_LOG_PREFIXES,
+} from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -24,8 +33,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -38,19 +46,15 @@ import {
   Badge,
   Separator,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
 
-import {
-  FilterChainSchema,
-  FilterActionSchema,
-  ConnectionStateSchema,
-  getActionColor,
-  getActionDescription,
-  SUGGESTED_LOG_PREFIXES,
-} from '@nasnet/core/types/firewall';
-
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useFilterRuleEditor } from './use-filter-rule-editor';
+
 import type { FilterRuleEditorProps } from './filter-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Desktop presenter for filter rule editor.
@@ -86,18 +90,19 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
   const { control, formState } = form;
 
   // Get action-specific badge variant
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
     if (action === 'accept') return 'success';
-    if (action === 'drop' || action === 'reject' || action === 'tarpit') return 'destructive';
+    if (action === 'drop' || action === 'reject' || action === 'tarpit') return 'error';
     if (action === 'log') return 'info';
     if (action === 'jump' || action === 'passthrough') return 'warning';
     return 'default';
   }, [rule.action]);
 
   return (
+    <FormProvider {...form}>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -128,7 +133,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
 
           {/* Chain and Action */}
           <div className="grid grid-cols-2 gap-4">
-            <RHFFormField
+            <FormField
               name="chain"
               label="Chain"
               description="Packet processing stage"
@@ -143,7 +148,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                       <SelectValue placeholder="Select chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      {FilterChainSchema.options.map((chain) => (
+                      {FilterChainSchema.options.map((chain: string) => (
                         <SelectItem key={chain} value={chain}>
                           {chain}
                         </SelectItem>
@@ -152,9 +157,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField
+            <FormField
               name="action"
               label="Action"
               description="What to do with matched packets"
@@ -169,7 +174,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                       <SelectValue placeholder="Select action" />
                     </SelectTrigger>
                     <SelectContent>
-                      {FilterActionSchema.options.map((action) => (
+                      {FilterActionSchema.options.map((action: string) => (
                         <SelectItem key={action} value={action}>
                           {action}
                         </SelectItem>
@@ -178,14 +183,14 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
           </div>
 
           <Separator />
 
           {/* Action-Specific Fields */}
           {visibleFields.includes('logPrefix') && (
-            <RHFFormField
+            <FormField
               name="logPrefix"
               label="Log Prefix"
               description="Prefix for log entries"
@@ -202,28 +207,28 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
           )}
 
           {visibleFields.includes('jumpTarget') && (
-            <RHFFormField
+            <FormField
               name="jumpTarget"
               label="Jump Target Chain"
               description="Custom chain name to jump to"
               required
             >
               <Controller
-                name="jumpTarget"
+                name={"jumpTarget" as any}
                 control={control}
-                render={({ field }) => (
+                render={({ field: { value, ...fieldRest } }) => (
                   <Input
-                    {...field}
+                    {...fieldRest}
                     placeholder="e.g., custom-chain"
-                    value={field.value || ''}
+                    value={String(value ?? '')}
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
           )}
 
           <Separator />
@@ -236,7 +241,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
             </h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <RHFFormField name="protocol" label="Protocol">
+              <FormField name="protocol" label="Protocol">
                 <Controller
                   name="protocol"
                   control={control}
@@ -255,9 +260,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="connectionState" label="Connection State">
+              <FormField name="connectionState" label="Connection State">
                 <Controller
                   name="connectionState"
                   control={control}
@@ -270,7 +275,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                         <SelectValue placeholder="Any state" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ConnectionStateSchema.options.map((state) => (
+                        {ConnectionStateSchema.options.map((state: string) => (
                           <SelectItem key={state} value={state}>
                             {state}
                           </SelectItem>
@@ -279,9 +284,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcAddress" label="Source Address">
+              <FormField name="srcAddress" label="Source Address">
                 <Controller
                   name="srcAddress"
                   control={control}
@@ -293,9 +298,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstAddress" label="Destination Address">
+              <FormField name="dstAddress" label="Destination Address">
                 <Controller
                   name="dstAddress"
                   control={control}
@@ -307,9 +312,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcPort" label="Source Port">
+              <FormField name="srcPort" label="Source Port">
                 <Controller
                   name="srcPort"
                   control={control}
@@ -321,9 +326,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstPort" label="Destination Port">
+              <FormField name="dstPort" label="Destination Port">
                 <Controller
                   name="dstPort"
                   control={control}
@@ -335,10 +340,10 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               {canUseInInterface && (
-                <RHFFormField name="inInterface" label="Input Interface">
+                <FormField name="inInterface" label="Input Interface">
                   <Controller
                     name="inInterface"
                     control={control}
@@ -350,11 +355,11 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {canUseOutInterface && (
-                <RHFFormField name="outInterface" label="Output Interface">
+                <FormField name="outInterface" label="Output Interface">
                   <Controller
                     name="outInterface"
                     control={control}
@@ -366,7 +371,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </div>
           </div>
@@ -380,7 +385,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
               Rule Settings
             </h3>
 
-            <RHFFormField name="comment" label="Comment">
+            <FormField name="comment" label="Comment">
               <Controller
                 name="comment"
                 control={control}
@@ -392,10 +397,10 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
             <div className="flex items-center gap-4">
-              <RHFFormField name="disabled" label="Disabled">
+              <FormField name="disabled" label="Disabled">
                 <Controller
                   name="disabled"
                   control={control}
@@ -403,9 +408,9 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="log" label="Log Packets">
+              <FormField name="log" label="Log Packets">
                 <Controller
                   name="log"
                   control={control}
@@ -413,7 +418,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             </div>
           </div>
         </form>
@@ -454,6 +459,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </FormProvider>
   );
 });
 

@@ -14,6 +14,7 @@
 import { useCallback, useState } from 'react';
 
 import { useSafetyConfirmation } from './use-safety-confirmation';
+
 import type { UseSafetyConfirmationReturn } from './safety-confirmation.types';
 
 /**

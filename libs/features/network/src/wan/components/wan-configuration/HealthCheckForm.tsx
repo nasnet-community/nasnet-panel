@@ -38,7 +38,7 @@ export function HealthCheckForm({
   initialValues,
 }: HealthCheckFormProps) {
   const form = useForm<HealthCheckFormValues>({
-    resolver: zodResolver(healthCheckSchema),
+    resolver: zodResolver(healthCheckSchema) as any,
     defaultValues: initialValues || healthCheckDefaultValues,
   });
 
@@ -89,7 +89,7 @@ export function HealthCheckForm({
   /**
    * Handle form submission
    */
-  const onSubmit = async (data: HealthCheckFormValues) => {
+  const onSubmit = (async (data: HealthCheckFormValues) => {
     try {
       // TODO: Call GraphQL mutation to configure health check
       console.log('Configure health check:', { routerID, wanID, ...data });
@@ -100,7 +100,7 @@ export function HealthCheckForm({
     } catch (error) {
       console.error('Health check configuration failed:', error);
     }
-  };
+  }) as any;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -198,10 +198,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="target">Target Host/IP</Label>
-                  <FieldHelp
-                    field="target"
-                    text="IP address or hostname to ping for health checks. Use a reliable target like a public DNS server or your gateway."
-                  />
+                  <FieldHelp field="target" />
                 </div>
                 <Input
                   id="target"
@@ -268,10 +265,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="interval">Interval (seconds)</Label>
-                  <FieldHelp
-                    field="interval"
-                    text="How often to perform health checks. Lower values detect failures faster but increase router CPU usage."
-                  />
+                  <FieldHelp field="interval" />
                 </div>
                 <Input
                   id="interval"
@@ -303,10 +297,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="timeout">Timeout (seconds)</Label>
-                  <FieldHelp
-                    field="timeout"
-                    text="Maximum time to wait for ping response. Must be less than the interval."
-                  />
+                  <FieldHelp field="timeout" />
                 </div>
                 <Input
                   id="timeout"
@@ -338,10 +329,7 @@ export function HealthCheckForm({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Label htmlFor="failureThreshold">Failure Threshold</Label>
-                  <FieldHelp
-                    field="failureThreshold"
-                    text="Number of consecutive failed checks before marking WAN as DOWN. Higher values reduce false positives."
-                  />
+                  <FieldHelp field="failureThreshold" />
                 </div>
                 <Input
                   id="failureThreshold"
@@ -381,10 +369,7 @@ export function HealthCheckForm({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="comment">Comment</Label>
-                <FieldHelp
-                  field="comment"
-                  text="Optional description for this health check configuration (max 255 characters)."
-                />
+                <FieldHelp field="comment" />
               </div>
               <Input
                 id="comment"

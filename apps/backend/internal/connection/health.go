@@ -146,7 +146,7 @@ func (h *HealthMonitor) performHealthCheck(ctx context.Context, routerID string)
 			zap.String("routerID", routerID),
 			zap.Error(err),
 		)
-		_ = client.Disconnect()
+		_ = client.Disconnect() //nolint:errcheck // best-effort cleanup of temporary probe client
 		return
 	}
 
@@ -155,14 +155,14 @@ func (h *HealthMonitor) performHealthCheck(ctx context.Context, routerID string)
 		zap.String("routerID", routerID),
 	)
 
-	_ = client.Disconnect()
+	_ = client.Disconnect() //nolint:errcheck // best-effort cleanup of temporary probe client
 
 	// Publish health check event
-	h.publishHealthCheckEvent(routerID, true)
+	h.publishHealthCheckEvent(checkCtx, routerID, true)
 }
 
 // publishHealthCheckEvent publishes a health check event.
-func (h *HealthMonitor) publishHealthCheckEvent(routerID string, passed bool) {
+func (h *HealthMonitor) publishHealthCheckEvent(ctx context.Context, routerID string, passed bool) {
 	if h.eventBus == nil {
 		return
 	}
@@ -175,10 +175,10 @@ func (h *HealthMonitor) publishHealthCheckEvent(routerID string, passed bool) {
 
 	event := events.NewMetricUpdatedEvent(routerID, "health_check", values, "health-monitor")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	pubCtx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 	defer cancel()
 
-	if err := h.eventBus.Publish(ctx, event); err != nil {
+	if err := h.eventBus.Publish(pubCtx, event); err != nil {
 		h.logger.Warn("failed to publish health check event",
 			zap.String("routerID", routerID),
 			zap.Error(err),
@@ -195,11 +195,11 @@ func boolToString(b bool) string {
 
 // HealthResult represents the result of a health check.
 type HealthResult struct {
-	RouterID        string    `json:"routerId"`
-	Healthy         bool      `json:"healthy"`
-	CheckedAt       time.Time `json:"checkedAt"`
-	ResponseTimeMs  int64     `json:"responseTimeMs,omitempty"`
-	Error           string    `json:"error,omitempty"`
+	RouterID       string    `json:"routerId"`
+	Healthy        bool      `json:"healthy"`
+	CheckedAt      time.Time `json:"checkedAt"`
+	ResponseTimeMs int64     `json:"responseTimeMs,omitempty"`
+	Error          string    `json:"error,omitempty"`
 }
 
 // CheckHealth performs an immediate health check on a connection.
@@ -262,11 +262,11 @@ func (h *HealthMonitor) GetHealthStats(routerID string) (*HealthStats, error) {
 
 	status := conn.GetStatus()
 	return &HealthStats{
-		RouterID:           routerID,
-		ConsecutivePassed:  status.HealthChecksPassed,
-		ConsecutiveFailed:  status.HealthChecksFailed,
-		LastCheck:          status.LastHealthCheck,
-		IsHealthy:          status.State == StateConnected && status.HealthChecksFailed == 0,
+		RouterID:          routerID,
+		ConsecutivePassed: status.HealthChecksPassed,
+		ConsecutiveFailed: status.HealthChecksFailed,
+		LastCheck:         status.LastHealthCheck,
+		IsHealthy:         status.State == StateConnected && status.HealthChecksFailed == 0,
 	}, nil
 }
 

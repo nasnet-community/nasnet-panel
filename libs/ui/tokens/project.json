@@ -3,8 +3,14 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/ui/tokens/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:ui"],
+  "tags": ["type:lib", "scope:ui", "scope:shared"],
   "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/ui/tokens/tsconfig.lib.json"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": {

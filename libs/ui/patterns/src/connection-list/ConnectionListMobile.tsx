@@ -7,12 +7,15 @@
 
 import * as React from 'react';
 
+import { Filter, Network } from 'lucide-react';
+
 import { Button, Card, cn } from '@nasnet/ui/primitives';
+
 import { EmptyState } from '../empty-state';
 import { VirtualizedList } from '../virtualization';
-
-import { ConnectionStateBadge } from './ConnectionStateBadge';
 import { ConnectionFilterBar } from './ConnectionFilterBar';
+import { ConnectionStateBadge } from './ConnectionStateBadge';
+
 import type { ConnectionEntry } from './types';
 import type { UseConnectionListReturn } from './use-connection-list';
 
@@ -163,18 +166,14 @@ export function ConnectionListMobile({
       return (
         <div className="flex flex-col items-center justify-center h-full p-6">
           <EmptyState
-            icon="filter"
+            icon={Filter}
             title="No matching connections"
             description="Try adjusting your filters"
-            action={
-              <Button
-                variant="outline"
-                onClick={clearFilter}
-                className="min-h-[44px]"
-              >
-                Clear Filters
-              </Button>
-            }
+            action={{
+              label: 'Clear Filters',
+              onClick: clearFilter,
+              variant: 'outline',
+            }}
           />
         </div>
       );
@@ -183,7 +182,7 @@ export function ConnectionListMobile({
     return (
       <div className="flex flex-col items-center justify-center h-full p-6">
         <EmptyState
-          icon="network"
+          icon={Network}
           title="No active connections"
           description="There are currently no tracked connections on this router"
         />

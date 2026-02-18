@@ -134,7 +134,7 @@ func (s *MemoryEventStore) evictOldest() {
 	if evictCount == 0 {
 		evictCount = 1
 	}
-	var oldest []ulid.ULID
+	oldest := make([]ulid.ULID, 0, evictCount)
 	for id := range s.events {
 		oldest = append(oldest, id)
 		if len(oldest) >= evictCount {

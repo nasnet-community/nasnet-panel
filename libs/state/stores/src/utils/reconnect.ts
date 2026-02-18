@@ -289,4 +289,4 @@ export function createLatencyUpdater(intervalMs = 100) {
 
 // ===== Type Exports =====
 
-export type { ReconnectionManagerConfig, ReconnectionManager };
+// Types are already exported inline above

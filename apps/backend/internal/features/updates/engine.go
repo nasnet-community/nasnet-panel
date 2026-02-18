@@ -2,6 +2,7 @@ package updates
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -20,17 +21,17 @@ type HealthChecker interface {
 
 // UpdateEngineConfig holds configuration for the update engine
 type UpdateEngineConfig struct {
-	DownloadManager   *DownloadManager
-	Verifier          *Verifier
-	Journal           *UpdateJournal
-	MigratorRegistry  *MigratorRegistry
-	PathResolver      storage.PathResolverPort
-	BaseDir           string // Base directory for updates (e.g., /var/lib/nasnet)
-	EventBus          events.EventBus
-	Logger            zerolog.Logger
-	HealthChecker     HealthChecker
-	InstanceStopper   InstanceStopper
-	InstanceStarter   InstanceStarter
+	DownloadManager  *DownloadManager
+	Verifier         *Verifier
+	Journal          *UpdateJournal
+	MigratorRegistry *MigratorRegistry
+	PathResolver     storage.PathResolverPort
+	BaseDir          string // Base directory for updates (e.g., /var/lib/nasnet)
+	EventBus         events.EventBus
+	Logger           zerolog.Logger
+	HealthChecker    HealthChecker
+	InstanceStopper  InstanceStopper
+	InstanceStarter  InstanceStarter
 }
 
 // InstanceStopper interface for stopping instances
@@ -89,7 +90,7 @@ func (e *UpdateEngine) resolveBackupPath(featureID, instanceID, version string) 
 	return filepath.Join(e.config.BaseDir, "updates", featureID, instanceID, "backup", version)
 }
 
-func (e *UpdateEngine) resolveBinaryPath(featureID, instanceID string) string {
+func (e *UpdateEngine) resolveBinaryPath(featureID, _ string) string {
 	if e.config.PathResolver != nil {
 		return e.config.PathResolver.BinaryPath(featureID)
 	}
@@ -120,7 +121,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 		// Critical failure - attempt rollback
 		e.logger.Error().Err(err).Msg("SWAP phase failed, attempting rollback")
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
-			return fmt.Errorf("SWAP failed and rollback failed: %w (original: %v)", rbErr, err)
+			return fmt.Errorf("SWAP failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
 		return fmt.Errorf("SWAP phase failed (rolled back): %w", err)
 	}
@@ -129,7 +130,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 	if err := e.phaseMigration(ctx, instanceID, featureID, currentVersion, targetVersion); err != nil {
 		e.logger.Error().Err(err).Msg("MIGRATION phase failed, attempting rollback")
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
-			return fmt.Errorf("MIGRATION failed and rollback failed: %w (original: %v)", rbErr, err)
+			return fmt.Errorf("MIGRATION failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
 		return fmt.Errorf("MIGRATION phase failed (rolled back): %w", err)
 	}
@@ -138,7 +139,7 @@ func (e *UpdateEngine) ApplyUpdate(ctx context.Context, instanceID, featureID, c
 	if err := e.phaseValidation(ctx, instanceID, featureID, currentVersion, targetVersion); err != nil {
 		e.logger.Error().Err(err).Msg("VALIDATION phase failed, attempting rollback")
 		if rbErr := e.rollback(ctx, instanceID, featureID, currentVersion, targetVersion); rbErr != nil {
-			return fmt.Errorf("VALIDATION failed and rollback failed: %w (original: %v)", rbErr, err)
+			return fmt.Errorf("VALIDATION failed and rollback failed: %w", errors.Join(rbErr, err))
 		}
 		return fmt.Errorf("VALIDATION phase failed (rolled back): %w", err)
 	}
@@ -161,8 +162,8 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 	e.logger.Info().Str("phase", "STAGING").Msg("Starting STAGING phase")
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseStaging, map[string]interface{}{
-		"downloadURL":  downloadURL,
-		"checksumURL":  checksumURL,
+		"downloadURL": downloadURL,
+		"checksumURL": checksumURL,
 	})
 	if err != nil {
 		return err
@@ -173,8 +174,8 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 	_ = filepath.Join(stagingDir, featureID) // stagingBinary - TODO: use in Download call
 
 	// Create staging directory
-	if err := os.MkdirAll(stagingDir, 0755); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseStaging, err.Error())
+	if err := os.MkdirAll(stagingDir, 0o755); err != nil {
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseStaging, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to create staging dir: %w", err)
 	}
 
@@ -182,7 +183,7 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 	// Assuming checksumURL points to a file containing the expected checksum
 	expectedChecksum := "" // In a real implementation, fetch this from checksumURL
 	if err := e.config.DownloadManager.Download(ctx, featureID, downloadURL, expectedChecksum); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseStaging, err.Error())
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseStaging, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("download failed: %w", err)
 	}
 
@@ -192,7 +193,7 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 	// In a real implementation, integrate with the Verifier properly
 	_ = checksumURL // Avoid unused variable warning
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseStaging)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseStaging) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "STAGING").Msg("STAGING phase completed")
 	return nil
 }
@@ -212,20 +213,20 @@ func (e *UpdateEngine) phaseBackup(ctx context.Context, instanceID, featureID, c
 	backupBinary := filepath.Join(backupDir, featureID)
 
 	// Create backup directory
-	if err := os.MkdirAll(backupDir, 0755); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseBackup, err.Error())
+	if err := os.MkdirAll(backupDir, 0o755); err != nil {
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseBackup, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to create backup dir: %w", err)
 	}
 
 	// Copy current binary to backup
 	if err := copyFile(currentBinary, backupBinary); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseBackup, err.Error())
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseBackup, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to backup binary: %w", err)
 	}
 
 	// TODO: Backup configuration files
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseBackup)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseBackup) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "BACKUP").Msg("BACKUP phase completed")
 	return nil
 }
@@ -242,7 +243,7 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 	// Stop the instance (if running)
 	if e.config.InstanceStopper != nil {
 		if err := e.config.InstanceStopper.Stop(ctx, instanceID); err != nil {
-			e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error())
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error()) //nolint:errcheck // best-effort journal logging
 			return fmt.Errorf("failed to stop instance: %w", err)
 		}
 	}
@@ -254,27 +255,27 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 
 	// Atomic swap: current -> .old, staging -> current
 	if err := os.Rename(currentBinary, tempSwap); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error())
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to move current binary: %w", err)
 	}
 
 	if err := copyFile(stagingBinary, currentBinary); err != nil {
 		// Restore original
-		os.Rename(tempSwap, currentBinary)
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error())
+		_ = os.Rename(tempSwap, currentBinary)                                                 //nolint:errcheck // best-effort file rename during update
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to copy new binary: %w", err)
 	}
 
 	// Make executable
-	if err := os.Chmod(currentBinary, 0755); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error())
+	if err := os.Chmod(currentBinary, 0o755); err != nil {
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseSwap, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to set permissions: %w", err)
 	}
 
 	// Remove old binary
-	os.Remove(tempSwap)
+	_ = os.Remove(tempSwap)
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseSwap)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseSwap) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "SWAP").Msg("SWAP phase completed")
 	return nil
 }
@@ -293,14 +294,15 @@ func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID
 
 	// Check if migration is needed
 	if !migrator.CanMigrate(currentVersion, targetVersion) {
-		errMsg := fmt.Sprintf("no migration path from %s to %s", currentVersion, targetVersion)
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, errMsg)
-		return fmt.Errorf(errMsg)
+		const errFormat = "no migration path from %s to %s"
+		errMsg := fmt.Sprintf(errFormat, currentVersion, targetVersion)
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseMigration, errMsg) //nolint:errcheck // best-effort journal logging
+		return fmt.Errorf(errFormat, currentVersion, targetVersion)
 	}
 
 	// TODO: Load current config, run migration, save new config
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseMigration)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseMigration) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "MIGRATION").Msg("MIGRATION phase completed")
 	return nil
 }
@@ -317,7 +319,7 @@ func (e *UpdateEngine) phaseValidation(ctx context.Context, instanceID, featureI
 	// Start the instance
 	if e.config.InstanceStarter != nil {
 		if err := e.config.InstanceStarter.Start(ctx, instanceID); err != nil {
-			e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseValidation, err.Error())
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseValidation, err.Error()) //nolint:errcheck // best-effort journal logging
 			return fmt.Errorf("failed to start instance: %w", err)
 		}
 	}
@@ -329,13 +331,14 @@ func (e *UpdateEngine) phaseValidation(ctx context.Context, instanceID, featureI
 
 		status, err := e.config.HealthChecker.GetStatus(instanceID)
 		if err != nil || status != "HEALTHY" {
-			errMsg := fmt.Sprintf("health check failed: %v (status: %s)", err, status)
-			e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseValidation, errMsg)
-			return fmt.Errorf(errMsg)
+			const errFormat = "health check failed: %v (status: %s)"
+			errMsg := fmt.Sprintf(errFormat, err, status)
+			_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseValidation, errMsg) //nolint:errcheck // best-effort journal logging
+			return fmt.Errorf(errFormat, err, status)
 		}
 	}
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseValidation)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseValidation) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "VALIDATION").Msg("VALIDATION phase completed")
 	return nil
 }
@@ -351,11 +354,11 @@ func (e *UpdateEngine) phaseCommit(ctx context.Context, instanceID, featureID, c
 
 	// Cleanup staging directory
 	stagingDir := e.resolveStagingPath(featureID, targetVersion)
-	os.RemoveAll(stagingDir)
+	_ = os.RemoveAll(stagingDir)
 
 	// Keep backup for rollback window (cleanup can happen later)
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseCommit)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseCommit) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "COMMIT").Msg("COMMIT phase completed")
 	return nil
 }
@@ -371,7 +374,7 @@ func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, curr
 
 	// Stop instance
 	if e.config.InstanceStopper != nil {
-		e.config.InstanceStopper.Stop(ctx, instanceID)
+		_ = e.config.InstanceStopper.Stop(ctx, instanceID) //nolint:errcheck // best-effort rollback
 	}
 
 	// Restore from backup
@@ -379,16 +382,16 @@ func (e *UpdateEngine) rollback(ctx context.Context, instanceID, featureID, curr
 	currentBinary := e.resolveBinaryPath(featureID, instanceID)
 
 	if err := copyFile(backupBinary, currentBinary); err != nil {
-		e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseRollback, err.Error())
+		_ = e.config.Journal.FailPhase(ctx, instanceID, targetVersion, PhaseRollback, err.Error()) //nolint:errcheck // best-effort journal logging
 		return fmt.Errorf("failed to restore backup: %w", err)
 	}
 
 	// Restart instance
 	if e.config.InstanceStarter != nil {
-		e.config.InstanceStarter.Start(ctx, instanceID)
+		_ = e.config.InstanceStarter.Start(ctx, instanceID) //nolint:errcheck // best-effort rollback
 	}
 
-	e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseRollback)
+	_ = e.config.Journal.CompletePhase(ctx, instanceID, targetVersion, PhaseRollback) //nolint:errcheck // best-effort journal logging
 	e.logger.Info().Str("phase", "ROLLBACK").Msg("ROLLBACK completed")
 	return nil
 }
@@ -430,5 +433,5 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(dst, data, 0644)
+	return os.WriteFile(dst, data, 0o644)
 }

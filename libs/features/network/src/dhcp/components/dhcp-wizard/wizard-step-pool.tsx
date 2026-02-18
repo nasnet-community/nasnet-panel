@@ -57,14 +57,11 @@ export function WizardStepPool({ stepper }: WizardStepPoolProps) {
           <div>
             <Label htmlFor="pool-start">
               Pool Start IP
-              <FieldHelp>
-                First IP address in the DHCP pool. Suggested: {suggestion?.start}
-              </FieldHelp>
+              <FieldHelp field="dhcp.poolStart" />
             </Label>
             <IPInput
-              id="pool-start"
-              {...form.register('poolStart')}
-              error={form.formState.errors.poolStart?.message}
+              value={form.watch('poolStart') || ''}
+              onChange={(value: string) => form.setValue('poolStart', value)}
               placeholder="e.g., 192.168.1.100"
             />
           </div>
@@ -72,14 +69,11 @@ export function WizardStepPool({ stepper }: WizardStepPoolProps) {
           <div>
             <Label htmlFor="pool-end">
               Pool End IP
-              <FieldHelp>
-                Last IP address in the DHCP pool. Suggested: {suggestion?.end}
-              </FieldHelp>
+              <FieldHelp field="dhcp.poolEnd" />
             </Label>
             <IPInput
-              id="pool-end"
-              {...form.register('poolEnd')}
-              error={form.formState.errors.poolEnd?.message}
+              value={form.watch('poolEnd') || ''}
+              onChange={(value: string) => form.setValue('poolEnd', value)}
               placeholder="e.g., 192.168.1.254"
             />
           </div>

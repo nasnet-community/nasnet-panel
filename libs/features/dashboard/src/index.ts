@@ -61,13 +61,13 @@ export type {
 } from './components/ResourceGauges';
 
 // Connected Devices Display (Story 5.4)
-export { ConnectedDevices } from './components/ConnectedDevices';
-export type { ConnectedDevicesProps } from './components/ConnectedDevices';
-export { useConnectedDevices } from './hooks/useConnectedDevices';
+export { ConnectedDevices } from '../components/ConnectedDevices';
+export type { ConnectedDevicesProps } from '../components/ConnectedDevices';
+export { useConnectedDevices } from '../hooks/useConnectedDevices';
 export type {
   UseConnectedDevicesOptions,
   UseConnectedDevicesReturn,
-} from './hooks/useConnectedDevices';
+} from '../hooks/useConnectedDevices';
 
 // Recent Logs Display (Story 5.6)
 export { RecentLogs } from './components/RecentLogs';

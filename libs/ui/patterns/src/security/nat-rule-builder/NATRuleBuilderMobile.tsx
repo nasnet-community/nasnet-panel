@@ -8,7 +8,7 @@
  */
 
 import { memo, useState } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Shield,
@@ -19,7 +19,13 @@ import {
   Globe,
   ChevronDown,
 } from 'lucide-react';
+import { Controller } from 'react-hook-form';
 
+import {
+  NatChainSchema,
+  NatActionSchema,
+  ProtocolSchema,
+} from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -27,8 +33,7 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -40,18 +45,14 @@ import {
   Switch,
   Badge,
   Separator,
-  Label,
-} from '@nasnet/ui/primitives';
-import { ConfirmationDialog } from '@nasnet/ui/patterns/confirmation-dialog';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
-
-import {
-  NatChainSchema,
-  NatActionSchema,
-  ProtocolSchema,
-} from '@nasnet/core/types/firewall';
+  Label} from '@nasnet/ui/primitives';
 
 import { useNATRuleBuilder } from './use-nat-rule-builder';
+import { ConfirmationDialog } from '../../confirmation-dialog';
+import { RHFFormField } from '../../rhf-form-field';
+
+
+
 import type { NATRuleBuilderProps } from './nat-rule-builder.types';
 
 /**
@@ -177,7 +178,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           <SelectValue placeholder="Select chain" />
                         </SelectTrigger>
                         <SelectContent>
-                          {NatChainSchema.options.map((chain) => (
+                          {NatChainSchema.options.map((chain: string) => (
                             <SelectItem key={chain} value={chain} className="min-h-[44px]">
                               <div className="flex flex-col items-start py-1">
                                 <span className="font-medium">{chain}</span>
@@ -210,7 +211,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           <SelectValue placeholder="Select action" />
                         </SelectTrigger>
                         <SelectContent>
-                          {NatActionSchema.options.map((action) => (
+                          {NatActionSchema.options.map((action: string) => (
                             <SelectItem key={action} value={action} className="min-h-[44px]">
                               {action}
                             </SelectItem>
@@ -260,7 +261,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              {ProtocolSchema.options.map((protocol) => (
+                              {ProtocolSchema.options.map((protocol: string) => (
                                 <SelectItem
                                   key={protocol}
                                   value={protocol}
@@ -821,8 +822,8 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
         onOpenChange={setShowDeleteConfirm}
         title="Delete NAT Rule"
         description="Are you sure you want to delete this NAT rule? This action cannot be undone."
-        confirmText="Delete Rule"
-        cancelText="Cancel"
+        confirmLabel="Delete Rule"
+        cancelLabel="Cancel"
         variant="destructive"
         onConfirm={confirmDelete}
         isLoading={isDeleting}

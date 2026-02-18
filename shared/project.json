@@ -3,5 +3,13 @@
   "$schema": "./node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "shared/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:shared"]
+  "tags": ["type:lib", "scope:shared"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project shared/tsconfig.lib.json"
+      }
+    }
+  }
 }

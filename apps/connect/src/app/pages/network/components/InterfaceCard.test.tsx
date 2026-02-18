@@ -2,12 +2,15 @@
  * InterfaceCard Component Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { InterfaceCard } from './InterfaceCard';
-import { NetworkInterface } from '@nasnet/core/types';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+
 import * as queries from '@nasnet/api-client/queries';
+import { type NetworkInterface } from '@nasnet/core/types';
+
+import { InterfaceCard } from './InterfaceCard';
 
 // Mock the useInterfaceTraffic hook
 vi.mock('@nasnet/api-client/queries', async () => {

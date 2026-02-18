@@ -49,7 +49,7 @@ function ResourceGaugesDesktop({
   deviceId,
   className,
 }: ResourceGaugesProps) {
-  const { metrics, loading } = useResourceMetrics(deviceId);
+  const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
 
   if (loading || !metrics) {
@@ -107,13 +107,13 @@ function ResourceGaugesDesktop({
       </div>
 
       {/* AC 5.2.4: CPU Breakdown Modal */}
-      {metrics.raw?.cpu.perCore && (
+      {raw?.cpu.perCore && (
         <CPUBreakdownModal
           open={showCPUModal}
           onOpenChange={setShowCPUModal}
-          perCoreUsage={metrics.raw.cpu.perCore}
+          perCoreUsage={raw.cpu.perCore}
           overallUsage={metrics.cpu.usage}
-          frequency={metrics.raw.cpu.frequency}
+          frequency={raw.cpu.frequency}
         />
       )}
     </>
@@ -128,7 +128,7 @@ function ResourceGaugesMobile({
   deviceId,
   className,
 }: ResourceGaugesProps) {
-  const { metrics, loading } = useResourceMetrics(deviceId);
+  const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
 
   if (loading || !metrics) {
@@ -186,13 +186,13 @@ function ResourceGaugesMobile({
       </div>
 
       {/* AC 5.2.4: CPU Breakdown Modal */}
-      {metrics.raw?.cpu.perCore && (
+      {raw?.cpu.perCore && (
         <CPUBreakdownModal
           open={showCPUModal}
           onOpenChange={setShowCPUModal}
-          perCoreUsage={metrics.raw.cpu.perCore}
+          perCoreUsage={raw.cpu.perCore}
           overallUsage={metrics.cpu.usage}
-          frequency={metrics.raw.cpu.frequency}
+          frequency={raw.cpu.frequency}
         />
       )}
     </>

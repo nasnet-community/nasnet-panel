@@ -4,8 +4,10 @@
  */
 
 import { useMemo } from 'react';
-import { NetworkInterface } from '@nasnet/core/types';
+
 import { Activity, ArrowDown, ArrowUp } from 'lucide-react';
+
+import { type NetworkInterface } from '@nasnet/core/types';
 
 interface TrafficOverviewCardProps {
   interfaces: NetworkInterface[];

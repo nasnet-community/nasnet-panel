@@ -4,7 +4,6 @@
  * Story 0-4-4: Other VPN Type Viewer
  */
 
-import * as React from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';

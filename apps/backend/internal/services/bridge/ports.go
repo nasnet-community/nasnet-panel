@@ -8,14 +8,12 @@ import (
 )
 
 // GetBridgePorts retrieves all ports for a bridge.
-func (s *BridgeService) GetBridgePorts(ctx context.Context, bridgeID string) ([]*BridgePortData, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) GetBridgePorts(ctx context.Context, bridgeID string) ([]*PortData, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "print",
 		Query:  fmt.Sprintf("?bridge=%s", bridgeID),
@@ -33,11 +31,9 @@ func (s *BridgeService) GetBridgePorts(ctx context.Context, bridgeID string) ([]
 }
 
 // AddBridgePort adds an interface to a bridge.
-func (s *BridgeService) AddBridgePort(ctx context.Context, bridgeID string, input *AddBridgePortInput) (*BridgePortData, string, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) AddBridgePort(ctx context.Context, bridgeID string, input *AddBridgePortInput) (*PortData, string, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, "", err
 	}
 
 	args := map[string]string{
@@ -53,13 +49,13 @@ func (s *BridgeService) AddBridgePort(ctx context.Context, bridgeID string, inpu
 	}
 	if input.IngressFiltering != nil {
 		if *input.IngressFiltering {
-			args["ingress-filtering"] = "yes"
+			args["ingress-filtering"] = yes
 		} else {
 			args["ingress-filtering"] = "no"
 		}
 	}
 
-	result, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	result, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "add",
 		Args:   args,
@@ -82,13 +78,15 @@ func (s *BridgeService) AddBridgePort(ctx context.Context, bridgeID string, inpu
 }
 
 // UpdateBridgePort updates bridge port settings.
-func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, input *UpdateBridgePortInput) (*BridgePortData, string, error) {
+//
+//nolint:gocyclo // bridge port configuration requires checking multiple conditions
+func (s *Service) UpdateBridgePort(ctx context.Context, portID string, input *UpdateBridgePortInput) (*PortData, string, error) {
 	ports, err := s.GetBridgePorts(ctx, "")
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get current ports: %w", err)
 	}
 
-	var previousState *BridgePortData
+	var previousState *PortData
 	for _, port := range ports {
 		if port.UUID == portID {
 			previousState = port
@@ -100,10 +98,8 @@ func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, inp
 		return nil, "", fmt.Errorf("port not found: %s", portID)
 	}
 
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+	if connErr := s.EnsureConnected(ctx); connErr != nil {
+		return nil, "", connErr
 	}
 
 	args := make(map[string]string)
@@ -115,7 +111,7 @@ func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, inp
 	}
 	if input.IngressFiltering != nil {
 		if *input.IngressFiltering {
-			args["ingress-filtering"] = "yes"
+			args["ingress-filtering"] = yes
 		} else {
 			args["ingress-filtering"] = "no"
 		}
@@ -131,7 +127,7 @@ func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, inp
 		args["path-cost"] = fmt.Sprintf("%d", *input.PathCost)
 	}
 
-	_, err = s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, err = s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "set",
 		ID:     portID,
@@ -146,7 +142,7 @@ func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, inp
 		return nil, "", fmt.Errorf("failed to get updated port: %w", err)
 	}
 
-	var updatedPort *BridgePortData
+	var updatedPort *PortData
 	for _, port := range updatedPorts {
 		if port.UUID == portID {
 			updatedPort = port
@@ -167,13 +163,13 @@ func (s *BridgeService) UpdateBridgePort(ctx context.Context, portID string, inp
 }
 
 // RemoveBridgePort removes a port from a bridge.
-func (s *BridgeService) RemoveBridgePort(ctx context.Context, portID string) (string, error) {
+func (s *Service) RemoveBridgePort(ctx context.Context, portID string) (string, error) {
 	ports, err := s.GetBridgePorts(ctx, "")
 	if err != nil {
 		return "", fmt.Errorf("failed to get current ports: %w", err)
 	}
 
-	var previousState *BridgePortData
+	var previousState *PortData
 	for _, port := range ports {
 		if port.UUID == portID {
 			previousState = port
@@ -185,19 +181,17 @@ func (s *BridgeService) RemoveBridgePort(ctx context.Context, portID string) (st
 		return "", fmt.Errorf("port not found: %s", portID)
 	}
 
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return "", fmt.Errorf("failed to connect to router: %w", err)
-		}
+	if connErr := s.EnsureConnected(ctx); connErr != nil {
+		return "", connErr
 	}
 
-	_, err = s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, execErr := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "remove",
 		ID:     portID,
 	})
-	if err != nil {
-		return "", fmt.Errorf("failed to remove bridge port: %w", err)
+	if execErr != nil {
+		return "", fmt.Errorf("failed to remove bridge port: %w", execErr)
 	}
 
 	operationID, err := s.undoStore.Add("delete", "bridge_port", previousState)
@@ -209,14 +203,12 @@ func (s *BridgeService) RemoveBridgePort(ctx context.Context, portID string) (st
 }
 
 // GetAvailableInterfaces returns interfaces that are not currently in any bridge.
-func (s *BridgeService) GetAvailableInterfaces(ctx context.Context, routerID string) ([]string, error) {
-	if !s.routerPort.IsConnected() {
-		if err := s.routerPort.Connect(ctx); err != nil {
-			return nil, fmt.Errorf("failed to connect to router: %w", err)
-		}
+func (s *Service) GetAvailableInterfaces(ctx context.Context, routerID string) ([]string, error) {
+	if err := s.EnsureConnected(ctx); err != nil {
+		return nil, err
 	}
 
-	_, err := s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface",
 		Action: "print",
 	})
@@ -224,7 +216,7 @@ func (s *BridgeService) GetAvailableInterfaces(ctx context.Context, routerID str
 		return nil, fmt.Errorf("failed to fetch interfaces: %w", err)
 	}
 
-	_, err = s.routerPort.ExecuteCommand(ctx, router.Command{
+	_, err = s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "print",
 	})

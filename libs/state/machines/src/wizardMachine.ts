@@ -21,6 +21,7 @@
  */
 
 import { setup, assign, fromPromise } from 'xstate';
+
 import type { WizardContext, WizardEvent, WizardConfig } from './types';
 
 // ===== Type Definitions =====

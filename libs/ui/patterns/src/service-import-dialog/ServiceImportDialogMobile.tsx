@@ -5,6 +5,7 @@
  */
 
 import { Upload, FileText, AlertCircle, CheckCircle2, Download, ChevronLeft } from 'lucide-react';
+
 import {
   Sheet,
   SheetContent,
@@ -12,18 +13,22 @@ import {
   SheetTitle,
   SheetDescription,
   SheetTrigger,
-} from '@nasnet/ui/primitives/sheet';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Label } from '@nasnet/ui/primitives/label';
-import { Textarea } from '@nasnet/ui/primitives/textarea';
-import { Input } from '@nasnet/ui/primitives/input';
-import { Progress } from '@nasnet/ui/primitives/progress';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import { ScrollArea } from '@nasnet/ui/primitives/scroll-area';
-import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives/radio-group';
-import type { ServiceImportDialogProps } from './types';
+  Button,
+  Label,
+  Textarea,
+  Input,
+  Progress,
+  Alert,
+  AlertDescription,
+  Badge,
+  ScrollArea,
+  RadioGroup,
+  RadioGroupItem,
+} from '@nasnet/ui/primitives';
+
 import { useServiceImportDialog } from './useServiceImportDialog';
+
+import type { ServiceImportDialogProps } from './types';
 
 export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
   const { open, onOpenChange, trigger } = props;
@@ -105,7 +110,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   id="paste-content-mobile"
                   placeholder="Paste configuration..."
                   value={state.content}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                     setContent(e.target.value);
                     setSource('paste');
                   }}
@@ -170,7 +175,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                     <div className="space-y-2">
                       {state.validationResult.errors.map((error, index) => (
                         <div key={index} className="text-sm">
-                          <Badge variant="destructive" className="mr-2 text-xs">
+                          <Badge variant="error" className="mr-2 text-xs">
                             {error.code}
                           </Badge>
                           <span className="text-xs">{error.message}</span>
@@ -186,7 +191,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                 state.validationResult.redactedFields.length > 0 && (
                   <div className="space-y-3">
                     <Label className="text-base">Provide Missing Values</Label>
-                    {state.validationResult.redactedFields.map((field) => (
+                    {state.validationResult.redactedFields.map((field: string) => (
                       <div key={field} className="space-y-1">
                         <Label htmlFor={`redacted-${field}-mobile`} className="text-sm">
                           {field}
@@ -196,7 +201,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                           type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                           placeholder={`Enter ${field}`}
                           value={state.redactedFieldValues[field] || ''}
-                          onChange={(e) => setRedactedFieldValue(field, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
                           className="min-h-[44px]"
                         />
                       </div>
@@ -268,7 +273,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                       (!state.conflictResolution ||
                         (state.validationResult.redactedFields &&
                           state.validationResult.redactedFields.some(
-                            (field) => !state.redactedFieldValues[field]
+                            (field: string) => !state.redactedFieldValues[field]
                           )))) ||
                     loading
                   }

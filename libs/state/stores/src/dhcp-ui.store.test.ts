@@ -5,8 +5,9 @@
  * Story: NAS-6.3 - Implement DHCP Server Management
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { useDHCPUIStore, type DHCPWizardDraft } from './dhcp-ui.store';
 
 describe('useDHCPUIStore', () => {

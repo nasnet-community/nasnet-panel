@@ -4,8 +4,9 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { useConnectionStore } from '@nasnet/state/stores';
+
 import { makeRouterOSRequest } from '@nasnet/api-client/core';
+import { useConnectionStore } from '@nasnet/state/stores';
 
 /**
  * Configuration for heartbeat monitoring

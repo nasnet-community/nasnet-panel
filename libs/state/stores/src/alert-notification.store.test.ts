@@ -3,8 +3,9 @@
  * Tests deduplication, max queue, persistence, and 24h filtering
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+
 import {
   useAlertNotificationStore,
   type InAppNotification,

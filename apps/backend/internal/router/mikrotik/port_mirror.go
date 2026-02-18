@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 	"backend/internal/router"
 )
 
@@ -45,6 +45,7 @@ func (a *MikroTikAdapter) GetPortMirror(
 	routerID string,
 	mirrorID string,
 ) (*model.PortMirror, error) {
+
 	mirrors, err := a.GetPortMirrors(ctx, routerID)
 	if err != nil {
 		return nil, err
@@ -86,6 +87,7 @@ func (a *MikroTikAdapter) CreatePortMirror(
 
 	// Determine which mirror fields to set based on direction
 	direction := model.MirrorDirectionBoth
+
 	if input.Direction.IsSet() {
 		if val := input.Direction.Value(); val != nil {
 			direction = *val
@@ -129,7 +131,7 @@ func (a *MikroTikAdapter) CreatePortMirror(
 }
 
 // UpdatePortMirror updates an existing port mirror configuration.
-func (a *MikroTikAdapter) UpdatePortMirror(
+func (a *MikroTikAdapter) UpdatePortMirror( //nolint:gocyclo // port mirror operations require multiple field checks
 	ctx context.Context,
 	routerID string,
 	mirrorID string,
@@ -145,7 +147,7 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 	sourceChanged := input.SourceInterfaceIds.IsSet()
 	destChanged := input.DestinationInterfaceID.IsSet()
 
-	if sourceChanged || destChanged {
+	if sourceChanged || destChanged { //nolint:nestif // port mirror field update logic
 		// Clear existing mirror settings on old source ports
 		for _, source := range existingMirror.SourceInterfaces {
 			clearArgs := map[string]string{
@@ -199,7 +201,6 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 
 		for _, sourceID := range sourceIDs {
 			args := make(map[string]string)
-
 			switch direction {
 			case model.MirrorDirectionIngress:
 				args["mirror-ingress"] = destInterface
@@ -232,7 +233,7 @@ func (a *MikroTikAdapter) UpdatePortMirror(
 	}
 
 	// Only updating direction or comment on existing ports
-	if input.Direction.IsSet() || input.Comment.IsSet() {
+	if input.Direction.IsSet() || input.Comment.IsSet() { //nolint:nestif // port mirror field update logic
 		destInterface, err := a.getInterfaceName(ctx, existingMirror.DestinationInterface.ID)
 		if err != nil {
 			return nil, err
@@ -329,6 +330,7 @@ func (a *MikroTikAdapter) EnablePortMirror(
 	routerID string,
 	mirrorID string,
 ) (*model.PortMirror, error) {
+
 	mirror, err := a.GetPortMirror(ctx, routerID, mirrorID)
 	if err != nil {
 		return nil, err
@@ -378,6 +380,7 @@ func (a *MikroTikAdapter) DisablePortMirror(
 	routerID string,
 	mirrorID string,
 ) (*model.PortMirror, error) {
+
 	mirror, err := a.GetPortMirror(ctx, routerID, mirrorID)
 	if err != nil {
 		return nil, err
@@ -410,9 +413,8 @@ func (a *MikroTikAdapter) DisablePortMirror(
 }
 
 // Helper functions
-
 // groupPortMirrors groups bridge ports by their mirror target to create logical mirror configurations.
-func groupPortMirrors(ports []map[string]interface{}) []*model.PortMirror {
+func groupPortMirrors(ports []map[string]interface{}) []*model.PortMirror { //nolint:gocyclo // port mirror operations require multiple field checks
 	// Group by destination interface
 	mirrorGroups := make(map[string]*portMirrorGroup)
 
@@ -428,7 +430,8 @@ func groupPortMirrors(ports []map[string]interface{}) []*model.PortMirror {
 		var dest string
 		var direction model.MirrorDirection
 
-		if hasIngress && ingress != "" && hasEgress && egress != "" {
+		switch {
+		case hasIngress && ingress != "" && hasEgress && egress != "":
 			if ingress == egress {
 				dest = ingress
 				direction = model.MirrorDirectionBoth
@@ -442,13 +445,13 @@ func groupPortMirrors(ports []map[string]interface{}) []*model.PortMirror {
 				}
 				continue
 			}
-		} else if hasIngress && ingress != "" {
+		case hasIngress && ingress != "":
 			dest = ingress
 			direction = model.MirrorDirectionIngress
-		} else if hasEgress && egress != "" {
+		case hasEgress && egress != "":
 			dest = egress
 			direction = model.MirrorDirectionEgress
-		} else {
+		default:
 			continue
 		}
 
@@ -457,6 +460,7 @@ func groupPortMirrors(ports []map[string]interface{}) []*model.PortMirror {
 
 	// Convert groups to PortMirror structs
 	result := make([]*model.PortMirror, 0, len(mirrorGroups))
+
 	for dest, group := range mirrorGroups {
 		mirror := &model.PortMirror{
 			ID:                   dest,
@@ -643,7 +647,7 @@ func parseIntFromMap(data map[string]interface{}, key string) int {
 	}
 	if val, ok := data[key].(string); ok {
 		var result int
-		fmt.Sscanf(val, "%d", &result)
+		_, _ = fmt.Sscanf(val, "%d", &result) //nolint:errcheck // best effort parse
 		return result
 	}
 	return 0

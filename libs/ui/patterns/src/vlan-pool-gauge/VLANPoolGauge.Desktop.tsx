@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle , cn } from '@nasnet/ui/primitives';
+
 import type { VLANPoolGaugeProps } from './VLANPoolGauge';
 
 /**

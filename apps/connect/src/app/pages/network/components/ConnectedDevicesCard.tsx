@@ -4,9 +4,12 @@
  */
 
 import { useMemo } from 'react';
-import { ARPEntry } from '@nasnet/core/types';
-import { formatMACAddress } from '@nasnet/core/utils';
+
 import { Users, CheckCircle, AlertCircle, XCircle, ChevronRight } from 'lucide-react';
+
+import { type ARPEntry } from '@nasnet/core/types';
+import { formatMACAddress } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
 
 interface ConnectedDevicesCardProps {

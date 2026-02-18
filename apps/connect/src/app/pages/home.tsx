@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { SystemInfoCard, ResourceGauge, HardwareCard, LastUpdated } from '@nasnet/ui/patterns';
-import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
+
 import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
 import { calculateStatus, formatBytes } from '@nasnet/core/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { SystemInfoCard, ResourceGauge, HardwareCard, LastUpdated } from '@nasnet/ui/patterns';
+import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
 
 /**
  * Home Page / Dashboard

@@ -12,13 +12,14 @@ import (
 // Uses a fixed-window algorithm since service alerts are per-instance, not per-rule.
 type ServiceAlertRateLimiter struct {
 	mu            sync.RWMutex
-	windows       map[string]*instanceWindow
+	Windows       map[string]*instanceWindow // Exported for testing
 	maxAlerts     int
 	windowSeconds int
 	clock         throttle.Clock
 	cleanupTicker *time.Ticker
 	stopCh        chan struct{}
 	wg            sync.WaitGroup
+	closeOnce     sync.Once
 }
 
 type instanceWindow struct {
@@ -38,9 +39,9 @@ func WithServiceClock(clock throttle.Clock) ServiceRateLimiterOption {
 }
 
 // WithServiceMaxAlerts sets the maximum alerts per window (default: 5).
-func WithServiceMaxAlerts(max int) ServiceRateLimiterOption {
+func WithServiceMaxAlerts(maxVal int) ServiceRateLimiterOption {
 	return func(srl *ServiceAlertRateLimiter) {
-		srl.maxAlerts = max
+		srl.maxAlerts = maxVal
 	}
 }
 
@@ -54,7 +55,7 @@ func WithServiceWindowSeconds(seconds int) ServiceRateLimiterOption {
 // NewServiceAlertRateLimiter creates a new rate limiter with default config.
 func NewServiceAlertRateLimiter(opts ...ServiceRateLimiterOption) *ServiceAlertRateLimiter {
 	srl := &ServiceAlertRateLimiter{
-		windows:       make(map[string]*instanceWindow),
+		Windows:       make(map[string]*instanceWindow),
 		maxAlerts:     5,
 		windowSeconds: 60,
 		clock:         throttle.RealClock{},
@@ -73,7 +74,7 @@ func NewServiceAlertRateLimiter(opts ...ServiceRateLimiterOption) *ServiceAlertR
 }
 
 // ShouldAllow checks if an alert for the given instance should be allowed.
-func (srl *ServiceAlertRateLimiter) ShouldAllow(instanceID string) (bool, int, string) {
+func (srl *ServiceAlertRateLimiter) ShouldAllow(instanceID string) (allowed bool, suppressed int, reason string) {
 	if srl.maxAlerts <= 0 {
 		return true, 0, ""
 	}
@@ -84,10 +85,10 @@ func (srl *ServiceAlertRateLimiter) ShouldAllow(instanceID string) (bool, int, s
 	now := srl.clock.Now()
 	window := time.Duration(srl.windowSeconds) * time.Second
 
-	w, exists := srl.windows[instanceID]
+	w, exists := srl.Windows[instanceID]
 	if !exists {
 		w = &instanceWindow{windowStart: now}
-		srl.windows[instanceID] = w
+		srl.Windows[instanceID] = w
 	}
 
 	if now.Sub(w.windowStart) >= window {
@@ -114,7 +115,7 @@ func (srl *ServiceAlertRateLimiter) GetSuppressedCount(instanceID string) int {
 	srl.mu.RLock()
 	defer srl.mu.RUnlock()
 
-	w, exists := srl.windows[instanceID]
+	w, exists := srl.Windows[instanceID]
 	if !exists {
 		return 0
 	}
@@ -128,11 +129,11 @@ func (srl *ServiceAlertRateLimiter) GetSuppressedCount(instanceID string) int {
 }
 
 // GetWindowStats returns statistics for an instance's current window.
-func (srl *ServiceAlertRateLimiter) GetWindowStats(instanceID string) (int, int, time.Time, bool) {
+func (srl *ServiceAlertRateLimiter) GetWindowStats(instanceID string) (count, suppressedCount int, windowStart time.Time, active bool) {
 	srl.mu.RLock()
 	defer srl.mu.RUnlock()
 
-	w, exists := srl.windows[instanceID]
+	w, exists := srl.Windows[instanceID]
 	if !exists {
 		return 0, 0, time.Time{}, false
 	}
@@ -149,14 +150,14 @@ func (srl *ServiceAlertRateLimiter) GetWindowStats(instanceID string) (int, int,
 func (srl *ServiceAlertRateLimiter) Reset(instanceID string) {
 	srl.mu.Lock()
 	defer srl.mu.Unlock()
-	delete(srl.windows, instanceID)
+	delete(srl.Windows, instanceID)
 }
 
 // ResetAll clears all window state.
 func (srl *ServiceAlertRateLimiter) ResetAll() {
 	srl.mu.Lock()
 	defer srl.mu.Unlock()
-	srl.windows = make(map[string]*instanceWindow)
+	srl.Windows = make(map[string]*instanceWindow)
 }
 
 func (srl *ServiceAlertRateLimiter) cleanupWorker() {
@@ -164,14 +165,15 @@ func (srl *ServiceAlertRateLimiter) cleanupWorker() {
 	for {
 		select {
 		case <-srl.cleanupTicker.C:
-			srl.cleanup()
+			srl.Cleanup()
 		case <-srl.stopCh:
 			return
 		}
 	}
 }
 
-func (srl *ServiceAlertRateLimiter) cleanup() {
+// Cleanup removes expired windows. Exported for testing.
+func (srl *ServiceAlertRateLimiter) Cleanup() {
 	srl.mu.Lock()
 	defer srl.mu.Unlock()
 
@@ -180,21 +182,24 @@ func (srl *ServiceAlertRateLimiter) cleanup() {
 	threshold := 2 * window
 
 	expired := make([]string, 0)
-	for id, w := range srl.windows {
+	for id, w := range srl.Windows {
 		if now.Sub(w.windowStart) >= threshold {
 			expired = append(expired, id)
 		}
 	}
 	for _, id := range expired {
-		delete(srl.windows, id)
+		delete(srl.Windows, id)
 	}
 }
 
 // Close stops the cleanup worker and releases resources.
+// Safe to call multiple times.
 func (srl *ServiceAlertRateLimiter) Close() {
-	close(srl.stopCh)
-	if srl.cleanupTicker != nil {
-		srl.cleanupTicker.Stop()
-	}
-	srl.wg.Wait()
+	srl.closeOnce.Do(func() {
+		close(srl.stopCh)
+		if srl.cleanupTicker != nil {
+			srl.cleanupTicker.Stop()
+		}
+		srl.wg.Wait()
+	})
 }

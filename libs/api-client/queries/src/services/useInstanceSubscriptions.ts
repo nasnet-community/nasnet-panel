@@ -11,12 +11,11 @@ export interface InstallProgress {
   routerID: string;
   featureID: string;
   instanceID: string;
-  phase: 'DOWNLOADING' | 'VERIFYING' | 'INSTALLING' | 'STARTING' | 'COMPLETE' | 'FAILED';
-  progress: number; // 0-100
-  bytesDownloaded?: number;
-  totalBytes?: number;
-  message?: string;
-  error?: string;
+  status: string;
+  percent: number;
+  bytesDownloaded: number;
+  totalBytes: number;
+  errorMessage?: string | null;
 }
 
 /**
@@ -63,10 +62,10 @@ export function useInstallProgress(routerId: string, enabled: boolean = true) {
         const progress = data.data.installProgress;
         // Cache is updated automatically via normalized cache
         // Additional side effects can be added here if needed (e.g., notifications)
-        if (progress.phase === 'COMPLETE') {
+        if (progress.status === 'completed') {
           console.log(`Installation complete for ${progress.featureID}`);
-        } else if (progress.phase === 'FAILED') {
-          console.error(`Installation failed: ${progress.error}`);
+        } else if (progress.status === 'failed') {
+          console.error(`Installation failed: ${progress.errorMessage}`);
         }
       }
     },

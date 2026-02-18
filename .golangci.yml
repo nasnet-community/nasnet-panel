@@ -2,12 +2,14 @@
 # Configured per Tech Spec Story 1.3: 50+ linters including staticcheck, gosec, govet, errcheck, gofmt, goimports
 
 run:
-  timeout: 10m
-  tests: true
+  timeout: 15m
+  tests: false
   modules-download-mode: readonly
   go: "1.22"
 
 linters:
+  disable:
+    - godot
   # Enable a comprehensive set of 50+ linters
   enable:
     # Default/Essential linters
@@ -27,12 +29,12 @@ linters:
     - durationcheck     # Check for time.Duration mistakes
     - errorlint         # Check error handling
     - exhaustive        # Check exhaustiveness of enum switch statements
-    - exportloopref     # Check for pointers to loop variables
+    - copyloopvar       # Check for loop variable capture (Go 1.22+)
     - gochecknoinits    # Check for init functions
     - goconst           # Find repeated strings that could be constants
     - gocritic          # Check for bugs, performance, style issues
     - gocyclo           # Check cyclomatic complexity
-    - godot             # Check that comments end in a period
+    #- godot             # Check that comments end in a period
     - gofmt             # Check code is formatted
     - goimports         # Check imports are formatted
     - goprintffuncname  # Check printf-like function names
@@ -52,7 +54,7 @@ linters:
     - rowserrcheck      # Check sql.Rows.Err is called
     - sqlclosecheck     # Check SQL rows/statements are closed
     - stylecheck        # Style checks
-    - tenv              # Check test environments
+    - usetesting        # Check test environment usage
     - tparallel         # Check test parallelization
     - unconvert         # Remove unnecessary type conversions
     - unparam           # Check for unused function parameters
@@ -65,7 +67,7 @@ linters:
     - decorder          # Check declaration order
     - errchkjson        # Check json error handling
     - errname           # Check error naming conventions
-    - execinquery       # Check for SQL injection
+    - protogetter       # Check for direct proto field access
     - forcetypeassert   # Check type assertions
     - gomoddirectives   # Check go.mod directives
     - grouper           # Check grouping declarations
@@ -84,7 +86,8 @@ linters:
 
 linters-settings:
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
     settings:
       printf:
         funcs:
@@ -122,15 +125,17 @@ linters-settings:
     disabled-checks:
       - whyNoLint
       - wrapperFunc
+      - commentFormatting  # Too opinionated for existing code
+      - hugeParam          # Will be addressed gradually
+    settings:
+      rangeValCopy:
+        sizeThreshold: 512  # Allow larger value copies for now
 
   gofmt:
     simplify: true
 
   goimports:
     local-prefixes: github.com/nasnet
-
-  golint:
-    min-confidence: 0.8
 
   gomoddirectives:
     replace-allow-list:
@@ -143,7 +148,7 @@ linters-settings:
       G306: "0644"
 
   gosimple:
-    go: "1.22"
+    checks: ["all"]
 
   lll:
     line-length: 140
@@ -198,12 +203,10 @@ linters-settings:
       - name: redefines-builtin-id
 
   staticcheck:
-    go: "1.22"
     checks:
       - all
 
   stylecheck:
-    go: "1.22"
     checks:
       - all
       - -ST1000  # Package comment check (too strict)
@@ -246,6 +249,32 @@ issues:
       linters:
         - gosec
 
+    # Temporary exclusions for migration - will be addressed in phases
+    # Phase 1: Suppress unused parameter warnings (will fix in Task 7)
+    - linters:
+        - revive
+      text: "unused-parameter"
+
+    # Phase 2: Suppress naming convention warnings (will fix in Task 7)
+    - linters:
+        - revive
+      text: "(var-naming|receiver-naming)"
+
+
+    # Phase 4: Suppress goconst warnings in generated code
+    - path: generated/
+      linters:
+        - goconst
+        - revive
+        - stylecheck
+
+    # Phase 5: Suppress complexity warnings in bootstrap/initialization code
+    - path: (cmd/nnc/|internal/bootstrap/)
+      linters:
+        - gocyclo
+        - gocognit
+        - maintidx
+
   max-issues-per-linter: 0
   max-same-issues: 0
   new: false
@@ -265,7 +294,8 @@ severity:
       severity: warning
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
   unique-by-line: true

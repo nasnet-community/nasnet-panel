@@ -3,6 +3,7 @@ package features
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -203,3 +204,5 @@ func TestEqualChecksums(t *testing.T) {
 		})
 	}
 }
+
+func equalChecksums(a, b string) bool { return strings.EqualFold(a, b) }

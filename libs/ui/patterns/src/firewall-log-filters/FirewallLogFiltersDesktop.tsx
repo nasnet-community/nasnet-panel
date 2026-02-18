@@ -8,6 +8,7 @@
  */
 
 import { memo } from 'react';
+
 import { Calendar, Filter, Network, Hash, Tag, X } from 'lucide-react';
 
 import {
@@ -26,6 +27,7 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { useFirewallLogFilters } from './use-firewall-log-filters';
+
 import type { FirewallLogFiltersProps } from './firewall-log-filters.types';
 
 /**
@@ -132,7 +134,7 @@ export const FirewallLogFiltersDesktop = memo(
                     </Badge>
                   )}
                   {(action === 'drop' || action === 'reject') && (
-                    <Badge variant="destructive" className="ml-auto text-xs">
+                    <Badge variant="error" className="ml-auto text-xs">
                       Block
                     </Badge>
                   )}

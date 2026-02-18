@@ -229,11 +229,11 @@ func TestRedactMap_Empty(t *testing.T) {
 
 func TestRedactMap_MixedContent(t *testing.T) {
 	input := map[string]interface{}{
-		"username":    "john",
-		"password":    "secret123",
-		"api_key":     "key123",
-		"routerId":    "router-1",
-		"error":       "connection failed",
+		"username": "john",
+		"password": "secret123",
+		"api_key":  "key123",
+		"routerId": "router-1",
+		"error":    "connection failed",
 	}
 
 	result := RedactMap(input)

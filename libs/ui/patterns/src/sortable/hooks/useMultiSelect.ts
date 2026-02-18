@@ -8,8 +8,9 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { UniqueIdentifier } from '@dnd-kit/core';
+
 import type { SortableItemData } from '../types';
+import type { UniqueIdentifier } from '@dnd-kit/core';
 
 // ============================================================================
 // Types

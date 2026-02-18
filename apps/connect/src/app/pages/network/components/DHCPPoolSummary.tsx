@@ -4,8 +4,11 @@
  */
 
 import { useMemo } from 'react';
-import type { DHCPServer, DHCPLease, DHCPPool } from '@nasnet/core/types';
+
 import { Server, Users, PieChart, XCircle } from 'lucide-react';
+
+import type { DHCPServer, DHCPLease, DHCPPool } from '@nasnet/core/types';
+
 import { cn } from '@/lib/utils';
 
 interface DHCPPoolSummaryProps {

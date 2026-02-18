@@ -56,7 +56,7 @@ type escalationState struct {
 	config       Config
 	currentLevel int
 	timer        *time.Timer
-	cancelled    bool
+	canceled     bool
 }
 
 // ParseConfig parses escalation JSON from AlertRule.

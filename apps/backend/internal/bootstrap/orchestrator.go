@@ -6,31 +6,38 @@ import (
 	"log/slog"
 
 	"github.com/rs/zerolog"
+
 	"backend/generated/ent"
+	"backend/internal/adapters"
+	"backend/internal/features"
+	"backend/internal/orchestrator/boot"
+	"backend/internal/orchestrator/dependencies"
+	"backend/internal/orchestrator/isolation"
+	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/orchestrator/resources"
+	"backend/internal/orchestrator/supervisor"
+	"backend/internal/services"
+	"backend/internal/vif"
 
 	"backend/internal/events"
-	"backend/internal/features"
 	"backend/internal/network"
-	"backend/internal/orchestrator"
 	"backend/internal/router"
-	"backend/internal/services"
 	"backend/internal/storage"
-	"backend/internal/vif"
 )
 
 // OrchestratorComponents holds all initialized orchestrator components.
 type OrchestratorComponents struct {
 	FeatureRegistry     *features.FeatureRegistry
 	DownloadManager     *features.DownloadManager
-	ProcessSupervisor   *orchestrator.ProcessSupervisor
+	ProcessSupervisor   *supervisor.ProcessSupervisor
 	PortRegistry        *network.PortRegistry
 	VLANAllocator       *network.VLANAllocator
-	ConfigValidator     *orchestrator.ConfigValidatorAdapter
-	IsolationVerifier   *orchestrator.IsolationVerifier
-	ResourceLimiter     *orchestrator.ResourceLimiter
-	InstanceManager     *orchestrator.InstanceManager
-	DependencyManager   *orchestrator.DependencyManager
-	BootSequenceManager *orchestrator.BootSequenceManager
+	ConfigValidator     *isolation.ConfigValidatorAdapter
+	IsolationVerifier   *isolation.IsolationVerifier
+	ResourceLimiter     *resources.ResourceLimiter
+	InstanceManager     *lifecycle.InstanceManager
+	DependencyManager   *dependencies.DependencyManager
+	BootSequenceManager *boot.BootSequenceManager
 }
 
 // vlanServiceAdapter adapts services.VlanService to network.VlanServicePort interface.
@@ -70,11 +77,12 @@ func InitializeOrchestrator(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
 	pathResolver storage.PathResolverPort,
-	gatewayManager orchestrator.GatewayPort,
+	gatewayManager lifecycle.GatewayPort,
 	bridgeOrchestrator *vif.BridgeOrchestrator,
 	routerPort *router.MockAdapter,
 	logger zerolog.Logger,
 ) (*OrchestratorComponents, error) {
+
 	log.Printf("Initializing service instance orchestrator...")
 
 	// 1. Feature Registry - loads service manifests (Tor, sing-box, Xray, etc.)
@@ -89,12 +97,15 @@ func InitializeOrchestrator(
 	log.Printf("Download manager initialized")
 
 	// 3. Process Supervisor - manages service process lifecycle
-	processSupervisor := orchestrator.NewProcessSupervisor(orchestrator.ProcessSupervisorConfig{Logger: logger})
+	processSupervisor := supervisor.NewProcessSupervisor(supervisor.ProcessSupervisorConfig{Logger: logger})
 	log.Printf("Process supervisor initialized")
+
+	// Create network store adapter for dependency inversion
+	networkStore := adapters.NewEntNetworkAdapter(systemDB)
 
 	// 4. Port Registry - prevents port conflicts across service instances
 	portRegistry, err := network.NewPortRegistry(network.PortRegistryConfig{
-		Store:         systemDB,
+		Store:         networkStore,
 		Logger:        slog.Default(),
 		ReservedPorts: []int{22, 53, 80, 443, 8080, 8291, 8728, 8729},
 	})
@@ -105,7 +116,7 @@ func InitializeOrchestrator(
 
 	// 5. VLAN Allocator - allocates VLANs for virtual interface isolation
 	vlanAllocator, err := network.NewVLANAllocator(network.VLANAllocatorConfig{
-		Store:       systemDB,
+		Store:       networkStore,
 		VlanService: &vlanServiceAdapter{svc: services.NewVlanService(routerPort)},
 		Logger:      slog.Default(),
 	})
@@ -115,11 +126,11 @@ func InitializeOrchestrator(
 	log.Printf("VLAN allocator initialized")
 
 	// 6. Config Validator Adapter - validates service-specific config bindings
-	configValidator := orchestrator.NewConfigValidatorAdapter(logger)
+	configValidator := isolation.NewConfigValidatorAdapter(logger)
 	log.Printf("Config validator adapter initialized")
 
 	// 7. Isolation Verifier - 4-layer isolation verification (IP, directory, port, process)
-	isolationVerifier, err := orchestrator.NewIsolationVerifier(orchestrator.IsolationVerifierConfig{
+	isolationVerifier, err := isolation.NewIsolationVerifier(isolation.IsolationVerifierConfig{
 		PortRegistry:           portRegistry,
 		ConfigBindingValidator: configValidator,
 		EventBus:               eventBus,
@@ -132,7 +143,7 @@ func InitializeOrchestrator(
 	log.Printf("Isolation verifier initialized (4-layer defense)")
 
 	// 8. Resource Limiter - monitors resource usage and applies cgroups v2 memory limits
-	resourceLimiter, err := orchestrator.NewResourceLimiter(orchestrator.ResourceLimiterConfig{
+	resourceLimiter, err := resources.NewResourceLimiter(resources.ResourceLimiterConfig{
 		EventBus: eventBus,
 		Logger:   logger,
 	})
@@ -142,7 +153,7 @@ func InitializeOrchestrator(
 	log.Printf("Resource limiter initialized (cgroups v2 enabled: %v)", resourceLimiter.IsCgroupsEnabled())
 
 	// 9. Instance Manager - orchestrates complete service instance lifecycle
-	instanceManager, err := orchestrator.NewInstanceManager(orchestrator.InstanceManagerConfig{
+	instanceManager, err := lifecycle.NewInstanceManager(lifecycle.InstanceManagerConfig{
 		Registry:           featureRegistry,
 		DownloadMgr:        downloadManager,
 		Supervisor:         processSupervisor,
@@ -163,7 +174,7 @@ func InitializeOrchestrator(
 	log.Printf("Instance manager initialized (isolation enabled)")
 
 	// 10. Dependency Manager - manages service instance dependency relationships
-	dependencyManager, err := orchestrator.NewDependencyManager(orchestrator.DependencyManagerConfig{
+	dependencyManager, err := dependencies.NewDependencyManager(dependencies.DependencyManagerConfig{
 		Store:    systemDB,
 		EventBus: eventBus,
 		Logger:   logger,
@@ -174,7 +185,7 @@ func InitializeOrchestrator(
 	log.Printf("Dependency manager initialized")
 
 	// 11. Boot Sequence Manager - orchestrates service startup on system boot
-	bootSequenceManager, err := orchestrator.NewBootSequenceManager(orchestrator.BootSequenceManagerConfig{
+	bootSequenceManager, err := boot.NewBootSequenceManager(boot.BootSequenceManagerConfig{
 		DependencyMgr: dependencyManager,
 		InstanceMgr:   instanceManager,
 		Store:         systemDB,

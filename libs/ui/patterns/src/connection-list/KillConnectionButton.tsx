@@ -8,6 +8,7 @@
 import * as React from 'react';
 
 import { Button } from '@nasnet/ui/primitives';
+
 import { ConfirmationDialog } from '../confirmation-dialog';
 import { useToast } from '../hooks';
 
@@ -81,7 +82,7 @@ export function KillConnectionButton({
       toast({
         title: 'Connection killed',
         description: `Terminated connection from ${connection.srcAddress} to ${connection.dstAddress}`,
-        variant: 'success',
+        variant: 'default',
       });
 
       setShowDialog(false);
@@ -91,7 +92,7 @@ export function KillConnectionButton({
         title: 'Failed to kill connection',
         description:
           error instanceof Error ? error.message : 'An unknown error occurred',
-        variant: 'error',
+        variant: 'destructive',
       });
     } finally {
       setInternalLoading(false);

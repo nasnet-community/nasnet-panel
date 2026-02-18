@@ -9,7 +9,7 @@
  */
 
 import * as React from 'react';
-import { usePlatform } from '@nasnet/core/hooks';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { useLeasePage } from '../hooks/useLeasePage';
 import { DHCPLeaseManagementDesktop } from './DHCPLeaseManagementDesktop';
 import { DHCPLeaseManagementMobile } from './DHCPLeaseManagementMobile';
@@ -41,11 +41,25 @@ export function DHCPLeaseManagementPage({ routerId }: DHCPLeaseManagementPagePro
   // Main orchestration hook - handles all data fetching, filtering, and operations
   const pageData = useLeasePage(routerId);
 
+  // Derived properties for presenters
+  const isLoading = pageData.isLoadingLeases || pageData.isLoadingServers;
+  const isError = !!(pageData.leasesError || pageData.serversError);
+  const error = pageData.leasesError || pageData.serversError || undefined;
+
+  const presenterProps = {
+    ...pageData,
+    isLoading,
+    isError,
+    error,
+    clearSelection: pageData.clearLeaseSelection,
+    exportToCSV: () => { /* TODO: implement CSV export */ },
+  };
+
   // Render platform-specific presenter
   return platform === 'mobile' ? (
-    <DHCPLeaseManagementMobile {...pageData} />
+    <DHCPLeaseManagementMobile {...presenterProps as any} />
   ) : (
-    <DHCPLeaseManagementDesktop {...pageData} />
+    <DHCPLeaseManagementDesktop {...presenterProps as any} />
   );
 }
 

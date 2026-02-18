@@ -16,12 +16,10 @@
  * @module @nasnet/ui/patterns
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { usePortKnockSequenceForm } from './use-port-knock-sequence-form';
-import type { PortKnockSequence } from '@nasnet/core/types';
+import { describe, it, expect, vi } from 'vitest';
 
-// Import test fixtures
+import type { PortKnockSequence } from '@nasnet/core/types';
 import {
   VALID_SEQUENCE_MINIMAL,
   VALID_SEQUENCE_SSH,
@@ -31,6 +29,8 @@ import {
   INVALID_KNOCK_PORTS_TOO_FEW,
   INVALID_KNOCK_PORTS_DUPLICATES,
 } from '@nasnet/core/types/firewall/__test-fixtures__/port-knock-fixtures';
+
+import { usePortKnockSequenceForm } from './use-port-knock-sequence-form';
 
 // =============================================================================
 // Test Suite Setup

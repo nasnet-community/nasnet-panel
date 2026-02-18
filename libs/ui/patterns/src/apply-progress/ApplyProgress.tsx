@@ -6,7 +6,17 @@
  */
 
 import * as React from 'react';
-import { cn, Progress, Button } from '@nasnet/ui/primitives';
+
+import {
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  RotateCcw,
+  X,
+} from 'lucide-react';
+
 import type {
   ChangeSet,
   ChangeSetItem,
@@ -17,15 +27,8 @@ import {
   getChangeSetStatusDisplayInfo,
   isChangeSetProcessing,
 } from '@nasnet/core/types';
-import {
-  Loader2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  RotateCcw,
-  X,
-} from 'lucide-react';
+import { cn, Progress, Button } from '@nasnet/ui/primitives';
+
 
 // =============================================================================
 // Types

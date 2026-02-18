@@ -54,4 +54,4 @@ function RouteListComponent(props: RouteListProps) {
 export const RouteList = memo(RouteListComponent);
 
 // Set display name for React DevTools
-(RouteList as React.FC).displayName = 'RouteList';
+RouteList.displayName = 'RouteList';

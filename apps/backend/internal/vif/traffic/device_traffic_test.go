@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"backend/generated/graphql"
+
 	"backend/internal/router"
 )
 
@@ -13,7 +14,7 @@ type deviceTrafficMockRouterPort struct {
 	queryStateFunc func(ctx context.Context, query router.StateQuery) (*router.StateResult, error)
 }
 
-func (m *deviceTrafficMockRouterPort) Connect(ctx context.Context) error {
+func (m *deviceTrafficMockRouterPort) Connect(_ context.Context) error {
 	return nil
 }
 
@@ -25,8 +26,8 @@ func (m *deviceTrafficMockRouterPort) IsConnected() bool {
 	return true
 }
 
-func (m *deviceTrafficMockRouterPort) Health(ctx context.Context) router.HealthStatus {
-	return router.HealthStatus{Healthy: true}
+func (m *deviceTrafficMockRouterPort) Health(_ context.Context) router.HealthStatus {
+	return router.HealthStatus{Status: router.StatusConnected}
 }
 
 func (m *deviceTrafficMockRouterPort) Capabilities() router.PlatformCapabilities {
@@ -37,7 +38,7 @@ func (m *deviceTrafficMockRouterPort) Info() (*router.RouterInfo, error) {
 	return &router.RouterInfo{}, nil
 }
 
-func (m *deviceTrafficMockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+func (m *deviceTrafficMockRouterPort) ExecuteCommand(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 	return &router.CommandResult{Success: true}, nil
 }
 
@@ -69,7 +70,7 @@ func TestNewDeviceTrafficTracker(t *testing.T) {
 // TestGetDeviceBreakdown_EmptyResult tests handling of no mangle rules
 func TestGetDeviceBreakdown_EmptyResult(t *testing.T) {
 	mockPort := &deviceTrafficMockRouterPort{
-		queryStateFunc: func(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+		queryStateFunc: func(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 			return &router.StateResult{
 				Resources: []map[string]string{},
 			}, nil
@@ -92,7 +93,7 @@ func TestGetDeviceBreakdown_EmptyResult(t *testing.T) {
 // TestGetDeviceBreakdown_SingleDevice tests parsing a single device's traffic
 func TestGetDeviceBreakdown_SingleDevice(t *testing.T) {
 	mockPort := &deviceTrafficMockRouterPort{
-		queryStateFunc: func(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+		queryStateFunc: func(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 			// Check query path
 			if query.Path != "/ip/firewall/mangle" {
 				t.Errorf("Expected path /ip/firewall/mangle, got %s", query.Path)
@@ -151,7 +152,7 @@ func TestGetDeviceBreakdown_SingleDevice(t *testing.T) {
 // TestGetDeviceBreakdown_MultipleDevices tests parsing multiple devices
 func TestGetDeviceBreakdown_MultipleDevices(t *testing.T) {
 	mockPort := &deviceTrafficMockRouterPort{
-		queryStateFunc: func(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+		queryStateFunc: func(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 			return &router.StateResult{
 				Resources: []map[string]string{
 					{
@@ -217,10 +218,10 @@ func TestGetDeviceBreakdown_MultipleDevices(t *testing.T) {
 // TestGetDeviceBreakdown_FiltersByInstanceID tests that only matching instance rules are returned
 func TestGetDeviceBreakdown_FiltersByInstanceID(t *testing.T) {
 	mockPort := &deviceTrafficMockRouterPort{
-		queryStateFunc: func(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+		queryStateFunc: func(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 			// Check that filter is applied correctly
 			expectedFilter := "nnc-routing-instance-1-"
-			if filter, ok := query.Filters["comment"]; !ok || filter != expectedFilter {
+			if filter, ok := query.Filter["comment"]; !ok || filter != expectedFilter {
 				t.Errorf("Expected comment filter '%s', got '%s'", expectedFilter, filter)
 			}
 
@@ -306,7 +307,7 @@ func TestParseCounter(t *testing.T) {
 
 // TestSortByTotalBytes tests the sorting function
 func TestSortByTotalBytes(t *testing.T) {
-	devices := []*model.DeviceTrafficBreakdown{
+	devices := []*graphql.DeviceTrafficBreakdown{
 		{DeviceID: "device-3", TotalBytes: 1000},
 		{DeviceID: "device-1", TotalBytes: 5000},
 		{DeviceID: "device-2", TotalBytes: 3000},

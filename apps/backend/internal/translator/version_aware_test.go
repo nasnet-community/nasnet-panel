@@ -10,14 +10,14 @@ import (
 )
 
 func TestVersionAwareTranslator_New(t *testing.T) {
-	vat := NewVersionAwareTranslator(TranslatorConfig{})
+	vat := NewVersionAwareTranslator(Config{})
 	require.NotNil(t, vat)
 	require.NotNil(t, vat.Translator)
 	require.NotNil(t, vat.compatSvc)
 }
 
 func TestVersionAwareTranslator_SetVersion(t *testing.T) {
-	vat := NewVersionAwareTranslator(TranslatorConfig{})
+	vat := NewVersionAwareTranslator(Config{})
 
 	// Set version from compatibility.Version
 	v := compatibility.Version{
@@ -36,7 +36,7 @@ func TestVersionAwareTranslator_SetVersion(t *testing.T) {
 }
 
 func TestVersionAwareTranslator_GetCompatibilityVersion(t *testing.T) {
-	vat := NewVersionAwareTranslator(TranslatorConfig{})
+	vat := NewVersionAwareTranslator(Config{})
 
 	// Without version set
 	assert.Nil(t, vat.GetCompatibilityVersion())
@@ -111,7 +111,7 @@ func TestVersionAwareTranslator_TranslateFieldName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			vat := NewVersionAwareTranslator(TranslatorConfig{})
+			vat := NewVersionAwareTranslator(Config{})
 			vat.version = tt.version
 
 			result := vat.TranslateFieldName(tt.resource, tt.graphqlField)
@@ -179,7 +179,7 @@ func TestVersionAwareTranslator_TranslatePath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			vat := NewVersionAwareTranslator(TranslatorConfig{})
+			vat := NewVersionAwareTranslator(Config{})
 			vat.version = tt.version
 
 			result := vat.TranslatePath(tt.resource)
@@ -190,7 +190,7 @@ func TestVersionAwareTranslator_TranslatePath(t *testing.T) {
 
 func TestVersionAwareTranslator_TranslateToCanonicalVersionAware(t *testing.T) {
 	t.Run("translates path and fields for v7", func(t *testing.T) {
-		vat := NewVersionAwareTranslator(TranslatorConfig{})
+		vat := NewVersionAwareTranslator(Config{})
 		vat.version = &RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
 
 		cmd, err := vat.TranslateToCanonicalVersionAware(TranslateInput{
@@ -209,7 +209,7 @@ func TestVersionAwareTranslator_TranslateToCanonicalVersionAware(t *testing.T) {
 	})
 
 	t.Run("translates path and fields for v6", func(t *testing.T) {
-		vat := NewVersionAwareTranslator(TranslatorConfig{})
+		vat := NewVersionAwareTranslator(Config{})
 		vat.version = &RouterOSVersion{Major: 6, Minor: 49, Patch: 10}
 
 		cmd, err := vat.TranslateToCanonicalVersionAware(TranslateInput{
@@ -227,7 +227,7 @@ func TestVersionAwareTranslator_TranslateToCanonicalVersionAware(t *testing.T) {
 	})
 
 	t.Run("translates filters with version awareness", func(t *testing.T) {
-		vat := NewVersionAwareTranslator(TranslatorConfig{})
+		vat := NewVersionAwareTranslator(Config{})
 		vat.version = &RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
 
 		cmd, err := vat.TranslateToCanonicalVersionAware(TranslateInput{
@@ -245,7 +245,7 @@ func TestVersionAwareTranslator_TranslateToCanonicalVersionAware(t *testing.T) {
 	})
 
 	t.Run("translates proplist with version awareness", func(t *testing.T) {
-		vat := NewVersionAwareTranslator(TranslatorConfig{})
+		vat := NewVersionAwareTranslator(Config{})
 		vat.version = &RouterOSVersion{Major: 6, Minor: 49, Patch: 10}
 
 		cmd, err := vat.TranslateToCanonicalVersionAware(TranslateInput{
@@ -320,7 +320,7 @@ func TestVersionAwareTranslator_IsFeatureSupported(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			vat := NewVersionAwareTranslator(TranslatorConfig{})
+			vat := NewVersionAwareTranslator(Config{})
 			vat.version = tt.version
 
 			result := vat.IsFeatureSupported(tt.featureID, tt.isCHR)
@@ -330,7 +330,7 @@ func TestVersionAwareTranslator_IsFeatureSupported(t *testing.T) {
 }
 
 func TestVersionAwareTranslator_GetVersionRequirement(t *testing.T) {
-	vat := NewVersionAwareTranslator(TranslatorConfig{})
+	vat := NewVersionAwareTranslator(Config{})
 
 	tests := []struct {
 		featureID string
@@ -397,7 +397,7 @@ func TestVersionAwareTranslatorWithCustomService(t *testing.T) {
 	// Create a custom compatibility service
 	svc := compatibility.NewService()
 
-	vat := NewVersionAwareTranslatorWithService(TranslatorConfig{}, svc)
+	vat := NewVersionAwareTranslatorWithService(Config{}, svc)
 	require.NotNil(t, vat)
 	assert.Equal(t, svc, vat.compatSvc)
 

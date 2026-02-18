@@ -6,8 +6,10 @@
  */
 
 import { type ReactNode, useMemo } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+
 import { useRouterState } from '@tanstack/react-router';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
+
 import { useAnimation, useAnimationOptional } from './AnimationProvider';
 import {
   pageFade,

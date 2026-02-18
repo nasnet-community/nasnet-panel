@@ -42,9 +42,9 @@ const (
 	ErrCodeDBClosed = "DB_CLOSED"
 )
 
-// DatabaseError wraps database errors with context for debugging and monitoring.
+// Error wraps database errors with context for debugging and monitoring.
 // It follows the Rich Error Diagnostics pattern from Story 2.8.
-type DatabaseError struct {
+type Error struct {
 	// Code is the machine-readable error code (e.g., "DB_CONNECTION_FAILED").
 	Code string
 
@@ -60,7 +60,7 @@ type DatabaseError struct {
 }
 
 // Error implements the error interface.
-func (e *DatabaseError) Error() string {
+func (e *Error) Error() string {
 	if e.Cause != nil {
 		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Cause)
 	}
@@ -68,13 +68,13 @@ func (e *DatabaseError) Error() string {
 }
 
 // Unwrap returns the underlying cause for errors.Is/errors.As support.
-func (e *DatabaseError) Unwrap() error {
+func (e *Error) Unwrap() error {
 	return e.Cause
 }
 
-// NewDatabaseError creates a new DatabaseError with the given code, message, and cause.
-func NewDatabaseError(code, message string, cause error) *DatabaseError {
-	return &DatabaseError{
+// NewError creates a new Error with the given code, message, and cause.
+func NewError(code, message string, cause error) *Error {
+	return &Error{
 		Code:    code,
 		Message: message,
 		Cause:   cause,
@@ -83,38 +83,38 @@ func NewDatabaseError(code, message string, cause error) *DatabaseError {
 }
 
 // WithContext adds context information to the error and returns it for chaining.
-func (e *DatabaseError) WithContext(key string, value interface{}) *DatabaseError {
+func (e *Error) WithContext(key string, value interface{}) *Error {
 	e.Context[key] = value
 	return e
 }
 
 // WithRouterID adds router ID context to the error.
-func (e *DatabaseError) WithRouterID(routerID string) *DatabaseError {
+func (e *Error) WithRouterID(routerID string) *Error {
 	return e.WithContext("routerID", routerID)
 }
 
 // WithPath adds database path context to the error.
-func (e *DatabaseError) WithPath(path string) *DatabaseError {
+func (e *Error) WithPath(path string) *Error {
 	return e.WithContext("dbPath", path)
 }
 
 // WithOperation adds operation name context to the error.
-func (e *DatabaseError) WithOperation(op string) *DatabaseError {
+func (e *Error) WithOperation(op string) *Error {
 	return e.WithContext("operation", op)
 }
 
 // IsConnectionError checks if this is a connection-related error.
-func (e *DatabaseError) IsConnectionError() bool {
+func (e *Error) IsConnectionError() bool {
 	return e.Code == ErrCodeDBConnectionFailed
 }
 
 // IsIntegrityError checks if this is an integrity check error.
-func (e *DatabaseError) IsIntegrityError() bool {
+func (e *Error) IsIntegrityError() bool {
 	return e.Code == ErrCodeDBIntegrityFailed
 }
 
 // IsRecoverable indicates whether the error might be recoverable through retry.
-func (e *DatabaseError) IsRecoverable() bool {
+func (e *Error) IsRecoverable() bool {
 	switch e.Code {
 	case ErrCodeDBTimeout, ErrCodeDBConnectionFailed:
 		return true

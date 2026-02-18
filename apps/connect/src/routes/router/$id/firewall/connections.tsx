@@ -6,6 +6,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { ConnectionsPage } from '@nasnet/features/firewall';
 
 export const Route = createFileRoute('/router/$id/firewall/connections')({

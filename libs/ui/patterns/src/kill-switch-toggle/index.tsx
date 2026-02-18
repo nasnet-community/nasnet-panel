@@ -5,9 +5,11 @@
  * Automatically detects screen size and renders the appropriate version.
  */
 
-import { usePlatform } from '@nasnet/ui/layouts/responsive-shell';
+import { usePlatform } from '@nasnet/ui/layouts';
+
 import { KillSwitchToggleDesktop } from './KillSwitchToggleDesktop';
 import { KillSwitchToggleMobile } from './KillSwitchToggleMobile';
+
 import type { KillSwitchToggleProps } from './types';
 
 /**

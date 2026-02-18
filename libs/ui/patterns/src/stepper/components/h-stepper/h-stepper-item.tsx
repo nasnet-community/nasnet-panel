@@ -11,8 +11,11 @@
  */
 
 import * as React from 'react';
+
 import { Check, XCircle } from 'lucide-react';
+
 import { cn } from '@nasnet/ui/primitives';
+
 import type { HStepperItemProps } from './h-stepper.types';
 
 /**

@@ -25,6 +25,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { ConnectionListDesktop } from './ConnectionListDesktop';
 import { ConnectionListMobile } from './ConnectionListMobile';
+
 import type { ConnectionEntry } from './types';
 import type { UseConnectionListReturn } from './use-connection-list';
 

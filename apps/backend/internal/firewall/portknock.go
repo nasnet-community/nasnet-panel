@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+// Protocol constants for port knocking.
+const (
+	protocolTCP  = "tcp"
+	protocolUDP  = "udp"
+	protocolBoth = "both"
+)
+
 // KnockPort represents a single port in a knock sequence
 type KnockPort struct {
 	Port     int    `json:"port"`
@@ -16,15 +23,15 @@ type KnockPort struct {
 
 // PortKnockSequence represents a port knocking sequence configuration
 type PortKnockSequence struct {
-	ID               string      `json:"id,omitempty"`
-	Name             string      `json:"name"`
-	KnockPorts       []KnockPort `json:"knockPorts"`
-	ProtectedPort    int         `json:"protectedPort"`
-	ProtectedProtocol string     `json:"protectedProtocol"` // "tcp" or "udp"
-	AccessTimeout    string      `json:"accessTimeout"`     // Duration (e.g., "5m", "1h")
-	KnockTimeout     string      `json:"knockTimeout"`      // Duration (e.g., "15s", "30s")
-	Enabled          bool        `json:"enabled"`
-	RouterID         string      `json:"routerId,omitempty"`
+	ID                string      `json:"id,omitempty"`
+	Name              string      `json:"name"`
+	KnockPorts        []KnockPort `json:"knockPorts"`
+	ProtectedPort     int         `json:"protectedPort"`
+	ProtectedProtocol string      `json:"protectedProtocol"` // "tcp" or "udp"
+	AccessTimeout     string      `json:"accessTimeout"`     // Duration (e.g., "5m", "1h")
+	KnockTimeout      string      `json:"knockTimeout"`      // Duration (e.g., "15s", "30s")
+	Enabled           bool        `json:"enabled"`
+	RouterID          string      `json:"routerId,omitempty"`
 }
 
 // PortKnockService handles port knocking operations
@@ -39,8 +46,8 @@ func NewPortKnockService() *PortKnockService {
 
 // GenerateKnockRules generates MikroTik firewall rules for a knock sequence
 // Returns N+1 rules: N stage rules + 1 accept rule
-func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []FirewallRule {
-	rules := make([]FirewallRule, 0, len(sequence.KnockPorts)+1)
+func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Rule {
+	rules := make([]Rule, 0, len(sequence.KnockPorts)+1)
 
 	// Validate sequence name (alphanumeric, underscores, hyphens only)
 	if !isValidSequenceName(sequence.Name) {
@@ -76,16 +83,16 @@ func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Fire
 
 		// Handle protocol
 		switch knockPort.Protocol {
-		case "tcp":
-			properties["protocol"] = "tcp"
-		case "udp":
-			properties["protocol"] = "udp"
-		case "both":
+		case protocolTCP:
+			properties["protocol"] = protocolTCP
+		case protocolUDP:
+			properties["protocol"] = protocolUDP
+		case protocolBoth:
 			// For "both", we'll create a rule that accepts both TCP and UDP
 			// MikroTik allows omitting protocol to match all
 			// But for clarity, we'll handle this in two separate rules
 			// For simplicity, we'll use TCP for now and note that "both" needs special handling
-			properties["protocol"] = "tcp"
+			properties["protocol"] = protocolTCP
 		}
 
 		// Add source address list check for stages > 1
@@ -97,7 +104,7 @@ func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Fire
 		// Create comment tag for identification: !knock:<sequence>:<stage>
 		comment := fmt.Sprintf("!knock:%s:stage%d", sequence.Name, stageNum)
 
-		rule := FirewallRule{
+		rule := Rule{
 			ID:         fmt.Sprintf("knock_%s_stage%d", sequence.Name, stageNum),
 			Table:      "filter",
 			Chain:      "input",
@@ -117,7 +124,7 @@ func (s *PortKnockService) GenerateKnockRules(sequence PortKnockSequence) []Fire
 	acceptProps["dst-port"] = fmt.Sprintf("%d", sequence.ProtectedPort)
 	acceptProps["src-address-list"] = fmt.Sprintf("%s_allowed", sequence.Name)
 
-	acceptRule := FirewallRule{
+	acceptRule := Rule{
 		ID:         fmt.Sprintf("knock_%s_accept", sequence.Name),
 		Table:      "filter",
 		Chain:      "input",
@@ -166,10 +173,10 @@ func (s *PortKnockService) SetKnockRulesEnabled(ctx context.Context, sequenceNam
 }
 
 // GenerateTestKnockRules generates temporary rules with short timeout for testing
-func (s *PortKnockService) GenerateTestKnockRules(sequence PortKnockSequence) []FirewallRule {
+func (s *PortKnockService) GenerateTestKnockRules(sequence PortKnockSequence) []Rule {
 	// Create a copy of the sequence with test timeouts
 	testSequence := sequence
-	testSequence.AccessTimeout = "5m"  // 5 minutes for testing
+	testSequence.AccessTimeout = "5m" // 5 minutes for testing
 	testSequence.KnockTimeout = "30s" // 30 seconds between knocks
 
 	// Generate rules with test timeout
@@ -185,80 +192,99 @@ func (s *PortKnockService) GenerateTestKnockRules(sequence PortKnockSequence) []
 
 // ValidateSequence validates a port knock sequence configuration
 func (s *PortKnockService) ValidateSequence(sequence PortKnockSequence) error {
-	// Validate name
-	if !isValidSequenceName(sequence.Name) {
+	if err := validateSequenceName(sequence.Name); err != nil {
+		return err
+	}
+	if err := validateKnockPorts(sequence.KnockPorts); err != nil {
+		return err
+	}
+	if err := validateProtectedTarget(sequence.ProtectedPort, sequence.ProtectedProtocol); err != nil {
+		return err
+	}
+	return validateSequenceTimeouts(sequence.AccessTimeout, sequence.KnockTimeout)
+}
+
+// validateSequenceName validates the name of a port knock sequence.
+func validateSequenceName(name string) error {
+	if !isValidSequenceName(name) {
 		return fmt.Errorf("invalid sequence name: must be alphanumeric with underscores and hyphens only")
 	}
-
-	if len(sequence.Name) > 32 {
+	if len(name) > 32 {
 		return fmt.Errorf("sequence name too long: maximum 32 characters")
 	}
+	return nil
+}
 
-	// Validate knock ports count
-	if len(sequence.KnockPorts) < 2 {
+// validateKnockPorts validates the knock port list for count, uniqueness, range, and protocol.
+func validateKnockPorts(ports []KnockPort) error {
+	if len(ports) < 2 {
 		return fmt.Errorf("at least 2 knock ports are required")
 	}
-
-	if len(sequence.KnockPorts) > 8 {
+	if len(ports) > 8 {
 		return fmt.Errorf("maximum 8 knock ports allowed")
 	}
 
-	// Validate port uniqueness
 	portMap := make(map[int]bool)
-	for _, kp := range sequence.KnockPorts {
+	for _, kp := range ports {
 		if kp.Port < 1 || kp.Port > 65535 {
 			return fmt.Errorf("invalid knock port: %d (must be 1-65535)", kp.Port)
 		}
-
 		if portMap[kp.Port] {
 			return fmt.Errorf("duplicate knock port: %d", kp.Port)
 		}
 		portMap[kp.Port] = true
 
-		// Validate protocol
-		if kp.Protocol != "tcp" && kp.Protocol != "udp" && kp.Protocol != "both" {
+		if kp.Protocol != protocolTCP && kp.Protocol != protocolUDP && kp.Protocol != protocolBoth {
 			return fmt.Errorf("invalid knock protocol: %s (must be tcp, udp, or both)", kp.Protocol)
 		}
 	}
+	return nil
+}
 
-	// Validate protected port
-	if sequence.ProtectedPort < 1 || sequence.ProtectedPort > 65535 {
-		return fmt.Errorf("invalid protected port: %d (must be 1-65535)", sequence.ProtectedPort)
+// validateProtectedTarget validates the protected port and protocol.
+func validateProtectedTarget(port int, protocol string) error {
+	if port < 1 || port > 65535 {
+		return fmt.Errorf("invalid protected port: %d (must be 1-65535)", port)
 	}
-
-	// Validate protected protocol
-	if sequence.ProtectedProtocol != "tcp" && sequence.ProtectedProtocol != "udp" {
-		return fmt.Errorf("invalid protected protocol: %s (must be tcp or udp)", sequence.ProtectedProtocol)
+	if protocol != protocolTCP && protocol != protocolUDP {
+		return fmt.Errorf("invalid protected protocol: %s (must be tcp or udp)", protocol)
 	}
+	return nil
+}
 
-	// Validate timeouts (basic validation - should match RouterOS duration format)
-	if !isValidDuration(sequence.AccessTimeout) {
-		return fmt.Errorf("invalid access timeout format: %s (e.g., '5m', '1h', '1d')", sequence.AccessTimeout)
+// validateSequenceTimeouts validates the access and knock timeout formats.
+func validateSequenceTimeouts(accessTimeout, knockTimeout string) error {
+	if !isValidDuration(accessTimeout) {
+		return fmt.Errorf("invalid access timeout format: %s (e.g., '5m', '1h', '1d')", accessTimeout)
 	}
-
-	if !isValidDuration(sequence.KnockTimeout) {
-		return fmt.Errorf("invalid knock timeout format: %s (e.g., '15s', '30s')", sequence.KnockTimeout)
+	if !isValidDuration(knockTimeout) {
+		return fmt.Errorf("invalid knock timeout format: %s (e.g., '15s', '30s')", knockTimeout)
 	}
-
 	return nil
 }
 
 // isValidSequenceName validates sequence name format
 func isValidSequenceName(name string) bool {
 	// Must be alphanumeric with underscores and hyphens only
-	matched, _ := regexp.MatchString(`^[a-zA-Z0-9_-]+$`, name)
-	return matched && len(name) > 0 && len(name) <= 32
+	matched, err := regexp.MatchString(`^[a-zA-Z0-9_-]+$`, name)
+	if err != nil {
+		return false
+	}
+	return matched && name != "" && len(name) <= 32
 }
 
 // isValidDuration validates RouterOS duration format (e.g., "5m", "1h", "30s", "1d")
 func isValidDuration(duration string) bool {
-	matched, _ := regexp.MatchString(`^\d+[smhd]$`, duration)
+	matched, err := regexp.MatchString(`^\d+[smhd]$`, duration)
+	if err != nil {
+		return false
+	}
 	return matched
 }
 
 // DetectSSHLockoutRisk checks if the sequence protects SSH port (22)
 func (s *PortKnockService) DetectSSHLockoutRisk(sequence PortKnockSequence) bool {
-	return sequence.ProtectedPort == 22 && sequence.ProtectedProtocol == "tcp"
+	return sequence.ProtectedPort == 22 && sequence.ProtectedProtocol == protocolTCP
 }
 
 // GenerateKnockInstructions generates human-readable knock instructions
@@ -278,7 +304,7 @@ func (s *PortKnockService) GenerateKnockInstructions(sequence PortKnockSequence)
 	instructions.WriteString(fmt.Sprintf("Access granted for: %s\n\n", sequence.AccessTimeout))
 
 	instructions.WriteString("Example using 'knock' command:\n")
-	instructions.WriteString(fmt.Sprintf("knock <router-ip>"))
+	instructions.WriteString("knock <router-ip>")
 	for _, kp := range sequence.KnockPorts {
 		instructions.WriteString(fmt.Sprintf(" %d", kp.Port))
 	}

@@ -9,8 +9,9 @@
  */
 
 import type { Resource } from '@nasnet/core/types';
+
 import {
-  ResourcePriority,
+  type ResourcePriority,
   getResourcePriority,
   DriftStatus,
   type DriftResult,

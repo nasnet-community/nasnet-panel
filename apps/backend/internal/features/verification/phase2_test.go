@@ -2,15 +2,16 @@ package verification
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
-	"backend/generated/ent"
 	"backend/generated/ent/enttest"
 	"backend/generated/ent/serviceinstance"
+
 	"backend/internal/events"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // TestPhase2_DatabasePersistence verifies all 7 verification fields persist correctly.
@@ -25,8 +26,6 @@ func TestPhase2_DatabasePersistence(t *testing.T) {
 		SetID("01ARZ3NDEKTSV4RRFFQ69G5FAV").
 		SetName("test-router").
 		SetHost("192.168.88.1").
-		SetUsername("admin").
-		SetPassword("test").
 		Save(ctx)
 	if err != nil {
 		t.Fatalf("failed to create router: %v", err)
@@ -107,33 +106,31 @@ func TestPhase2_EventEmissionThroughAPI(t *testing.T) {
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer client.Close()
 
-	publisher := events.NewPublisher()
+	eventBus := events.NewInMemoryEventBus()
+	defer eventBus.Close()
+
+	publisher := events.NewPublisher(eventBus, "verification-test")
 	verifier := NewVerifier(publisher)
 
 	eventReceived := make(chan bool, 1)
 
 	// Subscribe to events
 	go func() {
-		subscriber := events.NewSubscriber()
-		ch, err := subscriber.SubscribeToRouterEvents(context.Background(), "router-1")
+		err := eventBus.Subscribe("binary.verified", func(ctx context.Context, event events.Event) error {
+			eventReceived <- true
+			return nil
+		})
 		if err != nil {
 			t.Logf("failed to subscribe: %v", err)
 			return
-		}
-		for event := range ch {
-			if event.GetEventType() == "binary.verified" {
-				eventReceived <- true
-				return
-			}
 		}
 	}()
 
 	time.Sleep(100 * time.Millisecond) // Allow subscriber to initialize
 
 	// Trigger verification which should emit an event
-	spec := &VerificationSpec{
-		ExpectedArchiveHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-		ExpectedBinaryPath:  "binary",
+	spec := &Spec{
+		Enabled: true,
 	}
 
 	// Create test archive and checksums
@@ -157,7 +154,7 @@ func TestPhase2_EventEmissionThroughAPI(t *testing.T) {
 		t.Fatalf("verification failed: %v", err)
 	}
 
-	if !result.ArchiveValid {
+	if !result.Success {
 		t.Errorf("archive validation failed")
 	}
 
@@ -176,7 +173,10 @@ func TestPhase2_PerformanceBenchmark(t *testing.T) {
 		t.Skip("skipping performance test in short mode")
 	}
 
-	publisher := events.NewPublisher()
+	eventBus := events.NewInMemoryEventBus()
+	defer eventBus.Close()
+
+	publisher := events.NewPublisher(eventBus, "verification-bench")
 	verifier := NewVerifier(publisher)
 
 	// Create test data
@@ -192,8 +192,8 @@ func TestPhase2_PerformanceBenchmark(t *testing.T) {
 		t.Fatalf("failed to write checksums: %v", err)
 	}
 
-	spec := &VerificationSpec{
-		ExpectedArchiveHash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+	spec := &Spec{
+		Enabled: true,
 	}
 
 	// Run 100 verifications and measure time
@@ -235,19 +235,28 @@ func TestPhase2_QueryByVerificationStatus(t *testing.T) {
 		SetID("01ARZ3NDEKTSV4RRFFQ69G5FAV").
 		SetName("test-router").
 		SetHost("192.168.88.1").
-		SetUsername("admin").
-		SetPassword("test").
 		Save(ctx)
 	if err != nil {
 		t.Fatalf("failed to create router: %v", err)
 	}
 
+	// Create router secret separately
+	_, err = client.RouterSecret.Create().
+		SetRouterID(router.ID).
+		SetEncryptedUsername([]byte("admin")).
+		SetEncryptedPassword([]byte("test")).
+		SetEncryptionNonce([]byte("nonce123")).
+		Save(ctx)
+	if err != nil {
+		t.Fatalf("failed to create router secret: %v", err)
+	}
+
 	// Create 3 instances: verified, unverified, verification disabled
 	instances := []struct {
-		name               string
+		name                string
 		verificationEnabled bool
-		archiveHash        string
-		binaryHash         string
+		archiveHash         string
+		binaryHash          string
 	}{
 		{"verified-instance", true, "hash1hash1hash1hash1hash1hash1hash1hash1hash1hash1hash1hash1hash1", "hash2hash2hash2hash2hash2hash2hash2hash2hash2hash2hash2hash2hash2"},
 		{"unverified-instance", true, "", ""},

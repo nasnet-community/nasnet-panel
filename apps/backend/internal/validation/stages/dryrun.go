@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"backend/internal/router"
 	"backend/internal/validation"
+
+	"backend/internal/router"
 )
 
 // DryRunStage performs a simulated command execution on the router (Stage 7).
@@ -20,15 +21,15 @@ func NewDryRunStage(port router.RouterPort) *DryRunStage {
 	return &DryRunStage{routerPort: port}
 }
 
-func (s *DryRunStage) Number() int    { return 7 }
-func (s *DryRunStage) Name() string   { return "dry-run" }
+func (s *DryRunStage) Number() int  { return 7 }
+func (s *DryRunStage) Name() string { return "dry-run" }
 
 // Validate performs a dry-run command execution against the router.
-func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	if s.routerPort == nil || !s.routerPort.IsConnected() {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     7,
 			StageName: "dry-run",
 			Severity:  validation.SeverityWarning,
@@ -48,10 +49,11 @@ func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput
 	// Build command for validation
 	args := make(map[string]string)
 	for k, v := range input.Fields {
-		if strVal, ok := v.(string); ok {
-			args[k] = strVal
-		} else if intVal, ok := v.(int); ok {
-			args[k] = fmt.Sprintf("%d", intVal)
+		switch v := v.(type) {
+		case string:
+			args[k] = v
+		case int:
+			args[k] = fmt.Sprintf("%d", v)
 		}
 	}
 
@@ -65,7 +67,7 @@ func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput
 
 	cmdResult, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     7,
 			StageName: "dry-run",
 			Severity:  validation.SeverityError,
@@ -77,7 +79,7 @@ func (s *DryRunStage) Validate(ctx context.Context, input *validation.StageInput
 	}
 
 	if !cmdResult.Success {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     7,
 			StageName: "dry-run",
 			Severity:  validation.SeverityError,

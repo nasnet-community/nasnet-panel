@@ -7,9 +7,9 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 3
  */
 
-import * as React from 'react';
+import { Plus, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@nasnet/ui/utils';
+
 import {
   Form,
   FormField,
@@ -36,9 +36,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@nasnet/ui/primitives';
-import { Plus, Trash2, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
+ cn } from '@nasnet/ui/primitives';
+
 import { PortKnockVisualizer } from '../port-knock-visualizer';
+
 import type { UsePortKnockSequenceFormReturn } from './use-port-knock-sequence-form';
 
 // ============================================================================
@@ -142,8 +143,9 @@ function KnockPortCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <label className="text-sm font-medium mb-1.5 block">Port</label>
+          <label htmlFor={`knock-port-${index}`} className="text-sm font-medium mb-1.5 block">Port</label>
           <Input
+            id={`knock-port-${index}`}
             type="number"
             min={1}
             max={65535}
@@ -153,7 +155,7 @@ function KnockPortCard({
           />
         </div>
         <div>
-          <label className="text-sm font-medium mb-1.5 block">Protocol</label>
+          <label htmlFor={`knock-protocol-${index}`} className="text-sm font-medium mb-1.5 block">Protocol</label>
           <Select value={knockPort.protocol} onValueChange={onProtocolChange}>
             <SelectTrigger className="h-11">
               <SelectValue />
@@ -197,7 +199,7 @@ export function PortKnockSequenceFormMobile({
   return (
     <div className={cn('space-y-4', className)} data-testid="knock-sequence-form">
       <Form {...form}>
-        <form onSubmit={formState.onSubmit} className="space-y-4">
+        <form onSubmit={formState.onSubmit as any} className="space-y-4">
           {/* Basic Info Section */}
           <Card>
             <CardHeader>
@@ -299,7 +301,7 @@ export function PortKnockSequenceFormMobile({
                         const selected = COMMON_SERVICES.find((s) => s.port === parseInt(val, 10));
                         if (selected) {
                           field.onChange(selected.port);
-                          form.setValue('protectedProtocol', selected.protocol);
+                          form.setValue('protectedProtocol', selected.protocol as 'tcp' | 'udp');
                         }
                       }}
                     >
@@ -381,7 +383,7 @@ export function PortKnockSequenceFormMobile({
           </Card>
 
           {/* Preview Section (Collapsible) */}
-          <Accordion type="single" collapsible defaultValue="preview">
+          <Accordion type="single" defaultValue="preview">
             <AccordionItem value="preview">
               <AccordionTrigger>Preview Knock Sequence</AccordionTrigger>
               <AccordionContent>

@@ -1,78 +1,21 @@
 /**
  * FirewallLogFilters Types
  *
- * TypeScript interfaces for firewall log filter components.
+ * Re-exports filter-related types from core/types to avoid circular dependencies.
+ * All filter state types are defined in @nasnet/core/types/firewall.
  *
  * @module @nasnet/ui/patterns/firewall-log-filters
  */
 
-import type { InferredAction } from '@nasnet/core/types/firewall';
+import type { FirewallLogFilterState } from '@nasnet/core/types';
 
-/**
- * Time range preset options
- */
-export type TimeRangePreset = '1h' | '6h' | '1d' | '1w' | 'custom';
-
-/**
- * Time range value with start and end timestamps
- */
-export interface TimeRange {
-  start: Date;
-  end: Date;
-}
-
-/**
- * Port range value
- */
-export interface PortRange {
-  min: number;
-  max: number;
-}
-
-/**
- * Complete filter state for firewall logs
- */
-export interface FirewallLogFilterState {
-  /**
-   * Time range preset or custom
-   */
-  timeRangePreset: TimeRangePreset;
-
-  /**
-   * Custom time range (only when preset is 'custom')
-   */
-  timeRange?: TimeRange;
-
-  /**
-   * Selected actions to filter by
-   */
-  actions: InferredAction[];
-
-  /**
-   * Source IP filter with wildcard support (e.g., 192.168.1.*)
-   */
-  srcIp?: string;
-
-  /**
-   * Destination IP filter with wildcard support
-   */
-  dstIp?: string;
-
-  /**
-   * Source port or port range
-   */
-  srcPort?: number | PortRange;
-
-  /**
-   * Destination port or port range
-   */
-  dstPort?: number | PortRange;
-
-  /**
-   * Log prefix filter
-   */
-  prefix?: string;
-}
+// Re-export filter types from core (breaks circular dependency)
+export type {
+  TimeRangePreset,
+  TimeRange,
+  PortRange,
+  FirewallLogFilterState,
+} from '@nasnet/core/types';
 
 /**
  * FirewallLogFilters Props
@@ -110,9 +53,7 @@ export interface FirewallLogFiltersProps {
 }
 
 /**
- * Default filter state
+ * Alias for backward compatibility with existing component code
+ * Points to the core default constant
  */
-export const DEFAULT_FILTER_STATE: FirewallLogFilterState = {
-  timeRangePreset: '1h',
-  actions: [],
-};
+export { DEFAULT_FIREWALL_LOG_FILTER_STATE as DEFAULT_FILTER_STATE } from '@nasnet/core/types';

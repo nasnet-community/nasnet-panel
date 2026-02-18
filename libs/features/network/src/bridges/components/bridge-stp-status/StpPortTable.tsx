@@ -19,33 +19,33 @@ export interface StpPortTableProps {
  */
 export function StpPortTable({ ports }: StpPortTableProps) {
   // Determine STP role badge variant
-  const getRoleBadgeVariant = (role: string): 'success' | 'info' | 'warning' | 'muted' => {
+  const getRoleBadgeVariant = (role: string): 'success' | 'info' | 'warning' | 'secondary' => {
     switch (role.toLowerCase()) {
       case 'root':
-        return 'success'; // Green for root port
+        return 'success';
       case 'designated':
-        return 'info'; // Blue for designated
+        return 'info';
       case 'alternate':
       case 'backup':
-        return 'warning'; // Amber for alternate/backup
+        return 'warning';
       case 'disabled':
       default:
-        return 'muted'; // Gray for disabled
+        return 'secondary';
     }
   };
 
   // Determine STP state badge variant
-  const getStateBadgeVariant = (state: string): 'success' | 'warning' | 'muted' => {
+  const getStateBadgeVariant = (state: string): 'success' | 'warning' | 'secondary' => {
     switch (state.toLowerCase()) {
       case 'forwarding':
-        return 'success'; // Green for forwarding
+        return 'success';
       case 'blocking':
       case 'listening':
       case 'learning':
-        return 'warning'; // Amber for transitional states
+        return 'warning';
       case 'disabled':
       default:
-        return 'muted'; // Gray for disabled
+        return 'secondary';
     }
   };
 
@@ -71,8 +71,8 @@ export function StpPortTable({ ports }: StpPortTableProps) {
         </TableHeader>
         <TableBody>
           {ports.map((port) => (
-            <TableRow key={port.uuid}>
-              <TableCell className="font-medium">{port.interfaceName}</TableCell>
+            <TableRow key={port.id}>
+              <TableCell className="font-medium">{port.interface.name}</TableCell>
               <TableCell>
                 {port.role ? (
                   <Badge variant={getRoleBadgeVariant(port.role)}>

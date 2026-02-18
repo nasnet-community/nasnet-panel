@@ -103,7 +103,8 @@ export function TemplateApplyFlow({
   );
 
   // Initialize machine
-  const [state, send] = useMachine(machine);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [state, send] = useMachine(machine) as unknown as [any, any];
 
   // Initialize template preview hook
   const preview = useTemplatePreview({
@@ -227,7 +228,7 @@ export function TemplateApplyFlow({
                 <AlertTitle>Conflicts Detected</AlertTitle>
                 <AlertDescription>
                   <ul className="mt-2 list-inside list-disc space-y-1">
-                    {previewResult.conflicts.map((conflict, i) => (
+                    {previewResult.conflicts.map((conflict: { message: string }, i: number) => (
                       <li key={i} className="text-sm">
                         {conflict.message}
                       </li>
@@ -244,7 +245,7 @@ export function TemplateApplyFlow({
                 <AlertTitle>Warnings</AlertTitle>
                 <AlertDescription>
                   <ul className="mt-2 list-inside list-disc space-y-1">
-                    {previewResult.impactAnalysis.warnings.map((warning, i) => (
+                    {(previewResult.impactAnalysis.warnings as string[]).map((warning: string, i: number) => (
                       <li key={i} className="text-sm">
                         {warning}
                       </li>
@@ -280,7 +281,7 @@ export function TemplateApplyFlow({
       (previewResult?.conflicts.length ?? 0) > 0;
 
     return (
-      <Dialog open={true} onOpenChange={(open) => !open && handleCancel()}>
+      <Dialog open={true} onOpenChange={(open: boolean) => !open && handleCancel()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-warning">
@@ -300,7 +301,7 @@ export function TemplateApplyFlow({
                 <div className="space-y-2">
                   {(previewResult?.impactAnalysis.newRulesCount ?? 0) > 10 && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="destructive">High Rule Count</Badge>
+                      <Badge variant="error">High Rule Count</Badge>
                       <span className="text-sm">
                         {previewResult?.impactAnalysis.newRulesCount} rules will be created
                       </span>
@@ -308,7 +309,7 @@ export function TemplateApplyFlow({
                   )}
                   {(previewResult?.impactAnalysis.affectedChains.length ?? 0) > 3 && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="destructive">Multiple Chains</Badge>
+                      <Badge variant="error">Multiple Chains</Badge>
                       <span className="text-sm">
                         {previewResult?.impactAnalysis.affectedChains.length} chains affected
                       </span>
@@ -316,7 +317,7 @@ export function TemplateApplyFlow({
                   )}
                   {(previewResult?.conflicts.length ?? 0) > 0 && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="destructive">Conflicts</Badge>
+                      <Badge variant="error">Conflicts</Badge>
                       <span className="text-sm">
                         {previewResult?.conflicts.length} conflicts detected
                       </span>
@@ -331,7 +332,7 @@ export function TemplateApplyFlow({
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <ul className="list-inside list-disc space-y-1 text-sm">
-                      {previewResult?.impactAnalysis.warnings.map((warning, i) => (
+                      {(previewResult?.impactAnalysis.warnings as string[])?.map((warning: string, i: number) => (
                         <li key={i}>{warning}</li>
                       ))}
                     </ul>

@@ -2,10 +2,12 @@
  * Storybook stories for RuleEfficiencyReport component
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { RuleEfficiencyReport } from './RuleEfficiencyReport';
 import type { FirewallRule } from '@nasnet/core/types';
+
+import { RuleEfficiencyReport } from './RuleEfficiencyReport';
+
 import type { Suggestion } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof RuleEfficiencyReport> = {
   title: 'Patterns/RuleEfficiencyReport',

@@ -16,7 +16,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import type { Variants, Transition } from 'framer-motion';
+
 import { useUIStore } from '@nasnet/state/stores';
 import {
   getAnimationTokens,
@@ -24,7 +24,10 @@ import {
   type Platform,
   type AnimationTokens,
 } from '@nasnet/ui/tokens';
+
 import { reducedMotionFade } from './presets';
+
+import type { Variants, Transition } from 'framer-motion';
 
 // ============================================================================
 // Platform Detection Hook

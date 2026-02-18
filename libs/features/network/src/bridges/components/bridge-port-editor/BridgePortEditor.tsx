@@ -76,13 +76,13 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
   const [updateBridgePort, { loading: updating }] = useUpdateBridgePort();
 
   const form = useForm<BridgePortEditorData>({
-    resolver: zodResolver(bridgePortEditorSchema),
+    resolver: zodResolver(bridgePortEditorSchema) as any,
     defaultValues: {
       pvid: port?.pvid || 1,
       frameTypes: (port?.frameTypes as any) || 'ADMIT_ALL',
       ingressFiltering: port?.ingressFiltering || false,
-      taggedVlans: port?.taggedVlans || [],
-      untaggedVlans: port?.untaggedVlans || [],
+      taggedVlans: [...(port?.taggedVlans || [])] as number[],
+      untaggedVlans: [...(port?.untaggedVlans || [])] as number[],
       edge: port?.edge || false,
       pathCost: port?.pathCost,
     },
@@ -94,8 +94,8 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
       pvid: port.pvid || 1,
       frameTypes: (port.frameTypes as any) || 'ADMIT_ALL',
       ingressFiltering: port.ingressFiltering || false,
-      taggedVlans: port.taggedVlans || [],
-      untaggedVlans: port.untaggedVlans || [],
+      taggedVlans: [...(port.taggedVlans || [])] as number[],
+      untaggedVlans: [...(port.untaggedVlans || [])] as number[],
       edge: port.edge || false,
       pathCost: port.pathCost,
     });
@@ -107,7 +107,7 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
     try {
       const result = await updateBridgePort({
         variables: {
-          portId: port.uuid,
+          portId: port.id,
           input: {
             pvid: data.pvid,
             frameTypes: data.frameTypes,
@@ -138,9 +138,9 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
         onClose();
       } else {
         const errors = result.data?.updateBridgePort?.errors || [];
-        errors.forEach((err) => toast.error(err.message));
+        errors.forEach((e: { message: string }) => toast.error(e.message));
       }
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error('Failed to update port settings');
       console.error(err);
     }
@@ -157,7 +157,7 @@ export function BridgePortEditor({ port, open, onClose }: BridgePortEditorProps)
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Configure Port: {port.interfaceName}</DialogTitle>
+          <DialogTitle>Configure Port: {port.interface.name}</DialogTitle>
           <DialogDescription>
             Configure VLAN settings and spanning tree parameters for this bridge port
           </DialogDescription>

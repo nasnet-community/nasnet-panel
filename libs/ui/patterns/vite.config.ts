@@ -35,7 +35,18 @@ export default defineConfig(() => ({
       formats: ['es' as const, 'cjs' as const],
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', '@nasnet/ui/primitives'],
+      external: [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            /^@nasnet\//,
+            /^@tanstack\//,
+            /^@radix-ui\//,
+            'lucide-react',
+            'framer-motion',
+            'zustand',
+            'zod',
+          ],
     },
   },
   test: {

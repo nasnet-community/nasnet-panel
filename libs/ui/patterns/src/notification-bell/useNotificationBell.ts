@@ -9,8 +9,9 @@
 
 import { useState, useCallback, useMemo } from 'react';
 
-import type { NotificationBellProps, NotificationBellState } from './types';
 import type { InAppNotification } from '@nasnet/state/stores';
+
+import type { NotificationBellProps, NotificationBellState } from './types';
 
 /**
  * Format unread count for display

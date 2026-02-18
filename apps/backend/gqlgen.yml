@@ -24,14 +24,13 @@ schema:
 
 # Generated server code
 exec:
-  layout: single-file
-  filename: generated/graphql/generated.go
-  package: graphql
+  filename: graph/generated.go
+  package: graph
 
 # Generated model structs
 model:
-  filename: generated/graphql/models.go
-  package: graphql
+  filename: graph/model/models_gen.go
+  package: model
 
 # Resolver implementation
 # Resolvers are manually maintained in graph/resolver/
@@ -45,7 +44,6 @@ resolver:
 # Automatically bind Go types to GraphQL types
 autobind:
   - "backend/graph/model"
-  - "backend/generated/graphql"
 
 # Custom scalar mappings
 models:

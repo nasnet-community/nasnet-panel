@@ -39,7 +39,7 @@ export function BridgeListMobile({
 
   const confirmDelete = async () => {
     if (bridgeToDelete) {
-      await handleDelete(bridgeToDelete.uuid);
+      await handleDelete(bridgeToDelete.id);
       setDeleteConfirmOpen(false);
       setBridgeToDelete(null);
     }
@@ -117,11 +117,11 @@ export function BridgeListMobile({
 
       {/* Bridge Cards */}
       <div className="flex flex-col gap-3">
-        {bridges.map((bridge) => (
+        {bridges.map((bridge: Bridge) => (
           <Card
-            key={bridge.uuid}
+            key={bridge.id}
             className="cursor-pointer transition-colors hover:bg-accent"
-            onClick={() => setSelectedBridgeId(bridge.uuid)}
+            onClick={() => setSelectedBridgeId(bridge.id)}
             style={{ minHeight: '44px' }} // 44px minimum touch target
           >
             <CardContent className="p-4">
@@ -131,7 +131,7 @@ export function BridgeListMobile({
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-medium truncate">{bridge.name}</h3>
                     {bridge.disabled && (
-                      <Badge variant="muted" className="text-xs">
+                      <Badge variant="secondary" className="text-xs">
                         Disabled
                       </Badge>
                     )}
@@ -155,15 +155,15 @@ export function BridgeListMobile({
                     {/* STP Protocol */}
                     <Badge
                       variant={
-                        bridge.protocol === 'none'
-                          ? 'muted'
-                          : bridge.protocol === 'rstp'
+                        bridge.protocol === 'NONE'
+                          ? 'secondary'
+                          : bridge.protocol === 'RSTP'
                           ? 'success'
                           : 'info'
                       }
                       className="text-xs"
                     >
-                      {bridge.protocol?.toUpperCase() || 'NONE'}
+                      {bridge.protocol || 'NONE'}
                     </Badge>
 
                     {/* VLAN Filtering */}
@@ -204,7 +204,7 @@ export function BridgeListMobile({
                     <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedBridgeId(bridge.uuid);
+                        setSelectedBridgeId(bridge.id);
                       }}
                     >
                       View Details
@@ -212,7 +212,7 @@ export function BridgeListMobile({
                     <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedBridgeId(bridge.uuid);
+                        setSelectedBridgeId(bridge.id);
                       }}
                     >
                       Edit
@@ -240,8 +240,6 @@ export function BridgeListMobile({
           open={deleteConfirmOpen}
           onOpenChange={setDeleteConfirmOpen}
           title={`Delete Bridge "${bridgeToDelete.name}"?`}
-          severity="error"
-          urgency="critical"
           description="Deleting this bridge will disconnect all ports and may disrupt network connectivity."
           consequences={[
             `${bridgeToDelete.ports?.length || 0} ports will be released`,
@@ -249,7 +247,7 @@ export function BridgeListMobile({
               ? `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
               : undefined,
           ].filter(Boolean) as string[]}
-          confirmWord="DELETE"
+          confirmText="DELETE"
           onConfirm={confirmDelete}
           onCancel={() => {
             setDeleteConfirmOpen(false);

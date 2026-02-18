@@ -1,7 +1,7 @@
-import { BackButton } from '@nasnet/ui/patterns';
-import { StatusIndicator } from '@nasnet/ui/patterns';
 import { ROUTES } from '@nasnet/core/constants';
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
+import { BackButton , StatusIndicator } from '@nasnet/ui/patterns';
+
 
 export interface RouterHeaderProps {
   /**

@@ -1,4 +1,4 @@
-import { usePlatform } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 import type { GatewayInfo } from '@nasnet/api-client/queries';
 import { GatewayStatusCardDesktop } from './GatewayStatusCardDesktop';
 import { GatewayStatusCardMobile } from './GatewayStatusCardMobile';

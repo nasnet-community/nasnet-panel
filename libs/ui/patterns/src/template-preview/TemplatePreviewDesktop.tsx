@@ -7,6 +7,8 @@
 
 import * as React from 'react';
 
+import { FileText } from 'lucide-react';
+
 import {
   Badge,
   Button,
@@ -19,11 +21,12 @@ import {
   AlertDescription,
   cn,
 } from '@nasnet/ui/primitives';
-import { EmptyState } from '../empty-state';
 
+import { EmptyState } from '../empty-state';
 import { TemplateVariableEditor } from './TemplateVariableEditor';
-import type { UseTemplatePreviewReturn } from './use-template-preview';
+
 import type { TemplateRule, TemplateConflict, ImpactAnalysis } from './template-preview.types';
+import type { UseTemplatePreviewReturn } from './use-template-preview';
 
 export interface TemplatePreviewDesktopProps {
   /** Template preview hook return value */
@@ -53,6 +56,7 @@ function RulesPreview({ rules }: RulesPreviewProps) {
   if (rules.length === 0) {
     return (
       <EmptyState
+        icon={FileText}
         title="No rules to preview"
         description="Generate a preview to see the resolved rules."
       />
@@ -76,7 +80,7 @@ function RulesPreview({ rules }: RulesPreviewProps) {
                   rule.action === 'accept'
                     ? 'default'
                     : rule.action === 'drop'
-                      ? 'destructive'
+                      ? 'error'
                       : 'outline'
                 }
                 className="text-xs"
@@ -139,7 +143,7 @@ function ConflictsPreview({ conflicts }: ConflictsPreviewProps) {
       {conflicts.map((conflict, index) => (
         <Card key={index} className="p-4 border-destructive">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <Badge variant="destructive">{conflict.type}</Badge>
+            <Badge variant="error">{conflict.type}</Badge>
             {conflict.existingRuleId && (
               <span className="text-xs text-muted-foreground">
                 Conflicts with rule {conflict.existingRuleId}
@@ -209,7 +213,7 @@ function ImpactAnalysisView({ impactAnalysis }: ImpactAnalysisViewProps) {
         <Card className="p-4">
           <h3 className="font-semibold mb-3">Affected Chains</h3>
           <div className="flex flex-wrap gap-2">
-            {impactAnalysis.affectedChains.map((chain) => (
+            {impactAnalysis.affectedChains.map((chain: string) => (
               <Badge key={chain} variant="outline">
                 {chain}
               </Badge>
@@ -224,7 +228,7 @@ function ImpactAnalysisView({ impactAnalysis }: ImpactAnalysisViewProps) {
           <AlertDescription>
             <p className="font-semibold mb-2">Warnings:</p>
             <ul className="list-disc list-inside space-y-1">
-              {impactAnalysis.warnings.map((warning, index) => (
+              {impactAnalysis.warnings.map((warning: string, index: number) => (
                 <li key={index} className="text-sm">
                   {warning}
                 </li>
@@ -328,6 +332,7 @@ export function TemplatePreviewDesktop({
 
           {!previewResult ? (
             <EmptyState
+              icon={FileText}
               title="No preview generated"
               description="Configure the variables and click Generate Preview to see the resolved rules."
             />
@@ -345,7 +350,7 @@ export function TemplatePreviewDesktop({
                 <TabsTrigger value="conflicts">
                   Conflicts
                   {hasConflicts && (
-                    <Badge variant="destructive" className="ml-2">
+                    <Badge variant="error" className="ml-2">
                       {previewResult.conflicts?.length || 0}
                     </Badge>
                   )}

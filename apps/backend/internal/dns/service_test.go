@@ -2,8 +2,9 @@ package dns
 
 import (
 	"context"
-	"backend/internal/router"
 	"testing"
+
+	"backend/internal/router"
 )
 
 // mockRouterPort implements RouterPort for testing
@@ -28,7 +29,7 @@ func (m *mockRouterPort) setError(path string, err error) {
 }
 
 // Implement RouterPort interface methods
-func (m *mockRouterPort) Connect(ctx context.Context) error {
+func (m *mockRouterPort) Connect(_ context.Context) error {
 	return nil
 }
 
@@ -40,7 +41,7 @@ func (m *mockRouterPort) IsConnected() bool {
 	return true
 }
 
-func (m *mockRouterPort) Health(ctx context.Context) router.HealthStatus {
+func (m *mockRouterPort) Health(_ context.Context) router.HealthStatus {
 	return router.HealthStatus{}
 }
 
@@ -52,7 +53,7 @@ func (m *mockRouterPort) Info() (*router.RouterInfo, error) {
 	return nil, nil
 }
 
-func (m *mockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+func (m *mockRouterPort) ExecuteCommand(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 	if err, ok := m.errors[cmd.Path]; ok {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (m *mockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command)
 	return &router.CommandResult{Success: true}, nil
 }
 
-func (m *mockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+func (m *mockRouterPort) QueryState(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 	return nil, nil
 }
 
@@ -81,7 +82,7 @@ func TestService_PerformLookup_ARecord(t *testing.T) {
 
 	svc := NewService(port)
 
-	input := &DnsLookupInput{
+	input := &LookupInput{
 		DeviceId:   "test-device",
 		Hostname:   "google.com",
 		RecordType: "A",
@@ -200,7 +201,7 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			records, err := parseRouterOSDnsResponse(tt.response, tt.recordType)
+			records, err := parseRouterOSResponse(tt.response, tt.recordType)
 
 			if tt.wantError {
 				if err == nil {
@@ -220,8 +221,8 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 	}
 }
 
-// TestParseRouterOSDnsServers tests DNS server parsing
-func TestParseRouterOSDnsServers(t *testing.T) {
+// TestParseRouterOSServers tests DNS server parsing
+func TestParseRouterOSServers(t *testing.T) {
 	tests := []struct {
 		name          string
 		response      string
@@ -254,7 +255,7 @@ func TestParseRouterOSDnsServers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := parseRouterOSDnsServers(tt.response)
+			result := parseRouterOSServers(tt.response)
 
 			if result.Primary != tt.wantPrimary {
 				t.Errorf("expected primary %s, got %s", tt.wantPrimary, result.Primary)

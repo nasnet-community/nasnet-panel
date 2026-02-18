@@ -6,11 +6,13 @@
  * @module @nasnet/ui/patterns/network-inputs/mac-input
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+
 import { MACInput } from './mac-input';
 import { MACInputDesktop } from './mac-input-desktop';
 import { MACInputMobile } from './mac-input-mobile';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof MACInput> = {
   title: 'Patterns/Network Inputs/MACInput',

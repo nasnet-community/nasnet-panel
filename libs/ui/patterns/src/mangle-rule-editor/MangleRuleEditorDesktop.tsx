@@ -8,7 +8,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Shield,
@@ -18,7 +18,15 @@ import {
   Trash2,
   Copy,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  MangleChainSchema,
+  MangleActionSchema,
+  ConnectionStateSchema,
+  DSCP_CLASSES,
+  MARK_TYPES,
+} from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -26,8 +34,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -40,24 +47,21 @@ import {
   Badge,
   Separator,
 } from '@nasnet/ui/primitives';
+
+import { ConfirmationDialog } from '../confirmation-dialog';
 import {
   IPInput,
   PortInput,
   InterfaceSelector,
-} from '@nasnet/ui/patterns/network-inputs';
-import { ConfirmationDialog } from '@nasnet/ui/patterns/confirmation-dialog';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
-
-import {
-  MangleChainSchema,
-  MangleActionSchema,
-  ConnectionStateSchema,
-  DSCP_CLASSES,
-  MARK_TYPES,
-} from '@nasnet/core/types/firewall';
-
+} from '../network-inputs';
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useMangleRuleEditor } from './use-mangle-rule-editor';
+
 import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Desktop presenter for mangle rule editor.
@@ -93,19 +97,19 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
     if (action.startsWith('mark-')) return 'info';
     if (action.startsWith('change-')) return 'warning';
     if (action === 'accept') return 'success';
-    if (action === 'drop') return 'destructive';
+    if (action === 'drop') return 'error';
     return 'default';
   }, [rule.action]);
 
   return (
-    <>
+    <FormProvider {...form}>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -136,7 +140,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
 
             {/* Chain and Action */}
             <div className="grid grid-cols-2 gap-4">
-              <RHFFormField
+              <FormField
                 name="chain"
                 label="Chain"
                 description="Packet processing stage"
@@ -151,7 +155,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         <SelectValue placeholder="Select chain" />
                       </SelectTrigger>
                       <SelectContent>
-                        {MangleChainSchema.options.map((chain) => (
+                        {MangleChainSchema.options.map((chain: string) => (
                           <SelectItem key={chain} value={chain}>
                             {chain}
                           </SelectItem>
@@ -160,9 +164,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField
+              <FormField
                 name="action"
                 label="Action"
                 description="What to do with matched packets"
@@ -177,7 +181,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         <SelectValue placeholder="Select action" />
                       </SelectTrigger>
                       <SelectContent>
-                        {MangleActionSchema.options.map((action) => (
+                        {MangleActionSchema.options.map((action: string) => (
                           <SelectItem key={action} value={action}>
                             {action}
                           </SelectItem>
@@ -186,14 +190,14 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             </div>
 
             <Separator />
 
             {/* Action-Specific Fields */}
             {visibleFields.includes('newConnectionMark') && (
-              <RHFFormField
+              <FormField
                 name="newConnectionMark"
                 label="Connection Mark"
                 description="Mark name for all packets in connection"
@@ -210,11 +214,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             {visibleFields.includes('newPacketMark') && (
-              <RHFFormField
+              <FormField
                 name="newPacketMark"
                 label="Packet Mark"
                 description="Mark name for individual packets"
@@ -231,11 +235,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             {visibleFields.includes('newRoutingMark') && (
-              <RHFFormField
+              <FormField
                 name="newRoutingMark"
                 label="Routing Mark"
                 description="Mark name for routing decisions"
@@ -252,11 +256,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             {visibleFields.includes('newDscp') && (
-              <RHFFormField
+              <FormField
                 name="newDscp"
                 label="DSCP Value"
                 description="QoS Differentiated Services Code Point"
@@ -274,7 +278,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         <SelectValue placeholder="Select DSCP class" />
                       </SelectTrigger>
                       <SelectContent>
-                        {DSCP_CLASSES.map((dscp) => (
+                        {DSCP_CLASSES.map((dscp: { value: number; name: string; description: string; useCase: string }) => (
                           <SelectItem key={dscp.value} value={dscp.value.toString()}>
                             <div className="flex flex-col items-start">
                               <span className="font-medium">
@@ -290,11 +294,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             {visibleFields.includes('passthrough') && (
-              <RHFFormField
+              <FormField
                 name="passthrough"
                 label="Passthrough"
                 description="Continue to next rule after marking"
@@ -314,7 +318,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     </div>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             <Separator />
@@ -327,7 +331,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
-                <RHFFormField name="protocol" label="Protocol">
+                <FormField name="protocol" label="Protocol">
                   <Controller
                     name="protocol"
                     control={control}
@@ -345,9 +349,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       </Select>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="connectionState" label="Connection State">
+                <FormField name="connectionState" label="Connection State">
                   <Controller
                     name="connectionState"
                     control={control}
@@ -360,7 +364,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                           <SelectValue placeholder="Any state" />
                         </SelectTrigger>
                         <SelectContent>
-                          {ConnectionStateSchema.options.map((state) => (
+                          {ConnectionStateSchema.options.map((state: string) => (
                             <SelectItem key={state} value={state}>
                               {state}
                             </SelectItem>
@@ -369,9 +373,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       </Select>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="srcAddress" label="Source Address">
+                <FormField name="srcAddress" label="Source Address">
                   <Controller
                     name="srcAddress"
                     control={control}
@@ -383,9 +387,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="dstAddress" label="Destination Address">
+                <FormField name="dstAddress" label="Destination Address">
                   <Controller
                     name="dstAddress"
                     control={control}
@@ -397,9 +401,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="srcPort" label="Source Port">
+                <FormField name="srcPort" label="Source Port">
                   <Controller
                     name="srcPort"
                     control={control}
@@ -411,9 +415,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="dstPort" label="Destination Port">
+                <FormField name="dstPort" label="Destination Port">
                   <Controller
                     name="dstPort"
                     control={control}
@@ -425,7 +429,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               </div>
             </div>
 
@@ -438,7 +442,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                 Rule Settings
               </h3>
 
-              <RHFFormField name="comment" label="Comment">
+              <FormField name="comment" label="Comment">
                 <Controller
                   name="comment"
                   control={control}
@@ -450,10 +454,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               <div className="flex items-center gap-4">
-                <RHFFormField name="disabled" label="Disabled">
+                <FormField name="disabled" label="Disabled">
                   <Controller
                     name="disabled"
                     control={control}
@@ -461,9 +465,9 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField name="log" label="Log Packets">
+                <FormField name="log" label="Log Packets">
                   <Controller
                     name="log"
                     control={control}
@@ -471,7 +475,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               </div>
             </div>
           </form>
@@ -512,7 +516,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </FormProvider>
   );
 });
 

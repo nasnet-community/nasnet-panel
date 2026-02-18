@@ -7,7 +7,7 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import * as React from 'react';
+
 import {
   DndContext,
   DragOverlay,
@@ -16,20 +16,22 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import {
   SortableContext as DndSortableContext,
   verticalListSortingStrategy,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis, restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+
 import { cn } from '@nasnet/ui/primitives';
+
 import { SortableContext } from '../context';
-import { useSortableSensors, getCollisionDetection, SORTABLE_LIST_ROLE } from '../config';
-import { defaultAnnouncements, toDndKitAnnouncements } from '../utils/announcements';
-import { useSortableList } from '../hooks/useSortableList';
 import { SortableItem } from './SortableItem';
-import { dragOverlayAnimation } from '../config';
+import { useSortableSensors, getCollisionDetection, SORTABLE_LIST_ROLE , dragOverlayAnimation } from '../config';
+import { useSortableList } from '../hooks/useSortableList';
+import { defaultAnnouncements, toDndKitAnnouncements } from '../utils/announcements';
+
 import type {
   SortableListProps,
   SortableItemData,

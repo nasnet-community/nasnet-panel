@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -104,7 +105,7 @@ func (s *Server) Start(shutdownFn func(ctx context.Context)) {
 	}()
 
 	addr := fmt.Sprintf("0.0.0.0:%s", s.Config.Port)
-	if err := s.Echo.Start(addr); err != nil && err != http.ErrServerClosed {
+	if err := s.Echo.Start(addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Could not listen on %s: %v\n", addr, err)
 	}
 
@@ -117,13 +118,20 @@ func PerformHealthCheck(port string) {
 	log.Printf("Performing health check on port %s", port)
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get("http://localhost:" + port + "/health")
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost:"+port+"/health", http.NoBody)
+	if err != nil {
+		log.Printf("Health check failed: %v", err)
+		os.Exit(1)
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Health check failed: %v", err)
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
+	//nolint:gocritic // health check exits after defer cleanup
 	if resp.StatusCode == http.StatusOK {
 		log.Println("Health check passed")
 		os.Exit(0)

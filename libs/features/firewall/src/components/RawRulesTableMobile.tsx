@@ -37,14 +37,12 @@ import {
   Button,
   Badge,
   Switch,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@nasnet/ui/primitives';
 import { Pencil, Copy, Trash2 } from 'lucide-react';
 
@@ -54,9 +52,9 @@ import { Pencil, Copy, Trash2 } from 'lucide-react';
 
 function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'destructive' | 'warning' | 'info'> = {
+  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
-    drop: 'destructive',
+    drop: 'error',
     notrack: 'warning',
     log: 'info',
     jump: 'warning',
@@ -303,6 +301,7 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [highlightRuleId, sortedRules]);
 
   // Loading state
@@ -377,14 +376,14 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('raw.dialogs.deleteRule.title', 'Delete RAW Rule?')}</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('raw.dialogs.deleteRule.title', 'Delete RAW Rule?')}</DialogTitle>
+            <DialogDescription>
               {t('raw.dialogs.deleteRule.warning', 'This action cannot be undone. The rule will be permanently removed.')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -393,14 +392,16 @@ export function RawRulesTableMobile({ className, chain }: RawRulesTableMobilePro
               <li>Take effect immediately on the router</li>
             </ul>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('raw.buttons.cancel', 'Cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
+              {t('raw.buttons.cancel', 'Cancel')}
+            </Button>
+            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
               {t('raw.buttons.delete', 'Delete Rule')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

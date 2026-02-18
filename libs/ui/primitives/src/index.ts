@@ -135,6 +135,9 @@ export { Label } from './label';
 // Checkbox
 export { Checkbox } from './checkbox';
 
+// Collapsible
+export { Collapsible, CollapsibleTrigger, CollapsibleContent } from './collapsible';
+
 // RadioGroup
 export { RadioGroup, RadioGroupItem } from './radio-group';
 
@@ -203,6 +206,10 @@ export {
   FormField,
   useFormField,
 } from './form';
+
+// Accordion
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
+export type { AccordionProps, AccordionItemProps, AccordionTriggerProps, AccordionContentProps } from './accordion';
 
 // Hooks
 export { useReducedMotion, useMediaQuery } from './hooks';

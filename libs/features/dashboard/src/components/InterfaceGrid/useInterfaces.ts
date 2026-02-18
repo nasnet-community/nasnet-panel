@@ -68,11 +68,11 @@ export function useInterfaces({
   });
 
   // Prefer subscription data over query data
-  const rawInterfaces = useMemo(() => {
+  const rawInterfaces = useMemo((): InterfaceGridData[] => {
     if (hasSubscriptionData) {
-      return subscriptionData.interfaceStatusChanged;
+      return (subscriptionData.interfaceStatusChanged ?? []) as InterfaceGridData[];
     }
-    return queryData?.device?.interfaces ?? [];
+    return (queryData?.device?.interfaces ?? []) as InterfaceGridData[];
   }, [hasSubscriptionData, subscriptionData, queryData]);
 
   // Sort interfaces by type priority (ethernet first, then bridge, wireless, etc.)

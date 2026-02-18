@@ -11,8 +11,8 @@
 
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'vitest-axe';
 import { describe, it, expect, vi } from 'vitest';
+import { axe } from 'vitest-axe';
 
 import { MACInputDesktop } from './mac-input-desktop';
 import { MACInputMobile } from './mac-input-mobile';

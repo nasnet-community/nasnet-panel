@@ -12,7 +12,14 @@ import { InterfaceSelector } from '@nasnet/ui/patterns';
 import { FormSection, FieldHelp } from '@nasnet/ui/patterns';
 import { Label } from '@nasnet/ui/primitives';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
-import type { Interface } from '@nasnet/core/types';
+// Local interface type for wizard step
+interface NetworkInterface {
+  id: string;
+  name: string;
+  type: string;
+  ipAddress?: string;
+  running?: boolean;
+}
 import { calculateSuggestedPool } from '../../utils/pool-calculator';
 import { interfaceStepSchema, type InterfaceStepFormData } from './dhcp-wizard.schema';
 
@@ -22,7 +29,7 @@ interface WizardStepInterfaceProps {
 }
 
 export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfaceProps) {
-  const [selectedInterface, setSelectedInterface] = useState<Interface | null>(null);
+  const [selectedInterface, setSelectedInterface] = useState<NetworkInterface | null>(null);
 
   const form = useForm<InterfaceStepFormData>({
     resolver: zodResolver(interfaceStepSchema),
@@ -30,7 +37,7 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
   });
 
   // Handle interface selection
-  const handleInterfaceSelect = (iface: Interface) => {
+  const handleInterfaceSelect = (iface: NetworkInterface) => {
     setSelectedInterface(iface);
     form.setValue('interface', iface.name);
 
@@ -74,16 +81,15 @@ export function WizardStepInterface({ stepper, routerIp }: WizardStepInterfacePr
           <div>
             <Label htmlFor="interface-selector">
               Interface
-              <FieldHelp>
-                Select an interface with an IP address configured. The DHCP server will assign addresses on this network.
-              </FieldHelp>
+              <FieldHelp field="dhcp.interface" />
             </Label>
             <InterfaceSelector
-              id="interface-selector"
-              routerIp={routerIp}
-              onSelect={handleInterfaceSelect}
-              filter={(iface) => !!iface.ipAddress} // Only show interfaces with IP addresses
-              selectedInterface={selectedInterface}
+              routerId={routerIp}
+              value={selectedInterface?.id}
+              onChange={(value: any) => {
+                const iface = { id: value, name: value } as NetworkInterface;
+                handleInterfaceSelect(iface);
+              }}
             />
             {form.formState.errors.interface && (
               <p className="text-sm text-destructive mt-1">

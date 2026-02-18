@@ -125,7 +125,7 @@ export function useWebhookConfigForm(
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<WebhookConfig>({
-    resolver: zodResolver(webhookConfigSchema),
+    resolver: zodResolver(webhookConfigSchema) as any,
     defaultValues: webhook
       ? {
           name: webhook.name,
@@ -236,7 +236,7 @@ export function useWebhookConfigForm(
 
             if (result.data?.updateWebhook.errors?.length) {
               const errorMessages = result.data.updateWebhook.errors
-                .map((e) => e.message)
+                .map((err: { message: string }) => err.message)
                 .join(', ');
               throw new Error(errorMessages);
             }
@@ -252,7 +252,7 @@ export function useWebhookConfigForm(
 
             if (result.data?.createWebhook.errors?.length) {
               const errorMessages = result.data.createWebhook.errors
-                .map((e) => e.message)
+                .map((err: { message: string }) => err.message)
                 .join(', ');
               throw new Error(errorMessages);
             }

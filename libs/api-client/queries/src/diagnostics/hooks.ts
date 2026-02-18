@@ -3,7 +3,8 @@
  * Apollo Client hooks for internet troubleshooting (NAS-5.11)
  */
 
-import { useQuery, useMutation, useSubscription, type QueryHookOptions, type MutationHookOptions, type SubscriptionHookOptions } from '@apollo/client';
+import { useQuery, useMutation, useSubscription } from '@apollo/client';
+import type { QueryHookOptions, MutationHookOptions, SubscriptionHookOptions } from '@apollo/client';
 import {
   GET_TROUBLESHOOT_SESSION,
   DETECT_WAN_INTERFACE,
@@ -34,12 +35,12 @@ import type {
  */
 export function useTroubleshootSession(
   sessionId: string,
-  options?: QueryHookOptions<{ troubleshootSession: TroubleshootSession | null }, { id: string }>
+  options?: Omit<QueryHookOptions, 'variables'>
 ) {
   return useQuery(GET_TROUBLESHOOT_SESSION, {
     variables: { id: sessionId },
     ...options,
-  });
+  } as any);
 }
 
 /**
@@ -47,12 +48,12 @@ export function useTroubleshootSession(
  */
 export function useDetectWanInterface(
   routerId: string,
-  options?: QueryHookOptions<{ detectWanInterface: string }, { routerId: string }>
+  options?: Omit<QueryHookOptions, 'variables'>
 ) {
   return useQuery(DETECT_WAN_INTERFACE, {
     variables: { routerId },
     ...options,
-  });
+  } as any);
 }
 
 /**
@@ -60,12 +61,12 @@ export function useDetectWanInterface(
  */
 export function useDetectGateway(
   routerId: string,
-  options?: QueryHookOptions<{ detectGateway: string | null }, { routerId: string }>
+  options?: Omit<QueryHookOptions, 'variables'>
 ) {
   return useQuery(DETECT_GATEWAY, {
     variables: { routerId },
     ...options,
-  });
+  } as any);
 }
 
 /**
@@ -73,12 +74,12 @@ export function useDetectGateway(
  */
 export function useDetectISP(
   routerId: string,
-  options?: QueryHookOptions<{ detectISP: ISPInfo | null }, { routerId: string }>
+  options?: Omit<QueryHookOptions, 'variables'>
 ) {
   return useQuery(DETECT_ISP, {
     variables: { routerId },
     ...options,
-  });
+  } as any);
 }
 
 // -----------------------------------------------------------------------------
@@ -89,7 +90,7 @@ export function useDetectISP(
  * Start a new troubleshooting session
  */
 export function useStartTroubleshoot(
-  options?: MutationHookOptions<{ startTroubleshoot: StartTroubleshootPayload }, { routerId: string }>
+  options?: MutationHookOptions
 ) {
   return useMutation(START_TROUBLESHOOT, options);
 }
@@ -98,10 +99,7 @@ export function useStartTroubleshoot(
  * Run a specific diagnostic step
  */
 export function useRunTroubleshootStep(
-  options?: MutationHookOptions<
-    { runTroubleshootStep: RunTroubleshootStepPayload },
-    { sessionId: string; stepType: TroubleshootStepType }
-  >
+  options?: MutationHookOptions
 ) {
   return useMutation(RUN_TROUBLESHOOT_STEP, options);
 }
@@ -110,10 +108,7 @@ export function useRunTroubleshootStep(
  * Apply a suggested fix
  */
 export function useApplyTroubleshootFix(
-  options?: MutationHookOptions<
-    { applyTroubleshootFix: ApplyFixPayload },
-    { sessionId: string; issueCode: string }
-  >
+  options?: MutationHookOptions
 ) {
   return useMutation(APPLY_TROUBLESHOOT_FIX, options);
 }
@@ -122,10 +117,7 @@ export function useApplyTroubleshootFix(
  * Verify a fix by re-running the diagnostic step
  */
 export function useVerifyTroubleshootFix(
-  options?: MutationHookOptions<
-    { verifyTroubleshootFix: RunTroubleshootStepPayload },
-    { sessionId: string; stepType: TroubleshootStepType }
-  >
+  options?: MutationHookOptions
 ) {
   return useMutation(VERIFY_TROUBLESHOOT_FIX, options);
 }
@@ -134,7 +126,7 @@ export function useVerifyTroubleshootFix(
  * Cancel a troubleshooting session
  */
 export function useCancelTroubleshoot(
-  options?: MutationHookOptions<{ cancelTroubleshoot: TroubleshootSession }, { sessionId: string }>
+  options?: MutationHookOptions
 ) {
   return useMutation(CANCEL_TROUBLESHOOT, options);
 }
@@ -148,10 +140,10 @@ export function useCancelTroubleshoot(
  */
 export function useTroubleshootProgress(
   sessionId: string,
-  options?: SubscriptionHookOptions<{ troubleshootProgress: TroubleshootSession }, { sessionId: string }>
+  options?: Omit<SubscriptionHookOptions, 'variables'>
 ) {
   return useSubscription(TROUBLESHOOT_PROGRESS, {
     variables: { sessionId },
     ...options,
-  });
+  } as any);
 }

@@ -1,5 +1,6 @@
+import { useEffect, useCallback } from 'react';
+
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Route } from '@/routes/router/$id/route';
 import {
   LayoutDashboard,
   Wifi,
@@ -12,8 +13,9 @@ import {
   Store,
   Boxes
 } from 'lucide-react';
+
 import { cn } from '@nasnet/ui/primitives';
-import { useEffect, useCallback } from 'react';
+
 import {
   preloadFirewallTab,
   preloadLogsTab,
@@ -22,6 +24,7 @@ import {
   preloadPluginStoreTab,
   preloadAllHeavyTabs,
 } from '@/app/routes/router-panel/tabs/lazy';
+import { Route } from '@/routes/router/$id/route';
 
 /**
  * Tab definition interface

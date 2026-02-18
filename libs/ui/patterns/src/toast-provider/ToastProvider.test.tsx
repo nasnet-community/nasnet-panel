@@ -3,11 +3,10 @@
  * @see NAS-4.19: Implement Notification/Toast System
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 
-import { ToastProvider } from './ToastProvider';
 import {
   useNotificationStore,
   showSuccess,
@@ -15,6 +14,8 @@ import {
   showWarning,
   showInfo,
 } from '@nasnet/state/stores';
+
+import { ToastProvider } from './ToastProvider';
 
 // Mock the usePlatform hook
 vi.mock('@nasnet/ui/layouts', () => ({

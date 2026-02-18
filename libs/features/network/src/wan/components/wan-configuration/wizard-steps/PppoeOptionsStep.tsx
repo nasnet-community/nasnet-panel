@@ -24,7 +24,7 @@ interface PppoeOptionsStepProps {
 
 export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
   const form = useForm<PppoeOptionsStepFormValues>({
-    resolver: zodResolver(pppoeOptionsStepSchema),
+    resolver: zodResolver(pppoeOptionsStepSchema) as any,
     defaultValues: stepper.getStepData('options') || {
       mtu: 1492,
       mru: 1492,
@@ -37,8 +37,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
   // Auto-save form data to stepper
   useEffect(() => {
     const subscription = form.watch((value) => {
-      stepper.setStepData('options', value);
-      stepper.markStepAsValid('options');
+      stepper.setStepData(value);
     });
     return () => subscription.unsubscribe();
   }, [form, stepper]);
@@ -89,10 +88,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="mtu">MTU (bytes)</Label>
-              <FieldHelp
-                field="mtu"
-                text="Maximum Transmission Unit. Standard PPPoE uses 1492 bytes (1500 - 8 byte overhead). Lower values may improve stability but reduce throughput."
-              />
+              <FieldHelp field="mtu" />
             </div>
             <Input
               id="mtu"
@@ -117,10 +113,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Label htmlFor="mru">MRU (bytes)</Label>
-              <FieldHelp
-                field="mru"
-                text="Maximum Receive Unit. Should typically match MTU. Only change if required by your ISP."
-              />
+              <FieldHelp field="mru" />
             </div>
             <Input
               id="mru"
@@ -153,10 +146,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="add-default-route">Add Default Route</Label>
-              <FieldHelp
-                field="addDefaultRoute"
-                text="Automatically add default route via PPPoE gateway. Required for internet access via this connection."
-              />
+              <FieldHelp field="addDefaultRoute" />
             </div>
             <Switch
               id="add-default-route"
@@ -172,10 +162,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Label htmlFor="use-peer-dns">Use Peer DNS</Label>
-              <FieldHelp
-                field="usePeerDNS"
-                text="Use DNS servers provided by your ISP via PPPoE. Recommended unless you have specific DNS requirements."
-              />
+              <FieldHelp field="usePeerDNS" />
             </div>
             <Switch
               id="use-peer-dns"
@@ -197,10 +184,7 @@ export function PppoeOptionsStep({ stepper }: PppoeOptionsStepProps) {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="comment">Comment</Label>
-            <FieldHelp
-              field="comment"
-              text="Optional description for this PPPoE connection (max 255 characters)."
-            />
+            <FieldHelp field="comment" />
           </div>
           <Input
             id="comment"

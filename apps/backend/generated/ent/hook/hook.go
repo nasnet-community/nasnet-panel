@@ -3,9 +3,10 @@
 package hook
 
 import (
-	"backend/generated/ent"
 	"context"
 	"fmt"
+
+	"backend/generated/ent"
 )
 
 // The APIKeyFunc type is an adapter to allow the use of ordinary

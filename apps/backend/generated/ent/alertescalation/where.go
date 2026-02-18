@@ -3,9 +3,10 @@
 package alertescalation
 
 import (
+	"time"
+
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

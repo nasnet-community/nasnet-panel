@@ -82,7 +82,7 @@ func OpenDatabase(ctx context.Context, cfg *Config) (*OpenResult, error) {
 	// Open the database
 	db, err := sql.Open("sqlite", cfg.DSN())
 	if err != nil {
-		return nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to open database", err).
+		return nil, NewError(ErrCodeDBConnectionFailed, "failed to open database", err).
 			WithPath(cfg.Path)
 	}
 
@@ -94,14 +94,14 @@ func OpenDatabase(ctx context.Context, cfg *Config) (*OpenResult, error) {
 	// Verify the connection works
 	if err := db.PingContext(ctx); err != nil {
 		db.Close()
-		return nil, NewDatabaseError(ErrCodeDBConnectionFailed, "database ping failed", err).
+		return nil, NewError(ErrCodeDBConnectionFailed, "database ping failed", err).
 			WithPath(cfg.Path)
 	}
 
 	// Apply PRAGMAs after opening the connection
 	if err := applyPRAGMAs(ctx, db, cfg); err != nil {
 		db.Close()
-		return nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to apply PRAGMAs", err).
+		return nil, NewError(ErrCodeDBConnectionFailed, "failed to apply PRAGMAs", err).
 			WithPath(cfg.Path)
 	}
 
@@ -109,7 +109,7 @@ func OpenDatabase(ctx context.Context, cfg *Config) (*OpenResult, error) {
 	var journalMode string
 	if err := db.QueryRowContext(ctx, "PRAGMA journal_mode").Scan(&journalMode); err != nil {
 		db.Close()
-		return nil, NewDatabaseError(ErrCodeDBConnectionFailed, "failed to verify journal_mode", err).
+		return nil, NewError(ErrCodeDBConnectionFailed, "failed to verify journal_mode", err).
 			WithPath(cfg.Path)
 	}
 	result.JournalMode = journalMode
@@ -119,13 +119,13 @@ func OpenDatabase(ctx context.Context, cfg *Config) (*OpenResult, error) {
 		passed, err := runIntegrityCheck(ctx, db)
 		if err != nil {
 			db.Close()
-			return nil, NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity check failed", err).
+			return nil, NewError(ErrCodeDBIntegrityFailed, "integrity check failed", err).
 				WithPath(cfg.Path)
 		}
 		result.IntegrityCheckPassed = passed
 		if !passed {
 			db.Close()
-			return nil, NewDatabaseError(ErrCodeDBIntegrityFailed, "database integrity check did not pass", nil).
+			return nil, NewError(ErrCodeDBIntegrityFailed, "database integrity check did not pass", nil).
 				WithPath(cfg.Path)
 		}
 	} else {
@@ -187,17 +187,17 @@ func runIntegrityCheck(ctx context.Context, db *sql.DB) (bool, error) {
 // RunIntegrityCheckWithDegradation performs an integrity check with graceful degradation.
 // For router databases, it returns the error but doesn't prevent operation.
 // For system database, the error is critical.
-func RunIntegrityCheckWithDegradation(ctx context.Context, db *sql.DB, dbType string, routerID string) (*DatabaseError, bool) {
+func RunIntegrityCheckWithDegradation(ctx context.Context, db *sql.DB, dbType, routerID string) (*Error, bool) {
 	passed, err := runIntegrityCheck(ctx, db)
 	if err != nil {
-		dbErr := NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
+		dbErr := NewError(ErrCodeDBIntegrityFailed, "integrity check query failed", err).
 			WithContext("dbType", dbType).
 			WithRouterID(routerID)
 		return dbErr, false
 	}
 
 	if !passed {
-		dbErr := NewDatabaseError(ErrCodeDBIntegrityFailed, "database integrity check failed", nil).
+		dbErr := NewError(ErrCodeDBIntegrityFailed, "database integrity check failed", nil).
 			WithContext("dbType", dbType).
 			WithRouterID(routerID)
 
@@ -219,7 +219,7 @@ func VerifyPRAGMAs(ctx context.Context, db *sql.DB, cfg *Config) error {
 	if err := db.QueryRowContext(ctx, "PRAGMA journal_mode").Scan(&journalMode); err != nil {
 		return fmt.Errorf("failed to get journal_mode: %w", err)
 	}
-	if strings.ToUpper(journalMode) != strings.ToUpper(cfg.JournalMode) {
+	if !strings.EqualFold(journalMode, cfg.JournalMode) {
 		log.Printf("[database] WARNING: journal_mode is %s, expected %s", journalMode, cfg.JournalMode)
 	}
 

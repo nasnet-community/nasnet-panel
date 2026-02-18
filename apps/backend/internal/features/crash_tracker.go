@@ -161,7 +161,7 @@ func (t *FeatureCrashTracker) countRecentCrashes(history *InstanceCrashHistory) 
 }
 
 // isolateInstance marks an instance as isolated due to excessive crashes
-func (t *FeatureCrashTracker) isolateInstance(instanceID, featureID string, crashCount int) error {
+func (t *FeatureCrashTracker) isolateInstance(instanceID, featureID string, crashCount int) error { //nolint:unparam // error return is always nil for now, kept for future event emission
 	if !t.config.IsolationEnabled {
 		t.logger.Warn().
 			Str("instance_id", instanceID).

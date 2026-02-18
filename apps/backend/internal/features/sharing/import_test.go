@@ -2,8 +2,10 @@ package sharing
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
+	"backend/internal/common/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +15,7 @@ func TestImport_SchemaVersionCompatible(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	pkg := &ServiceExportPackage{
 		SchemaVersion: "1.0",
@@ -36,7 +38,7 @@ func TestImport_SchemaVersionIncompatible(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	testCases := []struct {
 		name          string
@@ -66,8 +68,14 @@ func TestImport_MissingService(t *testing.T) {
 	mockRouter := new(MockRouterPort)
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
-	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	// Use a registry that returns error for unknown services
+	registry := NewFeatureRegistryFromFunc(func(id string) (*manifest.Manifest, error) {
+		if id != "tor" && id != "xray" { // Only known services
+			return nil, fmt.Errorf("unknown service: %s", id)
+		}
+		return &manifest.Manifest{ID: id}, nil
+	})
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	pkg := &ServiceExportPackage{
 		SchemaVersion: "1.0",
@@ -91,7 +99,7 @@ func TestImport_RedactedFieldPrompts(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Config with redacted fields
 	config := map[string]interface{}{
@@ -114,11 +122,11 @@ func TestImport_ConflictDetection(t *testing.T) {
 	// For now, testing the logic structure
 
 	testCases := []struct {
-		name                 string
-		existingInstances    int
-		conflictResolution   ConflictResolutionStrategy
-		expectsUserInput     bool
-		expectsError         bool
+		name               string
+		existingInstances  int
+		conflictResolution ConflictResolutionStrategy
+		expectsUserInput   bool
+		expectsError       bool
 	}{
 		{"No conflict", 0, "", false, false},
 		{"Conflict with SKIP", 1, ConflictSkip, false, false},
@@ -197,15 +205,15 @@ func TestImport_ErrorAccumulation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Package with multiple validation errors
 	pkg := &ServiceExportPackage{
 		SchemaVersion: "1.0",
-		ServiceType:   "",           // Missing (syntax error)
-		ServiceName:   "",           // Missing (syntax error)
+		ServiceType:   "", // Missing (syntax error)
+		ServiceName:   "", // Missing (syntax error)
 		BinaryVersion: "1.0.0",
-		Config:        nil,          // Missing (syntax error)
+		Config:        nil, // Missing (syntax error)
 	}
 
 	result := &ImportValidationResult{Valid: true, Errors: []ValidationError{}}
@@ -230,7 +238,7 @@ func TestImport_SyntaxValidation(t *testing.T) {
 	mockEventBus := new(MockEventBus)
 	mockAudit := new(MockAuditService)
 	registry, _ := NewFeatureRegistry()
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	testCases := []struct {
 		name         string
@@ -250,18 +258,18 @@ func TestImport_SyntaxValidation(t *testing.T) {
 		{
 			name: "Missing service_type",
 			pkg: &ServiceExportPackage{
-				ServiceType:   "",
-				ServiceName:   "Test",
-				Config:        map[string]interface{}{},
+				ServiceType: "",
+				ServiceName: "Test",
+				Config:      map[string]interface{}{},
 			},
 			expectErrors: 1,
 		},
 		{
 			name: "Missing service_name",
 			pkg: &ServiceExportPackage{
-				ServiceType:   "tor",
-				ServiceName:   "",
-				Config:        map[string]interface{}{},
+				ServiceType: "tor",
+				ServiceName: "",
+				Config:      map[string]interface{}{},
 			},
 			expectErrors: 1,
 		},

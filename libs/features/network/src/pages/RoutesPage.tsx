@@ -86,30 +86,34 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
     async (data: RouteFormData) => {
       try {
         if (formMode === 'create') {
-          await createRoute.mutateAsync({
-            routerId,
-            input: {
-              destination: data.destination,
-              gateway: data.gateway || undefined,
-              interface: data.interface || undefined,
-              distance: data.distance,
-              routingMark: data.routingMark || undefined,
-              routingTable: data.routingTable,
-              comment: data.comment || undefined,
+          await createRoute.createRoute({
+            variables: {
+              routerId,
+              input: {
+                destination: data.destination,
+                gateway: data.gateway || undefined,
+                interface: data.interface || undefined,
+                distance: data.distance,
+                routingMark: data.routingMark || undefined,
+                routingTable: data.routingTable,
+                comment: data.comment || undefined,
+              },
             },
           });
         } else if (selectedRoute) {
-          await updateRoute.mutateAsync({
-            routerId,
-            routeId: selectedRoute.id,
-            input: {
-              destination: data.destination,
-              gateway: data.gateway || undefined,
-              interface: data.interface || undefined,
-              distance: data.distance,
-              routingMark: data.routingMark || undefined,
-              routingTable: data.routingTable,
-              comment: data.comment || undefined,
+          await updateRoute.updateRoute({
+            variables: {
+              routerId,
+              routeId: selectedRoute.id,
+              input: {
+                destination: data.destination,
+                gateway: data.gateway || undefined,
+                interface: data.interface || undefined,
+                distance: data.distance,
+                routingMark: data.routingMark || undefined,
+                routingTable: data.routingTable,
+                comment: data.comment || undefined,
+              },
             },
           });
         }
@@ -136,9 +140,11 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
     if (!routeToDelete) return;
 
     try {
-      await deleteRoute.mutateAsync({
-        routerId,
-        routeId: routeToDelete.id,
+      await deleteRoute.deleteRoute({
+        variables: {
+          routerId,
+          routeId: routeToDelete.id,
+        },
       });
 
       setIsDeleteOpen(false);
@@ -201,7 +207,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
               }
               onSubmit={handleFormSubmit}
               onCancel={handleFormCancel}
-              loading={createRoute.isPending || updateRoute.isPending}
+              loading={createRoute.loading || updateRoute.loading}
             />
           </SheetContent>
         </Sheet>
@@ -228,7 +234,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
               }
               onSubmit={handleFormSubmit}
               onCancel={handleFormCancel}
-              loading={createRoute.isPending || updateRoute.isPending}
+              loading={createRoute.loading || updateRoute.loading}
             />
           </DialogContent>
         </Dialog>
@@ -241,7 +247,7 @@ export function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
           onConfirm={handleDeleteConfirm}
-          loading={deleteRoute.isPending}
+          loading={deleteRoute.loading}
         />
       )}
     </div>

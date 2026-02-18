@@ -5,17 +5,18 @@
  * Implements FR0-21: Real-time connection status with auto-refresh
  */
 
+import { RefreshCw } from 'lucide-react';
+
 import {
   useWireGuardInterfaces,
   useL2TPInterfaces,
   usePPTPInterfaces,
   useSSTPInterfaces,
 } from '@nasnet/api-client/queries';
-import { WireGuardCard, VPNTypeSection, GenericVPNCard } from '@nasnet/ui/patterns';
-import { Skeleton, Button } from '@nasnet/ui/primitives';
-import { RefreshCw } from 'lucide-react';
 import type { WireGuardInterface, L2TPInterface, PPTPInterface, SSSTPInterface } from '@nasnet/core/types';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { WireGuardCard, VPNTypeSection, GenericVPNCard } from '@nasnet/ui/patterns';
+import { Skeleton, Button } from '@nasnet/ui/primitives';
 
 /**
  * Main VPN viewing page

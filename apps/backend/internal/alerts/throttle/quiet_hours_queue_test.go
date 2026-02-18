@@ -14,8 +14,8 @@ import (
 // Test Helpers
 // -----------------------------------------------------------------------------
 
-func createTestNotification(channelID, severity string) QueuedNotification {
-	return QueuedNotification{
+func createTestNotification(channelID, severity string) *QueuedNotification {
+	return &QueuedNotification{
 		ChannelID: channelID,
 		AlertID:   "alert-123",
 		Title:     "Test Alert",

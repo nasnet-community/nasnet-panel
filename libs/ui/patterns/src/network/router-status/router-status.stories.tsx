@@ -18,9 +18,9 @@ import { RouterStatusMobile } from './router-status-mobile';
 import { StatusIndicator } from './status-indicator';
 import { ROUTER_STATUS_CHANGED_SUBSCRIPTION } from './use-router-status-subscription';
 
-import type { Meta, StoryObj } from '@storybook/react';
-import type { MockedResponse } from '@apollo/client/testing';
 import type { ConnectionStatus, RouterStatusData, UseRouterStatusReturn } from './types';
+import type { MockedResponse } from '@apollo/client/testing';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ===== Mock Data =====
 

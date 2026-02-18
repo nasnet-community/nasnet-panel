@@ -156,12 +156,13 @@ export function AddressListEntryForm({
           ) : (
             <div className="space-y-2">
               {existingLists.length > 0 ? (
-                <Select
+                <select
                   id="list"
                   {...register('list')}
                   disabled={isLoading || isSubmitting}
                   aria-invalid={!!errors.list}
                   aria-describedby={errors.list ? 'list-error' : undefined}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Select a list...</option>
                   {existingLists.map((list) => (
@@ -169,7 +170,7 @@ export function AddressListEntryForm({
                       {list}
                     </option>
                   ))}
-                </Select>
+                </select>
               ) : (
                 <Input
                   id="list"

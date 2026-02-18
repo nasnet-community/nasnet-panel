@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { RoutesPage } from '@nasnet/features/network';
 
 /**

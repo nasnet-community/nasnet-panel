@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestConnectionState_String(t *testing.T) {
+func TestState_String(t *testing.T) {
 	tests := []struct {
-		state    ConnectionState
+		state    State
 		expected string
 	}{
 		{StateDisconnected, "disconnected"},
@@ -18,7 +18,7 @@ func TestConnectionState_String(t *testing.T) {
 		{StateConnected, "connected"},
 		{StateReconnecting, "reconnecting"},
 		{StateError, "error"},
-		{ConnectionState(99), "unknown"},
+		{State(99), "unknown"},
 	}
 
 	for _, tt := range tests {
@@ -28,9 +28,9 @@ func TestConnectionState_String(t *testing.T) {
 	}
 }
 
-func TestConnectionState_ToGraphQL(t *testing.T) {
+func TestState_ToGraphQL(t *testing.T) {
 	tests := []struct {
-		state    ConnectionState
+		state    State
 		expected string
 	}{
 		{StateDisconnected, "DISCONNECTED"},
@@ -47,10 +47,10 @@ func TestConnectionState_ToGraphQL(t *testing.T) {
 	}
 }
 
-func TestParseConnectionState(t *testing.T) {
+func TestParseState(t *testing.T) {
 	tests := []struct {
 		input     string
-		expected  ConnectionState
+		expected  State
 		expectErr bool
 	}{
 		{"disconnected", StateDisconnected, false},
@@ -66,7 +66,7 @@ func TestParseConnectionState(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			state, err := ParseConnectionState(tt.input)
+			state, err := ParseState(tt.input)
 			if tt.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -77,10 +77,10 @@ func TestParseConnectionState(t *testing.T) {
 	}
 }
 
-func TestConnectionState_CanTransitionTo(t *testing.T) {
+func TestState_CanTransitionTo(t *testing.T) {
 	tests := []struct {
-		from    ConnectionState
-		to      ConnectionState
+		from    State
+		to      State
 		allowed bool
 	}{
 		// From DISCONNECTED
@@ -142,8 +142,8 @@ func TestDisconnectReason_ShouldAutoReconnect(t *testing.T) {
 	}
 }
 
-func TestConnectionStatus_NewConnectionStatus(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_NewStatus(t *testing.T) {
+	status := NewStatus()
 
 	assert.Equal(t, StateDisconnected, status.State)
 	assert.Empty(t, status.Protocol)
@@ -151,8 +151,8 @@ func TestConnectionStatus_NewConnectionStatus(t *testing.T) {
 	assert.Zero(t, status.ReconnectAttempts)
 }
 
-func TestConnectionStatus_SetConnected(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_SetConnected(t *testing.T) {
+	status := NewStatus()
 
 	// Must go through CONNECTING first
 	err := status.SetConnecting()
@@ -168,8 +168,8 @@ func TestConnectionStatus_SetConnected(t *testing.T) {
 	assert.Zero(t, status.ReconnectAttempts)
 }
 
-func TestConnectionStatus_SetDisconnected(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_SetDisconnected(t *testing.T) {
+	status := NewStatus()
 
 	// Connect first
 	_ = status.SetConnecting()
@@ -184,8 +184,8 @@ func TestConnectionStatus_SetDisconnected(t *testing.T) {
 	assert.Nil(t, status.ConnectedAt)
 }
 
-func TestConnectionStatus_SetReconnecting(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_SetReconnecting(t *testing.T) {
+	status := NewStatus()
 
 	// Connect first, then trigger reconnect
 	_ = status.SetConnecting()
@@ -200,8 +200,8 @@ func TestConnectionStatus_SetReconnecting(t *testing.T) {
 	assert.NotNil(t, status.NextReconnectAt)
 }
 
-func TestConnectionStatus_SetError(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_SetError(t *testing.T) {
+	status := NewStatus()
 
 	// Try to connect, then error
 	_ = status.SetConnecting()
@@ -214,8 +214,8 @@ func TestConnectionStatus_SetError(t *testing.T) {
 	assert.NotNil(t, status.LastErrorTime)
 }
 
-func TestConnectionStatus_Uptime(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_Uptime(t *testing.T) {
+	status := NewStatus()
 
 	// Not connected - should return 0
 	assert.Zero(t, status.Uptime())
@@ -230,8 +230,8 @@ func TestConnectionStatus_Uptime(t *testing.T) {
 	assert.Greater(t, uptime, time.Duration(0))
 }
 
-func TestConnectionStatus_RecordHealthCheck(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_RecordHealthCheck(t *testing.T) {
+	status := NewStatus()
 
 	// Record passing checks
 	status.RecordHealthCheck(true)
@@ -253,8 +253,8 @@ func TestConnectionStatus_RecordHealthCheck(t *testing.T) {
 	assert.Equal(t, 0, status.HealthChecksFailed)
 }
 
-func TestConnectionStatus_InvalidTransition(t *testing.T) {
-	status := NewConnectionStatus()
+func TestStatus_InvalidTransition(t *testing.T) {
+	status := NewStatus()
 
 	// Try invalid transition: DISCONNECTED -> CONNECTED (skipping CONNECTING)
 	err := status.SetState(StateConnected)

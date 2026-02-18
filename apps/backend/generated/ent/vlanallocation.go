@@ -3,12 +3,13 @@
 package ent
 
 import (
-	"backend/generated/ent/router"
-	"backend/generated/ent/serviceinstance"
-	"backend/generated/ent/vlanallocation"
 	"fmt"
 	"strings"
 	"time"
+
+	"backend/generated/ent/router"
+	"backend/generated/ent/serviceinstance"
+	"backend/generated/ent/vlanallocation"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

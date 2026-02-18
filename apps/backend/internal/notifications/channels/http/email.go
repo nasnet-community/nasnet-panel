@@ -63,34 +63,19 @@ func (e *EmailChannel) buildTemplateData(notification notifications.Notification
 	ruleName := notification.Title
 
 	if notification.Data != nil {
-		if name, ok := notification.Data["device_name"].(string); ok && name != "" {
-			deviceName = name
-		}
-		if ip, ok := notification.Data["device_ip"].(string); ok && ip != "" {
-			deviceIP = ip
-		}
-		if evType, ok := notification.Data["event_type"].(string); ok && evType != "" {
-			eventType = evType
-		}
-		if rule, ok := notification.Data["rule_name"].(string); ok && rule != "" {
-			ruleName = rule
-		}
+		e.extractDataField(notification.Data, "device_name", &deviceName)
+		e.extractDataField(notification.Data, "device_ip", &deviceIP)
+		e.extractDataField(notification.Data, "event_type", &eventType)
+		e.extractDataField(notification.Data, "rule_name", &ruleName)
 	}
 
+	const severityInfo = "INFO"
 	severity := strings.ToUpper(notification.Severity)
 	if severity == "" {
-		severity = "INFO"
+		severity = severityInfo
 	}
 
-	var suggestedActions []string
-	if notification.Data != nil {
-		if actions, ok := notification.Data["suggested_actions"].([]string); ok {
-			suggestedActions = actions
-		} else if actionsStr, ok := notification.Data["suggested_actions"].(string); ok && actionsStr != "" {
-			suggestedActions = strings.Split(actionsStr, "\n")
-		}
-	}
-
+	suggestedActions := e.extractSuggestedActions(notification.Data)
 	formattedTime := time.Now().Format("2006-01-02 15:04:05 MST")
 
 	return map[string]interface{}{
@@ -107,6 +92,30 @@ func (e *EmailChannel) buildTemplateData(notification notifications.Notification
 	}
 }
 
+// extractDataField extracts a string field from notification data.
+func (e *EmailChannel) extractDataField(data map[string]interface{}, field string, dest *string) {
+	if value, ok := data[field].(string); ok && value != "" {
+		*dest = value
+	}
+}
+
+// extractSuggestedActions extracts suggested actions from various formats.
+func (e *EmailChannel) extractSuggestedActions(data map[string]interface{}) []string {
+	if data == nil {
+		return nil
+	}
+
+	if actions, ok := data["suggested_actions"].([]string); ok {
+		return actions
+	}
+
+	if actionsStr, ok := data["suggested_actions"].(string); ok && actionsStr != "" {
+		return strings.Split(actionsStr, "\n")
+	}
+
+	return nil
+}
+
 func (e *EmailChannel) buildMultipartMessage(data map[string]interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 
@@ -115,8 +124,8 @@ func (e *EmailChannel) buildMultipartMessage(data map[string]interface{}) ([]byt
 		from = fmt.Sprintf("%s <%s>", e.config.FromName, e.config.FromAddress)
 	}
 
-	severity := data["Severity"].(string)
-	title := data["Title"].(string)
+	severity, _ := data["Severity"].(string) //nolint:errcheck // use zero value default
+	title, _ := data["Title"].(string)       //nolint:errcheck // use zero value default
 	subject := fmt.Sprintf("[NasNet Alert - %s] %s", severity, title)
 
 	alertID := ""
@@ -151,7 +160,7 @@ func (e *EmailChannel) buildMultipartMessage(data map[string]interface{}) ([]byt
 	if err != nil {
 		return nil, fmt.Errorf("failed to create plaintext part: %w", err)
 	}
-	plaintextPart.Write([]byte(plaintext))
+	_, _ = plaintextPart.Write([]byte(plaintext)) //nolint:errcheck // best-effort write
 
 	html, err := e.renderTemplate("default-body.html", data)
 	if err != nil {
@@ -165,9 +174,9 @@ func (e *EmailChannel) buildMultipartMessage(data map[string]interface{}) ([]byt
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTML part: %w", err)
 	}
-	htmlPart.Write([]byte(html))
+	_, _ = htmlPart.Write([]byte(html)) //nolint:errcheck // best-effort write
 
-	writer.Close()
+	_ = writer.Close()
 	return buf.Bytes(), nil
 }
 
@@ -221,7 +230,7 @@ func (e *EmailChannel) sendSMTP(message []byte) error {
 func (e *EmailChannel) sendWithTLS(addr string, auth smtp.Auth, message []byte) error {
 	conn, err := tls.Dial("tcp", addr, &tls.Config{
 		ServerName:         e.config.SMTPHost,
-		InsecureSkipVerify: e.config.SkipVerify,
+		InsecureSkipVerify: e.config.SkipVerify, //nolint:gosec // G402: user-configurable TLS verification for SMTP
 	})
 	if err != nil {
 		return fmt.Errorf("failed to connect to SMTP server: %w", err)
@@ -235,21 +244,24 @@ func (e *EmailChannel) sendWithTLS(addr string, auth smtp.Auth, message []byte) 
 	defer client.Close()
 
 	if auth != nil {
-		if err := client.Auth(auth); err != nil {
+		authErr := client.Auth(auth)
+		if authErr != nil {
 			return fmt.Errorf("SMTP authentication failed (check username/password)")
 		}
 	}
-	if err := client.Mail(e.config.FromAddress); err != nil {
-		return fmt.Errorf("failed to set sender: %w", err)
+	mailErr := client.Mail(e.config.FromAddress)
+	if mailErr != nil {
+		return fmt.Errorf("failed to set sender: %w", mailErr)
 	}
 	for _, addr := range e.config.ToAddresses {
-		if err := client.Rcpt(addr); err != nil {
-			return fmt.Errorf("failed to set recipient %s: %w", addr, err)
+		rcptErr := client.Rcpt(addr)
+		if rcptErr != nil {
+			return fmt.Errorf("failed to set recipient %s: %w", addr, rcptErr)
 		}
 	}
-	writer, err := client.Data()
-	if err != nil {
-		return fmt.Errorf("failed to initiate data transfer: %w", err)
+	writer, writeErr := client.Data()
+	if writeErr != nil {
+		return fmt.Errorf("failed to initiate data transfer: %w", writeErr)
 	}
 	_, err = writer.Write(message)
 	if err != nil {
@@ -278,11 +290,11 @@ func ParseEmailConfig(config map[string]interface{}) (EmailConfig, error) {
 	}
 	cfg.SMTPPort = int(smtpPort)
 
-	if username, ok := config["username"].(string); ok {
-		cfg.Username = username
+	if usernameVal, okUsername := config["username"].(string); okUsername {
+		cfg.Username = usernameVal
 	}
-	if password, ok := config["password"].(string); ok {
-		cfg.Password = password
+	if passwordVal, okPassword := config["password"].(string); okPassword {
+		cfg.Password = passwordVal
 	}
 	fromAddress, ok := config["from_address"].(string)
 	if !ok || fromAddress == "" {

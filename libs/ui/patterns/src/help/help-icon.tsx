@@ -12,8 +12,9 @@
  */
 
 import * as React from 'react';
-import { HelpCircle } from 'lucide-react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
+import { HelpCircle } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
 

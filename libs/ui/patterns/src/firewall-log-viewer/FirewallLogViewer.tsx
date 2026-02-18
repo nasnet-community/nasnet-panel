@@ -14,11 +14,13 @@
  */
 
 import { memo, useMemo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 
-import { useFirewallLogViewer } from './use-firewall-log-viewer';
 import { FirewallLogViewerDesktop } from './FirewallLogViewerDesktop';
 import { FirewallLogViewerMobile } from './FirewallLogViewerMobile';
+import { useFirewallLogViewer } from './use-firewall-log-viewer';
+
 import type { FirewallLogViewerProps } from './FirewallLogViewer.types';
 
 /**

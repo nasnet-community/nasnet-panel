@@ -10,18 +10,21 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/portallocation"
 	"backend/generated/ent/serviceinstance"
-	"backend/pkg/ulid"
+	"backend/internal/common/ulid"
 )
+
+// Instance status constant for orphan detection.
+const instanceStatusDeleting = "deleting"
 
 // PortRegistry manages port allocations for service instances across routers.
 // It provides thread-safe port allocation, conflict detection, and orphan cleanup.
 type PortRegistry struct {
-	store  *ent.Client
+	store  StorePort
 	logger *slog.Logger
 	mu     sync.RWMutex
 
 	// In-memory cache for fast lookups: key format "routerID:port:protocol"
-	cache map[string]*ent.PortAllocation
+	cache map[string]PortAllocationEntity
 
 	// Reserved ports that cannot be allocated
 	reservedPorts map[int]bool
@@ -30,7 +33,7 @@ type PortRegistry struct {
 // PortRegistryConfig holds configuration for the port registry.
 type PortRegistryConfig struct {
 	// Store is the ent client for database operations.
-	Store *ent.Client
+	Store StorePort
 
 	// Logger for structured logging.
 	Logger *slog.Logger
@@ -106,7 +109,7 @@ func NewPortRegistry(cfg PortRegistryConfig) (*PortRegistry, error) {
 	pr := &PortRegistry{
 		store:         cfg.Store,
 		logger:        logger,
-		cache:         make(map[string]*ent.PortAllocation),
+		cache:         make(map[string]PortAllocationEntity),
 		reservedPorts: reservedMap,
 	}
 
@@ -155,11 +158,11 @@ func (pr *PortRegistry) AllocatePort(ctx context.Context, req AllocatePortReques
 		return nil, fmt.Errorf("failed to find available port: %w", err)
 	}
 
-	allocation, err := pr.store.PortAllocation.Create().
+	allocation, err := pr.store.PortAllocation().Create().
 		SetID(ulid.NewString()).
 		SetRouterID(req.RouterID).
 		SetPort(port).
-		SetProtocol(portallocation.Protocol(req.Protocol)).
+		SetProtocol(req.Protocol).
 		SetInstanceID(req.InstanceID).
 		SetServiceType(req.ServiceType).
 		SetNillableNotes(&req.Notes).
@@ -181,7 +184,7 @@ func (pr *PortRegistry) AllocatePort(ctx context.Context, req AllocatePortReques
 		"protocol", req.Protocol)
 
 	return &AllocatePortResponse{
-		AllocationID: allocation.ID,
+		AllocationID: allocation.GetID(),
 		Port:         port,
 		Protocol:     req.Protocol,
 	}, nil
@@ -191,7 +194,6 @@ func (pr *PortRegistry) AllocatePort(ctx context.Context, req AllocatePortReques
 // It queries the database for the maximum allocated port and increments from there.
 // Caller must hold the write lock (mu.Lock).
 func (pr *PortRegistry) findNextAvailablePortUnsafe(ctx context.Context, routerID, protocol string, basePorts []int) (int, error) {
-
 	// Try base ports first
 	for _, basePort := range basePorts {
 		if pr.isReserved(basePort) {
@@ -203,7 +205,7 @@ func (pr *PortRegistry) findNextAvailablePortUnsafe(ctx context.Context, routerI
 	}
 
 	// Find the maximum allocated port for this router + protocol
-	maxPort, err := pr.store.PortAllocation.Query().
+	maxPort, err := pr.store.PortAllocation().Query().
 		Where(
 			portallocation.RouterIDEQ(routerID),
 			portallocation.ProtocolEQ(portallocation.Protocol(protocol)),
@@ -265,7 +267,7 @@ func (pr *PortRegistry) isPortAvailableUnsafe(ctx context.Context, routerID stri
 	}
 
 	// Double-check database (cache might be stale)
-	exists, err := pr.store.PortAllocation.Query().
+	exists, err := pr.store.PortAllocation().Query().
 		Where(
 			portallocation.RouterIDEQ(routerID),
 			portallocation.PortEQ(port),
@@ -291,7 +293,7 @@ func (pr *PortRegistry) ReleasePort(ctx context.Context, routerID string, port i
 	defer pr.mu.Unlock()
 
 	// Delete from database
-	deleted, err := pr.store.PortAllocation.Delete().
+	deleted, err := pr.store.PortAllocation().Delete().
 		Where(
 			portallocation.RouterIDEQ(routerID),
 			portallocation.PortEQ(port),
@@ -320,12 +322,12 @@ func (pr *PortRegistry) ReleasePort(ctx context.Context, routerID string, port i
 }
 
 // DetectOrphans finds port allocations that reference missing or deleting service instances.
-func (pr *PortRegistry) DetectOrphans(ctx context.Context, routerID string) ([]*ent.PortAllocation, error) {
+func (pr *PortRegistry) DetectOrphans(ctx context.Context, routerID string) ([]PortAllocationEntity, error) {
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 
 	// Get all allocations for this router
-	allocations, err := pr.store.PortAllocation.Query().
+	allocations, err := pr.store.PortAllocation().Query().
 		Where(portallocation.RouterIDEQ(routerID)).
 		All(ctx)
 
@@ -333,12 +335,12 @@ func (pr *PortRegistry) DetectOrphans(ctx context.Context, routerID string) ([]*
 		return nil, fmt.Errorf("failed to query allocations: %w", err)
 	}
 
-	var orphans []*ent.PortAllocation
+	var orphans []PortAllocationEntity
 
 	for _, alloc := range allocations {
 		// Check if instance exists and is not being deleted
-		instance, err := pr.store.ServiceInstance.Query().
-			Where(serviceinstance.IDEQ(alloc.InstanceID)).
+		instance, err := pr.store.ServiceInstance().Query().
+			Where(serviceinstance.IDEQ(alloc.GetInstanceID())).
 			Only(ctx)
 
 		if err != nil {
@@ -348,13 +350,13 @@ func (pr *PortRegistry) DetectOrphans(ctx context.Context, routerID string) ([]*
 				continue
 			}
 			pr.logger.Error("failed to query service instance",
-				"instance_id", alloc.InstanceID,
+				"instance_id", alloc.GetInstanceID(),
 				"error", err)
 			continue
 		}
 
 		// Check if instance is in "deleting" status
-		if instance.Status == serviceinstance.StatusDeleting {
+		if instance.GetStatus() == instanceStatusDeleting {
 			orphans = append(orphans, alloc)
 		}
 	}
@@ -386,18 +388,18 @@ func (pr *PortRegistry) CleanupOrphans(ctx context.Context, routerID string) (in
 
 	for _, alloc := range orphans {
 		// Delete from database
-		err := pr.store.PortAllocation.DeleteOne(alloc).Exec(ctx)
+		_, err := pr.store.PortAllocation().DeleteOne(alloc).Exec(ctx)
 		if err != nil {
 			pr.logger.Error("failed to delete orphaned allocation",
-				"allocation_id", alloc.ID,
-				"router_id", alloc.RouterID,
-				"port", alloc.Port,
+				"allocation_id", alloc.GetID(),
+				"router_id", alloc.GetRouterID(),
+				"port", alloc.GetPort(),
 				"error", err)
 			continue
 		}
 
 		// Remove from cache
-		cacheKey := pr.cacheKey(alloc.RouterID, alloc.Port, string(alloc.Protocol))
+		cacheKey := pr.cacheKey(alloc.GetRouterID(), alloc.GetPort(), alloc.GetProtocol())
 		delete(pr.cache, cacheKey)
 
 		cleanedCount++
@@ -412,13 +414,13 @@ func (pr *PortRegistry) CleanupOrphans(ctx context.Context, routerID string) (in
 
 // loadCache loads all port allocations from the database into memory cache.
 func (pr *PortRegistry) loadCache(ctx context.Context) error {
-	allocations, err := pr.store.PortAllocation.Query().All(ctx)
+	allocations, err := pr.store.PortAllocation().Query().All(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to query port allocations: %w", err)
 	}
 
 	for _, alloc := range allocations {
-		cacheKey := pr.cacheKey(alloc.RouterID, alloc.Port, string(alloc.Protocol))
+		cacheKey := pr.cacheKey(alloc.GetRouterID(), alloc.GetPort(), alloc.GetProtocol())
 		pr.cache[cacheKey] = alloc
 	}
 
@@ -436,21 +438,21 @@ func (pr *PortRegistry) cacheKey(routerID string, port int, protocol string) str
 }
 
 // GetAllocationsByRouter returns all port allocations for a given router.
-func (pr *PortRegistry) GetAllocationsByRouter(ctx context.Context, routerID string) ([]*ent.PortAllocation, error) {
+func (pr *PortRegistry) GetAllocationsByRouter(ctx context.Context, routerID string) ([]PortAllocationEntity, error) {
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 
-	return pr.store.PortAllocation.Query().
+	return pr.store.PortAllocation().Query().
 		Where(portallocation.RouterIDEQ(routerID)).
 		All(ctx)
 }
 
 // GetAllocationsByInstance returns all port allocations for a given service instance.
-func (pr *PortRegistry) GetAllocationsByInstance(ctx context.Context, instanceID string) ([]*ent.PortAllocation, error) {
+func (pr *PortRegistry) GetAllocationsByInstance(ctx context.Context, instanceID string) ([]PortAllocationEntity, error) {
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 
-	return pr.store.PortAllocation.Query().
+	return pr.store.PortAllocation().Query().
 		Where(portallocation.InstanceIDEQ(instanceID)).
 		All(ctx)
 }

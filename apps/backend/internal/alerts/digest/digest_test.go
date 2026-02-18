@@ -2,21 +2,23 @@ package digest
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	"backend/generated/ent"
 	"backend/generated/ent/alertdigestentry"
 	"backend/generated/ent/enttest"
-	"backend/internal/events"
 	"backend/internal/notifications"
+
+	"backend/internal/events"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // mockEventBus is a mock implementation of events.EventBus for testing.
@@ -81,7 +83,42 @@ func (m *mockDispatcher) Dispatch(ctx context.Context, notification notification
 	})
 
 	args := m.Called(ctx, notification, channelIDs)
-	return args.Get(0).([]notifications.DeliveryResult)
+	result := args.Get(0)
+	if result == nil {
+		return nil
+	}
+	deliveryResults, ok := result.([]notifications.DeliveryResult)
+	if !ok {
+		panic(fmt.Sprintf("expected []notifications.DeliveryResult, got %T", result))
+	}
+	return deliveryResults
+}
+
+// toDispatchFunc converts mockDispatcher to DispatchFunc for ServiceConfig.
+func (m *mockDispatcher) toDispatchFunc() DispatchFunc {
+	return func(ctx context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
+		// Create a notification from the parameters
+		notif := notifications.Notification{
+			Title:    title,
+			Message:  message,
+			Severity: severity,
+			Data:     data,
+		}
+
+		// Call the mock dispatcher
+		deliveryResults := m.Dispatch(ctx, notif, channels)
+
+		// Convert results
+		results := make([]DispatchResult, len(deliveryResults))
+		for i, dr := range deliveryResults {
+			results[i] = DispatchResult{
+				Channel: dr.Channel,
+				Success: dr.Success,
+				Error:   dr.Error,
+			}
+		}
+		return results
+	}
 }
 
 // setupTestDB creates an in-memory SQLite database for testing.
@@ -91,7 +128,7 @@ func setupTestDB(t *testing.T) *ent.Client {
 }
 
 // setupDigestService creates a DigestService with test dependencies.
-func setupDigestService(t *testing.T) (*DigestService, *ent.Client, *mockEventBus, *mockDispatcher) {
+func setupDigestService(t *testing.T) (*Service, *ent.Client, *mockEventBus, *mockDispatcher) {
 	db := setupTestDB(t)
 	eventBus := newMockEventBus()
 	dispatcher := newMockDispatcher()
@@ -100,11 +137,11 @@ func setupDigestService(t *testing.T) (*DigestService, *ent.Client, *mockEventBu
 	// Allow Publish to succeed by default
 	eventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
 
-	service, err := NewDigestService(DigestServiceConfig{
-		DB:         db,
-		EventBus:   eventBus,
-		Dispatcher: dispatcher,
-		Logger:     logger,
+	service, err := NewService(ServiceConfig{
+		DB:       db,
+		EventBus: eventBus,
+		Dispatch: dispatcher.toDispatchFunc(),
+		Logger:   logger,
 	})
 	require.NoError(t, err)
 	require.NotNil(t, service)
@@ -145,7 +182,7 @@ func TestShouldQueue_DigestEnabled_NonCritical(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode:           tt.mode,
 				BypassCritical: false,
 			}
@@ -172,7 +209,7 @@ func TestShouldQueue_DigestDisabled(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode: "immediate",
 			}
 
@@ -187,7 +224,7 @@ func TestShouldQueue_CriticalWithBypass(t *testing.T) {
 	service, db, _, _ := setupDigestService(t)
 	defer db.Close()
 
-	config := DigestConfig{
+	config := Config{
 		Mode:           "hourly",
 		BypassCritical: true,
 	}
@@ -201,7 +238,7 @@ func TestShouldQueue_CriticalWithoutBypass(t *testing.T) {
 	service, db, _, _ := setupDigestService(t)
 	defer db.Close()
 
-	config := DigestConfig{
+	config := Config{
 		Mode:           "daily",
 		BypassCritical: false,
 	}
@@ -243,7 +280,7 @@ func TestShouldQueue_SeverityFiltering(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode:       "hourly",
 				Severities: tt.severities,
 			}

@@ -20,7 +20,6 @@ var (
 	pushoverMessagesURL = "https://api.pushover.net/1/messages.json"
 	pushoverValidateURL = "https://api.pushover.net/1/users/validate.json"
 	pushoverReceiptURL  = "https://api.pushover.net/1/receipts"
-	pushoverLimitsURL   = "https://api.pushover.net/1/apps/limits.json"
 )
 
 // PushoverUsage tracks API usage limits.
@@ -60,7 +59,35 @@ func (p *PushoverChannel) Name() string { return "pushover" }
 // Send delivers a notification via Pushover.
 func (p *PushoverChannel) Send(ctx context.Context, notification notifications.Notification) error {
 	priority := p.getPriority(notification.Severity)
+	values := p.buildFormValues(notification, priority)
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, pushoverMessagesURL, strings.NewReader(values.Encode()))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := p.client.Do(req)
+	if err != nil {
+		if ctx.Err() != nil {
+			return fmt.Errorf("connection timeout: %w", err)
+		}
+		return fmt.Errorf("network error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	p.trackUsage(resp)
+
+	if resp.StatusCode != http.StatusOK {
+		return p.handleErrorResponse(resp)
+	}
+
+	p.extractReceipt(resp, priority, notification)
+	return nil
+}
+
+// buildFormValues constructs the Pushover form payload.
+func (p *PushoverChannel) buildFormValues(notification notifications.Notification, priority int) url.Values {
 	values := url.Values{}
 	values.Set("token", p.config.AppToken)
 	values.Set("user", p.config.UserKey)
@@ -85,8 +112,7 @@ func (p *PushoverChannel) Send(ctx context.Context, notification notifications.N
 
 	if notification.Data != nil {
 		if alertID, ok := notification.Data["alert_id"].(string); ok && alertID != "" && p.config.BaseURL != "" {
-			fullURL := fmt.Sprintf("%s/alerts/%s", p.config.BaseURL, alertID)
-			values.Set("url", fullURL)
+			values.Set("url", fmt.Sprintf("%s/alerts/%s", p.config.BaseURL, alertID))
 			values.Set("url_title", "View in NasNet")
 		}
 		if triggeredAt, ok := notification.Data["triggered_at"].(time.Time); ok {
@@ -94,70 +120,64 @@ func (p *PushoverChannel) Send(ctx context.Context, notification notifications.N
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", pushoverMessagesURL, strings.NewReader(values.Encode()))
-	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+	return values
+}
+
+// trackUsage updates API usage stats from response headers.
+func (p *PushoverChannel) trackUsage(resp *http.Response) {
+	if p.usage == nil {
+		return
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := p.client.Do(req)
-	if err != nil {
-		if ctx.Err() != nil {
-			return fmt.Errorf("connection timeout: %w", err)
-		}
-		return fmt.Errorf("network error: %w", err)
+	remaining := resp.Header.Get("X-Limit-App-Remaining")
+	reset := resp.Header.Get("X-Limit-App-Reset")
+	if remaining != "" && reset != "" {
+		p.updateUsageFromHeaders(remaining, reset)
 	}
-	defer resp.Body.Close()
+}
 
-	if p.usage != nil {
-		if remaining := resp.Header.Get("X-Limit-App-Remaining"); remaining != "" {
-			if reset := resp.Header.Get("X-Limit-App-Reset"); reset != "" {
-				p.updateUsageFromHeaders(remaining, reset)
-			}
-		}
+// handleErrorResponse parses and returns an error from a non-200 Pushover response.
+func (p *PushoverChannel) handleErrorResponse(resp *http.Response) error {
+	var errorResp struct {
+		Status int      `json:"status"`
+		Errors []string `json:"errors"`
 	}
+	_ = json.NewDecoder(resp.Body).Decode(&errorResp) //nolint:errcheck // best-effort decode
 
-	if resp.StatusCode != http.StatusOK {
-		var errorResp struct {
-			Status int      `json:"status"`
-			Errors []string `json:"errors"`
+	switch resp.StatusCode {
+	case http.StatusBadRequest, http.StatusForbidden:
+		if len(errorResp.Errors) > 0 {
+			return fmt.Errorf("invalid credentials: %s", errorResp.Errors[0])
 		}
-		_ = json.NewDecoder(resp.Body).Decode(&errorResp)
-
-		switch resp.StatusCode {
-		case 400, 403:
-			if len(errorResp.Errors) > 0 {
-				return fmt.Errorf("invalid credentials: %s", errorResp.Errors[0])
-			}
-			return errors.New("invalid request: bad request")
-		case 401:
-			return errors.New("unauthorized: invalid API token")
-		case 429:
-			return errors.New("quota_exceeded: monthly message limit reached")
-		case 500, 502, 503, 504:
-			return fmt.Errorf("temporary server error: HTTP %d", resp.StatusCode)
-		default:
-			if len(errorResp.Errors) > 0 {
-				return fmt.Errorf("Pushover API error: %s", errorResp.Errors[0])
-			}
-			return fmt.Errorf("Pushover API returned status %d", resp.StatusCode)
+		return errors.New("invalid request: bad request")
+	case http.StatusUnauthorized:
+		return errors.New("unauthorized: invalid API token")
+	case http.StatusTooManyRequests:
+		return errors.New("quota_exceeded: monthly message limit reached")
+	case http.StatusInternalServerError, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return fmt.Errorf("temporary server error: HTTP %d", resp.StatusCode)
+	default:
+		if len(errorResp.Errors) > 0 {
+			return fmt.Errorf("pushover API error: %s", errorResp.Errors[0])
 		}
+		return fmt.Errorf("pushover API returned status %d", resp.StatusCode)
 	}
+}
 
-	if priority == 2 {
-		var receiptResp struct {
-			Status  int    `json:"status"`
-			Receipt string `json:"receipt"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&receiptResp); err == nil && receiptResp.Receipt != "" {
-			if notification.Data == nil {
-				notification.Data = make(map[string]interface{})
-			}
-			notification.Data["pushover_receipt"] = receiptResp.Receipt
-		}
+// extractReceipt stores the emergency notification receipt if applicable.
+func (p *PushoverChannel) extractReceipt(resp *http.Response, priority int, notification notifications.Notification) {
+	if priority != 2 {
+		return
 	}
-
-	return nil
+	var receiptResp struct {
+		Status  int    `json:"status"`
+		Receipt string `json:"receipt"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&receiptResp); err == nil && receiptResp.Receipt != "" {
+		if notification.Data == nil {
+			notification.Data = make(map[string]interface{})
+		}
+		notification.Data["pushover_receipt"] = receiptResp.Receipt
+	}
 }
 
 func (p *PushoverChannel) getPriority(severity string) int {
@@ -204,7 +224,7 @@ func (p *PushoverChannel) ValidateCredentials(ctx context.Context, userKey, appT
 	values.Set("token", appToken)
 	values.Set("user", userKey)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", pushoverValidateURL, strings.NewReader(values.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, pushoverValidateURL, strings.NewReader(values.Encode()))
 	if err != nil {
 		return fmt.Errorf("failed to create validation request: %w", err)
 	}
@@ -224,20 +244,23 @@ func (p *PushoverChannel) ValidateCredentials(ctx context.Context, userKey, appT
 		return fmt.Errorf("failed to parse validation response: %w", err)
 	}
 
-	if result.Status != 1 {
-		if len(result.Errors) > 0 {
-			errMsg := result.Errors[0]
-			if strings.Contains(strings.ToLower(errMsg), "user") {
-				return errors.New("invalid_user_key")
-			}
-			if strings.Contains(strings.ToLower(errMsg), "token") {
-				return errors.New("invalid_api_token")
-			}
-			return fmt.Errorf("validation failed: %s", errMsg)
-		}
+	if result.Status == 1 {
+		return nil
+	}
+
+	if len(result.Errors) == 0 {
 		return errors.New("invalid credentials")
 	}
-	return nil
+
+	errMsg := result.Errors[0]
+	switch {
+	case strings.Contains(strings.ToLower(errMsg), "user"):
+		return errors.New("invalid_user_key")
+	case strings.Contains(strings.ToLower(errMsg), "token"):
+		return errors.New("invalid_api_token")
+	default:
+		return fmt.Errorf("validation failed: %s", errMsg)
+	}
 }
 
 // CancelReceipt cancels an emergency notification receipt.
@@ -246,7 +269,7 @@ func (p *PushoverChannel) CancelReceipt(ctx context.Context, receipt string) err
 	values := url.Values{}
 	values.Set("token", p.config.AppToken)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", cancelURL, strings.NewReader(values.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cancelURL, strings.NewReader(values.Encode()))
 	if err != nil {
 		return fmt.Errorf("failed to create cancel request: %w", err)
 	}
@@ -258,7 +281,7 @@ func (p *PushoverChannel) CancelReceipt(ctx context.Context, receipt string) err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to cancel receipt: HTTP %d", resp.StatusCode)
 	}
 	return nil

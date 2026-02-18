@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package updates
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"backend/internal/events"
-	"backend/internal/storage"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -552,7 +552,7 @@ func createMockGitHubServer(t *testing.T, currentVersion, newVersion, releaseNot
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("ETag", `"test-etag-` + newVersion + `"`)
+		w.Header().Set("ETag", `"test-etag-`+newVersion+`"`)
 		json.NewEncoder(w).Encode(release)
 	}))
 }

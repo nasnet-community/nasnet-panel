@@ -8,14 +8,7 @@
  */
 
 import * as React from 'react';
-import { cn } from '@nasnet/ui/primitives';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@nasnet/ui/primitives';
+
 import {
   MoveUp,
   MoveDown,
@@ -24,7 +17,17 @@ import {
   Trash2,
   Copy,
 } from 'lucide-react';
+
+import { cn ,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@nasnet/ui/primitives';
+
 import { SortableList } from './SortableList';
+
 import type {
   SortableListProps,
   SortableItemData,

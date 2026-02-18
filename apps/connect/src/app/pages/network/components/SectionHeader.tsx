@@ -3,8 +3,10 @@
  * Reusable collapsible section header with badges and actions
  */
 
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
+
 import { ChevronDown, ChevronRight } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 interface SectionHeaderProps {

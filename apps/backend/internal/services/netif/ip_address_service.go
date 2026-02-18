@@ -87,6 +87,7 @@ func (s *IPAddressService) ListIPAddresses(
 	routerID string,
 	interfaceID *string,
 ) ([]*IPAddressData, error) {
+
 	if cached := s.cache.Get(routerID); cached != nil {
 		log.Printf("returning cached IP addresses for router %s (count: %d)", routerID, len(cached))
 		return filterByInterface(cached, interfaceID), nil
@@ -125,6 +126,7 @@ func (s *IPAddressService) CreateIPAddress(
 	routerID, address, interfaceName, comment string,
 	disabled bool,
 ) (*IPAddressData, error) {
+
 	if !isValidCIDR(address) {
 		return nil, fmt.Errorf("invalid CIDR notation: %s", address)
 	}
@@ -138,6 +140,7 @@ func (s *IPAddressService) CreateIPAddress(
 	}
 
 	cmd := router.Command{
+
 		Path:   "/ip/address",
 		Action: "add",
 		Args: map[string]string{
@@ -157,10 +160,14 @@ func (s *IPAddressService) CreateIPAddress(
 
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-created", events.PriorityNormal, "ip-address-service")
-		_ = s.eventBus.Publish(ctx, &event)
+		if err := s.eventBus.Publish(ctx, &event); err != nil {
+			// TODO: s.log field missing - add logger to IPAddressService struct
+			log.Printf("WARN: failed to publish event: %v", err)
+		}
 	}
 
 	newIPID := result.Data[0][".id"]
+
 	return s.GetIPAddress(ctx, routerID, newIPID)
 }
 
@@ -170,6 +177,7 @@ func (s *IPAddressService) UpdateIPAddress(
 	routerID, ipID, address, interfaceName, comment string,
 	disabled bool,
 ) (*IPAddressData, error) {
+
 	if !isValidCIDR(address) {
 		return nil, fmt.Errorf("invalid CIDR notation: %s", address)
 	}
@@ -203,7 +211,10 @@ func (s *IPAddressService) UpdateIPAddress(
 
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-updated", events.PriorityNormal, "ip-address-service")
-		_ = s.eventBus.Publish(ctx, &event)
+		if err := s.eventBus.Publish(ctx, &event); err != nil {
+			// TODO: s.log field missing - add logger to IPAddressService struct
+			log.Printf("WARN: failed to publish event: %v", err)
+		}
 	}
 
 	return s.GetIPAddress(ctx, routerID, ipID)
@@ -236,14 +247,17 @@ func (s *IPAddressService) DeleteIPAddress(ctx context.Context, routerID, ipID s
 
 	if s.eventBus != nil {
 		event := events.NewBaseEvent("ip-address-deleted", events.PriorityNormal, "ip-address-service")
-		_ = s.eventBus.Publish(ctx, &event)
+		if err := s.eventBus.Publish(ctx, &event); err != nil {
+			// TODO: s.log field missing - add logger to IPAddressService struct
+			log.Printf("WARN: failed to publish event: %v", err)
+		}
 	}
 
 	return nil
 }
 
 // fetchIPAddresses fetches IP address data from RouterOS.
-func (s *IPAddressService) fetchIPAddresses(ctx context.Context, routerID string) ([]*IPAddressData, error) {
+func (s *IPAddressService) fetchIPAddresses(ctx context.Context, _routerID string) ([]*IPAddressData, error) {
 	cmd := router.Command{
 		Path:   "/ip/address",
 		Action: "print",
@@ -260,9 +274,9 @@ func (s *IPAddressService) fetchIPAddresses(ctx context.Context, routerID string
 			ID:        data[".id"],
 			Address:   data["address"],
 			Interface: data["interface"],
-			Disabled:  data["disabled"] == "true",
-			Dynamic:   data["dynamic"] == "true",
-			Invalid:   data["invalid"] == "true",
+			Disabled:  data["disabled"] == trueValue,
+			Dynamic:   data["dynamic"] == trueValue,
+			Invalid:   data["invalid"] == trueValue,
 		}
 		if comment, ok := data["comment"]; ok {
 			ipAddr.Comment = comment
@@ -300,14 +314,14 @@ func isValidCIDR(cidr string) bool {
 	return err == nil
 }
 
-func calculateNetworkAddresses(cidr string) (string, string, error) {
+func calculateNetworkAddresses(cidr string) (networkAddr, broadcast string, err error) {
 	_, network, err := net.ParseCIDR(cidr)
 	if err != nil {
 		return "", "", err
 	}
-	networkAddr := network.IP.String()
-	broadcast := GetBroadcast(network)
-	return networkAddr, broadcast.String(), nil
+	networkAddr = network.IP.String()
+	broadcast = GetBroadcast(network).String()
+	return
 }
 
 func boolToYesNo(b bool) string {

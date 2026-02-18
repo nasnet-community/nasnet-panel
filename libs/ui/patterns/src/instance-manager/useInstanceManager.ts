@@ -9,7 +9,6 @@
 
 import { useMemo, useCallback } from 'react';
 
-import type { Service } from '../service-card/types';
 import type {
   InstanceManagerProps,
   InstanceFilters,
@@ -17,6 +16,7 @@ import type {
   BulkOperation,
   BulkAction,
 } from './types';
+import type { Service } from '../service-card/types';
 
 /**
  * Return type for useInstanceManager hook

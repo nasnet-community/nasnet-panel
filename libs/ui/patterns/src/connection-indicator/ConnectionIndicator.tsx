@@ -281,4 +281,3 @@ export function ConnectionIndicator({ variant, className }: ConnectionIndicatorP
 // ===== Exports =====
 
 export { ConnectionIndicatorMobile, ConnectionIndicatorDesktop };
-export type { ConnectionIndicatorProps };

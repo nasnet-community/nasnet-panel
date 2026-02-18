@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import {
   Select,
@@ -12,6 +12,8 @@ import {
   SelectSeparator,
 } from './select';
 import { Label } from '../label';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof Select> = {
   title: 'Primitives/Select',

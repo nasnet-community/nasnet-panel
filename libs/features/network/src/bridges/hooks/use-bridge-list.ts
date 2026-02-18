@@ -5,6 +5,7 @@ import {
   useUndoBridgeOperation,
 } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
+import type { Bridge } from '@nasnet/api-client/generated';
 
 /**
  * Headless hook for bridge list logic
@@ -27,12 +28,12 @@ export function useBridgeList(routerId: string) {
   // Filtered bridges
   const filteredBridges = useMemo(() => {
     return bridges
-      .filter((bridge) =>
+      .filter((bridge: any) =>
         bridge.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .filter((bridge) => !protocolFilter || bridge.protocol === protocolFilter)
+      .filter((bridge: any) => !protocolFilter || bridge.protocol === protocolFilter)
       .filter(
-        (bridge) =>
+        (bridge: any) =>
           vlanFilteringFilter === null ||
           bridge.vlanFiltering === vlanFilteringFilter
       );
@@ -71,9 +72,9 @@ export function useBridgeList(routerId: string) {
         } else {
           // Show error messages
           const errors = result.data?.deleteBridge?.errors || [];
-          errors.forEach((err) => toast.error(err.message));
+          errors.forEach((err: { message: string }) => toast.error(err.message));
         }
-      } catch (err) {
+      } catch (err: unknown) {
         toast.error('Failed to delete bridge');
       }
     },
@@ -100,7 +101,7 @@ export function useBridgeList(routerId: string) {
 
   // Select all
   const selectAll = useCallback(() => {
-    setSelectedIds(new Set(filteredBridges.map((b) => b.uuid)));
+    setSelectedIds(new Set(filteredBridges.map((b: Bridge) => b.id)));
   }, [filteredBridges]);
 
   return {

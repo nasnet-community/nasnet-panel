@@ -4,12 +4,13 @@
  * Comprehensive test suite with RTL and axe-core a11y testing.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
-import { axe } from 'vitest-axe';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
+import { axe } from 'vitest-axe';
 
 import type { FirewallLogEntry } from '@nasnet/core/types';
+
 import { FirewallLogStats } from './FirewallLogStats';
 
 // ============================================================================

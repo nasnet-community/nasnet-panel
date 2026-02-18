@@ -468,4 +468,4 @@ export function getAuthToken(): string | null {
 
 // ===== Type Exports =====
 
-export type { AuthState, AuthActions, User };
+// Types are already exported inline above

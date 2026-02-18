@@ -11,15 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasn
 import { Progress } from '@nasnet/ui/primitives/progress';
 import { Badge } from '@nasnet/ui/primitives/badge';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@nasnet/ui/primitives/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@nasnet/ui/primitives/dialog';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
 import { Database, Trash2, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useDnsCachePanel } from './useDnsCachePanel';
@@ -162,14 +160,14 @@ export function DnsCachePanelDesktop({
       </Card>
 
       {/* Flush Confirmation Dialog */}
-      <AlertDialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Flush DNS Cache?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Flush DNS Cache?</DialogTitle>
+            <DialogDescription>
               This will remove all cached DNS entries. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           {/* Before/After Stats Preview */}
           {cacheStats && !flushResult && (
@@ -196,18 +194,20 @@ export function DnsCachePanelDesktop({
             </Alert>
           )}
 
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isFlushing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+          <DialogFooter>
+            <Button variant="outline" disabled={isFlushing} onClick={closeFlushDialog}>
+              Cancel
+            </Button>
+            <Button
               onClick={confirmFlush}
               disabled={isFlushing || !!flushResult}
               className="bg-semantic-error hover:bg-semantic-error/90"
             >
               {isFlushing ? 'Flushing...' : 'Flush Cache'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

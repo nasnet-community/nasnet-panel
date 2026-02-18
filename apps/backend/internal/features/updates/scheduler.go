@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"backend/generated/ent"
+
 	"backend/internal/events"
 
 	"github.com/rs/zerolog"
@@ -230,7 +231,7 @@ func (s *UpdateScheduler) checkInstanceForUpdate(instance *ent.ServiceInstance) 
 }
 
 // shouldAutoApply determines if an update should be automatically applied
-func (s *UpdateScheduler) shouldAutoApply(instance *ent.ServiceInstance, updateInfo *UpdateInfo) bool {
+func (s *UpdateScheduler) shouldAutoApply(_ *ent.ServiceInstance, updateInfo *UpdateInfo) bool {
 	// For now, auto-apply security_hotfix (CRITICAL) updates only
 	// TODO: Read auto_apply_threshold from instance configuration
 	return updateInfo.Severity == SeverityCritical

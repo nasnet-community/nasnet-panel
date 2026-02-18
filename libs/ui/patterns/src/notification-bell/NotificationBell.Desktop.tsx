@@ -5,20 +5,19 @@
  * Displays up to 5 recent notifications with full details and actions.
  */
 
-import { Bell } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-
-import { Button } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Popover, PopoverTrigger, PopoverContent } from '@nasnet/ui/primitives';
-import { ScrollArea } from '@nasnet/ui/primitives';
-import { Separator } from '@nasnet/ui/primitives';
-import { Skeleton } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+import { Bell } from 'lucide-react';
 
 import type { AlertSeverity } from '@nasnet/state/stores';
-import type { NotificationBellProps } from './types';
+import { Button, Badge, Popover, PopoverTrigger, PopoverContent, ScrollArea, Separator, Skeleton, cn } from '@nasnet/ui/primitives';
+
+
+
+
 import { useNotificationBell } from './useNotificationBell';
+
+import type { NotificationBellProps } from './types';
+
 
 /**
  * Get badge variant for alert severity
@@ -133,16 +132,15 @@ export function NotificationBellDesktop(props: NotificationBellProps) {
               </p>
             </div>
           ) : (
-            <div className="py-2">
+            <ul className="py-2">
               {previewNotifications.map((notification, index) => (
-                <div key={notification.id}>
+                <li key={notification.id}>
                   <button
                     onClick={() => handleNotificationClick(notification)}
                     className={cn(
                       'w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-inset',
                       !notification.read && 'bg-primary/5'
                     )}
-                    role="button"
                     tabIndex={0}
                     aria-label={`${notification.title} - ${notification.message}`}
                   >
@@ -186,9 +184,9 @@ export function NotificationBellDesktop(props: NotificationBellProps) {
                   {index < previewNotifications.length - 1 && (
                     <Separator className="mx-4" />
                   )}
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </ScrollArea>
 

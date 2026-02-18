@@ -13,9 +13,11 @@
  * Minimum: 15 test cases
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
 import { ReactNode } from 'react';
+
+import { MockedProvider } from '@apollo/client/testing';
+import { renderHook, act, waitFor } from '@testing-library/react';
+
 // import { useConnectionList } from './use-connection-list';
 // import { GET_CONNECTIONS } from '@nasnet/api-client/queries';
 import {

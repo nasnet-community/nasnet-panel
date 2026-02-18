@@ -13,11 +13,12 @@
  * @see NAS-7.3: Implement Address Lists
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import { AddressListManager } from './AddressListManager';
+
 import type { AddressList, AddressListEntry, FirewallRule } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof AddressListManager> = {
   title: 'Patterns/AddressListManager',

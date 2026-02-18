@@ -7,67 +7,67 @@ import (
 	"time"
 )
 
-// BridgeData represents a bridge configuration.
-type BridgeData struct {
-	UUID          string
-	Name          string
-	Comment       string
-	Disabled      bool
-	Running       bool
-	MacAddress    string
-	MTU           int
-	Protocol      string // "none", "stp", "rstp", "mstp"
-	Priority      int
-	VlanFiltering bool
-	PVID          int
-	Ports         []*BridgePortData
-	Vlans         []*BridgeVlanData
-	IPAddresses   []string
-	StpStatus     *BridgeStpStatusData
+// Data represents a bridge configuration. //nolint:revive
+type Data struct {
+	UUID          string         `json:"uuid"`
+	Name          string         `json:"name"`
+	Comment       string         `json:"comment"`
+	Disabled      bool           `json:"disabled"`
+	Running       bool           `json:"running"`
+	MacAddress    string         `json:"macAddress"`
+	MTU           int            `json:"mtu"`
+	Protocol      string         `json:"protocol"` // "none", "stp", "rstp", "mstp"
+	Priority      int            `json:"priority"`
+	VlanFiltering bool           `json:"vlanFiltering"`
+	PVID          int            `json:"pvid"`
+	Ports         []*PortData    `json:"ports"`
+	Vlans         []*VlanData    `json:"vlans"`
+	IPAddresses   []string       `json:"ipAddresses"`
+	StpStatus     *StpStatusData `json:"stpStatus"`
 }
 
-// BridgePortData represents a bridge port configuration.
-type BridgePortData struct {
-	UUID             string
-	BridgeID         string
-	InterfaceID      string
-	InterfaceName    string
-	PVID             int
-	FrameTypes       string
-	IngressFiltering bool
-	TaggedVlans      []int
-	UntaggedVlans    []int
-	Role             string
-	State            string
-	PathCost         int
-	Edge             bool
+// PortData represents a bridge port configuration. //nolint:revive
+type PortData struct {
+	UUID             string `json:"uuid"`
+	BridgeID         string `json:"bridgeId"`
+	InterfaceID      string `json:"interfaceId"`
+	InterfaceName    string `json:"interfaceName"`
+	PVID             int    `json:"pvid"`
+	FrameTypes       string `json:"frameTypes"`
+	IngressFiltering bool   `json:"ingressFiltering"`
+	TaggedVlans      []int  `json:"taggedVlans"`
+	UntaggedVlans    []int  `json:"untaggedVlans"`
+	Role             string `json:"role"`
+	State            string `json:"state"`
+	PathCost         int    `json:"pathCost"`
+	Edge             bool   `json:"edge"`
 }
 
-// BridgeVlanData represents a VLAN entry on a bridge.
-type BridgeVlanData struct {
-	UUID            string
-	BridgeID        string
-	VlanID          int
-	TaggedPortIDs   []string
-	UntaggedPortIDs []string
+// VlanData represents a VLAN entry on a bridge. //nolint:revive
+type VlanData struct {
+	UUID            string   `json:"uuid"`
+	BridgeID        string   `json:"bridgeId"`
+	VlanID          int      `json:"vlanId"`
+	TaggedPortIDs   []string `json:"taggedPortIds"`
+	UntaggedPortIDs []string `json:"untaggedPortIds"`
 }
 
-// BridgeStpStatusData represents STP status for a bridge.
-type BridgeStpStatusData struct {
-	RootBridge          bool
-	RootBridgeID        string
-	RootPort            string
-	RootPathCost        int
-	TopologyChangeCount int
-	LastTopologyChange  *time.Time
+// StpStatusData represents STP status for a bridge. //nolint:revive
+type StpStatusData struct {
+	RootBridge          bool       `json:"rootBridge"`
+	RootBridgeID        string     `json:"rootBridgeId"`
+	RootPort            string     `json:"rootPort"`
+	RootPathCost        int        `json:"rootPathCost"`
+	TopologyChangeCount int        `json:"topologyChangeCount"`
+	LastTopologyChange  *time.Time `json:"lastTopologyChange"`
 }
 
-// BridgeImpact represents the impact analysis for deleting a bridge.
-type BridgeImpact struct {
-	PortsToRelease      []string
-	IPAddressesToRemove []string
-	DHCPServersAffected []string
-	RoutesAffected      []string
+// Impact represents the impact analysis for deleting a bridge. //nolint:revive
+type Impact struct {
+	PortsToRelease      []string `json:"portsToRelease"`
+	IPAddressesToRemove []string `json:"ipAddressesToRemove"`
+	DHCPServersAffected []string `json:"dhcpServersAffected"`
+	RoutesAffected      []string `json:"routesAffected"`
 }
 
 // UndoOperation represents a reversible operation.

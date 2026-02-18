@@ -3,9 +3,10 @@
  * @see NAS-4.23 - Implement Clipboard Integration
  */
 
+import { CopyableValue } from './CopyableValue';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { CopyableValue } from './CopyableValue';
 
 const meta: Meta<typeof CopyableValue> = {
   title: 'Patterns/Clipboard/CopyableValue',

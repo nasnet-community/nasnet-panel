@@ -5,10 +5,14 @@
  */
 
 import * as React from 'react';
+
 import { ShieldAlert, AlertCircle, ArrowUp, CheckCircle, Info, ExternalLink } from 'lucide-react';
+
 import { cn, Button, Badge, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@nasnet/ui/primitives';
+
 import { UpdateProgressBar } from './UpdateProgressBar';
 import { useUpdateIndicator } from './useUpdateIndicator';
+
 import type { UpdateIndicatorProps } from './types';
 
 /**

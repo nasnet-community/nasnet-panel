@@ -7,6 +7,7 @@
  */
 
 import type { FirewallLogEntry } from '@nasnet/core/types';
+
 import type { UseFirewallLogViewerReturn } from './use-firewall-log-viewer';
 
 /**

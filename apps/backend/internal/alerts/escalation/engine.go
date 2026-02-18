@@ -84,7 +84,7 @@ func (e *Engine) Stop(ctx context.Context) error {
 		state.mu.Lock()
 		if state.timer != nil {
 			state.timer.Stop()
-			state.cancelled = true
+			state.canceled = true
 		}
 		state.mu.Unlock()
 		delete(e.escalations, alertID)
@@ -122,12 +122,12 @@ func (e *Engine) TrackAlert(ctx context.Context, alertEnt *ent.Alert, rule *ent.
 		return nil
 	}
 
-	if err := ValidateConfig(config); err != nil {
+	if innerErr := ValidateConfig(config); innerErr != nil {
 		e.log.Warnw("invalid escalation config, not tracking",
 			"alert_id", alertEnt.ID,
 			"rule_id", rule.ID,
-			"error", err)
-		return fmt.Errorf("invalid escalation config: %w", err)
+			"error", innerErr)
+		return fmt.Errorf("invalid escalation config: %w", innerErr)
 	}
 
 	firstDelay := time.Duration(config.EscalationDelaySeconds) * time.Second
@@ -155,7 +155,7 @@ func (e *Engine) TrackAlert(ctx context.Context, alertEnt *ent.Alert, rule *ent.
 		ruleID:       rule.ID,
 		config:       config,
 		currentLevel: 0,
-		cancelled:    false,
+		canceled:     false,
 	}
 
 	state.timer = time.AfterFunc(firstDelay, func() {
@@ -176,7 +176,7 @@ func (e *Engine) TrackAlert(ctx context.Context, alertEnt *ent.Alert, rule *ent.
 }
 
 // CancelEscalation stops escalation for an alert (called when acknowledged).
-func (e *Engine) CancelEscalation(ctx context.Context, alertID string, reason string) error {
+func (e *Engine) CancelEscalation(ctx context.Context, alertID, reason string) error {
 	e.mu.RLock()
 	state, exists := e.escalations[alertID]
 	e.mu.RUnlock()
@@ -189,40 +189,41 @@ func (e *Engine) CancelEscalation(ctx context.Context, alertID string, reason st
 	escalationID := state.escalationID
 	if state.timer != nil {
 		state.timer.Stop()
-		state.cancelled = true
+		state.canceled = true
 	}
 	state.mu.Unlock()
 
 	now := time.Now()
-	err := e.db.AlertEscalation.UpdateOneID(escalationID).
+	if err := e.db.AlertEscalation.UpdateOneID(escalationID).
 		SetStatus(alertescalation.StatusRESOLVED).
 		SetResolvedAt(now).
 		SetResolvedBy(reason).
 		ClearNextEscalationAt().
-		Exec(ctx)
-
-	if err != nil {
+		Exec(ctx); err != nil {
 		e.log.Errorw("failed to update escalation status to resolved",
 			"escalation_id", escalationID,
 			"error", err)
+		return fmt.Errorf("failed to update escalation: %w", err)
 	}
 
 	e.mu.Lock()
 	delete(e.escalations, alertID)
 	e.mu.Unlock()
 
-	e.log.Infow("escalation cancelled",
+	e.log.Infow("escalation canceled",
 		"alert_id", alertID,
 		"escalation_id", escalationID,
 		"reason", reason)
 
 	if e.eventBus != nil {
-		_ = e.eventBus.Publish(ctx, map[string]interface{}{
-			"type":          "alert.escalation.cancelled",
+		if err := e.eventBus.Publish(ctx, map[string]interface{}{
+			"type":          "alert.escalation.canceled",
 			"alert_id":      alertID,
 			"escalation_id": escalationID,
 			"reason":        reason,
-		})
+		}); err != nil {
+			e.log.Warnw("failed to publish escalation canceled event", "error", err)
+		}
 	}
 
 	return nil
@@ -243,11 +244,15 @@ func (e *Engine) recoverEscalation(ctx context.Context, esc *ent.AlertEscalation
 			"escalation_id", esc.ID,
 			"rule_id", esc.RuleID,
 			"error", err)
-		_ = e.db.AlertEscalation.UpdateOneID(esc.ID).
+		if dbErr := e.db.AlertEscalation.UpdateOneID(esc.ID).
 			SetStatus(alertescalation.StatusRESOLVED).
 			SetResolvedAt(now).
 			SetResolvedBy("invalid escalation config").
-			Exec(ctx)
+			Exec(ctx); dbErr != nil {
+			e.log.Errorw("failed to update escalation status after config parse error",
+				"escalation_id", esc.ID,
+				"error", dbErr)
+		}
 		return
 	}
 
@@ -257,30 +262,34 @@ func (e *Engine) recoverEscalation(ctx context.Context, esc *ent.AlertEscalation
 		ruleID:       esc.RuleID,
 		config:       config,
 		currentLevel: esc.CurrentLevel,
-		cancelled:    false,
+		canceled:     false,
 	}
 
 	var delay time.Duration
-	if esc.NextEscalationAt != nil {
-		remaining := esc.NextEscalationAt.Sub(now)
-		if remaining <= 0 {
-			e.log.Infow("escalation past due, triggering immediately",
-				"escalation_id", esc.ID,
-				"alert_id", esc.AlertID,
-				"overdue_seconds", int(-remaining.Seconds()))
-			delay = 0
-		} else {
-			delay = remaining
-		}
-	} else {
-		e.log.Warnw("escalation has no next_escalation_at, cancelling",
+	if esc.NextEscalationAt == nil {
+		e.log.Warnw("escalation has no next_escalation_at, canceling",
 			"escalation_id", esc.ID)
-		_ = e.db.AlertEscalation.UpdateOneID(esc.ID).
+		if dbErr := e.db.AlertEscalation.UpdateOneID(esc.ID).
 			SetStatus(alertescalation.StatusRESOLVED).
 			SetResolvedAt(now).
 			SetResolvedBy("missing next_escalation_at").
-			Exec(ctx)
+			Exec(ctx); dbErr != nil {
+			e.log.Errorw("failed to update escalation status for missing next_escalation_at",
+				"escalation_id", esc.ID,
+				"error", dbErr)
+		}
 		return
+	}
+
+	remaining := esc.NextEscalationAt.Sub(now)
+	if remaining <= 0 {
+		e.log.Infow("escalation past due, triggering immediately",
+			"escalation_id", esc.ID,
+			"alert_id", esc.AlertID,
+			"overdue_seconds", int(-remaining.Seconds()))
+		delay = 0
+	} else {
+		delay = remaining
 	}
 
 	state.timer = time.AfterFunc(delay, func() {

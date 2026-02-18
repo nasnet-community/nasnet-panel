@@ -4,8 +4,9 @@
  * @see NAS-4.17: Implement Accessibility (a11y) Foundation
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import {
   A11yProvider,
   useA11y,

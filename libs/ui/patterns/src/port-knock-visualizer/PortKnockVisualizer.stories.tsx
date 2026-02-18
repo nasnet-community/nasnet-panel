@@ -5,8 +5,9 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 9
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { PortKnockVisualizer } from './PortKnockVisualizer';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof PortKnockVisualizer> = {
   title: 'Patterns/Port Knocking/PortKnockVisualizer',

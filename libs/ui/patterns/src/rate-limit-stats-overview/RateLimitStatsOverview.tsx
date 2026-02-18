@@ -8,8 +8,10 @@
  */
 
 import { usePlatform } from '@nasnet/ui/layouts';
+
 import { RateLimitStatsOverviewDesktop } from './RateLimitStatsOverviewDesktop';
 import { RateLimitStatsOverviewMobile } from './RateLimitStatsOverviewMobile';
+
 import type { RateLimitStatsOverviewProps } from './types';
 
 /**

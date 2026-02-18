@@ -15,8 +15,9 @@
  */
 
 import { useMemo, useCallback, useEffect, useState } from 'react';
+
 import { useMachine } from '@xstate/react';
-import { createWizardMachine } from '../wizardMachine';
+
 import {
   persistMachineState,
   restoreMachineState,
@@ -25,6 +26,8 @@ import {
   formatSessionAge,
   getSessionAge,
 } from '../persistence';
+import { createWizardMachine } from '../wizardMachine';
+
 import type { WizardConfig, WizardContext } from '../types';
 
 // ===== Hook Return Type =====

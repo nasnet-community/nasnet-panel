@@ -78,7 +78,7 @@ func (s *Service) loadBuiltInTemplates() error {
 }
 
 // GetTemplates returns all templates, optionally filtered by category.
-func (s *Service) GetTemplates(ctx context.Context, category *AlertRuleTemplateCategory) ([]*AlertRuleTemplate, error) {
+func (s *Service) GetTemplates(_ context.Context, category *AlertRuleTemplateCategory) ([]*AlertRuleTemplate, error) {
 	templates := make([]*AlertRuleTemplate, 0, len(s.builtInTemplates))
 
 	for _, template := range s.builtInTemplates {
@@ -92,7 +92,7 @@ func (s *Service) GetTemplates(ctx context.Context, category *AlertRuleTemplateC
 }
 
 // GetTemplateByID retrieves a template by its ID.
-func (s *Service) GetTemplateByID(ctx context.Context, id string) (*AlertRuleTemplate, error) {
+func (s *Service) GetTemplateByID(_ context.Context, id string) (*AlertRuleTemplate, error) {
 	template, exists := s.builtInTemplates[id]
 	if exists {
 		return template, nil
@@ -132,6 +132,7 @@ func (s *Service) ApplyTemplate(
 	variables map[string]interface{},
 	customizations services.CreateAlertRuleInput,
 ) (*ent.AlertRule, error) {
+
 	template, err := s.GetTemplateByID(ctx, templateID)
 	if err != nil {
 		return nil, err
@@ -194,7 +195,7 @@ func (s *Service) ApplyTemplate(
 }
 
 // SaveCustomTemplate saves a custom template.
-func (s *Service) SaveCustomTemplate(ctx context.Context, template *AlertRuleTemplate) (*AlertRuleTemplate, error) {
+func (s *Service) SaveCustomTemplate(_ context.Context, template *AlertRuleTemplate) (*AlertRuleTemplate, error) {
 	now := time.Now()
 	template.CreatedAt = &now
 	template.UpdatedAt = &now
@@ -205,7 +206,7 @@ func (s *Service) SaveCustomTemplate(ctx context.Context, template *AlertRuleTem
 }
 
 // DeleteCustomTemplate deletes a custom template.
-func (s *Service) DeleteCustomTemplate(ctx context.Context, id string) error {
+func (s *Service) DeleteCustomTemplate(_ context.Context, id string) error {
 	if _, exists := s.builtInTemplates[id]; exists {
 		return fmt.Errorf("cannot delete built-in template: %s", id)
 	}
@@ -268,8 +269,10 @@ func (s *Service) validateVariables(template *AlertRuleTemplate, variables map[s
 		}
 
 		switch varDef.Type {
-		case VarTypeInteger, VarTypeDuration, VarTypePercentage:
-			s.validateNumericVar(&info, varDef, value)
+		case VarTypeInteger, VarTypeDuration, VarTypePercentage, VarTypeString:
+			if varDef.Type != VarTypeString {
+				s.validateNumericVar(&info, varDef, value)
+			}
 		}
 	}
 
@@ -336,9 +339,9 @@ func (s *Service) resolveConditions(conditions []TemplateCondition, variables ma
 			finalValue = intVal
 		} else if floatVal, err := strconv.ParseFloat(resolvedValue, 64); err == nil {
 			finalValue = floatVal
-		} else if strings.ToLower(resolvedValue) == "true" {
+		} else if strings.EqualFold(resolvedValue, "true") {
 			finalValue = true
-		} else if strings.ToLower(resolvedValue) == "false" {
+		} else if strings.EqualFold(resolvedValue, "false") {
 			finalValue = false
 		}
 

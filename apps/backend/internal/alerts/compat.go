@@ -13,10 +13,11 @@ import (
 	"backend/internal/alerts/digest"
 	"backend/internal/alerts/escalation"
 	"backend/internal/alerts/throttle"
-	"backend/internal/events"
 	"backend/internal/features"
 	"backend/internal/notifications"
 	"backend/internal/services"
+
+	"backend/internal/events"
 )
 
 // =============================================================================
@@ -126,8 +127,8 @@ type EscalationEngine = escalation.Engine
 
 // --- digest package aliases ---
 
-type DigestConfig = digest.DigestConfig
-type DigestPayload = digest.DigestPayload
+type DigestConfig = digest.Config
+type DigestPayload = digest.Payload
 type DigestService = digest.Service
 type DigestScheduler = digest.Scheduler
 type Alert = digest.Alert
@@ -263,7 +264,7 @@ func NewServiceAlertBridge(cfg ServiceAlertBridgeConfig) *bridge.ServiceAlertBri
 		}
 	}
 
-	return bridge.NewServiceAlertBridge(bridge.Config{
+	return bridge.NewServiceAlertBridge(&bridge.Config{
 		DB:               cfg.DB,
 		EventBus:         cfg.EventBus,
 		RateLimiter:      cfg.RateLimiter,
@@ -303,7 +304,7 @@ func NewAlertQueue() *AlertQueue {
 }
 
 // Enqueue adds an alert to the queue in a thread-safe manner.
-func (aq *AlertQueue) Enqueue(alert QueuedAlert) {
+func (aq *AlertQueue) Enqueue(alert *QueuedAlert) {
 	aq.mu.Lock()
 	defer aq.mu.Unlock()
 
@@ -311,7 +312,7 @@ func (aq *AlertQueue) Enqueue(alert QueuedAlert) {
 		aq.alerts[alert.DeviceID] = make([]QueuedAlert, 0, 10)
 	}
 
-	aq.alerts[alert.DeviceID] = append(aq.alerts[alert.DeviceID], alert)
+	aq.alerts[alert.DeviceID] = append(aq.alerts[alert.DeviceID], *alert)
 }
 
 // DequeueAll retrieves and clears all queued alerts atomically.

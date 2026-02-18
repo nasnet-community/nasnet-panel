@@ -9,14 +9,15 @@
  */
 
 import { render } from '@testing-library/react';
-import { axe } from 'vitest-axe';
 import { describe, it, expect } from 'vitest';
+import { axe } from 'vitest-axe';
 
-import { DeviceListItemMobile } from './device-list-item-mobile';
-import { DeviceListItemTablet } from './device-list-item-tablet';
-import { DeviceListItemDesktop } from './device-list-item-desktop';
 import { DeviceType } from '@nasnet/core/types';
 import type { ConnectedDeviceEnriched } from '@nasnet/core/types';
+
+import { DeviceListItemDesktop } from './device-list-item-desktop';
+import { DeviceListItemMobile } from './device-list-item-mobile';
+import { DeviceListItemTablet } from './device-list-item-tablet';
 
 // Mock device factory
 const createMockDevice = (

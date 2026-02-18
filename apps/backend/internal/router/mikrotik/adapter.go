@@ -11,6 +11,8 @@ import (
 // MikroTikAdapter wraps a RouterPort to provide MikroTik-specific operations.
 // It converts between the generic RouterPort interface and MikroTik-specific
 // data formats used by feature implementations.
+//
+//nolint:revive // type name is appropriate despite stutter
 type MikroTikAdapter struct {
 	port router.RouterPort
 }
@@ -30,7 +32,7 @@ func (a *MikroTikAdapter) Execute(ctx context.Context, cmd router.Command) ([]ma
 	}
 
 	if !result.Success {
-		return nil, fmt.Errorf("command failed: %v", result.Error)
+		return nil, fmt.Errorf("command failed: %w", result.Error)
 	}
 
 	// Convert []map[string]string to []map[string]interface{}

@@ -4,8 +4,10 @@
  */
 
 import { useMemo } from 'react';
-import type { WirelessInterface, WirelessClient } from '@nasnet/core/types';
+
 import { Wifi, Users, Signal, Radio } from 'lucide-react';
+
+import type { WirelessInterface, WirelessClient } from '@nasnet/core/types';
 
 interface WifiStatusHeroProps {
   interfaces: WirelessInterface[];

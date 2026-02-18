@@ -3,6 +3,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -40,6 +41,11 @@ type Resource interface {
 	IsResource()
 }
 
+// Union type for storage mount/unmount events.
+type StorageMountEvent interface {
+	IsStorageMountEvent()
+}
+
 type AddBridgePortInput struct {
 	InterfaceID      string                         `json:"interfaceId"`
 	Pvid             graphql.Omittable[*int]        `json:"pvid,omitempty"`
@@ -54,6 +60,15 @@ type AddChangeSetItemPayload struct {
 	ItemID *string `json:"itemId,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// AddDependencyInput contains parameters for creating a dependency relationship.
+type AddDependencyInput struct {
+	FromInstanceID       string         `json:"fromInstanceId"`
+	ToInstanceID         string         `json:"toInstanceId"`
+	DependencyType       DependencyType `json:"dependencyType"`
+	AutoStart            bool           `json:"autoStart"`
+	HealthTimeoutSeconds int            `json:"healthTimeoutSeconds"`
 }
 
 // Input for manually adding a new router with full credentials and protocol preference.
@@ -182,7 +197,7 @@ type Alert struct {
 	// Detailed alert message
 	Message string `json:"message"`
 	// Event data and context information
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 	// Device ID that triggered this alert
 	DeviceID *string `json:"deviceId,omitempty"`
 	// When alert was triggered
@@ -192,7 +207,7 @@ type Alert struct {
 	// User who acknowledged the alert
 	AcknowledgedBy *string `json:"acknowledgedBy,omitempty"`
 	// Delivery status per channel
-	DeliveryStatus map[string]interface{} `json:"deliveryStatus,omitempty"`
+	DeliveryStatus map[string]any `json:"deliveryStatus,omitempty"`
 	// Escalation tracking for this alert (NAS-18.9)
 	Escalation *AlertEscalation `json:"escalation,omitempty"`
 	// Number of alerts suppressed by throttling (if this alert is part of a throttle group)
@@ -476,7 +491,7 @@ type AlertTemplate struct {
 	// Tags for categorization
 	Tags []string `json:"tags"`
 	// Channel-specific metadata
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]any `json:"metadata,omitempty"`
 	// Record creation timestamp
 	CreatedAt time.Time `json:"createdAt"`
 	// Last update timestamp
@@ -516,7 +531,7 @@ type ApplyAlertTemplateInput struct {
 	// Template ID to apply
 	TemplateID string `json:"templateId"`
 	// Variables for template substitution
-	Variables map[string]interface{} `json:"variables"`
+	Variables map[string]any `json:"variables"`
 	// Alert rule configuration
 	RuleConfig *CreateAlertRuleInput `json:"ruleConfig"`
 }
@@ -528,6 +543,18 @@ type ApplyChangeSetPayload struct {
 	Status ChangeSetStatus `json:"status"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Result of applying configuration
+type ApplyConfigPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Updated service instance (if successful)
+	Instance *ServiceInstance `json:"instance,omitempty"`
+	// Error messages (if failed)
+	Errors []string `json:"errors"`
+	// Path to generated config file
+	ConfigPath *string `json:"configPath,omitempty"`
 }
 
 // Result of applying a fix
@@ -551,11 +578,68 @@ type ApplyResourcePayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for applying service configuration
+type ApplyServiceConfigInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Service instance ID
+	InstanceID string `json:"instanceID"`
+	// Configuration to apply (as JSON)
+	Config map[string]any `json:"config"`
+}
+
+// Input for applying a validated service import.
+// Actually creates/updates the service instance.
+type ApplyServiceImportInput struct {
+	// Router ID to import into
+	RouterID string `json:"routerID"`
+	// Service export package (JSON)
+	Package map[string]any `json:"package"`
+	// Conflict resolution strategy
+	ConflictResolution ConflictResolution `json:"conflictResolution"`
+	// User-provided values for redacted fields
+	RedactedFieldValues map[string]any `json:"redactedFieldValues"`
+	// Device MAC addresses to filter routing rules (optional)
+	DeviceFilter graphql.Omittable[[]string] `json:"deviceFilter,omitempty"`
+}
+
+// Payload for apply service import mutation.
+type ApplyServiceImportPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Created or updated service instance (null if failed)
+	Instance *ServiceInstance `json:"instance,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 type ArchiveResourcePayload struct {
 	// Whether archive was successful
 	Success bool `json:"success"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for assigning device routing.
+type AssignDeviceRoutingInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Device ID to route
+	DeviceID string `json:"deviceID"`
+	// Device MAC address
+	MacAddress string `json:"macAddress"`
+	// Device IP address (optional)
+	DeviceIP graphql.Omittable[*string] `json:"deviceIP,omitempty"`
+	// Device hostname (optional)
+	DeviceName graphql.Omittable[*string] `json:"deviceName,omitempty"`
+	// Service instance ID to route through
+	InstanceID string `json:"instanceID"`
+	// Virtual interface ID to route through
+	InterfaceID string `json:"interfaceID"`
+	// Routing mark
+	RoutingMark string `json:"routingMark"`
+	// Routing mode
+	RoutingMode RoutingMode `json:"routingMode"`
 }
 
 // Authentication test status
@@ -568,6 +652,51 @@ type AuthStatus struct {
 	Error *string `json:"error,omitempty"`
 	// Error code mapped to ErrorCodes (A5xx)
 	ErrorCode *string `json:"errorCode,omitempty"`
+}
+
+// Available service that can be installed from the Feature Marketplace.
+// Represents a downloadable network service with metadata from the manifest.
+type AvailableService struct {
+	// Unique service identifier (e.g., 'tor', 'sing-box', 'xray')
+	ID string `json:"id"`
+	// Display name
+	Name string `json:"name"`
+	// Service description
+	Description string `json:"description"`
+	// Service version
+	Version string `json:"version"`
+	// Service category (VPN, Privacy, DNS, Messaging)
+	Category string `json:"category"`
+	// Service author
+	Author string `json:"author"`
+	// License
+	License string `json:"license"`
+	// Homepage URL
+	Homepage *string `json:"homepage,omitempty"`
+	// Icon filename or URL
+	Icon *string `json:"icon,omitempty"`
+	// Tags for filtering and search
+	Tags []string `json:"tags"`
+	// Supported architectures
+	Architectures []string `json:"architectures"`
+	// Minimum RouterOS version required
+	MinRouterOSVersion *string `json:"minRouterOSVersion,omitempty"`
+	// Required packages
+	RequiredPackages []string `json:"requiredPackages"`
+	// Required ports
+	RequiredPorts []int `json:"requiredPorts"`
+	// Required memory in MB
+	RequiredMemoryMb int `json:"requiredMemoryMB"`
+	// Required disk space in MB
+	RequiredDiskMb int `json:"requiredDiskMB"`
+	// Docker image name
+	DockerImage string `json:"dockerImage"`
+	// Docker image tag
+	DockerTag string `json:"dockerTag"`
+	// Default configuration (JSON)
+	DefaultConfig map[string]any `json:"defaultConfig,omitempty"`
+	// Configuration schema (JSON Schema)
+	ConfigSchema map[string]any `json:"configSchema,omitempty"`
 }
 
 // A bandwidth data point
@@ -602,6 +731,49 @@ type BatchInterfacePayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Binary verification information for a service instance.
+// Contains hashes and verification status for security auditing.
+type BinaryVerification struct {
+	// Whether binary verification is enabled for this instance
+	Enabled bool `json:"enabled"`
+	// SHA256 hash of the original downloaded archive (from checksums.txt)
+	ArchiveHash *string `json:"archiveHash,omitempty"`
+	// SHA256 hash of the extracted binary (computed at runtime)
+	BinaryHash *string `json:"binaryHash,omitempty"`
+	// Whether GPG signature verification was performed and passed
+	GpgVerified bool `json:"gpgVerified"`
+	// GPG key ID that signed the checksums file
+	GpgKeyID *string `json:"gpgKeyID,omitempty"`
+	// URL where checksums.txt was fetched from
+	ChecksumsURL *string `json:"checksumsURL,omitempty"`
+	// Timestamp when binary was last verified
+	VerifiedAt *time.Time `json:"verifiedAt,omitempty"`
+	// Verification status (valid, invalid, pending, not_verified)
+	Status VerificationStatus `json:"status"`
+}
+
+// BootSequenceEvent represents a real-time boot sequence event.
+type BootSequenceEvent struct {
+	ID           string    `json:"id"`
+	Type         string    `json:"type"`
+	Timestamp    time.Time `json:"timestamp"`
+	Layer        *int      `json:"layer,omitempty"`
+	InstanceIds  []string  `json:"instanceIds"`
+	SuccessCount *int      `json:"successCount,omitempty"`
+	FailureCount *int      `json:"failureCount,omitempty"`
+	ErrorMessage *string   `json:"errorMessage,omitempty"`
+}
+
+// BootSequenceProgress represents the current state of the boot sequence.
+type BootSequenceProgress struct {
+	InProgress         bool     `json:"inProgress"`
+	CurrentLayer       *int     `json:"currentLayer,omitempty"`
+	TotalLayers        *int     `json:"totalLayers,omitempty"`
+	StartedInstances   []string `json:"startedInstances"`
+	FailedInstances    []string `json:"failedInstances"`
+	RemainingInstances []string `json:"remainingInstances"`
+}
+
 type Bridge struct {
 	ID                   string           `json:"id"`
 	Name                 string           `json:"name"`
@@ -629,7 +801,7 @@ type BridgeMutationResult struct {
 	Bridge  *Bridge          `json:"bridge,omitempty"`
 	Errors  []*MutationError `json:"errors,omitempty"`
 	// Previous state for undo functionality
-	PreviousState map[string]interface{} `json:"previousState,omitempty"`
+	PreviousState map[string]any `json:"previousState,omitempty"`
 	// Unique operation ID for undo within 10-second window
 	OperationID *string `json:"operationId,omitempty"`
 }
@@ -652,11 +824,11 @@ type BridgePort struct {
 func (BridgePort) IsNode() {}
 
 type BridgePortMutationResult struct {
-	Success       bool                   `json:"success"`
-	Port          *BridgePort            `json:"port,omitempty"`
-	Errors        []*MutationError       `json:"errors,omitempty"`
-	PreviousState map[string]interface{} `json:"previousState,omitempty"`
-	OperationID   *string                `json:"operationId,omitempty"`
+	Success       bool             `json:"success"`
+	Port          *BridgePort      `json:"port,omitempty"`
+	Errors        []*MutationError `json:"errors,omitempty"`
+	PreviousState map[string]any   `json:"previousState,omitempty"`
+	OperationID   *string          `json:"operationId,omitempty"`
 }
 
 // VLAN configuration for a bridge port (trunk/access port setup)
@@ -693,7 +865,7 @@ type BridgeResource struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any         `json:"configuration"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -712,6 +884,19 @@ type BridgeResource struct {
 func (BridgeResource) IsResource() {}
 
 func (BridgeResource) IsNode() {}
+
+// Bridge status for service instance network setup.
+// Combines interface and gateway status for health monitoring.
+type BridgeStatus struct {
+	// The virtual interface
+	Interface *VirtualInterface `json:"interface,omitempty"`
+	// Whether the interface is ready for traffic
+	IsReady bool `json:"isReady"`
+	// Whether the gateway (if any) is running
+	GatewayRunning bool `json:"gatewayRunning"`
+	// Any errors encountered
+	Errors []string `json:"errors,omitempty"`
+}
 
 type BridgeStpStatus struct {
 	RootBridge          bool       `json:"rootBridge"`
@@ -755,6 +940,14 @@ type BulkAlertPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for bulk device routing assignment.
+type BulkAssignRoutingInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// List of device routing assignments
+	Assignments []*SingleDeviceRoutingInput `json:"assignments"`
+}
+
 // Details of a single failed entry in bulk import.
 type BulkCreateError struct {
 	// Index in the input array
@@ -774,6 +967,28 @@ type BulkCreateResult struct {
 	FailedCount int `json:"failedCount"`
 	// Details of failed entries
 	Errors []*BulkCreateError `json:"errors"`
+}
+
+// Failed routing assignment in bulk operation.
+type BulkRoutingFailure struct {
+	// Device ID that failed
+	DeviceID string `json:"deviceID"`
+	// Device MAC address
+	MacAddress string `json:"macAddress"`
+	// Error message
+	ErrorMessage string `json:"errorMessage"`
+}
+
+// Result of bulk routing assignment operation.
+type BulkRoutingResult struct {
+	// Number of successful assignments
+	SuccessCount int `json:"successCount"`
+	// Number of failed assignments
+	FailureCount int `json:"failureCount"`
+	// Successfully assigned routings
+	Successes []*DeviceRouting `json:"successes"`
+	// Failed assignments with error messages
+	Failures []*BulkRoutingFailure `json:"failures"`
 }
 
 // CPU utilization metrics
@@ -814,6 +1029,34 @@ type CapabilityEntry struct {
 	Description *string `json:"description,omitempty"`
 	// Actionable message if feature unavailable
 	Guidance *string `json:"guidance,omitempty"`
+}
+
+// A single hop in a multi-hop routing chain, referencing one VirtualInterface.
+type ChainHop struct {
+	// Hop ID (ULID)
+	ID string `json:"id"`
+	// 1-based position in the chain (1 = first hop, 2 = second, etc.)
+	Order int `json:"order"`
+	// Virtual interface for this hop
+	Interface *VirtualInterface `json:"interface"`
+	// MikroTik routing mark (e.g., chain-abc123-hop1)
+	RoutingMark string `json:"routingMark"`
+	// Latency for this hop in milliseconds (-1 if unreachable)
+	LatencyMs *float64 `json:"latencyMs,omitempty"`
+	// Whether this hop is currently healthy
+	Healthy bool `json:"healthy"`
+	// Whether kill switch is active for this hop
+	KillSwitchActive bool `json:"killSwitchActive"`
+}
+
+func (ChainHop) IsNode() {}
+
+// Input for a single hop in a chain.
+type ChainHopInput struct {
+	// Virtual interface ID for this hop
+	InterfaceID string `json:"interfaceId"`
+	// 1-based position in the chain
+	Order int `json:"order"`
 }
 
 // An entry in the change log
@@ -911,9 +1154,9 @@ type ChangeSetItem struct {
 	// Operation to perform
 	Operation ChangeOperation `json:"operation"`
 	// New/updated configuration
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any `json:"configuration"`
 	// Previous state (for rollback)
-	PreviousState map[string]interface{} `json:"previousState,omitempty"`
+	PreviousState map[string]any `json:"previousState,omitempty"`
 	// Item IDs this depends on
 	Dependencies []string `json:"dependencies"`
 	// Current status
@@ -943,9 +1186,9 @@ type ChangeSetItemInput struct {
 	// Operation to perform
 	Operation ChangeOperation `json:"operation"`
 	// Configuration
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any `json:"configuration"`
 	// Previous state (for rollback on update/delete)
-	PreviousState graphql.Omittable[map[string]interface{}] `json:"previousState,omitempty"`
+	PreviousState graphql.Omittable[map[string]any] `json:"previousState,omitempty"`
 	// Item IDs this depends on
 	Dependencies graphql.Omittable[[]string] `json:"dependencies,omitempty"`
 }
@@ -1044,6 +1287,16 @@ type ChannelConfigPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for checking port availability.
+type CheckPortAvailabilityInput struct {
+	// Router ID to check
+	RouterID string `json:"routerID"`
+	// Port number to check
+	Port int `json:"port"`
+	// Protocol to check
+	Protocol PortProtocol `json:"protocol"`
+}
+
 // Event emitted when circuit breaker state changes
 type CircuitBreakerEvent struct {
 	// Router ID
@@ -1074,6 +1327,12 @@ type CircuitBreakerStatus struct {
 	LastFailureAt *time.Time `json:"lastFailureAt,omitempty"`
 	// When the last success occurred
 	LastSuccessAt *time.Time `json:"lastSuccessAt,omitempty"`
+}
+
+// Input for cleaning up orphaned ports.
+type CleanupOrphanedPortsInput struct {
+	// Router ID to cleanup (if not provided, cleans all routers)
+	RouterID graphql.Omittable[*string] `json:"routerID,omitempty"`
 }
 
 // A composite resource with all related sub-resources
@@ -1112,6 +1371,90 @@ type ConfigProgress struct {
 	TotalSteps *int `json:"totalSteps,omitempty"`
 	// Timestamp of this progress update
 	Timestamp time.Time `json:"timestamp"`
+}
+
+// Configuration schema for a service type
+type ConfigSchema struct {
+	// Service type identifier
+	ServiceType string `json:"serviceType"`
+	// Schema version
+	Version string `json:"version"`
+	// Configuration fields
+	Fields []*ConfigSchemaField `json:"fields"`
+}
+
+// Configuration field definition for a service
+type ConfigSchemaField struct {
+	// Field name (internal identifier)
+	Name string `json:"name"`
+	// Field label (display name)
+	Label string `json:"label"`
+	// Field type for UI rendering
+	Type ConfigFieldType `json:"type"`
+	// Field description/help text
+	Description *string `json:"description,omitempty"`
+	// Whether the field is required
+	Required bool `json:"required"`
+	// Default value (as JSON)
+	DefaultValue map[string]any `json:"defaultValue,omitempty"`
+	// Placeholder text
+	Placeholder *string `json:"placeholder,omitempty"`
+	// Minimum value (for NUMBER/PORT types)
+	Min *int `json:"min,omitempty"`
+	// Maximum value (for NUMBER/PORT types)
+	Max *int `json:"max,omitempty"`
+	// Options for SELECT/MULTI_SELECT types
+	Options []string `json:"options,omitempty"`
+	// Whether the field contains sensitive data
+	Sensitive bool `json:"sensitive"`
+	// Validation function name
+	ValidateFunc *string `json:"validateFunc,omitempty"`
+}
+
+// Validation error for a configuration field
+type ConfigValidationError struct {
+	// Field name
+	Field string `json:"field"`
+	// Error message
+	Message string `json:"message"`
+}
+
+// Service configuration validation result
+type ConfigValidationResult struct {
+	// Whether the configuration is valid
+	Valid bool `json:"valid"`
+	// List of validation errors (empty if valid)
+	Errors []*ConfigValidationError `json:"errors"`
+}
+
+// Input for configuring external storage.
+type ConfigureExternalStorageInput struct {
+	// Absolute path to external storage mount point
+	Path string `json:"path"`
+	// Whether to enable external storage (default: true)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
+// Payload for configureExternalStorage mutation.
+type ConfigureExternalStoragePayload struct {
+	// Storage configuration after update
+	Config *StorageConfig `json:"config,omitempty"`
+	// Storage info for configured path
+	StorageInfo *StorageInfo `json:"storageInfo,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for configuring health check settings
+type ConfigureHealthCheckInput struct {
+	// Instance ID to configure
+	InstanceID string `json:"instanceID"`
+	// Health check interval in seconds (10-300)
+	IntervalSeconds graphql.Omittable[*int] `json:"intervalSeconds,omitempty"`
+	// Consecutive failures before marking unhealthy (1-10)
+	FailureThreshold graphql.Omittable[*int] `json:"failureThreshold,omitempty"`
+	// Whether to enable auto-restart on failure
+	AutoRestart graphql.Omittable[*bool] `json:"autoRestart,omitempty"`
 }
 
 type ConnectRouterPayload struct {
@@ -1373,7 +1716,7 @@ type CreateNotificationChannelConfigInput struct {
 	// Full configuration including sensitive fields
 	// For Pushover: {"userKey": "...", "apiToken": "...", "device": "...", "baseURL": "..."}
 	// For Email: {"host": "...", "port": 587, "from": "...", "username": "...", "password": "...", "tlsMode": "..."}
-	Config map[string]interface{} `json:"config"`
+	Config map[string]any `json:"config"`
 }
 
 // Input for creating a new port mirror configuration
@@ -1399,7 +1742,7 @@ type CreateResourceInput struct {
 	// Resource category
 	Category ResourceCategory `json:"category"`
 	// Initial configuration
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any `json:"configuration"`
 	// User-defined relationships
 	Relationships graphql.Omittable[*ResourceRelationshipsInput] `json:"relationships,omitempty"`
 	// Initial tags
@@ -1438,6 +1781,42 @@ type CreateRouterPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for creating or updating a multi-hop routing chain.
+type CreateRoutingChainInput struct {
+	// Target device identifier
+	DeviceID string `json:"deviceId"`
+	// Device MAC address (required if routing_mode=MAC)
+	DeviceMac graphql.Omittable[*string] `json:"deviceMac,omitempty"`
+	// Device IP address (required if routing_mode=IP)
+	DeviceIP graphql.Omittable[*string] `json:"deviceIp,omitempty"`
+	// Human-readable device name
+	DeviceName graphql.Omittable[*string] `json:"deviceName,omitempty"`
+	// Routing mode (MAC or IP matching)
+	RoutingMode RoutingMode `json:"routingMode"`
+	// Whether to enable kill switch
+	KillSwitchEnabled graphql.Omittable[*bool] `json:"killSwitchEnabled,omitempty"`
+	// Kill switch behavior mode
+	KillSwitchMode graphql.Omittable[*KillSwitchMode] `json:"killSwitchMode,omitempty"`
+	// Ordered list of hops (2-5 hops required)
+	Hops []*ChainHopInput `json:"hops"`
+}
+
+// Input for creating a new routing schedule.
+type CreateScheduleInput struct {
+	// Device routing ID to schedule
+	RoutingID string `json:"routingID"`
+	// Days of week (0=Sunday, 6=Saturday)
+	Days []int `json:"days"`
+	// Start time in HH:MM format (24-hour)
+	StartTime string `json:"startTime"`
+	// End time in HH:MM format (24-hour)
+	EndTime string `json:"endTime"`
+	// IANA timezone identifier
+	Timezone string `json:"timezone"`
+	// Whether schedule is enabled (default: true)
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
 // Input for creating a webhook
 type CreateWebhookInput struct {
 	// Human-readable webhook name
@@ -1457,7 +1836,7 @@ type CreateWebhookInput struct {
 	// Bearer token for Bearer auth
 	BearerToken graphql.Omittable[*string] `json:"bearerToken,omitempty"`
 	// Custom HTTP headers (as JSON object)
-	Headers graphql.Omittable[map[string]interface{}] `json:"headers,omitempty"`
+	Headers graphql.Omittable[map[string]any] `json:"headers,omitempty"`
 	// Template type for webhook payload (default: GENERIC)
 	Template graphql.Omittable[*WebhookTemplate] `json:"template,omitempty"`
 	// Custom template body (required if template is CUSTOM)
@@ -1527,7 +1906,7 @@ type DHCPServerResource struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any         `json:"configuration"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -1576,6 +1955,14 @@ type DeleteChangeSetPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for deleting a service instance.
+type DeleteInstanceInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to delete
+	InstanceID string `json:"instanceID"`
+}
+
 // Delete operation payload
 type DeletePayload struct {
 	// Whether deletion was successful
@@ -1614,6 +2001,29 @@ type DeleteRouterPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// DependencyGraph represents the full dependency graph for visualization.
+type DependencyGraph struct {
+	Nodes []*DependencyGraphNode `json:"nodes"`
+	Edges []*DependencyGraphEdge `json:"edges"`
+}
+
+// DependencyGraphEdge represents a dependency relationship edge in the graph.
+type DependencyGraphEdge struct {
+	FromInstanceID       string         `json:"fromInstanceId"`
+	ToInstanceID         string         `json:"toInstanceId"`
+	DependencyType       DependencyType `json:"dependencyType"`
+	AutoStart            bool           `json:"autoStart"`
+	HealthTimeoutSeconds int            `json:"healthTimeoutSeconds"`
+}
+
+// DependencyGraphNode represents a service instance node in the graph.
+type DependencyGraphNode struct {
+	InstanceID   string `json:"instanceId"`
+	InstanceName string `json:"instanceName"`
+	FeatureID    string `json:"featureId"`
+	Status       string `json:"status"`
+}
+
 // Status of a required dependency
 type DependencyStatus struct {
 	// Dependency resource UUID
@@ -1640,7 +2050,7 @@ type DeploymentState struct {
 	// Version number on router
 	RouterVersion *int `json:"routerVersion,omitempty"`
 	// Router-generated fields (public key, computed values, etc.)
-	GeneratedFields map[string]interface{} `json:"generatedFields,omitempty"`
+	GeneratedFields map[string]any `json:"generatedFields,omitempty"`
 	// Whether deployment matches configuration (no drift)
 	IsInSync bool `json:"isInSync"`
 	// Detected drift from configuration
@@ -1662,6 +2072,119 @@ type Device struct {
 	ID string `json:"id"`
 	// Current resource utilization metrics
 	ResourceMetrics *ResourceMetrics `json:"resourceMetrics"`
+}
+
+// Device routing assignment.
+// Maps a client device to a service instance via Policy-Based Routing (PBR).
+type DeviceRouting struct {
+	// Routing assignment ID (ULID)
+	ID string `json:"id"`
+	// Device identifier
+	DeviceID string `json:"deviceID"`
+	// Device MAC address
+	MacAddress string `json:"macAddress"`
+	// Device IP address (optional)
+	DeviceIP *string `json:"deviceIP,omitempty"`
+	// Device hostname (optional)
+	DeviceName *string `json:"deviceName,omitempty"`
+	// Service instance ID
+	InstanceID string `json:"instanceID"`
+	// Virtual interface ID
+	InterfaceID string `json:"interfaceID"`
+	// Routing mark
+	RoutingMark string `json:"routingMark"`
+	// Routing mode (MAC-based or IP-based)
+	RoutingMode RoutingMode `json:"routingMode"`
+	// Whether the assignment is active
+	Active bool `json:"active"`
+	// RouterOS mangle rule ID (for O(1) removal)
+	MangleRuleID string `json:"mangleRuleID"`
+	// Whether kill switch is enabled for this routing
+	KillSwitchEnabled bool `json:"killSwitchEnabled"`
+	// Kill switch behavior mode
+	KillSwitchMode KillSwitchMode `json:"killSwitchMode"`
+	// Whether kill switch is currently blocking traffic
+	KillSwitchActive bool `json:"killSwitchActive"`
+	// Timestamp when kill switch was last activated
+	KillSwitchActivatedAt *time.Time `json:"killSwitchActivatedAt,omitempty"`
+	// Fallback interface ID when kill_switch_mode=FALLBACK_SERVICE
+	KillSwitchFallbackInterfaceID *string `json:"killSwitchFallbackInterfaceID,omitempty"`
+	// RouterOS filter rule ID for kill switch (for O(1) cleanup)
+	KillSwitchRuleID *string `json:"killSwitchRuleID,omitempty"`
+	// When the assignment was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+	// All schedules for this device routing
+	Schedules []*RoutingSchedule `json:"schedules"`
+	// Whether this routing has any active schedules
+	HasSchedules bool `json:"hasSchedules"`
+}
+
+// Device routing change event for subscriptions.
+type DeviceRoutingEvent struct {
+	// Event ID
+	ID string `json:"id"`
+	// Event type (assigned, removed, updated, kill_switch_activated, kill_switch_deactivated)
+	EventType string `json:"eventType"`
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Device routing (null if removed)
+	Routing *DeviceRouting `json:"routing,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Complete device routing matrix.
+// Provides all data needed for the device-to-service routing UI.
+type DeviceRoutingMatrix struct {
+	// Discovered network devices
+	Devices []*NetworkDevice `json:"devices"`
+	// Active virtual interfaces available for routing
+	Interfaces []*VirtualInterfaceInfo `json:"interfaces"`
+	// Current routing assignments
+	Routings []*DeviceRouting `json:"routings"`
+	// Summary statistics
+	Summary *DeviceRoutingMatrixStats `json:"summary"`
+}
+
+// Summary statistics for device routing matrix.
+type DeviceRoutingMatrixStats struct {
+	// Total discovered devices
+	TotalDevices int `json:"totalDevices"`
+	// Devices with routing assignments
+	RoutedDevices int `json:"routedDevices"`
+	// Devices without routing assignments
+	UnroutedDevices int `json:"unroutedDevices"`
+	// Active virtual interfaces
+	ActiveInterfaces int `json:"activeInterfaces"`
+	// Devices discovered via DHCP
+	DhcpDevices int `json:"dhcpDevices"`
+	// Devices discovered via ARP only
+	ArpOnlyDevices int `json:"arpOnlyDevices"`
+	// Active routing assignments
+	ActiveRoutings int `json:"activeRoutings"`
+}
+
+// Per-device traffic breakdown for a service instance.
+// Shows which devices are consuming bandwidth through this service.
+type DeviceTrafficBreakdown struct {
+	// Device identifier (MAC or IP)
+	DeviceID string `json:"deviceID"`
+	// Device MAC address
+	MacAddress *string `json:"macAddress,omitempty"`
+	// Device IP address
+	IPAddress *string `json:"ipAddress,omitempty"`
+	// Device hostname (if available)
+	DeviceName *string `json:"deviceName,omitempty"`
+	// Bytes uploaded by this device
+	UploadBytes int `json:"uploadBytes"`
+	// Bytes downloaded by this device
+	DownloadBytes int `json:"downloadBytes"`
+	// Total bytes (upload + download)
+	TotalBytes int `json:"totalBytes"`
+	// Percentage of total service traffic
+	PercentOfTotal float64 `json:"percentOfTotal"`
 }
 
 // DHCP client configuration for dynamic WAN IP
@@ -1740,6 +2263,35 @@ type DiagnosticReport struct {
 	RawReport string `json:"rawReport"`
 }
 
+// Result of a single diagnostic test.
+// Represents the outcome of a health check or connectivity test.
+type DiagnosticResult struct {
+	// Result ID (ULID)
+	ID string `json:"id"`
+	// Instance ID this diagnostic belongs to
+	InstanceID string `json:"instanceID"`
+	// Test name (e.g., 'tor_socks5', 'process_health')
+	TestName string `json:"testName"`
+	// Test result status
+	Status DiagnosticStatus `json:"status"`
+	// Short message describing the result
+	Message string `json:"message"`
+	// Detailed information about the test result
+	Details *string `json:"details,omitempty"`
+	// Test execution duration in milliseconds
+	DurationMs int `json:"durationMs"`
+	// ULID for grouping tests run together
+	RunGroupID *string `json:"runGroupID,omitempty"`
+	// Additional test-specific metadata (JSON)
+	Metadata map[string]any `json:"metadata,omitempty"`
+	// Error message if test failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Timestamp when test was executed
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+func (DiagnosticResult) IsNode() {}
+
 // Actionable diagnostic suggestion
 type DiagnosticSuggestion struct {
 	// Severity level of the issue
@@ -1752,6 +2304,45 @@ type DiagnosticSuggestion struct {
 	Action string `json:"action"`
 	// Link to relevant documentation
 	DocsURL *string `json:"docsUrl,omitempty"`
+}
+
+// Complete diagnostic suite for a service type.
+// Defines all available tests for a service.
+type DiagnosticSuite struct {
+	// Service name (e.g., 'tor', 'singbox', 'adguard')
+	ServiceName string `json:"serviceName"`
+	// Available diagnostic tests
+	Tests []*DiagnosticTest `json:"tests"`
+}
+
+// A single diagnostic test definition.
+// Describes a test that can be run against a service.
+type DiagnosticTest struct {
+	// Unique test identifier
+	Name string `json:"name"`
+	// Human-readable description
+	Description string `json:"description"`
+	// Test category (health, connectivity, dns, http, socks5)
+	Category string `json:"category"`
+}
+
+// Real-time diagnostic progress event for subscriptions.
+// Emitted as each test completes during a diagnostic run.
+type DiagnosticsProgress struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Run group ID
+	RunGroupID string `json:"runGroupID"`
+	// Test result that just completed
+	Result *DiagnosticResult `json:"result"`
+	// Progress (0-100)
+	Progress int `json:"progress"`
+	// Completed tests count
+	CompletedTests int `json:"completedTests"`
+	// Total tests count
+	TotalTests int `json:"totalTests"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Email digest configuration (NAS-18.11)
@@ -1959,9 +2550,9 @@ type DriftField struct {
 	// Field path
 	Path string `json:"path"`
 	// Expected value (from configuration)
-	Expected map[string]interface{} `json:"expected,omitempty"`
+	Expected map[string]any `json:"expected,omitempty"`
 	// Actual value (from router)
-	Actual map[string]interface{} `json:"actual,omitempty"`
+	Actual map[string]any `json:"actual,omitempty"`
 }
 
 // Information about configuration drift
@@ -2030,7 +2621,7 @@ type ErrorExtensions struct {
 	// Field path that caused the error (e.g., 'input.listenPort')
 	Field *string `json:"field,omitempty"`
 	// The invalid value (redacted in production for sensitive fields)
-	Value map[string]interface{} `json:"value,omitempty"`
+	Value map[string]any `json:"value,omitempty"`
 	// User-friendly suggestion for fixing the error
 	SuggestedFix *string `json:"suggestedFix,omitempty"`
 	// Link to relevant documentation
@@ -2075,6 +2666,22 @@ type EscalationConfigInput struct {
 	RepeatIntervals graphql.Omittable[[]int] `json:"repeatIntervals,omitempty"`
 }
 
+// Input for exporting services as a template
+type ExportAsTemplateInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance IDs to export
+	InstanceIDs []string `json:"instanceIDs"`
+	// Template name
+	Name string `json:"name"`
+	// Template description
+	Description string `json:"description"`
+	// Template category
+	Category ServiceTemplateCategory `json:"category"`
+	// Template scope
+	Scope TemplateScope `json:"scope"`
+}
+
 // Options for exporting router configuration.
 type ExportConfigInput struct {
 	// Router ID to export configuration from
@@ -2090,10 +2697,34 @@ type ExportConfigPayload struct {
 	// Whether the export was successful
 	Success bool `json:"success"`
 	// Exported configuration data (JSON format)
-	Config map[string]interface{} `json:"config,omitempty"`
+	Config map[string]any `json:"config,omitempty"`
 	// Security warning message about credential handling
 	SecurityWarning *string `json:"securityWarning,omitempty"`
 	// Errors that occurred during export
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for exporting a service configuration.
+type ExportServiceConfigInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to export
+	InstanceID string `json:"instanceID"`
+	// Whether to redact sensitive fields (passwords, API keys, etc.)
+	RedactSecrets bool `json:"redactSecrets"`
+	// Whether to include device routing rules
+	IncludeRoutingRules bool `json:"includeRoutingRules"`
+}
+
+// Payload for export service configuration mutation.
+type ExportServiceConfigPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Exported service package (null if failed)
+	Package *ServiceExportPackage `json:"package,omitempty"`
+	// Download URL for JSON file (15-minute expiry)
+	DownloadURL *string `json:"downloadURL,omitempty"`
+	// Mutation errors
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
@@ -2149,7 +2780,7 @@ type FeatureResource struct {
 	ScopedID          string                 `json:"scopedId"`
 	Type              string                 `json:"type"`
 	Category          ResourceCategory       `json:"category"`
-	Configuration     map[string]interface{} `json:"configuration,omitempty"`
+	Configuration     map[string]any         `json:"configuration,omitempty"`
 	Validation        *ValidationResult      `json:"validation,omitempty"`
 	Deployment        *DeploymentState       `json:"deployment,omitempty"`
 	Runtime           *RuntimeState          `json:"runtime,omitempty"`
@@ -2187,6 +2818,29 @@ type FeatureRuntime struct {
 	CPUUsagePercent *float64 `json:"cpuUsagePercent,omitempty"`
 	// Devices routed through this feature
 	RoutedDevices *int `json:"routedDevices,omitempty"`
+}
+
+// Per-feature storage usage breakdown.
+// Shows how much space each feature is consuming and where data is stored.
+type FeatureStorageUsage struct {
+	// Feature identifier (e.g., 'tor', 'sing-box')
+	FeatureID string `json:"featureId"`
+	// Human-readable feature name
+	FeatureName string `json:"featureName"`
+	// Binary size in bytes (serialized uint64)
+	BinarySize string `json:"binarySize"`
+	// Runtime data size in bytes (serialized uint64)
+	DataSize string `json:"dataSize"`
+	// Config files size in bytes (serialized uint64)
+	ConfigSize string `json:"configSize"`
+	// Log files size in bytes (serialized uint64)
+	LogsSize string `json:"logsSize"`
+	// Total size across all components in bytes (serialized uint64)
+	TotalSize string `json:"totalSize"`
+	// Primary storage location ('flash' or 'external')
+	Location string `json:"location"`
+	// Number of instances of this feature
+	InstanceCount int `json:"instanceCount"`
 }
 
 // Feature support information based on RouterOS version
@@ -2257,7 +2911,7 @@ type FirewallRuleResource struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any         `json:"configuration"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -2383,6 +3037,23 @@ type FlushDNSCacheResult struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Gateway monitoring information for SOCKS-to-TUN gateway instances.
+// Provides visibility into hev-socks5-tunnel processes.
+type GatewayInfo struct {
+	// Current gateway state
+	State GatewayState `json:"state"`
+	// TUN interface name (e.g., tun-tor-usa)
+	TunName *string `json:"tunName,omitempty"`
+	// Process ID of gateway
+	Pid *int `json:"pid,omitempty"`
+	// Uptime duration in seconds
+	Uptime *int `json:"uptime,omitempty"`
+	// Last health check timestamp
+	LastHealthCheck *time.Time `json:"lastHealthCheck,omitempty"`
+	// Error message if in ERROR state
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+}
+
 // Result of checking gateway reachability
 type GatewayReachabilityResult struct {
 	// Whether the gateway is reachable
@@ -2393,6 +3064,36 @@ type GatewayReachabilityResult struct {
 	Interface *string `json:"interface,omitempty"`
 	// Human-readable message about reachability
 	Message string `json:"message"`
+}
+
+// Input for generating a QR code for service config.
+type GenerateConfigQRInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to generate QR code for
+	InstanceID string `json:"instanceID"`
+	// Whether to redact sensitive fields
+	RedactSecrets bool `json:"redactSecrets"`
+	// Whether to include routing rules
+	IncludeRoutingRules bool `json:"includeRoutingRules"`
+	// QR code image size in pixels (default 256)
+	ImageSize graphql.Omittable[*int] `json:"imageSize,omitempty"`
+}
+
+// Payload for generate config QR mutation.
+type GenerateConfigQRPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Base64-encoded PNG image data
+	ImageDataBase64 *string `json:"imageDataBase64,omitempty"`
+	// Download URL for PNG file (15-minute expiry)
+	DownloadURL *string `json:"downloadURL,omitempty"`
+	// QR code data size in bytes (before encoding)
+	DataSize *int `json:"dataSize,omitempty"`
+	// PNG image size in bytes
+	ImageSize *int `json:"imageSize,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
 }
 
 // Hardware information detected from router
@@ -2490,6 +3191,152 @@ type ImpactAnalysis struct {
 	EstimatedApplyTime int `json:"estimatedApplyTime"`
 	// Warnings about potential issues
 	Warnings []string `json:"warnings"`
+}
+
+// Input for importing a service configuration.
+// Performs validation only, does not apply changes.
+type ImportServiceConfigInput struct {
+	// Router ID to import into
+	RouterID string `json:"routerID"`
+	// Service export package (JSON)
+	Package map[string]any `json:"package"`
+	// Conflict resolution strategy (required if conflicts exist)
+	ConflictResolution graphql.Omittable[*ConflictResolution] `json:"conflictResolution,omitempty"`
+	// User-provided values for redacted fields (map of field name to value)
+	RedactedFieldValues graphql.Omittable[map[string]any] `json:"redactedFieldValues,omitempty"`
+	// Device MAC addresses to filter routing rules (optional)
+	DeviceFilter graphql.Omittable[[]string] `json:"deviceFilter,omitempty"`
+	// Dry-run mode (validate only, don't create instance)
+	DryRun graphql.Omittable[*bool] `json:"dryRun,omitempty"`
+}
+
+// Payload for import service configuration mutation.
+// Returns validation results without applying changes.
+type ImportServiceConfigPayload struct {
+	// Whether validation succeeded
+	Valid bool `json:"valid"`
+	// Validation result
+	ValidationResult *ImportValidationResult `json:"validationResult"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for importing a template
+type ImportServiceTemplateInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Template JSON data
+	TemplateData map[string]any `json:"templateData"`
+}
+
+// Validation error for service import.
+type ImportValidationError struct {
+	// Validation stage (schema, syntax, cross-resource, dependency, conflict, capability, dry-run)
+	Stage string `json:"stage"`
+	// Field name (if applicable)
+	Field *string `json:"field,omitempty"`
+	// Error code (V400, V403, S600, S602)
+	Code string `json:"code"`
+	// Human-readable error message
+	Message string `json:"message"`
+}
+
+// Validation result for service import.
+// Contains errors, warnings, and redacted field prompts.
+type ImportValidationResult struct {
+	// Whether the import package passed validation
+	Valid bool `json:"valid"`
+	// Validation errors (blocking)
+	Errors []*ImportValidationError `json:"errors"`
+	// Validation warnings (non-blocking)
+	Warnings []*ImportValidationWarning `json:"warnings"`
+	// List of fields that were redacted and need user input
+	RedactedFields []string `json:"redactedFields,omitempty"`
+	// Conflicting service instances (if any)
+	ConflictingInstances []*ServiceInstance `json:"conflictingInstances,omitempty"`
+	// Whether user input is required to proceed
+	RequiresUserInput bool `json:"requiresUserInput"`
+}
+
+// Validation warning for service import.
+type ImportValidationWarning struct {
+	// Validation stage
+	Stage string `json:"stage"`
+	// Warning message
+	Message string `json:"message"`
+}
+
+// Installation progress event.
+type InstallProgress struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Feature ID
+	FeatureID string `json:"featureID"`
+	// Bytes downloaded
+	BytesDownloaded int `json:"bytesDownloaded"`
+	// Total bytes to download
+	TotalBytes int `json:"totalBytes"`
+	// Download progress percentage (0-100)
+	Percent float64 `json:"percent"`
+	// Current status (downloading, verifying, completed, failed)
+	Status string `json:"status"`
+	// Error message if failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+}
+
+// Input for installing a new service instance.
+type InstallServiceInput struct {
+	// Router ID to install the service on
+	RouterID string `json:"routerID"`
+	// Feature ID to install (e.g., 'tor', 'sing-box')
+	FeatureID string `json:"featureID"`
+	// Human-readable instance name
+	InstanceName string `json:"instanceName"`
+	// Service-specific configuration (JSON)
+	Config graphql.Omittable[map[string]any] `json:"config,omitempty"`
+	// VLAN ID for network isolation (optional)
+	VlanID graphql.Omittable[*int] `json:"vlanID,omitempty"`
+	// IP address to bind the service to (optional)
+	BindIP graphql.Omittable[*string] `json:"bindIP,omitempty"`
+}
+
+// Input for installing a service template
+type InstallServiceTemplateInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Template ID to install
+	TemplateID string `json:"templateID"`
+	// Variable values
+	Variables map[string]any `json:"variables"`
+	// Dry run (preview only, don't actually install)
+	DryRun graphql.Omittable[*bool] `json:"dryRun,omitempty"`
+}
+
+// Resource usage details for a single service instance.
+// Combines instance metadata with current resource usage.
+type InstanceResourceUsage struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Instance name
+	InstanceName string `json:"instanceName"`
+	// Feature ID
+	FeatureID string `json:"featureID"`
+	// Current resource usage
+	Usage *ResourceUsage `json:"usage"`
+	// Resource requirements from manifest
+	Requirements *ResourceRequirements `json:"requirements,omitempty"`
+}
+
+// Instance status change event.
+type InstanceStatusChanged struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Previous status
+	PreviousStatus ServiceInstanceStatus `json:"previousStatus"`
+	// New status
+	NewStatus ServiceInstanceStatus `json:"newStatus"`
+	// Timestamp of the change
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Integer range for filtering
@@ -2774,6 +3621,51 @@ type IpsecProfile struct {
 	Comment *string `json:"comment,omitempty"`
 }
 
+// Complete isolation status for a service instance.
+// Includes violations and resource limits.
+type IsolationStatus struct {
+	// List of isolation violations (empty if all checks passed)
+	Violations []*IsolationViolation `json:"violations"`
+	// Resource limits applied to the instance
+	ResourceLimits *ResourceLimits `json:"resourceLimits,omitempty"`
+	// Timestamp of the last isolation verification check
+	LastVerified *time.Time `json:"lastVerified,omitempty"`
+}
+
+// An isolation violation detected during pre-start checks.
+// Represents a failure in one of the 4 isolation layers.
+type IsolationViolation struct {
+	// Which isolation layer failed (IP Binding, Directory, Port Registry, Process Binding)
+	Layer string `json:"layer"`
+	// Severity level of the violation
+	Severity IsolationSeverity `json:"severity"`
+	// Human-readable description of the violation
+	Message string `json:"message"`
+	// Timestamp when the violation was detected
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Kill switch status information for monitoring.
+// Provides visibility into kill switch state and activation history.
+type KillSwitchStatus struct {
+	// Whether kill switch is enabled
+	Enabled bool `json:"enabled"`
+	// Kill switch behavior mode
+	Mode KillSwitchMode `json:"mode"`
+	// Whether kill switch is currently active (blocking traffic)
+	Active bool `json:"active"`
+	// Timestamp when kill switch was last activated
+	LastActivatedAt *time.Time `json:"lastActivatedAt,omitempty"`
+	// Timestamp when kill switch was last deactivated
+	LastDeactivatedAt *time.Time `json:"lastDeactivatedAt,omitempty"`
+	// Fallback interface ID (if mode=FALLBACK_SERVICE)
+	FallbackInterfaceID *string `json:"fallbackInterfaceID,omitempty"`
+	// Number of times kill switch has been activated
+	ActivationCount int `json:"activationCount"`
+	// Reason for most recent activation (service_down, health_check_failed, etc.)
+	LastActivationReason *string `json:"lastActivationReason,omitempty"`
+}
+
 // Single knock port in sequence.
 type KnockPort struct {
 	// Port number (1-65535)
@@ -2800,7 +3692,7 @@ type LANNetwork struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration,omitempty"`
+	Configuration map[string]any         `json:"configuration,omitempty"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -2881,6 +3773,23 @@ type LANNetworkRuntime struct {
 	TotalBytesIn Size `json:"totalBytesIn"`
 	// Total traffic out
 	TotalBytesOut Size `json:"totalBytesOut"`
+}
+
+// A single log entry from a service instance.
+// Represents one line of stdout/stderr output with parsed metadata.
+type LogEntry struct {
+	// Timestamp when the log was generated
+	Timestamp time.Time `json:"timestamp"`
+	// Log severity level
+	Level LogLevel `json:"level"`
+	// Log message
+	Message string `json:"message"`
+	// Service source (e.g., 'tor', 'singbox', 'adguard')
+	Source string `json:"source"`
+	// Original raw log line
+	RawLine string `json:"rawLine"`
+	// Additional parsed metadata (JSON)
+	Metadata map[string]any `json:"metadata,omitempty"`
 }
 
 // LTE/cellular modem configuration
@@ -3034,6 +3943,31 @@ type NetworkConfigDetection struct {
 	IspInfo *ISPInfo `json:"ispInfo,omitempty"`
 }
 
+// Network device discovered via DHCP and ARP.
+// Represents a client device on the network that can be routed through service instances.
+type NetworkDevice struct {
+	// Device identifier (generated from MAC address)
+	DeviceID string `json:"deviceID"`
+	// MAC address of the device
+	MacAddress string `json:"macAddress"`
+	// IP address of the device (optional, may change)
+	IPAddress *string `json:"ipAddress,omitempty"`
+	// Hostname from DHCP (optional)
+	Hostname *string `json:"hostname,omitempty"`
+	// Source of device discovery (dhcp, arp, or both)
+	Source string `json:"source"`
+	// Whether the device is currently active
+	Active bool `json:"active"`
+	// Whether device has a DHCP lease
+	DhcpLease bool `json:"dhcpLease"`
+	// Whether device has an ARP entry
+	ArpEntry bool `json:"arpEntry"`
+	// Whether device has a routing assignment
+	IsRouted bool `json:"isRouted"`
+	// Current routing mark (if routed)
+	RoutingMark *string `json:"routingMark,omitempty"`
+}
+
 // Notification channel configuration with encrypted credentials
 type NotificationChannelConfig struct {
 	// Unique configuration ID
@@ -3051,7 +3985,7 @@ type NotificationChannelConfig struct {
 	// Masked configuration (sensitive fields redacted)
 	// For Pushover: {"device": "iphone", "baseURL": "...", "userKey": "******", "apiToken": "******"}
 	// For Email: {"host": "smtp.gmail.com", "port": 587, "from": "...", "password": "******"}
-	ConfigMasked map[string]interface{} `json:"configMasked"`
+	ConfigMasked map[string]any `json:"configMasked"`
 	// When this configuration was created
 	CreatedAt time.Time `json:"createdAt"`
 	// When this configuration was last updated
@@ -3083,7 +4017,7 @@ type NotificationLog struct {
 	// Number of retry attempts
 	RetryCount int `json:"retryCount"`
 	// Request payload sent
-	RequestPayload map[string]interface{} `json:"requestPayload,omitempty"`
+	RequestPayload map[string]any `json:"requestPayload,omitempty"`
 	// Response body received
 	ResponseBody *string `json:"responseBody,omitempty"`
 	// When delivery was attempted
@@ -3105,11 +4039,47 @@ type NotificationTemplatePreview struct {
 	Errors []string `json:"errors"`
 }
 
+// Ntfy.sh notification configuration input
+type NtfyChannelInput struct {
+	// Whether ntfy notifications are enabled
+	Enabled bool `json:"enabled"`
+	// Ntfy server URL (e.g., https://ntfy.sh or self-hosted)
+	ServerURL string `json:"serverUrl"`
+	// Topic to publish to
+	Topic string `json:"topic"`
+	// Optional username for authentication
+	Username graphql.Omittable[*string] `json:"username,omitempty"`
+	// Optional password for authentication
+	Password graphql.Omittable[*string] `json:"password,omitempty"`
+	// Message priority (1-5, default: 3)
+	Priority graphql.Omittable[*int] `json:"priority,omitempty"`
+	// Optional tags for categorization
+	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
+}
+
 // Operation counts by type
 type OperationCounts struct {
 	Create int `json:"create"`
 	Update int `json:"update"`
 	Delete int `json:"delete"`
+}
+
+// Payload for orphan cleanup mutation.
+type OrphanCleanupPayload struct {
+	// Number of orphaned allocations cleaned up
+	CleanedCount int `json:"cleanedCount"`
+	// List of allocation IDs that were deleted
+	DeletedAllocationIDs []string `json:"deletedAllocationIDs"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Orphaned port allocation that references a non-existent service instance.
+type OrphanedPort struct {
+	// Port allocation record
+	Allocation *PortAllocation `json:"allocation"`
+	// Reason why this allocation is orphaned
+	Reason string `json:"reason"`
 }
 
 // Information about pagination in a connection
@@ -3147,7 +4117,7 @@ type PlatformCapabilities struct {
 	// Required packages
 	RequiredPackages []string `json:"requiredPackages,omitempty"`
 	// Capability-specific details
-	Details map[string]interface{} `json:"details,omitempty"`
+	Details map[string]any `json:"details,omitempty"`
 }
 
 // A platform-specific feature
@@ -3170,7 +4140,7 @@ type PlatformInfo struct {
 	// Platform-specific capabilities for this resource type
 	Capabilities *PlatformCapabilities `json:"capabilities"`
 	// Field mappings between GraphQL and platform-native names
-	FieldMappings map[string]interface{} `json:"fieldMappings,omitempty"`
+	FieldMappings map[string]any `json:"fieldMappings,omitempty"`
 	// Platform-specific limitations or constraints
 	Limitations []*PlatformLimitation `json:"limitations,omitempty"`
 	// Platform-specific features available
@@ -3187,6 +4157,45 @@ type PlatformLimitation struct {
 	AffectedFields []string `json:"affectedFields,omitempty"`
 	// Workaround if available
 	Workaround *string `json:"workaround,omitempty"`
+}
+
+// A port allocation record tracking which ports are in use by service instances.
+// Prevents port conflicts and enables centralized port management.
+type PortAllocation struct {
+	// ULID primary key
+	ID string `json:"id"`
+	// Router ID where this port is allocated
+	RouterID string `json:"routerID"`
+	// Port number (1-65535)
+	Port int `json:"port"`
+	// Transport protocol (TCP or UDP)
+	Protocol PortProtocol `json:"protocol"`
+	// Service instance ID that owns this allocation
+	InstanceID string `json:"instanceID"`
+	// Service type (e.g., 'tor', 'xray-core', 'adguard-home')
+	ServiceType string `json:"serviceType"`
+	// Optional notes about this port allocation
+	Notes *string `json:"notes,omitempty"`
+	// Allocation timestamp
+	AllocatedAt time.Time `json:"allocatedAt"`
+	// The router where this port is allocated
+	Router *Router `json:"router,omitempty"`
+	// The service instance that owns this port allocation
+	ServiceInstance *ServiceInstance `json:"serviceInstance,omitempty"`
+}
+
+func (PortAllocation) IsNode() {}
+
+// Port availability check result.
+type PortAvailability struct {
+	// Port number checked
+	Port int `json:"port"`
+	// Protocol checked
+	Protocol PortProtocol `json:"protocol"`
+	// Whether the port is available for allocation
+	Available bool `json:"available"`
+	// Reason why port is unavailable (if applicable)
+	Reason *string `json:"reason,omitempty"`
 }
 
 // Port forward configuration (high-level view).
@@ -3335,6 +4344,18 @@ type PortKnockSequenceInput struct {
 	KnockTimeout string `json:"knockTimeout"`
 	// Whether enabled
 	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
+// Port mapping specification
+type PortMapping struct {
+	// Container port
+	Internal int `json:"internal"`
+	// Host port (0 = auto-allocate)
+	External int `json:"external"`
+	// Protocol (tcp/udp)
+	Protocol string `json:"protocol"`
+	// Purpose description
+	Purpose *string `json:"purpose,omitempty"`
 }
 
 // A port mirror configuration for traffic monitoring and analysis
@@ -3535,6 +4556,27 @@ type RemoveChangeSetItemPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// RemoveDependencyInput contains parameters for removing a dependency relationship.
+type RemoveDependencyInput struct {
+	DependencyID string `json:"dependencyId"`
+}
+
+// Input for resetting external storage configuration.
+type ResetExternalStorageInput struct {
+	// Whether to move existing binaries back to flash (default: false)
+	MigrateToFlash graphql.Omittable[*bool] `json:"migrateToFlash,omitempty"`
+}
+
+// Payload for resetExternalStorage mutation.
+type ResetExternalStoragePayload struct {
+	// Whether reset was successful
+	Success bool `json:"success"`
+	// Number of features migrated to flash (if requested)
+	FeaturesMigrated int `json:"featuresMigrated"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Conflict with another resource
 type ResourceConflict struct {
 	// Type of conflict
@@ -3563,6 +4605,40 @@ type ResourceEdge struct {
 }
 
 func (ResourceEdge) IsEdge() {}
+
+// Resource usage estimate
+type ResourceEstimate struct {
+	// Total estimated memory in MB
+	TotalMemoryMb int `json:"totalMemoryMB"`
+	// Total CPU shares
+	TotalCPUShares int `json:"totalCPUShares"`
+	// Disk space needed in MB
+	DiskSpaceMb int `json:"diskSpaceMB"`
+	// Number of network ports
+	NetworkPorts int `json:"networkPorts"`
+	// Number of VLANs required
+	VlansRequired int `json:"vlansRequired"`
+}
+
+// Resource limits applied to a service instance via cgroups v2.
+type ResourceLimits struct {
+	// Memory limit in megabytes (minimum 16MB)
+	MemoryMb int `json:"memoryMB"`
+	// CPU usage percentage (0-100)
+	CPUPercent *int `json:"cpuPercent,omitempty"`
+	// Whether resource limits are currently applied (cgroups available)
+	Applied bool `json:"applied"`
+}
+
+// Payload for resource limits mutation.
+type ResourceLimitsPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Updated resource limits (null if operation failed)
+	ResourceLimits *ResourceLimits `json:"resourceLimits,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
 
 // Layer 6: Resource lifecycle info, tags, ownership.
 // System-managed with some user-editable fields.
@@ -3647,7 +4723,7 @@ type ResourceRelationships struct {
 	// Child resources (for hierarchical resources)
 	Children []*ResourceReference `json:"children"`
 	// Custom relationships
-	Custom map[string]interface{} `json:"custom,omitempty"`
+	Custom map[string]any `json:"custom,omitempty"`
 }
 
 // Input for resource relationships
@@ -3659,7 +4735,18 @@ type ResourceRelationshipsInput struct {
 	// Parent resource ID (for hierarchical resources)
 	Parent graphql.Omittable[*string] `json:"parent,omitempty"`
 	// Custom relationship data
-	Custom graphql.Omittable[map[string]interface{}] `json:"custom,omitempty"`
+	Custom graphql.Omittable[map[string]any] `json:"custom,omitempty"`
+}
+
+// Resource requirements for a service feature (from manifest).
+// Defines the minimum and recommended resources for a service.
+type ResourceRequirements struct {
+	// Minimum RAM required in megabytes
+	MinRAM int `json:"minRAM"`
+	// Recommended RAM for optimal performance in megabytes
+	RecommendedRAM int `json:"recommendedRAM"`
+	// CPU weight (priority) for scheduling (0-100)
+	CPUWeight int `json:"cpuWeight"`
 }
 
 // Runtime update event for a resource
@@ -3708,6 +4795,43 @@ type ResourceUpdatedEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Current resource usage for a service instance.
+// Provides real-time memory usage statistics.
+type ResourceUsage struct {
+	// Current memory usage in megabytes
+	CurrentMb int `json:"currentMB"`
+	// Memory limit in megabytes
+	LimitMb int `json:"limitMB"`
+	// Usage as a percentage of the limit (0-100)
+	UsagePercent float64 `json:"usagePercent"`
+	// Resource status (ok, warning, critical)
+	Status ResourceStatus `json:"status"`
+}
+
+// Input for restarting a service instance.
+type RestartInstanceInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to restart
+	InstanceID string `json:"instanceID"`
+}
+
+// Payload for reverification mutation.
+type ReverifyPayload struct {
+	// Instance ID that was reverified
+	InstanceID string `json:"instanceID"`
+	// Whether reverification passed
+	Success bool `json:"success"`
+	// Current binary hash
+	CurrentHash *string `json:"currentHash,omitempty"`
+	// Expected binary hash (from install-time)
+	ExpectedHash *string `json:"expectedHash,omitempty"`
+	// Error message if verification failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 type RollbackChangeSetPayload struct {
 	// The rolled back change set
 	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
@@ -3726,7 +4850,7 @@ type RollbackStep struct {
 	// Rollback operation
 	Operation RollbackOperation `json:"operation"`
 	// State to restore
-	RestoreState map[string]interface{} `json:"restoreState,omitempty"`
+	RestoreState map[string]any `json:"restoreState,omitempty"`
 	// Resource UUID on router
 	ResourceUUID *string `json:"resourceUuid,omitempty"`
 	// Whether rollback succeeded
@@ -3863,7 +4987,7 @@ type RouteResource struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration"`
+	Configuration map[string]any         `json:"configuration"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -3995,7 +5119,7 @@ func (RouterEdge) IsEdge() {}
 type RouterOSInfo struct {
 	// RouterOS version string (e.g., '7.12', '6.49.8')
 	Version *string `json:"version,omitempty"`
-	// Router board name (e.g., 'hAP ac³', 'CCR2004-1G-12S+2XS')
+	// Router board name (e.g., 'hAP ac3', 'CCR2004-1G-12S+2XS')
 	BoardName *string `json:"boardName,omitempty"`
 	// CPU architecture (e.g., 'arm', 'x86', 'mips')
 	Architecture *string `json:"architecture,omitempty"`
@@ -4034,6 +5158,129 @@ type RouterStatusEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// A multi-hop routing chain that routes device traffic through multiple services sequentially.
+// Example: Device -> VPN -> Tor -> Internet for layered privacy.
+type RoutingChain struct {
+	// Chain ID (ULID)
+	ID string `json:"id"`
+	// Target device identifier
+	DeviceID string `json:"deviceId"`
+	// Device MAC address (when routing_mode=MAC)
+	DeviceMac *string `json:"deviceMac,omitempty"`
+	// Device IP address (when routing_mode=IP)
+	DeviceIP *string `json:"deviceIp,omitempty"`
+	// Human-readable device name
+	DeviceName *string `json:"deviceName,omitempty"`
+	// Ordered list of service hops in this chain
+	Hops []*ChainHop `json:"hops"`
+	// Whether this chain is currently active
+	Active bool `json:"active"`
+	// Routing mode (MAC or IP matching)
+	RoutingMode RoutingMode `json:"routingMode"`
+	// Whether kill switch is enabled for this chain
+	KillSwitchEnabled bool `json:"killSwitchEnabled"`
+	// Kill switch behavior mode
+	KillSwitchMode KillSwitchMode `json:"killSwitchMode"`
+	// Whether kill switch is currently blocking traffic
+	KillSwitchActive bool `json:"killSwitchActive"`
+	// Timestamp when kill switch was last activated
+	KillSwitchActivatedAt *time.Time `json:"killSwitchActivatedAt,omitempty"`
+	// Total latency across all hops in milliseconds
+	TotalLatencyMs *float64 `json:"totalLatencyMs,omitempty"`
+	// Chain creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (RoutingChain) IsNode() {}
+
+// Result of a routing chain mutation.
+type RoutingChainMutationResult struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Human-readable message
+	Message *string `json:"message,omitempty"`
+	// The created or updated chain (null if failed)
+	Chain *RoutingChain `json:"chain,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// A single routing rule for device-to-service routing.
+// Represents a MikroTik firewall mangle rule.
+type RoutingRule struct {
+	// Mangle chain (e.g., 'prerouting')
+	Chain string `json:"chain"`
+	// Action (e.g., 'mark-routing')
+	Action string `json:"action"`
+	// Source address (MAC or IP)
+	SrcAddress *string `json:"srcAddress,omitempty"`
+	// Destination address
+	DstAddress *string `json:"dstAddress,omitempty"`
+	// Protocol (tcp, udp, icmp, etc.)
+	Protocol *string `json:"protocol,omitempty"`
+	// Comment for rule identification
+	Comment *string `json:"comment,omitempty"`
+	// Routing mark to match
+	RoutingMark *string `json:"routingMark,omitempty"`
+	// New routing mark to set
+	NewRoutingMark *string `json:"newRoutingMark,omitempty"`
+}
+
+// Time-based schedule for activating/deactivating device routing rules.
+// Enables features like parental controls, time-based VPN routing, etc.
+type RoutingSchedule struct {
+	// Schedule ID (ULID)
+	ID string `json:"id"`
+	// Device routing ID this schedule controls
+	RoutingID string `json:"routingID"`
+	// Days of week when schedule is active (0=Sunday, 6=Saturday)
+	Days []int `json:"days"`
+	// Start time in HH:MM format (24-hour)
+	StartTime string `json:"startTime"`
+	// End time in HH:MM format (24-hour)
+	EndTime string `json:"endTime"`
+	// IANA timezone identifier (e.g., 'America/New_York', 'UTC')
+	Timezone string `json:"timezone"`
+	// Whether this schedule is enabled
+	Enabled bool `json:"enabled"`
+	// Timestamp when routing was last activated by this schedule
+	LastActivated *time.Time `json:"lastActivated,omitempty"`
+	// Timestamp when routing was last deactivated by this schedule
+	LastDeactivated *time.Time `json:"lastDeactivated,omitempty"`
+	// Whether the schedule window is currently active (computed field)
+	IsActive bool `json:"isActive"`
+	// When the schedule was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (RoutingSchedule) IsNode() {}
+
+// Input for running diagnostics on a service instance.
+type RunDiagnosticsInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to run diagnostics on
+	InstanceID string `json:"instanceID"`
+	// Specific test names to run (empty = run all tests)
+	TestNames graphql.Omittable[[]string] `json:"testNames,omitempty"`
+}
+
+// Payload for run diagnostics mutation.
+type RunDiagnosticsPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Diagnostic results
+	Results []*DiagnosticResult `json:"results,omitempty"`
+	// Run group ID linking these results together
+	RunGroupID *string `json:"runGroupID,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // Result of running a diagnostic step
 type RunTroubleshootStepPayload struct {
 	// Updated step with result
@@ -4061,7 +5308,7 @@ type RuntimeMetrics struct {
 	// Current throughput out (bytes/sec)
 	ThroughputOut *Size `json:"throughputOut,omitempty"`
 	// Resource-specific custom metrics
-	Custom map[string]interface{} `json:"custom,omitempty"`
+	Custom map[string]any `json:"custom,omitempty"`
 }
 
 // Layer 4: Live operational state polled/streamed from router.
@@ -4126,7 +5373,7 @@ type SaveAlertTemplateInput struct {
 	// Tags
 	Tags graphql.Omittable[[]string] `json:"tags,omitempty"`
 	// Metadata
-	Metadata graphql.Omittable[map[string]interface{}] `json:"metadata,omitempty"`
+	Metadata graphql.Omittable[map[string]any] `json:"metadata,omitempty"`
 }
 
 // Input for saving a custom template.
@@ -4172,6 +5419,16 @@ type ScanProgressEvent struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
+// Payload for scanStorage mutation.
+type ScanStoragePayload struct {
+	// Detected storage locations
+	StorageInfo []*StorageInfo `json:"storageInfo"`
+	// Number of new storage locations detected
+	NewStorageCount int `json:"newStorageCount"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
 // A network scan task that tracks scan progress and results.
 // Scans are asynchronous - start with mutation, poll/subscribe for progress.
 type ScanTask struct {
@@ -4197,6 +5454,292 @@ type ScanTask struct {
 	ScannedIPs *int `json:"scannedIPs,omitempty"`
 }
 
+// Schedule event for subscriptions.
+// Emitted when schedules are created, updated, deleted, or when activation state changes.
+type ScheduleEvent struct {
+	// Event ID
+	ID string `json:"id"`
+	// Event type (created, updated, deleted, activated, deactivated)
+	EventType string `json:"eventType"`
+	// Schedule that changed
+	Schedule *RoutingSchedule `json:"schedule,omitempty"`
+	// Routing ID (for deleted schedules)
+	RoutingID *string `json:"routingID,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Service configuration sharing event for subscriptions.
+// Emitted when configs are exported, imported, or QR codes generated.
+type ServiceConfigSharedEvent struct {
+	// Event ID
+	ID string `json:"id"`
+	// Event type (exported, imported, qr_generated)
+	EventType string `json:"eventType"`
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Service type
+	ServiceType string `json:"serviceType"`
+	// Service name
+	ServiceName string `json:"serviceName"`
+	// User who performed the action
+	UserID *string `json:"userID,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// ServiceDependency represents a dependency relationship between two service instances.
+// Example: A VPN-over-Tor instance depends on a Tor instance being running.
+type ServiceDependency struct {
+	ID                   string           `json:"id"`
+	FromInstance         *ServiceInstance `json:"fromInstance"`
+	ToInstance           *ServiceInstance `json:"toInstance"`
+	DependencyType       DependencyType   `json:"dependencyType"`
+	AutoStart            bool             `json:"autoStart"`
+	HealthTimeoutSeconds int              `json:"healthTimeoutSeconds"`
+	CreatedAt            time.Time        `json:"createdAt"`
+	UpdatedAt            time.Time        `json:"updatedAt"`
+}
+
+// Export package containing service configuration.
+// Used for sharing service configs via JSON or QR code.
+type ServiceExportPackage struct {
+	// Schema version (e.g., "1.0")
+	SchemaVersion string `json:"schemaVersion"`
+	// Timestamp when the export was created
+	ExportedAt time.Time `json:"exportedAt"`
+	// Service type identifier (e.g., 'tor', 'mtproxy')
+	ServiceType string `json:"serviceType"`
+	// Service instance name
+	ServiceName string `json:"serviceName"`
+	// Binary version
+	BinaryVersion string `json:"binaryVersion"`
+	// Service configuration (JSON)
+	Config map[string]any `json:"config"`
+	// Optional routing rules for device routing
+	RoutingRules []*RoutingRule `json:"routingRules,omitempty"`
+	// Whether secrets are included (not redacted)
+	IncludesSecrets bool `json:"includesSecrets"`
+	// User who exported this configuration
+	ExportedByUserID *string `json:"exportedByUserID,omitempty"`
+}
+
+// Service instance running on a router.
+// Represents an installed and potentially running service instance.
+type ServiceInstance struct {
+	// Instance ID (ULID)
+	ID string `json:"id"`
+	// Feature identifier (e.g., 'tor', 'sing-box')
+	FeatureID string `json:"featureID"`
+	// Human-readable instance name
+	InstanceName string `json:"instanceName"`
+	// Router ID this instance belongs to
+	RouterID string `json:"routerID"`
+	// Current lifecycle status
+	Status ServiceInstanceStatus `json:"status"`
+	// VLAN ID for network isolation
+	VlanID *int `json:"vlanID,omitempty"`
+	// IP address to bind the service to
+	BindIP *string `json:"bindIP,omitempty"`
+	// Ports used by this service instance
+	Ports []int `json:"ports"`
+	// Service-specific configuration (JSON)
+	Config map[string]any `json:"config,omitempty"`
+	// Path to the service binary
+	BinaryPath *string `json:"binaryPath,omitempty"`
+	// Version of the service binary
+	BinaryVersion *string `json:"binaryVersion,omitempty"`
+	// SHA256 checksum of the binary
+	BinaryChecksum *string `json:"binaryChecksum,omitempty"`
+	// Binary verification information (null if verification not enabled)
+	Verification *BinaryVerification `json:"verification,omitempty"`
+	// When the instance was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+	// The router this instance belongs to
+	Router *Router `json:"router,omitempty"`
+}
+
+func (ServiceInstance) IsNode() {}
+
+// Comprehensive health status for a service instance
+// Combines process liveness, connection status, and latency metrics
+type ServiceInstanceHealth struct {
+	// Current health state of the instance
+	Status InstanceHealthState `json:"status"`
+	// Whether the service process is alive (PID check)
+	ProcessAlive bool `json:"processAlive"`
+	// Connection status from TCP/HTTP health probe
+	ConnectionStatus HealthConnectionState `json:"connectionStatus"`
+	// Health probe round-trip latency in milliseconds (null if probe hasn't run)
+	LatencyMs *int `json:"latencyMs,omitempty"`
+	// Timestamp of when the instance was last healthy (null if never healthy)
+	LastHealthy *time.Time `json:"lastHealthy,omitempty"`
+	// Number of consecutive health check failures
+	ConsecutiveFails int `json:"consecutiveFails"`
+	// Instance uptime in seconds (null if not running)
+	UptimeSeconds *int `json:"uptimeSeconds,omitempty"`
+}
+
+// Health check configuration for a service instance
+type ServiceInstanceHealthConfig struct {
+	// Health check interval in seconds (10-300, default: 30)
+	IntervalSeconds int `json:"intervalSeconds"`
+	// Consecutive failures before marking unhealthy (1-10, default: 3)
+	FailureThreshold int `json:"failureThreshold"`
+	// Whether to auto-restart on health check failure (default: true)
+	AutoRestart bool `json:"autoRestart"`
+}
+
+// Payload for service instance mutations.
+type ServiceInstancePayload struct {
+	// The service instance (null if operation failed)
+	Instance *ServiceInstance `json:"instance,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Service log file with metadata.
+// Represents captured logs from a service instance.
+type ServiceLogFile struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Service name
+	ServiceName string `json:"serviceName"`
+	// Log file path on router filesystem
+	FilePath string `json:"filePath"`
+	// Current log file size in bytes
+	SizeBytes int `json:"sizeBytes"`
+	// Number of log lines available
+	LineCount int `json:"lineCount"`
+	// Recent log entries (last N lines)
+	Entries []*LogEntry `json:"entries"`
+	// Timestamp when log file was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Timestamp when log file was last updated
+	LastUpdated time.Time `json:"lastUpdated"`
+}
+
+// Service result from template installation
+type ServiceResult struct {
+	// Service name from template
+	ServiceName string `json:"serviceName"`
+	// Created instance ID
+	InstanceID *string `json:"instanceID,omitempty"`
+	// Status (success/failed/skipped)
+	Status string `json:"status"`
+	// Error message if failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// Service specification within a template
+type ServiceSpec struct {
+	// Service type (feature ID like 'tor', 'xray-core')
+	ServiceType string `json:"serviceType"`
+	// Instance name template (supports variables)
+	Name string `json:"name"`
+	// Service-specific configuration overrides
+	ConfigOverrides map[string]any `json:"configOverrides,omitempty"`
+	// Service dependencies (references other services in template)
+	DependsOn []string `json:"dependsOn,omitempty"`
+	// Memory limit in MB
+	MemoryLimitMb *int `json:"memoryLimitMB,omitempty"`
+	// CPU shares
+	CPUShares *int `json:"cpuShares,omitempty"`
+	// Whether this service needs Virtual Interface Factory
+	RequiresBridge *bool `json:"requiresBridge,omitempty"`
+	// VLAN ID (null = auto-allocate)
+	VlanID *int `json:"vlanID,omitempty"`
+	// Port mappings
+	PortMappings []*PortMapping `json:"portMappings,omitempty"`
+}
+
+// Service template
+type ServiceTemplate struct {
+	// Template ID (ULID)
+	ID string `json:"id"`
+	// Template name
+	Name string `json:"name"`
+	// Detailed description
+	Description string `json:"description"`
+	// Template category
+	Category ServiceTemplateCategory `json:"category"`
+	// Deployment scope
+	Scope TemplateScope `json:"scope"`
+	// Template version
+	Version string `json:"version"`
+	// Whether this is a built-in template
+	IsBuiltIn bool `json:"isBuiltIn"`
+	// Template author
+	Author *string `json:"author,omitempty"`
+	// Router ID (null for built-in templates)
+	RouterID *string `json:"routerID,omitempty"`
+	// Services to deploy
+	Services []*ServiceSpec `json:"services"`
+	// Configuration variables
+	ConfigVariables []*TemplateVariable `json:"configVariables"`
+	// Routing suggestions
+	SuggestedRouting []*SuggestedRoutingRule `json:"suggestedRouting,omitempty"`
+	// Resource estimates
+	EstimatedResources *ResourceEstimate `json:"estimatedResources,omitempty"`
+	// Search tags
+	Tags []string `json:"tags,omitempty"`
+	// Prerequisites
+	Prerequisites []string `json:"prerequisites,omitempty"`
+	// Documentation
+	Documentation *string `json:"documentation,omitempty"`
+	// Usage examples
+	Examples []string `json:"examples,omitempty"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (ServiceTemplate) IsNode() {}
+
+// Traffic statistics for a service instance.
+// Tracks uploaded/downloaded bytes with historical data retention.
+type ServiceTrafficStats struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Total bytes uploaded (transmitted)
+	TotalUploadBytes int `json:"totalUploadBytes"`
+	// Total bytes downloaded (received)
+	TotalDownloadBytes int `json:"totalDownloadBytes"`
+	// Upload bytes in current period (day/week/month)
+	CurrentPeriodUpload int `json:"currentPeriodUpload"`
+	// Download bytes in current period (day/week/month)
+	CurrentPeriodDownload int `json:"currentPeriodDownload"`
+	// Historical data points for chart visualization
+	History []*TrafficDataPoint `json:"history"`
+	// Per-device breakdown (if available)
+	DeviceBreakdown []*DeviceTrafficBreakdown `json:"deviceBreakdown"`
+	// Traffic quota configuration (if set)
+	Quota *TrafficQuota `json:"quota,omitempty"`
+	// Timestamp of last statistics update
+	LastUpdated time.Time `json:"lastUpdated"`
+}
+
+// Input for setting kill switch on a device routing.
+type SetKillSwitchInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Device ID whose routing should have kill switch
+	DeviceID string `json:"deviceID"`
+	// Whether to enable kill switch
+	Enabled bool `json:"enabled"`
+	// Kill switch behavior mode
+	Mode KillSwitchMode `json:"mode"`
+	// Fallback interface ID (required if mode=FALLBACK_SERVICE)
+	FallbackInterfaceID graphql.Omittable[*string] `json:"fallbackInterfaceID,omitempty"`
+}
+
 type SetPreferredProtocolPayload struct {
 	// The updated router
 	Router *Router `json:"router,omitempty"`
@@ -4204,6 +5747,54 @@ type SetPreferredProtocolPayload struct {
 	ConnectionDetails *ConnectionDetails `json:"connectionDetails,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for setting resource limits on a service instance.
+type SetResourceLimitsInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Memory limit in megabytes (minimum 16MB)
+	MemoryMb int `json:"memoryMB"`
+	// CPU weight for scheduling (0-100, optional)
+	CPUWeight graphql.Omittable[*int] `json:"cpuWeight,omitempty"`
+}
+
+// Input for setting a traffic quota on a service instance.
+type SetTrafficQuotaInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to set quota on
+	InstanceID string `json:"instanceID"`
+	// Maximum bytes allowed per period (0 = unlimited)
+	LimitBytes int `json:"limitBytes"`
+	// Quota period
+	Period QuotaPeriod `json:"period"`
+	// Action to take when quota is reached
+	Action QuotaAction `json:"action"`
+	// Warning threshold percentage (0-100, default 80)
+	WarningThreshold graphql.Omittable[*int] `json:"warningThreshold,omitempty"`
+}
+
+// Single device routing assignment for bulk operations.
+type SingleDeviceRoutingInput struct {
+	// Device ID
+	DeviceID string `json:"deviceID"`
+	// Device MAC address
+	MacAddress string `json:"macAddress"`
+	// Device IP (optional)
+	DeviceIP graphql.Omittable[*string] `json:"deviceIP,omitempty"`
+	// Device name (optional)
+	DeviceName graphql.Omittable[*string] `json:"deviceName,omitempty"`
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Interface ID
+	InterfaceID string `json:"interfaceID"`
+	// Routing mark
+	RoutingMark string `json:"routingMark"`
+	// Routing mode
+	RoutingMode RoutingMode `json:"routingMode"`
 }
 
 // Software information detected from router
@@ -4224,12 +5815,43 @@ type SoftwareInfo struct {
 	UpdateChannel *string `json:"updateChannel,omitempty"`
 }
 
+// Input for starting a service instance.
+type StartInstanceInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to start
+	InstanceID string `json:"instanceID"`
+}
+
 // Result of starting a troubleshooting session
 type StartTroubleshootPayload struct {
 	// The created session
 	Session *TroubleshootSession `json:"session,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Startup diagnostic results collected during instance boot.
+// Automatically run when a service starts.
+type StartupDiagnostics struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Run group ID linking these results together
+	RunGroupID string `json:"runGroupID"`
+	// Test results
+	Results []*DiagnosticResult `json:"results"`
+	// Overall health status (pass if all tests passed)
+	OverallStatus DiagnosticStatus `json:"overallStatus"`
+	// Number of tests that passed
+	PassedCount int `json:"passedCount"`
+	// Number of tests that failed
+	FailedCount int `json:"failedCount"`
+	// Number of tests with warnings
+	WarningCount int `json:"warningCount"`
+	// Total number of tests run
+	TotalTests int `json:"totalTests"`
+	// Timestamp when diagnostics were run
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Static IP WAN configuration
@@ -4294,6 +5916,69 @@ type StatsTimeRangeInput struct {
 	End time.Time `json:"end"`
 }
 
+// Input for stopping a service instance.
+type StopInstanceInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID to stop
+	InstanceID string `json:"instanceID"`
+}
+
+// Storage breakdown for a specific location (flash or external).
+// Shows what types of data are stored and capacity metrics.
+type StorageBreakdown struct {
+	// Total capacity in bytes (serialized uint64)
+	TotalBytes string `json:"totalBytes"`
+	// Used space in bytes (serialized uint64)
+	UsedBytes string `json:"usedBytes"`
+	// Available free space in bytes (serialized uint64)
+	AvailableBytes string `json:"availableBytes"`
+	// Human-readable description of contents (e.g., 'Configs, DB' or 'Binaries, data')
+	Contents string `json:"contents"`
+	// Usage percentage (0-100)
+	UsagePercent float64 `json:"usagePercent"`
+	// Storage location type
+	LocationType StorageLocationType `json:"locationType"`
+	// Space threshold status
+	ThresholdStatus StorageThresholdStatus `json:"thresholdStatus"`
+}
+
+// Storage configuration state.
+// Represents the current external storage configuration.
+type StorageConfig struct {
+	// Whether external storage is enabled and configured
+	Enabled bool `json:"enabled"`
+	// Configured external storage path (null if not configured)
+	Path *string `json:"path,omitempty"`
+	// Storage info for configured path (null if not mounted)
+	StorageInfo *StorageInfo `json:"storageInfo,omitempty"`
+	// When the configuration was last updated
+	UpdatedAt time.Time `json:"updatedAt"`
+	// Whether configured storage is currently available
+	IsAvailable bool `json:"isAvailable"`
+}
+
+// Information about a storage location (flash or external).
+// Represents a detected mount point with capacity and filesystem information.
+type StorageInfo struct {
+	// Absolute path to the mount point (e.g., '/data', '/usb1', '/disk1')
+	Path string `json:"path"`
+	// Total capacity in bytes (serialized uint64)
+	TotalBytes string `json:"totalBytes"`
+	// Available free space in bytes (serialized uint64)
+	AvailableBytes string `json:"availableBytes"`
+	// Used space in bytes (serialized uint64)
+	UsedBytes string `json:"usedBytes"`
+	// Filesystem type (e.g., 'ext4', 'vfat', 'ntfs')
+	Filesystem string `json:"filesystem"`
+	// Whether the storage is currently mounted and accessible
+	Mounted bool `json:"mounted"`
+	// Usage percentage (0-100, calculated from used/total)
+	UsagePercent float64 `json:"usagePercent"`
+	// Storage location type
+	LocationType StorageLocationType `json:"locationType"`
+}
+
 // Storage utilization metrics
 type StorageMetrics struct {
 	// Used storage in bytes
@@ -4302,6 +5987,67 @@ type StorageMetrics struct {
 	Total float64 `json:"total"`
 	// Storage usage percentage (0-100)
 	Percentage float64 `json:"percentage"`
+}
+
+// Event emitted when storage is mounted or becomes available.
+type StorageMountedEvent struct {
+	// Storage path that was mounted
+	Path string `json:"path"`
+	// Storage information
+	StorageInfo *StorageInfo `json:"storageInfo"`
+	// Number of features restored (if reconnection)
+	FeaturesRestored int `json:"featuresRestored"`
+	// Timestamp of the event
+	Timestamp time.Time `json:"timestamp"`
+}
+
+func (StorageMountedEvent) IsStorageMountEvent() {}
+
+// Event emitted when storage space crosses a threshold.
+type StorageSpaceEvent struct {
+	// Storage path
+	Path string `json:"path"`
+	// Current threshold status
+	Status StorageThresholdStatus `json:"status"`
+	// Previous threshold status
+	PreviousStatus StorageThresholdStatus `json:"previousStatus"`
+	// Current usage percentage
+	UsagePercent float64 `json:"usagePercent"`
+	// Available bytes remaining (serialized uint64)
+	AvailableBytes string `json:"availableBytes"`
+	// Timestamp of the event
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Event emitted when storage is unmounted or becomes unavailable.
+type StorageUnmountedEvent struct {
+	// Storage path that was unmounted
+	Path string `json:"path"`
+	// Number of features affected (stopped)
+	FeaturesAffected int `json:"featuresAffected"`
+	// List of affected feature IDs
+	AffectedFeatureIds []string `json:"affectedFeatureIds"`
+	// Timestamp of the event
+	Timestamp time.Time `json:"timestamp"`
+}
+
+func (StorageUnmountedEvent) IsStorageMountEvent() {}
+
+// Comprehensive storage usage breakdown across flash and external locations.
+// Shows how storage is allocated across configs, binaries, data, and per-feature.
+type StorageUsage struct {
+	// Flash memory usage breakdown
+	Flash *StorageBreakdown `json:"flash"`
+	// External storage usage breakdown (null if not configured)
+	External *StorageBreakdown `json:"external,omitempty"`
+	// Per-feature storage usage details
+	Features []*FeatureStorageUsage `json:"features"`
+	// Total storage usage across all locations in bytes (serialized uint64)
+	TotalUsedBytes string `json:"totalUsedBytes"`
+	// Total available capacity across all locations in bytes (serialized uint64)
+	TotalCapacityBytes string `json:"totalCapacityBytes"`
+	// Timestamp when usage was calculated
+	CalculatedAt time.Time `json:"calculatedAt"`
 }
 
 // Alert rule contribution to storm detection
@@ -4338,6 +6084,33 @@ type StormStatus struct {
 }
 
 type Subscription struct {
+}
+
+// Routing suggestion for a template
+type SuggestedRoutingRule struct {
+	// Device name pattern (e.g., 'all', 'phone-*')
+	DevicePattern string `json:"devicePattern"`
+	// Target service name from template
+	TargetService string `json:"targetService"`
+	// Protocol filter
+	Protocol *string `json:"protocol,omitempty"`
+	// Destination port filter
+	DestinationPort *int `json:"destinationPort,omitempty"`
+	// Rule description
+	Description string `json:"description"`
+}
+
+// System-wide resource overview for a router.
+// Shows total resources, available resources, and per-instance allocations.
+type SystemResources struct {
+	// Total RAM available on the router in megabytes
+	TotalRAM int `json:"totalRAM"`
+	// Available (unallocated) RAM in megabytes
+	AvailableRAM int `json:"availableRAM"`
+	// Total allocated RAM across all instances in megabytes
+	AllocatedRAM int `json:"allocatedRAM"`
+	// Per-instance resource usage details
+	Instances []*InstanceResourceUsage `json:"instances"`
 }
 
 // TLS certificate status for secure connections
@@ -4385,6 +6158,42 @@ type TemplateConflict struct {
 	ProposedRule *TemplateRule `json:"proposedRule"`
 }
 
+// Template installation progress
+type TemplateInstallProgress struct {
+	// Template ID being installed
+	TemplateID string `json:"templateID"`
+	// Total number of services
+	TotalServices int `json:"totalServices"`
+	// Number of services installed
+	InstalledCount int `json:"installedCount"`
+	// Current service being installed
+	CurrentService *string `json:"currentService,omitempty"`
+	// Installation status
+	Status TemplateInstallationStatus `json:"status"`
+	// Error message if failed
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Installation start time
+	StartedAt time.Time `json:"startedAt"`
+	// Installation completion time
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+	// Individual service results
+	ServiceResults []*ServiceResult `json:"serviceResults"`
+}
+
+// Template installation result
+type TemplateInstallResult struct {
+	// Whether installation was successful
+	Success bool `json:"success"`
+	// Created instance IDs
+	InstanceIDs []string `json:"instanceIDs"`
+	// Map of service names to instance IDs
+	ServiceMapping map[string]any `json:"serviceMapping"`
+	// Errors encountered
+	Errors []string `json:"errors,omitempty"`
+	// Installation progress
+	Progress *TemplateInstallProgress `json:"progress,omitempty"`
+}
+
 // Template preview result
 type TemplatePreview struct {
 	// The template that was previewed
@@ -4394,7 +6203,7 @@ type TemplatePreview struct {
 	// Rendered body after variable substitution
 	RenderedBody string `json:"renderedBody"`
 	// Variables used in preview
-	Variables map[string]interface{} `json:"variables"`
+	Variables map[string]any `json:"variables"`
 	// Validation information
 	ValidationInfo *TemplateValidationInfo `json:"validationInfo"`
 }
@@ -4434,7 +6243,7 @@ type TemplateRule struct {
 	// Position in the chain (null = append to end)
 	Position *int `json:"position,omitempty"`
 	// Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})
-	Properties map[string]interface{} `json:"properties"`
+	Properties map[string]any `json:"properties"`
 }
 
 // Input for defining a template rule.
@@ -4450,7 +6259,7 @@ type TemplateRuleInput struct {
 	// Position
 	Position graphql.Omittable[*int] `json:"position,omitempty"`
 	// Rule properties as JSON
-	Properties map[string]interface{} `json:"properties"`
+	Properties map[string]any `json:"properties"`
 }
 
 // Template validation information
@@ -4461,6 +6270,30 @@ type TemplateValidationInfo struct {
 	MissingVariables []string `json:"missingVariables"`
 	// Validation warnings
 	Warnings []string `json:"warnings"`
+}
+
+// Configuration variable for a template
+type TemplateVariable struct {
+	// Variable name (e.g., 'TOR_NAME')
+	Name string `json:"name"`
+	// Variable type
+	Type TemplateVariableType `json:"type"`
+	// Whether the variable is required
+	Required bool `json:"required"`
+	// Default value (can be null)
+	Default map[string]any `json:"default,omitempty"`
+	// Human-readable description
+	Description string `json:"description"`
+	// Display label for UI
+	Label string `json:"label"`
+	// Regex pattern for validation
+	ValidationPattern *string `json:"validationPattern,omitempty"`
+	// Minimum value for number types
+	MinValue *float64 `json:"minValue,omitempty"`
+	// Maximum value for number types
+	MaxValue *float64 `json:"maxValue,omitempty"`
+	// Allowed values for enum types
+	EnumValues []map[string]any `json:"enumValues,omitempty"`
 }
 
 // Result of testing all router credentials.
@@ -4570,7 +6403,7 @@ type TopologyEdge struct {
 	// Edge label (optional)
 	Label *string `json:"label,omitempty"`
 	// Additional edge data
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 	// Edge styling
 	Style *TopologyEdgeStyle `json:"style,omitempty"`
 }
@@ -4598,7 +6431,7 @@ type TopologyNode struct {
 	// Node position in the diagram
 	Position *TopologyPosition `json:"position"`
 	// Additional node data
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 	// Node styling
 	Style *TopologyNodeStyle `json:"style,omitempty"`
 }
@@ -4697,6 +6530,87 @@ type TracerouteResult struct {
 	StartedAt time.Time `json:"startedAt"`
 	// When the traceroute completed (if finished)
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
+}
+
+// A single traffic data point for time-series visualization.
+// Represents traffic volume at a specific timestamp.
+type TrafficDataPoint struct {
+	// Timestamp of this data point
+	Timestamp time.Time `json:"timestamp"`
+	// Bytes uploaded in this interval
+	UploadBytes int `json:"uploadBytes"`
+	// Bytes downloaded in this interval
+	DownloadBytes int `json:"downloadBytes"`
+	// Total bytes (upload + download)
+	TotalBytes int `json:"totalBytes"`
+}
+
+// Traffic quota configuration for a service instance.
+// Allows setting bandwidth limits with automated warnings and actions.
+type TrafficQuota struct {
+	// Quota ID
+	ID string `json:"id"`
+	// Instance ID this quota applies to
+	InstanceID string `json:"instanceID"`
+	// Maximum bytes allowed per period (0 = unlimited)
+	LimitBytes int `json:"limitBytes"`
+	// Quota period (daily, weekly, monthly)
+	Period QuotaPeriod `json:"period"`
+	// Action to take when quota is reached
+	Action QuotaAction `json:"action"`
+	// Bytes consumed in current period
+	ConsumedBytes int `json:"consumedBytes"`
+	// Remaining bytes in current period
+	RemainingBytes int `json:"remainingBytes"`
+	// Usage percentage (0-100)
+	UsagePercent float64 `json:"usagePercent"`
+	// Whether quota limit has been reached
+	LimitReached bool `json:"limitReached"`
+	// Warning threshold percentage (0-100, triggers warning alert)
+	WarningThreshold int `json:"warningThreshold"`
+	// Whether warning threshold has been exceeded
+	WarningTriggered bool `json:"warningTriggered"`
+	// When the current period started
+	PeriodStartedAt time.Time `json:"periodStartedAt"`
+	// When the current period will reset
+	PeriodEndsAt time.Time `json:"periodEndsAt"`
+	// Timestamp when quota was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Timestamp when quota was last updated
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// Payload for traffic quota mutation.
+type TrafficQuotaPayload struct {
+	// Whether the operation succeeded
+	Success bool `json:"success"`
+	// Updated or created quota (null if failed)
+	Quota *TrafficQuota `json:"quota,omitempty"`
+	// Mutation errors
+	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Traffic statistics update event for subscriptions.
+// Emitted when traffic stats are updated (every 10 seconds).
+type TrafficStatsEvent struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Total bytes uploaded
+	TotalUploadBytes int `json:"totalUploadBytes"`
+	// Total bytes downloaded
+	TotalDownloadBytes int `json:"totalDownloadBytes"`
+	// Upload bytes since last update
+	DeltaUploadBytes int `json:"deltaUploadBytes"`
+	// Download bytes since last update
+	DeltaDownloadBytes int `json:"deltaDownloadBytes"`
+	// Whether quota warning was triggered
+	QuotaWarning bool `json:"quotaWarning"`
+	// Whether quota limit was reached
+	QuotaLimitReached bool `json:"quotaLimitReached"`
+	// Timestamp of this update
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Suggested fix for a failed diagnostic step
@@ -4926,7 +6840,7 @@ type UpdateChangeSetItemInput struct {
 	// Updated description
 	Description graphql.Omittable[*string] `json:"description,omitempty"`
 	// Updated configuration
-	Configuration graphql.Omittable[map[string]interface{}] `json:"configuration,omitempty"`
+	Configuration graphql.Omittable[map[string]any] `json:"configuration,omitempty"`
 	// Updated dependencies
 	Dependencies graphql.Omittable[[]string] `json:"dependencies,omitempty"`
 }
@@ -4936,6 +6850,44 @@ type UpdateChangeSetItemPayload struct {
 	ChangeSet *ChangeSet `json:"changeSet,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for configuring update check schedule for an instance.
+type UpdateCheckScheduleInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Update check schedule (e.g., '6h', '12h', '24h', 'manual')
+	CheckSchedule string `json:"checkSchedule"`
+	// Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL)
+	AutoApplyThreshold string `json:"autoApplyThreshold"`
+}
+
+// Available update information for a service instance.
+type UpdateInfo struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Feature ID
+	FeatureID string `json:"featureID"`
+	// Current installed version
+	CurrentVersion string `json:"currentVersion"`
+	// Available update version
+	AvailableVersion string `json:"availableVersion"`
+	// Update severity
+	Severity UpdateSeverity `json:"severity"`
+	// Release notes/changelog
+	ReleaseNotes string `json:"releaseNotes"`
+	// When the update was published
+	PublishedAt time.Time `json:"publishedAt"`
+	// Download URL for the new binary
+	DownloadURL string `json:"downloadURL"`
+	// Checksum URL for verification
+	ChecksumURL *string `json:"checksumURL,omitempty"`
+	// Binary size in bytes
+	SizeBytes int `json:"sizeBytes"`
+	// Target architecture
+	Architecture string `json:"architecture"`
 }
 
 // Input for updating interface settings
@@ -4967,7 +6919,7 @@ type UpdateNotificationChannelConfigInput struct {
 	// Set as default (optional)
 	IsDefault graphql.Omittable[*bool] `json:"isDefault,omitempty"`
 	// New configuration (optional, replaces entire config if provided)
-	Config graphql.Omittable[map[string]interface{}] `json:"config,omitempty"`
+	Config graphql.Omittable[map[string]any] `json:"config,omitempty"`
 }
 
 // Input for updating an existing port mirror configuration
@@ -4984,10 +6936,30 @@ type UpdatePortMirrorInput struct {
 	Comment graphql.Omittable[*string] `json:"comment,omitempty"`
 }
 
+// Update progress during atomic update process.
+type UpdateProgress struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Feature ID
+	FeatureID string `json:"featureID"`
+	// Current version
+	FromVersion string `json:"fromVersion"`
+	// Target version
+	ToVersion string `json:"toVersion"`
+	// Current stage
+	Stage UpdateStage `json:"stage"`
+	// Progress percentage (0-100)
+	Progress int `json:"progress"`
+	// Current stage message
+	Message string `json:"message"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
 // Input for updating resource configuration
 type UpdateResourceInput struct {
 	// Updated configuration (partial or full)
-	Configuration graphql.Omittable[map[string]interface{}] `json:"configuration,omitempty"`
+	Configuration graphql.Omittable[map[string]any] `json:"configuration,omitempty"`
 	// Updated relationships
 	Relationships graphql.Omittable[*ResourceRelationshipsInput] `json:"relationships,omitempty"`
 	// Updated tags
@@ -5001,6 +6973,28 @@ type UpdateResourcePayload struct {
 	Resource Resource `json:"resource,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Update result after completion or failure.
+type UpdateResult struct {
+	// Whether the update succeeded
+	Success bool `json:"success"`
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Version updated to (if successful)
+	Version *string `json:"version,omitempty"`
+	// Error message (if failed)
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+	// Whether rollback occurred
+	RolledBack bool `json:"rolledBack"`
+	// Total duration in milliseconds
+	DurationMs int `json:"durationMs"`
+	// Update stages completed
+	CompletedStages []UpdateStage `json:"completedStages"`
+	// Stage where failure occurred (if failed)
+	FailedStage *UpdateStage `json:"failedStage,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Input for updating router settings
@@ -5024,6 +7018,20 @@ type UpdateRouterPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for updating an existing routing schedule.
+type UpdateScheduleInput struct {
+	// Days of week (0=Sunday, 6=Saturday)
+	Days graphql.Omittable[[]int] `json:"days,omitempty"`
+	// Start time in HH:MM format (24-hour)
+	StartTime graphql.Omittable[*string] `json:"startTime,omitempty"`
+	// End time in HH:MM format (24-hour)
+	EndTime graphql.Omittable[*string] `json:"endTime,omitempty"`
+	// IANA timezone identifier
+	Timezone graphql.Omittable[*string] `json:"timezone,omitempty"`
+	// Whether schedule is enabled
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+}
+
 // Input for updating a webhook
 type UpdateWebhookInput struct {
 	// Human-readable webhook name
@@ -5043,7 +7051,7 @@ type UpdateWebhookInput struct {
 	// Bearer token for Bearer auth (only set if provided)
 	BearerToken graphql.Omittable[*string] `json:"bearerToken,omitempty"`
 	// Custom HTTP headers (as JSON object)
-	Headers graphql.Omittable[map[string]interface{}] `json:"headers,omitempty"`
+	Headers graphql.Omittable[map[string]any] `json:"headers,omitempty"`
 	// Template type for webhook payload
 	Template graphql.Omittable[*WebhookTemplate] `json:"template,omitempty"`
 	// Custom template body
@@ -5154,6 +7162,64 @@ type VIFRequirements struct {
 	GuidanceSteps []*VIFGuidanceStep `json:"guidanceSteps"`
 }
 
+// VLANAllocation represents an automatic VLAN allocation for a service instance.
+//
+// Each allocation reserves a VLAN ID from the pool and generates a corresponding
+// subnet (e.g., 10.8.100.0/24) for network isolation. Allocations are automatically
+// created when service instances are provisioned and released when deleted.
+//
+// The system prevents conflicts with existing router VLANs through automatic
+// detection via VlanService composition.
+type VLANAllocation struct {
+	// Unique allocation ID (ULID)
+	ID string `json:"id"`
+	// Router ID this VLAN allocation belongs to
+	RouterID string `json:"routerID"`
+	// VLAN ID (IEEE 802.1Q range: 1-4094)
+	VlanID int `json:"vlanID"`
+	// Service instance ID that owns this VLAN
+	InstanceID string `json:"instanceID"`
+	// Service type (e.g., 'tor', 'xray', 'singbox')
+	ServiceType string `json:"serviceType"`
+	// Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24')
+	Subnet *string `json:"subnet,omitempty"`
+	// Allocation lifecycle status
+	Status VLANAllocationStatus `json:"status"`
+	// Timestamp when VLAN was allocated
+	AllocatedAt time.Time `json:"allocatedAt"`
+	// Timestamp when VLAN was released (null if still allocated)
+	ReleasedAt *time.Time `json:"releasedAt,omitempty"`
+	// Router this VLAN belongs to
+	Router *Router `json:"router"`
+	// Service instance that owns this VLAN
+	ServiceInstance *ServiceInstance `json:"serviceInstance"`
+}
+
+func (VLANAllocation) IsNode() {}
+
+// VLANPoolStatus represents the current state of the VLAN pool for a router.
+//
+// Provides utilization metrics and warnings when the pool is approaching exhaustion.
+// Useful for capacity planning and monitoring.
+type VLANPoolStatus struct {
+	// Router ID this pool status applies to
+	RouterID string `json:"routerID"`
+	// Total number of VLANs in the pool (e.g., 100 for range 100-199)
+	TotalVLANs int `json:"totalVLANs"`
+	// Number of currently allocated VLANs
+	AllocatedVLANs int `json:"allocatedVLANs"`
+	// Number of available VLANs remaining
+	AvailableVLANs int `json:"availableVLANs"`
+	// Utilization percentage (0.0 - 100.0)
+	Utilization float64 `json:"utilization"`
+	// Warning flag if utilization > 80%
+	ShouldWarn bool `json:"shouldWarn"`
+	// Pool configuration (start VLAN ID)
+	PoolStart int `json:"poolStart"`
+	// Pool configuration (end VLAN ID)
+	PoolEnd int `json:"poolEnd"`
+}
+
 // VPN tunnel information for routes through VPN
 type VPNTunnelInfo struct {
 	// Tunnel name
@@ -5182,6 +7248,16 @@ type ValidateResourcePayload struct {
 	Validation *ValidationResult `json:"validation,omitempty"`
 	// Errors that occurred
 	Errors []*MutationError `json:"errors,omitempty"`
+}
+
+// Input for validating service configuration
+type ValidateServiceConfigInput struct {
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Service instance ID
+	InstanceID string `json:"instanceID"`
+	// Configuration to validate (as JSON)
+	Config map[string]any `json:"config"`
 }
 
 // Field-level validation error with suggestions for fixing.
@@ -5233,6 +7309,90 @@ type ValidationResult struct {
 	ValidatedAt time.Time `json:"validatedAt"`
 	// Duration of validation in milliseconds
 	ValidationDurationMs int `json:"validationDurationMs"`
+}
+
+// Verification event for subscriptions.
+type VerificationEvent struct {
+	// Instance ID
+	InstanceID string `json:"instanceID"`
+	// Feature ID
+	FeatureID string `json:"featureID"`
+	// Router ID
+	RouterID string `json:"routerID"`
+	// Event type (verified, verification_failed, integrity_failed)
+	EventType string `json:"eventType"`
+	// Archive hash
+	ArchiveHash *string `json:"archiveHash,omitempty"`
+	// Binary hash
+	BinaryHash *string `json:"binaryHash,omitempty"`
+	// Expected hash (for failures)
+	ExpectedHash *string `json:"expectedHash,omitempty"`
+	// Actual hash (for failures)
+	ActualHash *string `json:"actualHash,omitempty"`
+	// GPG verified
+	GpgVerified bool `json:"gpgVerified"`
+	// GPG key ID
+	GpgKeyID *string `json:"gpgKeyID,omitempty"`
+	// Failure reason (for failures)
+	FailureReason *string `json:"failureReason,omitempty"`
+	// Suggested action (for failures)
+	SuggestedAction *string `json:"suggestedAction,omitempty"`
+	// Timestamp
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// Virtual network interface for service instance isolation.
+// Each service instance gets its own VLAN interface with routing mark.
+type VirtualInterface struct {
+	// Interface ID (ULID)
+	ID string `json:"id"`
+	// Service instance ID this interface belongs to
+	InstanceID string `json:"instanceId"`
+	// Interface name (e.g., vlan100)
+	Name string `json:"name"`
+	// VLAN ID for network isolation
+	VlanID int `json:"vlanId"`
+	// IP address assigned to this interface
+	IPAddress string `json:"ipAddress"`
+	// Gateway type (tunnel, direct, etc.)
+	GatewayType GatewayType `json:"gatewayType"`
+	// Gateway runtime status
+	GatewayStatus GatewayStatus `json:"gatewayStatus"`
+	// Tunnel interface name (for HEV tunnel)
+	TunName *string `json:"tunName,omitempty"`
+	// Routing mark for policy routing
+	RoutingMark string `json:"routingMark"`
+	// Interface lifecycle status
+	Status VirtualInterfaceStatus `json:"status"`
+	// When the interface was created
+	CreatedAt time.Time `json:"createdAt"`
+	// Last update timestamp
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// Virtual interface information for routing matrix.
+// Simplified view of VirtualInterface for device routing selection.
+type VirtualInterfaceInfo struct {
+	// Interface ID
+	ID string `json:"id"`
+	// Service instance ID
+	InstanceID string `json:"instanceID"`
+	// Service instance name
+	InstanceName string `json:"instanceName"`
+	// Interface name (e.g., vlan100)
+	InterfaceName string `json:"interfaceName"`
+	// VLAN ID
+	VlanID int `json:"vlanID"`
+	// IP address
+	IPAddress string `json:"ipAddress"`
+	// Routing mark for PBR
+	RoutingMark string `json:"routingMark"`
+	// Interface status
+	Status string `json:"status"`
+	// Gateway type
+	GatewayType string `json:"gatewayType"`
+	// Gateway status
+	GatewayStatus string `json:"gatewayStatus"`
 }
 
 // A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging
@@ -5439,7 +7599,7 @@ type WANLink struct {
 	ScopedID      string                 `json:"scopedId"`
 	Type          string                 `json:"type"`
 	Category      ResourceCategory       `json:"category"`
-	Configuration map[string]interface{} `json:"configuration,omitempty"`
+	Configuration map[string]any         `json:"configuration,omitempty"`
 	Validation    *ValidationResult      `json:"validation,omitempty"`
 	Deployment    *DeploymentState       `json:"deployment,omitempty"`
 	Runtime       *RuntimeState          `json:"runtime,omitempty"`
@@ -5517,7 +7677,7 @@ type Webhook struct {
 	// Bearer token (masked, only shown on creation)
 	BearerToken *string `json:"bearerToken,omitempty"`
 	// Custom HTTP headers (as JSON object)
-	Headers map[string]interface{} `json:"headers,omitempty"`
+	Headers map[string]any `json:"headers,omitempty"`
 	// Template type for webhook payload
 	Template WebhookTemplate `json:"template"`
 	// Custom template body (for CUSTOM template type)
@@ -5596,7 +7756,7 @@ type WireGuardClient struct {
 	ScopedID            string                 `json:"scopedId"`
 	Type                string                 `json:"type"`
 	Category            ResourceCategory       `json:"category"`
-	Configuration       map[string]interface{} `json:"configuration,omitempty"`
+	Configuration       map[string]any         `json:"configuration,omitempty"`
 	Validation          *ValidationResult      `json:"validation,omitempty"`
 	Deployment          *DeploymentState       `json:"deployment,omitempty"`
 	Runtime             *RuntimeState          `json:"runtime,omitempty"`
@@ -5701,7 +7861,7 @@ func (e AlertAction) String() string {
 	return string(e)
 }
 
-func (e *AlertAction) UnmarshalGQL(v interface{}) error {
+func (e *AlertAction) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5716,6 +7876,20 @@ func (e *AlertAction) UnmarshalGQL(v interface{}) error {
 
 func (e AlertAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AlertAction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AlertAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Alert rule template categories
@@ -5760,7 +7934,7 @@ func (e AlertRuleTemplateCategory) String() string {
 	return string(e)
 }
 
-func (e *AlertRuleTemplateCategory) UnmarshalGQL(v interface{}) error {
+func (e *AlertRuleTemplateCategory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5775,6 +7949,20 @@ func (e *AlertRuleTemplateCategory) UnmarshalGQL(v interface{}) error {
 
 func (e AlertRuleTemplateCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AlertRuleTemplateCategory) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AlertRuleTemplateCategory) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Variable types for alert rule templates
@@ -5810,7 +7998,7 @@ func (e AlertRuleTemplateVariableType) String() string {
 	return string(e)
 }
 
-func (e *AlertRuleTemplateVariableType) UnmarshalGQL(v interface{}) error {
+func (e *AlertRuleTemplateVariableType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5825,6 +8013,20 @@ func (e *AlertRuleTemplateVariableType) UnmarshalGQL(v interface{}) error {
 
 func (e AlertRuleTemplateVariableType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AlertRuleTemplateVariableType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AlertRuleTemplateVariableType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Alert severity levels
@@ -5857,7 +8059,7 @@ func (e AlertSeverity) String() string {
 	return string(e)
 }
 
-func (e *AlertSeverity) UnmarshalGQL(v interface{}) error {
+func (e *AlertSeverity) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5872,6 +8074,20 @@ func (e *AlertSeverity) UnmarshalGQL(v interface{}) error {
 
 func (e AlertSeverity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AlertSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AlertSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Template variable types for notification templates
@@ -5913,7 +8129,7 @@ func (e AlertTemplateVariableType) String() string {
 	return string(e)
 }
 
-func (e *AlertTemplateVariableType) UnmarshalGQL(v interface{}) error {
+func (e *AlertTemplateVariableType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5928,6 +8144,20 @@ func (e *AlertTemplateVariableType) UnmarshalGQL(v interface{}) error {
 
 func (e AlertTemplateVariableType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AlertTemplateVariableType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AlertTemplateVariableType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Actions available for batch interface operations
@@ -5957,7 +8187,7 @@ func (e BatchInterfaceAction) String() string {
 	return string(e)
 }
 
-func (e *BatchInterfaceAction) UnmarshalGQL(v interface{}) error {
+func (e *BatchInterfaceAction) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -5972,6 +8202,20 @@ func (e *BatchInterfaceAction) UnmarshalGQL(v interface{}) error {
 
 func (e BatchInterfaceAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *BatchInterfaceAction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e BatchInterfaceAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Frame types that can be admitted on a bridge port
@@ -6004,7 +8248,7 @@ func (e BridgePortFrameTypes) String() string {
 	return string(e)
 }
 
-func (e *BridgePortFrameTypes) UnmarshalGQL(v interface{}) error {
+func (e *BridgePortFrameTypes) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6019,6 +8263,20 @@ func (e *BridgePortFrameTypes) UnmarshalGQL(v interface{}) error {
 
 func (e BridgePortFrameTypes) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *BridgePortFrameTypes) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e BridgePortFrameTypes) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type CacheScope string
@@ -6045,7 +8303,7 @@ func (e CacheScope) String() string {
 	return string(e)
 }
 
-func (e *CacheScope) UnmarshalGQL(v interface{}) error {
+func (e *CacheScope) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6060,6 +8318,20 @@ func (e *CacheScope) UnmarshalGQL(v interface{}) error {
 
 func (e CacheScope) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CacheScope) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CacheScope) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Feature capability categories detected on routers.
@@ -6120,7 +8392,7 @@ func (e Capability) String() string {
 	return string(e)
 }
 
-func (e *Capability) UnmarshalGQL(v interface{}) error {
+func (e *Capability) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6135,6 +8407,20 @@ func (e *Capability) UnmarshalGQL(v interface{}) error {
 
 func (e Capability) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Capability) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Capability) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Capability support level for a feature.
@@ -6171,7 +8457,7 @@ func (e CapabilityLevel) String() string {
 	return string(e)
 }
 
-func (e *CapabilityLevel) UnmarshalGQL(v interface{}) error {
+func (e *CapabilityLevel) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6186,6 +8472,20 @@ func (e *CapabilityLevel) UnmarshalGQL(v interface{}) error {
 
 func (e CapabilityLevel) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CapabilityLevel) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CapabilityLevel) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Type of operation to perform on a resource
@@ -6218,7 +8518,7 @@ func (e ChangeOperation) String() string {
 	return string(e)
 }
 
-func (e *ChangeOperation) UnmarshalGQL(v interface{}) error {
+func (e *ChangeOperation) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6233,6 +8533,20 @@ func (e *ChangeOperation) UnmarshalGQL(v interface{}) error {
 
 func (e ChangeOperation) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ChangeOperation) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ChangeOperation) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of individual items within a change set
@@ -6277,7 +8591,7 @@ func (e ChangeSetItemStatus) String() string {
 	return string(e)
 }
 
-func (e *ChangeSetItemStatus) UnmarshalGQL(v interface{}) error {
+func (e *ChangeSetItemStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6292,6 +8606,20 @@ func (e *ChangeSetItemStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ChangeSetItemStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ChangeSetItemStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ChangeSetItemStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Change set lifecycle status
@@ -6345,7 +8673,7 @@ func (e ChangeSetStatus) String() string {
 	return string(e)
 }
 
-func (e *ChangeSetStatus) UnmarshalGQL(v interface{}) error {
+func (e *ChangeSetStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6360,6 +8688,20 @@ func (e *ChangeSetStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ChangeSetStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ChangeSetStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ChangeSetStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Type of change for resource events
@@ -6389,7 +8731,7 @@ func (e ChangeType) String() string {
 	return string(e)
 }
 
-func (e *ChangeType) UnmarshalGQL(v interface{}) error {
+func (e *ChangeType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6404,6 +8746,20 @@ func (e *ChangeType) UnmarshalGQL(v interface{}) error {
 
 func (e ChangeType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ChangeType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ChangeType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Type of notification channel
@@ -6437,7 +8793,7 @@ func (e ChannelType) String() string {
 	return string(e)
 }
 
-func (e *ChannelType) UnmarshalGQL(v interface{}) error {
+func (e *ChannelType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6452,6 +8808,20 @@ func (e *ChannelType) UnmarshalGQL(v interface{}) error {
 
 func (e ChannelType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ChannelType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ChannelType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Circuit breaker state
@@ -6484,7 +8854,7 @@ func (e CircuitBreakerState) String() string {
 	return string(e)
 }
 
-func (e *CircuitBreakerState) UnmarshalGQL(v interface{}) error {
+func (e *CircuitBreakerState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6499,6 +8869,20 @@ func (e *CircuitBreakerState) UnmarshalGQL(v interface{}) error {
 
 func (e CircuitBreakerState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CircuitBreakerState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CircuitBreakerState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Condition comparison operators
@@ -6540,7 +8924,7 @@ func (e ConditionOperator) String() string {
 	return string(e)
 }
 
-func (e *ConditionOperator) UnmarshalGQL(v interface{}) error {
+func (e *ConditionOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6555,6 +8939,20 @@ func (e *ConditionOperator) UnmarshalGQL(v interface{}) error {
 
 func (e ConditionOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConditionOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConditionOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a configuration apply operation
@@ -6592,7 +8990,7 @@ func (e ConfigApplyStatus) String() string {
 	return string(e)
 }
 
-func (e *ConfigApplyStatus) UnmarshalGQL(v interface{}) error {
+func (e *ConfigApplyStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6607,6 +9005,108 @@ func (e *ConfigApplyStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ConfigApplyStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConfigApplyStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConfigApplyStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Configuration field type for dynamic form generation
+type ConfigFieldType string
+
+const (
+	// Single-line text input
+	ConfigFieldTypeText ConfigFieldType = "TEXT"
+	// Multi-line text area
+	ConfigFieldTypeTextArea ConfigFieldType = "TEXT_AREA"
+	// Number input
+	ConfigFieldTypeNumber ConfigFieldType = "NUMBER"
+	// Boolean toggle/checkbox
+	ConfigFieldTypeToggle ConfigFieldType = "TOGGLE"
+	// Single-select dropdown
+	ConfigFieldTypeSelect ConfigFieldType = "SELECT"
+	// Multi-select dropdown
+	ConfigFieldTypeMultiSelect ConfigFieldType = "MULTI_SELECT"
+	// Array of text inputs
+	ConfigFieldTypeTextArray ConfigFieldType = "TEXT_ARRAY"
+	// Password input (masked)
+	ConfigFieldTypePassword ConfigFieldType = "PASSWORD"
+	// IP address input
+	ConfigFieldTypeIP ConfigFieldType = "IP"
+	// Port number input
+	ConfigFieldTypePort ConfigFieldType = "PORT"
+	// Email input
+	ConfigFieldTypeEmail ConfigFieldType = "EMAIL"
+	// URL input
+	ConfigFieldTypeURL ConfigFieldType = "URL"
+)
+
+var AllConfigFieldType = []ConfigFieldType{
+	ConfigFieldTypeText,
+	ConfigFieldTypeTextArea,
+	ConfigFieldTypeNumber,
+	ConfigFieldTypeToggle,
+	ConfigFieldTypeSelect,
+	ConfigFieldTypeMultiSelect,
+	ConfigFieldTypeTextArray,
+	ConfigFieldTypePassword,
+	ConfigFieldTypeIP,
+	ConfigFieldTypePort,
+	ConfigFieldTypeEmail,
+	ConfigFieldTypeURL,
+}
+
+func (e ConfigFieldType) IsValid() bool {
+	switch e {
+	case ConfigFieldTypeText, ConfigFieldTypeTextArea, ConfigFieldTypeNumber, ConfigFieldTypeToggle, ConfigFieldTypeSelect, ConfigFieldTypeMultiSelect, ConfigFieldTypeTextArray, ConfigFieldTypePassword, ConfigFieldTypeIP, ConfigFieldTypePort, ConfigFieldTypeEmail, ConfigFieldTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e ConfigFieldType) String() string {
+	return string(e)
+}
+
+func (e *ConfigFieldType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConfigFieldType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConfigFieldType", str)
+	}
+	return nil
+}
+
+func (e ConfigFieldType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConfigFieldType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConfigFieldType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Severity level for confirmation dialogs
@@ -6636,7 +9136,7 @@ func (e ConfirmationSeverity) String() string {
 	return string(e)
 }
 
-func (e *ConfirmationSeverity) UnmarshalGQL(v interface{}) error {
+func (e *ConfirmationSeverity) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6651,6 +9151,82 @@ func (e *ConfirmationSeverity) UnmarshalGQL(v interface{}) error {
 
 func (e ConfirmationSeverity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConfirmationSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConfirmationSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Conflict resolution strategy for service import.
+// Determines what happens when an imported service name already exists.
+type ConflictResolution string
+
+const (
+	// Skip import, leave existing instance unchanged
+	ConflictResolutionSkip ConflictResolution = "SKIP"
+	// Overwrite existing instance configuration
+	ConflictResolutionOverwrite ConflictResolution = "OVERWRITE"
+	// Create new instance with renamed name
+	ConflictResolutionRename ConflictResolution = "RENAME"
+)
+
+var AllConflictResolution = []ConflictResolution{
+	ConflictResolutionSkip,
+	ConflictResolutionOverwrite,
+	ConflictResolutionRename,
+}
+
+func (e ConflictResolution) IsValid() bool {
+	switch e {
+	case ConflictResolutionSkip, ConflictResolutionOverwrite, ConflictResolutionRename:
+		return true
+	}
+	return false
+}
+
+func (e ConflictResolution) String() string {
+	return string(e)
+}
+
+func (e *ConflictResolution) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ConflictResolution(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ConflictResolution", str)
+	}
+	return nil
+}
+
+func (e ConflictResolution) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConflictResolution) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConflictResolution) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Types of resource conflicts
@@ -6692,7 +9268,7 @@ func (e ConflictType) String() string {
 	return string(e)
 }
 
-func (e *ConflictType) UnmarshalGQL(v interface{}) error {
+func (e *ConflictType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6707,6 +9283,20 @@ func (e *ConflictType) UnmarshalGQL(v interface{}) error {
 
 func (e ConflictType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConflictType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConflictType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Error codes for connection failures.
@@ -6761,7 +9351,7 @@ func (e ConnectionErrorCode) String() string {
 	return string(e)
 }
 
-func (e *ConnectionErrorCode) UnmarshalGQL(v interface{}) error {
+func (e *ConnectionErrorCode) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6776,6 +9366,20 @@ func (e *ConnectionErrorCode) UnmarshalGQL(v interface{}) error {
 
 func (e ConnectionErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConnectionErrorCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConnectionErrorCode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Router connection status
@@ -6811,7 +9415,7 @@ func (e ConnectionStatus) String() string {
 	return string(e)
 }
 
-func (e *ConnectionStatus) UnmarshalGQL(v interface{}) error {
+func (e *ConnectionStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6826,6 +9430,20 @@ func (e *ConnectionStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ConnectionStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ConnectionStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ConnectionStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Error codes specific to credential operations.
@@ -6873,7 +9491,7 @@ func (e CredentialErrorCode) String() string {
 	return string(e)
 }
 
-func (e *CredentialErrorCode) UnmarshalGQL(v interface{}) error {
+func (e *CredentialErrorCode) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6888,6 +9506,20 @@ func (e *CredentialErrorCode) UnmarshalGQL(v interface{}) error {
 
 func (e CredentialErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CredentialErrorCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CredentialErrorCode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a credential test.
@@ -6932,7 +9564,7 @@ func (e CredentialTestStatus) String() string {
 	return string(e)
 }
 
-func (e *CredentialTestStatus) UnmarshalGQL(v interface{}) error {
+func (e *CredentialTestStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -6947,6 +9579,142 @@ func (e *CredentialTestStatus) UnmarshalGQL(v interface{}) error {
 
 func (e CredentialTestStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CredentialTestStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CredentialTestStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// DependencyType defines the strength of the dependency relationship.
+type DependencyType string
+
+const (
+	// REQUIRES: Hard dependency - dependent cannot start without this dependency
+	DependencyTypeRequires DependencyType = "REQUIRES"
+	// OPTIONAL: Soft dependency - dependent can start even if this dependency is unavailable
+	DependencyTypeOptional DependencyType = "OPTIONAL"
+)
+
+var AllDependencyType = []DependencyType{
+	DependencyTypeRequires,
+	DependencyTypeOptional,
+}
+
+func (e DependencyType) IsValid() bool {
+	switch e {
+	case DependencyTypeRequires, DependencyTypeOptional:
+		return true
+	}
+	return false
+}
+
+func (e DependencyType) String() string {
+	return string(e)
+}
+
+func (e *DependencyType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DependencyType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DependencyType", str)
+	}
+	return nil
+}
+
+func (e DependencyType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DependencyType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DependencyType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Diagnostic test status.
+type DiagnosticStatus string
+
+const (
+	// Test passed successfully
+	DiagnosticStatusPass DiagnosticStatus = "PASS"
+	// Test failed
+	DiagnosticStatusFail DiagnosticStatus = "FAIL"
+	// Test completed with warnings
+	DiagnosticStatusWarning DiagnosticStatus = "WARNING"
+	// Test was skipped
+	DiagnosticStatusSkipped DiagnosticStatus = "SKIPPED"
+)
+
+var AllDiagnosticStatus = []DiagnosticStatus{
+	DiagnosticStatusPass,
+	DiagnosticStatusFail,
+	DiagnosticStatusWarning,
+	DiagnosticStatusSkipped,
+}
+
+func (e DiagnosticStatus) IsValid() bool {
+	switch e {
+	case DiagnosticStatusPass, DiagnosticStatusFail, DiagnosticStatusWarning, DiagnosticStatusSkipped:
+		return true
+	}
+	return false
+}
+
+func (e DiagnosticStatus) String() string {
+	return string(e)
+}
+
+func (e *DiagnosticStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = DiagnosticStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid DiagnosticStatus", str)
+	}
+	return nil
+}
+
+func (e DiagnosticStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DiagnosticStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DiagnosticStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Reason for router disconnection
@@ -6991,7 +9759,7 @@ func (e DisconnectReason) String() string {
 	return string(e)
 }
 
-func (e *DisconnectReason) UnmarshalGQL(v interface{}) error {
+func (e *DisconnectReason) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7006,6 +9774,20 @@ func (e *DisconnectReason) UnmarshalGQL(v interface{}) error {
 
 func (e DisconnectReason) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DisconnectReason) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DisconnectReason) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // DNS lookup status codes
@@ -7047,7 +9829,7 @@ func (e DNSLookupStatus) String() string {
 	return string(e)
 }
 
-func (e *DNSLookupStatus) UnmarshalGQL(v interface{}) error {
+func (e *DNSLookupStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7062,6 +9844,20 @@ func (e *DNSLookupStatus) UnmarshalGQL(v interface{}) error {
 
 func (e DNSLookupStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DNSLookupStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DNSLookupStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // DNS record types supported
@@ -7112,7 +9908,7 @@ func (e DNSRecordType) String() string {
 	return string(e)
 }
 
-func (e *DNSRecordType) UnmarshalGQL(v interface{}) error {
+func (e *DNSRecordType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7127,6 +9923,20 @@ func (e *DNSRecordType) UnmarshalGQL(v interface{}) error {
 
 func (e DNSRecordType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DNSRecordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DNSRecordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status classification for DNS servers in benchmark
@@ -7162,7 +9972,7 @@ func (e DNSServerStatus) String() string {
 	return string(e)
 }
 
-func (e *DNSServerStatus) UnmarshalGQL(v interface{}) error {
+func (e *DNSServerStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7177,6 +9987,20 @@ func (e *DNSServerStatus) UnmarshalGQL(v interface{}) error {
 
 func (e DNSServerStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DNSServerStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DNSServerStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Actions to resolve drift
@@ -7209,7 +10033,7 @@ func (e DriftAction) String() string {
 	return string(e)
 }
 
-func (e *DriftAction) UnmarshalGQL(v interface{}) error {
+func (e *DriftAction) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7224,6 +10048,20 @@ func (e *DriftAction) UnmarshalGQL(v interface{}) error {
 
 func (e DriftAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *DriftAction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e DriftAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Category of connection error for classification
@@ -7265,7 +10103,7 @@ func (e ErrorCategory) String() string {
 	return string(e)
 }
 
-func (e *ErrorCategory) UnmarshalGQL(v interface{}) error {
+func (e *ErrorCategory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7280,6 +10118,20 @@ func (e *ErrorCategory) UnmarshalGQL(v interface{}) error {
 
 func (e ErrorCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ErrorCategory) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ErrorCategory) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Escalation status (NAS-18.9)
@@ -7312,7 +10164,7 @@ func (e EscalationStatus) String() string {
 	return string(e)
 }
 
-func (e *EscalationStatus) UnmarshalGQL(v interface{}) error {
+func (e *EscalationStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7327,6 +10179,20 @@ func (e *EscalationStatus) UnmarshalGQL(v interface{}) error {
 
 func (e EscalationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EscalationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EscalationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Firewall table types.
@@ -7362,7 +10228,7 @@ func (e FirewallTable) String() string {
 	return string(e)
 }
 
-func (e *FirewallTable) UnmarshalGQL(v interface{}) error {
+func (e *FirewallTable) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7377,6 +10243,20 @@ func (e *FirewallTable) UnmarshalGQL(v interface{}) error {
 
 func (e FirewallTable) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *FirewallTable) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e FirewallTable) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a fix application
@@ -7415,7 +10295,7 @@ func (e FixApplicationStatus) String() string {
 	return string(e)
 }
 
-func (e *FixApplicationStatus) UnmarshalGQL(v interface{}) error {
+func (e *FixApplicationStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7430,6 +10310,20 @@ func (e *FixApplicationStatus) UnmarshalGQL(v interface{}) error {
 
 func (e FixApplicationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *FixApplicationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e FixApplicationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Confidence level for a fix suggestion
@@ -7462,7 +10356,7 @@ func (e FixConfidence) String() string {
 	return string(e)
 }
 
-func (e *FixConfidence) UnmarshalGQL(v interface{}) error {
+func (e *FixConfidence) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7477,6 +10371,20 @@ func (e *FixConfidence) UnmarshalGQL(v interface{}) error {
 
 func (e FixConfidence) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *FixConfidence) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e FixConfidence) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type FrameTypes string
@@ -7505,7 +10413,7 @@ func (e FrameTypes) String() string {
 	return string(e)
 }
 
-func (e *FrameTypes) UnmarshalGQL(v interface{}) error {
+func (e *FrameTypes) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7520,6 +10428,206 @@ func (e *FrameTypes) UnmarshalGQL(v interface{}) error {
 
 func (e FrameTypes) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *FrameTypes) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e FrameTypes) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Gateway process state for monitoring
+type GatewayState string
+
+const (
+	// Gateway is running normally
+	GatewayStateRunning GatewayState = "RUNNING"
+	// Gateway is stopped
+	GatewayStateStopped GatewayState = "STOPPED"
+	// Gateway encountered an error
+	GatewayStateError GatewayState = "ERROR"
+	// Service does not need a gateway
+	GatewayStateNotNeeded GatewayState = "NOT_NEEDED"
+)
+
+var AllGatewayState = []GatewayState{
+	GatewayStateRunning,
+	GatewayStateStopped,
+	GatewayStateError,
+	GatewayStateNotNeeded,
+}
+
+func (e GatewayState) IsValid() bool {
+	switch e {
+	case GatewayStateRunning, GatewayStateStopped, GatewayStateError, GatewayStateNotNeeded:
+		return true
+	}
+	return false
+}
+
+func (e GatewayState) String() string {
+	return string(e)
+}
+
+func (e *GatewayState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GatewayState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GatewayState", str)
+	}
+	return nil
+}
+
+func (e GatewayState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GatewayState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GatewayState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Gateway runtime status.
+type GatewayStatus string
+
+const (
+	// Gateway process is stopped
+	GatewayStatusStopped GatewayStatus = "STOPPED"
+	// Gateway process is starting
+	GatewayStatusStarting GatewayStatus = "STARTING"
+	// Gateway process is running
+	GatewayStatusRunning GatewayStatus = "RUNNING"
+	// Gateway process failed to start
+	GatewayStatusFailed GatewayStatus = "FAILED"
+)
+
+var AllGatewayStatus = []GatewayStatus{
+	GatewayStatusStopped,
+	GatewayStatusStarting,
+	GatewayStatusRunning,
+	GatewayStatusFailed,
+}
+
+func (e GatewayStatus) IsValid() bool {
+	switch e {
+	case GatewayStatusStopped, GatewayStatusStarting, GatewayStatusRunning, GatewayStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e GatewayStatus) String() string {
+	return string(e)
+}
+
+func (e *GatewayStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GatewayStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GatewayStatus", str)
+	}
+	return nil
+}
+
+func (e GatewayStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GatewayStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GatewayStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Gateway type for virtual interface routing.
+type GatewayType string
+
+const (
+	// No gateway, direct routing
+	GatewayTypeNone GatewayType = "NONE"
+	// HEV SOCKS5 tunnel gateway
+	GatewayTypeHevSocks5Tunnel GatewayType = "HEV_SOCKS5_TUNNEL"
+)
+
+var AllGatewayType = []GatewayType{
+	GatewayTypeNone,
+	GatewayTypeHevSocks5Tunnel,
+}
+
+func (e GatewayType) IsValid() bool {
+	switch e {
+	case GatewayTypeNone, GatewayTypeHevSocks5Tunnel:
+		return true
+	}
+	return false
+}
+
+func (e GatewayType) String() string {
+	return string(e)
+}
+
+func (e *GatewayType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GatewayType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GatewayType", str)
+	}
+	return nil
+}
+
+func (e GatewayType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GatewayType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GatewayType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Health check status
@@ -7555,7 +10663,7 @@ func (e HealthCheckStatus) String() string {
 	return string(e)
 }
 
-func (e *HealthCheckStatus) UnmarshalGQL(v interface{}) error {
+func (e *HealthCheckStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7570,6 +10678,78 @@ func (e *HealthCheckStatus) UnmarshalGQL(v interface{}) error {
 
 func (e HealthCheckStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HealthCheckStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HealthCheckStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Connection status from health probe checks
+type HealthConnectionState string
+
+const (
+	HealthConnectionStateConnected  HealthConnectionState = "CONNECTED"
+	HealthConnectionStateConnecting HealthConnectionState = "CONNECTING"
+	HealthConnectionStateFailed     HealthConnectionState = "FAILED"
+)
+
+var AllHealthConnectionState = []HealthConnectionState{
+	HealthConnectionStateConnected,
+	HealthConnectionStateConnecting,
+	HealthConnectionStateFailed,
+}
+
+func (e HealthConnectionState) IsValid() bool {
+	switch e {
+	case HealthConnectionStateConnected, HealthConnectionStateConnecting, HealthConnectionStateFailed:
+		return true
+	}
+	return false
+}
+
+func (e HealthConnectionState) String() string {
+	return string(e)
+}
+
+func (e *HealthConnectionState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HealthConnectionState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HealthConnectionState", str)
+	}
+	return nil
+}
+
+func (e HealthConnectionState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HealthConnectionState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HealthConnectionState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a single hop in a traceroute
@@ -7605,7 +10785,7 @@ func (e HopStatus) String() string {
 	return string(e)
 }
 
-func (e *HopStatus) UnmarshalGQL(v interface{}) error {
+func (e *HopStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7620,6 +10800,80 @@ func (e *HopStatus) UnmarshalGQL(v interface{}) error {
 
 func (e HopStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HopStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HopStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Health status enumeration for service instances
+type InstanceHealthState string
+
+const (
+	InstanceHealthStateHealthy   InstanceHealthState = "HEALTHY"
+	InstanceHealthStateUnhealthy InstanceHealthState = "UNHEALTHY"
+	InstanceHealthStateUnknown   InstanceHealthState = "UNKNOWN"
+	InstanceHealthStateChecking  InstanceHealthState = "CHECKING"
+)
+
+var AllInstanceHealthState = []InstanceHealthState{
+	InstanceHealthStateHealthy,
+	InstanceHealthStateUnhealthy,
+	InstanceHealthStateUnknown,
+	InstanceHealthStateChecking,
+}
+
+func (e InstanceHealthState) IsValid() bool {
+	switch e {
+	case InstanceHealthStateHealthy, InstanceHealthStateUnhealthy, InstanceHealthStateUnknown, InstanceHealthStateChecking:
+		return true
+	}
+	return false
+}
+
+func (e InstanceHealthState) String() string {
+	return string(e)
+}
+
+func (e *InstanceHealthState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InstanceHealthState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InstanceHealthState", str)
+	}
+	return nil
+}
+
+func (e InstanceHealthState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *InstanceHealthState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e InstanceHealthState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Operational status of a network interface
@@ -7655,7 +10909,7 @@ func (e InterfaceStatus) String() string {
 	return string(e)
 }
 
-func (e *InterfaceStatus) UnmarshalGQL(v interface{}) error {
+func (e *InterfaceStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7670,6 +10924,20 @@ func (e *InterfaceStatus) UnmarshalGQL(v interface{}) error {
 
 func (e InterfaceStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *InterfaceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e InterfaceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Types of network interfaces
@@ -7713,7 +10981,7 @@ func (e InterfaceType) String() string {
 	return string(e)
 }
 
-func (e *InterfaceType) UnmarshalGQL(v interface{}) error {
+func (e *InterfaceType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7728,6 +10996,20 @@ func (e *InterfaceType) UnmarshalGQL(v interface{}) error {
 
 func (e InterfaceType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *InterfaceType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e InterfaceType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Type of IP address conflict
@@ -7763,7 +11045,7 @@ func (e IPConflictType) String() string {
 	return string(e)
 }
 
-func (e *IPConflictType) UnmarshalGQL(v interface{}) error {
+func (e *IPConflictType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7778,6 +11060,81 @@ func (e *IPConflictType) UnmarshalGQL(v interface{}) error {
 
 func (e IPConflictType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IPConflictType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IPConflictType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Severity level of an isolation violation.
+type IsolationSeverity string
+
+const (
+	// Critical error that blocks instance start
+	IsolationSeverityError IsolationSeverity = "ERROR"
+	// Warning that is logged but allows instance start
+	IsolationSeverityWarning IsolationSeverity = "WARNING"
+	// Informational message
+	IsolationSeverityInfo IsolationSeverity = "INFO"
+)
+
+var AllIsolationSeverity = []IsolationSeverity{
+	IsolationSeverityError,
+	IsolationSeverityWarning,
+	IsolationSeverityInfo,
+}
+
+func (e IsolationSeverity) IsValid() bool {
+	switch e {
+	case IsolationSeverityError, IsolationSeverityWarning, IsolationSeverityInfo:
+		return true
+	}
+	return false
+}
+
+func (e IsolationSeverity) String() string {
+	return string(e)
+}
+
+func (e *IsolationSeverity) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IsolationSeverity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IsolationSeverity", str)
+	}
+	return nil
+}
+
+func (e IsolationSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IsolationSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IsolationSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Job status for async traceroute execution
@@ -7816,7 +11173,7 @@ func (e JobStatus) String() string {
 	return string(e)
 }
 
-func (e *JobStatus) UnmarshalGQL(v interface{}) error {
+func (e *JobStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7831,6 +11188,81 @@ func (e *JobStatus) UnmarshalGQL(v interface{}) error {
 
 func (e JobStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *JobStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JobStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Kill switch behavior when any hop in a chain fails.
+type KillSwitchMode string
+
+const (
+	// Block all traffic from the device
+	KillSwitchModeBlockAll KillSwitchMode = "BLOCK_ALL"
+	// Fall back to a specified service
+	KillSwitchModeFallbackService KillSwitchMode = "FALLBACK_SERVICE"
+	// Allow direct internet access (no VPN)
+	KillSwitchModeAllowDirect KillSwitchMode = "ALLOW_DIRECT"
+)
+
+var AllKillSwitchMode = []KillSwitchMode{
+	KillSwitchModeBlockAll,
+	KillSwitchModeFallbackService,
+	KillSwitchModeAllowDirect,
+}
+
+func (e KillSwitchMode) IsValid() bool {
+	switch e {
+	case KillSwitchModeBlockAll, KillSwitchModeFallbackService, KillSwitchModeAllowDirect:
+		return true
+	}
+	return false
+}
+
+func (e KillSwitchMode) String() string {
+	return string(e)
+}
+
+func (e *KillSwitchMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = KillSwitchMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid KillSwitchMode", str)
+	}
+	return nil
+}
+
+func (e KillSwitchMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *KillSwitchMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e KillSwitchMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Protocol for knock port.
@@ -7863,7 +11295,7 @@ func (e KnockProtocol) String() string {
 	return string(e)
 }
 
-func (e *KnockProtocol) UnmarshalGQL(v interface{}) error {
+func (e *KnockProtocol) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7878,6 +11310,20 @@ func (e *KnockProtocol) UnmarshalGQL(v interface{}) error {
 
 func (e KnockProtocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *KnockProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e KnockProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of knock attempt.
@@ -7913,7 +11359,7 @@ func (e KnockStatus) String() string {
 	return string(e)
 }
 
-func (e *KnockStatus) UnmarshalGQL(v interface{}) error {
+func (e *KnockStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7928,6 +11374,87 @@ func (e *KnockStatus) UnmarshalGQL(v interface{}) error {
 
 func (e KnockStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *KnockStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e KnockStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Log level for service log entries.
+type LogLevel string
+
+const (
+	// Debug-level log
+	LogLevelDebug LogLevel = "DEBUG"
+	// Informational log
+	LogLevelInfo LogLevel = "INFO"
+	// Warning log
+	LogLevelWarn LogLevel = "WARN"
+	// Error log
+	LogLevelError LogLevel = "ERROR"
+	// Unknown/unparsed log level
+	LogLevelUnknown LogLevel = "UNKNOWN"
+)
+
+var AllLogLevel = []LogLevel{
+	LogLevelDebug,
+	LogLevelInfo,
+	LogLevelWarn,
+	LogLevelError,
+	LogLevelUnknown,
+}
+
+func (e LogLevel) IsValid() bool {
+	switch e {
+	case LogLevelDebug, LogLevelInfo, LogLevelWarn, LogLevelError, LogLevelUnknown:
+		return true
+	}
+	return false
+}
+
+func (e LogLevel) String() string {
+	return string(e)
+}
+
+func (e *LogLevel) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LogLevel(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LogLevel", str)
+	}
+	return nil
+}
+
+func (e LogLevel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *LogLevel) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LogLevel) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Direction of traffic to mirror
@@ -7960,7 +11487,7 @@ func (e MirrorDirection) String() string {
 	return string(e)
 }
 
-func (e *MirrorDirection) UnmarshalGQL(v interface{}) error {
+func (e *MirrorDirection) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -7975,6 +11502,20 @@ func (e *MirrorDirection) UnmarshalGQL(v interface{}) error {
 
 func (e MirrorDirection) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *MirrorDirection) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e MirrorDirection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // NAT action types for firewall NAT rules.
@@ -8034,7 +11575,7 @@ func (e NatAction) String() string {
 	return string(e)
 }
 
-func (e *NatAction) UnmarshalGQL(v interface{}) error {
+func (e *NatAction) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8049,6 +11590,20 @@ func (e *NatAction) UnmarshalGQL(v interface{}) error {
 
 func (e NatAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NatAction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NatAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // NAT chain types (srcnat for source NAT, dstnat for destination NAT).
@@ -8078,7 +11633,7 @@ func (e NatChain) String() string {
 	return string(e)
 }
 
-func (e *NatChain) UnmarshalGQL(v interface{}) error {
+func (e *NatChain) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8095,6 +11650,20 @@ func (e NatChain) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *NatChain) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NatChain) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Notification channel types
 type NotificationChannel string
 
@@ -8107,6 +11676,8 @@ const (
 	NotificationChannelPushover NotificationChannel = "PUSHOVER"
 	// Webhook notifications
 	NotificationChannelWebhook NotificationChannel = "WEBHOOK"
+	// Ntfy.sh notifications
+	NotificationChannelNtfy NotificationChannel = "NTFY"
 	// In-app notifications
 	NotificationChannelInapp NotificationChannel = "INAPP"
 )
@@ -8116,12 +11687,13 @@ var AllNotificationChannel = []NotificationChannel{
 	NotificationChannelTelegram,
 	NotificationChannelPushover,
 	NotificationChannelWebhook,
+	NotificationChannelNtfy,
 	NotificationChannelInapp,
 }
 
 func (e NotificationChannel) IsValid() bool {
 	switch e {
-	case NotificationChannelEmail, NotificationChannelTelegram, NotificationChannelPushover, NotificationChannelWebhook, NotificationChannelInapp:
+	case NotificationChannelEmail, NotificationChannelTelegram, NotificationChannelPushover, NotificationChannelWebhook, NotificationChannelNtfy, NotificationChannelInapp:
 		return true
 	}
 	return false
@@ -8131,7 +11703,7 @@ func (e NotificationChannel) String() string {
 	return string(e)
 }
 
-func (e *NotificationChannel) UnmarshalGQL(v interface{}) error {
+func (e *NotificationChannel) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8146,6 +11718,20 @@ func (e *NotificationChannel) UnmarshalGQL(v interface{}) error {
 
 func (e NotificationChannel) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NotificationChannel) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NotificationChannel) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Notification delivery status
@@ -8181,7 +11767,7 @@ func (e NotificationStatus) String() string {
 	return string(e)
 }
 
-func (e *NotificationStatus) UnmarshalGQL(v interface{}) error {
+func (e *NotificationStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8196,6 +11782,20 @@ func (e *NotificationStatus) UnmarshalGQL(v interface{}) error {
 
 func (e NotificationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NotificationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NotificationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a port forward configuration.
@@ -8231,7 +11831,7 @@ func (e PortForwardStatus) String() string {
 	return string(e)
 }
 
-func (e *PortForwardStatus) UnmarshalGQL(v interface{}) error {
+func (e *PortForwardStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8246,6 +11846,20 @@ func (e *PortForwardStatus) UnmarshalGQL(v interface{}) error {
 
 func (e PortForwardStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PortForwardStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PortForwardStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Port mode for VLAN configuration
@@ -8275,7 +11889,7 @@ func (e PortMode) String() string {
 	return string(e)
 }
 
-func (e *PortMode) UnmarshalGQL(v interface{}) error {
+func (e *PortMode) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8290,6 +11904,78 @@ func (e *PortMode) UnmarshalGQL(v interface{}) error {
 
 func (e PortMode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PortMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PortMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Transport protocol for port allocations.
+type PortProtocol string
+
+const (
+	// TCP protocol
+	PortProtocolTCP PortProtocol = "TCP"
+	// UDP protocol
+	PortProtocolUDP PortProtocol = "UDP"
+)
+
+var AllPortProtocol = []PortProtocol{
+	PortProtocolTCP,
+	PortProtocolUDP,
+}
+
+func (e PortProtocol) IsValid() bool {
+	switch e {
+	case PortProtocolTCP, PortProtocolUDP:
+		return true
+	}
+	return false
+}
+
+func (e PortProtocol) String() string {
+	return string(e)
+}
+
+func (e *PortProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PortProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PortProtocol", str)
+	}
+	return nil
+}
+
+func (e PortProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PortProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PortProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Protocol used for router communication
@@ -8328,7 +12014,7 @@ func (e Protocol) String() string {
 	return string(e)
 }
 
-func (e *Protocol) UnmarshalGQL(v interface{}) error {
+func (e *Protocol) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8343,6 +12029,20 @@ func (e *Protocol) UnmarshalGQL(v interface{}) error {
 
 func (e Protocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Protocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Protocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // User preference for which protocol to use when connecting to a router.
@@ -8385,7 +12085,7 @@ func (e ProtocolPreference) String() string {
 	return string(e)
 }
 
-func (e *ProtocolPreference) UnmarshalGQL(v interface{}) error {
+func (e *ProtocolPreference) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8400,6 +12100,145 @@ func (e *ProtocolPreference) UnmarshalGQL(v interface{}) error {
 
 func (e ProtocolPreference) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ProtocolPreference) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ProtocolPreference) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Action to take when traffic quota is reached.
+type QuotaAction string
+
+const (
+	// Log a warning but continue allowing traffic
+	QuotaActionLogOnly QuotaAction = "LOG_ONLY"
+	// Send alert notification to user
+	QuotaActionAlert QuotaAction = "ALERT"
+	// Stop the service instance to prevent further traffic
+	QuotaActionStopService QuotaAction = "STOP_SERVICE"
+	// Throttle bandwidth to a lower speed
+	QuotaActionThrottle QuotaAction = "THROTTLE"
+)
+
+var AllQuotaAction = []QuotaAction{
+	QuotaActionLogOnly,
+	QuotaActionAlert,
+	QuotaActionStopService,
+	QuotaActionThrottle,
+}
+
+func (e QuotaAction) IsValid() bool {
+	switch e {
+	case QuotaActionLogOnly, QuotaActionAlert, QuotaActionStopService, QuotaActionThrottle:
+		return true
+	}
+	return false
+}
+
+func (e QuotaAction) String() string {
+	return string(e)
+}
+
+func (e *QuotaAction) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = QuotaAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid QuotaAction", str)
+	}
+	return nil
+}
+
+func (e QuotaAction) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *QuotaAction) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e QuotaAction) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Quota period for traffic limits.
+type QuotaPeriod string
+
+const (
+	// Reset daily at midnight
+	QuotaPeriodDaily QuotaPeriod = "DAILY"
+	// Reset weekly on Sunday at midnight
+	QuotaPeriodWeekly QuotaPeriod = "WEEKLY"
+	// Reset monthly on the 1st at midnight
+	QuotaPeriodMonthly QuotaPeriod = "MONTHLY"
+)
+
+var AllQuotaPeriod = []QuotaPeriod{
+	QuotaPeriodDaily,
+	QuotaPeriodWeekly,
+	QuotaPeriodMonthly,
+}
+
+func (e QuotaPeriod) IsValid() bool {
+	switch e {
+	case QuotaPeriodDaily, QuotaPeriodWeekly, QuotaPeriodMonthly:
+		return true
+	}
+	return false
+}
+
+func (e QuotaPeriod) String() string {
+	return string(e)
+}
+
+func (e *QuotaPeriod) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = QuotaPeriod(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid QuotaPeriod", str)
+	}
+	return nil
+}
+
+func (e QuotaPeriod) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *QuotaPeriod) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e QuotaPeriod) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Categories of managed resources
@@ -8441,7 +12280,7 @@ func (e ResourceCategory) String() string {
 	return string(e)
 }
 
-func (e *ResourceCategory) UnmarshalGQL(v interface{}) error {
+func (e *ResourceCategory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8456,6 +12295,20 @@ func (e *ResourceCategory) UnmarshalGQL(v interface{}) error {
 
 func (e ResourceCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceCategory) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceCategory) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Impact level for affected resources
@@ -8491,7 +12344,7 @@ func (e ResourceImpact) String() string {
 	return string(e)
 }
 
-func (e *ResourceImpact) UnmarshalGQL(v interface{}) error {
+func (e *ResourceImpact) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8506,6 +12359,20 @@ func (e *ResourceImpact) UnmarshalGQL(v interface{}) error {
 
 func (e ResourceImpact) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceImpact) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceImpact) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Selectable resource layers for optimized fetching
@@ -8545,7 +12412,7 @@ func (e ResourceLayer) String() string {
 	return string(e)
 }
 
-func (e *ResourceLayer) UnmarshalGQL(v interface{}) error {
+func (e *ResourceLayer) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8560,6 +12427,20 @@ func (e *ResourceLayer) UnmarshalGQL(v interface{}) error {
 
 func (e ResourceLayer) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceLayer) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceLayer) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Resource lifecycle states for state machine
@@ -8610,7 +12491,7 @@ func (e ResourceLifecycleState) String() string {
 	return string(e)
 }
 
-func (e *ResourceLifecycleState) UnmarshalGQL(v interface{}) error {
+func (e *ResourceLifecycleState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8625,6 +12506,20 @@ func (e *ResourceLifecycleState) UnmarshalGQL(v interface{}) error {
 
 func (e ResourceLifecycleState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceLifecycleState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceLifecycleState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Types of relationships between resources
@@ -8663,7 +12558,7 @@ func (e ResourceRelationshipType) String() string {
 	return string(e)
 }
 
-func (e *ResourceRelationshipType) UnmarshalGQL(v interface{}) error {
+func (e *ResourceRelationshipType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8678,6 +12573,81 @@ func (e *ResourceRelationshipType) UnmarshalGQL(v interface{}) error {
 
 func (e ResourceRelationshipType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceRelationshipType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceRelationshipType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Resource status indicating health of resource usage.
+type ResourceStatus string
+
+const (
+	// Resource usage is within acceptable limits (<70%)
+	ResourceStatusOk ResourceStatus = "OK"
+	// Resource usage is high (70-90%)
+	ResourceStatusWarning ResourceStatus = "WARNING"
+	// Resource usage is critical (>90%)
+	ResourceStatusCritical ResourceStatus = "CRITICAL"
+)
+
+var AllResourceStatus = []ResourceStatus{
+	ResourceStatusOk,
+	ResourceStatusWarning,
+	ResourceStatusCritical,
+}
+
+func (e ResourceStatus) IsValid() bool {
+	switch e {
+	case ResourceStatusOk, ResourceStatusWarning, ResourceStatusCritical:
+		return true
+	}
+	return false
+}
+
+func (e ResourceStatus) String() string {
+	return string(e)
+}
+
+func (e *ResourceStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ResourceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ResourceStatus", str)
+	}
+	return nil
+}
+
+func (e ResourceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ResourceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ResourceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Rollback operation type
@@ -8710,7 +12680,7 @@ func (e RollbackOperation) String() string {
 	return string(e)
 }
 
-func (e *RollbackOperation) UnmarshalGQL(v interface{}) error {
+func (e *RollbackOperation) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8725,6 +12695,20 @@ func (e *RollbackOperation) UnmarshalGQL(v interface{}) error {
 
 func (e RollbackOperation) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RollbackOperation) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RollbackOperation) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Route scope
@@ -8757,7 +12741,7 @@ func (e RouteScope) String() string {
 	return string(e)
 }
 
-func (e *RouteScope) UnmarshalGQL(v interface{}) error {
+func (e *RouteScope) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8772,6 +12756,20 @@ func (e *RouteScope) UnmarshalGQL(v interface{}) error {
 
 func (e RouteScope) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RouteScope) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RouteScope) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Route type classification
@@ -8810,7 +12808,7 @@ func (e RouteType) String() string {
 	return string(e)
 }
 
-func (e *RouteType) UnmarshalGQL(v interface{}) error {
+func (e *RouteType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8825,6 +12823,20 @@ func (e *RouteType) UnmarshalGQL(v interface{}) error {
 
 func (e RouteType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RouteType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RouteType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Supported router platforms
@@ -8860,7 +12872,7 @@ func (e RouterPlatform) String() string {
 	return string(e)
 }
 
-func (e *RouterPlatform) UnmarshalGQL(v interface{}) error {
+func (e *RouterPlatform) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8875,6 +12887,78 @@ func (e *RouterPlatform) UnmarshalGQL(v interface{}) error {
 
 func (e RouterPlatform) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RouterPlatform) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RouterPlatform) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Routing mode for device routing assignments.
+type RoutingMode string
+
+const (
+	// MAC address-based routing (default, more reliable)
+	RoutingModeMac RoutingMode = "MAC"
+	// IP address-based routing (less reliable due to DHCP changes)
+	RoutingModeIP RoutingMode = "IP"
+)
+
+var AllRoutingMode = []RoutingMode{
+	RoutingModeMac,
+	RoutingModeIP,
+}
+
+func (e RoutingMode) IsValid() bool {
+	switch e {
+	case RoutingModeMac, RoutingModeIP:
+		return true
+	}
+	return false
+}
+
+func (e RoutingMode) String() string {
+	return string(e)
+}
+
+func (e *RoutingMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RoutingMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RoutingMode", str)
+	}
+	return nil
+}
+
+func (e RoutingMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RoutingMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RoutingMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Runtime health status
@@ -8913,7 +12997,7 @@ func (e RuntimeHealth) String() string {
 	return string(e)
 }
 
-func (e *RuntimeHealth) UnmarshalGQL(v interface{}) error {
+func (e *RuntimeHealth) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8928,6 +13012,20 @@ func (e *RuntimeHealth) UnmarshalGQL(v interface{}) error {
 
 func (e RuntimeHealth) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *RuntimeHealth) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e RuntimeHealth) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a network scan operation
@@ -8966,7 +13064,7 @@ func (e ScanStatus) String() string {
 	return string(e)
 }
 
-func (e *ScanStatus) UnmarshalGQL(v interface{}) error {
+func (e *ScanStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -8981,6 +13079,96 @@ func (e *ScanStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ScanStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ScanStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ScanStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Service instance lifecycle status.
+type ServiceInstanceStatus string
+
+const (
+	// Binary is being downloaded and installed
+	ServiceInstanceStatusInstalling ServiceInstanceStatus = "INSTALLING"
+	// Binary installed, ready to start
+	ServiceInstanceStatusInstalled ServiceInstanceStatus = "INSTALLED"
+	// Process is starting
+	ServiceInstanceStatusStarting ServiceInstanceStatus = "STARTING"
+	// Process is running
+	ServiceInstanceStatusRunning ServiceInstanceStatus = "RUNNING"
+	// Process is stopping
+	ServiceInstanceStatusStopping ServiceInstanceStatus = "STOPPING"
+	// Process is stopped
+	ServiceInstanceStatusStopped ServiceInstanceStatus = "STOPPED"
+	// Operation failed
+	ServiceInstanceStatusFailed ServiceInstanceStatus = "FAILED"
+	// Instance is being deleted
+	ServiceInstanceStatusDeleting ServiceInstanceStatus = "DELETING"
+)
+
+var AllServiceInstanceStatus = []ServiceInstanceStatus{
+	ServiceInstanceStatusInstalling,
+	ServiceInstanceStatusInstalled,
+	ServiceInstanceStatusStarting,
+	ServiceInstanceStatusRunning,
+	ServiceInstanceStatusStopping,
+	ServiceInstanceStatusStopped,
+	ServiceInstanceStatusFailed,
+	ServiceInstanceStatusDeleting,
+}
+
+func (e ServiceInstanceStatus) IsValid() bool {
+	switch e {
+	case ServiceInstanceStatusInstalling, ServiceInstanceStatusInstalled, ServiceInstanceStatusStarting, ServiceInstanceStatusRunning, ServiceInstanceStatusStopping, ServiceInstanceStatusStopped, ServiceInstanceStatusFailed, ServiceInstanceStatusDeleting:
+		return true
+	}
+	return false
+}
+
+func (e ServiceInstanceStatus) String() string {
+	return string(e)
+}
+
+func (e *ServiceInstanceStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ServiceInstanceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ServiceInstanceStatus", str)
+	}
+	return nil
+}
+
+func (e ServiceInstanceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ServiceInstanceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ServiceInstanceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Service operational status
@@ -9013,7 +13201,7 @@ func (e ServiceStatus) String() string {
 	return string(e)
 }
 
-func (e *ServiceStatus) UnmarshalGQL(v interface{}) error {
+func (e *ServiceStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9028,6 +13216,210 @@ func (e *ServiceStatus) UnmarshalGQL(v interface{}) error {
 
 func (e ServiceStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ServiceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ServiceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Service template category enum
+type ServiceTemplateCategory string
+
+const (
+	ServiceTemplateCategoryPrivacy        ServiceTemplateCategory = "PRIVACY"
+	ServiceTemplateCategoryAntiCensorship ServiceTemplateCategory = "ANTI_CENSORSHIP"
+	ServiceTemplateCategoryMessaging      ServiceTemplateCategory = "MESSAGING"
+	ServiceTemplateCategoryGaming         ServiceTemplateCategory = "GAMING"
+	ServiceTemplateCategorySecurity       ServiceTemplateCategory = "SECURITY"
+	ServiceTemplateCategoryNetworking     ServiceTemplateCategory = "NETWORKING"
+)
+
+var AllServiceTemplateCategory = []ServiceTemplateCategory{
+	ServiceTemplateCategoryPrivacy,
+	ServiceTemplateCategoryAntiCensorship,
+	ServiceTemplateCategoryMessaging,
+	ServiceTemplateCategoryGaming,
+	ServiceTemplateCategorySecurity,
+	ServiceTemplateCategoryNetworking,
+}
+
+func (e ServiceTemplateCategory) IsValid() bool {
+	switch e {
+	case ServiceTemplateCategoryPrivacy, ServiceTemplateCategoryAntiCensorship, ServiceTemplateCategoryMessaging, ServiceTemplateCategoryGaming, ServiceTemplateCategorySecurity, ServiceTemplateCategoryNetworking:
+		return true
+	}
+	return false
+}
+
+func (e ServiceTemplateCategory) String() string {
+	return string(e)
+}
+
+func (e *ServiceTemplateCategory) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ServiceTemplateCategory(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ServiceTemplateCategory", str)
+	}
+	return nil
+}
+
+func (e ServiceTemplateCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ServiceTemplateCategory) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ServiceTemplateCategory) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Type of storage location.
+type StorageLocationType string
+
+const (
+	// Internal flash memory (limited, persistent)
+	StorageLocationTypeFlash StorageLocationType = "FLASH"
+	// External USB/disk storage (large, removable)
+	StorageLocationTypeExternal StorageLocationType = "EXTERNAL"
+	// Unknown storage type
+	StorageLocationTypeUnknown StorageLocationType = "UNKNOWN"
+)
+
+var AllStorageLocationType = []StorageLocationType{
+	StorageLocationTypeFlash,
+	StorageLocationTypeExternal,
+	StorageLocationTypeUnknown,
+}
+
+func (e StorageLocationType) IsValid() bool {
+	switch e {
+	case StorageLocationTypeFlash, StorageLocationTypeExternal, StorageLocationTypeUnknown:
+		return true
+	}
+	return false
+}
+
+func (e StorageLocationType) String() string {
+	return string(e)
+}
+
+func (e *StorageLocationType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StorageLocationType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StorageLocationType", str)
+	}
+	return nil
+}
+
+func (e StorageLocationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StorageLocationType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StorageLocationType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Storage space threshold status.
+// Used to trigger warnings and prevent installations when space is low.
+type StorageThresholdStatus string
+
+const (
+	// Normal usage (<80%)
+	StorageThresholdStatusNormal StorageThresholdStatus = "NORMAL"
+	// Low space warning (80-89%)
+	StorageThresholdStatusLow StorageThresholdStatus = "LOW"
+	// Critical space warning (90-94%)
+	StorageThresholdStatusCritical StorageThresholdStatus = "CRITICAL"
+	// Full - installations blocked (95%+)
+	StorageThresholdStatusFull StorageThresholdStatus = "FULL"
+)
+
+var AllStorageThresholdStatus = []StorageThresholdStatus{
+	StorageThresholdStatusNormal,
+	StorageThresholdStatusLow,
+	StorageThresholdStatusCritical,
+	StorageThresholdStatusFull,
+}
+
+func (e StorageThresholdStatus) IsValid() bool {
+	switch e {
+	case StorageThresholdStatusNormal, StorageThresholdStatusLow, StorageThresholdStatusCritical, StorageThresholdStatusFull:
+		return true
+	}
+	return false
+}
+
+func (e StorageThresholdStatus) String() string {
+	return string(e)
+}
+
+func (e *StorageThresholdStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StorageThresholdStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StorageThresholdStatus", str)
+	}
+	return nil
+}
+
+func (e StorageThresholdStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StorageThresholdStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StorageThresholdStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type StpPortRole string
@@ -9060,7 +13452,7 @@ func (e StpPortRole) String() string {
 	return string(e)
 }
 
-func (e *StpPortRole) UnmarshalGQL(v interface{}) error {
+func (e *StpPortRole) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9075,6 +13467,20 @@ func (e *StpPortRole) UnmarshalGQL(v interface{}) error {
 
 func (e StpPortRole) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StpPortRole) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StpPortRole) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type StpPortState string
@@ -9107,7 +13513,7 @@ func (e StpPortState) String() string {
 	return string(e)
 }
 
-func (e *StpPortState) UnmarshalGQL(v interface{}) error {
+func (e *StpPortState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9122,6 +13528,20 @@ func (e *StpPortState) UnmarshalGQL(v interface{}) error {
 
 func (e StpPortState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StpPortState) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StpPortState) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type StpProtocol string
@@ -9152,7 +13572,7 @@ func (e StpProtocol) String() string {
 	return string(e)
 }
 
-func (e *StpProtocol) UnmarshalGQL(v interface{}) error {
+func (e *StpProtocol) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9167,6 +13587,20 @@ func (e *StpProtocol) UnmarshalGQL(v interface{}) error {
 
 func (e StpProtocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *StpProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e StpProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Severity level for diagnostic suggestions
@@ -9202,7 +13636,7 @@ func (e SuggestionSeverity) String() string {
 	return string(e)
 }
 
-func (e *SuggestionSeverity) UnmarshalGQL(v interface{}) error {
+func (e *SuggestionSeverity) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9217,6 +13651,20 @@ func (e *SuggestionSeverity) UnmarshalGQL(v interface{}) error {
 
 func (e SuggestionSeverity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *SuggestionSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e SuggestionSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Template categories for organization.
@@ -9258,7 +13706,7 @@ func (e TemplateCategory) String() string {
 	return string(e)
 }
 
-func (e *TemplateCategory) UnmarshalGQL(v interface{}) error {
+func (e *TemplateCategory) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9273,6 +13721,20 @@ func (e *TemplateCategory) UnmarshalGQL(v interface{}) error {
 
 func (e TemplateCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateCategory) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateCategory) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Template complexity levels.
@@ -9305,7 +13767,7 @@ func (e TemplateComplexity) String() string {
 	return string(e)
 }
 
-func (e *TemplateComplexity) UnmarshalGQL(v interface{}) error {
+func (e *TemplateComplexity) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9320,6 +13782,20 @@ func (e *TemplateComplexity) UnmarshalGQL(v interface{}) error {
 
 func (e TemplateComplexity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateComplexity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateComplexity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Conflict types between template and existing configuration.
@@ -9355,7 +13831,7 @@ func (e TemplateConflictType) String() string {
 	return string(e)
 }
 
-func (e *TemplateConflictType) UnmarshalGQL(v interface{}) error {
+func (e *TemplateConflictType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9370,6 +13846,207 @@ func (e *TemplateConflictType) UnmarshalGQL(v interface{}) error {
 
 func (e TemplateConflictType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateConflictType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateConflictType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Template installation status
+type TemplateInstallationStatus string
+
+const (
+	TemplateInstallationStatusPending    TemplateInstallationStatus = "PENDING"
+	TemplateInstallationStatusInProgress TemplateInstallationStatus = "IN_PROGRESS"
+	TemplateInstallationStatusCompleted  TemplateInstallationStatus = "COMPLETED"
+	TemplateInstallationStatusFailed     TemplateInstallationStatus = "FAILED"
+	TemplateInstallationStatusPartial    TemplateInstallationStatus = "PARTIAL"
+)
+
+var AllTemplateInstallationStatus = []TemplateInstallationStatus{
+	TemplateInstallationStatusPending,
+	TemplateInstallationStatusInProgress,
+	TemplateInstallationStatusCompleted,
+	TemplateInstallationStatusFailed,
+	TemplateInstallationStatusPartial,
+}
+
+func (e TemplateInstallationStatus) IsValid() bool {
+	switch e {
+	case TemplateInstallationStatusPending, TemplateInstallationStatusInProgress, TemplateInstallationStatusCompleted, TemplateInstallationStatusFailed, TemplateInstallationStatusPartial:
+		return true
+	}
+	return false
+}
+
+func (e TemplateInstallationStatus) String() string {
+	return string(e)
+}
+
+func (e *TemplateInstallationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateInstallationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateInstallationStatus", str)
+	}
+	return nil
+}
+
+func (e TemplateInstallationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateInstallationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateInstallationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Template deployment scope
+type TemplateScope string
+
+const (
+	// Single service instance
+	TemplateScopeSingle TemplateScope = "SINGLE"
+	// Multiple independent services
+	TemplateScopeMultiple TemplateScope = "MULTIPLE"
+	// Chained services (e.g., Tor -> Xray)
+	TemplateScopeChain TemplateScope = "CHAIN"
+)
+
+var AllTemplateScope = []TemplateScope{
+	TemplateScopeSingle,
+	TemplateScopeMultiple,
+	TemplateScopeChain,
+}
+
+func (e TemplateScope) IsValid() bool {
+	switch e {
+	case TemplateScopeSingle, TemplateScopeMultiple, TemplateScopeChain:
+		return true
+	}
+	return false
+}
+
+func (e TemplateScope) String() string {
+	return string(e)
+}
+
+func (e *TemplateScope) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateScope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateScope", str)
+	}
+	return nil
+}
+
+func (e TemplateScope) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateScope) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateScope) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Template variable type
+type TemplateVariableType string
+
+const (
+	TemplateVariableTypeString  TemplateVariableType = "STRING"
+	TemplateVariableTypeNumber  TemplateVariableType = "NUMBER"
+	TemplateVariableTypeBoolean TemplateVariableType = "BOOLEAN"
+	TemplateVariableTypeEnum    TemplateVariableType = "ENUM"
+	TemplateVariableTypePort    TemplateVariableType = "PORT"
+	TemplateVariableTypeIP      TemplateVariableType = "IP"
+)
+
+var AllTemplateVariableType = []TemplateVariableType{
+	TemplateVariableTypeString,
+	TemplateVariableTypeNumber,
+	TemplateVariableTypeBoolean,
+	TemplateVariableTypeEnum,
+	TemplateVariableTypePort,
+	TemplateVariableTypeIP,
+}
+
+func (e TemplateVariableType) IsValid() bool {
+	switch e {
+	case TemplateVariableTypeString, TemplateVariableTypeNumber, TemplateVariableTypeBoolean, TemplateVariableTypeEnum, TemplateVariableTypePort, TemplateVariableTypeIP:
+		return true
+	}
+	return false
+}
+
+func (e TemplateVariableType) String() string {
+	return string(e)
+}
+
+func (e *TemplateVariableType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TemplateVariableType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TemplateVariableType", str)
+	}
+	return nil
+}
+
+func (e TemplateVariableType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TemplateVariableType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TemplateVariableType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Type of topology node
@@ -9402,7 +14079,7 @@ func (e TopologyNodeType) String() string {
 	return string(e)
 }
 
-func (e *TopologyNodeType) UnmarshalGQL(v interface{}) error {
+func (e *TopologyNodeType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9417,6 +14094,20 @@ func (e *TopologyNodeType) UnmarshalGQL(v interface{}) error {
 
 func (e TopologyNodeType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TopologyNodeType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TopologyNodeType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Event type for traceroute progress updates
@@ -9452,7 +14143,7 @@ func (e TracerouteEventType) String() string {
 	return string(e)
 }
 
-func (e *TracerouteEventType) UnmarshalGQL(v interface{}) error {
+func (e *TracerouteEventType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9467,6 +14158,20 @@ func (e *TracerouteEventType) UnmarshalGQL(v interface{}) error {
 
 func (e TracerouteEventType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TracerouteEventType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TracerouteEventType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Protocol to use for traceroute probes
@@ -9499,7 +14204,7 @@ func (e TracerouteProtocol) String() string {
 	return string(e)
 }
 
-func (e *TracerouteProtocol) UnmarshalGQL(v interface{}) error {
+func (e *TracerouteProtocol) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9514,6 +14219,20 @@ func (e *TracerouteProtocol) UnmarshalGQL(v interface{}) error {
 
 func (e TracerouteProtocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TracerouteProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TracerouteProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Transport protocol enum for network traffic.
@@ -9541,7 +14260,7 @@ func (e TransportProtocol) String() string {
 	return string(e)
 }
 
-func (e *TransportProtocol) UnmarshalGQL(v interface{}) error {
+func (e *TransportProtocol) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9556,6 +14275,20 @@ func (e *TransportProtocol) UnmarshalGQL(v interface{}) error {
 
 func (e TransportProtocol) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TransportProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TransportProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Overall status of a troubleshooting session
@@ -9603,7 +14336,7 @@ func (e TroubleshootSessionStatus) String() string {
 	return string(e)
 }
 
-func (e *TroubleshootSessionStatus) UnmarshalGQL(v interface{}) error {
+func (e *TroubleshootSessionStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9618,6 +14351,20 @@ func (e *TroubleshootSessionStatus) UnmarshalGQL(v interface{}) error {
 
 func (e TroubleshootSessionStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TroubleshootSessionStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TroubleshootSessionStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a diagnostic step
@@ -9656,7 +14403,7 @@ func (e TroubleshootStepStatus) String() string {
 	return string(e)
 }
 
-func (e *TroubleshootStepStatus) UnmarshalGQL(v interface{}) error {
+func (e *TroubleshootStepStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9671,6 +14418,20 @@ func (e *TroubleshootStepStatus) UnmarshalGQL(v interface{}) error {
 
 func (e TroubleshootStepStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TroubleshootStepStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TroubleshootStepStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Diagnostic step identifier for internet troubleshooting
@@ -9709,7 +14470,7 @@ func (e TroubleshootStepType) String() string {
 	return string(e)
 }
 
-func (e *TroubleshootStepType) UnmarshalGQL(v interface{}) error {
+func (e *TroubleshootStepType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9724,6 +14485,20 @@ func (e *TroubleshootStepType) UnmarshalGQL(v interface{}) error {
 
 func (e TroubleshootStepType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TroubleshootStepType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TroubleshootStepType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status of a VPN tunnel
@@ -9756,7 +14531,7 @@ func (e TunnelStatus) String() string {
 	return string(e)
 }
 
-func (e *TunnelStatus) UnmarshalGQL(v interface{}) error {
+func (e *TunnelStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9771,6 +14546,20 @@ func (e *TunnelStatus) UnmarshalGQL(v interface{}) error {
 
 func (e TunnelStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TunnelStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TunnelStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Network tunnel types supported by MikroTik RouterOS
@@ -9812,7 +14601,7 @@ func (e TunnelType) String() string {
 	return string(e)
 }
 
-func (e *TunnelType) UnmarshalGQL(v interface{}) error {
+func (e *TunnelType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9827,6 +14616,157 @@ func (e *TunnelType) UnmarshalGQL(v interface{}) error {
 
 func (e TunnelType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TunnelType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TunnelType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Update severity classification for available updates.
+type UpdateSeverity string
+
+const (
+	// Critical security fix - auto-apply recommended
+	UpdateSeverityCritical UpdateSeverity = "CRITICAL"
+	// Major version with breaking changes
+	UpdateSeverityMajor UpdateSeverity = "MAJOR"
+	// Minor version with new features
+	UpdateSeverityMinor UpdateSeverity = "MINOR"
+	// Patch version with bug fixes
+	UpdateSeverityPatch UpdateSeverity = "PATCH"
+)
+
+var AllUpdateSeverity = []UpdateSeverity{
+	UpdateSeverityCritical,
+	UpdateSeverityMajor,
+	UpdateSeverityMinor,
+	UpdateSeverityPatch,
+}
+
+func (e UpdateSeverity) IsValid() bool {
+	switch e {
+	case UpdateSeverityCritical, UpdateSeverityMajor, UpdateSeverityMinor, UpdateSeverityPatch:
+		return true
+	}
+	return false
+}
+
+func (e UpdateSeverity) String() string {
+	return string(e)
+}
+
+func (e *UpdateSeverity) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateSeverity(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateSeverity", str)
+	}
+	return nil
+}
+
+func (e UpdateSeverity) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Update stage during atomic update process.
+type UpdateStage string
+
+const (
+	// Downloading and verifying new binary
+	UpdateStageStaging UpdateStage = "STAGING"
+	// Backing up current binary
+	UpdateStageBackup UpdateStage = "BACKUP"
+	// Swapping binaries
+	UpdateStageSwap UpdateStage = "SWAP"
+	// Running config migrations
+	UpdateStageMigration UpdateStage = "MIGRATION"
+	// Validating new version
+	UpdateStageValidation UpdateStage = "VALIDATION"
+	// Finalizing update
+	UpdateStageCommit UpdateStage = "COMMIT"
+	// Restoring from backup
+	UpdateStageRollback UpdateStage = "ROLLBACK"
+)
+
+var AllUpdateStage = []UpdateStage{
+	UpdateStageStaging,
+	UpdateStageBackup,
+	UpdateStageSwap,
+	UpdateStageMigration,
+	UpdateStageValidation,
+	UpdateStageCommit,
+	UpdateStageRollback,
+}
+
+func (e UpdateStage) IsValid() bool {
+	switch e {
+	case UpdateStageStaging, UpdateStageBackup, UpdateStageSwap, UpdateStageMigration, UpdateStageValidation, UpdateStageCommit, UpdateStageRollback:
+		return true
+	}
+	return false
+}
+
+func (e UpdateStage) String() string {
+	return string(e)
+}
+
+func (e *UpdateStage) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UpdateStage(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UpdateStage", str)
+	}
+	return nil
+}
+
+func (e UpdateStage) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateStage) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateStage) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Priority level for upgrade recommendations
@@ -9862,7 +14802,7 @@ func (e UpgradePriority) String() string {
 	return string(e)
 }
 
-func (e *UpgradePriority) UnmarshalGQL(v interface{}) error {
+func (e *UpgradePriority) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9877,6 +14817,81 @@ func (e *UpgradePriority) UnmarshalGQL(v interface{}) error {
 
 func (e UpgradePriority) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpgradePriority) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpgradePriority) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// VLANAllocationStatus represents the lifecycle state of a VLAN allocation.
+type VLANAllocationStatus string
+
+const (
+	// VLAN is currently allocated and in use
+	VLANAllocationStatusAllocated VLANAllocationStatus = "ALLOCATED"
+	// VLAN is being released (transitional state)
+	VLANAllocationStatusReleasing VLANAllocationStatus = "RELEASING"
+	// VLAN has been released and is available for reuse
+	VLANAllocationStatusReleased VLANAllocationStatus = "RELEASED"
+)
+
+var AllVLANAllocationStatus = []VLANAllocationStatus{
+	VLANAllocationStatusAllocated,
+	VLANAllocationStatusReleasing,
+	VLANAllocationStatusReleased,
+}
+
+func (e VLANAllocationStatus) IsValid() bool {
+	switch e {
+	case VLANAllocationStatusAllocated, VLANAllocationStatusReleasing, VLANAllocationStatusReleased:
+		return true
+	}
+	return false
+}
+
+func (e VLANAllocationStatus) String() string {
+	return string(e)
+}
+
+func (e *VLANAllocationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VLANAllocationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VLANAllocationStatus", str)
+	}
+	return nil
+}
+
+func (e VLANAllocationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *VLANAllocationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e VLANAllocationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Predefined validation formats for common data types
@@ -9918,7 +14933,7 @@ func (e ValidateFormat) String() string {
 	return string(e)
 }
 
-func (e *ValidateFormat) UnmarshalGQL(v interface{}) error {
+func (e *ValidateFormat) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9933,6 +14948,20 @@ func (e *ValidateFormat) UnmarshalGQL(v interface{}) error {
 
 func (e ValidateFormat) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ValidateFormat) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ValidateFormat) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Validation issue severity
@@ -9965,7 +14994,7 @@ func (e ValidationSeverity) String() string {
 	return string(e)
 }
 
-func (e *ValidationSeverity) UnmarshalGQL(v interface{}) error {
+func (e *ValidationSeverity) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -9980,6 +15009,20 @@ func (e *ValidationSeverity) UnmarshalGQL(v interface{}) error {
 
 func (e ValidationSeverity) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ValidationSeverity) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ValidationSeverity) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Validation pipeline stages
@@ -10027,7 +15070,7 @@ func (e ValidationStage) String() string {
 	return string(e)
 }
 
-func (e *ValidationStage) UnmarshalGQL(v interface{}) error {
+func (e *ValidationStage) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10042,6 +15085,20 @@ func (e *ValidationStage) UnmarshalGQL(v interface{}) error {
 
 func (e ValidationStage) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ValidationStage) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ValidationStage) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Variable types for template parameters.
@@ -10083,7 +15140,7 @@ func (e VariableType) String() string {
 	return string(e)
 }
 
-func (e *VariableType) UnmarshalGQL(v interface{}) error {
+func (e *VariableType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10098,6 +15155,148 @@ func (e *VariableType) UnmarshalGQL(v interface{}) error {
 
 func (e VariableType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *VariableType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e VariableType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Binary verification status.
+type VerificationStatus string
+
+const (
+	// Binary passed verification
+	VerificationStatusValid VerificationStatus = "VALID"
+	// Binary failed verification (hash mismatch)
+	VerificationStatusInvalid VerificationStatus = "INVALID"
+	// Verification in progress
+	VerificationStatusPending VerificationStatus = "PENDING"
+	// Verification not performed (disabled or missing data)
+	VerificationStatusNotVerified VerificationStatus = "NOT_VERIFIED"
+)
+
+var AllVerificationStatus = []VerificationStatus{
+	VerificationStatusValid,
+	VerificationStatusInvalid,
+	VerificationStatusPending,
+	VerificationStatusNotVerified,
+}
+
+func (e VerificationStatus) IsValid() bool {
+	switch e {
+	case VerificationStatusValid, VerificationStatusInvalid, VerificationStatusPending, VerificationStatusNotVerified:
+		return true
+	}
+	return false
+}
+
+func (e VerificationStatus) String() string {
+	return string(e)
+}
+
+func (e *VerificationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VerificationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VerificationStatus", str)
+	}
+	return nil
+}
+
+func (e VerificationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *VerificationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e VerificationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Virtual interface lifecycle status.
+type VirtualInterfaceStatus string
+
+const (
+	// Interface is being created
+	VirtualInterfaceStatusCreating VirtualInterfaceStatus = "CREATING"
+	// Interface is active and ready
+	VirtualInterfaceStatusActive VirtualInterfaceStatus = "ACTIVE"
+	// Interface creation/operation failed
+	VirtualInterfaceStatusError VirtualInterfaceStatus = "ERROR"
+	// Interface is being removed
+	VirtualInterfaceStatusRemoving VirtualInterfaceStatus = "REMOVING"
+)
+
+var AllVirtualInterfaceStatus = []VirtualInterfaceStatus{
+	VirtualInterfaceStatusCreating,
+	VirtualInterfaceStatusActive,
+	VirtualInterfaceStatusError,
+	VirtualInterfaceStatusRemoving,
+}
+
+func (e VirtualInterfaceStatus) IsValid() bool {
+	switch e {
+	case VirtualInterfaceStatusCreating, VirtualInterfaceStatusActive, VirtualInterfaceStatusError, VirtualInterfaceStatusRemoving:
+		return true
+	}
+	return false
+}
+
+func (e VirtualInterfaceStatus) String() string {
+	return string(e)
+}
+
+func (e *VirtualInterfaceStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = VirtualInterfaceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid VirtualInterfaceStatus", str)
+	}
+	return nil
+}
+
+func (e VirtualInterfaceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *VirtualInterfaceStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e VirtualInterfaceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // WAN connection type classification
@@ -10136,7 +15335,7 @@ func (e WANConnectionType) String() string {
 	return string(e)
 }
 
-func (e *WANConnectionType) UnmarshalGQL(v interface{}) error {
+func (e *WANConnectionType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10151,6 +15350,20 @@ func (e *WANConnectionType) UnmarshalGQL(v interface{}) error {
 
 func (e WANConnectionType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WANConnectionType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WANConnectionType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // WAN event types for history tracking
@@ -10195,7 +15408,7 @@ func (e WANEventType) String() string {
 	return string(e)
 }
 
-func (e *WANEventType) UnmarshalGQL(v interface{}) error {
+func (e *WANEventType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10210,6 +15423,20 @@ func (e *WANEventType) UnmarshalGQL(v interface{}) error {
 
 func (e WANEventType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WANEventType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WANEventType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // WAN connection status
@@ -10248,7 +15475,7 @@ func (e WANStatus) String() string {
 	return string(e)
 }
 
-func (e *WANStatus) UnmarshalGQL(v interface{}) error {
+func (e *WANStatus) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10263,6 +15490,20 @@ func (e *WANStatus) UnmarshalGQL(v interface{}) error {
 
 func (e WANStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WANStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WANStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Webhook authentication types
@@ -10295,7 +15536,7 @@ func (e WebhookAuthType) String() string {
 	return string(e)
 }
 
-func (e *WebhookAuthType) UnmarshalGQL(v interface{}) error {
+func (e *WebhookAuthType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10310,6 +15551,20 @@ func (e *WebhookAuthType) UnmarshalGQL(v interface{}) error {
 
 func (e WebhookAuthType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WebhookAuthType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WebhookAuthType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Webhook template types for predefined formats
@@ -10348,7 +15603,7 @@ func (e WebhookTemplate) String() string {
 	return string(e)
 }
 
-func (e *WebhookTemplate) UnmarshalGQL(v interface{}) error {
+func (e *WebhookTemplate) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -10363,4 +15618,18 @@ func (e *WebhookTemplate) UnmarshalGQL(v interface{}) error {
 
 func (e WebhookTemplate) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WebhookTemplate) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WebhookTemplate) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

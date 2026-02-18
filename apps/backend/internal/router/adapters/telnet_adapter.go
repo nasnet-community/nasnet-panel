@@ -32,10 +32,10 @@ const (
 
 // Telnet timeouts (longer than API protocols due to slower negotiation).
 const (
-	telnetConnectTimeout  = 30 * time.Second
-	telnetLoginTimeout    = 15 * time.Second
-	telnetCommandTimeout  = 60 * time.Second
-	telnetReadTimeout     = 30 * time.Second
+	telnetConnectTimeout    = 30 * time.Second
+	telnetLoginTimeout      = 15 * time.Second
+	telnetCommandTimeout    = 60 * time.Second
+	telnetReadTimeout       = 30 * time.Second
 	telnetKeepaliveInterval = 60 * time.Second
 )
 
@@ -91,7 +91,7 @@ func (a *TelnetAdapter) Connect(ctx context.Context) error {
 		port = router.ProtocolTelnet.DefaultPort()
 	}
 
-	address := fmt.Sprintf("%s:%d", a.config.Host, port)
+	address := net.JoinHostPort(a.config.Host, strconv.Itoa(port))
 
 	timeout := telnetConnectTimeout
 	if a.config.Timeout > 0 {
@@ -119,18 +119,19 @@ func (a *TelnetAdapter) Connect(ctx context.Context) error {
 	a.reader = bufio.NewReader(conn)
 
 	// Perform Telnet login
-	if err := a.login(ctx); err != nil {
+	loginErr := a.login(ctx)
+	if loginErr != nil {
 		conn.Close()
 		a.conn = nil
 		a.reader = nil
 		a.health.Status = router.StatusError
-		a.health.ErrorMessage = err.Error()
+		a.health.ErrorMessage = loginErr.Error()
 		a.health.ConsecutiveFailures++
 		return &router.AdapterError{
 			Protocol:  router.ProtocolTelnet,
 			Operation: "login",
 			Message:   "authentication failed",
-			Cause:     err,
+			Cause:     loginErr,
 			Retryable: false,
 		}
 	}
@@ -161,9 +162,10 @@ func (a *TelnetAdapter) Disconnect() error {
 
 	if a.conn != nil {
 		// Try to send quit command
-		a.conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
-		a.conn.Write([]byte("/quit\r\n"))
-		a.conn.Close()
+		_ = a.conn.SetWriteDeadline(time.Now().Add(2 * time.Second)) //nolint:errcheck // best effort deadline
+		_, _ = a.conn.Write([]byte("/quit\r\n"))                     //nolint:errcheck // best effort quit
+
+		_ = a.conn.Close()
 		a.conn = nil
 		a.reader = nil
 	}
@@ -296,9 +298,9 @@ func (a *TelnetAdapter) Protocol() router.Protocol {
 }
 
 // login handles the RouterOS Telnet login sequence.
-func (a *TelnetAdapter) login(ctx context.Context) error {
-	a.conn.SetDeadline(time.Now().Add(telnetLoginTimeout))
-	defer a.conn.SetDeadline(time.Time{})
+func (a *TelnetAdapter) login(_ctx context.Context) error {
+	_ = a.conn.SetDeadline(time.Now().Add(telnetLoginTimeout)) //nolint:errcheck // best effort deadline
+	defer a.conn.SetDeadline(time.Time{})                      //nolint:errcheck // best effort deadline
 
 	// Read until login prompt, handling Telnet negotiations
 	if err := a.readUntilLogin(); err != nil {
@@ -328,7 +330,7 @@ func (a *TelnetAdapter) login(ctx context.Context) error {
 	return nil
 }
 
-// readUntilLogin reads and handles Telnet negotiations until login prompt.
+// readUntilLogin reads and handles Telnet negotiations until login prompt. //nolint:nestif
 func (a *TelnetAdapter) readUntilLogin() error {
 	var buffer strings.Builder
 	for {
@@ -351,6 +353,7 @@ func (a *TelnetAdapter) readUntilLogin() error {
 		// RouterOS login prompt variations
 		if strings.Contains(s, "Login:") || strings.Contains(s, "login:") ||
 			strings.Contains(s, "Username:") || strings.Contains(s, "username:") {
+
 			return nil
 		}
 	}
@@ -371,7 +374,7 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 			return err
 		}
 		// Respond with WONT for all DO requests
-		a.conn.Write([]byte{telnetIAC, telnetWONT, opt})
+		_, _ = a.conn.Write([]byte{telnetIAC, telnetWONT, opt}) //nolint:errcheck // best effort write
 
 	case telnetWILL, telnetWONT:
 		// Read the option byte
@@ -380,7 +383,7 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 			return err
 		}
 		// Respond with DONT for all WILL requests
-		a.conn.Write([]byte{telnetIAC, telnetDONT, opt})
+		_, _ = a.conn.Write([]byte{telnetIAC, telnetDONT, opt}) //nolint:errcheck // best effort write
 
 	case telnetSB:
 		// Sub-negotiation - read until SE
@@ -389,11 +392,13 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 			if err != nil {
 				return err
 			}
+
 			if b == telnetIAC {
 				next, err := a.reader.ReadByte()
 				if err != nil {
 					return err
 				}
+
 				if next == telnetSE {
 					break
 				}
@@ -460,11 +465,11 @@ func (a *TelnetAdapter) readUntilPrompt() error {
 func (a *TelnetAdapter) runCommand(ctx context.Context, command string) (string, error) {
 	// Set deadline from context or default
 	if deadline, ok := ctx.Deadline(); ok {
-		a.conn.SetDeadline(deadline)
+		_ = a.conn.SetDeadline(deadline) //nolint:errcheck // best effort deadline
 	} else {
-		a.conn.SetDeadline(time.Now().Add(telnetCommandTimeout))
+		_ = a.conn.SetDeadline(time.Now().Add(telnetCommandTimeout)) //nolint:errcheck // best effort deadline
 	}
-	defer a.conn.SetDeadline(time.Time{})
+	defer a.conn.SetDeadline(time.Time{}) //nolint:errcheck // best effort deadline
 
 	// Send command with CR+LF line termination
 	if _, err := a.conn.Write([]byte(command + "\r\n")); err != nil {
@@ -507,6 +512,7 @@ func (a *TelnetAdapter) readCommandOutput(ctx context.Context, sentCommand strin
 		}
 
 		// Build the output
+		//nolint:nestif // telnet byte parsing
 		if b == '\n' {
 			line := lineBuffer.String()
 			lineBuffer.Reset()
@@ -549,7 +555,7 @@ func isTelnetPrompt(line string) bool {
 }
 
 // getRouterInfo fetches router information via Telnet CLI.
-func (a *TelnetAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) {
+func (a *TelnetAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) { //nolint:dupl // telnet-specific version parsing differs from SSH
 	// Get system resource
 	output, err := a.runCommand(ctx, "/system resource print")
 	if err != nil {
@@ -625,6 +631,7 @@ func (a *TelnetAdapter) detectCapabilities() router.PlatformCapabilities {
 		model := strings.ToLower(a.routerInfo.Model)
 		if strings.Contains(model, "wap") || strings.Contains(model, "hap") ||
 			strings.Contains(model, "wifi") || strings.Contains(model, "wireless") {
+
 			caps.HasWireless = true
 		}
 	}
@@ -641,6 +648,7 @@ func buildTelnetCommand(cmd router.Command) string {
 	}
 
 	var sb strings.Builder
+
 	sb.WriteString(path)
 
 	// Add action (print is default)
@@ -648,6 +656,7 @@ func buildTelnetCommand(cmd router.Command) string {
 	if action == "" {
 		action = "print"
 	}
+
 	sb.WriteString(" ")
 	sb.WriteString(action)
 
@@ -690,10 +699,13 @@ func parseTelnetVersion(versionStr string) router.RouterOSVersion {
 	re := regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?`)
 	matches := re.FindStringSubmatch(versionStr)
 	if len(matches) >= 3 {
-		v.Major, _ = strconv.Atoi(matches[1])
-		v.Minor, _ = strconv.Atoi(matches[2])
+		major, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
+		minor, _ := strconv.Atoi(matches[2]) //nolint:errcheck // regex guarantees numeric match
+		v.Major = major
+		v.Minor = minor
 		if len(matches) >= 4 && matches[3] != "" {
-			v.Patch, _ = strconv.Atoi(matches[3])
+			patch, _ := strconv.Atoi(matches[3]) //nolint:errcheck // regex guarantees numeric match
+			v.Patch = patch
 		}
 	}
 

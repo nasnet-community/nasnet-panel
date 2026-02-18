@@ -6,13 +6,16 @@
  * @module @nasnet/ui/patterns/security/nat-rule-builder
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+
 import { action } from '@storybook/addon-actions';
 
-import { NATRuleBuilder } from './NATRuleBuilder';
-import type { NATRuleBuilderProps } from './nat-rule-builder.types';
 import type { NATRuleInput } from '@nasnet/core/types/firewall';
+
+import { NATRuleBuilder } from './NATRuleBuilder';
+
+import type { NATRuleBuilderProps } from './nat-rule-builder.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock data
 const mockInterfaces = ['ether1', 'ether2', 'bridge1', 'wlan1'];

@@ -20,12 +20,16 @@ vi.mock('@nasnet/state/stores', () => ({
 
 vi.mock('@nasnet/ui/primitives', () => ({
   useToast: vi.fn(),
+}));
+
+vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(),
 }));
 
 import { useDHCPLeases, useMakeStaticMutation, useDeleteLeaseMutation } from '@nasnet/api-client/queries';
 import { useDHCPUIStore } from '@nasnet/state/stores';
-import { useToast, usePlatform } from '@nasnet/ui/primitives';
+import { useToast } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 describe('DHCP Lease Management Accessibility', () => {
   beforeEach(() => {

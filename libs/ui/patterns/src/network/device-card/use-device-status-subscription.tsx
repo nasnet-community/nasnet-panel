@@ -8,7 +8,6 @@
  * @see NAS-4A.20: Build Device Discovery Card Component (AC6)
  */
 
-import * as React from 'react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import type { DiscoveredDevice } from './device-card.types';
@@ -126,9 +125,9 @@ export function useDeviceStatusSubscription(
   const [error, setError] = useState<Error | null>(null);
 
   // Refs for debouncing and tracking
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousOnlineRef = useRef(initialDevice.online);
-  const statusChangeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const statusChangeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check for reduced motion preference
   const prefersReducedMotion =

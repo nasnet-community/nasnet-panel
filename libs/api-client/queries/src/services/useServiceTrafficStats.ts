@@ -152,7 +152,7 @@ export function useServiceTrafficStats({
     // Cache for 5 seconds to avoid excessive polling
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-first',
-    ...options,
+    ...(options as any),
   });
 }
 
@@ -191,7 +191,7 @@ export function useServiceDeviceBreakdown({
     variables: { routerID, instanceID },
     skip,
     fetchPolicy: 'cache-and-network',
-    ...options,
+    ...(options as any),
   });
 }
 
@@ -336,7 +336,7 @@ export function useServiceTrafficSubscription({
         }
       }
     },
-    ...options,
+    ...(options as any),
   });
 }
 

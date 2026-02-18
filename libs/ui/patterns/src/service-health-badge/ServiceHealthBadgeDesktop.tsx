@@ -1,7 +1,9 @@
+import { cn } from '@nasnet/ui/primitives';
+
 import { ResourceHealthBadge } from '../resource-health-indicator';
 import { useServiceHealthBadge } from './useServiceHealthBadge';
+
 import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
-import { cn } from '@nasnet/ui/utils';
 
 /**
  * Desktop presenter for service health badge
@@ -45,9 +47,9 @@ export function ServiceHealthBadgeDesktop({
     switch (healthState) {
       case 'HEALTHY':
         return 'Healthy';
-      case 'CRITICAL':
+      case 'FAILED':
         return hasFailures
-          ? `Unhealthy (${raw.consecutiveFails} failures)`
+          ? `Unhealthy (${raw?.consecutiveFails ?? 0} failures)`
           : 'Unhealthy';
       case 'DEGRADED':
         return 'Checking...';
@@ -57,9 +59,6 @@ export function ServiceHealthBadgeDesktop({
     }
   };
 
-  // Determine direction (column on small screens, row on large)
-  const direction = 'row';
-
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       {/* Primary health badge */}
@@ -67,7 +66,6 @@ export function ServiceHealthBadgeDesktop({
         health={healthState}
         label={getLabel()}
         animate={animate}
-        direction={direction}
       />
 
       {/* Metrics (show only if healthy or degraded) */}
@@ -85,16 +83,16 @@ export function ServiceHealthBadgeDesktop({
           <div className="flex items-center gap-1">
             <span className="font-medium">Connection:</span>
             <span className={isConnected ? 'text-success' : 'text-error'}>
-              {raw.connectionStatus}
+              {raw?.connectionStatus}
             </span>
           </div>
 
           {/* Latency */}
-          {raw.latencyMs != null && (
+          {raw?.latencyMs != null && (
             <div className="flex items-center gap-1">
               <span className="font-medium">Latency:</span>
               <span className={`text-${latencyColor}`}>
-                {raw.latencyMs}ms
+                {raw?.latencyMs}ms
               </span>
             </div>
           )}
@@ -118,9 +116,9 @@ export function ServiceHealthBadgeDesktop({
       )}
 
       {/* Warning for consecutive failures */}
-      {showWarning && raw.consecutiveFails > 0 && healthState !== 'CRITICAL' && (
+      {showWarning && (raw?.consecutiveFails ?? 0) > 0 && healthState !== 'FAILED' && (
         <div className="text-xs text-warning">
-          ⚠️ {raw.consecutiveFails} consecutive failures detected
+          ⚠️ {raw?.consecutiveFails} consecutive failures detected
         </div>
       )}
     </div>

@@ -7,7 +7,7 @@ import (
 )
 
 // renderEmailDigest renders an email digest notification.
-func (ds *Service) renderEmailDigest(payload *DigestPayload) (title, message string, data map[string]interface{}, err error) {
+func (ds *Service) renderEmailDigest(payload *Payload) (title, message string, data map[string]interface{}, err error) {
 	tmplData := map[string]interface{}{
 		"DigestID":       payload.DigestID,
 		"TotalCount":     payload.TotalCount,
@@ -39,7 +39,9 @@ func (ds *Service) renderEmailDigest(payload *DigestPayload) (title, message str
 }
 
 // renderWebhookDigest renders a webhook digest payload.
-func (ds *Service) renderWebhookDigest(payload *DigestPayload) (title, message string, data map[string]interface{}, err error) {
+//
+//nolint:unparam // err is always nil but kept for interface consistency with renderEmailDigest
+func (ds *Service) renderWebhookDigest(payload *Payload) (title, message string, data map[string]interface{}, err error) {
 	summaries := make([]map[string]interface{}, len(payload.Entries))
 	for i, entry := range payload.Entries {
 		summaries[i] = map[string]interface{}{
@@ -68,7 +70,9 @@ func (ds *Service) renderWebhookDigest(payload *DigestPayload) (title, message s
 }
 
 // renderGenericDigest renders a generic digest notification.
-func (ds *Service) renderGenericDigest(payload *DigestPayload) (title, message string, data map[string]interface{}, err error) {
+//
+//nolint:unparam // err is always nil but kept for interface consistency with renderEmailDigest
+func (ds *Service) renderGenericDigest(payload *Payload) (title, message string, data map[string]interface{}, err error) {
 	msg := fmt.Sprintf("Alert Digest Summary (%s)\n\n", time.Now().Format("2006-01-02 15:04:05"))
 	msg += fmt.Sprintf("Total Alerts: %d\n", payload.TotalCount)
 	msg += "Severity Breakdown:\n"

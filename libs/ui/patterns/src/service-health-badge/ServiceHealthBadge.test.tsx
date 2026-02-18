@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { ServiceHealthBadge } from './ServiceHealthBadge';
+
 import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
+
+import { ServiceHealthBadge } from './ServiceHealthBadge';
 
 // Mock usePlatform hook
 vi.mock('@nasnet/ui/layouts', () => ({

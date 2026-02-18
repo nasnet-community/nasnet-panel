@@ -3,9 +3,11 @@
  * Dashboard Pro style - 3-column CPU/RAM/Uptime metrics
  */
 
-import { SystemResource } from '@nasnet/core/types';
-import { parseRouterOSUptime, calculateStatus } from '@nasnet/core/utils';
 import { Cpu, HardDrive, Clock } from 'lucide-react';
+
+import { type SystemResource } from '@nasnet/core/types';
+import { parseRouterOSUptime, calculateStatus } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
 
 interface NetworkStatsGridProps {

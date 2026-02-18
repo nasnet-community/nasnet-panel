@@ -245,6 +245,7 @@ export function A11yProvider({ children }: A11yProviderProps) {
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [announcement]);
 
   const value: A11yContextValue = {

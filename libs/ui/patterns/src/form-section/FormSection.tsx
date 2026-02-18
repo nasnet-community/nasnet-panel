@@ -15,11 +15,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { cn, useReducedMotion } from '@nasnet/ui/primitives';
 
-import { getCollapseVariants } from '../common/motion-presets';
-import type { FormSectionProps } from './form-section.types';
-import { useFormSection, slugify } from './useFormSection';
-import { FormSectionHeader } from './FormSectionHeader';
 import { FormSectionErrors } from './FormSectionErrors';
+import { FormSectionHeader } from './FormSectionHeader';
+import { useFormSection, slugify } from './useFormSection';
+import { getCollapseVariants } from '../common/motion-presets';
+
+import type { FormSectionProps } from './form-section.types';
 
 /**
  * FormSection provides consistent structure for form sections.

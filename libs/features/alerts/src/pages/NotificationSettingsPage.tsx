@@ -12,7 +12,7 @@ import { notificationChannels } from '../schemas/alert-rule.schema';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { QuietHoursConfig } from '../components/QuietHoursConfig';
-import type { QuietHoursConfig as QuietHoursConfigData } from '../components/QuietHoursConfig';
+import type { QuietHoursConfigData } from '../components/QuietHoursConfig';
 import { EmailChannelForm } from '../components/EmailChannelForm';
 import type { EmailConfig } from '../schemas/email-config.schema';
 
@@ -31,22 +31,20 @@ interface ChannelFormProps {
  * NAS-18.6: Enhanced with multi-chat support via textarea
  */
 function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormProps, 'channel'>) {
-  const [config, setConfig] = useState<ChannelConfig>({
-    botToken: '',
-    chatIds: '', // Store as newline-separated string for textarea
-  });
+  const [botToken, setBotToken] = useState('');
+  const [chatIdsText, setChatIdsText] = useState(''); // Store as newline-separated string for textarea
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Transform textarea to array for GraphQL
-    const chatIDsArray = (config.chatIds as string)
+    const chatIDsArray = chatIdsText
       .split('\n')
       .map(id => id.trim())
       .filter(id => id !== '');
 
     onTest({
-      botToken: config.botToken,
+      botToken,
       chatIds: chatIDsArray,
     });
   };
@@ -69,8 +67,8 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
         <label className="block text-sm font-medium mb-2">Bot Token *</label>
         <input
           type="text"
-          value={config.botToken}
-          onChange={(e) => setConfig({ ...config, botToken: e.target.value })}
+          value={botToken}
+          onChange={(e) => setBotToken(e.target.value)}
           className="w-full px-3 py-2 border rounded-md font-mono text-sm"
           placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
           required
@@ -82,8 +80,8 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           Chat IDs * (one per line)
         </label>
         <textarea
-          value={config.chatIds as string}
-          onChange={(e) => setConfig({ ...config, chatIds: e.target.value })}
+          value={chatIdsText}
+          onChange={(e) => setChatIdsText(e.target.value)}
           className="w-full px-3 py-2 border rounded-md font-mono text-sm"
           placeholder="123456789&#10;-987654321&#10;@mychannel"
           rows={4}

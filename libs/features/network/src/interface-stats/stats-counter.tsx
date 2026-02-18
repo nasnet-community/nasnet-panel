@@ -91,37 +91,36 @@ export function StatsCounter({
 
   // Detect value changes and trigger animation
   useEffect(() => {
-    if (value !== displayValue) {
-      setIsUpdating(true);
-      // Small delay to trigger CSS transition
-      const timer = setTimeout(() => {
-        setDisplayValue(value);
-        setIsUpdating(false);
-      }, 50);
-      return () => clearTimeout(timer);
+    if (value === displayValue) {
+      return;
     }
+
+    setIsUpdating(true);
+    // Small delay to trigger CSS transition
+    const timer = setTimeout(() => {
+      setDisplayValue(value);
+      setIsUpdating(false);
+    }, 50);
+    return () => clearTimeout(timer);
   }, [value, displayValue]);
 
   // Format the value based on unit type
-  const formattedValue = (() => {
-    try {
-      const bigIntValue = BigInt(displayValue);
+  let formattedValue: string;
+  try {
+    const bigIntValue = BigInt(displayValue);
 
-      switch (unit) {
-        case 'bytes':
-          return formatBytesBigInt(bigIntValue);
-        case 'packets':
-        case 'count':
-          return formatNumberBigInt(bigIntValue);
-        default:
-          return displayValue;
-      }
-    } catch (err) {
-      // Fallback if BigInt parsing fails
-      console.error('Error formatting stats counter:', err);
-      return displayValue;
+    if (unit === 'bytes') {
+      formattedValue = formatBytesBigInt(bigIntValue);
+    } else if (unit === 'packets' || unit === 'count') {
+      formattedValue = formatNumberBigInt(bigIntValue);
+    } else {
+      formattedValue = String(displayValue);
     }
-  })();
+  } catch (err) {
+    // Fallback if BigInt parsing fails
+    console.error('Error formatting stats counter:', err);
+    formattedValue = String(displayValue);
+  }
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>

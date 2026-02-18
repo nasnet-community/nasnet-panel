@@ -12,6 +12,7 @@
 import { useState, useCallback, useMemo } from 'react';
 
 import { useClipboard } from '../hooks';
+import { useDiff } from './use-diff';
 import { useToast } from '../hooks/useToast';
 
 import type {
@@ -19,7 +20,6 @@ import type {
   UseConfigPreviewConfig,
   UseConfigPreviewReturn,
 } from './config-preview.types';
-import { useDiff } from './use-diff';
 
 /**
  * Parse a RouterOS script into sections based on command paths

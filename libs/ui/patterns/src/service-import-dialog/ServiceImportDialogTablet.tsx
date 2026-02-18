@@ -4,6 +4,7 @@
  */
 
 import { Upload, AlertCircle, CheckCircle2, Download, ChevronLeft } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
@@ -11,18 +12,22 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from '@nasnet/ui/primitives/dialog';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Label } from '@nasnet/ui/primitives/label';
-import { Textarea } from '@nasnet/ui/primitives/textarea';
-import { Input } from '@nasnet/ui/primitives/input';
-import { Progress } from '@nasnet/ui/primitives/progress';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import { ScrollArea } from '@nasnet/ui/primitives/scroll-area';
-import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives/radio-group';
-import type { ServiceImportDialogProps } from './types';
+  Button,
+  Label,
+  Textarea,
+  Input,
+  Progress,
+  Alert,
+  AlertDescription,
+  Badge,
+  ScrollArea,
+  RadioGroup,
+  RadioGroupItem,
+} from '@nasnet/ui/primitives';
+
 import { useServiceImportDialog } from './useServiceImportDialog';
+
+import type { ServiceImportDialogProps } from './types';
 
 export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
   const { open, onOpenChange, trigger } = props;
@@ -101,7 +106,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 id="paste-content-tablet"
                 placeholder="Paste configuration..."
                 value={state.content}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                   setContent(e.target.value);
                   setSource('paste');
                 }}
@@ -162,7 +167,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                   <div className="space-y-2">
                     {state.validationResult.errors.map((error, index) => (
                       <div key={index} className="text-sm">
-                        <Badge variant="destructive" className="mr-2">
+                        <Badge variant="error" className="mr-2">
                           {error.code}
                         </Badge>
                         {error.message}
@@ -178,7 +183,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
               state.validationResult.redactedFields.length > 0 && (
                 <div className="space-y-3">
                   <Label className="text-base">Provide Missing Values</Label>
-                  {state.validationResult.redactedFields.map((field) => (
+                  {state.validationResult.redactedFields.map((field: string) => (
                     <div key={field} className="space-y-1">
                       <Label htmlFor={`redacted-${field}-tablet`}>{field}</Label>
                       <Input
@@ -186,7 +191,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                         type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                         placeholder={`Enter ${field}`}
                         value={state.redactedFieldValues[field] || ''}
-                        onChange={(e) => setRedactedFieldValue(field, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
                         className="min-h-[44px]"
                       />
                     </div>
@@ -254,7 +259,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                     (!state.conflictResolution ||
                       (state.validationResult.redactedFields &&
                         state.validationResult.redactedFields.some(
-                          (field) => !state.redactedFieldValues[field]
+                          (field: string) => !state.redactedFieldValues[field]
                         )))) ||
                   loading
                 }

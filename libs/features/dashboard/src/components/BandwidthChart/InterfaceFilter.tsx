@@ -46,7 +46,7 @@ function getInterfaceIcon(type: string) {
 export const InterfaceFilter = memo<InterfaceFilterProps>(
   ({ routerId, value, onChange, className }) => {
     // Fetch interfaces using hook from Story 5.3
-    const { interfaces, loading } = useInterfaces({ deviceId: routerId });
+    const { interfaces, isLoading } = useInterfaces({ deviceId: routerId });
 
     // Format interface display name
     const getInterfaceLabel = useMemo(
@@ -85,7 +85,7 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
           </SelectItem>
 
           {/* Loading state */}
-          {loading && (
+          {isLoading && (
             <SelectItem value="loading" disabled>
               <span className="text-muted-foreground">Loading interfaces...</span>
             </SelectItem>
@@ -107,7 +107,7 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
               </SelectItem>
             ))
           ) : (
-            !loading && (
+            !isLoading && (
               <SelectItem value="empty" disabled>
                 <span className="text-muted-foreground">No interfaces found</span>
               </SelectItem>

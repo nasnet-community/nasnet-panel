@@ -8,8 +8,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { RateLimitRuleEditor } from './RateLimitRuleEditor';
 import {
   mockDropRule,
@@ -17,6 +17,8 @@ import {
   mockAddToListRule,
   emptyRuleInput,
 } from '../__test-utils__/rate-limit-fixtures';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * RateLimitRuleEditor - Rate limiting rule creation and editing dialog

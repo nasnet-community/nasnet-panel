@@ -8,7 +8,16 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/alert"
+
 	"backend/internal/events"
+)
+
+// Severity level constants used in alert evaluation and digest formatting.
+const (
+	severityCritical = "CRITICAL"
+	severityError    = "ERROR"
+	severityWarning  = "WARNING"
+	severityInfo     = "INFO"
 )
 
 // evaluateRule evaluates a single rule against event data.
@@ -228,7 +237,7 @@ func (e *Engine) runDigestDelivery(ctx context.Context) {
 }
 
 // deliverQueuedAlerts checks if quiet hours have ended and delivers queued alerts as digest.
-func (e *Engine) deliverQueuedAlerts(ctx context.Context) error {
+func (e *Engine) deliverQueuedAlerts(ctx context.Context) error { //nolint:unparam // ctx used in nested calls
 	queuedCount := e.alertQueue.Count()
 	if queuedCount == 0 {
 		return nil
@@ -245,27 +254,11 @@ func (e *Engine) deliverQueuedAlerts(ctx context.Context) error {
 			continue
 		}
 
-		shouldDeliver := false
-		if len(alerts) > 0 {
-			rule, err := e.getRuleByID(ctx, alerts[0].RuleID)
-			if err == nil && rule != nil && rule.QuietHours != nil {
-				firstRuleConfig, err := ParseQuietHoursConfig(rule.QuietHours)
-				if err == nil {
-					suppress, _ := e.quietHours.ShouldSuppress(firstRuleConfig, "INFO", time.Now())
-					shouldDeliver = !suppress
-				} else {
-					shouldDeliver = true
-				}
-			} else {
-				shouldDeliver = true
-			}
-		} else {
-			shouldDeliver = true
-		}
+		shouldDeliver := e.checkQuietHoursForDigest(ctx, alerts)
 
 		if !shouldDeliver {
 			for _, alert := range alerts {
-				e.alertQueue.Enqueue(alert)
+				e.alertQueue.Enqueue(&alert)
 			}
 			e.log.Debugw("quiet hours still active, re-queued alerts",
 				"device_id", deviceID,
@@ -291,23 +284,59 @@ func (e *Engine) deliverQueuedAlerts(ctx context.Context) error {
 	return nil
 }
 
+// checkQuietHoursForDigest checks if quiet hours allow delivering digest.
+func (e *Engine) checkQuietHoursForDigest(ctx context.Context, alerts []QueuedAlert) bool {
+	if len(alerts) == 0 {
+		return true
+	}
+
+	rule, err := e.getRuleByID(ctx, alerts[0].RuleID)
+	if err != nil || rule == nil || rule.QuietHours == nil {
+		return true
+	}
+
+	firstRuleConfig, err := ParseQuietHoursConfig(rule.QuietHours)
+	if err != nil {
+		return true
+	}
+
+	suppress, _ := e.quietHours.ShouldSuppress(firstRuleConfig, severityInfo, time.Now())
+	return !suppress
+}
+
+// determineSeverity determines the highest severity from a list of alerts.
+func (e *Engine) determineSeverity(alerts []QueuedAlert) string {
+	if len(alerts) == 0 {
+		return severityInfo
+	}
+
+	severity := alerts[0].Severity
+
+	for _, a := range alerts {
+		switch a.Severity {
+		case severityCritical:
+			return severityCritical
+		case severityError:
+			if severity != severityCritical {
+				severity = severityError
+			}
+		case severityWarning:
+			if severity != severityCritical && severity != severityError {
+				severity = severityWarning
+			}
+		}
+	}
+
+	return severity
+}
+
 // createDigestAlert creates a single digest alert for multiple queued alerts.
 func (e *Engine) createDigestAlert(ctx context.Context, deviceID string, alerts []QueuedAlert, digest string) error {
 	if len(alerts) == 0 {
 		return nil
 	}
 
-	severity := alerts[0].Severity
-	for _, a := range alerts {
-		if a.Severity == "CRITICAL" {
-			severity = "CRITICAL"
-			break
-		} else if a.Severity == "ERROR" && severity != "CRITICAL" {
-			severity = "ERROR"
-		} else if a.Severity == "WARNING" && severity != "CRITICAL" && severity != "ERROR" {
-			severity = "WARNING"
-		}
-	}
+	severity := e.determineSeverity(alerts)
 
 	title := fmt.Sprintf("%s: Quiet Hours Digest (%d alerts)", severity, len(alerts))
 
@@ -366,7 +395,7 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 	for _, a := range alerts {
 		severity := a.Severity
 		if severity == "" {
-			severity = "INFO"
+			severity = severityInfo
 		}
 		severityGroups[severity] = append(severityGroups[severity], a)
 	}
@@ -377,7 +406,7 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 	sb.WriteString(fmt.Sprintf("Total Alerts: %d\n\n", len(alerts)))
 
 	// Order: CRITICAL, ERROR, WARNING, INFO
-	severityOrder := []string{"CRITICAL", "ERROR", "WARNING", "INFO"}
+	severityOrder := []string{severityCritical, severityError, severityWarning, severityInfo}
 	for _, severity := range severityOrder {
 		group, exists := severityGroups[severity]
 		if !exists || len(group) == 0 {

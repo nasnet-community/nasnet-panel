@@ -3,11 +3,12 @@
  * @see NAS-4.19: Implement Notification/Toast System
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import { useNotificationStore } from '@nasnet/state/stores';
 
 import { useToast } from './useToast';
-import { useNotificationStore } from '@nasnet/state/stores';
 
 // Mock sonner
 vi.mock('sonner', () => ({

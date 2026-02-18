@@ -98,19 +98,21 @@ export function TroubleshootWizardDesktop({
 
       {/* Horizontal Stepper */}
       <HStepper
-        currentStep={wizard.currentStepIndex}
-        totalSteps={wizard.steps.length}
-        steps={wizard.steps.map((step, index) => ({
-          label: step.name,
-          status:
-            step.status === 'passed'
-              ? 'complete'
-              : step.status === 'running'
-                ? 'current'
-                : step.status === 'failed'
-                  ? 'error'
-                  : 'upcoming',
-        }))}
+        {...{
+          currentStep: wizard.currentStepIndex,
+          totalSteps: wizard.steps.length,
+          steps: wizard.steps.map((step) => ({
+            label: step.name,
+            status:
+              step.status === 'passed'
+                ? 'complete'
+                : step.status === 'running'
+                  ? 'current'
+                  : step.status === 'failed'
+                    ? 'error'
+                    : 'upcoming',
+          })),
+        } as any}
       />
 
       {/* Main Content */}

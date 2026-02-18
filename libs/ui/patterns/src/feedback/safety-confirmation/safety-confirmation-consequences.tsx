@@ -44,7 +44,6 @@ export function SafetyConfirmationConsequences({
   const listContent = (
     <ul
       className={cn('space-y-2', className)}
-      role="list"
       aria-label="Consequences of this operation"
     >
       {consequences.map((consequence, index) => (

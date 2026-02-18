@@ -7,15 +7,14 @@
  * @see NAS-4A.15: Build Vertical Stepper (Sidebar Pattern)
  */
 
-import * as React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
 
 import { VStepper } from './v-stepper';
 import { useStepper } from '../../hooks/use-stepper';
+
 import type { StepConfig, StepperConfig, UseStepperReturn } from '../../hooks/use-stepper.types';
 
 // Note: vitest-axe auto-extends expect with toHaveNoViolations

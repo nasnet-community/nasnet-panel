@@ -7,7 +7,7 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-import * as React from 'react';
+
 import { RefreshCw, Network, AlertCircle } from 'lucide-react';
 
 import {

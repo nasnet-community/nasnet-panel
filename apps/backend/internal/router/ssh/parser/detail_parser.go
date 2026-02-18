@@ -10,11 +10,11 @@ import (
 //
 // Example detail format:
 //
-//	 0 R name="vpn-usa" listen-port=51820 mtu=1420 private-key="xxx"
-//	     running=true disabled=false
+//	0 R name="vpn-usa" listen-port=51820 mtu=1420 private-key="xxx"
+//	    running=true disabled=false
 //
-//	 1 R name="vpn-eu" listen-port=51821 mtu=1420 private-key="yyy"
-//	     running=true disabled=false
+//	1 R name="vpn-eu" listen-port=51821 mtu=1420 private-key="yyy"
+//	    running=true disabled=false
 type detailParser struct {
 	normalizer *Normalizer
 }
@@ -77,6 +77,8 @@ func (p *detailParser) CanParse(raw string, hints ParseHints) bool {
 }
 
 // Parse parses detail format output.
+//
+//nolint:gocyclo // parser complexity inherent to parsing logic
 func (p *detailParser) Parse(ctx context.Context, raw string, hints ParseHints) (*ParseResult, error) {
 	lines := strings.Split(raw, "\n")
 
@@ -107,7 +109,7 @@ func (p *detailParser) Parse(ctx context.Context, raw string, hints ParseHints) 
 		// Check if this is a new row start
 		if rowNum, flags, keyValues, isStart := p.parseRowStart(line); isStart {
 			// Save previous resource if any
-			if currentResource != nil && len(currentResource) > 0 {
+			if len(currentResource) > 0 {
 				result.Resources = append(result.Resources, p.normalizer.NormalizeResource(currentResource))
 			}
 
@@ -158,7 +160,7 @@ func (p *detailParser) Parse(ctx context.Context, raw string, hints ParseHints) 
 	}
 
 	// Save last resource
-	if currentResource != nil && len(currentResource) > 0 {
+	if len(currentResource) > 0 {
 		result.Resources = append(result.Resources, p.normalizer.NormalizeResource(currentResource))
 	}
 
@@ -170,12 +172,10 @@ func (p *detailParser) Parse(ctx context.Context, raw string, hints ParseHints) 
 // parseRowStart checks if a line is the start of a new detail row.
 // Returns row number, flags, key-value pairs, and whether it's a row start.
 func (p *detailParser) parseRowStart(line string) (rowNum string, flags TableFlags, keyValues map[string]any, isStart bool) {
-	keyValues = make(map[string]any)
-
 	// Detail rows typically start with optional space, number, optional flags
 	// Pattern: " 0 R name=value ..." or "12 XD name=value ..."
 	trimmed := strings.TrimSpace(line)
-	if len(trimmed) == 0 {
+	if trimmed == "" {
 		return "", TableFlags{}, nil, false
 	}
 
@@ -189,11 +189,12 @@ func (p *detailParser) parseRowStart(line string) (rowNum string, flags TableFla
 	// Count leading spaces (indentation)
 	leadingSpaces := 0
 	for _, ch := range line {
-		if ch == ' ' {
+		switch {
+		case ch == ' ':
 			leadingSpaces++
-		} else if ch == '\t' {
+		case ch == '\t':
 			leadingSpaces += 4
-		} else {
+		default:
 			break
 		}
 	}
@@ -225,7 +226,7 @@ func (p *detailParser) parseRowStart(line string) (rowNum string, flags TableFla
 }
 
 // parseKeyValuePairs parses key=value pairs from a line.
-func (p *detailParser) parseKeyValuePairs(line string) map[string]any {
+func (p *detailParser) parseKeyValuePairs(line string) map[string]any { //nolint:gocyclo // key-value parser inherently complex
 	result := make(map[string]any)
 
 	// Use a state machine to handle quoted values
@@ -253,17 +254,14 @@ func (p *detailParser) parseKeyValuePairs(line string) map[string]any {
 	for _, ch := range line {
 		switch {
 		case ch == '"' || ch == '\'':
-			if !inQuote {
+			if !inQuote { //nolint:gocritic // if-else chain needed for quote handling
 				inQuote = true
 				quoteChar = ch
 			} else if ch == quoteChar {
 				inQuote = false
 				quoteChar = 0
-			} else {
-				// Different quote char inside quotes
-				if inValue {
-					value.WriteRune(ch)
-				}
+			} else if inValue {
+				value.WriteRune(ch)
 			}
 
 		case ch == '=' && !inQuote:
@@ -323,16 +321,17 @@ func extractRowPrefix(line string) (rowNum string, flags TableFlags, dataStart i
 			continue
 		}
 
-		if ch >= '0' && ch <= '9' {
+		switch {
+		case ch >= '0' && ch <= '9':
 			if inFlags {
 				break
 			}
 			inNumber = true
 			numBuilder.WriteByte(ch)
-		} else if isRowFlag(ch) {
+		case isRowFlag(ch):
 			inFlags = true
 			flagBuilder.WriteByte(ch)
-		} else {
+		default:
 			break
 		}
 	}
@@ -352,7 +351,7 @@ func extractRowPrefix(line string) (rowNum string, flags TableFlags, dataStart i
 // isDetailRowStart checks if a line is the start of a detail row.
 func isDetailRowStart(line string) bool {
 	trimmed := strings.TrimSpace(line)
-	if len(trimmed) == 0 {
+	if trimmed == "" {
 		return false
 	}
 
@@ -367,18 +366,19 @@ func isDetailRowStart(line string) bool {
 
 // isContinuationLine checks if a line is a continuation of a detail row.
 func isContinuationLine(line string) bool {
-	if len(line) == 0 {
+	if line == "" {
 		return false
 	}
 
 	// Count leading spaces
 	leadingSpaces := 0
 	for _, ch := range line {
-		if ch == ' ' {
+		switch {
+		case ch == ' ':
 			leadingSpaces++
-		} else if ch == '\t' {
+		case ch == '\t':
 			leadingSpaces += 4
-		} else {
+		default:
 			break
 		}
 	}
@@ -394,7 +394,7 @@ func isContinuationLine(line string) bool {
 }
 
 // detailRowPattern matches detail row starts: "0 R name=value" or "12 name=value".
-var detailRowPattern = regexp.MustCompile(`^\d+\s*[A-Z]*\s+\w+[=]`)
+var detailRowPattern = regexp.MustCompile(`^\d+\s*[A-Z]*\s+\w+=`)
 
 // Compile-time verification.
 var _ ParserStrategy = (*detailParser)(nil)

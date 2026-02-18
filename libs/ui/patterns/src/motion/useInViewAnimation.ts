@@ -6,7 +6,9 @@
  */
 
 import { useRef, useMemo, type RefObject } from 'react';
+
 import { useInView, type UseInViewOptions } from 'framer-motion';
+
 import { useAnimationOptional } from './AnimationProvider';
 
 // ============================================================================

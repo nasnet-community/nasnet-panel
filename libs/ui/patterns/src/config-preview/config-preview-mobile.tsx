@@ -13,14 +13,16 @@
  */
 
 import * as React from 'react';
+
 import { Copy, Check, Download } from 'lucide-react';
 
 import { cn, Button } from '@nasnet/ui/primitives';
 
-import type { ConfigPreviewProps } from './config-preview.types';
-import { useConfigPreview } from './use-config-preview';
 import { DiffView } from './diff-view';
 import { SyntaxHighlight } from './syntax-highlight';
+import { useConfigPreview } from './use-config-preview';
+
+import type { ConfigPreviewProps } from './config-preview.types';
 
 /**
  * ConfigPreviewMobile Component

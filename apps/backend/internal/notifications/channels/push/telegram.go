@@ -78,7 +78,6 @@ func (t *TelegramChannel) Send(ctx context.Context, notification notifications.N
 	successCount := 0
 
 	for _, chatID := range t.config.ChatIDs {
-		chatID := chatID
 		g.Go(func() error {
 			err := t.sendMessageToChat(ctx, chatID, message, inlineKeyboard)
 			errorsMu.Lock()
@@ -108,7 +107,7 @@ func (t *TelegramChannel) Send(ctx context.Context, notification notifications.N
 }
 
 // sendMessageToChat sends a message to a specific chat via Telegram Bot API.
-func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID string, text string, keyboard *InlineKeyboardMarkup) error {
+func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID, text string, keyboard *InlineKeyboardMarkup) error {
 	url := fmt.Sprintf("%s%s/sendMessage", t.apiBaseURL, t.config.BotToken)
 
 	payload := map[string]interface{}{
@@ -126,7 +125,7 @@ func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID string, 
 		return fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
@@ -144,7 +143,7 @@ func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID string, 
 
 	var errorResp TelegramErrorResponse
 	if err := json.NewDecoder(resp.Body).Decode(&errorResp); err != nil {
-		return fmt.Errorf("Telegram API returned status %d", resp.StatusCode)
+		return fmt.Errorf("telegram API returned status %d", resp.StatusCode)
 	}
 
 	if resp.StatusCode == http.StatusTooManyRequests {
@@ -152,10 +151,10 @@ func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID string, 
 		if retryAfter == 0 {
 			retryAfter = 30
 		}
-		return fmt.Errorf("temporary: rate limited by Telegram API, retry after %d seconds", retryAfter)
+		return fmt.Errorf("temporary: rate limited by telegram API, retry after %d seconds", retryAfter)
 	}
 
-	return fmt.Errorf("Telegram API error: %s", errorResp.Description)
+	return fmt.Errorf("telegram API error: %s", errorResp.Description)
 }
 
 // Test verifies the Telegram configuration by sending a test message.
@@ -240,8 +239,8 @@ func (t *TelegramChannel) getSeverityEmoji(severity string) string {
 }
 
 func (t *TelegramChannel) buildInlineKeyboard(notification notifications.Notification) *InlineKeyboardMarkup {
-	baseURL, _ := notification.Data["base_url"].(string)
-	alertID, _ := notification.Data["alert_id"].(string)
+	baseURL, _ := notification.Data["base_url"].(string) //nolint:errcheck // always returns a string or empty
+	alertID, _ := notification.Data["alert_id"].(string) //nolint:errcheck // always returns a string or empty
 
 	if baseURL == "" || alertID == "" {
 		return nil

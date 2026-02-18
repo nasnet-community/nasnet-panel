@@ -12,8 +12,8 @@
 
 import { render, screen, fireEvent, waitFor , renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { axe } from 'vitest-axe';
 import { describe, it, expect, vi } from 'vitest';
+import { axe } from 'vitest-axe';
 
 import { IPInput } from './ip-input';
 import { IPInputDesktop } from './ip-input-desktop';

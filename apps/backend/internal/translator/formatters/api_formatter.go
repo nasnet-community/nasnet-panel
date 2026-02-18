@@ -9,6 +9,14 @@ import (
 	"backend/internal/translator"
 )
 
+// RouterOS API verb and boolean constants.
+const (
+	verbPrint = "print"
+	verbSet   = "set"
+	boolYes   = "yes"
+	boolNo    = "no"
+)
+
 // APIFormatter formats commands for the RouterOS Binary API protocol.
 //
 // Binary API format uses sentences:
@@ -17,7 +25,7 @@ import (
 //   - Queries: ?name=ether1, ?#|, ?#&
 //
 // The Format method returns a JSON representation of the API command
-// that can be executed by go-routeros library.
+// that can be executed by go-routers library.
 type APIFormatter struct{}
 
 // NewAPIFormatter creates a new Binary API formatter.
@@ -92,23 +100,23 @@ func (f *APIFormatter) formatCommand(cmd *translator.CanonicalCommand) string {
 func (f *APIFormatter) actionToVerb(action translator.Action) string {
 	switch action {
 	case translator.ActionPrint:
-		return "print"
+		return verbPrint
 	case translator.ActionGet:
-		return "print" // Get is just print with ID filter
+		return verbPrint // Get is just print with ID filter
 	case translator.ActionAdd:
 		return "add"
 	case translator.ActionSet:
-		return "set"
+		return verbSet
 	case translator.ActionRemove:
 		return "remove"
 	case translator.ActionEnable:
-		return "set" // Enable is set with disabled=no
+		return verbSet // Enable is set with disabled=no
 	case translator.ActionDisable:
-		return "set" // Disable is set with disabled=yes
+		return verbSet // Disable is set with disabled=yes
 	case translator.ActionMove:
 		return "move"
 	default:
-		return string(action)
+		return string(action) // fallback to raw action string for unknown custom RouterOS actions
 	}
 }
 
@@ -116,7 +124,7 @@ func (f *APIFormatter) actionToVerb(action translator.Action) string {
 func (f *APIFormatter) formatFilter(filter translator.Filter) string {
 	// API uses ? prefix for queries
 	// Operators: = (equals), < (less), > (greater)
-	op := "="
+	var op string
 	switch filter.Operator {
 	case translator.FilterOpEquals:
 		op = "="
@@ -127,8 +135,17 @@ func (f *APIFormatter) formatFilter(filter translator.Filter) string {
 		op = ">"
 	case translator.FilterOpLess:
 		op = "<"
+	case translator.FilterOpGreaterOrEq:
+		op = ">="
+	case translator.FilterOpLessOrEq:
+		op = "<="
 	case translator.FilterOpContains:
 		op = "~" // Regex
+	case translator.FilterOpIn:
+		// In operator handled separately if needed
+		op = "in"
+	default:
+		op = "="
 	}
 
 	return fmt.Sprintf("?%s%s%s", filter.Field, op, f.formatValue(filter.Value))
@@ -139,9 +156,9 @@ func (f *APIFormatter) formatValue(v interface{}) string {
 	switch val := v.(type) {
 	case bool:
 		if val {
-			return "yes"
+			return boolYes
 		}
-		return "no"
+		return boolNo
 	case []string:
 		return strings.Join(val, ",")
 	case string:
@@ -176,7 +193,7 @@ func (f *APIFormatter) Parse(response []byte) (*translator.CanonicalResponse, er
 		return f.parseAPIResponse(&apiResp)
 	}
 
-	// Try to parse as raw API output (from go-routeros Reply)
+	// Try to parse as raw API output (from go-routers Reply)
 	return f.parseRawResponse(response)
 }
 
@@ -234,93 +251,114 @@ func (f *APIFormatter) parseAPIResponse(resp *APIResponse) (*translator.Canonica
 	return translator.NewSuccessResponse(nil), nil
 }
 
-// parseRawResponse parses raw API protocol output.
-func (f *APIFormatter) parseRawResponse(response []byte) (*translator.CanonicalResponse, error) {
-	// Parse line-based format: !re, !done, !trap
+// rawParseState holds the intermediate state from parsing raw API lines.
+type rawParseState struct {
+	records       []map[string]interface{}
+	currentRecord map[string]interface{}
+	trapMessage   string
+	retValue      string
+}
+
+// parseRawLines iterates over raw API protocol output lines and populates the parse state.
+func (f *APIFormatter) parseRawLines(response []byte) *rawParseState {
 	lines := bytes.Split(response, []byte("\n"))
-	var records []map[string]interface{}
-	var currentRecord map[string]interface{}
-	var trapMessage string
-	var retValue string
+	state := &rawParseState{}
 
 	for _, line := range lines {
 		lineStr := string(bytes.TrimSpace(line))
 		if lineStr == "" {
 			continue
 		}
-
-		switch {
-		case lineStr == "!re":
-			// New record starts
-			if currentRecord != nil {
-				records = append(records, currentRecord)
-			}
-			currentRecord = make(map[string]interface{})
-
-		case lineStr == "!done":
-			// Save last record
-			if currentRecord != nil {
-				records = append(records, currentRecord)
-				currentRecord = nil
-			}
-
-		case lineStr == "!trap":
-			// Error follows
-			currentRecord = nil
-
-		case strings.HasPrefix(lineStr, "="):
-			// Key-value pair: =name=value
-			kv := strings.SplitN(lineStr[1:], "=", 2)
-			if len(kv) == 2 {
-				if kv[0] == "ret" {
-					retValue = kv[1]
-				} else if kv[0] == "message" && trapMessage == "" {
-					trapMessage = kv[1]
-				} else if currentRecord != nil {
-					currentRecord[kv[0]] = kv[1]
-				}
-			}
-		}
+		f.processRawLine(lineStr, state)
 	}
+	return state
+}
 
-	// Handle trap
-	if trapMessage != "" {
+// processRawLine handles a single line of raw API output.
+func (f *APIFormatter) processRawLine(lineStr string, state *rawParseState) {
+	switch {
+	case lineStr == "!re":
+		if state.currentRecord != nil {
+			state.records = append(state.records, state.currentRecord)
+		}
+		state.currentRecord = make(map[string]interface{})
+
+	case lineStr == "!done":
+		if state.currentRecord != nil {
+			state.records = append(state.records, state.currentRecord)
+			state.currentRecord = nil
+		}
+
+	case lineStr == "!trap":
+		state.currentRecord = nil
+
+	case strings.HasPrefix(lineStr, "="):
+		f.processRawKeyValue(lineStr, state)
+	}
+}
+
+// processRawKeyValue handles a key-value pair line (=name=value) from raw API output.
+func (f *APIFormatter) processRawKeyValue(lineStr string, state *rawParseState) {
+	kv := strings.SplitN(lineStr[1:], "=", 2)
+	if len(kv) != 2 {
+		return
+	}
+	switch {
+	case kv[0] == "ret":
+		state.retValue = kv[1]
+	case kv[0] == "message" && state.trapMessage == "":
+		state.trapMessage = kv[1]
+	case state.currentRecord != nil:
+		state.currentRecord[kv[0]] = kv[1]
+	}
+}
+
+// buildRawResponse converts the parsed state into a CanonicalResponse.
+func (f *APIFormatter) buildRawResponse(state *rawParseState) *translator.CanonicalResponse {
+	if state.trapMessage != "" {
 		return &translator.CanonicalResponse{
 			Success: false,
 			Error: &translator.CommandError{
 				Code:     "API_ERROR",
-				Message:  trapMessage,
+				Message:  state.trapMessage,
 				Category: translator.ErrorCategoryInternal,
 			},
 			Metadata: translator.ResponseMetadata{
 				Protocol: translator.ProtocolAPI,
 			},
-		}, nil
+		}
 	}
 
-	// Handle return value
-	if retValue != "" {
+	if state.retValue != "" {
 		return &translator.CanonicalResponse{
 			Success: true,
-			ID:      retValue,
+			ID:      state.retValue,
 			Metadata: translator.ResponseMetadata{
 				Protocol: translator.ProtocolAPI,
 			},
-		}, nil
+		}
 	}
 
-	// Return records
-	if len(records) > 0 {
+	if len(state.records) > 0 {
 		return &translator.CanonicalResponse{
 			Success: true,
-			Data:    records,
+			Data:    state.records,
 			Metadata: translator.ResponseMetadata{
 				Protocol:    translator.ProtocolAPI,
-				RecordCount: len(records),
+				RecordCount: len(state.records),
 			},
-		}, nil
+		}
 	}
 
+	return nil
+}
+
+// parseRawResponse parses raw API protocol output.
+func (f *APIFormatter) parseRawResponse(response []byte) (*translator.CanonicalResponse, error) {
+	state := f.parseRawLines(response)
+	if resp := f.buildRawResponse(state); resp != nil {
+		return resp, nil
+	}
 	return translator.NewSuccessResponse(nil), nil
 }
 

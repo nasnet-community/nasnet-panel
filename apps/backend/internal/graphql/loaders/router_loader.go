@@ -1,3 +1,4 @@
+//nolint:dupl // similar loader pattern, distinct types
 package loaders
 
 import (

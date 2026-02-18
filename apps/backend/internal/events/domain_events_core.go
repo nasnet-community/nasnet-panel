@@ -87,6 +87,7 @@ func NewCapabilitiesUpdatedEvent(
 	routerID string, version string, majorVersion, minorVersion int, isCHR bool,
 	supportedFeatures, installedPackages []string, architecture string, source string,
 ) *CapabilitiesUpdatedEvent {
+
 	return &CapabilitiesUpdatedEvent{
 		BaseEvent:         NewBaseEvent(EventTypeCapabilitiesUpdated, PriorityNormal, source),
 		RouterID:          routerID,
@@ -261,6 +262,7 @@ func NewAlertCreatedEvent(
 	alertID, ruleID, eventType, severity, title, message, deviceID string,
 	channels []string, data map[string]interface{}, source string,
 ) *AlertCreatedEvent {
+
 	return &AlertCreatedEvent{
 		BaseEvent: NewBaseEvent(EventTypeAlertCreated, PriorityCritical, source),
 		AlertID:   alertID,
@@ -346,6 +348,7 @@ func NewFeatureHealthChangedEvent(
 	featureID, instanceID, routerID, previousState, currentState string,
 	consecutiveFails int, latencyMs int64, lastHealthyAt time.Time,
 ) *FeatureHealthChangedEvent {
+
 	return &FeatureHealthChangedEvent{
 		BaseEvent:        NewBaseEvent(EventTypeHealthChanged, PriorityNormal, "health-checker"),
 		FeatureID:        featureID,

@@ -11,17 +11,17 @@
  * @module @nasnet/ui/patterns/network-inputs/interface-selector
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within , renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { InterfaceItem } from './interface-item';
 import { InterfaceSelector } from './interface-selector';
 import { InterfaceSelectorDesktop } from './interface-selector-desktop';
 import { InterfaceSelectorMobile } from './interface-selector-mobile';
-import { useInterfaceSelector } from './use-interface-selector';
 import { InterfaceTypeIcon, getInterfaceTypeLabel } from './interface-type-icon';
-import { InterfaceItem } from './interface-item';
+import { useInterfaceSelector } from './use-interface-selector';
+
 import type { RouterInterface, InterfaceType } from './interface-selector.types';
 
 // Mock usePlatform hook

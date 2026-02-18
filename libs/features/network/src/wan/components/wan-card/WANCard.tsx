@@ -5,9 +5,7 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 8: Overview Integration)
  */
 
-import { StatusCard } from '@nasnet/ui/patterns';
-import { StatusBadge } from '@nasnet/ui/patterns';
-import { Badge } from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Badge } from '@nasnet/ui/primitives';
 import {
   Globe,
   Activity,
@@ -65,44 +63,59 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
     }
   };
 
+  /**
+   * Get health status badge variant
+   */
+  const getHealthStatusBadge = () => {
+    switch (wan.healthStatus) {
+      case 'HEALTHY':
+        return 'success' as const;
+      case 'DEGRADED':
+        return 'warning' as const;
+      case 'DOWN':
+        return 'error' as const;
+      default:
+        return 'outline' as const;
+    }
+  };
+
   const typeBadge = getConnectionTypeBadge();
 
   return (
-    <StatusCard
-      title={wan.interfaceName}
-      status={isConnected ? 'online' : 'offline'}
-      icon={isConnected ? <Globe className="h-5 w-5" /> : <WifiOff className="h-5 w-5" />}
-      actions={
-        <div className="flex gap-2">
+    <Card className={onViewDetails ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} onClick={onViewDetails ? () => onViewDetails(wan.id) : undefined}>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <Globe className="h-5 w-5 text-success" />
+            ) : (
+              <WifiOff className="h-5 w-5 text-muted-foreground" />
+            )}
+            <CardTitle>{wan.interfaceName}</CardTitle>
+          </div>
           {onConfigure && (
             <button
-              onClick={() => onConfigure(wan.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onConfigure(wan.id);
+              }}
               className="text-xs text-primary hover:underline"
               aria-label={`Configure ${wan.interfaceName}`}
             >
               Configure
             </button>
           )}
-          {onViewDetails && (
-            <button
-              onClick={() => onViewDetails(wan.id)}
-              className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-              aria-label={`View details for ${wan.interfaceName}`}
-            >
-              Details
-            </button>
-          )}
         </div>
-      }
-    >
-      <div className="space-y-4">
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
         {/* Connection Info */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <StatusBadge
-              status={wan.status.toLowerCase()}
-              variant={getConnectionStatusColor(wan.status)}
-            />
+            <Badge variant={getConnectionStatusColor(wan.status) as any} className="text-xs">
+              {isConnected ? <Globe className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              <span className="ml-1">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
+            </Badge>
             <Badge {...typeBadge}>
               {typeBadge.icon}
               <span className="ml-1">{wan.connectionType}</span>
@@ -117,11 +130,12 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
                   isHealthy ? 'text-success' : 'text-warning'
                 }`}
               />
-              <StatusBadge
-                status={wan.healthStatus.toLowerCase()}
-                variant={getHealthStatusColor(wan.healthStatus)}
-                size="sm"
-              />
+              <Badge
+                variant={getHealthStatusColor(wan.healthStatus) as any}
+                className="text-xs"
+              >
+                {wan.healthStatus.charAt(0) + wan.healthStatus.slice(1).toLowerCase()}
+              </Badge>
             </div>
           )}
         </div>
@@ -217,8 +231,9 @@ export function WANCard({ wan, onConfigure, onViewDetails }: WANCardProps) {
             )}
           </div>
         )}
-      </div>
-    </StatusCard>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -240,11 +255,10 @@ export function WANCardCompact({ wan, onConfigure, onViewDetails }: WANCardProps
           )}
           <h3 className="font-semibold text-sm">{wan.interfaceName}</h3>
         </div>
-        <StatusBadge
-          status={wan.status.toLowerCase()}
-          variant={getConnectionStatusColor(wan.status)}
-          size="sm"
-        />
+        <Badge variant={getConnectionStatusColor(wan.status) as any} className="text-xs">
+          {isConnected ? <Globe className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+          <span className="ml-1">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
+        </Badge>
       </div>
 
       {/* IP Info */}

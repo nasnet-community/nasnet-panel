@@ -6,13 +6,14 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
+
 import { SortableList } from '../components/SortableList';
-import { useSortableList } from '../hooks/useSortableList';
 import { useMultiSelect } from '../hooks/useMultiSelect';
-import { renderHook, act } from '@testing-library/react';
+import { useSortableList } from '../hooks/useSortableList';
+
 import type { SortableItemData } from '../types';
 
 // ============================================================================

@@ -44,16 +44,17 @@ func NewSSHAdapter(config router.AdapterConfig) (*SSHAdapter, error) {
 	var authMethods []ssh.AuthMethod
 
 	if config.Password != "" {
-		authMethods = append(authMethods, ssh.Password(config.Password))
-		// Also try keyboard-interactive for RouterOS compatibility
-		authMethods = append(authMethods, ssh.KeyboardInteractive(
-			func(user, instruction string, questions []string, echos []bool) ([]string, error) {
-				answers := make([]string, len(questions))
-				for i := range questions {
-					answers[i] = config.Password
-				}
-				return answers, nil
-			}))
+		authMethods = append(authMethods,
+			ssh.Password(config.Password),
+			// Also try keyboard-interactive for RouterOS compatibility
+			ssh.KeyboardInteractive(
+				func(user, instruction string, questions []string, echos []bool) ([]string, error) {
+					answers := make([]string, len(questions))
+					for i := range questions {
+						answers[i] = config.Password
+					}
+					return answers, nil
+				}))
 	}
 
 	if len(authMethods) == 0 {
@@ -63,7 +64,7 @@ func NewSSHAdapter(config router.AdapterConfig) (*SSHAdapter, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            config.Username,
 		Auth:            authMethods,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // RouterOS may have dynamic host keys
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // required for router SSH connections
 		Timeout:         timeout,
 	}
 
@@ -221,7 +222,7 @@ func (a *SSHAdapter) ExecuteCommand(ctx context.Context, cmd router.Command) (*r
 	}
 
 	// Parse output for print commands
-	if cmd.Action == "print" || cmd.Action == "" {
+	if cmd.Action == actionPrint || cmd.Action == "" {
 		result.Data = parseSSHOutput(output)
 	}
 
@@ -286,7 +287,7 @@ func (a *SSHAdapter) runCommand(ctx context.Context, command string) (string, er
 
 	select {
 	case <-ctx.Done():
-		session.Signal(ssh.SIGKILL)
+		_ = session.Signal(ssh.SIGKILL) //nolint:errcheck // best effort signal
 		return "", ctx.Err()
 	case err := <-done:
 		output := stdout.String()
@@ -308,7 +309,7 @@ func (a *SSHAdapter) runCommand(ctx context.Context, command string) (string, er
 }
 
 // getRouterInfo fetches router information via SSH.
-func (a *SSHAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) {
+func (a *SSHAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) { //nolint:dupl // SSH-specific version parsing differs from telnet
 	// Get system resource
 	output, err := a.runCommand(ctx, "/system resource print")
 	if err != nil {
@@ -383,6 +384,7 @@ func (a *SSHAdapter) detectCapabilities() router.PlatformCapabilities {
 		model := strings.ToLower(a.routerInfo.Model)
 		if strings.Contains(model, "wap") || strings.Contains(model, "hap") ||
 			strings.Contains(model, "wifi") || strings.Contains(model, "wireless") {
+
 			caps.HasWireless = true
 		}
 	}
@@ -400,12 +402,13 @@ func buildSSHCommand(cmd router.Command) string {
 	}
 
 	var sb strings.Builder
+
 	sb.WriteString(path)
 
 	// Add action (print is default)
 	action := cmd.Action
 	if action == "" {
-		action = "print"
+		action = actionPrint
 	}
 	sb.WriteString(" ")
 	sb.WriteString(action)
@@ -434,13 +437,14 @@ func buildSSHCommand(cmd router.Command) string {
 	return sb.String()
 }
 
-// parseSSHOutput parses SSH command output into key-value maps.
+// parseSSHOutput parses SSH command output into key-value maps. //nolint:nestif
 func parseSSHOutput(output string) []map[string]string {
 	var results []map[string]string
 
 	lines := strings.Split(output, "\n")
 
 	// Try to detect table format first
+	//nolint:nestif // table parsing logic
 	if len(lines) > 0 && (strings.Contains(lines[0], "Flags:") || strings.HasPrefix(strings.TrimSpace(lines[0]), "#")) {
 		// Table format parsing
 		results = parseTableOutput(lines)
@@ -473,9 +477,11 @@ func parseSSHOutput(output string) []map[string]string {
 }
 
 // parseTableOutput parses RouterOS table-style output.
+//
+//nolint:gocyclo // table output parsing inherently complex
 func parseTableOutput(lines []string) []map[string]string {
 	var results []map[string]string
-	var headerLine int = -1
+	headerLine := -1
 	var columns []column
 
 	// Find header line (starts with # or contains column names)
@@ -485,8 +491,9 @@ func parseTableOutput(lines []string) []map[string]string {
 			headerLine = i
 			break
 		}
+
 		// Skip "Flags:" lines
-		if strings.HasPrefix(line, "Flags:") {
+		if strings.HasPrefix(line, "Flags:") { //nolint:staticcheck // intentional: skip flags header lines
 			continue
 		}
 	}
@@ -510,7 +517,7 @@ func parseTableOutput(lines []string) []map[string]string {
 		row := make(map[string]string)
 
 		// Check for index/flags at start
-		if len(line) > 0 && (line[0] >= '0' && line[0] <= '9' || line[0] == ' ') {
+		if line != "" && (line[0] >= '0' && line[0] <= '9' || line[0] == ' ') {
 			// Extract row number/flags
 			if len(line) > 3 && line[0] >= '0' && line[0] <= '9' {
 				row[".id"] = "*" + string(line[0])
@@ -546,7 +553,7 @@ type column struct {
 
 // detectColumns detects column positions from header.
 func detectColumns(header string) []column {
-	var cols []column
+	cols := make([]column, 0)
 
 	// Find column name positions
 	re := regexp.MustCompile(`\S+`)
@@ -587,10 +594,13 @@ func parseSSHVersion(versionStr string) router.RouterOSVersion {
 	re := regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?`)
 	matches := re.FindStringSubmatch(versionStr)
 	if len(matches) >= 3 {
-		v.Major, _ = strconv.Atoi(matches[1])
-		v.Minor, _ = strconv.Atoi(matches[2])
+		major, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
+		minor, _ := strconv.Atoi(matches[2]) //nolint:errcheck // regex guarantees numeric match
+		v.Major = major
+		v.Minor = minor
 		if len(matches) >= 4 && matches[3] != "" {
-			v.Patch, _ = strconv.Atoi(matches[3])
+			patch, _ := strconv.Atoi(matches[3]) //nolint:errcheck // regex guarantees numeric match
+			v.Patch = patch
 		}
 	}
 

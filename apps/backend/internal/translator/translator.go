@@ -13,8 +13,8 @@ type Translator struct {
 	version  *RouterOSVersion
 }
 
-// TranslatorConfig holds configuration for creating a Translator.
-type TranslatorConfig struct {
+// Config holds configuration for creating a Translator. //nolint:revive
+type Config struct {
 	// Registry is the field mapping registry (uses default if nil).
 	Registry *FieldMappingRegistry
 
@@ -23,7 +23,7 @@ type TranslatorConfig struct {
 }
 
 // NewTranslator creates a new Translator with the given configuration.
-func NewTranslator(cfg TranslatorConfig) *Translator {
+func NewTranslator(cfg Config) *Translator {
 	registry := cfg.Registry
 	if registry == nil {
 		registry = BuildDefaultRegistry()
@@ -37,7 +37,7 @@ func NewTranslator(cfg TranslatorConfig) *Translator {
 
 // NewDefaultTranslator creates a Translator with default configuration.
 func NewDefaultTranslator() *Translator {
-	return NewTranslator(TranslatorConfig{})
+	return NewTranslator(Config{})
 }
 
 // SetVersion updates the target RouterOS version.
@@ -155,6 +155,7 @@ func (t *Translator) translateFieldValue(path, graphqlField string, value interf
 	}
 
 	// Format based on field type
+	//nolint:exhaustive // remaining types use default string formatting
 	switch fieldType {
 	case FieldTypeBool:
 		return FormatBool(value)
@@ -266,50 +267,39 @@ func (t *Translator) translateValueToGraphQL(graphqlField string, value interfac
 		return !ParseMikroTikBool(strVal)
 	}
 
-	switch fieldType {
-	case FieldTypeBool:
-		if isString {
-			return ParseMikroTikBool(strVal)
-		}
-		return value
-
-	case FieldTypeDuration:
-		if isString {
-			d, err := ParseMikroTikDuration(strVal)
-			if err == nil {
-				return d.String()
-			}
-		}
-		return value
-
-	case FieldTypeList:
-		if isString {
-			return ParseMikroTikList(strVal)
-		}
-		return value
-
-	case FieldTypeSize:
-		if isString {
-			size, err := ParseMikroTikSize(strVal)
-			if err == nil {
-				return size
-			}
-		}
-		return value
-
-	case FieldTypeInt:
-		if isString {
-			// Try to parse as integer
-			var i int64
-			if _, err := fmt.Sscanf(strVal, "%d", &i); err == nil {
-				return i
-			}
-		}
-		return value
-
-	default:
+	if !isString {
 		return value
 	}
+
+	return t.convertStringValue(strVal, fieldType)
+}
+
+// convertStringValue converts a string value from MikroTik to the appropriate Go type
+// based on the field type mapping.
+func (t *Translator) convertStringValue(strVal string, fieldType FieldType) interface{} {
+	//nolint:exhaustive // remaining types fall through to return strVal
+	switch fieldType {
+	case FieldTypeBool:
+		return ParseMikroTikBool(strVal)
+	case FieldTypeDuration:
+		if d, err := ParseMikroTikDuration(strVal); err == nil {
+			return d.String()
+		}
+	case FieldTypeList:
+		return ParseMikroTikList(strVal)
+	case FieldTypeSize:
+		if size, err := ParseMikroTikSize(strVal); err == nil {
+			return size
+		}
+	case FieldTypeInt:
+		var i int64
+		if _, err := fmt.Sscanf(strVal, "%d", &i); err == nil {
+			return i
+		}
+	default:
+		return strVal
+	}
+	return strVal
 }
 
 // =============================================================================
@@ -328,7 +318,7 @@ func (t *Translator) TranslateQuery(path string, filters map[string]interface{},
 }
 
 // TranslateGet creates a get command for fetching a single resource.
-func (t *Translator) TranslateGet(path string, id string, meta CommandMetadata) (*CanonicalCommand, error) {
+func (t *Translator) TranslateGet(path, id string, meta CommandMetadata) (*CanonicalCommand, error) {
 	return t.TranslateToCanonical(TranslateInput{
 		Path:     path,
 		Action:   ActionGet,
@@ -348,7 +338,7 @@ func (t *Translator) TranslateCreate(path string, fields map[string]interface{},
 }
 
 // TranslateUpdate creates a set command for updating a resource.
-func (t *Translator) TranslateUpdate(path string, id string, fields map[string]interface{}, meta CommandMetadata) (*CanonicalCommand, error) {
+func (t *Translator) TranslateUpdate(path, id string, fields map[string]interface{}, meta CommandMetadata) (*CanonicalCommand, error) {
 	return t.TranslateToCanonical(TranslateInput{
 		Path:     path,
 		Action:   ActionSet,
@@ -359,7 +349,7 @@ func (t *Translator) TranslateUpdate(path string, id string, fields map[string]i
 }
 
 // TranslateDelete creates a remove command for deleting a resource.
-func (t *Translator) TranslateDelete(path string, id string, meta CommandMetadata) (*CanonicalCommand, error) {
+func (t *Translator) TranslateDelete(path, id string, meta CommandMetadata) (*CanonicalCommand, error) {
 	return t.TranslateToCanonical(TranslateInput{
 		Path:     path,
 		Action:   ActionRemove,

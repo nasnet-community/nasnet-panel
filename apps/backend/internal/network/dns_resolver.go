@@ -181,7 +181,7 @@ func preferIPv4(ips []net.IP) net.IP {
 
 // IsValidHostname checks if a string is a valid hostname (RFC 1123).
 func IsValidHostname(hostname string) bool {
-	if len(hostname) == 0 || len(hostname) > 253 {
+	if hostname == "" || len(hostname) > 253 {
 		return false
 	}
 
@@ -215,7 +215,7 @@ func IsValidIPv6(s string) bool {
 
 // splitHostname splits a hostname into labels by '.'.
 func splitHostname(hostname string) []string {
-	if len(hostname) == 0 {
+	if hostname == "" {
 		return nil
 	}
 
@@ -233,7 +233,7 @@ func splitHostname(hostname string) []string {
 
 // isValidLabel checks if a hostname label is valid per RFC 1123.
 func isValidLabel(label string) bool {
-	if len(label) == 0 || len(label) > 63 {
+	if label == "" || len(label) > 63 {
 		return false
 	}
 

@@ -20,6 +20,8 @@ const (
 )
 
 // entropy is a thread-safe entropy source for ULID generation.
+//
+//nolint:gosec // request ID does not need cryptographically random entropy
 var entropy = ulid.Monotonic(rand.New(rand.NewSource(time.Now().UnixNano())), 0)
 
 // GenerateRequestID creates a new ULID-based request ID.

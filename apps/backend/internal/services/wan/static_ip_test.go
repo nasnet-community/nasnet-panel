@@ -160,9 +160,9 @@ func TestConfigureStaticIPRemovesExistingIP(t *testing.T) {
 	routerID := "test-router-123"
 
 	input := StaticIPInput{
-		Interface:       "ether1",
-		Address:         "203.0.113.10/24",
-		Gateway:         "203.0.113.1",
+		Interface: "ether1",
+		Address:   "203.0.113.10/24",
+		Gateway:   "203.0.113.1",
 	}
 
 	// Configure Static IP
@@ -245,9 +245,9 @@ func TestConfigureStaticIPRemovesExistingRoutes(t *testing.T) {
 	routerID := "test-router-123"
 
 	input := StaticIPInput{
-		Interface:       "ether1",
-		Address:         "203.0.113.10/24",
-		Gateway:         "203.0.113.1",
+		Interface: "ether1",
+		Address:   "203.0.113.10/24",
+		Gateway:   "203.0.113.1",
 	}
 
 	// Configure Static IP
@@ -294,9 +294,9 @@ func TestConfigureStaticIPInvalidatesCache(t *testing.T) {
 	// Configure Static IP (this will invalidate cache)
 	ctx := context.Background()
 	input := StaticIPInput{
-		Interface:       "ether1",
-		Address:         "203.0.113.10/24",
-		Gateway:         "203.0.113.1",
+		Interface: "ether1",
+		Address:   "203.0.113.10/24",
+		Gateway:   "203.0.113.1",
 	}
 	_, _ = service.ConfigureStaticIP(ctx, routerID, input)
 
@@ -350,10 +350,10 @@ func TestConfigureStaticIPPublishesEvents(t *testing.T) {
 	}()
 
 	input := StaticIPInput{
-		Interface:   "ether1",
-		Address:     "203.0.113.10/24",
-		Gateway:     "203.0.113.1",
-		PrimaryDNS:  "1.1.1.1",
+		Interface:  "ether1",
+		Address:    "203.0.113.10/24",
+		Gateway:    "203.0.113.1",
+		PrimaryDNS: "1.1.1.1",
 	}
 
 	// Configure Static IP

@@ -14,7 +14,9 @@
  */
 
 import { useMemo, useCallback } from 'react';
+
 import type { UpdateSeverity, UpdateStage } from '@nasnet/api-client/queries';
+
 import type { UpdateIndicatorProps, SeverityConfig, StageConfig } from './types';
 
 // ===== Constants =====

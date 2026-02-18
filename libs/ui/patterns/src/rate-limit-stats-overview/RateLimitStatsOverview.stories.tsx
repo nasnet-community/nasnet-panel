@@ -14,8 +14,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { RateLimitStatsOverview } from './RateLimitStatsOverview';
 import {
   mockStatsWithActivity,
@@ -23,6 +23,8 @@ import {
   mockStatsRecent,
   generateTriggerEvents,
 } from '../__test-utils__/rate-limit-fixtures';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * RateLimitStatsOverview - Rate limiting statistics and analytics

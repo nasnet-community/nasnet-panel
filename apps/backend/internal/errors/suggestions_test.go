@@ -158,11 +158,11 @@ func TestSuggestedFix_AuthError(t *testing.T) {
 
 func TestSuggestedFix_NetworkError(t *testing.T) {
 	tests := []struct {
-		name     string
-		code     string
-		host     string
-		port     int
-		wantStr  string
+		name    string
+		code    string
+		host    string
+		port    int
+		wantStr string
 	}{
 		{
 			name:    "host unreachable",

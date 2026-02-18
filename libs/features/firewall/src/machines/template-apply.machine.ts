@@ -487,7 +487,16 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
             },
             {
               target: 'applying',
-              guard: { type: 'isHighRisk', params: {}, negate: true },
+              guard: ({ context }: { context: TemplateApplyContext }) => {
+                if (!context.previewResult) return true;
+                const { impactAnalysis, conflicts } = context.previewResult;
+                return !(
+                  impactAnalysis.newRulesCount > 10 ||
+                  impactAnalysis.affectedChains.length > 3 ||
+                  conflicts.length > 0 ||
+                  impactAnalysis.warnings.length > 0
+                );
+              },
             },
           ],
           UPDATE_VARIABLES: {

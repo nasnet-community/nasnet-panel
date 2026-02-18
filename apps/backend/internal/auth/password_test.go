@@ -82,7 +82,7 @@ func TestPasswordService_ValidatePassword(t *testing.T) {
 	t.Run("accepts strong passwords without complexity requirements", func(t *testing.T) {
 		// NIST says no forced complexity - these should all pass
 		validPasswords := []string{
-			"allowercase123", // No uppercase
+			"allowercase123",  // No uppercase
 			"ALLUPPERCASE123", // No lowercase (but not common)
 			"numb3rsnumb3rs",  // No special chars
 			"passwordless!!!", // Has special chars (and not in common list)
@@ -309,10 +309,10 @@ func TestPasswordService_BcryptCost(t *testing.T) {
 	t.Run("rejects invalid cost values", func(t *testing.T) {
 		ps := NewDefaultPasswordService()
 
-		ps.SetBcryptCost(0) // Too low
+		ps.SetBcryptCost(0)                     // Too low
 		assert.Equal(t, 10, ps.GetBcryptCost()) // Should remain at default
 
-		ps.SetBcryptCost(100) // Too high
+		ps.SetBcryptCost(100)                   // Too high
 		assert.Equal(t, 10, ps.GetBcryptCost()) // Should remain at default
 	})
 }

@@ -3,10 +3,13 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { UpdateProgressBar } from './UpdateProgressBar';
+import { describe, it, expect } from 'vitest';
+
 import type { UpdateStage } from '@nasnet/api-client/queries';
+
+import { UpdateProgressBar } from './UpdateProgressBar';
+
 
 describe('UpdateProgressBar', () => {
   describe('Stage Rendering', () => {

@@ -26,8 +26,9 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { ResourceUsageBar } from '../resource-usage-bar';
-import type { ResourceBudgetPanelProps, SortColumn } from './types';
 import { useResourceBudgetPanel } from './useResourceBudgetPanel';
+
+import type { ResourceBudgetPanelProps, SortColumn } from './types';
 
 /**
  * Status badge color mapping

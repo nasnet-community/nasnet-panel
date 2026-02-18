@@ -4,8 +4,9 @@
  * @see NAS-4.17: Implement Accessibility (a11y) Foundation
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { useFocusRestore, useFocusManagement } from '../use-focus-restore';
 
 describe('useFocusRestore', () => {

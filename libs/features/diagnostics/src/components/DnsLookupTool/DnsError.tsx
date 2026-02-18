@@ -9,7 +9,7 @@
 
 import { memo } from 'react';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/primitives';
 import type { DnsLookupResult } from './DnsLookupTool.types';
 import { getErrorMessage } from './dnsLookup.utils';
 

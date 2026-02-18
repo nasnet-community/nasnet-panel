@@ -12,8 +12,7 @@
  */
 
 import { useEffect } from 'react';
-import { useShortcutRegistry } from '../command/shortcut-registry.store';
-import { useNotificationStore } from '../ui/notification.store';
+
 import {
   useHistoryStore,
   selectCanUndo,
@@ -22,6 +21,8 @@ import {
   undoLast,
   redoLast,
 } from './history.store';
+import { useShortcutRegistry } from '../command/shortcut-registry.store';
+import { useNotificationStore } from '../ui/notification.store';
 
 /**
  * Duration for undo notification (with redo action button)

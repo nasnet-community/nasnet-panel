@@ -7,6 +7,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
+
 	"backend/internal/events"
 )
 
@@ -51,8 +52,8 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 
 	// Check if quota period has expired (need to reset)
 	if instance.QuotaResetAt != nil && time.Now().After(*instance.QuotaResetAt) {
-		if err := e.ResetQuota(ctx, instance); err != nil {
-			return false, fmt.Errorf("failed to reset quota: %w", err)
+		if resetErr := e.ResetQuota(ctx, instance); resetErr != nil {
+			return false, fmt.Errorf("failed to reset quota: %w", resetErr)
 		}
 		currentUsed = 0 // Reset usage
 	}
@@ -74,12 +75,11 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 	remainingBytes := quotaBytes - newUsed
 
 	// Check thresholds and emit events
-	if percentUsed >= 100.0 {
+	switch {
+	case percentUsed >= 100.0:
 		// Quota exceeded - emit immediate event
-		if err := e.EmitQuotaExceededEvent(ctx, instance, newUsed, quotaBytes); err != nil {
-			// Log error but continue (event emission shouldn't block enforcement)
-			_ = err
-		}
+		// Event emission errors are logged but shouldn't block enforcement
+		_ = e.EmitQuotaExceededEvent(ctx, instance, newUsed, quotaBytes) //nolint:errcheck // event emission is best-effort, should not block enforcement
 
 		// Enforce quota action
 		if instance.QuotaAction != nil {
@@ -87,17 +87,15 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 		}
 		return true, nil
 
-	} else if percentUsed >= 90.0 {
+	case percentUsed >= 90.0:
 		// 90% threshold - emit critical warning
-		if err := e.EmitQuotaWarning(ctx, instance, newUsed, quotaBytes, remainingBytes, percentUsed, 90); err != nil {
-			_ = err
-		}
+		// Event emission errors are logged but shouldn't block quota checking
+		_ = e.EmitQuotaWarning(ctx, instance, newUsed, quotaBytes, remainingBytes, percentUsed, 90) //nolint:errcheck // event emission is best-effort, should not block quota checking
 
-	} else if percentUsed >= 80.0 {
+	case percentUsed >= 80.0:
 		// 80% threshold - emit normal warning
-		if err := e.EmitQuotaWarning(ctx, instance, newUsed, quotaBytes, remainingBytes, percentUsed, 80); err != nil {
-			_ = err
-		}
+		// Event emission errors are logged but shouldn't block quota checking
+		_ = e.EmitQuotaWarning(ctx, instance, newUsed, quotaBytes, remainingBytes, percentUsed, 80) //nolint:errcheck // event emission is best-effort, should not block quota checking
 	}
 
 	return false, nil
@@ -111,6 +109,7 @@ func (e *QuotaEnforcer) EmitQuotaWarning(
 	percentUsed float64,
 	threshold int,
 ) error {
+
 	if e.eventBus == nil {
 		return nil
 	}
@@ -161,6 +160,7 @@ func (e *QuotaEnforcer) EmitQuotaExceededEvent(
 	instance *ent.ServiceInstance,
 	usedBytes, quotaBytes int64,
 ) error {
+
 	if e.eventBus == nil {
 		return nil
 	}
@@ -251,7 +251,7 @@ func (e *QuotaEnforcer) ResetQuota(ctx context.Context, instance *ent.ServiceIns
 			if daysUntilMonday == 0 {
 				daysUntilMonday = 7
 			}
-			nextReset = now.Truncate(24 * time.Hour).AddDate(0, 0, daysUntilMonday)
+			nextReset = now.Truncate(24*time.Hour).AddDate(0, 0, daysUntilMonday)
 
 		case serviceinstance.QuotaPeriodMonthly:
 			// Reset on 1st of next month at midnight UTC
@@ -284,7 +284,8 @@ func (e *QuotaEnforcer) ResetQuota(ctx context.Context, instance *ent.ServiceIns
 			"quota-enforcer",
 		)
 
-		_ = e.eventBus.Publish(ctx, event)
+		// Event publication error is not critical
+		_ = e.eventBus.Publish(ctx, event) //nolint:errcheck // event publication is best-effort, failure is non-critical
 	}
 
 	return nil
@@ -298,6 +299,7 @@ func (e *QuotaEnforcer) SetQuota(
 	period serviceinstance.QuotaPeriod,
 	action serviceinstance.QuotaAction,
 ) error {
+
 	// Calculate initial reset time
 	var resetAt time.Time
 	now := time.Now()
@@ -310,7 +312,7 @@ func (e *QuotaEnforcer) SetQuota(
 		if daysUntilMonday == 0 {
 			daysUntilMonday = 7
 		}
-		resetAt = now.Truncate(24 * time.Hour).AddDate(0, 0, daysUntilMonday)
+		resetAt = now.Truncate(24*time.Hour).AddDate(0, 0, daysUntilMonday)
 	case serviceinstance.QuotaPeriodMonthly:
 		resetAt = time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, time.UTC)
 	}

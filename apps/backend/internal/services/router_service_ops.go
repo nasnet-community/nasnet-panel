@@ -11,6 +11,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/router"
 	"backend/internal/connection"
+
 	"backend/internal/events"
 )
 
@@ -24,7 +25,7 @@ func (s *RouterService) GetActiveRouter(ctx context.Context, sessionID string) (
 	s.mu.RUnlock()
 
 	if !exists || routerID == "" {
-		return nil, nil // No active router for this session
+		return nil, nil //nolint:nilnil // intentional nil return for not-found
 	}
 
 	return s.db.Router.Get(ctx, routerID)
@@ -85,7 +86,7 @@ func (s *RouterService) GetRouterStatus(ctx context.Context, routerID string) (s
 //
 // Per AC5: Given router switch or status change occurs, a typed Watermill
 // event is published for downstream consumers.
-func (s *RouterService) UpdateRouterStatus(ctx context.Context, routerID string, newStatus string, previousStatus string) error {
+func (s *RouterService) UpdateRouterStatus(ctx context.Context, routerID, newStatus, previousStatus string) error {
 	// Update in database
 	_, err := s.db.Router.UpdateOneID(routerID).
 		SetStatus(parseRouterStatus(newStatus)).
@@ -145,7 +146,7 @@ func (s *RouterService) TestCredentials(ctx context.Context, routerID, username,
 	}
 
 	// Build connection config with test credentials
-	config := connection.ConnectionConfig{
+	config := connection.Config{
 		Host:              routerEntity.Host,
 		Port:              routerEntity.Port,
 		Username:          username,
@@ -186,6 +187,7 @@ func (s *RouterService) TestCredentials(ctx context.Context, routerID, username,
 	}
 
 	// Connection succeeded - disconnect test connection
+	//nolint:contextcheck,errcheck // disconnect manages own context; best-effort disconnect
 	_ = s.connManager.Disconnect(testConnID, connection.DisconnectReasonManual)
 
 	result.Success = true
@@ -197,25 +199,26 @@ func (s *RouterService) TestCredentials(ctx context.Context, routerID, username,
 func containsAny(s string, substrs ...string) bool {
 	lower := s
 	for _, sub := range substrs {
-		if len(sub) > 0 && len(lower) >= len(sub) {
-			for i := 0; i <= len(lower)-len(sub); i++ {
-				match := true
-				for j := 0; j < len(sub); j++ {
-					c1, c2 := lower[i+j], sub[j]
-					if c1 >= 'A' && c1 <= 'Z' {
-						c1 += 32
-					}
-					if c2 >= 'A' && c2 <= 'Z' {
-						c2 += 32
-					}
-					if c1 != c2 {
-						match = false
-						break
-					}
+		if sub == "" || len(lower) < len(sub) {
+			continue
+		}
+		for i := 0; i <= len(lower)-len(sub); i++ {
+			match := true
+			for j := 0; j < len(sub); j++ {
+				c1, c2 := lower[i+j], sub[j]
+				if c1 >= 'A' && c1 <= 'Z' {
+					c1 += 32
 				}
-				if match {
-					return true
+				if c2 >= 'A' && c2 <= 'Z' {
+					c2 += 32
 				}
+				if c1 != c2 {
+					match = false
+					break
+				}
+			}
+			if match {
+				return true
 			}
 		}
 	}

@@ -62,7 +62,7 @@ type Connection struct {
 	RouterID string
 
 	// Status holds the current connection status.
-	Status *ConnectionStatus
+	Status *Status
 
 	// Client is the protocol-specific client.
 	Client RouterClient
@@ -71,7 +71,7 @@ type Connection struct {
 	CircuitBreaker *CircuitBreaker
 
 	// config holds connection configuration.
-	config ConnectionConfig
+	config Config
 
 	// reconnectCancel cancels the reconnection goroutine.
 	reconnectCancel context.CancelFunc
@@ -89,8 +89,8 @@ type Connection struct {
 	lastReconnectAttempt time.Time
 }
 
-// ConnectionConfig holds configuration for a connection.
-type ConnectionConfig struct {
+// Config holds configuration for a connection.
+type Config struct {
 	// Host is the router hostname or IP address.
 	Host string
 
@@ -113,9 +113,9 @@ type ConnectionConfig struct {
 	HealthCheckInterval time.Duration
 }
 
-// DefaultConnectionConfig returns default connection configuration.
-func DefaultConnectionConfig() ConnectionConfig {
-	return ConnectionConfig{
+// DefaultConfig returns default connection configuration.
+func DefaultConfig() Config {
+	return Config{
 		Port:                8728, // Default MikroTik API port
 		ConnectionTimeout:   30 * time.Second,
 		HealthCheckInterval: 30 * time.Second,
@@ -123,17 +123,17 @@ func DefaultConnectionConfig() ConnectionConfig {
 }
 
 // NewConnection creates a new Connection for a router.
-func NewConnection(routerID string, config ConnectionConfig, cb *CircuitBreaker) *Connection {
+func NewConnection(routerID string, config Config, cb *CircuitBreaker) *Connection {
 	return &Connection{
 		RouterID:       routerID,
-		Status:         NewConnectionStatus(),
+		Status:         NewStatus(),
 		CircuitBreaker: cb,
 		config:         config,
 	}
 }
 
 // GetStatus returns a copy of the current connection status.
-func (c *Connection) GetStatus() ConnectionStatus {
+func (c *Connection) GetStatus() Status {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -181,7 +181,7 @@ func (c *Connection) SetManuallyDisconnected(manual bool) {
 }
 
 // Config returns the connection configuration.
-func (c *Connection) Config() ConnectionConfig {
+func (c *Connection) Config() Config {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.config
@@ -195,28 +195,28 @@ func (c *Connection) SetPreferredProtocol(protocol Protocol) {
 	c.Status.PreferredProtocol = string(protocol)
 }
 
-// ConnectionPool manages multiple router connections.
-type ConnectionPool struct {
+// Pool manages multiple router connections.
+type Pool struct {
 	connections map[string]*Connection
 	mu          sync.RWMutex
 }
 
-// NewConnectionPool creates a new connection pool.
-func NewConnectionPool() *ConnectionPool {
-	return &ConnectionPool{
+// NewPool creates a new connection pool.
+func NewPool() *Pool {
+	return &Pool{
 		connections: make(map[string]*Connection),
 	}
 }
 
 // Get returns the connection for a router, or nil if not found.
-func (p *ConnectionPool) Get(routerID string) *Connection {
+func (p *Pool) Get(routerID string) *Connection {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.connections[routerID]
 }
 
 // GetOrCreate returns the connection for a router, creating one if it doesn't exist.
-func (p *ConnectionPool) GetOrCreate(routerID string, config ConnectionConfig, cb *CircuitBreaker) *Connection {
+func (p *Pool) GetOrCreate(routerID string, config Config, cb *CircuitBreaker) *Connection {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -230,14 +230,14 @@ func (p *ConnectionPool) GetOrCreate(routerID string, config ConnectionConfig, c
 }
 
 // Add adds a connection to the pool.
-func (p *ConnectionPool) Add(conn *Connection) {
+func (p *Pool) Add(conn *Connection) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.connections[conn.RouterID] = conn
 }
 
 // Remove removes a connection from the pool.
-func (p *ConnectionPool) Remove(routerID string) *Connection {
+func (p *Pool) Remove(routerID string) *Connection {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -249,7 +249,7 @@ func (p *ConnectionPool) Remove(routerID string) *Connection {
 }
 
 // GetAll returns all connections in the pool.
-func (p *ConnectionPool) GetAll() []*Connection {
+func (p *Pool) GetAll() []*Connection {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -261,14 +261,14 @@ func (p *ConnectionPool) GetAll() []*Connection {
 }
 
 // Count returns the number of connections in the pool.
-func (p *ConnectionPool) Count() int {
+func (p *Pool) Count() int {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return len(p.connections)
 }
 
 // CountByState returns the count of connections in a specific state.
-func (p *ConnectionPool) CountByState(state ConnectionState) int {
+func (p *Pool) CountByState(state State) int {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -282,7 +282,7 @@ func (p *ConnectionPool) CountByState(state ConnectionState) int {
 }
 
 // CloseAll closes all connections in the pool.
-func (p *ConnectionPool) CloseAll(ctx context.Context) error {
+func (p *Pool) CloseAll(ctx context.Context) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -308,11 +308,11 @@ func (p *ConnectionPool) CloseAll(ctx context.Context) error {
 
 // BackoffConfig holds configuration for exponential backoff.
 type BackoffConfig struct {
-	InitialInterval time.Duration
-	MaxInterval     time.Duration
-	Multiplier      float64
+	InitialInterval     time.Duration
+	MaxInterval         time.Duration
+	Multiplier          float64
 	RandomizationFactor float64
-	MaxElapsedTime  time.Duration // 0 = infinite
+	MaxElapsedTime      time.Duration // 0 = infinite
 }
 
 // DefaultBackoffConfig returns the default backoff configuration.
@@ -410,7 +410,7 @@ func (c *Connection) CancelHealthCheck() {
 }
 
 // UpdateStatus atomically updates the connection status.
-func (c *Connection) UpdateStatus(fn func(*ConnectionStatus)) {
+func (c *Connection) UpdateStatus(fn func(*Status)) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	fn(c.Status)
@@ -418,10 +418,10 @@ func (c *Connection) UpdateStatus(fn func(*ConnectionStatus)) {
 
 // TransitionError represents an error during state transition.
 type TransitionError struct {
-	RouterID  string
-	From      ConnectionState
-	To        ConnectionState
-	Reason    string
+	RouterID string
+	From     State
+	To       State
+	Reason   string
 }
 
 func (e *TransitionError) Error() string {

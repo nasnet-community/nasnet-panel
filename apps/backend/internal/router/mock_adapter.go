@@ -79,11 +79,11 @@ func (m *MockAdapter) ExecuteCommand(ctx context.Context, cmd Command) (*Command
 			Success: true,
 			Data: []map[string]string{
 				{
-					"servers":        "8.8.8.8,8.8.4.4",
-					"allow-remote":   "no",
-					"cache-size":     "2048KiB",
-					"cache-used":     "128KiB",
-					"cache-max-ttl":  "1w",
+					"servers":       "8.8.8.8,8.8.4.4",
+					"allow-remote":  "no",
+					"cache-size":    "2048KiB",
+					"cache-used":    "128KiB",
+					"cache-max-ttl": "1w",
 				},
 			},
 		}, nil

@@ -40,7 +40,7 @@ const mockServers: DHCPServer[] = [
 ];
 
 // Mock dependencies
-vi.mock('@nasnet/core/utils', () => ({
+vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(() => 'desktop'),
 }));
 
@@ -69,7 +69,7 @@ vi.mock('@nasnet/api-client/queries', () => ({
 
 // Import after mocks
 import { DHCPServerList } from './dhcp-server-list';
-import { usePlatform } from '@nasnet/core/utils';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { useDHCPServers } from '@nasnet/api-client/queries';
 
 // Test wrapper

@@ -14,10 +14,10 @@ type MTProxyGenerator struct {
 
 // NewMTProxyGenerator creates a new MTProxy config generator.
 func NewMTProxyGenerator() *MTProxyGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "mtproxy",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "port",
 				Type:        "port",
@@ -82,13 +82,13 @@ func (g *MTProxyGenerator) Generate(instanceID string, config map[string]interfa
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	port := getIntValue(config, "port", 8443)
-	secret, _ := config["secret"].(string)
-	tag, _ := config["tag"].(string)
+	secret, _ := config["secret"].(string) //nolint:errcheck // type assertion uses zero value default
+	tag, _ := config["tag"].(string)       //nolint:errcheck // type assertion uses zero value default
 	workers := getIntValue(config, "workers", 2)
 	maxConnections := getIntValue(config, "max_connections", 60000)
 	statsPort := getIntValue(config, "stats_port", 0)
@@ -124,12 +124,12 @@ func (g *MTProxyGenerator) Generate(instanceID string, config map[string]interfa
 // Validate performs MTProxy-specific validation.
 func (g *MTProxyGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Validate secret format (32-character hex string)
-	secret, _ := config["secret"].(string)
+	secret, _ := config["secret"].(string) //nolint:errcheck // type assertion uses zero value default
 	if len(secret) != 32 {
 		return fmt.Errorf("secret must be exactly 32 characters (hex), got %d", len(secret))
 	}
@@ -144,12 +144,18 @@ func (g *MTProxyGenerator) Validate(config map[string]interface{}, bindIP string
 	return nil
 }
 
+// Config file constants for MTProxy.
+const (
+	mtproxyConfigFileName = "config.json"
+	mtproxyConfigFormat   = "json"
+)
+
 // GetConfigFileName returns the filename for the generated config.
 func (g *MTProxyGenerator) GetConfigFileName() string {
-	return "config.json"
+	return mtproxyConfigFileName
 }
 
 // GetConfigFormat returns the config file format.
 func (g *MTProxyGenerator) GetConfigFormat() string {
-	return "json"
+	return mtproxyConfigFormat
 }

@@ -178,7 +178,7 @@ export function LteModemForm({
 
   // Initialize form
   const form = useForm<LteModemFormValues>({
-    resolver: zodResolver(lteModemSchema),
+    resolver: zodResolver(lteModemSchema) as any,
     defaultValues: {
       ...lteModemDefaultValues,
       ...initialData,
@@ -202,7 +202,7 @@ export function LteModemForm({
   /**
    * Handle form submission
    */
-  const onSubmit = async (data: LteModemFormValues) => {
+  const onSubmit = (async (data: LteModemFormValues) => {
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
@@ -225,7 +225,7 @@ export function LteModemForm({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }) as any;
 
   /**
    * Success state
@@ -251,7 +251,6 @@ export function LteModemForm({
           <FormSection
             title="Signal Status"
             description="Current cellular signal strength"
-            icon={<Signal className="h-5 w-5" />}
           >
             <SignalStrengthIndicator rssi={signalStrength} quality={signalQuality} />
           </FormSection>
@@ -261,10 +260,9 @@ export function LteModemForm({
         <FormSection
           title="LTE Interface"
           description="Select the LTE modem interface to configure"
-          icon={<Smartphone className="h-5 w-5" />}
         >
           <FormField
-            control={form.control}
+            control={form.control as any}
             name="interface"
             render={({ field }) => (
               <FormItem>
@@ -315,7 +313,7 @@ export function LteModemForm({
 
             {/* APN Input */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="apn"
               render={({ field }) => (
                 <FormItem>
@@ -337,7 +335,7 @@ export function LteModemForm({
 
             {/* Profile Number */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="profileNumber"
               render={({ field }) => (
                 <FormItem>
@@ -367,12 +365,12 @@ export function LteModemForm({
           title="Authentication"
           description="APN authentication credentials (optional)"
           collapsible
-          defaultCollapsed={watchAuthProtocol === 'none'}
+          defaultOpen={watchAuthProtocol !== 'none'}
         >
           <div className="space-y-4">
             {/* Auth Protocol */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="authProtocol"
               render={({ field }) => (
                 <FormItem>
@@ -402,7 +400,7 @@ export function LteModemForm({
             {watchAuthProtocol !== 'none' && (
               <>
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
@@ -420,7 +418,7 @@ export function LteModemForm({
                 />
 
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -462,12 +460,11 @@ export function LteModemForm({
         <FormSection
           title="SIM PIN"
           description="Enter SIM PIN if your SIM card is locked"
-          icon={<Lock className="h-5 w-5" />}
           collapsible
-          defaultCollapsed
+          defaultOpen={false}
         >
           <FormField
-            control={form.control}
+            control={form.control as any}
             name="pin"
             render={({ field }) => (
               <FormItem>
@@ -518,12 +515,12 @@ export function LteModemForm({
           title="Advanced Options"
           description="MTU and routing settings"
           collapsible
-          defaultCollapsed
+          defaultOpen={false}
         >
           <div className="space-y-4">
             {/* MTU */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="mtu"
               render={({ field }) => (
                 <FormItem>
@@ -548,7 +545,7 @@ export function LteModemForm({
 
             {/* Default Route */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="isDefaultRoute"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">
@@ -571,7 +568,7 @@ export function LteModemForm({
 
             {/* Enable/Disable */}
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="enabled"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-4">

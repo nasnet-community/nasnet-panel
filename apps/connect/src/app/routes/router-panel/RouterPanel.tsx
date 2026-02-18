@@ -1,20 +1,23 @@
-import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, type ReactNode } from 'react';
-import { TabNavigation } from './components/TabNavigation';
-import { RouterHeader } from './components/RouterHeader';
-import { ROUTES } from '@nasnet/core/constants';
-import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
+
+import { useNavigate } from '@tanstack/react-router';
+
 import { storeCredentials, clearCredentials } from '@nasnet/api-client/core';
-import {
-  loadCredentials,
-  saveCredentials,
-  CredentialDialog,
-} from '@nasnet/features/router-discovery';
+import { ROUTES } from '@nasnet/core/constants';
 import type { RouterCredentials } from '@nasnet/core/types';
 import {
   ConfigurationImportWizard,
   useConfigurationCheck,
 } from '@nasnet/features/configuration-import';
+import {
+  loadCredentials,
+  saveCredentials,
+  CredentialDialog,
+} from '@nasnet/features/router-discovery';
+import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
+
+import { RouterHeader } from './components/RouterHeader';
+import { TabNavigation } from './components/TabNavigation';
 
 interface RouterPanelProps {
   routerId: string;

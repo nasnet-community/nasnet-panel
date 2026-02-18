@@ -47,7 +47,7 @@ export const PingToolDesktop = memo(function PingToolDesktop({
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<PingFormValues>({
-    resolver: zodResolver(pingFormSchema),
+    resolver: zodResolver(pingFormSchema) as any,
     mode: 'onChange',
     defaultValues: {
       target: '',

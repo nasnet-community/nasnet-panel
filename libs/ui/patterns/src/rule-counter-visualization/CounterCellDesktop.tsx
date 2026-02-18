@@ -6,10 +6,14 @@
  */
 
 import { useMemo } from 'react';
+
 import { motion } from 'framer-motion';
-import { Progress, Badge, cn, useReducedMotion } from '@nasnet/ui/primitives';
 import { Activity, TrendingUp } from 'lucide-react';
+
+import { Progress, Badge, cn, useReducedMotion } from '@nasnet/ui/primitives';
+
 import { formatPackets, formatBytes } from './use-rule-counter-visualization';
+
 import type { CounterCellProps } from './CounterCell';
 
 /**
@@ -112,12 +116,12 @@ export function CounterCellDesktop({
           </div>
           <Progress
             value={percentOfMax}
-            className="h-2"
-            indicatorClassName={cn(
-              isUnused && 'bg-muted',
-              !isUnused && percentOfMax > 80 && 'bg-red-500',
-              !isUnused && percentOfMax > 50 && percentOfMax <= 80 && 'bg-amber-500',
-              !isUnused && percentOfMax <= 50 && 'bg-green-500'
+            className={cn(
+              'h-2',
+              isUnused && '[&>div]:bg-muted',
+              !isUnused && percentOfMax > 80 && '[&>div]:bg-red-500',
+              !isUnused && percentOfMax > 50 && percentOfMax <= 80 && '[&>div]:bg-amber-500',
+              !isUnused && percentOfMax <= 50 && '[&>div]:bg-green-500'
             )}
           />
         </div>

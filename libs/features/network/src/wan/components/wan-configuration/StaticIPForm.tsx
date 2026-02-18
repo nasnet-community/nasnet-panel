@@ -18,17 +18,15 @@ import {
   Input,
   Label,
   Button,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from '@nasnet/ui/primitives';
 import { FormSection, FieldHelp, InterfaceSelector } from '@nasnet/ui/patterns';
-import type { Interface } from '@nasnet/core/types';
+import type { RouterInterface } from '@nasnet/ui/patterns';
 import {
   staticIPSchema,
   staticIPDefaultValues,
@@ -90,7 +88,7 @@ export function StaticIPForm({
   loading = false,
   onCancel,
 }: StaticIPFormProps) {
-  const [selectedInterface, setSelectedInterface] = useState<Interface | null>(
+  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
     null
   );
   const [showSafetyWarning, setShowSafetyWarning] = useState(false);
@@ -98,7 +96,7 @@ export function StaticIPForm({
     useState<StaticIPFormValues | null>(null);
 
   const form = useForm<StaticIPFormValues>({
-    resolver: zodResolver(staticIPSchema),
+    resolver: zodResolver(staticIPSchema) as any,
     defaultValues: {
       ...staticIPDefaultValues,
       ...initialValues,
@@ -108,12 +106,21 @@ export function StaticIPForm({
   /**
    * Handle interface selection
    */
-  const handleInterfaceSelect = (iface: Interface) => {
-    setSelectedInterface(iface);
-    form.setValue('interface', iface.name, {
+  const handleInterfaceSelect = (interfaceId: string | string[]) => {
+    // InterfaceSelector onChange returns the ID
+    const selectedId = Array.isArray(interfaceId) ? interfaceId[0] : interfaceId;
+    form.setValue('interface', selectedId, {
       shouldValidate: true,
       shouldDirty: true,
     });
+    // Create a minimal interface object for display
+    setSelectedInterface({
+      id: selectedId,
+      name: selectedId,
+      type: 'ethernet',
+      status: 'up',
+      mac: '',
+    } as RouterInterface);
   };
 
   /**
@@ -140,11 +147,11 @@ export function StaticIPForm({
   /**
    * Handle form submission with safety checks
    */
-  const handleFormSubmit = (values: StaticIPFormValues) => {
+  const handleFormSubmit = ((values: StaticIPFormValues) => {
     // Show safety warning before applying
     setPendingFormValues(values);
     setShowSafetyWarning(true);
-  };
+  }) as any;
 
   /**
    * Confirm safety warning and proceed with submission
@@ -180,19 +187,14 @@ export function StaticIPForm({
                   <Network className="inline h-4 w-4 mr-1" />
                   Physical Interface
                 </Label>
-                <FieldHelp
-                  field="interface"
-                  text="Select an Ethernet interface connected to your ISP or upstream router."
-                />
+                <FieldHelp field="interface" />
               </div>
               <InterfaceSelector
                 id="interface-selector"
                 routerId={routerId}
-                onSelect={handleInterfaceSelect}
-                selectedInterface={selectedInterface}
-                filter={(iface) =>
-                  iface.type === 'ether' || iface.name.startsWith('ether')
-                }
+                onChange={handleInterfaceSelect}
+                value={selectedInterface?.id}
+                types={['ethernet']}
                 disabled={loading}
               />
               {form.formState.errors.interface && (
@@ -220,11 +222,11 @@ export function StaticIPForm({
                     <span className="text-muted-foreground">Type:</span>
                     <span className="ml-2">{selectedInterface.type}</span>
                   </div>
-                  {selectedInterface.macAddress && (
+                  {selectedInterface.mac && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">MAC:</span>
                       <span className="ml-2 font-mono">
-                        {selectedInterface.macAddress}
+                        {selectedInterface.mac}
                       </span>
                     </div>
                   )}
@@ -247,10 +249,7 @@ export function StaticIPForm({
                   <Globe className="inline h-4 w-4 mr-1" />
                   IP Address (CIDR)
                 </Label>
-                <FieldHelp
-                  field="address"
-                  text="IP address in CIDR notation (e.g., 203.0.113.10/30). Include the subnet mask."
-                />
+                <FieldHelp field="address" />
               </div>
               <Input
                 id="address"
@@ -296,10 +295,7 @@ export function StaticIPForm({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Label htmlFor="gateway">Gateway</Label>
-                <FieldHelp
-                  field="gateway"
-                  text="Gateway IP address. Must be reachable from the configured IP address (same subnet)."
-                />
+                <FieldHelp field="gateway" />
               </div>
               <Input
                 id="gateway"
@@ -351,10 +347,7 @@ export function StaticIPForm({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Label htmlFor="primary-dns">Primary DNS</Label>
-                <FieldHelp
-                  field="primaryDNS"
-                  text="Primary DNS server (e.g., 1.1.1.1 for Cloudflare, 8.8.8.8 for Google)."
-                />
+                <FieldHelp field="primaryDNS" />
               </div>
               <Input
                 id="primary-dns"
@@ -379,10 +372,7 @@ export function StaticIPForm({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Label htmlFor="secondary-dns">Secondary DNS (Optional)</Label>
-                <FieldHelp
-                  field="secondaryDNS"
-                  text="Backup DNS server for redundancy."
-                />
+                <FieldHelp field="secondaryDNS" />
               </div>
               <Input
                 id="secondary-dns"
@@ -413,10 +403,7 @@ export function StaticIPForm({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Label htmlFor="comment">Comment</Label>
-              <FieldHelp
-                field="comment"
-                text="Optional description for this static IP configuration (max 255 characters)."
-              />
+              <FieldHelp field="comment" />
             </div>
             <Input
               id="comment"
@@ -461,17 +448,17 @@ export function StaticIPForm({
       </form>
 
       {/* Safety Warning Dialog */}
-      <AlertDialog
+      <Dialog
         open={showSafetyWarning}
         onOpenChange={setShowSafetyWarning}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-warning" />
               Static IP Configuration Warning
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3">
+            </DialogTitle>
+            <DialogDescription className="space-y-3">
               <p>
                 You are about to configure a <strong>static IP</strong> on this
                 interface and add a <strong>default route</strong>.
@@ -485,21 +472,25 @@ export function StaticIPForm({
                 Ensure the IP address and gateway are correct. Incorrect
                 configuration may result in loss of connectivity.
               </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelSafety}>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelSafety}
+              className="min-h-[44px]"
+            >
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </Button>
+            <Button
               onClick={handleConfirmSafety}
-              className="bg-warning hover:bg-warning/90"
+              className="bg-warning hover:bg-warning/90 min-h-[44px]"
             >
               I Understand, Proceed
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

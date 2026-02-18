@@ -11,15 +11,36 @@
 import * as React from 'react';
 
 import type {
+  ValidationError,
+} from './types';
+import type {
   FieldValues,
   UseFormReturn,
   Path,
 } from 'react-hook-form';
 
-import type {
-  UseFormResourceSyncOptions,
-  ValidationError,
-} from './types';
+
+/**
+ * Options for useFormResourceSync hook
+ */
+interface UseFormResourceSyncOptions<T extends FieldValues = FieldValues> {
+  /** Source data from backend to sync with */
+  sourceData: T | null;
+  /** Unique resource identifier */
+  resourceId?: string;
+  /** Resource version for conflict detection */
+  resourceVersion?: string;
+  /** Callback when saving */
+  onSave?: (data: T) => Promise<void> | void;
+  /** Callback on save error */
+  onSaveError?: (error: Error) => void;
+  /** Callback when source data changes during edit */
+  onSourceChange?: (newSource: T) => void;
+  /** Auto-reset form when source changes (default: true) */
+  autoReset?: boolean;
+  /** Track changed fields (default: true) */
+  trackChanges?: boolean;
+}
 
 /**
  * State layers following Universal State v2 model
@@ -163,7 +184,7 @@ export function useFormResourceSync<T extends FieldValues = FieldValues>(
   React.useEffect(() => {
     if (resourceVersion && lastSourceVersion && resourceVersion !== lastSourceVersion) {
       setHasSourceChanged(true);
-      onSourceChange?.();
+      onSourceChange?.(sourceData as T);
     }
     setLastSourceVersion(resourceVersion);
   }, [resourceVersion, lastSourceVersion, onSourceChange]);

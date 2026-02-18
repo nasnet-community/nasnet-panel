@@ -3,10 +3,11 @@
  * Visual testing for counter visualization component
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { CounterCell } from './CounterCell';
 import { CounterCellDesktop } from './CounterCellDesktop';
 import { CounterCellMobile } from './CounterCellMobile';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof CounterCell> = {
   title: 'UI Patterns/Rule Counter Visualization/CounterCell',

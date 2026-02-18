@@ -165,7 +165,7 @@ export function ChainSummaryCards({
 }: ChainSummaryCardsProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: rules, isLoading, error } = useFilterRules(routerIp);
-  const summaries = useChainSummary(rules);
+  const summaries = useChainSummary(rules as any);
 
   // Loading state
   if (isLoading) {

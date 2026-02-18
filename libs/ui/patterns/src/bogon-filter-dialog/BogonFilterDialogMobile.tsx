@@ -8,8 +8,11 @@
  */
 
 import { memo, useState } from 'react';
+
 import { Shield, AlertTriangle, Check, Info } from 'lucide-react';
 
+import { useBatchCreateRawRules } from '@nasnet/api-client/queries';
+import type { BatchProgress } from '@nasnet/api-client/queries';
 import {
   Sheet,
   SheetContent,
@@ -17,8 +20,7 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   CardContent,
@@ -32,13 +34,12 @@ import {
   Checkbox,
   Alert,
   AlertDescription,
-  Progress,
-} from '@nasnet/ui/primitives';
+  Progress} from '@nasnet/ui/primitives';
 
-import { useBatchCreateRawRules } from '@nasnet/api-client/queries';
 import { useBogonFilterDialog } from './use-bogon-filter-dialog';
+
 import type { BogonFilterDialogProps } from './bogon-filter-dialog.types';
-import type { BatchProgress } from '@nasnet/api-client/queries';
+
 
 /**
  * Mobile presenter for bogon filter dialog.

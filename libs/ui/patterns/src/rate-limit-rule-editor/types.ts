@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/rate-limit-rule-editor
  */
 
-import type { RateLimitRule, RateLimitRuleInput } from '@nasnet/core/types/firewall';
+import type { RateLimitRule, RateLimitRuleInput } from '@nasnet/core/types';
 
 /**
  * RateLimitRuleEditor Props

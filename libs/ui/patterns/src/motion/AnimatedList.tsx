@@ -12,6 +12,7 @@ import {
   useEffect,
   useCallback,
 } from 'react';
+
 import {
   Reorder,
   motion,
@@ -20,6 +21,9 @@ import {
   type DragControls,
   type HTMLMotionProps,
 } from 'framer-motion';
+
+import { cn } from '@nasnet/ui/primitives';
+
 import { useAnimation, useAnimationOptional } from './AnimationProvider';
 import {
   staggerContainer,
@@ -28,7 +32,6 @@ import {
   reducedMotionFade,
   moveTransition,
 } from './presets';
-import { cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -102,19 +105,18 @@ export function AnimatedList<T>({
 }: AnimatedListProps<T>) {
   const animation = useAnimationOptional();
   const reducedMotion = animation?.reducedMotion ?? false;
+  // Call hook unconditionally, even though we only use it in the disabled/reducedMotion case
+  const dummyDragControls = useDragControls();
 
-  // If disabled or reduced motion, render static list
+  // If disabled or reduced motion, render static list with dummy drag controls
   if (disabled || reducedMotion) {
     return (
       <div className={cn('flex flex-col gap-2', className)}>
-        {items.map((item, index) => {
-          const dragControls = useDragControls();
-          return (
-            <div key={getKey(item)} className={itemClassName}>
-              {children(item, index, dragControls)}
-            </div>
-          );
-        })}
+        {items.map((item, index) => (
+          <div key={getKey(item)} className={itemClassName}>
+            {children(item, index, dummyDragControls)}
+          </div>
+        ))}
       </div>
     );
   }
@@ -129,7 +131,7 @@ export function AnimatedList<T>({
     >
       <AnimatePresence initial={animateEntrance}>
         {items.map((item, index) => (
-          <AnimatedListItem
+          <AnimatedListItemComponent
             key={getKey(item)}
             item={item}
             index={index}
@@ -137,7 +139,7 @@ export function AnimatedList<T>({
             layoutMode={layoutMode}
           >
             {children}
-          </AnimatedListItem>
+          </AnimatedListItemComponent>
         ))}
       </AnimatePresence>
     </Reorder.Group>
@@ -156,7 +158,7 @@ interface AnimatedListItemProps<T> {
   layoutMode?: 'position' | 'size' | true | false;
 }
 
-function AnimatedListItem<T>({
+function AnimatedListItemComponent<T>({
   item,
   index,
   children,

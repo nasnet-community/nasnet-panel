@@ -3,8 +3,10 @@
  * Displays link status (up/down/unknown) with icons
  */
 
-import { LinkStatus } from '@nasnet/core/types';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+
+import { type LinkStatus } from '@nasnet/core/types';
+
 import { cn } from '@/lib/utils';
 
 interface LinkStatusIndicatorProps {

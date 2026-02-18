@@ -107,7 +107,7 @@ export function useNtfyChannelForm(
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<NtfyConfig>({
-    resolver: zodResolver(ntfyConfigSchema),
+    resolver: zodResolver(ntfyConfigSchema) as any,
     defaultValues: {
       ...defaultNtfyConfig,
       ...initialConfig,

@@ -10,10 +10,11 @@
  * @see NAS-4A.11: Build Safety Confirmation Component
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { useSafetyConfirmation } from './use-safety-confirmation';
+
 import type { UseSafetyConfirmationConfig } from './safety-confirmation.types';
 
 describe('useSafetyConfirmation', () => {

@@ -13,8 +13,9 @@ export interface FormFieldProps {
 }
 
 const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
-  ({ label, description, error, required, children, className, id }, ref) => {
-    const fieldId = id || React.useId();
+  function FormFieldBaseComponent({ label, description, error, required, children, className, id }, ref) {
+    const generatedId = React.useId();
+    const fieldId = id || generatedId;
     const descriptionId = `${fieldId}-description`;
     const errorId = `${fieldId}-error`;
 

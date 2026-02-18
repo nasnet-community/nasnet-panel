@@ -10,6 +10,7 @@
  */
 
 import { useMemo, useCallback, useState } from 'react';
+
 import { IsolationSeverity } from '@nasnet/api-client/generated';
 import { useSetResourceLimits } from '@nasnet/api-client/queries';
 
@@ -181,8 +182,8 @@ export function useIsolationStatus(
   );
 
   const violationCount = violations.length;
-  const criticalCount = violations.filter((v) => v.violation.severity === IsolationSeverity.Error).length;
-  const warningCount = violations.filter((v) => v.violation.severity === IsolationSeverity.Warning).length;
+  const criticalCount = violations.filter((v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Error).length;
+  const warningCount = violations.filter((v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Warning).length;
 
   // Calculate overall health
   const health: IsolationHealth = useMemo(
@@ -213,10 +214,12 @@ export function useIsolationStatus(
     try {
       const result = await setLimitsMutation({
         variables: {
-          routerID: routerId,
-          instanceID: instanceId,
-          memoryMB: limits.memoryMB,
-          cpuWeight: limits.cpuWeight,
+          input: {
+            routerID: routerId,
+            instanceID: instanceId,
+            memoryMB: limits.memoryMB,
+            cpuWeight: limits.cpuWeight,
+          },
         },
       });
 
@@ -224,7 +227,7 @@ export function useIsolationStatus(
         // Success - mutation will refetch automatically
         onHealthChange?.(health);
       } else {
-        console.error('Failed to save resource limits:', result.data?.setResourceLimits.message);
+        console.error('Failed to save resource limits:', result.data?.setResourceLimits.errors);
       }
     } catch (error) {
       console.error('Failed to save resource limits:', error);
@@ -262,7 +265,7 @@ export function useIsolationStatus(
     violations,
     resourceLimits,
     isSaving,
-    handleSaveLimits,
+    handleSaveLimits: handleSaveLimits as any,
     handleRefresh,
     ariaLabel,
     healthLabel,

@@ -1,12 +1,10 @@
-import type { Preview } from '@storybook/react';
-
 import * as React from 'react';
 
-// Import styles
+import { PlatformProvider } from '@nasnet/ui/layouts';
+
 import './preview.css';
 
-// Import platform provider for responsive testing
-import { PlatformProvider } from '@nasnet/ui/layouts';
+import type { Preview } from '@storybook/react';
 
 const preview: Preview = {
   parameters: {

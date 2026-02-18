@@ -11,9 +11,13 @@
  */
 
 import { memo, useCallback, useId } from 'react';
-import { Input, cn } from '@nasnet/ui/primitives';
+
 import { CheckCircle2, XCircle } from 'lucide-react';
+
+import { Input, cn } from '@nasnet/ui/primitives';
+
 import { useMACInput } from './use-mac-input';
+
 import type { MACInputDesktopProps } from './mac-input.types';
 
 /**

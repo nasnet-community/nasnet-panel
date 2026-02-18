@@ -5,9 +5,11 @@
  * Tests selection state, filtering, and action handlers.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { useDeviceRoutingMatrix } from './useDeviceRoutingMatrix';
+
 import type {
   DeviceRoutingMatrixData,
   DeviceRoutingActions,

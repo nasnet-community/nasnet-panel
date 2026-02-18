@@ -14,13 +14,13 @@
 import { memo, useEffect, useRef } from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
+import type { Platform } from '@nasnet/ui/layouts';
 import { cn } from '@nasnet/ui/primitives';
 
 import { RouterStatusDesktop } from './router-status-desktop';
 import { RouterStatusMobile } from './router-status-mobile';
 import { useRouterStatus } from './use-router-status';
 
-import type { Platform } from '@nasnet/ui/layouts';
 import type { ConnectionStatus, RouterStatusProps } from './types';
 
 // ===== Helper Component for ARIA Live Region =====

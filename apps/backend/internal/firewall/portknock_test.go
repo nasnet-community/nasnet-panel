@@ -211,9 +211,9 @@ func TestValidateSequence_InvalidName(t *testing.T) {
 	service := NewPortKnockService()
 
 	testCases := []struct {
-		name        string
+		name         string
 		sequenceName string
-		expectError bool
+		expectError  bool
 	}{
 		{"Valid name with underscore", "ssh_knock", false},
 		{"Valid name with hyphen", "ssh-knock", false},

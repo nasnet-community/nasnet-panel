@@ -109,10 +109,10 @@ func NewAlertStormDetectedEvent(ruleID, ruleName string, alertsCount, windowSec,
 // Indicates that alert generation rate has returned to normal levels.
 type AlertStormEndedEvent struct {
 	events.BaseEvent
-	RuleID       string `json:"ruleId"`
-	RuleName     string `json:"ruleName,omitempty"`
-	DurationSec  int    `json:"durationSec"`
-	TotalSuppressed int `json:"totalSuppressed"`
+	RuleID          string `json:"ruleId"`
+	RuleName        string `json:"ruleName,omitempty"`
+	DurationSec     int    `json:"durationSec"`
+	TotalSuppressed int    `json:"totalSuppressed"`
 }
 
 // Payload returns the JSON-serialized event payload.

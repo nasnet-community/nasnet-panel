@@ -4,7 +4,7 @@
  * Type definitions for the Kill Switch Toggle pattern component.
  */
 
-import type { KillSwitchStatus } from '@nasnet/api-client/queries/services';
+import type { KillSwitchStatus } from '@nasnet/api-client/queries';
 
 /**
  * Kill switch mode (from GraphQL enum)

@@ -6,16 +6,19 @@
  * @see NAS-4.13: Implement Drift Detection Foundation
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import type { Resource, DeploymentState, ResourceMetadata } from '@nasnet/core/types';
+
+import { DriftStatus } from './types';
 import {
   detectDrift,
   detectResourceDrift,
   useDriftDetection,
   useQuickDriftCheck,
 } from './useDriftDetection';
-import { DriftStatus } from './types';
-import type { Resource, DeploymentState, ResourceMetadata } from '@nasnet/core/types';
+
 
 // =============================================================================
 // Test Helpers

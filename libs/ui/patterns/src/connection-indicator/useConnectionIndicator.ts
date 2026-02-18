@@ -223,4 +223,3 @@ export function useConnectionIndicator(): ConnectionIndicatorState {
 
 // ===== Type Exports =====
 
-export type { StatusColor, ConnectionIndicatorState };

@@ -14,8 +14,7 @@
 
 import * as React from 'react';
 
-import { cn } from '@nasnet/ui/primitives';
-import { Progress } from '@nasnet/ui/primitives';
+import { cn , Progress } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types

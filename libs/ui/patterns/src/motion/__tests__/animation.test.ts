@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import {
   durations,
   easings,
@@ -16,6 +17,7 @@ import {
   getReducedMotionDuration,
   msToSeconds,
 } from '@nasnet/ui/tokens';
+
 import {
   fadeIn,
   slideUp,

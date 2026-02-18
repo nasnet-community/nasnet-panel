@@ -5,6 +5,12 @@
   "projectType": "library",
   "tags": ["type:lib", "scope:features"],
   "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/features/dashboard/tsconfig.lib.json"
+      }
+    },
     "test": {
       "executor": "@nx/vite:test",
       "outputs": ["{workspaceRoot}/coverage/libs/features/dashboard"],

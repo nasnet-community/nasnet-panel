@@ -14,8 +14,7 @@
 
 import * as React from 'react';
 
-import { cn } from '@nasnet/ui/primitives';
-import { Spinner } from '@nasnet/ui/primitives';
+import { cn , Spinner } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types

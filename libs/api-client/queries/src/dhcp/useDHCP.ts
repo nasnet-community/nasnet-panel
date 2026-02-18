@@ -22,6 +22,7 @@ import type {
 export const dhcpKeys = {
   all: ['dhcp'] as const,
   servers: (routerIp: string) => [...dhcpKeys.all, 'servers', routerIp] as const,
+  server: (routerIp: string, serverId: string) => [...dhcpKeys.all, 'servers', routerIp, serverId] as const,
   leases: (routerIp: string) => [...dhcpKeys.all, 'leases', routerIp] as const,
   clients: (routerIp: string) => [...dhcpKeys.all, 'clients', routerIp] as const,
   pools: (routerIp: string) => [...dhcpKeys.all, 'pools', routerIp] as const,
@@ -115,6 +116,31 @@ export function useDHCPServers(routerIp: string): UseQueryResult<DHCPServer[], E
     queryFn: () => fetchDHCPServers(routerIp),
     staleTime: 60000, // 1 minute
     enabled: !!routerIp, // Only fetch if router IP is provided
+  });
+}
+
+/**
+ * Hook to fetch a single DHCP server by ID
+ *
+ * Fetches all servers and filters client-side to find the requested server.
+ * Uses the same query key as useDHCPServers for cache sharing.
+ *
+ * @param routerIp - Target router IP address
+ * @param serverId - DHCP server ID to fetch
+ * @returns Query result with single DHCPServer or undefined
+ */
+export function useDHCPServer(
+  routerIp: string,
+  serverId: string
+): UseQueryResult<DHCPServer | undefined, Error> {
+  return useQuery({
+    queryKey: dhcpKeys.server(routerIp, serverId),
+    queryFn: async () => {
+      const servers = await fetchDHCPServers(routerIp);
+      return servers.find((server) => server.id === serverId);
+    },
+    staleTime: 60000, // 1 minute
+    enabled: !!routerIp && !!serverId, // Only fetch if both params provided
   });
 }
 

@@ -4,9 +4,11 @@
  * Implements FR0-14: Users can view list of wireless interfaces with status
  */
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { useWirelessInterfaces, useWirelessClients } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { useQueryClient } from '@tanstack/react-query';
+
 import {
   WifiStatusHero,
   WifiInterfaceList,

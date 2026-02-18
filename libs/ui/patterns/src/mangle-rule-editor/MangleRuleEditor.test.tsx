@@ -13,11 +13,13 @@
  * - WCAG AAA accessibility (axe-core - 0 violations)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { axe, toHaveNoViolations } from 'vitest-axe';
+
 import { MangleRuleEditor } from './MangleRuleEditor';
+
 import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
 
 // Extend expect with axe matchers

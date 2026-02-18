@@ -4,10 +4,13 @@
  */
 
 import { useMemo } from 'react';
+
+import { Signal, Clock, ArrowDown, ArrowUp } from 'lucide-react';
+
 import type { WirelessClient } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
+
 import { SectionHeader } from '../../network/components/SectionHeader';
-import { Signal, Clock, ArrowDown, ArrowUp } from 'lucide-react';
 
 interface ConnectedClientsTableProps {
   clients: WirelessClient[];

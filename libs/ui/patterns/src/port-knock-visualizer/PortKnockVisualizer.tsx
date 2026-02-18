@@ -11,11 +11,10 @@
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-12-implement-port-knocking.md
  */
 
-import * as React from 'react';
-import { cn } from '@nasnet/ui/utils';
-import { Badge } from '@nasnet/ui/primitives';
 import { LockIcon, CheckCircle2Icon, ArrowRightIcon, ClockIcon } from 'lucide-react';
+
 import type { KnockPort, PortKnockSequence } from '@nasnet/core/types';
+import { Badge , cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types

@@ -61,7 +61,7 @@ export function BridgeForm({
   const isEditing = !!bridge;
 
   const form = useForm<BridgeFormData>({
-    resolver: zodResolver(bridgeFormSchema),
+    resolver: zodResolver(bridgeFormSchema) as never,
     defaultValues: {
       name: bridge?.name || '',
       comment: bridge?.comment || '',
@@ -98,7 +98,7 @@ export function BridgeForm({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleFormSubmit as never)} className="space-y-6">
           {/* Name */}
           <FormField
             control={form.control}
@@ -301,22 +301,15 @@ export function BridgeForm({
         open={vlanFilteringWarningOpen}
         onOpenChange={setVlanFilteringWarningOpen}
         title="Enable VLAN Filtering"
-        severity="warning"
-        urgency="urgent"
         description="Enabling VLAN filtering may disrupt network connectivity if VLANs are not properly configured on all ports."
-        checklist={[
+        consequences={[
           'All ports will need PVID assigned',
           'Tagged/untagged VLAN IDs must be configured correctly',
-          'Test connectivity in a maintenance window if possible',
+          ...(bridge?.ports && bridge.ports.length > 0
+            ? [`This bridge has ${bridge.ports.length} port(s). Ensure they have VLAN configuration before enabling filtering.`]
+            : []),
         ]}
-        warnings={
-          bridge?.ports && bridge.ports.length > 0
-            ? [
-                `This bridge has ${bridge.ports.length} port(s). Ensure they have VLAN configuration before enabling filtering.`,
-              ]
-            : undefined
-        }
-        confirmLabel="Enable VLAN Filtering"
+        confirmText="ENABLE"
         onConfirm={confirmVlanFiltering}
         onCancel={() => {
           setVlanFilteringWarningOpen(false);

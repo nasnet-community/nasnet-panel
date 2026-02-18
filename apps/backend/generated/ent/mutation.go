@@ -3,6 +3,12 @@
 package ent
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+	"time"
+
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertdigestentry"
 	"backend/generated/ent/alertescalation"
@@ -38,11 +44,6 @@ import (
 	"backend/generated/ent/virtualinterface"
 	"backend/generated/ent/vlanallocation"
 	"backend/generated/ent/webhook"
-	"context"
-	"errors"
-	"fmt"
-	"sync"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

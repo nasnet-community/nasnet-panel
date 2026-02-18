@@ -7,10 +7,12 @@
  * @module @nasnet/ui/patterns/mangle-rule-editor
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { MangleRuleEditor } from './MangleRuleEditor';
+
 import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * MangleRuleEditor - Mangle rule creation and editing dialog

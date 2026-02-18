@@ -101,7 +101,7 @@ export function ConnectionFilterBar({
   debounceMs = 300,
 }: ConnectionFilterBarProps) {
   // Local state for immediate UI updates
-  const [localIp, setLocalIp] = React.useState(filter.ip || '');
+  const [localIp, setLocalIp] = React.useState(filter.ipAddress || '');
   const [localPort, setLocalPort] = React.useState(
     filter.port !== undefined ? String(filter.port) : ''
   );
@@ -109,10 +109,9 @@ export function ConnectionFilterBar({
   // Debounced callbacks
   const debouncedIpChange = useDebouncedCallback(
     (value: string) => {
-      onFilterChange({ ip: value });
+      onFilterChange({ ipAddress: value });
     },
-    debounceMs,
-    []
+    debounceMs
   );
 
   const debouncedPortChange = useDebouncedCallback(
@@ -120,8 +119,7 @@ export function ConnectionFilterBar({
       const port = value.trim() === '' ? undefined : parseInt(value, 10);
       onFilterChange({ port: isNaN(port as number) ? undefined : port });
     },
-    debounceMs,
-    []
+    debounceMs
   );
 
   // Handle IP input change
@@ -150,7 +148,7 @@ export function ConnectionFilterBar({
   // Handle protocol change
   const handleProtocolChange = React.useCallback(
     (value: string) => {
-      onFilterChange({ protocol: value as ConnectionProtocol | 'all' });
+      onFilterChange({ protocol: value });
     },
     [onFilterChange]
   );

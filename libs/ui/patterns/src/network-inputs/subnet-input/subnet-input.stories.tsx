@@ -3,10 +3,12 @@
  * Storybook stories for the Subnet/CIDR Input component
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import * as React from 'react';
+
 import { SubnetInput, SubnetInputDesktop, SubnetInputMobile } from './index';
+
 import type { SubnetInputProps, OverlapResult } from './subnet-input.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof SubnetInput> = {
   title: 'Patterns/Network Inputs/SubnetInput',

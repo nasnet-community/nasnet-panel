@@ -101,8 +101,9 @@ export function TemplateInstallWizardDesktop({
 
     if (open) {
       window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+      return () => { window.removeEventListener('keydown', handleKeyDown); };
     }
+    return undefined;
   }, [open, isInstalling, canGoNext, currentStep]);
 
   return (

@@ -4,9 +4,10 @@
  * Dashboard Pro style - displays DHCP overview, servers, pools, leases, and clients
  */
 
-import { DHCPClientCard, LeaseTable } from '@nasnet/ui/patterns';
 import { useDHCPServers, useDHCPLeases, useDHCPClients, useDHCPPools } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
+import { DHCPClientCard, LeaseTable } from '@nasnet/ui/patterns';
+
 import { DHCPStatusHero, DHCPPoolCard, DHCPServersSection } from './dhcp/components';
 
 export function DHCPTab() {

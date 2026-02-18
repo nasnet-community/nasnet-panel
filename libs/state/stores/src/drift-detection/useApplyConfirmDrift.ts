@@ -15,7 +15,9 @@
  */
 
 import { useCallback, useState } from 'react';
+
 import type { Resource, DeploymentState } from '@nasnet/core/types';
+
 import { DriftStatus, type DriftResult } from './types';
 import { detectResourceDrift } from './useDriftDetection';
 

@@ -1,6 +1,7 @@
 package oui
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -33,10 +34,10 @@ func TestOUIDatabase_Lookup(t *testing.T) {
 	db := GetDatabase()
 
 	tests := []struct {
-		name          string
-		mac           string
-		expectFound   bool
-		expectVendor  string
+		name           string
+		mac            string
+		expectFound    bool
+		expectVendor   string
 		vendorContains string
 	}{
 		{
@@ -195,4 +196,18 @@ func stringContains(s, substr string) bool {
 		}
 	}
 	return false
+}
+
+func normalizeMAC(mac string) string {
+	mac = strings.Map(func(r rune) rune {
+		if (r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F') {
+			return r
+		}
+		return -1
+	}, mac)
+	mac = strings.ToUpper(mac)
+	if len(mac) != 12 {
+		return mac
+	}
+	return mac[0:2] + ":" + mac[2:4] + ":" + mac[4:6] + ":" + mac[6:8] + ":" + mac[8:10] + ":" + mac[10:12]
 }

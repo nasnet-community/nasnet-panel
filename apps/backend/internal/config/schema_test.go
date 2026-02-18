@@ -1,22 +1,23 @@
 package config
 
 import (
+	"strings"
 	"testing"
 )
 
-func TestConfigSchema_Validate(t *testing.T) {
+func TestSchema_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		schema  *ConfigSchema
+		schema  *Schema
 		wantErr bool
 		errMsg  string
 	}{
 		{
 			name: "valid schema",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields: []ConfigField{
+				Fields: []Field{
 					{Name: "port", Type: "int", Required: true},
 					{Name: "enabled", Type: "bool", Default: true},
 				},
@@ -25,38 +26,38 @@ func TestConfigSchema_Validate(t *testing.T) {
 		},
 		{
 			name: "missing service type",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				Version: "1.0.0",
-				Fields:  []ConfigField{{Name: "port", Type: "int"}},
+				Fields:  []Field{{Name: "port", Type: "int"}},
 			},
 			wantErr: true,
 			errMsg:  "service_type is required",
 		},
 		{
 			name: "missing version",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
-				Fields:      []ConfigField{{Name: "port", Type: "int"}},
+				Fields:      []Field{{Name: "port", Type: "int"}},
 			},
 			wantErr: true,
 			errMsg:  "version is required",
 		},
 		{
 			name: "no fields",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields:      []ConfigField{},
+				Fields:      []Field{},
 			},
 			wantErr: true,
 			errMsg:  "at least one field is required",
 		},
 		{
 			name: "duplicate field names",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields: []ConfigField{
+				Fields: []Field{
 					{Name: "port", Type: "int"},
 					{Name: "port", Type: "int"},
 				},
@@ -66,10 +67,10 @@ func TestConfigSchema_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid field type",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields: []ConfigField{
+				Fields: []Field{
 					{Name: "test", Type: "invalid"},
 				},
 			},
@@ -78,10 +79,10 @@ func TestConfigSchema_Validate(t *testing.T) {
 		},
 		{
 			name: "enum without enum_values",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields: []ConfigField{
+				Fields: []Field{
 					{Name: "mode", Type: "enum"},
 				},
 			},
@@ -90,10 +91,10 @@ func TestConfigSchema_Validate(t *testing.T) {
 		},
 		{
 			name: "valid enum",
-			schema: &ConfigSchema{
+			schema: &Schema{
 				ServiceType: "test-service",
 				Version:     "1.0.0",
-				Fields: []ConfigField{
+				Fields: []Field{
 					{Name: "mode", Type: "enum", EnumValues: []string{"a", "b"}},
 				},
 			},
@@ -116,11 +117,11 @@ func TestConfigSchema_Validate(t *testing.T) {
 	}
 }
 
-func TestConfigSchema_ValidateConfig(t *testing.T) {
-	schema := &ConfigSchema{
+func TestSchema_ValidateConfig(t *testing.T) {
+	schema := &Schema{
 		ServiceType: "test-service",
 		Version:     "1.0.0",
-		Fields: []ConfigField{
+		Fields: []Field{
 			{Name: "port", Type: "port", Required: true, Min: testIntPtr(1), Max: testIntPtr(65535)},
 			{Name: "enabled", Type: "bool", Required: false, Default: true},
 			{Name: "bind_ip", Type: "ip", Required: true},
@@ -188,9 +189,9 @@ func TestConfigSchema_ValidateConfig(t *testing.T) {
 		{
 			name: "unknown field",
 			config: map[string]interface{}{
-				"port":         9050,
-				"bind_ip":      "192.168.1.1",
-				"nickname":     "test",
+				"port":          9050,
+				"bind_ip":       "192.168.1.1",
+				"nickname":      "test",
 				"unknown_field": "value",
 			},
 			wantErr: true,
@@ -213,11 +214,11 @@ func TestConfigSchema_ValidateConfig(t *testing.T) {
 	}
 }
 
-func TestConfigSchema_MergeWithDefaults(t *testing.T) {
-	schema := &ConfigSchema{
+func TestSchema_MergeWithDefaults(t *testing.T) {
+	schema := &Schema{
 		ServiceType: "test-service",
 		Version:     "1.0.0",
-		Fields: []ConfigField{
+		Fields: []Field{
 			{Name: "port", Type: "int", Default: 9050},
 			{Name: "enabled", Type: "bool", Default: true},
 			{Name: "nickname", Type: "string"}, // No default
@@ -247,11 +248,11 @@ func TestConfigSchema_MergeWithDefaults(t *testing.T) {
 	}
 }
 
-func TestConfigSchema_ToJSON_FromJSON(t *testing.T) {
-	original := &ConfigSchema{
+func TestSchema_ToJSON_FromJSON(t *testing.T) {
+	original := &Schema{
 		ServiceType: "test-service",
 		Version:     "1.0.0",
-		Fields: []ConfigField{
+		Fields: []Field{
 			{Name: "port", Type: "int", Required: true, Default: 9050},
 			{Name: "enabled", Type: "bool", Default: true},
 		},
@@ -285,3 +286,5 @@ func TestConfigSchema_ToJSON_FromJSON(t *testing.T) {
 func testIntPtr(i int) *int {
 	return &i
 }
+
+func stringContains(s, substr string) bool { return strings.Contains(s, substr) }

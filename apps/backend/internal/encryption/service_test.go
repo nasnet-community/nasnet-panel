@@ -16,10 +16,10 @@ var testKey = []byte("0123456789ABCDEF0123456789ABCDEF")
 
 func TestNewService(t *testing.T) {
 	tests := []struct {
-		name      string
-		config    Config
-		wantErr   error
-		wantVer   int
+		name    string
+		config  Config
+		wantErr error
+		wantVer int
 	}{
 		{
 			name: "valid 32-byte key",

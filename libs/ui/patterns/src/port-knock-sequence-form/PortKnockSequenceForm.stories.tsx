@@ -5,10 +5,13 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 9
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import type { PortKnockSequenceInput } from '@nasnet/core/types';
+
 import { PortKnockSequenceForm } from './PortKnockSequenceForm';
 import { usePortKnockSequenceForm } from './use-port-knock-sequence-form';
-import type { PortKnockSequenceInput } from '@nasnet/core/types';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 /**
  * Wrapper component to use the form hook

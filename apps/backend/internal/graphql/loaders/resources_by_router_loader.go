@@ -15,7 +15,7 @@ import (
 //
 // Note: In the hybrid database architecture, resources are stored in router-{id}.db files.
 // This loader demonstrates the pattern for batching one-to-many relationships.
-// For production use, this would need to coordinate with the DatabaseManager to query
+// For production use, this would need to coordinate with the database.Manager to query
 // the correct router database for each router ID.
 type ResourcesByRouterLoader struct {
 	loader *dataloader.Loader[string, []*ent.Resource]
@@ -26,6 +26,8 @@ type ResourcesByRouterLoader struct {
 //
 // The batch function groups results by router ID, ensuring each caller receives
 // only the resources for their requested router.
+//
+//nolint:dupl // similar loader pattern, distinct types
 func NewResourcesByRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool) *ResourcesByRouterLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[[]*ent.Resource] {
 		// Track statistics
@@ -37,7 +39,7 @@ func NewResourcesByRouterLoader(db *ent.Client, stats *LoaderStats, devMode bool
 		}
 
 		// Query all resources for the requested routers
-		// In production, this would coordinate with DatabaseManager for hybrid DB architecture
+		// In production, this would coordinate with database.Manager for hybrid DB architecture
 		// For now, we query by category as a demonstration (assuming category maps to router context)
 		resources, err := db.Resource.Query().
 			Where(resource.CategoryIn(keys...)).
@@ -94,6 +96,8 @@ type ResourcesByTypeLoader struct {
 }
 
 // NewResourcesByTypeLoader creates a new ResourcesByTypeLoader.
+//
+//nolint:dupl // similar loader pattern, distinct types
 func NewResourcesByTypeLoader(db *ent.Client, stats *LoaderStats, devMode bool) *ResourcesByTypeLoader {
 	batchFn := func(ctx context.Context, keys []string) []*dataloader.Result[[]*ent.Resource] {
 		// Track statistics

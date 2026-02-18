@@ -4,10 +4,13 @@
  */
 
 import { useState } from 'react';
-import { NetworkInterface } from '@nasnet/core/types';
+
+import { Network } from 'lucide-react';
+
+import { type NetworkInterface } from '@nasnet/core/types';
+
 import { InterfaceCard } from './InterfaceCard';
 import { SectionHeader } from './SectionHeader';
-import { Network } from 'lucide-react';
 
 interface InterfaceListProps {
   interfaces: NetworkInterface[];

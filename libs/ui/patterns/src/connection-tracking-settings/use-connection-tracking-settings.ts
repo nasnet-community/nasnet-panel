@@ -7,10 +7,12 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-import { useForm, type UseFormReturn } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useCallback } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
+import { z } from 'zod';
+
 
 import {
   parseDuration,
@@ -18,11 +20,12 @@ import {
   isValidDuration,
   parseOrDefault,
 } from './timeout-utils';
+import { DEFAULT_SETTINGS } from './types';
+
 import type {
   ConnectionTrackingSettings,
   ConnectionTrackingFormValues,
 } from './types';
-import { DEFAULT_SETTINGS } from './types';
 
 /**
  * Zod schema for connection tracking settings form

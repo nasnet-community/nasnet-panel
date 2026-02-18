@@ -18,7 +18,7 @@ const (
 	ScanStatusPending   ScanStatus = "PENDING"
 	ScanStatusScanning  ScanStatus = "SCANNING"
 	ScanStatusCompleted ScanStatus = "COMPLETED"
-	ScanStatusCancelled ScanStatus = "CANCELLED"
+	ScanStatusCanceled  ScanStatus = "CANCELED"
 	ScanStatusFailed    ScanStatus = "FAILED"
 )
 
@@ -52,7 +52,9 @@ func (e *DeviceScanStartedEvent) Payload() ([]byte, error) { return json.Marshal
 func NewDeviceScanStartedEvent(scanID, routerID, subnet, source string) *DeviceScanStartedEvent {
 	return &DeviceScanStartedEvent{
 		BaseEvent: NewBaseEvent(EventTypeDeviceScanStarted, PriorityNormal, source),
-		ScanID: scanID, RouterID: routerID, Subnet: subnet,
+		ScanID:    scanID,
+		RouterID:  routerID,
+		Subnet:    subnet,
 	}
 }
 
@@ -71,11 +73,17 @@ type DeviceScanProgressEvent struct {
 
 func (e *DeviceScanProgressEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
-func NewDeviceScanProgressEvent(scanID string, routerID string, status ScanStatus, progress int, scannedCount int, totalCount int, devices []DiscoveredDevice, elapsedTime int, source string) *DeviceScanProgressEvent {
+func NewDeviceScanProgressEvent(scanID, routerID string, status ScanStatus, progress, scannedCount, totalCount int, devices []DiscoveredDevice, elapsedTime int, source string) *DeviceScanProgressEvent {
 	return &DeviceScanProgressEvent{
-		BaseEvent: NewBaseEvent(EventTypeDeviceScanProgress, PriorityBackground, source),
-		ScanID: scanID, RouterID: routerID, Status: status, Progress: progress,
-		ScannedCount: scannedCount, TotalCount: totalCount, Devices: devices, ElapsedTime: elapsedTime,
+		BaseEvent:    NewBaseEvent(EventTypeDeviceScanProgress, PriorityBackground, source),
+		ScanID:       scanID,
+		RouterID:     routerID,
+		Status:       status,
+		Progress:     progress,
+		ScannedCount: scannedCount,
+		TotalCount:   totalCount,
+		Devices:      devices,
+		ElapsedTime:  elapsedTime,
 	}
 }
 
@@ -91,10 +99,14 @@ type DeviceScanCompletedEvent struct {
 
 func (e *DeviceScanCompletedEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
-func NewDeviceScanCompletedEvent(scanID string, routerID string, devicesFound int, duration int, devices []DiscoveredDevice, source string) *DeviceScanCompletedEvent {
+func NewDeviceScanCompletedEvent(scanID, routerID string, devicesFound, duration int, devices []DiscoveredDevice, source string) *DeviceScanCompletedEvent {
 	return &DeviceScanCompletedEvent{
-		BaseEvent: NewBaseEvent(EventTypeDeviceScanCompleted, PriorityNormal, source),
-		ScanID: scanID, RouterID: routerID, DevicesFound: devicesFound, Duration: duration, Devices: devices,
+		BaseEvent:    NewBaseEvent(EventTypeDeviceScanCompleted, PriorityNormal, source),
+		ScanID:       scanID,
+		RouterID:     routerID,
+		DevicesFound: devicesFound,
+		Duration:     duration,
+		Devices:      devices,
 	}
 }
 
@@ -111,7 +123,9 @@ func (e *DeviceScanFailedEvent) Payload() ([]byte, error) { return json.Marshal(
 func NewDeviceScanFailedEvent(scanID, routerID, errorMsg, source string) *DeviceScanFailedEvent {
 	return &DeviceScanFailedEvent{
 		BaseEvent: NewBaseEvent(EventTypeDeviceScanFailed, PriorityNormal, source),
-		ScanID: scanID, RouterID: routerID, Error: errorMsg,
+		ScanID:    scanID,
+		RouterID:  routerID,
+		Error:     errorMsg,
 	}
 }
 
@@ -127,7 +141,7 @@ func (e *DeviceScanCancelledEvent) Payload() ([]byte, error) { return json.Marsh
 func NewDeviceScanCancelledEvent(scanID, routerID, source string) *DeviceScanCancelledEvent {
 	return &DeviceScanCancelledEvent{
 		BaseEvent: NewBaseEvent(EventTypeDeviceScanCancelled, PriorityNormal, source),
-		ScanID: scanID, RouterID: routerID,
+		ScanID:    scanID, RouterID: routerID,
 	}
 }
 
@@ -163,7 +177,7 @@ type WANStatusChangedEvent struct {
 func NewWANStatusChangedEvent(routerID, wanInterfaceID, interfaceName, status, previousStatus, connectionType string) *WANStatusChangedEvent {
 	return &WANStatusChangedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANStatusChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		Status: status, PreviousStatus: previousStatus, ConnectionType: connectionType, ChangedAt: time.Now(),
 	}
 }
@@ -188,7 +202,7 @@ type WANHealthChangedEvent struct {
 func NewWANHealthChangedEvent(routerID, wanInterfaceID, interfaceName, healthStatus, previousHealthStatus, target string) *WANHealthChangedEvent {
 	return &WANHealthChangedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANHealthChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-health-monitor", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		HealthStatus: healthStatus, PreviousHealthStatus: previousHealthStatus, Target: target, LastCheckTime: time.Now(),
 	}
 }
@@ -211,7 +225,7 @@ type WANIPChangedEvent struct {
 func NewWANIPChangedEvent(routerID, wanInterfaceID, interfaceName, connectionType, oldIP, newIP string) *WANIPChangedEvent {
 	return &WANIPChangedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANIPChanged, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		ConnectionType: connectionType, OldIP: oldIP, NewIP: newIP, ChangedAt: time.Now(),
 	}
 }
@@ -232,7 +246,7 @@ type WANConfiguredEvent struct {
 func NewWANConfiguredEvent(routerID, wanInterfaceID, interfaceName, connectionType string, isDefaultRoute bool) *WANConfiguredEvent {
 	return &WANConfiguredEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANConfigured, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		ConnectionType: connectionType, IsDefaultRoute: isDefaultRoute, ConfiguredAt: time.Now(),
 	}
 }
@@ -252,7 +266,7 @@ type WANDeletedEvent struct {
 func NewWANDeletedEvent(routerID, wanInterfaceID, interfaceName, connectionType string) *WANDeletedEvent {
 	return &WANDeletedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANDeleted, Priority: PriorityNormal, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		ConnectionType: connectionType, DeletedAt: time.Now(),
 	}
 }
@@ -274,7 +288,7 @@ type WANConnectionFailedEvent struct {
 func NewWANConnectionFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, failureReason string) *WANConnectionFailedEvent {
 	return &WANConnectionFailedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANConnectionFailed, Priority: PriorityCritical, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		ConnectionType: connectionType, FailureReason: failureReason, FailedAt: time.Now(),
 	}
 }
@@ -296,7 +310,7 @@ type WANAuthFailedEvent struct {
 func NewWANAuthFailedEvent(routerID, wanInterfaceID, interfaceName, connectionType, username, failureReason string) *WANAuthFailedEvent {
 	return &WANAuthFailedEvent{
 		BaseEvent: BaseEvent{ID: ulid.Make(), Type: EventTypeWANAuthFailed, Priority: PriorityCritical, Timestamp: time.Now(), Source: "wan-service", Metadata: EventMetadata{CorrelationID: ulid.Make().String()}},
-		RouterID: routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
+		RouterID:  routerID, WANInterfaceID: wanInterfaceID, InterfaceName: interfaceName,
 		ConnectionType: connectionType, Username: username, FailureReason: failureReason, FailedAt: time.Now(),
 	}
 }
@@ -322,12 +336,13 @@ func (e *VLANPoolWarningEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewVLANPoolWarningEvent(routerID string, totalVLANs, allocatedVLANs, availableVLANs int, utilization float64, warningLevel, recommendedAction, source string) *VLANPoolWarningEvent {
 	priority := PriorityCritical
-	if warningLevel == "critical" {
+	const warningLevelCritical = "critical"
+	if warningLevel == warningLevelCritical {
 		priority = PriorityImmediate
 	}
 	return &VLANPoolWarningEvent{
 		BaseEvent: NewBaseEvent(EventTypeVLANPoolWarning, priority, source),
-		RouterID: routerID, TotalVLANs: totalVLANs, AllocatedVLANs: allocatedVLANs,
+		RouterID:  routerID, TotalVLANs: totalVLANs, AllocatedVLANs: allocatedVLANs,
 		AvailableVLANs: availableVLANs, Utilization: utilization, WarningLevel: warningLevel, RecommendedAction: recommendedAction,
 	}
 }
@@ -358,7 +373,7 @@ func (e *IsolationViolationEvent) Payload() ([]byte, error) { return json.Marsha
 
 func NewIsolationViolationEvent(instanceID, featureID, routerID, violationType, currentValue, limitValue, severity, detectedAt, actionTaken, cgroupPath, errorMessage, source string, willTerminate bool, affectedPorts, affectedVLANs []string) *IsolationViolationEvent {
 	return &IsolationViolationEvent{
-		BaseEvent: NewBaseEvent(EventTypeIsolationViolation, PriorityImmediate, source),
+		BaseEvent:  NewBaseEvent(EventTypeIsolationViolation, PriorityImmediate, source),
 		InstanceID: instanceID, FeatureID: featureID, RouterID: routerID, ViolationType: violationType,
 		CurrentValue: currentValue, LimitValue: limitValue, Severity: severity, DetectedAt: detectedAt,
 		WillTerminate: willTerminate, ActionTaken: actionTaken, AffectedPorts: affectedPorts,
@@ -386,7 +401,7 @@ func (e *ResourceWarningEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewResourceWarningEvent(instanceID, featureID, routerID, resourceType, currentUsage, limitValue, detectedAt, recommendedAction, cgroupPath, trendDirection, source string, thresholdPercent int, usagePercent float64) *ResourceWarningEvent {
 	return &ResourceWarningEvent{
-		BaseEvent: NewBaseEvent(EventTypeResourceWarning, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeResourceWarning, PriorityNormal, source),
 		InstanceID: instanceID, FeatureID: featureID, RouterID: routerID, ResourceType: resourceType,
 		CurrentUsage: currentUsage, LimitValue: limitValue, ThresholdPercent: thresholdPercent,
 		UsagePercent: usagePercent, DetectedAt: detectedAt, RecommendedAction: recommendedAction,
@@ -412,7 +427,7 @@ func (e *ResourceOOMEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
 func NewResourceOOMEvent(instanceID, featureID, routerID string, currentMB float64, limitMB int, usagePercent float64, killedPID int, cgroupPath, detectedAt string, willRestart bool, source string) *ResourceOOMEvent {
 	return &ResourceOOMEvent{
-		BaseEvent: NewBaseEvent(EventTypeResourceOOM, PriorityImmediate, source),
+		BaseEvent:  NewBaseEvent(EventTypeResourceOOM, PriorityImmediate, source),
 		InstanceID: instanceID, FeatureID: featureID, RouterID: routerID,
 		CurrentMB: currentMB, LimitMB: limitMB, UsagePercent: usagePercent,
 		KilledPID: killedPID, CgroupPath: cgroupPath, DetectedAt: detectedAt, WillRestart: willRestart,
@@ -435,7 +450,7 @@ func (e *ResourceLimitsChangedEvent) Payload() ([]byte, error) { return json.Mar
 
 func NewResourceLimitsChangedEvent(instanceID, featureID, routerID, resourceType, previousLimit, newLimit, changedBy, reason, source string) *ResourceLimitsChangedEvent {
 	return &ResourceLimitsChangedEvent{
-		BaseEvent: NewBaseEvent(EventTypeResourceLimitsChanged, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeResourceLimitsChanged, PriorityNormal, source),
 		InstanceID: instanceID, FeatureID: featureID, RouterID: routerID, ResourceType: resourceType,
 		PreviousLimit: previousLimit, NewLimit: newLimit, ChangedBy: changedBy, Reason: reason,
 	}

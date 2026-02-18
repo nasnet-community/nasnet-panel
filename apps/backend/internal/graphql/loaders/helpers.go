@@ -1,6 +1,7 @@
 package loaders
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/graph-gophers/dataloader/v7"
@@ -28,6 +29,7 @@ func mapToResults[K comparable, V any](
 	err error,
 	keyFunc func(V) K,
 ) []*dataloader.Result[V] {
+
 	results := make([]*dataloader.Result[V], len(keys))
 
 	// Case 1: Total failure - return error for all keys
@@ -78,6 +80,7 @@ func mapToSliceResults[K comparable, V any](
 	err error,
 	keyFunc func(V) K,
 ) []*dataloader.Result[[]V] {
+
 	results := make([]*dataloader.Result[[]V], len(keys))
 
 	// Case 1: Total failure - return error for all keys
@@ -125,8 +128,8 @@ func NewNotFoundError(key interface{}) *NotFoundError {
 
 // IsNotFoundError checks if an error is a NotFoundError.
 func IsNotFoundError(err error) bool {
-	_, ok := err.(*NotFoundError)
-	return ok
+	var nfe *NotFoundError
+	return errors.As(err, &nfe)
 }
 
 // PartialBatchError represents an error where some keys failed in a batch.

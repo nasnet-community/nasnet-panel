@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"backend/generated/ent"
 	"go.uber.org/zap"
+
+	"backend/generated/ent"
 )
 
 // Dispatcher manages notification delivery across multiple channels with retry logic.

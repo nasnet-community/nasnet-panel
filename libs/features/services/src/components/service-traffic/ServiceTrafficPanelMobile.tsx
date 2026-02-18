@@ -228,7 +228,7 @@ export function ServiceTrafficPanelMobile({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Traffic Quota</CardTitle>
-              <Badge variant={quotaExceeded ? 'destructive' : quotaWarning ? 'warning' : 'default'}>
+              <Badge variant={quotaExceeded ? 'error' : quotaWarning ? 'warning' : 'default'}>
                 {stats.quota.period}
               </Badge>
             </div>

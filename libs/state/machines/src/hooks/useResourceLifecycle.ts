@@ -7,8 +7,12 @@
  * @module @nasnet/state/machines/hooks
  */
 
-import { useMachine } from '@xstate/react';
 import { useCallback, useMemo } from 'react';
+
+import { useMachine } from '@xstate/react';
+
+import type { Resource, RuntimeState, ValidationResult } from '@nasnet/core/types';
+
 import {
   createResourceLifecycleMachine,
   type ResourceLifecycleConfig,
@@ -20,7 +24,7 @@ import {
   isResourceAppliable,
   getResourceStateDisplayInfo,
 } from '../resourceLifecycleMachine';
-import type { Resource, RuntimeState, ValidationResult } from '@nasnet/core/types';
+
 
 // ============================================================================
 // Types
@@ -290,8 +294,8 @@ export function useResourceLifecycle<TConfig = unknown>(
 export function useResourceLifecycleWithApollo<TConfig = unknown>(
   uuid: string,
   options: {
-    onStateChange?: (state: ResourceLifecycleStateValue) => void;
-    onError?: (error: string) => void;
+    onStateChange?: (state: string, context: ResourceLifecycleContext<TConfig>) => void;
+    onError?: (error: string, code?: string) => void;
   } = {}
 ): UseResourceLifecycleResult<TConfig> {
   // This would integrate with the Apollo hooks from api-client

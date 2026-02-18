@@ -27,7 +27,7 @@ import {
   useCreateFilterRule,
   useUpdateFilterRule,
 } from '@nasnet/api-client/queries/firewall';
-import type { FilterRule, FilterRuleInput } from '@nasnet/core/types';
+import type { FilterRule, FilterRuleInput, FilterChain } from '@nasnet/core/types';
 import { CounterCell, FilterRuleEditor } from '@nasnet/ui/patterns';
 import { RuleStatisticsPanel } from '@nasnet/ui/patterns';
 import {
@@ -40,14 +40,12 @@ import {
   Button,
   Badge,
   Switch,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@nasnet/ui/primitives';
 import {
   DndContext,
@@ -75,13 +73,13 @@ import { useCounterSettingsStore } from '@nasnet/features/firewall';
 
 function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
-  const variantMap: Record<string, 'default' | 'success' | 'destructive' | 'warning' | 'info'> = {
+  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
-    drop: 'destructive',
-    reject: 'destructive',
+    drop: 'error',
+    reject: 'error',
     log: 'info',
     jump: 'warning',
-    tarpit: 'destructive',
+    tarpit: 'error',
     passthrough: 'default',
   };
 
@@ -279,7 +277,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 
 export interface FilterRulesTableDesktopProps {
   className?: string;
-  chain?: string;
+  chain?: FilterChain;
 }
 
 /**
@@ -422,6 +420,7 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [highlightRuleId, sortedRules]);
 
   // Loading state
@@ -515,14 +514,14 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Filter Rule?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Filter Rule?</DialogTitle>
+            <DialogDescription>
               This action cannot be undone. The rule will be permanently removed from the firewall configuration.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">This will:</p>
             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -531,14 +530,16 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
               <li>Take effect immediately on the router</li>
             </ul>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
               Delete Rule
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Statistics Panel */}
       {statsRule && (

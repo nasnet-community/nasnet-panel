@@ -12,7 +12,6 @@
  * @see NAS-4.10: Implement Navigation & Command Palette
  */
 
-import * as React from 'react';
 import { useMemo } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';

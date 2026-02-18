@@ -89,7 +89,7 @@ export function useInstallService() {
     refetchQueries: [
       {
         query: GET_SERVICE_INSTANCES,
-        variables: (result) => ({
+        variables: (result: any) => ({
           routerID: result.data?.installService.instance?.routerID,
         }),
       },

@@ -5,19 +5,19 @@ import (
 	"log"
 
 	"github.com/rs/zerolog"
-	"backend/generated/ent"
 
+	"backend/generated/ent"
 	"backend/internal/events"
-	"backend/internal/orchestrator"
+	"backend/internal/orchestrator/boot"
 	"backend/internal/storage"
 )
 
 // StorageComponents holds all initialized storage infrastructure components.
 type StorageComponents struct {
 	Detector      *storage.StorageDetector
-	ConfigService *storage.StorageConfigService
+	Service       *storage.StorageConfigService
 	PathResolver  storage.PathResolverPort
-	BootValidator *orchestrator.BootValidator
+	BootValidator *boot.BootValidator
 }
 
 // InitializeStorage creates and initializes the storage infrastructure.
@@ -44,7 +44,7 @@ func InitializeStorage(
 	log.Printf("Storage detector started (monitoring: /data, /usb1, /disk1, /disk2)")
 
 	// 2. Storage Config Service - persists external storage configuration
-	storageConfigService := storage.NewStorageConfigService(
+	storageService := storage.NewStorageConfigService(
 		systemDB,
 		storageDetector,
 		storagePublisher,
@@ -57,7 +57,7 @@ func InitializeStorage(
 	log.Printf("Path resolver initialized (flash base: /flash/features)")
 
 	// 4. Boot Validator - validates instance binaries on startup
-	bootValidator, err := orchestrator.NewBootValidator(orchestrator.BootValidatorConfig{
+	bootValidator, err := boot.NewBootValidator(boot.BootValidatorConfig{
 		DB:           systemDB,
 		PathResolver: pathResolver,
 		EventBus:     eventBus,
@@ -83,7 +83,7 @@ func InitializeStorage(
 
 	return &StorageComponents{
 		Detector:      storageDetector,
-		ConfigService: storageConfigService,
+		Service:       storageService,
 		PathResolver:  pathResolver,
 		BootValidator: bootValidator,
 	}, nil

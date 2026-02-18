@@ -11,8 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"backend/internal/events"
 	"github.com/oklog/ulid/v2"
+
+	"backend/internal/events"
 )
 
 // DownloadManager handles binary downloads with progress tracking and verification
@@ -70,7 +71,7 @@ func (dm *DownloadManager) Download(ctx context.Context, featureID, url, expecte
 
 	// Create feature directory
 	featureDir := filepath.Join(dm.baseDir, featureID, "bin")
-	if err := os.MkdirAll(featureDir, 0755); err != nil {
+	if err := os.MkdirAll(featureDir, 0o755); err != nil {
 		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
 		return fmt.Errorf("failed to create feature directory: %w", err)
 	}
@@ -106,7 +107,7 @@ func (dm *DownloadManager) Download(ctx context.Context, featureID, url, expecte
 	}
 
 	// Make executable (on Unix systems)
-	if err := os.Chmod(finalFile, 0755); err != nil {
+	if err := os.Chmod(finalFile, 0o755); err != nil {
 		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
 		return fmt.Errorf("failed to set executable permission: %w", err)
 	}
@@ -120,7 +121,7 @@ func (dm *DownloadManager) Download(ctx context.Context, featureID, url, expecte
 // downloadToFile downloads content from URL to a file with progress tracking
 func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, featureID string, progress *DownloadProgress) error {
 	// Create HTTP request
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
@@ -149,8 +150,8 @@ func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, fe
 
 	// Create progress reader
 	reader := &progressReader{
-		reader:     resp.Body,
-		total:      totalBytes,
+		reader: resp.Body,
+		total:  totalBytes,
 		onProgress: func(bytesRead int64) {
 			dm.mu.Lock()
 			progress.BytesDownloaded = bytesRead
@@ -181,8 +182,8 @@ func (dm *DownloadManager) emitProgressEvent(ctx context.Context, featureID stri
 
 	event := NewServiceInstallProgressEvent(featureID, bytesDownloaded, totalBytes, percent, status, err)
 
-	// Publish event (ignore errors - event bus is best-effort)
-	_ = dm.eventBus.Publish(ctx, event)
+	// Publish event (best-effort - errors are not critical)
+	_ = dm.eventBus.Publish(ctx, event) //nolint:errcheck // event publication is best-effort, failure is non-critical
 }
 
 // GetProgress returns the current progress for a feature download

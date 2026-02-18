@@ -72,9 +72,9 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
             refetchInterfaces();
           } else {
             const errors = result.data?.addBridgePort?.errors || [];
-            errors.forEach((err) => toast.error(err.message));
+            errors.forEach((err: { message: string }) => toast.error(err.message));
           }
-        } catch (err) {
+        } catch (err: unknown) {
           toast.error('Failed to add port to bridge');
           console.error(err);
         }
@@ -112,9 +112,9 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
           setPortToRemove(null);
         } else {
           const errors = result.data?.removeBridgePort?.errors || [];
-          errors.forEach((err) => toast.error(err.message));
+          errors.forEach((err: { message: string }) => toast.error(err.message));
         }
-      } catch (err) {
+      } catch (err: unknown) {
         toast.error('Failed to remove port from bridge');
         console.error(err);
       }

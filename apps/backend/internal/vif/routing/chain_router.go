@@ -9,6 +9,7 @@ import (
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/virtualinterface"
+
 	"backend/internal/events"
 	"backend/internal/router"
 
@@ -56,7 +57,7 @@ func NewChainRouter(cfg ChainRouterConfig) (*ChainRouter, error) {
 		return nil, fmt.Errorf("RouterPort is required")
 	}
 	if cfg.Store == nil {
-		return nil, fmt.Errorf("Store is required")
+		return nil, fmt.Errorf("store is required")
 	}
 
 	cr := &ChainRouter{
@@ -79,6 +80,7 @@ func (cr *ChainRouter) CreateRoutingChain(
 	routerID string,
 	input CreateRoutingChainInput,
 ) (*ent.RoutingChain, error) {
+
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
@@ -87,7 +89,33 @@ func (cr *ChainRouter) CreateRoutingChain(
 		Int("hop_count", len(input.Hops)).
 		Msg("Creating routing chain")
 
-	// Validate hop count
+	interfaceMap, err := cr.validateChainInput(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	cr.removeExistingChain(ctx, routerID, input.DeviceID)
+
+	chain, err := cr.createChainRecord(ctx, routerID, input)
+	if err != nil {
+		return nil, err
+	}
+
+	chain, err = cr.createChainHops(ctx, chain, input, interfaceMap)
+	if err != nil {
+		return nil, err
+	}
+
+	cr.publishChainCreatedEvent(ctx, chain.ID, input.DeviceID, len(input.Hops), routerID)
+
+	chain = cr.reloadChainWithHops(ctx, chain.ID)
+
+	log.Info().Str("chain_id", chain.ID).Msg("Routing chain created successfully")
+	return chain, nil
+}
+
+// validateChainInput validates hops and interfaces, returning an interface lookup map.
+func (cr *ChainRouter) validateChainInput(ctx context.Context, input CreateRoutingChainInput) (map[string]*ent.VirtualInterface, error) {
 	if len(input.Hops) < 2 {
 		return nil, fmt.Errorf("routing chain must have at least 2 hops, got %d", len(input.Hops))
 	}
@@ -98,9 +126,13 @@ func (cr *ChainRouter) CreateRoutingChain(
 		log.Warn().Int("hop_count", len(input.Hops)).Msg("Chain has 4+ hops - latency may be significant")
 	}
 
-	// Validate all VirtualInterfaces exist
+	seen := make(map[string]bool)
 	interfaceIDs := make([]string, len(input.Hops))
 	for i, hop := range input.Hops {
+		if seen[hop.InterfaceID] {
+			return nil, fmt.Errorf("circular chain detected: interface %s appears multiple times", hop.InterfaceID)
+		}
+		seen[hop.InterfaceID] = true
 		interfaceIDs[i] = hop.InterfaceID
 	}
 
@@ -115,72 +147,57 @@ func (cr *ChainRouter) CreateRoutingChain(
 		return nil, fmt.Errorf("not all interfaces exist: expected %d, found %d", len(input.Hops), len(interfaces))
 	}
 
-	// Check for circular chains (same interface appearing twice)
-	seen := make(map[string]bool)
-	for _, hop := range input.Hops {
-		if seen[hop.InterfaceID] {
-			return nil, fmt.Errorf("circular chain detected: interface %s appears multiple times", hop.InterfaceID)
-		}
-		seen[hop.InterfaceID] = true
-	}
-
-	// Create interface lookup map
 	interfaceMap := make(map[string]*ent.VirtualInterface)
 	for _, iface := range interfaces {
 		interfaceMap[iface.ID] = iface
 	}
+	return interfaceMap, nil
+}
 
-	// Remove any existing chain for this device
+// removeExistingChain removes any existing routing chain for the given device.
+func (cr *ChainRouter) removeExistingChain(ctx context.Context, routerID, deviceID string) {
 	existingChain, err := cr.store.RoutingChain.
 		Query().
 		Where(
 			routingchain.RouterID(routerID),
-			routingchain.DeviceID(input.DeviceID),
+			routingchain.DeviceID(deviceID),
 		).
 		Only(ctx)
 	if err == nil {
-		// Chain exists, remove it first
-		if err := cr.removeRoutingChainInternal(ctx, existingChain); err != nil {
-			log.Warn().Err(err).Msg("Failed to remove existing chain, continuing anyway")
+		if rmErr := cr.removeRoutingChainInternal(ctx, existingChain); rmErr != nil {
+			log.Warn().Err(rmErr).Msg("Failed to remove existing chain, continuing anyway")
 		}
 	}
-
 	// TODO: Query and remove existing single-hop routing rules (when Story 8.3 is implemented)
 	log.Info().Msg("Single-hop routing removal not yet implemented (Story 8.3)")
+}
 
-	chain, err := cr.createChainRecord(ctx, routerID, input)
-	if err != nil {
-		return nil, err
+// publishChainCreatedEvent emits a routing chain created event.
+func (cr *ChainRouter) publishChainCreatedEvent(ctx context.Context, chainID, deviceID string, hopCount int, routerID string) {
+	if cr.publisher == nil {
+		return
 	}
-
-	// Create hops with router rules
-	chain, err = cr.createChainHops(ctx, chain, input, interfaceMap)
-	if err != nil {
-		return nil, err
+	event := events.NewGenericEvent(
+		events.EventTypeRoutingChainCreated,
+		events.PriorityNormal,
+		"chain-router",
+		map[string]interface{}{
+			"chain_id":  chainID,
+			"device_id": deviceID,
+			"hop_count": hopCount,
+			"router_id": routerID,
+		},
+	)
+	if pubErr := cr.publisher.Publish(ctx, event); pubErr != nil {
+		log.Warn().Err(pubErr).Msg("Failed to publish chain created event")
 	}
+}
 
-	// Emit event
-	if cr.publisher != nil {
-		event := events.NewGenericEvent(
-			events.EventTypeRoutingChainCreated,
-			events.PriorityNormal,
-			"chain-router",
-			map[string]interface{}{
-				"chain_id":  chain.ID,
-				"device_id": input.DeviceID,
-				"hop_count": len(input.Hops),
-				"router_id": routerID,
-			},
-		)
-		if err := cr.publisher.Publish(ctx, event); err != nil {
-			log.Warn().Err(err).Msg("Failed to publish chain created event")
-		}
-	}
-
-	// Reload chain with hops
-	chain, err = cr.store.RoutingChain.
+// reloadChainWithHops reloads the chain entity with its hops and interfaces.
+func (cr *ChainRouter) reloadChainWithHops(ctx context.Context, chainID string) *ent.RoutingChain {
+	chain, err := cr.store.RoutingChain.
 		Query().
-		Where(routingchain.ID(chain.ID)).
+		Where(routingchain.ID(chainID)).
 		WithHops(func(q *ent.ChainHopQuery) {
 			q.WithInterface()
 			q.Order(ent.Asc(chainhop.FieldHopOrder))
@@ -189,10 +206,7 @@ func (cr *ChainRouter) CreateRoutingChain(
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to reload chain with hops")
 	}
-
-	log.Info().Str("chain_id", chain.ID).Msg("Routing chain created successfully")
-
-	return chain, nil
+	return chain
 }
 
 // createChainRecord creates the RoutingChain database record.
@@ -201,6 +215,7 @@ func (cr *ChainRouter) createChainRecord(
 	routerID string,
 	input CreateRoutingChainInput,
 ) (*ent.RoutingChain, error) {
+
 	chainBuilder := cr.store.RoutingChain.
 		Create().
 		SetRouterID(routerID).

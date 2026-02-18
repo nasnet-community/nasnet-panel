@@ -8,10 +8,12 @@
  */
 
 import { memo } from 'react';
-import { usePlatform } from '@nasnet/ui/primitives';
+
+import { usePlatform } from '@nasnet/ui/layouts';
 
 import { FirewallLogFiltersDesktop } from './FirewallLogFiltersDesktop';
 import { FirewallLogFiltersMobile } from './FirewallLogFiltersMobile';
+
 import type { FirewallLogFiltersProps } from './firewall-log-filters.types';
 
 /**

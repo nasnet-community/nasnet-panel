@@ -5,6 +5,7 @@
  * and additional utilities for NasNetConnect.
  */
 import { useTranslation as useTranslationOriginal, Trans } from 'react-i18next';
+
 import type { TranslationNamespace } from '../i18n';
 
 // Re-export with namespace typing

@@ -138,7 +138,7 @@ export function VlanFormMobile({
               <InterfaceSelector
                 routerId={routerId}
                 value={watch('interface')}
-                onChange={(value) => setValue('interface', value)}
+                onChange={(value) => setValue('interface', Array.isArray(value) ? value[0] : value)}
                 types={['ethernet', 'bridge']}
                 placeholder="Select parent interface"
                 aria-invalid={errors.interface ? 'true' : 'false'}

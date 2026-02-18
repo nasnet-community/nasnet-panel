@@ -5,10 +5,10 @@
  * NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { TrendingUp, TrendingDown, Download, RefreshCw } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
-import {
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
+import { Card, CardContent, CardHeader, CardTitle ,
   Button,
   Select,
   SelectContent,
@@ -18,11 +18,12 @@ import {
   Skeleton,
   Alert,
   AlertDescription,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/utils';
-import type { RateLimitStatsOverviewProps } from './types';
-import { useRateLimitStatsOverview } from './use-rate-limit-stats-overview';
+ cn } from '@nasnet/ui/primitives';
+
 import { POLLING_INTERVAL_CONFIGS } from './types';
+import { useRateLimitStatsOverview } from './use-rate-limit-stats-overview';
+
+import type { RateLimitStatsOverviewProps } from './types';
 
 /**
  * Formats timestamp for chart X-axis (hourly format: HH:mm)

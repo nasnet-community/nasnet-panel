@@ -16,15 +16,17 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useAlertNotificationStore } from '@nasnet/state/stores';
+
+import { useAlertNotificationStore, type InAppNotification } from '@nasnet/state/stores';
+
 import type { SeverityFilterOption } from './types';
 
 export interface UseNotificationCenterReturn {
   /** All notifications (unfiltered) */
-  allNotifications: ReturnType<typeof useAlertNotificationStore>['notifications'];
+  allNotifications: InAppNotification[];
 
   /** Filtered notifications based on current severity filter */
-  filteredNotifications: ReturnType<typeof useAlertNotificationStore>['notifications'];
+  filteredNotifications: InAppNotification[];
 
   /** Current severity filter */
   severityFilter: SeverityFilterOption;

@@ -21,3 +21,7 @@
 *.jpg binary
 *.ico binary
 *.tar.gz binary
+
+# Generated code - exclude from language statistics
+apps/backend/generated/** linguist-generated=true
+apps/backend/generated/**/*.go linguist-generated=true

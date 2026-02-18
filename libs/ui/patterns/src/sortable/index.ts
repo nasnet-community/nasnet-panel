@@ -42,7 +42,6 @@
 export type {
   // Core types
   SortableItemData,
-  SortableItem,
   SortableDirection,
   CollisionStrategy,
 
@@ -90,6 +89,7 @@ export {
   // Platform presenters
   SortableListMobile,
   SortableListDesktop,
+  SortableListDesktop as SortableListWithActions, // Alias for backward compatibility
 } from './components';
 
 export type {

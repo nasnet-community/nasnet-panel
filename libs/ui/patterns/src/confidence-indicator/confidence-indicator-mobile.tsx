@@ -20,12 +20,13 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
 import {
   ConfidenceIndicatorBase,
   ConfidenceIndicatorDot,
 } from './confidence-indicator-base';
 import { ConfidenceTooltipFull } from './confidence-tooltip';
+
+import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
 
 /**
  * Mobile Presenter for Confidence Indicator

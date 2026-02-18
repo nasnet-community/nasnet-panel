@@ -3,13 +3,14 @@
 package ent
 
 import (
-	"backend/generated/ent/devicerouting"
-	"backend/generated/ent/serviceinstance"
-	"backend/generated/ent/virtualinterface"
 	"context"
 	"errors"
 	"fmt"
 	"time"
+
+	"backend/generated/ent/devicerouting"
+	"backend/generated/ent/serviceinstance"
+	"backend/generated/ent/virtualinterface"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

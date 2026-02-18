@@ -12,8 +12,9 @@ import { useEffect, useMemo } from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { SyntaxHighlightProps } from './config-preview.types';
 import { registerRouterOS, highlightRouterOS } from './syntax';
+
+import type { SyntaxHighlightProps } from './config-preview.types';
 
 /**
  * SyntaxHighlight Component

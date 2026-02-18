@@ -6,7 +6,10 @@
  */
 
 import { memo, useCallback } from 'react';
+
 import { X } from 'lucide-react';
+
+import type { AlertSeverity, InAppNotification } from '@nasnet/state/stores';
 import {
   Sheet,
   SheetContent,
@@ -17,10 +20,11 @@ import {
   ScrollArea,
   cn,
 } from '@nasnet/ui/primitives';
-import { useNotificationCenter } from './use-notification-center';
+
 import { NotificationItem } from './NotificationItem';
+import { useNotificationCenter } from './use-notification-center';
+
 import type { NotificationCenterProps } from './types';
-import type { AlertSeverity } from '@nasnet/state/stores';
 
 const SEVERITY_OPTIONS: Array<{ value: AlertSeverity | 'ALL'; label: string }> = [
   { value: 'ALL', label: 'All' },
@@ -151,7 +155,7 @@ function NotificationCenterMobileComponent({
                 </p>
               </div>
             ) : (
-              filteredNotifications.map((notification) => (
+              filteredNotifications.map((notification: InAppNotification) => (
                 <NotificationItem
                   key={notification.id}
                   notification={notification}

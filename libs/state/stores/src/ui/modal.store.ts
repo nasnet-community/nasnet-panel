@@ -35,7 +35,7 @@ export type KnownModalId =
 /**
  * Modal ID type - allows known IDs and custom strings
  */
-export type ModalId = KnownModalId | (string & {});
+export type ModalId = KnownModalId | (string & Record<string, never>);
 
 /**
  * Modal data type - generic record

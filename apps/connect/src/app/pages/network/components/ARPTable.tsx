@@ -4,11 +4,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { ARPEntry } from '@nasnet/core/types';
-import { compareIPv4, formatMACAddress } from '@nasnet/core/utils';
-import { SectionHeader } from './SectionHeader';
+
 import { ChevronUp, ChevronDown, ChevronsUpDown, Network } from 'lucide-react';
+
+import { type ARPEntry } from '@nasnet/core/types';
+import { compareIPv4, formatMACAddress } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
+
+import { SectionHeader } from './SectionHeader';
 
 interface ARPTableProps {
   entries: ARPEntry[];

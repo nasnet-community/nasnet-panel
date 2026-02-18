@@ -6,17 +6,8 @@
  */
 
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn, Button } from '@nasnet/ui/primitives';
-import type {
-  ChangeSetItem,
-  ChangeOperation,
-  ChangeSetItemStatus,
-} from '@nasnet/core/types';
-import {
-  getOperationColor,
-  getOperationLabel,
-} from '@nasnet/core/types';
 import {
   Plus,
   Pencil,
@@ -31,6 +22,18 @@ import {
   ArrowLeftRight,
   AlertTriangle,
 } from 'lucide-react';
+
+import type {
+  ChangeSetItem,
+  ChangeOperation,
+  ChangeSetItemStatus,
+} from '@nasnet/core/types';
+import {
+  getOperationColor,
+  getOperationLabel,
+} from '@nasnet/core/types';
+import { cn, Button } from '@nasnet/ui/primitives';
+
 
 // =============================================================================
 // Variants

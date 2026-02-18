@@ -29,7 +29,7 @@ func TestScanTask_Cancel(t *testing.T) {
 
 	task.Cancel()
 
-	assert.Equal(t, ScanStatusCancelled, task.GetStatus())
+	assert.Equal(t, ScanStatusCanceled, task.GetStatus())
 	assert.NotNil(t, task.EndTime)
 
 	// Context should be cancelled
@@ -49,7 +49,7 @@ func TestScanTask_Cancel_NilCancelFunc(t *testing.T) {
 
 	// Should not panic
 	task.Cancel()
-	assert.Equal(t, ScanStatusCancelled, task.GetStatus())
+	assert.Equal(t, ScanStatusCanceled, task.GetStatus())
 }
 
 func TestScanTask_SetStatus(t *testing.T) {
@@ -61,7 +61,7 @@ func TestScanTask_SetStatus(t *testing.T) {
 		{"pending", ScanStatusPending, false},
 		{"running", ScanStatusRunning, false},
 		{"completed", ScanStatusCompleted, true},
-		{"cancelled", ScanStatusCancelled, true},
+		{"cancelled", ScanStatusCanceled, true},
 		{"failed", ScanStatusFailed, true},
 	}
 

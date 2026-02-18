@@ -8,8 +8,11 @@
  */
 
 import * as React from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { cn } from '@nasnet/ui/primitives';
+
 import type { DropZoneIndicatorProps } from '../types';
 
 // ============================================================================

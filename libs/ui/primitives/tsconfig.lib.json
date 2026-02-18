@@ -4,11 +4,10 @@
     "outDir": "../../../dist/out-tsc",
     "types": ["node", "vite/client"],
     "declaration": true,
-    "declarationMap": true,
     "jsx": "react-jsx",
-    "composite": true,
+    "composite": false,
     "tsBuildInfoFile": "../../../dist/out-tsc/ui-primitives.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/**/*.test.ts", "src/**/*.test.tsx"]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.stories.ts", "src/**/*.stories.tsx", "src/test/**"]
 }

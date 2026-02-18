@@ -1,0 +1,350 @@
+//go:build linux
+
+package resources
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"sync"
+	"time"
+
+	"backend/internal/events"
+
+	"github.com/rs/zerolog"
+)
+
+const (
+	// PollingIntervalSeconds is the interval for resource polling (10 seconds)
+	PollingIntervalSeconds = 10
+
+	// WarningThresholdPercent is the threshold for emitting resource warnings (80%)
+	WarningThresholdPercent = 80.0
+
+	// WarningClearThresholdPercent is the threshold for clearing warnings (hysteresis, 70%)
+	WarningClearThresholdPercent = 70.0
+
+	// WarningCooldownMinutes is the cooldown period between warnings for the same instance (5 minutes)
+	WarningCooldownMinutes = 5
+)
+
+// MonitoredInstance represents a service instance being monitored for resource usage
+type MonitoredInstance struct {
+	InstanceID     string
+	FeatureID      string
+	InstanceName   string
+	PID            int
+	MemoryLimitMB  int
+	LastWarningAt  time.Time // Last time warning was emitted
+	InWarningState bool      // Whether currently in warning state (for hysteresis)
+}
+
+// ResourcePollerConfig configures the ResourcePoller
+type ResourcePollerConfig struct {
+	ResourceLimiter *ResourceLimiter
+	EventBus        events.EventBus
+	Logger          zerolog.Logger
+}
+
+// ResourcePoller monitors resource usage for service instances and emits warnings
+type ResourcePoller struct {
+	mu        sync.RWMutex
+	config    ResourcePollerConfig
+	publisher *events.Publisher
+	instances map[string]*MonitoredInstance // instanceID -> MonitoredInstance
+	logger    zerolog.Logger
+	ctx       context.Context
+	cancel    context.CancelFunc
+	wg        sync.WaitGroup
+	running   bool
+}
+
+// NewResourcePoller creates a new ResourcePoller instance
+func NewResourcePoller(config ResourcePollerConfig) (*ResourcePoller, error) {
+	if config.ResourceLimiter == nil {
+		return nil, fmt.Errorf("ResourceLimiter is required")
+	}
+
+	if config.EventBus == nil {
+		return nil, fmt.Errorf("EventBus is required")
+	}
+
+	rp := &ResourcePoller{
+		config:    config,
+		publisher: events.NewPublisher(config.EventBus, "resource-poller"),
+		instances: make(map[string]*MonitoredInstance),
+		logger:    config.Logger,
+	}
+
+	return rp, nil
+}
+
+// Start begins the resource monitoring loop
+func (rp *ResourcePoller) Start(ctx context.Context) error {
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+
+	if rp.running {
+		return fmt.Errorf("resource poller already running")
+	}
+
+	rp.ctx, rp.cancel = context.WithCancel(ctx)
+	rp.running = true
+
+	rp.wg.Add(1)
+	go rp.pollerLoop()
+
+	rp.logger.Info().Msg("Resource poller started")
+	return nil
+}
+
+// Stop stops the resource monitoring loop and waits for it to finish
+func (rp *ResourcePoller) Stop() error {
+	rp.mu.Lock()
+
+	if !rp.running {
+		rp.mu.Unlock()
+		return fmt.Errorf("resource poller not running")
+	}
+
+	rp.cancel()
+	rp.running = false
+	rp.mu.Unlock()
+
+	// Wait for poller loop to finish
+	rp.wg.Wait()
+
+	rp.logger.Info().Msg("Resource poller stopped")
+	return nil
+}
+
+// AddInstance adds a service instance to be monitored
+func (rp *ResourcePoller) AddInstance(instanceID, featureID, instanceName string, pid, memoryLimitMB int) error {
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+
+	if pid <= 0 {
+		return fmt.Errorf("invalid PID: %d", pid)
+	}
+
+	if memoryLimitMB <= 0 {
+		return fmt.Errorf("invalid memory limit: %d MB", memoryLimitMB)
+	}
+
+	rp.instances[instanceID] = &MonitoredInstance{
+		InstanceID:     instanceID,
+		FeatureID:      featureID,
+		InstanceName:   instanceName,
+		PID:            pid,
+		MemoryLimitMB:  memoryLimitMB,
+		LastWarningAt:  time.Time{}, // Zero value = never warned
+		InWarningState: false,
+	}
+
+	rp.logger.Info().
+		Str("instance_id", instanceID).
+		Str("feature_id", featureID).
+		Int("pid", pid).
+		Int("memory_limit_mb", memoryLimitMB).
+		Msg("Added instance to resource monitoring")
+
+	return nil
+}
+
+// RemoveInstance removes a service instance from monitoring
+func (rp *ResourcePoller) RemoveInstance(instanceID string) {
+	rp.mu.Lock()
+	defer rp.mu.Unlock()
+
+	if _, exists := rp.instances[instanceID]; exists {
+		delete(rp.instances, instanceID)
+		rp.logger.Info().
+			Str("instance_id", instanceID).
+			Msg("Removed instance from resource monitoring")
+	}
+}
+
+// pollerLoop is the main monitoring loop that runs every 10 seconds
+func (rp *ResourcePoller) pollerLoop() {
+	defer rp.wg.Done()
+
+	ticker := time.NewTicker(PollingIntervalSeconds * time.Second)
+	defer ticker.Stop()
+
+	rp.logger.Info().
+		Int("interval_seconds", PollingIntervalSeconds).
+		Float64("warning_threshold_percent", WarningThresholdPercent).
+		Msg("Resource poller loop started")
+
+	for {
+		select {
+		case <-rp.ctx.Done():
+			rp.logger.Info().Msg("Resource poller loop stopped")
+			return
+
+		case <-ticker.C:
+			rp.pollInstances()
+		}
+	}
+}
+
+// pollInstances polls resource usage for all monitored instances
+func (rp *ResourcePoller) pollInstances() {
+	rp.mu.RLock()
+	// Create a snapshot of instances to avoid holding lock during polling
+	instances := make([]*MonitoredInstance, 0, len(rp.instances))
+	for _, inst := range rp.instances {
+		instances = append(instances, inst)
+	}
+	rp.mu.RUnlock()
+
+	for _, inst := range instances {
+		rp.pollInstance(inst)
+	}
+}
+
+// pollInstance polls resource usage for a single instance
+func (rp *ResourcePoller) pollInstance(inst *MonitoredInstance) {
+	// Get resource usage from ResourceLimiter
+	usage, err := rp.config.ResourceLimiter.GetResourceUsage(inst.PID)
+	if err != nil {
+		// Check if process no longer exists (ENOENT)
+		if os.IsNotExist(err) {
+			rp.logger.Warn().
+				Str("instance_id", inst.InstanceID).
+				Int("pid", inst.PID).
+				Msg("Process no longer exists, removing from monitoring")
+			rp.RemoveInstance(inst.InstanceID)
+			return
+		}
+
+		rp.logger.Error().
+			Err(err).
+			Str("instance_id", inst.InstanceID).
+			Int("pid", inst.PID).
+			Msg("Failed to get resource usage")
+		return
+	}
+
+	// Calculate usage percentage
+	usagePercent := float64(usage.MemoryMB) / float64(inst.MemoryLimitMB) * 100
+
+	rp.logger.Debug().
+		Str("instance_id", inst.InstanceID).
+		Uint64("memory_mb", usage.MemoryMB).
+		Int("limit_mb", inst.MemoryLimitMB).
+		Float64("usage_percent", usagePercent).
+		Bool("in_warning_state", inst.InWarningState).
+		Msg("Polled instance resource usage")
+
+	// Check if we should emit a warning
+	rp.checkAndEmitWarning(inst, usage, usagePercent)
+}
+
+// checkAndEmitWarning checks if a warning should be emitted based on hysteresis and cooldown
+func (rp *ResourcePoller) checkAndEmitWarning(inst *MonitoredInstance, usage *ResourceUsage, usagePercent float64) {
+	now := time.Now()
+
+	// Hysteresis logic:
+	// - Enter warning state at 80% (WarningThresholdPercent)
+	// - Exit warning state at 70% (WarningClearThresholdPercent)
+	shouldWarn := false
+
+	if !inst.InWarningState && usagePercent >= WarningThresholdPercent {
+		// Entering warning state (crossing 80% threshold)
+		shouldWarn = true
+		inst.InWarningState = true
+
+		rp.logger.Warn().
+			Str("instance_id", inst.InstanceID).
+			Float64("usage_percent", usagePercent).
+			Float64("threshold_percent", WarningThresholdPercent).
+			Msg("Instance crossed warning threshold")
+
+	} else if inst.InWarningState && usagePercent < WarningClearThresholdPercent {
+		// Exiting warning state (dropping below 70% threshold)
+		inst.InWarningState = false
+
+		rp.logger.Info().
+			Str("instance_id", inst.InstanceID).
+			Float64("usage_percent", usagePercent).
+			Float64("clear_threshold_percent", WarningClearThresholdPercent).
+			Msg("Instance dropped below warning clear threshold")
+
+	} else if inst.InWarningState {
+		// Already in warning state, check cooldown
+		timeSinceLastWarning := now.Sub(inst.LastWarningAt)
+		cooldownDuration := WarningCooldownMinutes * time.Minute
+
+		if timeSinceLastWarning >= cooldownDuration {
+			shouldWarn = true
+			rp.logger.Info().
+				Str("instance_id", inst.InstanceID).
+				Float64("usage_percent", usagePercent).
+				Dur("time_since_last_warning", timeSinceLastWarning).
+				Msg("Cooldown expired, re-emitting warning")
+		}
+	}
+
+	// Emit warning if needed
+	if shouldWarn {
+		rp.emitResourceWarning(inst, usage, usagePercent)
+		inst.LastWarningAt = now
+	}
+}
+
+// emitResourceWarning emits a ResourceWarningEvent
+func (rp *ResourcePoller) emitResourceWarning(inst *MonitoredInstance, usage *ResourceUsage, usagePercent float64) {
+	event := events.NewResourceWarningEvent(
+		inst.InstanceID,
+		inst.FeatureID,
+		"",                                       // RouterID (not available in poller context)
+		"memory",                                 // ResourceType
+		fmt.Sprintf("%d MB", usage.MemoryMB),     // CurrentUsage
+		fmt.Sprintf("%d MB", inst.MemoryLimitMB), // LimitValue
+		usage.Time.Format(time.RFC3339),          // DetectedAt
+		fmt.Sprintf("Consider stopping or reducing memory limit for %s", inst.InstanceName), // RecommendedAction
+		"",                                   // CgroupPath
+		rp.detectTrend(inst, usage.MemoryMB), // TrendDirection
+		"resource-poller",
+		int(WarningThresholdPercent), // ThresholdPercent
+		usagePercent,                 // UsagePercent
+	)
+
+	if err := rp.publisher.Publish(rp.ctx, event); err != nil {
+		rp.logger.Error().
+			Err(err).
+			Str("instance_id", inst.InstanceID).
+			Msg("Failed to publish ResourceWarningEvent")
+	} else {
+		rp.logger.Warn().
+			Str("instance_id", inst.InstanceID).
+			Str("feature_id", inst.FeatureID).
+			Float64("usage_percent", usagePercent).
+			Msg("Emitted ResourceWarningEvent")
+	}
+}
+
+// detectTrend detects the trend direction of memory usage
+// This is a simplified version - a real implementation would track history
+func (rp *ResourcePoller) detectTrend(inst *MonitoredInstance, currentMB uint64) string {
+	// TODO: Track historical usage to determine actual trend
+	// For now, return "stable" as a safe default
+	return "stable"
+}
+
+// GetMonitoredInstances returns a copy of currently monitored instances
+func (rp *ResourcePoller) GetMonitoredInstances() map[string]*MonitoredInstance {
+	rp.mu.RLock()
+	defer rp.mu.RUnlock()
+
+	// Return a copy to avoid race conditions
+	instances := make(map[string]*MonitoredInstance, len(rp.instances))
+	for k, v := range rp.instances {
+		// Create a copy of the instance
+		instCopy := *v
+		instances[k] = &instCopy
+	}
+
+	return instances
+}

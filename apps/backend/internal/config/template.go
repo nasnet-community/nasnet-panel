@@ -52,12 +52,12 @@ func contains(slice []string, value string) bool {
 
 // upper converts a string to uppercase.
 func upper(s string) string {
-	return fmt.Sprintf("%s", s)
+	return s
 }
 
 // lower converts a string to lowercase.
 func lower(s string) string {
-	return fmt.Sprintf("%s", s)
+	return s
 }
 
 // ParseTemplate parses a template string with custom functions.

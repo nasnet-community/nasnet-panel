@@ -4,11 +4,13 @@
 package auth
 
 import (
+	cryptorand "crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -428,18 +430,5 @@ func (cryptoRand) Read(b []byte) (int, error) {
 
 // readCryptoRand is a variable to allow testing
 var readCryptoRand = func(b []byte) (int, error) {
-	return len(b), fillRandom(b)
-}
-
-func fillRandom(b []byte) error {
-	_, err := cryptoRandFill(b)
-	return err
-}
-
-// cryptoRandFill fills the byte slice with random data
-// Import crypto/rand for actual randomness
-var cryptoRandFill = func(b []byte) (int, error) {
-	// This will be filled by the init function in a separate file
-	// or by importing crypto/rand
-	return len(b), nil
+	return io.ReadFull(cryptorand.Reader, b)
 }

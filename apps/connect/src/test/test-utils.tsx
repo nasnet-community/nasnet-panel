@@ -14,10 +14,11 @@
  */
 
 import React, { type ReactElement, type ReactNode } from 'react';
-import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createMemoryHistory, createRootRoute, createRouter } from '@tanstack/react-router';
+import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 // Create a fresh QueryClient for each test to avoid state leaking between tests
 function createTestQueryClient(): QueryClient {

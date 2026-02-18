@@ -9,7 +9,7 @@
 
 import { memo } from 'react';
 import { Card, CardHeader, CardContent, Badge } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/primitives';
 import type { DnsLookupResult } from './DnsLookupTool.types';
 import { DnsResults } from './DnsResults';
 import { isErrorStatus } from './dnsLookup.utils';
@@ -63,7 +63,7 @@ export const DnsServerComparison = memo(function DnsServerComparison({
                     </Badge>
                   )}
                   {hasError && (
-                    <Badge variant="destructive">{result.status}</Badge>
+                    <Badge variant="error">{result.status}</Badge>
                   )}
                 </div>
               </CardHeader>

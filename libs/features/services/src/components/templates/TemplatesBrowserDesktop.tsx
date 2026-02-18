@@ -113,11 +113,11 @@ export function TemplatesBrowserDesktop({
                   : 'No service templates available'
               }
               action={
-                hasActiveFilters ? (
-                  <Button variant="outline" onClick={resetFilters}>
-                    Reset Filters
-                  </Button>
-                ) : undefined
+                hasActiveFilters ? {
+                  label: 'Reset Filters',
+                  onClick: resetFilters,
+                  variant: 'outline' as const,
+                } : undefined
               }
             />
           </div>
@@ -144,7 +144,7 @@ export function TemplatesBrowserDesktop({
                     updatedAt: template.updatedAt,
                   },
                   verified: template.isBuiltIn,
-                  tags: template.tags || [],
+                  tags: [...(template.tags || [])],
                 }}
                 actions={[
                   {

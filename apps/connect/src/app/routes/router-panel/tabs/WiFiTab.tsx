@@ -4,10 +4,13 @@
  * Dashboard Pro style layout with status hero, interface list, clients table, and security summary
  */
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { useWirelessInterfaces, useWirelessClients } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { Route } from '@/routes/router/$id/wifi/index';
+
 import {
   WifiStatusHero,
   WifiInterfaceList,

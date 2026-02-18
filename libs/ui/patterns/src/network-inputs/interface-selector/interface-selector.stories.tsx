@@ -7,13 +7,14 @@
  * @module @nasnet/ui/patterns/network-inputs/interface-selector
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
 import { InterfaceSelector } from './interface-selector';
 import { InterfaceSelectorDesktop } from './interface-selector-desktop';
 import { InterfaceSelectorMobile } from './interface-selector-mobile';
+
 import type { InterfaceSelectorProps, RouterInterface } from './interface-selector.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Mock interface data for stories.

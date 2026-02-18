@@ -10,9 +10,10 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/serviceinstance"
+	"backend/internal/vif/isolation"
+
 	"backend/internal/events"
 	"backend/internal/router"
-	"backend/internal/vif/isolation"
 )
 
 // PBREngine manages Policy-Based Routing (PBR) rules for device-to-service routing.
@@ -32,6 +33,7 @@ func NewPBREngine(
 	eventBus events.EventBus,
 	publisher *events.Publisher,
 ) *PBREngine {
+
 	return &PBREngine{
 		routerPort: routerPort,
 		client:     client,
@@ -69,6 +71,7 @@ func (p *PBREngine) AssignDeviceRouting(
 	routingMark string,
 	instanceID string,
 ) (*DeviceRoutingAssignment, error) {
+
 	result := &DeviceRoutingAssignment{
 		DeviceID:    deviceID,
 		MacAddress:  macAddress,
@@ -85,14 +88,14 @@ func (p *PBREngine) AssignDeviceRouting(
 	// Step 2: Remove old assignment if conflict exists
 	if existingRule != nil {
 		result.ConflictExists = true
-		if err := p.removeMangleRule(ctx, existingRule.MangleRuleID); err != nil {
-			result.Error = fmt.Errorf("failed to remove conflicting rule: %w", err)
+		if rmErr := p.removeMangleRule(ctx, existingRule.MangleRuleID); rmErr != nil {
+			result.Error = fmt.Errorf("failed to remove conflicting rule: %w", rmErr)
 			return result, result.Error
 		}
 
 		// Delete old DB record
-		if err := p.client.DeviceRouting.DeleteOneID(existingRule.ID).Exec(ctx); err != nil {
-			result.Error = fmt.Errorf("failed to delete old DB record: %w", err)
+		if delErr := p.client.DeviceRouting.DeleteOneID(existingRule.ID).Exec(ctx); delErr != nil {
+			result.Error = fmt.Errorf("failed to delete old DB record: %w", delErr)
 			return result, result.Error
 		}
 	}
@@ -117,7 +120,7 @@ func (p *PBREngine) AssignDeviceRouting(
 		Save(ctx)
 	if err != nil {
 		// Rollback: Remove the mangle rule we just created
-		_ = p.removeMangleRule(ctx, mangleRuleID)
+		_ = p.removeMangleRule(ctx, mangleRuleID) //nolint:errcheck // best-effort device routing assignment
 		result.Error = fmt.Errorf("failed to persist to database: %w", err)
 		return result, result.Error
 	}
@@ -131,7 +134,8 @@ func (p *PBREngine) AssignDeviceRouting(
 			events.PriorityNormal,
 			"pbr-engine",
 		)
-		_ = p.publisher.Publish(ctx, &event)
+		if err := p.publisher.Publish(ctx, &event); err != nil { //nolint:revive,staticcheck // intentional no-op
+		}
 	}
 
 	return result, nil
@@ -161,10 +165,10 @@ func (p *PBREngine) RemoveDeviceRouting(ctx context.Context, deviceID string) er
 	// Step 2: Remove kill switch rules if enabled (cleanup before removing routing)
 	if record.KillSwitchEnabled && record.KillSwitchRuleID != "" {
 		killSwitchManager := isolation.NewKillSwitchManager(p.routerPort, p.client, p.eventBus, p.publisher)
-		if err := killSwitchManager.Disable(ctx, record.ID); err != nil {
+		if ksErr := killSwitchManager.Disable(ctx, record.ID); ksErr != nil {
 			// Log error but don't fail - the routing removal should continue
 			// This ensures cleanup even if kill switch rules are already gone
-			fmt.Printf("warning: failed to disable kill switch: %v\n", err)
+			fmt.Printf("warning: failed to disable kill switch: %v\n", ksErr)
 		}
 	}
 
@@ -185,7 +189,8 @@ func (p *PBREngine) RemoveDeviceRouting(ctx context.Context, deviceID string) er
 			events.PriorityNormal,
 			"pbr-engine",
 		)
-		_ = p.publisher.Publish(ctx, &event)
+		if err := p.publisher.Publish(ctx, &event); err != nil { //nolint:revive,staticcheck // intentional no-op
+		}
 	}
 
 	return nil
@@ -203,22 +208,19 @@ func (p *PBREngine) BulkAssignRouting(
 		InstanceID  string
 	},
 ) []*DeviceRoutingAssignment {
+
 	results := make([]*DeviceRoutingAssignment, len(assignments))
 
 	for i, assignment := range assignments {
-		result, err := p.AssignDeviceRouting(
+		result, _ := p.AssignDeviceRouting( //nolint:errcheck // best-effort assignment
 			ctx,
 			assignment.DeviceID,
 			assignment.MacAddress,
 			assignment.RoutingMark,
 			assignment.InstanceID,
 		)
-		if err != nil {
-			// Error is already captured in result.Error
-			results[i] = result
-		} else {
-			results[i] = result
-		}
+		// Result is stored regardless of error (error is captured in result.Error)
+		results[i] = result
 	}
 
 	return results
@@ -257,38 +259,60 @@ func (p *PBREngine) ReconcileOnStartup(ctx context.Context) (*PBRReconcileResult
 		routerRulesByID[rule[".id"]] = rule
 	}
 
-	// Step 3: Handle missing rules (in DB but not on router)
-	for _, dbRecord := range dbRecords {
-		if _, exists := routerRulesByID[dbRecord.MangleRuleID]; !exists {
-			result.MissingRules++
-			// Recreate mangle rule on router
-			newRuleID, err := p.createMangleRule(
-				ctx,
-				dbRecord.DeviceID,
-				dbRecord.MACAddress,
-				dbRecord.RoutingMark,
-			)
-			if err != nil {
-				result.Errors = append(result.Errors, fmt.Sprintf("failed to recreate rule for device %s: %v", dbRecord.DeviceID, err))
-				continue
-			}
+	p.reconcileMissingRules(ctx, dbRecords, routerRulesByID, result)
+	p.reconcileOrphanedRules(ctx, routerRulesByID, dbRulesByID, result)
+	p.reconcileDeletedVIFCascade(ctx, dbRecords, result)
 
-			// Update DB with new mangle_rule_id
-			_, err = p.client.DeviceRouting.
-				UpdateOneID(dbRecord.ID).
-				SetMangleRuleID(newRuleID).
-				Save(ctx)
-			if err != nil {
-				result.Errors = append(result.Errors, fmt.Sprintf("failed to update DB for device %s: %v", dbRecord.DeviceID, err))
-				// Try to remove the rule we just created to avoid orphans
-				_ = p.removeMangleRule(ctx, newRuleID)
-			} else {
-				result.Recreated++
-			}
+	return result, nil
+}
+
+// reconcileMissingRules recreates rules that exist in DB but not on router.
+func (p *PBREngine) reconcileMissingRules(
+	ctx context.Context,
+	dbRecords []*ent.DeviceRouting,
+	routerRulesByID map[string]map[string]string,
+	result *PBRReconcileResult,
+) {
+
+	for _, dbRecord := range dbRecords {
+		if _, exists := routerRulesByID[dbRecord.MangleRuleID]; exists {
+			continue
+		}
+
+		result.MissingRules++
+		newRuleID, err := p.createMangleRule(
+			ctx,
+			dbRecord.DeviceID,
+			dbRecord.MACAddress,
+			dbRecord.RoutingMark,
+		)
+		if err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("failed to recreate rule for device %s: %v", dbRecord.DeviceID, err))
+			continue
+		}
+
+		_, err = p.client.DeviceRouting.
+			UpdateOneID(dbRecord.ID).
+			SetMangleRuleID(newRuleID).
+			Save(ctx)
+		if err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("failed to update DB for device %s: %v", dbRecord.DeviceID, err))
+			//nolint:errcheck // best-effort device routing assignment
+			_ = p.removeMangleRule(ctx, newRuleID)
+		} else {
+			result.Recreated++
 		}
 	}
+}
 
-	// Step 4: Handle orphaned rules (on router but not in DB)
+// reconcileOrphanedRules removes rules on router that have no matching DB record.
+func (p *PBREngine) reconcileOrphanedRules(
+	ctx context.Context,
+	routerRulesByID map[string]map[string]string,
+	dbRulesByID map[string]*ent.DeviceRouting,
+	result *PBRReconcileResult,
+) {
+
 	for ruleID := range routerRulesByID {
 		if _, exists := dbRulesByID[ruleID]; !exists {
 			result.OrphanedRules++
@@ -299,13 +323,20 @@ func (p *PBREngine) ReconcileOnStartup(ctx context.Context) (*PBRReconcileResult
 			}
 		}
 	}
+}
 
-	// Step 5: Handle deleted VIF cascade (rules referencing deleted service instances)
-	// Query service instances to check which ones still exist
+// reconcileDeletedVIFCascade removes rules referencing deleted service instances.
+func (p *PBREngine) reconcileDeletedVIFCascade(
+	ctx context.Context,
+	dbRecords []*ent.DeviceRouting,
+	result *PBRReconcileResult,
+) {
+
 	for _, dbRecord := range dbRecords {
 		exists, err := p.client.ServiceInstance.Query().
 			Where(serviceinstance.IDEQ(dbRecord.InstanceID)).
 			Exist(ctx)
+
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("failed to check instance %s: %v", dbRecord.InstanceID, err))
 			continue
@@ -313,12 +344,10 @@ func (p *PBREngine) ReconcileOnStartup(ctx context.Context) (*PBRReconcileResult
 
 		if !exists {
 			result.DeletedVIFCascade++
-			// Remove from router
 			if err := p.removeMangleRule(ctx, dbRecord.MangleRuleID); err != nil {
 				result.Errors = append(result.Errors, fmt.Sprintf("failed to remove rule for deleted VIF %s: %v", dbRecord.InstanceID, err))
 			}
 
-			// Remove from DB
 			if err := p.client.DeviceRouting.DeleteOneID(dbRecord.ID).Exec(ctx); err != nil {
 				result.Errors = append(result.Errors, fmt.Sprintf("failed to delete DB record for deleted VIF %s: %v", dbRecord.InstanceID, err))
 			} else {
@@ -326,8 +355,6 @@ func (p *PBREngine) ReconcileOnStartup(ctx context.Context) (*PBRReconcileResult
 			}
 		}
 	}
-
-	return result, nil
 }
 
 // PBRReconcileResult contains statistics from a PBR reconciliation operation.
@@ -348,6 +375,7 @@ func (p *PBREngine) createMangleRule(
 	macAddress string,
 	routingMark string,
 ) (string, error) {
+
 	cmd := router.Command{
 		Path:   "/ip/firewall/mangle",
 		Action: "add",
@@ -367,7 +395,7 @@ func (p *PBREngine) createMangleRule(
 	}
 
 	if !result.Success {
-		return "", fmt.Errorf("mangle rule creation failed: %v", result.Error)
+		return "", fmt.Errorf("mangle rule creation failed: %w", result.Error)
 	}
 
 	if result.ID == "" {
@@ -396,7 +424,7 @@ func (p *PBREngine) removeMangleRule(ctx context.Context, mangleRuleID string) e
 	}
 
 	if !result.Success {
-		return fmt.Errorf("mangle rule removal failed: %v", result.Error)
+		return fmt.Errorf("mangle rule removal failed: %w", result.Error)
 	}
 
 	return nil
@@ -411,7 +439,7 @@ func (p *PBREngine) findExistingRule(ctx context.Context, deviceID string) (*ent
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, nil // No conflict
+			return nil, nil //nolint:nilnil // nil device routing is valid not-found
 		}
 		return nil, err
 	}

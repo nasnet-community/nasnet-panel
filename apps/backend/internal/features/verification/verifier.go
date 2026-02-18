@@ -8,8 +8,9 @@ import (
 	"os"
 	"time"
 
+	"backend/internal/registry"
+
 	"backend/internal/events"
-	"backend/pkg/registry"
 )
 
 // ErrGPGNotImplemented is returned when GPG verification is requested but not available.
@@ -37,7 +38,7 @@ func (v *Verifier) ParseChecksumsFile(r io.Reader) ([]ChecksumEntry, error) {
 }
 
 // VerifyArchive verifies that a downloaded archive matches the expected checksum.
-func (v *Verifier) VerifyArchive(ctx context.Context, archivePath string, checksumsPath string, checksumsURL string, spec *VerificationSpec) (*VerificationResult, error) {
+func (v *Verifier) VerifyArchive(ctx context.Context, archivePath, checksumsPath, checksumsURL string, spec *Spec) (*Result, error) {
 	checksumsFile, err := os.Open(checksumsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open checksums file: %w", err)
@@ -77,7 +78,7 @@ func (v *Verifier) VerifyArchive(ctx context.Context, archivePath string, checks
 			SuggestedAction: "Re-download the archive from the official source",
 		}
 
-		return &VerificationResult{
+		return &Result{
 			Success:      false,
 			ArchiveHash:  actualHash,
 			Error:        verifyErr,
@@ -94,7 +95,7 @@ func (v *Verifier) VerifyArchive(ctx context.Context, archivePath string, checks
 		}
 	}
 
-	return &VerificationResult{
+	return &Result{
 		Success:      true,
 		ArchiveHash:  actualHash,
 		GPGVerified:  gpgVerified,
@@ -110,7 +111,7 @@ func (v *Verifier) ComputeBinaryHash(binaryPath string) (string, error) {
 }
 
 // Reverify performs a runtime integrity check on an installed feature binary.
-func (v *Verifier) Reverify(ctx context.Context, binaryPath string, storedBinaryHash string, featureID string, instanceID string, routerID string, version string, archiveHash string, checksumsURL string) (bool, error) {
+func (v *Verifier) Reverify(ctx context.Context, binaryPath, storedBinaryHash, featureID, instanceID, routerID, version, archiveHash, checksumsURL string) (bool, error) {
 	currentHash, err := v.ComputeBinaryHash(binaryPath)
 	if err != nil {
 		return false, fmt.Errorf("failed to compute current binary hash: %w", err)
@@ -119,7 +120,7 @@ func (v *Verifier) Reverify(ctx context.Context, binaryPath string, storedBinary
 	if !registry.EqualChecksums(storedBinaryHash, currentHash) {
 		detectedAt := time.Now().Format(time.RFC3339)
 		if v.publisher != nil {
-			_ = v.publisher.PublishBinaryIntegrityFailed(
+			_ = v.publisher.PublishBinaryIntegrityFailed( //nolint:errcheck // best-effort event publish
 				ctx,
 				featureID,
 				instanceID,
@@ -141,7 +142,7 @@ func (v *Verifier) Reverify(ctx context.Context, binaryPath string, storedBinary
 }
 
 // StartupIntegrityCheck performs a batch integrity check on all installed features.
-func (v *Verifier) StartupIntegrityCheck(ctx context.Context, instances []InstanceVerificationInfo) (verified int, failed int, err error) {
+func (v *Verifier) StartupIntegrityCheck(ctx context.Context, instances []InstanceVerificationInfo) (verified int, failed int, err error) { //nolint:gocritic // paramTypeCombine produces less readable code
 	if len(instances) == 0 {
 		return 0, 0, nil
 	}
@@ -157,7 +158,7 @@ func (v *Verifier) StartupIntegrityCheck(ctx context.Context, instances []Instan
 	}
 
 	if v.publisher != nil {
-		_ = v.publisher.PublishBinaryIntegrityCheckStarted(
+		_ = v.publisher.PublishBinaryIntegrityCheckStarted( //nolint:errcheck // best-effort event publish
 			ctx,
 			routerID,
 			len(instances),

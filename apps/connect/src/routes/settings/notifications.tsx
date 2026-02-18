@@ -4,6 +4,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { NotificationSettingsPage } from '@nasnet/features/alerts';
 
 export const Route = createFileRoute('/settings/notifications')({

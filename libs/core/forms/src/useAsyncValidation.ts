@@ -8,8 +8,9 @@
  */
 
 import { useCallback, useRef, useState } from 'react';
-import type { ZodSchema } from 'zod';
+
 import type { UseAsyncValidationOptions, AsyncValidationResult } from './types';
+import type { ZodSchema } from 'zod';
 
 /**
  * Custom hook for asynchronous field validation with debouncing.

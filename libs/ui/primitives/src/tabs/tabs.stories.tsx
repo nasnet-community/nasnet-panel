@@ -1,12 +1,14 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { Settings, User, Bell, Lock } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 import { Button } from '../button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../card';
 import { Input } from '../input';
 import { Label } from '../label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../card';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof Tabs> = {
   title: 'Primitives/Tabs',

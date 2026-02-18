@@ -11,14 +11,15 @@
  * @see NAS-7.9: Implement Firewall Logging
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 // import { axe, toHaveNoViolations } from 'vitest-axe/matchers';
 
 import { FirewallLogFilters } from './FirewallLogFilters';
 import { FirewallLogFiltersDesktop } from './FirewallLogFiltersDesktop';
 import { FirewallLogFiltersMobile } from './FirewallLogFiltersMobile';
+
 import type { FirewallLogFilterState } from './firewall-log-filters.types';
 
 // expect.extend(toHaveNoViolations);

@@ -7,9 +7,11 @@
  * @module @nasnet/ui/patterns/firewall-log-viewer
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { FirewallLogViewer } from './FirewallLogViewer';
 import type { FirewallLogEntry } from '@nasnet/core/types';
+
+import { FirewallLogViewer } from './FirewallLogViewer';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock data generators
 const createMockLog = (

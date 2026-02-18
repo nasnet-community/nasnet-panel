@@ -57,11 +57,11 @@ const QUALITY_THRESHOLDS = {
 /**
  * Badge variant mappings for quality levels
  */
-const QUALITY_VARIANTS: Record<QualityLevel, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const QUALITY_VARIANTS: Record<QualityLevel, 'default' | 'secondary' | 'error' | 'outline'> = {
   excellent: 'default',
   good: 'default',
   moderate: 'secondary',
-  poor: 'destructive',
+  poor: 'error',
   unknown: 'outline',
 };
 
@@ -209,4 +209,3 @@ export function useConnectionQuality() {
   };
 }
 
-export type { ConnectionQualityBadgeProps, QualityLevel };

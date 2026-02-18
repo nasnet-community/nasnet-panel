@@ -11,239 +11,70 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-// ParseEvent parses a message back into a typed event.
+// eventFactory is a function that creates a new empty event for unmarshaling.
+type eventFactory func() Event
+
+// eventFactories maps event type strings to factory functions that create the appropriate event.
+var eventFactories = map[string]eventFactory{
+	EventTypeRouterStatusChanged:         func() Event { return &RouterStatusChangedEvent{} },
+	EventTypeResourceUpdated:             func() Event { return &ResourceUpdatedEvent{} },
+	EventTypeResourceCreated:             func() Event { return &ResourceUpdatedEvent{} },
+	EventTypeResourceDeleted:             func() Event { return &ResourceUpdatedEvent{} },
+	EventTypeFeatureCrashed:              func() Event { return &FeatureCrashedEvent{} },
+	EventTypeConfigApplyProgress:         func() Event { return &ConfigApplyProgressEvent{} },
+	EventTypeAuth:                        func() Event { return &AuthEvent{} },
+	EventTypeAuthSessionRevoked:          func() Event { return &AuthEvent{} },
+	EventTypeAuthPasswordChanged:         func() Event { return &AuthEvent{} },
+	EventTypeFeatureInstalled:            func() Event { return &FeatureInstalledEvent{} },
+	EventTypeRouterConnected:             func() Event { return &RouterConnectedEvent{} },
+	EventTypeRouterDisconnected:          func() Event { return &RouterDisconnectedEvent{} },
+	EventTypeMetricUpdated:               func() Event { return &MetricUpdatedEvent{} },
+	EventTypeLogAppended:                 func() Event { return &LogAppendedEvent{} },
+	EventTypeConfigApplied:               func() Event { return &ConfigAppliedEvent{} },
+	EventTypeDeviceScanStarted:           func() Event { return &DeviceScanStartedEvent{} },
+	EventTypeDeviceScanProgress:          func() Event { return &DeviceScanProgressEvent{} },
+	EventTypeDeviceScanCompleted:         func() Event { return &DeviceScanCompletedEvent{} },
+	EventTypeDeviceScanFailed:            func() Event { return &DeviceScanFailedEvent{} },
+	EventTypeDeviceScanCancelled:         func() Event { return &DeviceScanCancelledEvent{} },
+	EventTypeStorageMounted:              func() Event { return &StorageMountedEvent{} },
+	EventTypeStorageUnmounted:            func() Event { return &StorageUnmountedEvent{} },
+	EventTypeStorageSpaceThreshold:       func() Event { return &StorageSpaceThresholdEvent{} },
+	EventTypeStorageConfigChanged:        func() Event { return &StorageConfigChangedEvent{} },
+	EventTypeStorageUnavailable:          func() Event { return &StorageUnavailableEvent{} },
+	EventTypeBinaryVerified:              func() Event { return &BinaryVerifiedEvent{} },
+	EventTypeBinaryVerificationFailed:    func() Event { return &BinaryVerificationFailedEvent{} },
+	EventTypeBinaryIntegrityFailed:       func() Event { return &BinaryIntegrityFailedEvent{} },
+	EventTypeBinaryIntegrityCheckStarted: func() Event { return &BinaryIntegrityCheckStartedEvent{} },
+	"alert.throttle.summary":             func() Event { return &BaseEvent{} },
+	"alert.storm.detected":               func() Event { return &BaseEvent{} },
+	"alert.storm.ended":                  func() Event { return &BaseEvent{} },
+	EventTypeVLANPoolWarning:             func() Event { return &VLANPoolWarningEvent{} },
+	EventTypeIsolationViolation:          func() Event { return &IsolationViolationEvent{} },
+	EventTypeResourceWarning:             func() Event { return &ResourceWarningEvent{} },
+	EventTypeResourceOOM:                 func() Event { return &ResourceOOMEvent{} },
+	EventTypeResourceLimitsChanged:       func() Event { return &ResourceLimitsChangedEvent{} },
+}
+
+// ParseEvent parses a message back into a typed event using a map-based dispatch.
 func ParseEvent(msg *message.Message) (Event, error) {
 	eventType := msg.Metadata.Get("type")
 	if eventType == "" {
 		return nil, fmt.Errorf("message has no event type in metadata")
 	}
 
-	var event Event
-	switch eventType {
-	case EventTypeRouterStatusChanged:
-		var e RouterStatusChangedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterStatusChangedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeResourceUpdated, EventTypeResourceCreated, EventTypeResourceDeleted:
-		var e ResourceUpdatedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ResourceUpdatedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeFeatureCrashed:
-		var e FeatureCrashedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal FeatureCrashedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeConfigApplyProgress:
-		var e ConfigApplyProgressEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ConfigApplyProgressEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeAuth, EventTypeAuthSessionRevoked, EventTypeAuthPasswordChanged:
-		var e AuthEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal AuthEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeFeatureInstalled:
-		var e FeatureInstalledEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal FeatureInstalledEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeRouterConnected:
-		var e RouterConnectedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterConnectedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeRouterDisconnected:
-		var e RouterDisconnectedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal RouterDisconnectedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeMetricUpdated:
-		var e MetricUpdatedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal MetricUpdatedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeLogAppended:
-		var e LogAppendedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal LogAppendedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeConfigApplied:
-		var e ConfigAppliedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ConfigAppliedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanStarted:
-		var e DeviceScanStartedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanStartedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanProgress:
-		var e DeviceScanProgressEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanProgressEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanCompleted:
-		var e DeviceScanCompletedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanCompletedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanFailed:
-		var e DeviceScanFailedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanFailedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeDeviceScanCancelled:
-		var e DeviceScanCancelledEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal DeviceScanCancelledEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeStorageMounted:
-		var e StorageMountedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal StorageMountedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeStorageUnmounted:
-		var e StorageUnmountedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal StorageUnmountedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeStorageSpaceThreshold:
-		var e StorageSpaceThresholdEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal StorageSpaceThresholdEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeStorageConfigChanged:
-		var e StorageConfigChangedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal StorageConfigChangedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeStorageUnavailable:
-		var e StorageUnavailableEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal StorageUnavailableEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeBinaryVerified:
-		var e BinaryVerifiedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal BinaryVerifiedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeBinaryVerificationFailed:
-		var e BinaryVerificationFailedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal BinaryVerificationFailedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeBinaryIntegrityFailed:
-		var e BinaryIntegrityFailedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal BinaryIntegrityFailedEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeBinaryIntegrityCheckStarted:
-		var e BinaryIntegrityCheckStartedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal BinaryIntegrityCheckStartedEvent: %w", err)
-		}
-		event = &e
-
-	case "alert.throttle.summary", "alert.storm.detected", "alert.storm.ended":
-		var e BaseEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal alert event: %w", err)
-		}
-		event = &e
-
-	case EventTypeVLANPoolWarning:
-		var e VLANPoolWarningEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal VLANPoolWarningEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeIsolationViolation:
-		var e IsolationViolationEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal IsolationViolationEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeResourceWarning:
-		var e ResourceWarningEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ResourceWarningEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeResourceOOM:
-		var e ResourceOOMEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ResourceOOMEvent: %w", err)
-		}
-		event = &e
-
-	case EventTypeResourceLimitsChanged:
-		var e ResourceLimitsChangedEvent
-		if err := json.Unmarshal(msg.Payload, &e); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal ResourceLimitsChangedEvent: %w", err)
-		}
-		event = &e
-
-	default:
+	factory, ok := eventFactories[eventType]
+	if !ok {
 		log.Printf("[EVENTS] Unknown event type: %s", eventType)
 		var e BaseEvent
 		if err := json.Unmarshal(msg.Payload, &e); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal BaseEvent: %w", err)
 		}
 		return &e, nil
+	}
+
+	event := factory()
+	if err := json.Unmarshal(msg.Payload, event); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal %s: %w", eventType, err)
 	}
 
 	return event, nil

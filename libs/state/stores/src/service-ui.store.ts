@@ -7,6 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 import type { UpdateStage } from '@nasnet/api-client/queries';
 
 /**
@@ -222,7 +223,7 @@ export const useStatusFilter = () =>
 export const useSelectedServices = () =>
   useServiceUIStore((state) => state.selectedServices);
 
-export const useWizardDraft = () =>
+export const useServiceWizardDraft = () =>
   useServiceUIStore((state) => state.wizardDraft);
 
 export const useWizardStep = () =>

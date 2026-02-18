@@ -26,6 +26,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { ConnectionTrackingSettingsDesktop } from './ConnectionTrackingSettingsDesktop';
 import { ConnectionTrackingSettingsMobile } from './ConnectionTrackingSettingsMobile';
+
 import type { UseConnectionTrackingSettingsReturn } from './use-connection-tracking-settings';
 
 export interface ConnectionTrackingSettingsProps {

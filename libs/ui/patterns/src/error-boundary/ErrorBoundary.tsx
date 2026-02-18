@@ -100,7 +100,7 @@ export class ErrorBoundary extends React.Component<
   /**
    * Log the error and call the onError callback
    */
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // Update state with errorInfo
     this.setState({ errorInfo });
 
@@ -119,7 +119,7 @@ export class ErrorBoundary extends React.Component<
   /**
    * Reset when resetKey changes
    */
-  componentDidUpdate(prevProps: ErrorBoundaryProps): void {
+  override componentDidUpdate(prevProps: ErrorBoundaryProps): void {
     if (
       this.state.hasError &&
       prevProps.resetKey !== this.props.resetKey
@@ -140,7 +140,7 @@ export class ErrorBoundary extends React.Component<
     });
   };
 
-  render(): React.ReactNode {
+  override render(): React.ReactNode {
     const { hasError, error, errorInfo } = this.state;
     const { children, fallback } = this.props;
 

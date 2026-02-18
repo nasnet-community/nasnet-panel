@@ -9,8 +9,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { PreFlightDialog } from './PreFlightDialog';
-import type { InsufficientResourcesError } from './types';
 import { usePreFlightDialog } from './usePreFlightDialog';
+
+import type { InsufficientResourcesError } from './types';
 
 describe('PreFlightDialog', () => {
   const mockError: InsufficientResourcesError = {

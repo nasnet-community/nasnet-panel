@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-// ConnectionState represents the current state of a router connection.
-type ConnectionState int
+// State represents the current state of a router connection.
+type State int
 
 const (
 	// StateDisconnected - No active connection to the router.
-	StateDisconnected ConnectionState = iota
+	StateDisconnected State = iota
 
 	// StateConnecting - Connection attempt in progress.
 	StateConnecting
@@ -28,44 +28,59 @@ const (
 	StateError
 )
 
+// String representation constants for connection states.
+const (
+	stateStrDisconnected = "disconnected"
+	stateStrConnecting   = "connecting"
+	stateStrConnected    = "connected"
+	stateStrReconnecting = "reconnecting"
+	stateStrError        = "error"
+	stateStrUnknown      = "unknown"
+
+	graphqlDisconnected = "DISCONNECTED"
+	graphqlConnecting   = "CONNECTING"
+	graphqlConnected    = "CONNECTED"
+	graphqlError        = "ERROR"
+)
+
 // String returns the string representation of the connection state.
-func (s ConnectionState) String() string {
+func (s State) String() string {
 	switch s {
 	case StateDisconnected:
-		return "disconnected"
+		return stateStrDisconnected
 	case StateConnecting:
-		return "connecting"
+		return stateStrConnecting
 	case StateConnected:
-		return "connected"
+		return stateStrConnected
 	case StateReconnecting:
-		return "reconnecting"
+		return stateStrReconnecting
 	case StateError:
-		return "error"
+		return stateStrError
 	default:
-		return "unknown"
+		return stateStrUnknown
 	}
 }
 
 // ToGraphQL returns the GraphQL enum value for the connection state.
-func (s ConnectionState) ToGraphQL() string {
+func (s State) ToGraphQL() string {
 	switch s {
 	case StateDisconnected:
-		return "DISCONNECTED"
+		return graphqlDisconnected
 	case StateConnecting:
-		return "CONNECTING"
+		return graphqlConnecting
 	case StateConnected:
-		return "CONNECTED"
+		return graphqlConnected
 	case StateReconnecting:
-		return "CONNECTING" // Map reconnecting to CONNECTING in GraphQL
+		return graphqlConnecting // Map reconnecting to CONNECTING in GraphQL
 	case StateError:
-		return "ERROR"
+		return graphqlError
 	default:
-		return "DISCONNECTED"
+		return graphqlDisconnected
 	}
 }
 
-// ParseConnectionState parses a string into a ConnectionState.
-func ParseConnectionState(s string) (ConnectionState, error) {
+// ParseState parses a string into a State.
+func ParseState(s string) (State, error) {
 	switch s {
 	case "disconnected", "DISCONNECTED":
 		return StateDisconnected, nil
@@ -132,7 +147,7 @@ func (r DisconnectReason) String() string {
 
 // ShouldAutoReconnect returns true if this disconnect reason should trigger automatic reconnection.
 func (r DisconnectReason) ShouldAutoReconnect() bool {
-	switch r {
+	switch r { //nolint:exhaustive // only network/timeout reasons trigger auto-reconnect, all others return false via default
 	case DisconnectReasonNetworkFailure, DisconnectReasonTimeout:
 		return true
 	case DisconnectReasonManual, DisconnectReasonAuthFailure, DisconnectReasonShutdown:
@@ -149,7 +164,7 @@ var ErrInvalidStateTransition = errors.New("invalid state transition")
 
 // validTransitions defines the valid state transitions.
 // Key: current state, Value: slice of valid next states
-var validTransitions = map[ConnectionState][]ConnectionState{
+var validTransitions = map[State][]State{
 	StateDisconnected: {StateConnecting},
 	StateConnecting:   {StateConnected, StateError, StateDisconnected},
 	StateConnected:    {StateReconnecting, StateDisconnected},
@@ -158,7 +173,7 @@ var validTransitions = map[ConnectionState][]ConnectionState{
 }
 
 // CanTransitionTo checks if a transition from current to next state is valid.
-func (s ConnectionState) CanTransitionTo(next ConnectionState) bool {
+func (s State) CanTransitionTo(next State) bool {
 	validNext, ok := validTransitions[s]
 	if !ok {
 		return false
@@ -171,10 +186,10 @@ func (s ConnectionState) CanTransitionTo(next ConnectionState) bool {
 	return false
 }
 
-// ConnectionStatus holds the complete status of a connection.
-type ConnectionStatus struct {
+// Status holds the complete status of a connection.
+type Status struct {
 	// State is the current connection state.
-	State ConnectionState `json:"state"`
+	State State `json:"state"`
 
 	// Protocol is the protocol currently in use (or last used).
 	Protocol string `json:"protocol,omitempty"`
@@ -221,23 +236,23 @@ type ConnectionStatus struct {
 
 // Uptime returns the duration since the connection was established.
 // Returns 0 if not connected.
-func (cs *ConnectionStatus) Uptime() time.Duration {
+func (cs *Status) Uptime() time.Duration {
 	if cs.State != StateConnected || cs.ConnectedAt == nil {
 		return 0
 	}
 	return time.Since(*cs.ConnectedAt)
 }
 
-// NewConnectionStatus creates a new ConnectionStatus in the disconnected state.
-func NewConnectionStatus() *ConnectionStatus {
-	return &ConnectionStatus{
+// NewStatus creates a new Status in the disconnected state.
+func NewStatus() *Status {
+	return &Status{
 		State: StateDisconnected,
 	}
 }
 
 // SetState transitions the connection to a new state.
 // Returns an error if the transition is invalid.
-func (cs *ConnectionStatus) SetState(newState ConnectionState) error {
+func (cs *Status) SetState(newState State) error {
 	if !cs.State.CanTransitionTo(newState) {
 		return fmt.Errorf("%w: %s -> %s", ErrInvalidStateTransition, cs.State, newState)
 	}
@@ -246,7 +261,7 @@ func (cs *ConnectionStatus) SetState(newState ConnectionState) error {
 }
 
 // SetConnected transitions to connected state and records the connection time.
-func (cs *ConnectionStatus) SetConnected(protocol, version string) error {
+func (cs *Status) SetConnected(protocol, version string) error {
 	if err := cs.SetState(StateConnected); err != nil {
 		return err
 	}
@@ -264,7 +279,7 @@ func (cs *ConnectionStatus) SetConnected(protocol, version string) error {
 }
 
 // SetDisconnected transitions to disconnected state.
-func (cs *ConnectionStatus) SetDisconnected(reason DisconnectReason) error {
+func (cs *Status) SetDisconnected(reason DisconnectReason) error {
 	if err := cs.SetState(StateDisconnected); err != nil {
 		return err
 	}
@@ -276,7 +291,7 @@ func (cs *ConnectionStatus) SetDisconnected(reason DisconnectReason) error {
 }
 
 // SetReconnecting transitions to reconnecting state.
-func (cs *ConnectionStatus) SetReconnecting(attempt int, nextAttemptAt time.Time) error {
+func (cs *Status) SetReconnecting(attempt int, nextAttemptAt time.Time) error {
 	if err := cs.SetState(StateReconnecting); err != nil {
 		return err
 	}
@@ -286,7 +301,7 @@ func (cs *ConnectionStatus) SetReconnecting(attempt int, nextAttemptAt time.Time
 }
 
 // SetError transitions to error state with an error message.
-func (cs *ConnectionStatus) SetError(errMsg string) error {
+func (cs *Status) SetError(errMsg string) error {
 	if err := cs.SetState(StateError); err != nil {
 		return err
 	}
@@ -297,12 +312,12 @@ func (cs *ConnectionStatus) SetError(errMsg string) error {
 }
 
 // SetConnecting transitions to connecting state.
-func (cs *ConnectionStatus) SetConnecting() error {
+func (cs *Status) SetConnecting() error {
 	return cs.SetState(StateConnecting)
 }
 
 // RecordHealthCheck records the result of a health check.
-func (cs *ConnectionStatus) RecordHealthCheck(passed bool) {
+func (cs *Status) RecordHealthCheck(passed bool) {
 	now := time.Now()
 	cs.LastHealthCheck = &now
 	if passed {

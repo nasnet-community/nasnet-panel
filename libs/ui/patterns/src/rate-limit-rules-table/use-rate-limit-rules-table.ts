@@ -6,13 +6,15 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useConnectionStore } from '@nasnet/state/stores';
+
 import {
   useRateLimitRules,
   useDeleteRateLimitRule,
   useToggleRateLimitRule,
-} from '@nasnet/api-client/queries/firewall';
+} from '@nasnet/api-client/queries';
 import type { RateLimitRule } from '@nasnet/core/types';
+import { useConnectionStore } from '@nasnet/state/stores';
+
 import type { RateLimitRulesTableProps } from './types';
 
 /**

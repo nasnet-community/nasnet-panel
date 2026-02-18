@@ -5,8 +5,10 @@
  */
 
 import * as React from 'react';
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { ErrorBoundary } from './ErrorBoundary';
 
 // Component that throws an error

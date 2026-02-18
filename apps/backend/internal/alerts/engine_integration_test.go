@@ -5,14 +5,16 @@ import (
 	"testing"
 	"time"
 
-	"backend/generated/ent"
-	"backend/generated/ent/enttest"
-	"backend/generated/ent/alertrule"
-	"backend/internal/events"
-	"backend/internal/notifications"
 	"go.uber.org/zap/zaptest"
 
-	_ "github.com/mattn/go-sqlite3"
+	"backend/generated/ent/alert"
+	"backend/generated/ent/alertrule"
+	"backend/generated/ent/enttest"
+	"backend/internal/notifications"
+
+	"backend/internal/events"
+
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // TestEngineStart verifies that the engine starts correctly and subscribes to events.
@@ -124,7 +126,7 @@ func TestEventTriggersAlert(t *testing.T) {
 
 	// Verify alert was created
 	alerts, err := client.Alert.Query().
-		Where(ent.Alert.RuleID(rule.ID)).
+		Where(alert.RuleID(rule.ID)).
 		All(ctx)
 	if err != nil {
 		t.Fatalf("Failed to query alerts: %v", err)
@@ -311,7 +313,7 @@ func TestThrottlingIntegration(t *testing.T) {
 
 	// Verify only maxAlerts (2) were created
 	alerts, err := client.Alert.Query().
-		Where(ent.Alert.RuleID(rule.ID)).
+		Where(alert.RuleID(rule.ID)).
 		All(ctx)
 	if err != nil {
 		t.Fatalf("Failed to query alerts: %v", err)

@@ -16,9 +16,11 @@
  */
 
 import { useState } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
-import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
+
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
+import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
 import { useToast } from '@nasnet/ui/primitives';
 
 /**

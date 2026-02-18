@@ -4,22 +4,21 @@
 package troubleshoot_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"backend/generated/graphql"
+	"backend/graph"
 	"backend/graph/resolver"
-	"backend/internal/router"
 	"backend/internal/troubleshoot"
+
+	"backend/internal/router"
 )
 
 // Integration tests for Troubleshoot GraphQL API
@@ -35,7 +34,7 @@ func setupTestServer(t *testing.T) *httptest.Server {
 	svc := troubleshoot.NewService(mockPort)
 
 	// Create resolver
-	resolv := resolver.NewResolverWithConfig(resolver.ResolverConfig{
+	resolv := resolver.NewResolverWithConfig(resolver.Config{
 		TroubleshootService: svc,
 	})
 

@@ -7,18 +7,19 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import * as React from 'react';
 import { Shield, AlertTriangle } from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
+
+import { usePlatform } from '@nasnet/ui/layouts';
+import { cn, Badge } from '@nasnet/ui/primitives';
+
 import { SortableListDesktop } from '../components/SortableListDesktop';
 import { SortableListMobile } from '../components/SortableListMobile';
-import { usePlatform } from '@nasnet/ui/layouts';
+
+import type { ContextMenuActions } from '../components/SortableListDesktop';
 import type {
   SortableItemData,
   ReorderEvent,
   SortableItemRenderOptions,
-  ContextMenuActions,
 } from '../types';
 
 // ============================================================================
@@ -162,7 +163,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
 
   // Context menu actions for desktop
   const actions: ContextMenuActions<FirewallRule> = {
-    onMoveToTop: (rule) => {
+    onMoveToTop: (rule: FirewallRule) => {
       // Find current index and create reorder event
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex > 0) {
@@ -177,7 +178,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
         });
       }
     },
-    onMoveUp: (rule) => {
+    onMoveUp: (rule: FirewallRule) => {
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex > 0) {
         const newRules = [...rules];
@@ -191,7 +192,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
         });
       }
     },
-    onMoveDown: (rule) => {
+    onMoveDown: (rule: FirewallRule) => {
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex < rules.length - 1) {
         const newRules = [...rules];
@@ -205,7 +206,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
         });
       }
     },
-    onMoveToBottom: (rule) => {
+    onMoveToBottom: (rule: FirewallRule) => {
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex < rules.length - 1) {
         const newRules = [...rules];

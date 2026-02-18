@@ -3,13 +3,16 @@
  * Dashboard Pro style - Compact list view for interfaces
  */
 
-import { NetworkInterface } from '@nasnet/core/types';
-import { useInterfaceTraffic } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
-import { formatBytes } from '@nasnet/core/utils';
-import { InterfaceTypeIcon } from './InterfaceTypeIcon';
 import { ChevronRight, ArrowDown, ArrowUp } from 'lucide-react';
+
+import { useInterfaceTraffic } from '@nasnet/api-client/queries';
+import { type NetworkInterface } from '@nasnet/core/types';
+import { formatBytes } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
+
 import { cn } from '@/lib/utils';
+
+import { InterfaceTypeIcon } from './InterfaceTypeIcon';
 
 interface InterfaceCompactListProps {
   interfaces: NetworkInterface[];

@@ -10,18 +10,18 @@
 
 import { ChevronRight, Shield, Trash2, Clock } from 'lucide-react';
 
-import { Card } from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
 import {
+  Card,
+  Badge,
+  Button,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  ScrollArea,
+  cn,
 } from '@nasnet/ui/primitives';
-import { ScrollArea } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/core/utils';
 
 import type { AddressListManagerProps, AddressList, AddressListEntry } from './types';
 import type { UseAddressListManagerStateReturn } from './useAddressListManagerState';

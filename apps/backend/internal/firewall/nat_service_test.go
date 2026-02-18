@@ -5,7 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
+
 	"backend/internal/router"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -15,15 +16,16 @@ import (
 // ============================================
 // TEST FIXTURES
 // ============================================
+// Note: MockRouterPort is defined in address_list_service_test.go
 
 func createMockNATData(id, chain, action string) map[string]string {
 	return map[string]string{
-		".id":     id,
-		"chain":   chain,
-		"action":  action,
+		".id":      id,
+		"chain":    chain,
+		"action":   action,
 		"disabled": "false",
-		"bytes":   "1024",
-		"packets": "10",
+		"bytes":    "1024",
+		"packets":  "10",
 	}
 }
 
@@ -53,7 +55,7 @@ func createMockPortForwardData(ulid, name string) map[string]string {
 func TestGetNatRules(t *testing.T) {
 	t.Run("should query all NAT rules", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "print" {
 					return &router.CommandResult{
 						Success: true,
@@ -79,7 +81,7 @@ func TestGetNatRules(t *testing.T) {
 
 	t.Run("should filter by chain", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Args["chain"] == "dstnat" {
 					return &router.CommandResult{
 						Success: true,
@@ -103,7 +105,7 @@ func TestGetNatRules(t *testing.T) {
 
 	t.Run("should handle empty result", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				return &router.CommandResult{
 					Success: true,
 					Data:    []map[string]string{},
@@ -120,7 +122,7 @@ func TestGetNatRules(t *testing.T) {
 
 	t.Run("should handle execution error", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				return nil, assert.AnError
 			},
 		}
@@ -143,7 +145,7 @@ func TestGetPortForwards(t *testing.T) {
 		ulid2 := "01ARZ3NDEKTSV4RRFFQ69G5FAW"
 
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Args["chain"] == "dstnat" {
 					return &router.CommandResult{
 						Success: true,
@@ -172,11 +174,11 @@ func TestGetPortForwards(t *testing.T) {
 
 	t.Run("should filter out non-portforward rules", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				return &router.CommandResult{
 					Success: true,
 					Data: []map[string]string{
-						createMockNATData("*1", "dstnat", "dst-nat"), // Regular NAT rule
+						createMockNATData("*1", "dstnat", "dst-nat"),  // Regular NAT rule
 						createMockNATData("*2", "dstnat", "redirect"), // Redirect rule
 					},
 				}, nil
@@ -198,7 +200,7 @@ func TestGetPortForwards(t *testing.T) {
 func TestCreatePortForward(t *testing.T) {
 	t.Run("should create both NAT and filter rules", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "add" {
 					return &router.CommandResult{Success: true, ID: "*1"}, nil
 				}
@@ -231,7 +233,7 @@ func TestCreatePortForward(t *testing.T) {
 	t.Run("should use custom internal port", func(t *testing.T) {
 		internalPort := 8080
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Args["to-ports"] == "8080" {
 					return &router.CommandResult{Success: true, ID: "*1"}, nil
 				}
@@ -261,7 +263,7 @@ func TestCreatePortForward(t *testing.T) {
 		natRuleDeleted := false
 
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "add" {
 					natRuleCreated = true
 					return &router.CommandResult{Success: true, ID: "*1"}, nil
@@ -304,7 +306,7 @@ func TestDeletePortForward(t *testing.T) {
 		comment := "portforward:" + ulid + " Web Server"
 
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "print" {
 					return &router.CommandResult{
 						Success: true,
@@ -345,7 +347,7 @@ func TestDeletePortForward(t *testing.T) {
 func TestCreateMasqueradeRule(t *testing.T) {
 	t.Run("should create masquerade rule", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "add" &&
 					cmd.Args["action"] == "masquerade" && cmd.Args["out-interface"] == "ether1" {
 					return &router.CommandResult{Success: true, ID: "*1"}, nil
@@ -385,7 +387,7 @@ func TestCreateMasqueradeRule(t *testing.T) {
 func TestDeleteNatRule(t *testing.T) {
 	t.Run("should delete NAT rule by ID", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				if cmd.Path == "/ip/firewall/nat" && cmd.Action == "remove" && cmd.ID == "*1" {
 					return &router.CommandResult{Success: true}, nil
 				}
@@ -401,7 +403,7 @@ func TestDeleteNatRule(t *testing.T) {
 
 	t.Run("should return error if deletion fails", func(t *testing.T) {
 		mockPort := &MockRouterPort{
-			executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+			executeFunc: func(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 				return &router.CommandResult{Success: false}, errors.New("not found")
 			},
 		}

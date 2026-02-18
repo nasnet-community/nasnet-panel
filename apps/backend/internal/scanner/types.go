@@ -16,7 +16,7 @@ const (
 	ScanStatusRunning   ScanStatus = "RUNNING"
 	ScanStatusScanning  ScanStatus = "SCANNING" // Alias for RUNNING, used by ARP scanner
 	ScanStatusCompleted ScanStatus = "COMPLETED"
-	ScanStatusCancelled ScanStatus = "CANCELLED"
+	ScanStatusCanceled  ScanStatus = "CANCELED"
 	ScanStatusFailed    ScanStatus = "FAILED"
 )
 
@@ -67,7 +67,7 @@ func (t *ScanTask) Cancel() {
 	if t.cancel != nil {
 		t.cancel()
 	}
-	t.Status = ScanStatusCancelled
+	t.Status = ScanStatusCanceled
 	now := time.Now()
 	t.EndTime = &now
 }
@@ -77,14 +77,14 @@ func (t *ScanTask) SetStatus(status ScanStatus) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.Status = status
-	if status == ScanStatusCompleted || status == ScanStatusFailed || status == ScanStatusCancelled {
+	if status == ScanStatusCompleted || status == ScanStatusFailed || status == ScanStatusCanceled {
 		now := time.Now()
 		t.EndTime = &now
 	}
 }
 
 // SetProgress safely updates the task progress.
-func (t *ScanTask) SetProgress(progress int, scannedIPs int) {
+func (t *ScanTask) SetProgress(progress, scannedIPs int) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.Progress = progress
@@ -114,8 +114,8 @@ func (t *ScanTask) GetStatus() ScanStatus {
 	return t.Status
 }
 
-// GetProgress returns the current progress.
-func (t *ScanTask) GetProgress() (int, int) {
+// GetProgress returns the current progress and scanned IPs.
+func (t *ScanTask) GetProgress() (progress, scannedIPs int) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	return t.Progress, t.ScannedIPs
@@ -132,6 +132,8 @@ type ScanProgressEvent struct {
 }
 
 // ScannerConfig holds configuration options for the scanner service.
+//
+//nolint:revive // used across packages
 type ScannerConfig struct {
 	// MaxWorkersPerSubnet24 is the number of concurrent workers for /24 scans.
 	MaxWorkersPerSubnet24 int

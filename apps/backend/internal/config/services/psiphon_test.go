@@ -90,10 +90,10 @@ func TestPsiphonGenerator_Validate(t *testing.T) {
 		{
 			name: "invalid propagation_channel_id length",
 			config: map[string]interface{}{
-				"socks_port":            1080,
-				"http_port":             8080,
-				"log_level":             "info",
-				"enable_split_tunnel":   false,
+				"socks_port":             1080,
+				"http_port":              8080,
+				"log_level":              "info",
+				"enable_split_tunnel":    false,
 				"propagation_channel_id": "toolong0123456789012345678901234567890",
 			},
 			bindIP:  bindIP,

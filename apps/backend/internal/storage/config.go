@@ -7,9 +7,11 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/globalsettings"
-	"backend/internal/events"
+
 	"github.com/oklog/ulid/v2"
 	"github.com/rs/zerolog"
+
+	"backend/internal/events"
 )
 
 const (
@@ -22,13 +24,13 @@ const (
 )
 
 // StorageConfig represents the storage configuration.
-type StorageConfig struct {
+type StorageConfig struct { //nolint:revive // type name appropriate for this package
 	Enabled      bool   `json:"enabled"`
 	ExternalPath string `json:"external_path"`
 }
 
 // StorageConfigService manages storage configuration persistence and validation.
-type StorageConfigService struct {
+type StorageConfigService struct { //nolint:revive // type name appropriate for this package
 	client    *ent.Client
 	detector  *StorageDetector
 	publisher *events.Publisher
@@ -42,6 +44,7 @@ func NewStorageConfigService(
 	publisher *events.Publisher,
 	logger zerolog.Logger,
 ) *StorageConfigService {
+
 	return &StorageConfigService{
 		client:    client,
 		detector:  detector,
@@ -62,7 +65,10 @@ func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string)
 	}
 
 	// Get current config to check if changed
-	currentPath, _ := s.GetExternalPath(ctx)
+	currentPath, err := s.GetExternalPath(ctx)
+	if err != nil {
+		currentPath = ""
+	}
 
 	// Save to database
 	value := map[string]interface{}{
@@ -82,8 +88,8 @@ func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string)
 	// Emit configuration changed event
 	if currentPath != path {
 		event := events.NewStorageConfigChangedEvent(
-			"",  // featureID - not applicable for global config
-			"",  // instanceID - not applicable for global config
+			"", // featureID - not applicable for global config
+			"", // instanceID - not applicable for global config
 			currentPath,
 			path,
 			1, // configVersion - increment in real implementation
@@ -227,11 +233,7 @@ func (s *StorageConfigService) UpdateConfig(ctx context.Context, cfg *StorageCon
 	}
 
 	// Then update enabled state
-	if err := s.SetEnabled(ctx, cfg.Enabled); err != nil {
-		return err
-	}
-
-	return nil
+	return s.SetEnabled(ctx, cfg.Enabled)
 }
 
 // validatePath checks if a path exists and is mounted via StorageDetector.
@@ -308,8 +310,8 @@ func (s *StorageConfigService) upsertSetting(
 	}
 
 	var valueMap map[string]interface{}
-	if err := json.Unmarshal(valueBytes, &valueMap); err != nil {
-		return fmt.Errorf("failed to deserialize value: %w", err)
+	if unmarErr := json.Unmarshal(valueBytes, &valueMap); unmarErr != nil {
+		return fmt.Errorf("failed to deserialize value: %w", unmarErr)
 	}
 
 	if existing != nil {

@@ -32,9 +32,9 @@ func DefaultCircuitBreakerConfig() CircuitBreakerConfig {
 
 // CircuitBreaker wraps gobreaker for router connection management.
 type CircuitBreaker struct {
-	cb       *gobreaker.CircuitBreaker[any]
-	config   CircuitBreakerConfig
-	routerID string
+	cb            *gobreaker.CircuitBreaker[any]
+	config        CircuitBreakerConfig
+	routerID      string
 	onStateChange func(routerID string, from, to gobreaker.State)
 }
 

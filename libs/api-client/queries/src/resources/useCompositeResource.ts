@@ -62,7 +62,7 @@ export interface CompositeStatus {
  */
 export interface UseCompositeResourceResult<TConfig = unknown> {
   /** The composite resource */
-  resource: CompositeResource<TConfig> | undefined;
+  resource: CompositeResource<any> | undefined;
   /** Aggregated status from sub-resources */
   status: CompositeStatus;
   /** Loading state */
@@ -165,7 +165,7 @@ function calculateCompositeStatus(
 
     if (runtime?.health === 'DEGRADED') {
       degradedCount++;
-    } else if (runtime?.health === 'CRITICAL') {
+    } else if (runtime?.health === 'FAILED') {
       errorCount++;
     }
 
@@ -237,10 +237,10 @@ function buildSubResourceMap(
  * }
  * ```
  */
-export function useCompositeResource<TConfig = unknown>(
+export function useCompositeResource(
   uuid: string | undefined,
   options: UseCompositeResourceOptions = {}
-): UseCompositeResourceResult<TConfig> {
+): UseCompositeResourceResult {
   const {
     depth = 2,
     includeRuntime = true,
@@ -258,17 +258,20 @@ export function useCompositeResource<TConfig = unknown>(
     fetchPolicy,
   });
 
-  const resource = data?.compositeResource as CompositeResource<TConfig> | undefined;
+  const resource = data?.compositeResource as CompositeResource<any> | undefined;
+
+  // Access children (GraphQL may return as subResources or children)
+  const subResources: Resource[] | undefined = (resource as any)?.subResources ?? resource?.children;
 
   // Build sub-resource map for quick lookup
   const subResourceMap = useMemo(() => {
-    return buildSubResourceMap(resource?.subResources);
-  }, [resource?.subResources]);
+    return buildSubResourceMap(subResources);
+  }, [subResources]);
 
   // Calculate aggregated status
   const status = useMemo(() => {
-    return calculateCompositeStatus(resource?.subResources);
-  }, [resource?.subResources]);
+    return calculateCompositeStatus(subResources);
+  }, [subResources]);
 
   // Get sub-resource by uuid
   const getSubResource = useMemo(() => {
@@ -280,10 +283,10 @@ export function useCompositeResource<TConfig = unknown>(
   // Get sub-resources by type
   const getSubResourcesByType = useMemo(() => {
     return (type: string): Resource[] => {
-      if (!resource?.subResources) return [];
-      return resource.subResources.filter((r) => r.type === type);
+      if (!subResources) return [];
+      return subResources.filter((r: Resource) => r.type === type);
     };
-  }, [resource?.subResources]);
+  }, [subResources]);
 
   return {
     resource,
@@ -380,7 +383,7 @@ export function useFeatureWithResources(
 
   return {
     ...result,
-    resourceCount: result.resource?.subResources?.length ?? 0,
+    resourceCount: ((result.resource as any)?.subResources ?? result.resource?.children)?.length ?? 0,
   };
 }
 

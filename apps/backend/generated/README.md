@@ -115,7 +115,7 @@ This runs codegen and checks if any files changed. Used in CI to ensure committe
 │                  GENERATED OUTPUT                                │
 ├─────────────────────────────────────────────────────────────────┤
 │ apps/backend/generated/ent/ (type-safe ORM)                     │
-│ apps/backend/generated/graphql/ (resolver stubs)                │
+│ apps/backend/graph/model/ (resolver stubs)                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

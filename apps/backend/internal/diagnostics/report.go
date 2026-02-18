@@ -33,26 +33,39 @@ func NewReportFormatter() *ReportFormatter {
 func (f *ReportFormatter) FormatAsText(report *DiagnosticReport, systemInfo map[string]string) string {
 	var sb strings.Builder
 
-	// Header
+	f.writeHeader(&sb, report)
+	f.writeSystemInfo(&sb, systemInfo)
+	f.writeNetworkReachability(&sb, report)
+	f.writePortStatus(&sb, report)
+	f.writeTLSStatus(&sb, report)
+	f.writeAuthStatus(&sb, report)
+	f.writeSuggestions(&sb, report)
+	f.writeFooter(&sb)
+
+	return sb.String()
+}
+
+func (f *ReportFormatter) writeHeader(sb *strings.Builder, report *DiagnosticReport) {
 	sb.WriteString("═══════════════════════════════════════════════════════════════\n")
 	sb.WriteString("              NasNetConnect Diagnostic Report\n")
 	sb.WriteString("═══════════════════════════════════════════════════════════════\n\n")
+	fmt.Fprintf(sb, "Generated:  %s\n", report.Timestamp.Format(time.RFC3339))
+	fmt.Fprintf(sb, "Router ID:  %s\n", f.redact(report.RouterID))
+	fmt.Fprint(sb, "\n")
+}
 
-	// Timestamp and Router Info
-	sb.WriteString(fmt.Sprintf("Generated:  %s\n", report.Timestamp.Format(time.RFC3339)))
-	sb.WriteString(fmt.Sprintf("Router ID:  %s\n", f.redact(report.RouterID)))
-	sb.WriteString("\n")
-
-	// System Info (if provided)
-	if len(systemInfo) > 0 {
-		sb.WriteString("─── System Information ───────────────────────────────────────\n")
-		for key, value := range systemInfo {
-			sb.WriteString(fmt.Sprintf("  %s: %s\n", key, f.redactValue(key, value)))
-		}
-		sb.WriteString("\n")
+func (f *ReportFormatter) writeSystemInfo(sb *strings.Builder, systemInfo map[string]string) {
+	if len(systemInfo) == 0 {
+		return
 	}
+	sb.WriteString("─── System Information ───────────────────────────────────────\n")
+	for key, value := range systemInfo {
+		fmt.Fprintf(sb, "  %s: %s\n", key, f.redactValue(key, value))
+	}
+	fmt.Fprint(sb, "\n")
+}
 
-	// Network Reachability
+func (f *ReportFormatter) writeNetworkReachability(sb *strings.Builder, report *DiagnosticReport) {
 	sb.WriteString("─── Network Reachability ─────────────────────────────────────\n")
 	if report.NetworkReachable {
 		sb.WriteString("  ✓ Router is reachable on the network\n")
@@ -60,8 +73,9 @@ func (f *ReportFormatter) FormatAsText(report *DiagnosticReport, systemInfo map[
 		sb.WriteString("  ✗ Router is NOT reachable on the network\n")
 	}
 	sb.WriteString("\n")
+}
 
-	// Port Status
+func (f *ReportFormatter) writePortStatus(sb *strings.Builder, report *DiagnosticReport) {
 	sb.WriteString("─── Port Status ──────────────────────────────────────────────\n")
 	for _, port := range report.PortStatus {
 		status := "✗ CLOSED"
@@ -71,80 +85,85 @@ func (f *ReportFormatter) FormatAsText(report *DiagnosticReport, systemInfo map[
 				status += fmt.Sprintf(" (%dms)", *port.ResponseTimeMs)
 			}
 		}
-		sb.WriteString(fmt.Sprintf("  Port %5d (%s): %s", port.Port, padRight(port.Service, 8), status))
+		fmt.Fprintf(sb, "  Port %5d (%s): %s", port.Port, padRight(port.Service, 8), status)
 		if port.Error != nil && !port.Open {
-			sb.WriteString(fmt.Sprintf(" - %s", *port.Error))
+			fmt.Fprintf(sb, " - %s", *port.Error)
 		}
-		sb.WriteString("\n")
+		fmt.Fprint(sb, "\n")
 	}
-	sb.WriteString("\n")
+	fmt.Fprint(sb, "\n")
+}
 
-	// TLS Status
-	if report.TLSStatus != nil {
-		sb.WriteString("─── TLS Certificate ──────────────────────────────────────────\n")
-		if report.TLSStatus.Valid {
-			sb.WriteString("  ✓ Certificate is valid\n")
-		} else {
-			sb.WriteString("  ✗ Certificate is INVALID\n")
-			if report.TLSStatus.Error != nil {
-				sb.WriteString(fmt.Sprintf("    Error: %s\n", *report.TLSStatus.Error))
-			}
-		}
-		if report.TLSStatus.Subject != nil {
-			sb.WriteString(fmt.Sprintf("  Subject: %s\n", *report.TLSStatus.Subject))
-		}
-		if report.TLSStatus.Issuer != nil {
-			sb.WriteString(fmt.Sprintf("  Issuer:  %s\n", *report.TLSStatus.Issuer))
-		}
-		if report.TLSStatus.ExpiresAt != nil {
-			sb.WriteString(fmt.Sprintf("  Expires: %s\n", report.TLSStatus.ExpiresAt.Format(time.RFC3339)))
-		}
-		sb.WriteString("\n")
+func (f *ReportFormatter) writeTLSStatus(sb *strings.Builder, report *DiagnosticReport) {
+	if report.TLSStatus == nil {
+		return
 	}
+	sb.WriteString("─── TLS Certificate ──────────────────────────────────────────\n")
+	if report.TLSStatus.Valid {
+		sb.WriteString("  ✓ Certificate is valid\n")
+	} else {
+		sb.WriteString("  ✗ Certificate is INVALID\n")
+		if report.TLSStatus.Error != nil {
+			fmt.Fprintf(sb, "    Error: %s\n", *report.TLSStatus.Error)
+		}
+	}
+	if report.TLSStatus.Subject != nil {
+		fmt.Fprintf(sb, "  Subject: %s\n", *report.TLSStatus.Subject)
+	}
+	if report.TLSStatus.Issuer != nil {
+		fmt.Fprintf(sb, "  Issuer:  %s\n", *report.TLSStatus.Issuer)
+	}
+	if report.TLSStatus.ExpiresAt != nil {
+		fmt.Fprintf(sb, "  Expires: %s\n", report.TLSStatus.ExpiresAt.Format(time.RFC3339))
+	}
+	fmt.Fprint(sb, "\n")
+}
 
-	// Auth Status (redact sensitive info)
+func (f *ReportFormatter) writeAuthStatus(sb *strings.Builder, report *DiagnosticReport) {
 	redactedAuth := f.redactAuthStatus(report.AuthStatus)
 	sb.WriteString("─── Authentication ───────────────────────────────────────────\n")
-	if !redactedAuth.Tested {
+	switch {
+	case !redactedAuth.Tested:
 		sb.WriteString("  ○ Authentication was not tested\n")
-	} else if redactedAuth.Success {
+	case redactedAuth.Success:
 		sb.WriteString("  ✓ Authentication successful\n")
-	} else {
+	default:
 		sb.WriteString("  ✗ Authentication FAILED\n")
 		if redactedAuth.Error != nil {
-			sb.WriteString(fmt.Sprintf("    Error: %s\n", *redactedAuth.Error))
+			fmt.Fprintf(sb, "    Error: %s\n", *redactedAuth.Error)
 		}
 		if redactedAuth.ErrorCode != nil {
-			sb.WriteString(fmt.Sprintf("    Code:  %s\n", *redactedAuth.ErrorCode))
+			fmt.Fprintf(sb, "    Code:  %s\n", *redactedAuth.ErrorCode)
 		}
 	}
-	sb.WriteString("\n")
+	fmt.Fprint(sb, "\n")
+}
 
-	// Suggestions
-	if len(report.Suggestions) > 0 {
-		sb.WriteString("─── Recommendations ──────────────────────────────────────────\n")
-		for i, suggestion := range report.Suggestions {
-			icon := getSeverityIcon(suggestion.Severity)
-			sb.WriteString(fmt.Sprintf("\n  %s %d. %s [%s]\n", icon, i+1, suggestion.Title, suggestion.Severity))
-			sb.WriteString(fmt.Sprintf("     %s\n", wrapText(suggestion.Description, 55, "     ")))
-			sb.WriteString(fmt.Sprintf("\n     Action:\n"))
-			for _, line := range strings.Split(suggestion.Action, "\n") {
-				sb.WriteString(fmt.Sprintf("       %s\n", line))
-			}
-			if suggestion.DocsURL != nil {
-				sb.WriteString(fmt.Sprintf("\n     Docs: %s\n", *suggestion.DocsURL))
-			}
-		}
-		sb.WriteString("\n")
+func (f *ReportFormatter) writeSuggestions(sb *strings.Builder, report *DiagnosticReport) {
+	if len(report.Suggestions) == 0 {
+		return
 	}
+	sb.WriteString("─── Recommendations ──────────────────────────────────────────\n")
+	for i, suggestion := range report.Suggestions {
+		icon := getSeverityIcon(suggestion.Severity)
+		fmt.Fprintf(sb, "\n  %s %d. %s [%s]\n", icon, i+1, suggestion.Title, suggestion.Severity)
+		fmt.Fprintf(sb, "     %s\n", wrapText(suggestion.Description, 55, "     "))
+		fmt.Fprint(sb, "\n     Action:\n")
+		for _, line := range strings.Split(suggestion.Action, "\n") {
+			fmt.Fprintf(sb, "       %s\n", line)
+		}
+		if suggestion.DocsURL != nil {
+			fmt.Fprintf(sb, "\n     Docs: %s\n", *suggestion.DocsURL)
+		}
+	}
+	fmt.Fprint(sb, "\n")
+}
 
-	// Footer
+func (f *ReportFormatter) writeFooter(sb *strings.Builder) {
 	sb.WriteString("═══════════════════════════════════════════════════════════════\n")
 	sb.WriteString("  Report generated by NasNetConnect\n")
 	sb.WriteString("  https://nasnetconnect.io\n")
 	sb.WriteString("═══════════════════════════════════════════════════════════════\n")
-
-	return sb.String()
 }
 
 // FormatAsJSON formats a diagnostic report as JSON.

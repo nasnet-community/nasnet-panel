@@ -4,9 +4,12 @@
  */
 
 import * as React from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
-import { UpdateIndicatorMobile } from './UpdateIndicatorMobile';
+
 import { UpdateIndicatorDesktop } from './UpdateIndicatorDesktop';
+import { UpdateIndicatorMobile } from './UpdateIndicatorMobile';
+
 import type { UpdateIndicatorProps } from './types';
 
 /**

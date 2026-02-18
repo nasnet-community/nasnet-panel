@@ -14,9 +14,7 @@
  */
 
 import React, { forwardRef } from 'react';
-import { cn } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { ScrollArea } from '@nasnet/ui/primitives';
+
 import {
   Undo2,
   Redo2,
@@ -29,12 +27,17 @@ import {
   Clock,
   AlertTriangle,
 } from 'lucide-react';
-import type { HistoryPanelItem } from './useHistoryPanel';
+
+import { cn , Button , ScrollArea } from '@nasnet/ui/primitives';
+
+
 import {
   useHistoryPanel,
   formatHistoryTimestamp,
 } from './useHistoryPanel';
+
 import type { HistoryPanelProps } from './types';
+import type { HistoryPanelItem } from './useHistoryPanel';
 
 /**
  * Get icon component for action type

@@ -11,29 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockEventBus is a simple in-memory event bus for testing
-type mockEventBus struct{}
-
-func (m *mockEventBus) Publish(ctx context.Context, event events.Event) error {
-	return nil
-}
-
-func (m *mockEventBus) Subscribe(topic string, handler events.EventHandler) error {
-	return nil
-}
-
-func (m *mockEventBus) SubscribeAll(handler events.EventHandler) error {
-	return nil
-}
-
-func (m *mockEventBus) Close() error {
-	return nil
-}
-
 // createTestService creates a TemplateService for testing with minimal dependencies
 func createTestService(t *testing.T) *TemplateService {
 	logger := zerolog.Nop()
-	eventBus := &mockEventBus{}
+	eventBus := events.NewInMemoryEventBus()
 
 	// Create service without validation (for unit tests)
 	// In real usage, InstanceManager and DependencyManager are required
@@ -187,9 +168,9 @@ func TestResolveVariables(t *testing.T) {
 		require.NoError(t, err)
 
 		variables := map[string]interface{}{
-			"TOR_NAME":            "my-tor",
-			"XRAY_NAME":           "my-xray",
-			"XRAY_EXTERNAL_PORT":  "10808",
+			"TOR_NAME":           "my-tor",
+			"XRAY_NAME":          "my-xray",
+			"XRAY_EXTERNAL_PORT": "10808",
 		}
 
 		resolved, err := service.ResolveVariables(template, variables)

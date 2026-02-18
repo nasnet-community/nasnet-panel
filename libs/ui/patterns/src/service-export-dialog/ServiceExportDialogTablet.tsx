@@ -4,6 +4,7 @@
  */
 
 import { Download, Copy, CheckCircle2, Share2, AlertCircle } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
@@ -11,15 +12,19 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from '@nasnet/ui/primitives/dialog';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Label } from '@nasnet/ui/primitives/label';
-import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives/radio-group';
-import { Switch } from '@nasnet/ui/primitives/switch';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import type { ServiceExportDialogProps } from './types';
+  Button,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Switch,
+  Alert,
+  AlertDescription,
+  Badge,
+} from '@nasnet/ui/primitives';
+
 import { useServiceExportDialog } from './useServiceExportDialog';
+
+import type { ServiceExportDialogProps } from './types';
 
 export function ServiceExportDialogTablet(props: ServiceExportDialogProps) {
   const { open, onOpenChange, trigger } = props;
@@ -130,7 +135,7 @@ export function ServiceExportDialogTablet(props: ServiceExportDialogProps) {
                 <Switch
                   id="redact-secrets-tablet"
                   checked={state.options.redactSecrets}
-                  onCheckedChange={(checked) => setOptions({ redactSecrets: checked })}
+                  onCheckedChange={(checked: boolean) => setOptions({ redactSecrets: checked })}
                 />
               </div>
 
@@ -146,7 +151,7 @@ export function ServiceExportDialogTablet(props: ServiceExportDialogProps) {
                 <Switch
                   id="include-routing-tablet"
                   checked={state.options.includeRoutingRules}
-                  onCheckedChange={(checked) => setOptions({ includeRoutingRules: checked })}
+                  onCheckedChange={(checked: boolean) => setOptions({ includeRoutingRules: checked })}
                 />
               </div>
             </div>

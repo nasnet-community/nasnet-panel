@@ -8,7 +8,7 @@
  */
 
 import { memo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Zap,
   Shield,
@@ -16,7 +16,15 @@ import {
   Info,
   Trash2,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  RawChainSchema,
+  RawActionSchema,
+  RawProtocolSchema,
+  getRawActionDescription as getActionDescription,
+  RAW_SUGGESTED_LOG_PREFIXES as SUGGESTED_LOG_PREFIXES,
+} from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -24,8 +32,7 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   CardContent,
@@ -42,18 +49,15 @@ import {
   Alert,
   AlertDescription,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
 
-import {
-  RawChainSchema,
-  RawActionSchema,
-  RawProtocolSchema,
-  getActionDescription,
-  SUGGESTED_LOG_PREFIXES,
-} from '@nasnet/core/types/firewall';
-
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useRawRuleEditor } from './use-raw-rule-editor';
+
 import type { RawRuleEditorProps } from './raw-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Mobile presenter for RAW rule editor.
@@ -87,6 +91,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
   const showNotrackTip = showPerformanceTips && rule.action === 'notrack';
 
   return (
+    <FormProvider {...form}>
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
         <SheetHeader>
@@ -133,7 +138,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <RHFFormField name="chain" label="Chain" required>
+              <FormField name="chain" label="Chain" required>
                 <Controller
                   name="chain"
                   control={control}
@@ -143,7 +148,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {RawChainSchema.options.map((chain) => (
+                        {RawChainSchema.options.map((chain: string) => (
                           <SelectItem key={chain} value={chain} className="py-3">
                             {chain}
                           </SelectItem>
@@ -152,9 +157,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="action" label="Action" required>
+              <FormField name="action" label="Action" required>
                 <Controller
                   name="action"
                   control={control}
@@ -178,11 +183,11 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               {/* Action-Specific Fields */}
               {visibleFields.includes('logPrefix') && (
-                <RHFFormField name="logPrefix" label="Log Prefix" required>
+                <FormField name="logPrefix" label="Log Prefix" required>
                   <Controller
                     name="logPrefix"
                     control={control}
@@ -195,7 +200,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                           className="h-11"
                         />
                         <div className="flex flex-wrap gap-2">
-                          {SUGGESTED_LOG_PREFIXES.map((suggestion) => (
+                          {SUGGESTED_LOG_PREFIXES.map((suggestion: { value: string }) => (
                             <Button
                               key={suggestion.value}
                               type="button"
@@ -211,11 +216,11 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                       </div>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('jumpTarget') && (
-                <RHFFormField name="jumpTarget" label="Jump Target" required>
+                <FormField name="jumpTarget" label="Jump Target" required>
                   <Controller
                     name="jumpTarget"
                     control={control}
@@ -228,7 +233,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </CardContent>
           </Card>
@@ -239,7 +244,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
               <CardTitle className="text-base">Traffic Matchers (Optional)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <RHFFormField name="protocol" label="Protocol">
+              <FormField name="protocol" label="Protocol">
                 <Controller
                   name="protocol"
                   control={control}
@@ -249,7 +254,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                         <SelectValue placeholder="Any" />
                       </SelectTrigger>
                       <SelectContent>
-                        {RawProtocolSchema.options.map((protocol) => (
+                        {RawProtocolSchema.options.map((protocol: string) => (
                           <SelectItem key={protocol} value={protocol} className="py-3">
                             {protocol.toUpperCase()}
                           </SelectItem>
@@ -258,9 +263,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcAddress" label="Source Address">
+              <FormField name="srcAddress" label="Source Address">
                 <Controller
                   name="srcAddress"
                   control={control}
@@ -273,9 +278,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstAddress" label="Destination Address">
+              <FormField name="dstAddress" label="Destination Address">
                 <Controller
                   name="dstAddress"
                   control={control}
@@ -288,9 +293,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcPort" label="Source Port">
+              <FormField name="srcPort" label="Source Port">
                 <Controller
                   name="srcPort"
                   control={control}
@@ -303,9 +308,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstPort" label="Destination Port">
+              <FormField name="dstPort" label="Destination Port">
                 <Controller
                   name="dstPort"
                   control={control}
@@ -318,10 +323,10 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               {canUseInInterface && (
-                <RHFFormField name="inInterface" label="Input Interface">
+                <FormField name="inInterface" label="Input Interface">
                   <Controller
                     name="inInterface"
                     control={control}
@@ -334,11 +339,11 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {canUseOutInterface && (
-                <RHFFormField name="outInterface" label="Output Interface">
+                <FormField name="outInterface" label="Output Interface">
                   <Controller
                     name="outInterface"
                     control={control}
@@ -351,7 +356,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </CardContent>
           </Card>
@@ -365,7 +370,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <RHFFormField name="comment" label="Comment">
+              <FormField name="comment" label="Comment">
                 <Controller
                   name="comment"
                   control={control}
@@ -378,9 +383,9 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="disabled" label="Disabled">
+              <FormField name="disabled" label="Disabled">
                 <Controller
                   name="disabled"
                   control={control}
@@ -391,7 +396,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
                     </div>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             </CardContent>
           </Card>
         </form>
@@ -433,6 +438,7 @@ export const RawRuleEditorMobile = memo(function RawRuleEditorMobile({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+    </FormProvider>
   );
 });
 

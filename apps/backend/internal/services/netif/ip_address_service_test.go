@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"backend/internal/router"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -14,14 +15,45 @@ type MockRouterPort struct {
 	mock.Mock
 }
 
-func (m *MockRouterPort) ExecuteCommand(ctx context.Context, command string, params map[string]interface{}) (interface{}, error) {
-	args := m.Called(ctx, command, params)
-	return args.Get(0), args.Error(1)
+func (m *MockRouterPort) Connect(_ context.Context) error {
+	return nil
 }
 
-func (m *MockRouterPort) QueryCommand(ctx context.Context, command string, filters map[string]interface{}) ([]map[string]interface{}, error) {
-	args := m.Called(ctx, command, filters)
-	return args.Get(0).([]map[string]interface{}), args.Error(1)
+func (m *MockRouterPort) Disconnect() error {
+	return nil
+}
+
+func (m *MockRouterPort) IsConnected() bool {
+	return true
+}
+
+func (m *MockRouterPort) Health(_ context.Context) router.HealthStatus {
+	return router.HealthStatus{Status: router.StatusConnected}
+}
+
+func (m *MockRouterPort) Capabilities() router.PlatformCapabilities {
+	return router.PlatformCapabilities{}
+}
+
+func (m *MockRouterPort) Info() (*router.RouterInfo, error) {
+	return &router.RouterInfo{}, nil
+}
+
+func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+	args := m.Called(ctx, cmd.Path, cmd.Args)
+	return args.Get(0).(*router.CommandResult), args.Error(1)
+}
+
+func (m *MockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+	args := m.Called(ctx, query.Path, query.Filter)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*router.StateResult), args.Error(1)
+}
+
+func (m *MockRouterPort) Protocol() router.Protocol {
+	return router.ProtocolREST
 }
 
 // TestListIPAddresses tests the ListIPAddresses method
@@ -66,7 +98,7 @@ func TestListIPAddresses(t *testing.T) {
 	assert.Len(t, result, 2)
 	assert.Equal(t, "*1", result[0].ID)
 	assert.Equal(t, "192.168.1.1/24", result[0].Address)
-	assert.Equal(t, "ether1", result[0].InterfaceName)
+	assert.Equal(t, "ether1", result[0].Interface)
 	assert.False(t, result[0].Dynamic)
 	assert.Equal(t, "Management IP", result[0].Comment)
 
@@ -103,9 +135,8 @@ func TestCheckConflict_ExactMatch(t *testing.T) {
 	// Assert
 	assert.NoError(t, err)
 	assert.True(t, result.HasConflict)
-	assert.Equal(t, "exact_match", result.ConflictType)
-	assert.NotNil(t, result.ConflictingAddress)
-	assert.Equal(t, "192.168.1.1/24", result.ConflictingAddress.Address)
+	assert.Len(t, result.Conflicts, 1, "Should have exactly one conflict")
+	assert.Equal(t, "192.168.1.1/24", result.Conflicts[0].Address)
 
 	mockPort.AssertExpectations(t)
 }
@@ -130,7 +161,7 @@ func TestCheckConflict_NoConflict(t *testing.T) {
 	// Assert
 	assert.NoError(t, err)
 	assert.False(t, result.HasConflict)
-	assert.Nil(t, result.ConflictingAddress)
+	assert.Empty(t, result.Conflicts)
 
 	mockPort.AssertExpectations(t)
 }
@@ -191,7 +222,7 @@ func TestCheckConflict_SubnetOverlap(t *testing.T) {
 	// Assert
 	assert.NoError(t, err)
 	assert.True(t, result.HasConflict)
-	assert.Equal(t, "subnet_overlap", result.ConflictType)
+	assert.NotEmpty(t, result.Conflicts, "Should have subnet overlap conflicts")
 
 	mockPort.AssertExpectations(t)
 }
@@ -244,8 +275,7 @@ func TestGetDependencies(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, result.DHCPServers, 1)
 	assert.Equal(t, "dhcp1", result.DHCPServers[0].Name)
-	assert.False(t, result.CanDelete) // Cannot delete because DHCP server depends on it
-	assert.NotEmpty(t, result.WarningMessage)
+	assert.True(t, result.HasDependencies) // Has dependencies because DHCP server depends on it
 
 	mockPort.AssertExpectations(t)
 }
@@ -275,7 +305,7 @@ func TestCreateIPAddress(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, "*1", result.ID)
 	assert.Equal(t, "192.168.1.1/24", result.Address)
-	assert.Equal(t, "ether1", result.InterfaceName)
+	assert.Equal(t, "ether1", result.Interface)
 
 	mockPort.AssertExpectations(t)
 }

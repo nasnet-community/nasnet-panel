@@ -16,7 +16,9 @@ import {
   closestCorners,
   rectIntersection,
   pointerWithin,
-  type SensorOptions,
+  type MouseSensorOptions,
+  type TouchSensorOptions,
+  type KeyboardSensorOptions,
   type CollisionDetection,
 } from '@dnd-kit/core';
 import {
@@ -25,6 +27,7 @@ import {
   horizontalListSortingStrategy,
   type SortingStrategy,
 } from '@dnd-kit/sortable';
+
 import type { CollisionStrategy, SortableDirection } from './types';
 
 // ============================================================================
@@ -34,7 +37,7 @@ import type { CollisionStrategy, SortableDirection } from './types';
 /**
  * Default mouse sensor options
  */
-export const defaultMouseSensorOptions: SensorOptions<typeof MouseSensor> = {
+export const defaultMouseSensorOptions: MouseSensorOptions = {
   // Start drag after 5px of movement to prevent accidental drags
   activationConstraint: {
     distance: 5,
@@ -45,7 +48,7 @@ export const defaultMouseSensorOptions: SensorOptions<typeof MouseSensor> = {
  * Default touch sensor options
  * Uses long-press to differentiate from scroll
  */
-export const defaultTouchSensorOptions: SensorOptions<typeof TouchSensor> = {
+export const defaultTouchSensorOptions: TouchSensorOptions = {
   activationConstraint: {
     // 250ms long-press before drag starts
     delay: 250,
@@ -57,7 +60,7 @@ export const defaultTouchSensorOptions: SensorOptions<typeof TouchSensor> = {
 /**
  * Default keyboard sensor options
  */
-export const defaultKeyboardSensorOptions: SensorOptions<typeof KeyboardSensor> = {
+export const defaultKeyboardSensorOptions: KeyboardSensorOptions = {
   coordinateGetter: sortableKeyboardCoordinates,
 };
 
@@ -65,9 +68,9 @@ export const defaultKeyboardSensorOptions: SensorOptions<typeof KeyboardSensor> 
  * Custom hook to create configured sensors
  */
 export function useSortableSensors(options?: {
-  mouse?: Partial<SensorOptions<typeof MouseSensor>>;
-  touch?: Partial<SensorOptions<typeof TouchSensor>>;
-  keyboard?: Partial<SensorOptions<typeof KeyboardSensor>>;
+  mouse?: Partial<MouseSensorOptions>;
+  touch?: Partial<TouchSensorOptions>;
+  keyboard?: Partial<KeyboardSensorOptions>;
   touchEnabled?: boolean;
   keyboardEnabled?: boolean;
 }) {

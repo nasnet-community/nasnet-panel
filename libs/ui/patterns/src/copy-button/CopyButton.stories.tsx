@@ -3,9 +3,10 @@
  * @see NAS-4.23 - Implement Clipboard Integration
  */
 
+import { CopyButton } from './CopyButton';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { CopyButton } from './CopyButton';
 
 const meta: Meta<typeof CopyButton> = {
   title: 'Patterns/Clipboard/CopyButton',

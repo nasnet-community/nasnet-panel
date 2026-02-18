@@ -51,7 +51,7 @@ func (e *Engine) RegisterDefaults() {
 
 // Validate runs the full validation pipeline on the given input.
 // Returns the aggregate result with findings from all executed stages.
-func (e *Engine) Validate(ctx context.Context, input *StageInput) *ValidationResult {
+func (e *Engine) Validate(ctx context.Context, input *StageInput) *Result {
 	result := NewResult()
 	stages := e.registry.GetStages()
 
@@ -63,13 +63,13 @@ func (e *Engine) Validate(ctx context.Context, input *StageInput) *ValidationRes
 	for _, stage := range stages {
 		select {
 		case <-ctx.Done():
-			result.AddError(&ValidationError{
+			result.AddError(&Error{
 				Stage:     stage.Number(),
 				StageName: stage.Name(),
 				Severity:  SeverityError,
 				Field:     "",
-				Message:   fmt.Sprintf("validation cancelled: %v", ctx.Err()),
-				Code:      "CANCELLED",
+				Message:   fmt.Sprintf("validation canceled: %v", ctx.Err()),
+				Code:      "CANCELED",
 			})
 			return result
 		default:
@@ -92,7 +92,7 @@ func (e *Engine) Validate(ctx context.Context, input *StageInput) *ValidationRes
 
 // ValidateField runs validation on a single field (for real-time form feedback).
 // Only runs stages 1-3 (schema, syntax, semantic) for fast response.
-func (e *Engine) ValidateField(ctx context.Context, input *StageInput, field string) *ValidationResult {
+func (e *Engine) ValidateField(ctx context.Context, input *StageInput, field string) *Result {
 	result := NewResult()
 	stages := e.registry.GetStages()
 

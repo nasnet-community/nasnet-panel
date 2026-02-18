@@ -372,7 +372,7 @@ export function useFirewallLogs(
   return {
     ...query,
     data: filteredData,
-  };
+  } as UseQueryResult<FirewallLogEntry[], Error>;
 }
 
 // ============================================================================
@@ -482,5 +482,5 @@ export function useFirewallLogStats(
   return {
     ...query,
     data: stats ?? undefined,
-  } as UseQueryResult<FirewallLogStats, Error>;
+  } as unknown as UseQueryResult<FirewallLogStats, Error>;
 }

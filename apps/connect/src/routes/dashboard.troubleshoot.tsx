@@ -1,7 +1,9 @@
 // apps/connect/src/routes/dashboard.troubleshoot.tsx
-import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
-import { TroubleshootWizard } from '@nasnet/features/diagnostics';
 import { useEffect, useState } from 'react';
+
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+
+import { TroubleshootWizard } from '@nasnet/features/diagnostics';
 
 // Route search params
 interface TroubleshootSearch {

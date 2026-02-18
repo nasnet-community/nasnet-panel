@@ -1,18 +1,22 @@
-package config
+package config_test
 
 import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"backend/generated/ent"
 	"backend/generated/ent/enttest"
 	"backend/generated/ent/serviceinstance"
+	"backend/internal/config"
+	"backend/internal/config/services"
+
 	"backend/internal/events"
 
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 	"github.com/rs/zerolog"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 // mockPathResolver is a mock implementation of storage.PathResolverPort for testing.
@@ -70,8 +74,8 @@ func (m *mockEventBus) Close() error {
 	return nil
 }
 
-// setupTestService creates a test ConfigService with in-memory database and temp storage.
-func setupTestService(t *testing.T) (*ConfigService, *ent.Client, string, func()) {
+// setupTestService creates a test Service with in-memory database and temp storage.
+func setupTestService(t *testing.T) (*config.Service, *ent.Client, string, func()) {
 	// Create temp directory for config files
 	tempDir, err := os.MkdirTemp("", "config_gen_test_*")
 	if err != nil {
@@ -82,8 +86,8 @@ func setupTestService(t *testing.T) (*ConfigService, *ent.Client, string, func()
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 
 	// Create registry and register Tor generator
-	registry := NewRegistry()
-	if err := registry.Register(NewTorGenerator()); err != nil {
+	registry := config.NewRegistry()
+	if err := registry.Register(services.NewTorGenerator()); err != nil {
 		t.Fatalf("Failed to register Tor generator: %v", err)
 	}
 
@@ -93,7 +97,7 @@ func setupTestService(t *testing.T) (*ConfigService, *ent.Client, string, func()
 	logger := zerolog.Nop()
 
 	// Create ConfigService
-	service, err := NewConfigService(ConfigServiceConfig{
+	service, err := config.NewService(config.Config{
 		Registry:     registry,
 		Store:        client,
 		EventBus:     eventBus,
@@ -101,7 +105,7 @@ func setupTestService(t *testing.T) (*ConfigService, *ent.Client, string, func()
 		Logger:       logger,
 	})
 	if err != nil {
-		t.Fatalf("Failed to create ConfigService: %v", err)
+		t.Fatalf("Failed to create Service: %v", err)
 	}
 
 	cleanup := func() {
@@ -112,7 +116,7 @@ func setupTestService(t *testing.T) (*ConfigService, *ent.Client, string, func()
 	return service, client, tempDir, cleanup
 }
 
-func TestConfigService_ValidateConfig(t *testing.T) {
+func TestService_ValidateConfig(t *testing.T) {
 	service, client, _, cleanup := setupTestService(t)
 	defer cleanup()
 
@@ -185,7 +189,7 @@ func TestConfigService_ValidateConfig(t *testing.T) {
 				t.Errorf("ValidateConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr && tt.errMsg != "" && err != nil {
-				if !stringContains(err.Error(), tt.errMsg) {
+				if !strings.Contains(err.Error(), tt.errMsg) {
 					t.Errorf("ValidateConfig() error message = %v, want to contain %v", err.Error(), tt.errMsg)
 				}
 			}
@@ -193,7 +197,7 @@ func TestConfigService_ValidateConfig(t *testing.T) {
 	}
 }
 
-func TestConfigService_GetSchema(t *testing.T) {
+func TestService_GetSchema(t *testing.T) {
 	service, _, _, cleanup := setupTestService(t)
 	defer cleanup()
 
@@ -213,7 +217,7 @@ func TestConfigService_GetSchema(t *testing.T) {
 	}
 }
 
-func TestConfigService_ApplyConfig(t *testing.T) {
+func TestService_ApplyConfig(t *testing.T) {
 	service, client, tempDir, cleanup := setupTestService(t)
 	defer cleanup()
 
@@ -272,7 +276,7 @@ func TestConfigService_ApplyConfig(t *testing.T) {
 	}
 
 	for _, expected := range expectedStrings {
-		if !stringContains(contentStr, expected) {
+		if !strings.Contains(contentStr, expected) {
 			t.Errorf("Config content missing expected string: %s", expected)
 		}
 	}
@@ -292,7 +296,7 @@ func TestConfigService_ApplyConfig(t *testing.T) {
 	}
 }
 
-func TestConfigService_AtomicWrite(t *testing.T) {
+func TestService_AtomicWrite(t *testing.T) {
 	service, client, tempDir, cleanup := setupTestService(t)
 	defer cleanup()
 
@@ -354,7 +358,7 @@ func TestConfigService_AtomicWrite(t *testing.T) {
 		t.Fatalf("Failed to read config file: %v", err)
 	}
 
-	if !stringContains(string(content), "Nickname Relay2") {
+	if !strings.Contains(string(content), "Nickname Relay2") {
 		t.Error("New config not applied correctly")
 	}
 
@@ -368,13 +372,13 @@ func TestConfigService_AtomicWrite(t *testing.T) {
 			t.Fatalf("Failed to read backup file: %v", err)
 		}
 
-		if !stringContains(string(backupContent), "Nickname Relay1") {
+		if !strings.Contains(string(backupContent), "Nickname Relay1") {
 			t.Error("Backup does not contain original config")
 		}
 	}
 }
 
-func TestConfigService_GetConfig(t *testing.T) {
+func TestService_GetConfig(t *testing.T) {
 	service, client, _, cleanup := setupTestService(t)
 	defer cleanup()
 

@@ -14,6 +14,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// Channel name constant for email-specific template handling.
+const channelEmail = "email"
+
 // Service implements the TemplateRenderer interface from the root notifications package.
 // It manages alert notification templates with caching, validation, and fallback handling.
 type Service struct {
@@ -49,7 +52,7 @@ func (s *Service) RenderAlert(ctx context.Context, alert *ent.Alert, channel str
 			"channel", channel,
 			"error", err,
 		)
-		return s.fallbackMessage(alert, channel)
+		return s.fallbackMessage(alert)
 	}
 
 	data := BuildTemplateData(alert)
@@ -62,7 +65,7 @@ func (s *Service) RenderAlert(ctx context.Context, alert *ent.Alert, channel str
 			"channel", channel,
 			"error", err,
 		)
-		return s.fallbackMessage(alert, channel)
+		return s.fallbackMessage(alert)
 	}
 
 	return subject, body, nil
@@ -81,7 +84,7 @@ func (s *Service) PreviewTemplate(ctx context.Context, eventType, channel, subje
 }
 
 // ValidateTemplate validates template syntax and checks for issues.
-func (s *Service) ValidateTemplate(subjectTmpl, bodyTmpl string, channel string) []string {
+func (s *Service) ValidateTemplate(subjectTmpl, bodyTmpl, channel string) []string {
 	return ValidateComplete(subjectTmpl, bodyTmpl, channel, s.funcMap, "router.offline")
 }
 
@@ -170,15 +173,15 @@ func (s *Service) getTemplate(ctx context.Context, eventType, channel string) (s
 
 func (s *Service) getEmbeddedTemplate(channel string) (subject, body string, err error) {
 	if channelHasSubject(channel) {
-		subjectTmpl, err := alerts.GetTemplate(channel, "default-subject")
-		if err != nil {
-			return "", "", fmt.Errorf("failed to load default subject template: %w", err)
+		subjectTmpl, loadErr := alerts.GetTemplate(channel, "default-subject")
+		if loadErr != nil {
+			return "", "", fmt.Errorf("failed to load default subject template: %w", loadErr)
 		}
 		subject = subjectTmpl
 	}
 
 	bodyName := "default-message"
-	if channel == "email" {
+	if channel == channelEmail {
 		bodyName = "default-body.txt"
 	}
 
@@ -192,7 +195,7 @@ func (s *Service) getEmbeddedTemplate(channel string) (subject, body string, err
 
 func channelHasSubject(channel string) bool {
 	switch channel {
-	case "email", "pushover", "inapp":
+	case channelEmail, "pushover", "inapp":
 		return true
 	default:
 		return false
@@ -203,45 +206,48 @@ func (s *Service) renderTemplate(subjectTmpl, bodyTmpl string, data TemplateData
 	cachedTmpl := s.cache.Get("", "", subjectTmpl, bodyTmpl)
 	if cachedTmpl != nil {
 		var buf strings.Builder
-		if err := cachedTmpl.Execute(&buf, data); err != nil {
-			return "", "", fmt.Errorf("template execution error: %w", err)
+		execErr := cachedTmpl.Execute(&buf, data)
+		if execErr != nil {
+			return "", "", fmt.Errorf("template execution error: %w", execErr)
 		}
 	}
 
 	if subjectTmpl != "" {
-		tmpl, err := template.New("subject").
+		subjectTmplObj, parseErr := template.New("subject").
 			Funcs(s.funcMap).
 			Option("missingkey=zero").
 			Parse(subjectTmpl)
-		if err != nil {
-			return "", "", fmt.Errorf("subject template parse error: %w", err)
+		if parseErr != nil {
+			return "", "", fmt.Errorf("subject template parse error: %w", parseErr)
 		}
 
 		var subjectBuf strings.Builder
-		if err := tmpl.Execute(&subjectBuf, data); err != nil {
-			return "", "", fmt.Errorf("subject template execution error: %w", err)
+		execErr := subjectTmplObj.Execute(&subjectBuf, data)
+		if execErr != nil {
+			return "", "", fmt.Errorf("subject template execution error: %w", execErr)
 		}
 		subject = strings.TrimSpace(subjectBuf.String())
 	}
 
-	tmpl, err := template.New("body").
+	bodyTmplObj, parseErr := template.New("body").
 		Funcs(s.funcMap).
 		Option("missingkey=zero").
 		Parse(bodyTmpl)
-	if err != nil {
-		return "", "", fmt.Errorf("body template parse error: %w", err)
+	if parseErr != nil {
+		return "", "", fmt.Errorf("body template parse error: %w", parseErr)
 	}
 
 	var bodyBuf strings.Builder
-	if err := tmpl.Execute(&bodyBuf, data); err != nil {
-		return "", "", fmt.Errorf("body template execution error: %w", err)
+	execErr := bodyTmplObj.Execute(&bodyBuf, data)
+	if execErr != nil {
+		return "", "", fmt.Errorf("body template execution error: %w", execErr)
 	}
 	body = bodyBuf.String()
 
 	return subject, body, nil
 }
 
-func (s *Service) fallbackMessage(alert *ent.Alert, channel string) (subject, body string, err error) {
+func (s *Service) fallbackMessage(alert *ent.Alert) (subject, body string, err error) {
 	subject = fmt.Sprintf("[%s] %s", alert.Severity, alert.Title)
 	body = fmt.Sprintf("%s\n\n%s", alert.Title, alert.Message)
 

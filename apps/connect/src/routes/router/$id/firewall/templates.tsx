@@ -7,10 +7,12 @@
  * @see NAS-7.6: Implement Firewall Templates - Tasks 3-7
  */
 
+import { lazy } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { lazy } from 'react';
 
 // Lazy-load the TemplatesPage component
 const LazyTemplatesPage = lazy(() =>
@@ -57,10 +59,15 @@ function TemplatesPageSkeleton() {
 /**
  * Route configuration
  */
-export const Route = createFileRoute('/router/$id/firewall/templates')({
-  component: () => (
+function TemplatesRoute() {
+  const { id } = Route.useParams();
+  return (
     <LazyBoundary fallback={<TemplatesPageSkeleton />}>
-      <LazyTemplatesPage />
+      <LazyTemplatesPage routerId={id} />
     </LazyBoundary>
-  ),
+  );
+}
+
+export const Route = createFileRoute('/router/$id/firewall/templates')({
+  component: TemplatesRoute,
 });

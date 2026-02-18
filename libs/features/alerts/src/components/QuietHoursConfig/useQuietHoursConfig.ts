@@ -93,7 +93,7 @@ export function useQuietHoursConfig(
 ): UseQuietHoursConfigReturn {
   // Initialize form with Zod validation
   const form = useForm<QuietHoursConfigData>({
-    resolver: zodResolver(quietHoursConfigSchema),
+    resolver: zodResolver(quietHoursConfigSchema) as any,
     defaultValues: {
       startTime: initialValue?.startTime || '22:00',
       endTime: initialValue?.endTime || '08:00',
@@ -185,7 +185,7 @@ export function useQuietHoursConfig(
     endTime,
     timezone,
     bypassCritical,
-    daysOfWeek,
+    daysOfWeek: daysOfWeek as DayOfWeek[],
     isValid,
     errors,
     isTimeSpanCrossing,

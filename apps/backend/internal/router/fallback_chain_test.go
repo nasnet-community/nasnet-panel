@@ -12,13 +12,13 @@ import (
 
 // TestMockAdapter for fallback chain testing
 type TestMockAdapter struct {
-	protocol       Protocol
-	connected      bool
-	connectError   error
-	executeError   error
-	connectCount   int
-	executeCount   int
-	mu             sync.Mutex
+	protocol     Protocol
+	connected    bool
+	connectError error
+	executeError error
+	connectCount int
+	executeCount int
+	mu           sync.Mutex
 }
 
 func NewTestMockAdapter(protocol Protocol, connectError error) *TestMockAdapter {

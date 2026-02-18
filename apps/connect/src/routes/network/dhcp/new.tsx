@@ -6,6 +6,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { DHCPWizard } from '@nasnet/features/network';
 
 export const Route = createFileRoute('/network/dhcp/new')({

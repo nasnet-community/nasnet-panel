@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for database/sql
 )
 
 // UpdatePhase represents a phase in the atomic update process
@@ -158,6 +158,29 @@ func (j *UpdateJournal) GetIncompleteUpdates(ctx context.Context) ([]JournalEntr
 	}
 	defer rows.Close()
 
+	return j.scanEntries(rows)
+}
+
+// GetUpdateHistory returns recent update history for an instance
+func (j *UpdateJournal) GetUpdateHistory(ctx context.Context, instanceID string, limit int) ([]JournalEntry, error) {
+	rows, err := j.db.QueryContext(ctx,
+		`SELECT id, instance_id, feature_id, from_version, to_version, phase, status, started_at, completed_at, error_message, metadata
+		 FROM update_journal
+		 WHERE instance_id = ?
+		 ORDER BY started_at DESC
+		 LIMIT ?`,
+		instanceID, limit,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query update history: %w", err)
+	}
+	defer rows.Close()
+
+	return j.scanEntries(rows)
+}
+
+// scanEntries scans rows from the update_journal table into JournalEntry slices.
+func (j *UpdateJournal) scanEntries(rows *sql.Rows) ([]JournalEntry, error) {
 	var entries []JournalEntry
 	for rows.Next() {
 		var entry JournalEntry
@@ -190,62 +213,6 @@ func (j *UpdateJournal) GetIncompleteUpdates(ctx context.Context) ([]JournalEntr
 		if metadataJSON.Valid {
 			if err := json.Unmarshal([]byte(metadataJSON.String), &entry.Metadata); err != nil {
 				// Ignore metadata parse errors
-				entry.Metadata = make(map[string]interface{})
-			}
-		}
-
-		entries = append(entries, entry)
-	}
-
-	return entries, rows.Err()
-}
-
-// GetUpdateHistory returns recent update history for an instance
-func (j *UpdateJournal) GetUpdateHistory(ctx context.Context, instanceID string, limit int) ([]JournalEntry, error) {
-	rows, err := j.db.QueryContext(ctx,
-		`SELECT id, instance_id, feature_id, from_version, to_version, phase, status, started_at, completed_at, error_message, metadata
-		 FROM update_journal
-		 WHERE instance_id = ?
-		 ORDER BY started_at DESC
-		 LIMIT ?`,
-		instanceID, limit,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query update history: %w", err)
-	}
-	defer rows.Close()
-
-	var entries []JournalEntry
-	for rows.Next() {
-		var entry JournalEntry
-		var completedAt sql.NullTime
-		var errorMessage sql.NullString
-		var metadataJSON sql.NullString
-
-		if err := rows.Scan(
-			&entry.ID,
-			&entry.InstanceID,
-			&entry.FeatureID,
-			&entry.FromVersion,
-			&entry.ToVersion,
-			&entry.Phase,
-			&entry.Status,
-			&entry.StartedAt,
-			&completedAt,
-			&errorMessage,
-			&metadataJSON,
-		); err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		if completedAt.Valid {
-			entry.CompletedAt = &completedAt.Time
-		}
-		if errorMessage.Valid {
-			entry.ErrorMessage = errorMessage.String
-		}
-		if metadataJSON.Valid {
-			if err := json.Unmarshal([]byte(metadataJSON.String), &entry.Metadata); err != nil {
 				entry.Metadata = make(map[string]interface{})
 			}
 		}

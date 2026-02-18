@@ -138,7 +138,7 @@ export function FirewallDetailTabs({
             activeFilterCount={activeFilterCount}
           />
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <FilterRulesTable filters={filters} />
+            <FilterRulesTable chain={filters.chain !== 'all' ? filters.chain as any : undefined} />
           </div>
         </TabsContent>
 

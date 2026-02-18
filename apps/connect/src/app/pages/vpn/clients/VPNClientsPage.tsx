@@ -5,8 +5,22 @@
  */
 
 import * as React from 'react';
+
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { Route } from '@/routes/router/$id/vpn/clients';
+import { RefreshCw, Plus, Monitor } from 'lucide-react';
+
+import { 
+  useWireGuardPeers,
+  useOpenVPNClients,
+  useL2TPClients,
+  usePPTPClients,
+  useSSTPClients,
+  useIPsecPeers,
+  useIPsecActive,
+  useToggleVPNInterface,
+} from '@nasnet/api-client/queries';
+import type { VPNProtocol } from '@nasnet/core/types';
+import { useConnectionStore } from '@nasnet/state/stores';
 import { 
   VPNClientCard,
   VPNTypeSection,
@@ -22,19 +36,8 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@nasnet/ui/primitives';
-import { RefreshCw, Plus, Monitor } from 'lucide-react';
-import { 
-  useWireGuardPeers,
-  useOpenVPNClients,
-  useL2TPClients,
-  usePPTPClients,
-  useSSTPClients,
-  useIPsecPeers,
-  useIPsecActive,
-  useToggleVPNInterface,
-} from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
-import type { VPNProtocol } from '@nasnet/core/types';
+
+import { Route } from '@/routes/router/$id/vpn/clients';
 
 const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2'];
 

@@ -7,11 +7,10 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-import * as React from 'react';
 
 import { Badge, Button, Card, CardContent } from '@nasnet/ui/primitives';
-import { ResourceUsageBar } from '../resource-usage-bar';
 
+import { ResourceUsageBar } from '../resource-usage-bar';
 import { useServiceCard, formatBytes } from './useServiceCard';
 
 import type { ServiceCardProps } from './types';
@@ -105,9 +104,8 @@ export function ServiceCardMobile(props: ServiceCardProps) {
           service.metrics?.currentMemory !== undefined &&
           service.metrics?.memoryLimit !== undefined && (
             <ResourceUsageBar
-              label="Memory"
-              current={service.metrics.currentMemory}
-              limit={service.metrics.memoryLimit}
+              used={service.metrics.currentMemory}
+              total={service.metrics.memoryLimit}
               unit="MB"
               className="my-2"
             />

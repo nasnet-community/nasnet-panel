@@ -144,7 +144,7 @@ type BaseEvent struct {
 	Metadata  EventMetadata `json:"metadata,omitempty"`
 }
 
-func (e *BaseEvent) GetID() ulid.ULID        { return e.ID }
+func (e *BaseEvent) GetID() ulid.ULID         { return e.ID }
 func (e *BaseEvent) GetType() string          { return e.Type }
 func (e *BaseEvent) GetPriority() Priority    { return e.Priority }
 func (e *BaseEvent) GetTimestamp() time.Time  { return e.Timestamp }
@@ -153,8 +153,12 @@ func (e *BaseEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
 func NewBaseEvent(eventType string, priority Priority, source string) BaseEvent {
 	return BaseEvent{
-		ID: ulid.Make(), Type: eventType, Priority: priority,
-		Timestamp: time.Now(), Source: source, Metadata: EventMetadata{},
+		ID:        ulid.Make(),
+		Type:      eventType,
+		Priority:  priority,
+		Timestamp: time.Now(),
+		Source:    source,
+		Metadata:  EventMetadata{},
 	}
 }
 

@@ -25,7 +25,6 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { ServiceCard } from '../service-card';
-
 import { useInstanceManager } from './useInstanceManager';
 
 import type { InstanceManagerProps } from './types';

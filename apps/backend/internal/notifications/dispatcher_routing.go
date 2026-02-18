@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"backend/internal/events"
 	"backend/generated/ent"
+
+	"backend/internal/events"
 )
 
 // getDigestConfig retrieves digest configuration for a channel.
@@ -61,66 +62,78 @@ func (d *Dispatcher) dispatchToChannel(ctx context.Context, notification Notific
 	}
 
 	// Render templates if template service is available (NAS-18.11 Task 5)
-	if d.templateService != nil && d.db != nil {
-		// Try to get alert from notification data first
-		var alert *ent.Alert
-		if alertData, ok := notification.Data["alert"]; ok {
-			alert, _ = alertData.(*ent.Alert)
-		}
+	d.renderAlertTemplate(ctx, &notification, channelName)
 
-		// If not in data, try to query by alertId
-		if alert == nil {
-			if alertID, ok := notification.Data["alertId"].(string); ok && alertID != "" {
-				// Query the alert from database
-				var err error
-				alert, err = d.db.Alert.Get(ctx, alertID)
-				if err != nil {
-					d.log.Warnw("failed to query alert for template rendering",
-						"channel", channelName,
-						"alert_id", alertID,
-						"error", err)
-				}
-			}
-		}
+	// Attempt delivery with retries
+	return d.deliverWithRetries(ctx, channel, notification, channelName)
+}
 
-		// If we have an alert, render the template
-		if alert != nil {
-			subject, body, err := d.templateService.RenderAlert(ctx, alert, channelName)
-			if err != nil {
-				// Log warning but continue with original notification
-				d.log.Warnw("template render failed, using original notification",
-					"channel", channelName,
-					"alert_id", alert.ID,
-					"error", err)
-			} else {
-				// Replace notification content with rendered template
-				notification.Title = subject
-				notification.Message = body
-				d.log.Debugw("rendered alert template",
-					"channel", channelName,
-					"alert_id", alert.ID,
-					"subject_length", len(subject),
-					"body_length", len(body))
-			}
+// renderAlertTemplate applies alert template rendering to the notification if configured.
+func (d *Dispatcher) renderAlertTemplate(ctx context.Context, notification *Notification, channelName string) {
+	if d.templateService == nil || d.db == nil {
+		return
+	}
+
+	alert := d.resolveAlert(ctx, notification, channelName)
+	if alert == nil {
+		return
+	}
+
+	subject, body, err := d.templateService.RenderAlert(ctx, alert, channelName)
+	if err != nil {
+		d.log.Warnw("template render failed, using original notification",
+			"channel", channelName,
+			"alert_id", alert.ID,
+			"error", err)
+		return
+	}
+
+	notification.Title = subject
+	notification.Message = body
+	d.log.Debugw("rendered alert template",
+		"channel", channelName,
+		"alert_id", alert.ID,
+		"subject_length", len(subject),
+		"body_length", len(body))
+}
+
+// resolveAlert attempts to find the alert from notification data or database.
+func (d *Dispatcher) resolveAlert(ctx context.Context, notification *Notification, channelName string) *ent.Alert {
+	if alertData, ok := notification.Data["alert"]; ok {
+		if alert, ok := alertData.(*ent.Alert); ok {
+			return alert
 		}
 	}
 
-	// Attempt delivery with retries
+	if alertID, ok := notification.Data["alertId"].(string); ok && alertID != "" {
+		alert, err := d.db.Alert.Get(ctx, alertID)
+		if err != nil {
+			d.log.Warnw("failed to query alert for template rendering",
+				"channel", channelName,
+				"alert_id", alertID,
+				"error", err)
+			return nil
+		}
+		return alert
+	}
+
+	return nil
+}
+
+// deliverWithRetries attempts to send a notification with exponential backoff retries.
+func (d *Dispatcher) deliverWithRetries(ctx context.Context, channel Channel, notification Notification, channelName string) DeliveryResult {
 	var lastErr error
 	backoff := d.initialBackoff
 
 	for attempt := 0; attempt <= d.maxRetries; attempt++ {
 		if attempt > 0 {
-			// Wait with exponential backoff
 			select {
 			case <-time.After(backoff):
-				// Continue with retry
 			case <-ctx.Done():
-				// Context cancelled
 				return DeliveryResult{
 					Channel:   channelName,
 					Success:   false,
-					Error:     "context cancelled during retry",
+					Error:     "context canceled during retry",
 					Retryable: false,
 				}
 			}
@@ -130,14 +143,11 @@ func (d *Dispatcher) dispatchToChannel(ctx context.Context, notification Notific
 				"attempt", attempt,
 				"backoff_ms", backoff.Milliseconds())
 
-			// Exponential backoff (double each time)
 			backoff *= 2
 		}
 
-		// Attempt delivery
 		err := channel.Send(ctx, notification)
 		if err == nil {
-			// Success!
 			if attempt > 0 {
 				d.log.Infow("notification delivered after retry",
 					"channel", channelName,
@@ -157,7 +167,6 @@ func (d *Dispatcher) dispatchToChannel(ctx context.Context, notification Notific
 			"error", err)
 	}
 
-	// All retries exhausted
 	return DeliveryResult{
 		Channel:   channelName,
 		Success:   false,
@@ -181,6 +190,7 @@ func (d *Dispatcher) isRetryable(err error) bool {
 		contains(errorStr, "unauthorized") ||
 		contains(errorStr, "forbidden") ||
 		contains(errorStr, "not configured") {
+
 		return false
 	}
 

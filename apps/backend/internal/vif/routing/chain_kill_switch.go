@@ -8,6 +8,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
+
 	"backend/internal/events"
 	"backend/internal/router"
 
@@ -29,6 +30,7 @@ func NewChainKillSwitchListener(
 	store *ent.Client,
 	eventBus events.EventBus,
 ) *ChainKillSwitchListener {
+
 	listener := &ChainKillSwitchListener{
 		router:   routerPort,
 		store:    store,
@@ -216,11 +218,11 @@ func (cr *ChainRouter) DeactivateChainKillSwitch(ctx context.Context, chainID st
 			events.PriorityNormal,
 			"chain-kill-switch",
 			map[string]interface{}{
-				"router_id":              chain.RouterID,
-				"chain_id":               chain.ID,
-				"device_id":              chain.DeviceID,
-				"rules_disabled":         disabledCount,
-				"kill_switch_recovered":  true,
+				"router_id":             chain.RouterID,
+				"chain_id":              chain.ID,
+				"device_id":             chain.DeviceID,
+				"rules_disabled":        disabledCount,
+				"kill_switch_recovered": true,
 			},
 		)
 		if err := cr.publisher.Publish(ctx, event); err != nil {

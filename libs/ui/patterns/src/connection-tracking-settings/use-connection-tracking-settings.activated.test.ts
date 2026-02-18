@@ -12,10 +12,13 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
-import { useConnectionTrackingSettings } from './use-connection-tracking-settings';
+
 import { parseDuration, formatDuration, isValidDuration } from './timeout-utils';
-import type { ConnectionTrackingSettings } from './types';
 import { DEFAULT_SETTINGS } from './types';
+import { useConnectionTrackingSettings } from './use-connection-tracking-settings';
+
+import type { ConnectionTrackingSettings } from './types';
+
 
 describe('useConnectionTrackingSettings', () => {
   describe('Initialization', () => {

@@ -3,7 +3,6 @@ package digest
 import (
 	"context"
 	"testing"
-	"time"
 
 	"backend/generated/ent"
 	"backend/generated/ent/alertdigestentry"
@@ -15,11 +14,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
-// Integration test setup with full dependencies
-func setupIntegrationTest(t *testing.T) (*DigestService, *DigestScheduler, *ent.Client, *mockEventBus, *mockDispatcher) {
+// Integration test setup with full dependencies.
+func setupIntegrationTest(t *testing.T) (*Service, *Scheduler, *ent.Client, *mockEventBus, *mockDispatcher) {
 	db := enttest.Open(t, "sqlite3", "file:integration?mode=memory&cache=shared&_fk=1")
 	eventBus := newMockEventBus()
 	dispatcher := newMockDispatcher()
@@ -28,15 +27,15 @@ func setupIntegrationTest(t *testing.T) (*DigestService, *DigestScheduler, *ent.
 	// Allow Publish to succeed by default
 	eventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
 
-	digestService, err := NewDigestService(DigestServiceConfig{
-		DB:         db,
-		EventBus:   eventBus,
-		Dispatcher: dispatcher,
-		Logger:     logger,
+	digestService, err := NewService(ServiceConfig{
+		DB:       db,
+		EventBus: eventBus,
+		Dispatch: dispatcher.toDispatchFunc(),
+		Logger:   logger,
 	})
 	require.NoError(t, err)
 
-	scheduler := NewDigestScheduler(DigestSchedulerConfig{
+	scheduler := NewScheduler(SchedulerConfig{
 		DigestService: digestService,
 		Logger:        logger,
 	})
@@ -60,7 +59,6 @@ func TestIntegration_FullFlow(t *testing.T) {
 
 	ctx := context.Background()
 	channelID := "channel-full-flow"
-	now := time.Now()
 
 	// Simulate 15 alerts from rule matching
 	alertCount := 15
@@ -143,7 +141,7 @@ func TestIntegration_MixedSeverities(t *testing.T) {
 	ctx := context.Background()
 	channelID := "channel-mixed"
 
-	digestConfig := DigestConfig{
+	digestConfig := Config{
 		Mode:           "hourly",
 		BypassCritical: true,
 	}
@@ -434,7 +432,7 @@ func TestIntegration_MultipleChannels(t *testing.T) {
 		"each channel should have independent digest_id")
 }
 
-// TestIntegration_CriticalBypassWithDigestHistory verifies critical alerts sent immediately
+// TestIntegration_CriticalBypassWithDigestHistory verifies critical alerts sent immediately.
 // but still appear in digest for historical context.
 func TestIntegration_CriticalBypassWithDigestHistory(t *testing.T) {
 	if testing.Short() {

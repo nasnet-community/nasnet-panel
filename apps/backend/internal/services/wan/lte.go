@@ -11,6 +11,8 @@ import (
 )
 
 // ConfigureLTE configures LTE modem on a WAN interface.
+//
+//nolint:gocyclo,nestif,maintidx // LTE configuration complexity
 func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input LteModemInput) (*WANInterfaceData, error) {
 	log.Printf("[WANService] Configuring LTE modem on router %s, interface %s", routerID, input.Interface)
 
@@ -73,7 +75,7 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 		return nil, fmt.Errorf("failed to configure LTE modem: %w", err)
 	}
 	if !setResult.Success {
-		return nil, fmt.Errorf("LTE modem configuration failed: %s", setResult.Error)
+		return nil, fmt.Errorf("LTE modem configuration failed: %w", setResult.Error)
 	}
 
 	log.Printf("[WANService] LTE modem configured successfully: %s", input.Interface)
@@ -88,8 +90,8 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 		},
 	}
 
-	if _, err := s.routerPort.ExecuteCommand(ctx, enableCmd); err != nil {
-		log.Printf("[WANService] Warning: Failed to enable/disable LTE interface: %v", err)
+	if _, enableErr := s.routerPort.ExecuteCommand(ctx, enableCmd); enableErr != nil {
+		log.Printf("[WANService] Warning: Failed to enable/disable LTE interface: %v", enableErr)
 	}
 
 	// Step 3: Configure default route if requested
@@ -105,8 +107,8 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 			},
 		}
 
-		if _, err := s.routerPort.ExecuteCommand(ctx, addRouteCmd); err != nil {
-			log.Printf("[WANService] Warning: Failed to add default route: %v", err)
+		if _, routeErr := s.routerPort.ExecuteCommand(ctx, addRouteCmd); routeErr != nil {
+			log.Printf("[WANService] Warning: Failed to add default route: %v", routeErr)
 		}
 	}
 
@@ -163,11 +165,12 @@ func (s *WANService) ConfigureLTE(ctx context.Context, routerID string, input Lt
 			lteData.NetworkType = netType
 		}
 		if sessionStatus, ok := lteStatus["session-status"]; ok {
-			if sessionStatus == "established" {
+			switch sessionStatus {
+			case "established":
 				wanData.Status = "CONNECTED"
-			} else if sessionStatus == "connecting" {
+			case "connecting":
 				wanData.Status = "CONNECTING"
-			} else {
+			default:
 				wanData.Status = "DISCONNECTED"
 			}
 		}

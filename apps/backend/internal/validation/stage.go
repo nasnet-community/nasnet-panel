@@ -17,7 +17,7 @@ type Stage interface {
 	// Validate performs validation and returns findings.
 	// The input map contains the configuration being validated.
 	// Keys depend on the resource type being validated.
-	Validate(ctx context.Context, input *StageInput) *ValidationResult
+	Validate(ctx context.Context, input *StageInput) *Result
 }
 
 // StageInput holds the data passed to each validation stage.

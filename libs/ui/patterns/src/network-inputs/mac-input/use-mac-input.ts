@@ -11,6 +11,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
+
 import type {
   UseMACInputConfig,
   UseMACInputReturn,

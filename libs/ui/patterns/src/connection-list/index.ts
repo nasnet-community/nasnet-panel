@@ -49,7 +49,5 @@ export type {
   ConnectionSort,
   ConnectionSortField,
   ConnectionState,
-  ConnectionProtocol,
-  TcpState,
   SortDirection,
 } from './types';

@@ -3,12 +3,13 @@
 package graphql
 
 import (
-	"backend/graph/model"
 	"bytes"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
+
+	"backend/graph/model"
 
 	"github.com/99designs/gqlgen/graphql"
 )

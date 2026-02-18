@@ -3,10 +3,13 @@
  * Comprehensive tests for the schedule editor headless hook
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useScheduleEditor } from './use-schedule-editor';
+import { describe, it, expect, vi } from 'vitest';
+
 import type { DayPresetKey } from '@nasnet/core/types/services/schedule.types';
+
+import { useScheduleEditor } from './use-schedule-editor';
+
 
 describe('useScheduleEditor', () => {
   describe('initialization', () => {

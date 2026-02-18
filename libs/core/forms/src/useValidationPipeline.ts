@@ -8,7 +8,9 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import type { ZodSchema } from 'zod';
+
+import { getValidationConfig, getOrderedStages } from './validation-strategy';
+
 import type {
   UseValidationPipelineOptions,
   ValidationPipelineResult,
@@ -17,7 +19,7 @@ import type {
   ResourceConflict,
   ValidationStage,
 } from './types';
-import { getValidationConfig, getOrderedStages } from './validation-strategy';
+import type { ZodSchema } from 'zod';
 
 /**
  * Initialize stages for a given strategy.

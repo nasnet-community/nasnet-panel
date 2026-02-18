@@ -72,7 +72,7 @@ func TestVersionCapabilityIntegration_GetFeatureSupport(t *testing.T) {
 	t.Run("Container with missing package", func(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
-		caps.Software.InstalledPackages = []string{"system", "routeros"} // no container
+		caps.Software.InstalledPackages = []string{"system", "routers"} // no container
 
 		support := integration.GetFeatureSupport(caps, "container", false)
 
@@ -84,7 +84,7 @@ func TestVersionCapabilityIntegration_GetFeatureSupport(t *testing.T) {
 	t.Run("Container with package installed", func(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
-		caps.Software.InstalledPackages = []string{"system", "routeros", "container"}
+		caps.Software.InstalledPackages = []string{"system", "routers", "container"}
 
 		support := integration.GetFeatureSupport(caps, "container", false)
 
@@ -111,7 +111,7 @@ func TestVersionCapabilityIntegration_GetSupportedFeatures(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
 		caps.Software.InstalledPackages = []string{
-			"system", "routeros", "container", "wireguard",
+			"system", "routers", "container", "wireguard",
 		}
 
 		supported := integration.GetSupportedFeatures(caps, false)
@@ -133,7 +133,7 @@ func TestVersionCapabilityIntegration_GetSupportedFeatures(t *testing.T) {
 	t.Run("RouterOS 6.40 has limited features", func(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 6, Minor: 40, Patch: 0}
-		caps.Software.InstalledPackages = []string{"system", "routeros"}
+		caps.Software.InstalledPackages = []string{"system", "routers"}
 
 		supported := integration.GetSupportedFeatures(caps, false)
 
@@ -154,7 +154,7 @@ func TestVersionCapabilityIntegration_GetUnsupportedFeatures(t *testing.T) {
 	t.Run("RouterOS 6.40 cannot use many features", func(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 6, Minor: 40, Patch: 0}
-		caps.Software.InstalledPackages = []string{"system", "routeros"}
+		caps.Software.InstalledPackages = []string{"system", "routers"}
 
 		unsupported := integration.GetUnsupportedFeatures(caps, false)
 
@@ -173,7 +173,7 @@ func TestVersionCapabilityIntegration_GetUnsupportedFeatures(t *testing.T) {
 	t.Run("Missing packages show as unsupported", func(t *testing.T) {
 		caps := NewCapabilities()
 		caps.Software.Version = RouterOSVersion{Major: 7, Minor: 13, Patch: 2}
-		caps.Software.InstalledPackages = []string{"system", "routeros"} // no container
+		caps.Software.InstalledPackages = []string{"system", "routers"} // no container
 
 		unsupported := integration.GetUnsupportedFeatures(caps, false)
 
@@ -253,13 +253,13 @@ func TestGetMissingPackages(t *testing.T) {
 	}{
 		{
 			name:      "no missing packages",
-			installed: []string{"system", "routeros", "container"},
+			installed: []string{"system", "routers", "container"},
 			required:  []string{"container"},
 			expected:  []string{},
 		},
 		{
 			name:      "one missing package",
-			installed: []string{"system", "routeros"},
+			installed: []string{"system", "routers"},
 			required:  []string{"container"},
 			expected:  []string{"container"},
 		},
@@ -277,7 +277,7 @@ func TestGetMissingPackages(t *testing.T) {
 		},
 		{
 			name:      "empty required",
-			installed: []string{"system", "routeros"},
+			installed: []string{"system", "routers"},
 			required:  []string{},
 			expected:  []string{},
 		},

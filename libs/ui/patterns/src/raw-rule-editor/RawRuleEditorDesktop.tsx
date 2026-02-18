@@ -8,7 +8,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Zap,
   Shield,
@@ -17,7 +17,16 @@ import {
   Trash2,
   AlertTriangle,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  RawChainSchema,
+  RawActionSchema,
+  RawProtocolSchema,
+  getRawActionColor as getActionColor,
+  getRawActionDescription as getActionDescription,
+  RAW_SUGGESTED_LOG_PREFIXES as SUGGESTED_LOG_PREFIXES,
+} from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -25,8 +34,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -41,19 +49,15 @@ import {
   Alert,
   AlertDescription,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
 
-import {
-  RawChainSchema,
-  RawActionSchema,
-  RawProtocolSchema,
-  getActionColor,
-  getActionDescription,
-  SUGGESTED_LOG_PREFIXES,
-} from '@nasnet/core/types/firewall';
-
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useRawRuleEditor } from './use-raw-rule-editor';
+
 import type { RawRuleEditorProps } from './raw-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Desktop presenter for RAW rule editor.
@@ -88,12 +92,12 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
   const { control, formState } = form;
 
   // Get action-specific badge variant
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
     if (action === 'accept') return 'success';
-    if (action === 'drop') return 'destructive';
+    if (action === 'drop') return 'error';
     if (action === 'log') return 'info';
     if (action === 'notrack' || action === 'jump') return 'warning';
     return 'default';
@@ -103,6 +107,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
   const showNotrackTip = showPerformanceTips && rule.action === 'notrack';
 
   return (
+    <FormProvider {...form}>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -143,7 +148,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
 
           {/* Chain and Action */}
           <div className="grid grid-cols-2 gap-4">
-            <RHFFormField
+            <FormField
               name="chain"
               label="Chain"
               description="Packet processing stage"
@@ -158,7 +163,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                       <SelectValue placeholder="Select chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      {RawChainSchema.options.map((chain) => (
+                      {RawChainSchema.options.map((chain: string) => (
                         <SelectItem key={chain} value={chain}>
                           {chain}
                         </SelectItem>
@@ -167,9 +172,9 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField
+            <FormField
               name="action"
               label="Action"
               description="What to do with matched packets"
@@ -198,14 +203,14 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
           </div>
 
           <Separator />
 
           {/* Action-Specific Fields */}
           {visibleFields.includes('logPrefix') && (
-            <RHFFormField
+            <FormField
               name="logPrefix"
               label="Log Prefix"
               description="Prefix for log entries"
@@ -222,7 +227,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                       value={field.value || ''}
                     />
                     <div className="flex flex-wrap gap-2">
-                      {SUGGESTED_LOG_PREFIXES.map((suggestion) => (
+                      {SUGGESTED_LOG_PREFIXES.map((suggestion: { value: string }) => (
                         <Button
                           key={suggestion.value}
                           type="button"
@@ -237,11 +242,11 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   </div>
                 )}
               />
-            </RHFFormField>
+            </FormField>
           )}
 
           {visibleFields.includes('jumpTarget') && (
-            <RHFFormField
+            <FormField
               name="jumpTarget"
               label="Jump Target Chain"
               description="Custom chain name to jump to"
@@ -258,7 +263,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
           )}
 
           {visibleFields.length > 0 && <Separator />}
@@ -271,7 +276,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
             </h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <RHFFormField name="protocol" label="Protocol">
+              <FormField name="protocol" label="Protocol">
                 <Controller
                   name="protocol"
                   control={control}
@@ -281,7 +286,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                         <SelectValue placeholder="Any protocol" />
                       </SelectTrigger>
                       <SelectContent>
-                        {RawProtocolSchema.options.map((protocol) => (
+                        {RawProtocolSchema.options.map((protocol: string) => (
                           <SelectItem key={protocol} value={protocol}>
                             {protocol.toUpperCase()}
                           </SelectItem>
@@ -290,9 +295,9 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcAddress" label="Source Address">
+              <FormField name="srcAddress" label="Source Address">
                 <Controller
                   name="srcAddress"
                   control={control}
@@ -304,9 +309,9 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstAddress" label="Destination Address">
+              <FormField name="dstAddress" label="Destination Address">
                 <Controller
                   name="dstAddress"
                   control={control}
@@ -318,9 +323,9 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="srcPort" label="Source Port">
+              <FormField name="srcPort" label="Source Port">
                 <Controller
                   name="srcPort"
                   control={control}
@@ -332,9 +337,9 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField name="dstPort" label="Destination Port">
+              <FormField name="dstPort" label="Destination Port">
                 <Controller
                   name="dstPort"
                   control={control}
@@ -346,10 +351,10 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               {canUseInInterface && (
-                <RHFFormField name="inInterface" label="Input Interface">
+                <FormField name="inInterface" label="Input Interface">
                   <Controller
                     name="inInterface"
                     control={control}
@@ -361,11 +366,11 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {canUseOutInterface && (
-                <RHFFormField name="outInterface" label="Output Interface">
+                <FormField name="outInterface" label="Output Interface">
                   <Controller
                     name="outInterface"
                     control={control}
@@ -377,7 +382,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </div>
           </div>
@@ -391,7 +396,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
               Rule Settings
             </h3>
 
-            <RHFFormField name="comment" label="Comment">
+            <FormField name="comment" label="Comment">
               <Controller
                 name="comment"
                 control={control}
@@ -403,10 +408,10 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
             <div className="flex items-center gap-6">
-              <RHFFormField name="disabled" label="Disabled">
+              <FormField name="disabled" label="Disabled">
                 <Controller
                   name="disabled"
                   control={control}
@@ -414,7 +419,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             </div>
           </div>
         </form>
@@ -455,6 +460,7 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </FormProvider>
   );
 });
 

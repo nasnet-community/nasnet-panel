@@ -11,9 +11,9 @@ import (
 func TestSlidingWindow_NoBurstAtBoundary(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     3,
 		PeriodSeconds: 60, // 1 minute window
 	}
@@ -76,9 +76,9 @@ func TestSlidingWindow_NoBurstAtBoundary(t *testing.T) {
 func TestSlidingWindow_SmoothRateLimiting(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     5,
 		PeriodSeconds: 60, // 5 alerts per minute
 	}
@@ -123,9 +123,9 @@ func TestSlidingWindow_SmoothRateLimiting(t *testing.T) {
 func TestSlidingWindow_GroupIsolation(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     2,
 		PeriodSeconds: 60,
 		GroupByField:  "interface",
@@ -183,9 +183,9 @@ func TestSlidingWindow_GroupIsolation(t *testing.T) {
 func TestSlidingWindow_SuppressionCounting(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     2,
 		PeriodSeconds: 60,
 	}
@@ -220,9 +220,9 @@ func TestSlidingWindow_SuppressionCounting(t *testing.T) {
 func TestSlidingWindow_RingBufferWrapAround(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     3,
 		PeriodSeconds: 60,
 	}
@@ -258,9 +258,9 @@ func TestSlidingWindow_RingBufferWrapAround(t *testing.T) {
 func TestSlidingWindow_Performance(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     100, // Large window
 		PeriodSeconds: 300,
 	}
@@ -297,9 +297,9 @@ func TestSlidingWindow_Performance(t *testing.T) {
 func TestSlidingWindow_CleanupReducesMemory(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     10,
 		PeriodSeconds: 60,
 	}
@@ -349,9 +349,9 @@ func TestSlidingWindowVerify(t *testing.T) {
 	t.Run("no_boundary_burst", func(t *testing.T) {
 		startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 		clock := NewMockClock(startTime)
-		tm := NewThrottleManager(WithClock(clock))
+		tm := NewManager(WithClock(clock))
 
-		config := ThrottleConfig{
+		config := Config{
 			MaxAlerts:     3,
 			PeriodSeconds: 60,
 		}

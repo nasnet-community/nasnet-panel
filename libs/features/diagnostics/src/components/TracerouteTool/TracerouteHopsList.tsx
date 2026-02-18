@@ -134,11 +134,11 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
                       key={`${hop.hopNumber}-probe-${probe.probeNumber}`}
                       className={cn(
                         probe.success && probe.latencyMs !== null
-                          ? getLatencyColorClass(probe.latencyMs)
+                          ? getLatencyColorClass(probe.latencyMs!)
                           : 'text-muted-foreground'
                       )}
                     >
-                      {probe.success && probe.latencyMs !== null
+                      {probe.success && probe.latencyMs != null
                         ? `${probe.latencyMs.toFixed(1)}`
                         : '*'}
                     </span>

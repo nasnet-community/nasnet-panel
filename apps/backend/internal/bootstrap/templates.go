@@ -4,11 +4,14 @@ import (
 	"log"
 
 	"github.com/rs/zerolog"
+
 	"backend/generated/ent"
 
-	"backend/internal/events"
-	"backend/internal/orchestrator"
+	"backend/internal/orchestrator/dependencies"
+	"backend/internal/orchestrator/lifecycle"
 	"backend/internal/templates"
+
+	"backend/internal/events"
 )
 
 // TemplateComponents holds all initialized template system components.
@@ -30,10 +33,11 @@ type TemplateComponents struct {
 func InitializeTemplateSystem(
 	systemDB *ent.Client,
 	eventBus events.EventBus,
-	instanceManager *orchestrator.InstanceManager,
-	dependencyManager *orchestrator.DependencyManager,
+	instanceManager *lifecycle.InstanceManager,
+	dependencyManager *dependencies.DependencyManager,
 	logger zerolog.Logger,
 ) (*TemplateComponents, error) {
+
 	log.Printf("Initializing service template system...")
 
 	// 1. Template Service - loads built-in templates and manages custom templates

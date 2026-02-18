@@ -82,6 +82,9 @@ type ConfigSchemaField {
 
   """Validation function name"""
   validateFunc: String
+
+  """Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network')"""
+  group: String
 }
 
 """

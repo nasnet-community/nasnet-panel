@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"backend/internal/events"
 	"go.uber.org/zap/zaptest"
+
+	"backend/internal/events"
 )
 
 // MockChannel implements the Channel interface for testing.

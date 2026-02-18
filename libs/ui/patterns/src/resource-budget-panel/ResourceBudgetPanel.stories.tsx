@@ -4,10 +4,11 @@
  * Comprehensive stories demonstrating all ResourceBudgetPanel states and scenarios.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { ResourceBudgetPanel } from './ResourceBudgetPanel';
+
 import type { ServiceInstanceResource, SystemResourceTotals } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ResourceBudgetPanel> = {
   title: 'Patterns/ResourceBudgetPanel',

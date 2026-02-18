@@ -5,7 +5,6 @@
  */
 
 // Filter Rules
-export * from './filter-rule.types';
 export type {
   FilterChain,
   FilterAction,
@@ -64,7 +63,6 @@ export {
 } from './mangle-rule.types';
 
 // RAW Rules
-export * from './raw-rule.types';
 export type {
   RawChain,
   RawAction,
@@ -229,6 +227,10 @@ export type {
   FirewallLogProtocol,
   ParsedFirewallLog,
   FirewallLogEntry,
+  TimeRangePreset,
+  TimeRange,
+  PortRange,
+  FirewallLogFilterState,
 } from './firewall-log.types';
 
 export {
@@ -244,6 +246,7 @@ export {
   getFirewallLogChainDescription,
   formatFirewallLogConnection,
   DEFAULT_FIREWALL_LOG_ENTRY,
+  DEFAULT_FIREWALL_LOG_FILTER_STATE,
 } from './firewall-log.types';
 
 // Firewall Templates

@@ -30,15 +30,15 @@ type TemplateImporterConfig struct {
 
 // ImportTemplateRequest contains parameters for importing a template
 type ImportTemplateRequest struct {
-	RouterID   string
+	RouterID     string
 	TemplateJSON string // JSON string of template
-	Overwrite  bool   // If true, overwrites existing template with same ID
+	Overwrite    bool   // If true, overwrites existing template with same ID
 }
 
 // ImportFromFileRequest contains parameters for importing from a file
 type ImportFromFileRequest struct {
-	RouterID string
-	FilePath string
+	RouterID  string
+	FilePath  string
 	Overwrite bool
 }
 
@@ -85,7 +85,7 @@ func (ti *TemplateImporter) ImportTemplate(ctx context.Context, req ImportTempla
 	// Check if template already exists
 	exists, err := ti.store.ServiceTemplate.Query().
 		Where(
-			// TODO: Add proper query conditions when ENT schema is ready
+		// TODO: Add proper query conditions when ENT schema is ready
 		).
 		Exist(ctx)
 
@@ -142,25 +142,25 @@ func (ti *TemplateImporter) saveTemplate(ctx context.Context, template *ServiceT
 	// Convert services to []map[string]interface{} for ENT JSON field
 	servicesData := make([]map[string]interface{}, len(template.Services))
 	for i, svc := range template.Services {
-		svcJSON, _ := json.Marshal(svc)
-		json.Unmarshal(svcJSON, &servicesData[i])
+		svcJSON, _ := json.Marshal(svc)               //nolint:errcheck,errchkjson // marshal of known types
+		_ = json.Unmarshal(svcJSON, &servicesData[i]) //nolint:errcheck // unmarshal of known types
 	}
 
 	configVarsData := make([]map[string]interface{}, len(template.ConfigVariables))
 	for i, v := range template.ConfigVariables {
-		vJSON, _ := json.Marshal(v)
-		json.Unmarshal(vJSON, &configVarsData[i])
+		vJSON, _ := json.Marshal(v)                   //nolint:errcheck,errchkjson // marshal of known types
+		_ = json.Unmarshal(vJSON, &configVarsData[i]) //nolint:errcheck // unmarshal of known types
 	}
 
 	suggestedRoutingData := make([]map[string]interface{}, len(template.SuggestedRouting))
 	for i, r := range template.SuggestedRouting {
-		rJSON, _ := json.Marshal(r)
-		json.Unmarshal(rJSON, &suggestedRoutingData[i])
+		rJSON, _ := json.Marshal(r)                         //nolint:errcheck,errchkjson // marshal of known types
+		_ = json.Unmarshal(rJSON, &suggestedRoutingData[i]) //nolint:errcheck // unmarshal of known types
 	}
 
 	resourcesData := make(map[string]interface{})
 	if resJSON, err := json.Marshal(template.EstimatedResources); err == nil {
-		json.Unmarshal(resJSON, &resourcesData)
+		_ = json.Unmarshal(resJSON, &resourcesData) //nolint:errcheck // best-effort conversion to ENT format
 	}
 
 	// Generate new ID if template doesn't have one
@@ -236,7 +236,7 @@ func (ti *TemplateImporter) ExportTemplateToFile(template *ServiceTemplate, file
 	}
 
 	// Write to file
-	if err := os.WriteFile(filePath, []byte(jsonStr), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(jsonStr), 0o644); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
@@ -253,7 +253,7 @@ func (ti *TemplateImporter) ListCustomTemplates(ctx context.Context, routerID st
 	// Query templates from database
 	entTemplates, err := ti.store.ServiceTemplate.Query().
 		Where(
-			// TODO: Add proper query conditions when ENT schema is ready
+		// TODO: Add proper query conditions when ENT schema is ready
 		).
 		All(ctx)
 

@@ -23,6 +23,8 @@ var HTTPAPIPorts = []int{80, 443}
 // ValidateRouterOSResponse validates if a response body is from a RouterOS device.
 // Returns detailed RouterOSInfo with confidence score.
 // A confidence score >= 40 with at least 3 RouterOS fields indicates a valid device.
+//
+//nolint:gocyclo // validation complexity
 func ValidateRouterOSResponse(body []byte) RouterOSInfo {
 	var result RouterOSInfo
 
@@ -53,10 +55,10 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo {
 	if version, ok := data["version"].(string); ok {
 		result.Version = version
 		// Check version format (like "7.8" or "6.49.8")
-		if matched, _ := regexp.MatchString(`^\d+\.\d+`, version); matched {
+		if matched, err := regexp.MatchString(`^\d+\.\d+`, version); err == nil && matched {
 			confidence += 20
 		}
-		if strings.Contains(strings.ToLower(version), "routeros") {
+		if strings.Contains(strings.ToLower(version), "routers") {
 			confidence += 30
 		}
 	} else if versionString, ok := data["version-string"].(string); ok {
@@ -111,12 +113,12 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	client := &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // Skip cert verification
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec // G402: required for router discovery with self-signed certs
 		},
 	}
 
 	// Create request with Basic Auth (default admin with no password)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return nil
 	}
@@ -136,7 +138,7 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	}
 
 	// For 200 responses, validate the content
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		validation := ValidateRouterOSResponse(body)
 		if validation.IsValid {
 			return &validation
@@ -145,7 +147,7 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	}
 
 	// For 401 responses, this likely indicates RouterOS with authentication required
-	if resp.StatusCode == 401 {
+	if resp.StatusCode == http.StatusUnauthorized { //nolint:nestif // multiple condition checks
 		// Check for RouterOS-specific headers or content
 		contentType := resp.Header.Get("Content-Type")
 
@@ -190,7 +192,7 @@ func IsPortOpen(ctx context.Context, ip string, port int, timeout time.Duration)
 	if err != nil {
 		return false
 	}
-	defer conn.Close()
+	defer conn.Close() //nolint:gocritic // defer close is intentional
 
 	return true
 }

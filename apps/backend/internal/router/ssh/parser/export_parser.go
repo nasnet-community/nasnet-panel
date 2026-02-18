@@ -111,7 +111,7 @@ func (p *exportParser) Parse(ctx context.Context, raw string, hints ParseHints) 
 	result.Metadata.RowCount = len(result.Resources)
 
 	// Extract version from header if present
-	for _, line := range lines[:min(10, len(lines))] {
+	for _, line := range lines[:minVal(10, len(lines))] {
 		if version := extractExportVersion(line); version != "" {
 			result.Metadata.RouterOSVersion = version
 			break
@@ -229,6 +229,8 @@ func (p *exportParser) parseExportCommand(line string, lineNum int) ExportComman
 }
 
 // parseExportProperties parses key=value properties from an export command.
+//
+//nolint:gocyclo // parser state machine complexity
 func (p *exportParser) parseExportProperties(propsStr string) map[string]string {
 	props := make(map[string]string)
 
@@ -257,13 +259,14 @@ func (p *exportParser) parseExportProperties(propsStr string) map[string]string 
 	for _, ch := range propsStr {
 		switch {
 		case ch == '"':
-			if !inQuote {
+			switch {
+			case !inQuote:
 				inQuote = true
 				quoteChar = ch
-			} else if ch == quoteChar {
+			case ch == quoteChar:
 				inQuote = false
 				quoteChar = 0
-			} else {
+			default:
 				if inValue {
 					value.WriteRune(ch)
 				}
@@ -284,9 +287,10 @@ func (p *exportParser) parseExportProperties(propsStr string) map[string]string 
 			// Skip leading spaces
 
 		default:
-			if inKey {
+			switch {
+			case inKey:
 				key.WriteRune(ch)
-			} else if inValue {
+			case inValue:
 				value.WriteRune(ch)
 			}
 		}
@@ -321,7 +325,7 @@ func (p *exportParser) commandToResource(path string, cmd ExportCommand) map[str
 // isExportCommand checks if a line is an export command (add, set, remove, etc.).
 func isExportCommand(line string) bool {
 	line = strings.TrimSpace(line)
-	if len(line) == 0 {
+	if line == "" {
 		return false
 	}
 
@@ -363,8 +367,8 @@ func extractExportVersion(line string) string {
 	return ""
 }
 
-// min returns the smaller of two integers.
-func min(a, b int) int {
+// minVal returns the smaller of two integers.
+func minVal(a, b int) int {
 	if a < b {
 		return a
 	}

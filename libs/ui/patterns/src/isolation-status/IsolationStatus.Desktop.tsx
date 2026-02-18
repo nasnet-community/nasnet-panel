@@ -8,9 +8,10 @@
  */
 
 import { useState } from 'react';
+
 import * as Icons from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import {
+
+import { cn ,
   Card,
   Badge,
   Button,
@@ -27,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from '@nasnet/ui/primitives';
+
 
 import type { IsolationStatusPresenterProps } from './types';
 
@@ -56,7 +58,7 @@ export function IsolationStatusDesktop({
   const Icon = Icons[state.iconName];
 
   const handleSave = async () => {
-    await state.handleSaveLimits(limits);
+    await state.handleSaveLimits(limits as any);
     setEditMode(false);
   };
 
@@ -184,7 +186,7 @@ export function IsolationStatusDesktop({
                           {violation.violation.message}
                         </TableCell>
                         <TableCell className="font-mono text-xs text-muted-foreground">
-                          {violation.violation.details || '-'}
+                          {violation.violation.layer || '-'}
                         </TableCell>
                       </TableRow>
                     );

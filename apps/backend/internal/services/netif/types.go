@@ -49,6 +49,8 @@ const (
 	BatchActionEnable  BatchAction = "ENABLE"
 	BatchActionDisable BatchAction = "DISABLE"
 	BatchActionUpdate  BatchAction = "UPDATE"
+
+	trueValue = "true"
 )
 
 // IPAddressData represents enriched IP address information.

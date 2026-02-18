@@ -1,7 +1,7 @@
 package features
 
 import (
-	"backend/pkg/manifest"
+	"backend/internal/common/manifest"
 )
 
 // Manifest is an alias for pkg/manifest.Manifest.

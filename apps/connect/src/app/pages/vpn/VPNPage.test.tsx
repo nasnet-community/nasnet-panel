@@ -3,9 +3,10 @@
  * Tests for the VPN page including refresh functionality (Story 0-4-3)
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
+
 import { VPNPage } from './VPNPage';
 
 // Mock the useWireGuardInterfaces hook

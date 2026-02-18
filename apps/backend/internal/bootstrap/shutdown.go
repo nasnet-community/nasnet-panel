@@ -7,8 +7,9 @@ import (
 
 	"backend/internal/alerts"
 	"backend/internal/database"
-	"backend/internal/events"
 	"backend/internal/features/updates"
+
+	"backend/internal/events"
 	"backend/internal/storage"
 )
 
@@ -31,6 +32,7 @@ func NewShutdownCoordinator(
 	updateScheduler *updates.UpdateScheduler,
 	storageDetector *storage.StorageDetector,
 ) *ShutdownCoordinator {
+
 	return &ShutdownCoordinator{
 		dbManager:       dbManager,
 		eventBus:        eventBus,

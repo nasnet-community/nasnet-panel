@@ -6,10 +6,13 @@
  */
 
 import { useRef, useEffect, type ReactNode } from 'react';
+
 import { motion, LayoutGroup, type HTMLMotionProps } from 'framer-motion';
+
+import { cn } from '@nasnet/ui/primitives';
+
 import { useAnimation, useAnimationOptional } from './AnimationProvider';
 import { moveTransition } from './presets';
-import { cn } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // SharedElement Component

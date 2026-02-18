@@ -8,8 +8,9 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { FirewallLogFilterState } from '@nasnet/ui/patterns';
-import { DEFAULT_FILTER_STATE } from '@nasnet/ui/patterns';
+
+import type { FirewallLogFilterState } from '@nasnet/core/types';
+import { DEFAULT_FIREWALL_LOG_FILTER_STATE } from '@nasnet/core/types';
 
 /**
  * Auto-refresh interval presets (in milliseconds)
@@ -160,7 +161,7 @@ export interface FirewallLogUIState {
  * Initial state
  */
 const initialState = {
-  filters: DEFAULT_FILTER_STATE,
+  filters: DEFAULT_FIREWALL_LOG_FILTER_STATE,
   autoRefresh: false,
   refreshInterval: 10000 as RefreshInterval,
   sortBy: 'timestamp' as LogSortField,
@@ -189,7 +190,7 @@ export const useFirewallLogStore = create<FirewallLogUIState>()(
 
       // Filters
       setFilters: (filters: FirewallLogFilterState) => set({ filters }),
-      resetFilters: () => set({ filters: DEFAULT_FILTER_STATE }),
+      resetFilters: () => set({ filters: DEFAULT_FIREWALL_LOG_FILTER_STATE }),
 
       // Auto-refresh
       toggleAutoRefresh: () =>

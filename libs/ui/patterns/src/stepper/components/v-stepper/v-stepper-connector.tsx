@@ -8,9 +8,10 @@
  */
 
 import * as React from 'react';
+
 import { motion } from 'framer-motion';
-import { cn } from '@nasnet/ui/primitives';
-import { useReducedMotion } from '@nasnet/ui/primitives';
+
+import { cn , useReducedMotion } from '@nasnet/ui/primitives';
 
 import type { VStepperConnectorProps } from './v-stepper.types';
 

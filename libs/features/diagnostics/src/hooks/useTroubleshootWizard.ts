@@ -68,34 +68,35 @@ export function useTroubleshootWizard({
   const machine = useMemo(() => createTroubleshootMachine(routerId), [routerId]);
 
   const [state, send] = useMachine(machine, {
-    // Provide service implementations
-    actors: {
-      detectNetworkConfig: async ({ input }) => {
-        const wanInterface = await detectWanInterface(input.routerId);
-        const gateway = await detectGateway(input.routerId);
-        return { wanInterface, gateway };
+    // Provide service implementations via input
+    ...({
+      actors: {
+        detectNetworkConfig: async ({ input }: { input: any }) => {
+          const wanInterface = await detectWanInterface(input.routerId);
+          const gateway = await detectGateway(input.routerId);
+          return { wanInterface, gateway };
+        },
+        executeDiagnosticStep: async ({ input }: { input: any }) => {
+          return executeDiagnosticStep(
+            input.step.id,
+            input.routerId,
+            input.sessionId ?? input.step.id
+          );
+        },
+        applyFix: async ({ input }: { input: any }) => {
+          const result = await applyFixCommand(input.routerId, input.fix);
+          if (result.success && onFixApplied) {
+            onFixApplied({
+              issueCode: input.fix.issueCode,
+              command: input.fix.command || '',
+              success: true,
+              rollbackAvailable: !!input.fix.rollbackCommand,
+            });
+          }
+          return result;
+        },
       },
-      executeDiagnosticStep: async ({ input }) => {
-        return executeDiagnosticStep(
-          input.step.id,
-          input.routerId,
-          input.wanInterface,
-          input.gateway
-        );
-      },
-      applyFix: async ({ input }) => {
-        const result = await applyFixCommand(input.routerId, input.fix);
-        if (result.success && onFixApplied) {
-          onFixApplied({
-            issueCode: input.fix.issueCode,
-            command: input.fix.command || '',
-            success: true,
-            rollbackAvailable: !!input.fix.rollbackCommand,
-          });
-        }
-        return result;
-      },
-    },
+    } as any),
   });
 
   // Auto-start on mount if requested

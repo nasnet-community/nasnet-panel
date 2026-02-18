@@ -94,12 +94,16 @@ export function useNewLeaseDetection(
         });
       }, 5000);
 
+      // Update ref for next comparison
+      prevLeaseIdsRef.current = currentIds;
+
       // Cleanup timeout on unmount or next effect run
       return () => clearTimeout(fadeTimeout);
     }
 
     // Update ref for next comparison
     prevLeaseIdsRef.current = currentIds;
+    return undefined;
   }, [leases]);
 
   return { newLeaseIds };

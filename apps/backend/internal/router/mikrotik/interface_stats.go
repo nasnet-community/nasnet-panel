@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 	"backend/internal/router"
 )
 
@@ -15,6 +15,7 @@ func (a *MikroTikAdapter) GetInterfaceStats(
 	ctx context.Context,
 	interfaceID string,
 ) (*model.InterfaceStats, error) {
+
 	cmd := router.Command{
 		Path:        "/interface",
 		Action:      "print",
@@ -44,6 +45,7 @@ func (a *MikroTikAdapter) GetInterfaceStats(
 func (a *MikroTikAdapter) GetAllInterfaceStats(
 	ctx context.Context,
 ) (map[string]*model.InterfaceStats, error) {
+
 	cmd := router.Command{
 		Path:   "/interface",
 		Action: "print",

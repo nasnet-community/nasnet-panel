@@ -8,18 +8,18 @@ import (
 // Registry is a thread-safe registry of config generators for different service types.
 type Registry struct {
 	mu         sync.RWMutex
-	generators map[string]ConfigGenerator
+	generators map[string]Generator
 }
 
 // NewRegistry creates a new generator registry.
 func NewRegistry() *Registry {
 	return &Registry{
-		generators: make(map[string]ConfigGenerator),
+		generators: make(map[string]Generator),
 	}
 }
 
 // Register registers a config generator for a service type.
-func (r *Registry) Register(generator ConfigGenerator) error {
+func (r *Registry) Register(generator Generator) error {
 	if generator == nil {
 		return fmt.Errorf("generator cannot be nil")
 	}
@@ -41,7 +41,7 @@ func (r *Registry) Register(generator ConfigGenerator) error {
 }
 
 // Get retrieves a config generator by service type.
-func (r *Registry) Get(serviceType string) (ConfigGenerator, error) {
+func (r *Registry) Get(serviceType string) (Generator, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -100,11 +100,11 @@ func (r *Registry) Clear() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.generators = make(map[string]ConfigGenerator)
+	r.generators = make(map[string]Generator)
 }
 
 // GetSchema retrieves the schema for a service type.
-func (r *Registry) GetSchema(serviceType string) (*ConfigSchema, error) {
+func (r *Registry) GetSchema(serviceType string) (*Schema, error) {
 	generator, err := r.Get(serviceType)
 	if err != nil {
 		return nil, err

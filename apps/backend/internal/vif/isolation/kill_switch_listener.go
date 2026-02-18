@@ -10,7 +10,14 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
+
 	"backend/internal/events"
+)
+
+// Health state constants for kill switch transitions.
+const (
+	healthStateUnhealthy = "UNHEALTHY"
+	healthStateHealthy   = "HEALTHY"
 )
 
 // KillSwitchListener listens to health events and manages kill switch state.
@@ -30,6 +37,7 @@ func NewKillSwitchListener(
 	publisher *events.Publisher,
 	killSwitchMgr *KillSwitchManager,
 ) *KillSwitchListener {
+
 	return &KillSwitchListener{
 		client:        client,
 		eventBus:      eventBus,
@@ -54,8 +62,8 @@ func (l *KillSwitchListener) handleHealthEvent(ctx context.Context, event events
 	}
 
 	// Step 1: Check if this is a state transition we care about
-	isTransitionToUnhealthy := healthEvent.CurrentState == "UNHEALTHY" && healthEvent.PreviousState != "UNHEALTHY"
-	isTransitionToHealthy := healthEvent.CurrentState == "HEALTHY" && healthEvent.PreviousState == "UNHEALTHY"
+	isTransitionToUnhealthy := healthEvent.CurrentState == healthStateUnhealthy && healthEvent.PreviousState != healthStateUnhealthy
+	isTransitionToHealthy := healthEvent.CurrentState == healthStateHealthy && healthEvent.PreviousState == healthStateUnhealthy
 
 	if !isTransitionToUnhealthy && !isTransitionToHealthy {
 		// Not a relevant transition, skip
@@ -92,6 +100,7 @@ func (l *KillSwitchListener) handleUnhealthyTransition(
 	routings []*ent.DeviceRouting,
 	event *events.FeatureHealthChangedEvent,
 ) error {
+
 	for _, routing := range routings {
 		// Activate kill switch
 		if err := l.killSwitchMgr.Activate(ctx, routing.ID); err != nil {
@@ -112,7 +121,8 @@ func (l *KillSwitchListener) handleUnhealthyTransition(
 				event.CurrentState,
 				time.Now(),
 			)
-			_ = l.publisher.Publish(ctx, activatedEvent)
+			if err := l.publisher.Publish(ctx, activatedEvent); err != nil { //nolint:revive,staticcheck // intentional no-op
+			}
 		}
 	}
 
@@ -123,8 +133,9 @@ func (l *KillSwitchListener) handleUnhealthyTransition(
 func (l *KillSwitchListener) handleHealthyTransition(
 	ctx context.Context,
 	routings []*ent.DeviceRouting,
-	event *events.FeatureHealthChangedEvent,
+	_ *events.FeatureHealthChangedEvent,
 ) error {
+
 	for _, routing := range routings {
 		// Calculate how long kill switch was active
 		var activeFor string
@@ -154,7 +165,8 @@ func (l *KillSwitchListener) handleHealthyTransition(
 				"service_recovered",
 				time.Now(),
 			)
-			_ = l.publisher.Publish(ctx, deactivatedEvent)
+			if err := l.publisher.Publish(ctx, deactivatedEvent); err != nil { //nolint:revive,staticcheck // intentional no-op
+			}
 		}
 	}
 

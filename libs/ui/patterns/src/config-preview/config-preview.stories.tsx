@@ -12,11 +12,13 @@
  */
 
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import { ConfigPreview } from './config-preview';
 import { ConfigPreviewDesktop } from './config-preview-desktop';
 import { ConfigPreviewMobile } from './config-preview-mobile';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Sample RouterOS scripts
 const SIMPLE_SCRIPT = `/interface ethernet

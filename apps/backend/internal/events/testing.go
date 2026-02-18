@@ -39,13 +39,13 @@ func (b *InMemoryEventBus) Publish(ctx context.Context, event Event) error {
 
 	// Call all-events handlers
 	for _, handler := range b.allHandler {
-		_ = handler(ctx, event)
+		_ = handler(ctx, event) //nolint:errcheck // in-memory test bus intentionally ignores handler errors
 	}
 
 	// Call type-specific handlers
 	if handlers, ok := b.handlers[event.GetType()]; ok {
 		for _, handler := range handlers {
-			_ = handler(ctx, event)
+			_ = handler(ctx, event) //nolint:errcheck // in-memory test bus intentionally ignores handler errors
 		}
 	}
 

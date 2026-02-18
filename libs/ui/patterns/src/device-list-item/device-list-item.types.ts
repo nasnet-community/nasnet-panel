@@ -8,8 +8,9 @@
  * @see NAS-5.4: DHCP Leases and Active Connections Display
  */
 
-import type { LucideIcon } from 'lucide-react';
 import type { ConnectedDeviceEnriched } from '@nasnet/core/types';
+
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * Props for the DeviceListItem component

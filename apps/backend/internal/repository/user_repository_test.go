@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"backend/internal/common/ulid"
 	"backend/internal/repository"
-	"backend/pkg/ulid"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

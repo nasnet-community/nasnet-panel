@@ -94,6 +94,8 @@ func LogError(logger *zap.Logger, err error) {
 		logger.Warn(msg, fields...)
 	case zapcore.ErrorLevel:
 		logger.Error(msg, fields...)
+	case zapcore.DPanicLevel, zapcore.PanicLevel, zapcore.FatalLevel, zapcore.InvalidLevel:
+		logger.Error(msg, fields...)
 	default:
 		logger.Error(msg, fields...)
 	}
@@ -138,6 +140,8 @@ func LogErrorWithDuration(logger *zap.Logger, err error, duration time.Duration)
 	case zapcore.WarnLevel:
 		logger.Warn(msg, fields...)
 	case zapcore.ErrorLevel:
+		logger.Error(msg, fields...)
+	case zapcore.DPanicLevel, zapcore.PanicLevel, zapcore.FatalLevel, zapcore.InvalidLevel:
 		logger.Error(msg, fields...)
 	default:
 		logger.Error(msg, fields...)

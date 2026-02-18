@@ -16,6 +16,7 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { useTemplatePreview } from './use-template-preview';
 import {
   mockBasicSecurityTemplate,
@@ -23,6 +24,7 @@ import {
   mockPreviewResult,
   mockPreviewResultWithConflicts,
 } from '../__test-utils__/firewall-templates/template-fixtures';
+
 import type { TemplatePreviewResult, TemplateVariableValues } from './template-preview.types';
 
 describe('useTemplatePreview', () => {

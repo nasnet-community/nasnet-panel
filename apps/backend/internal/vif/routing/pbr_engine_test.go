@@ -10,15 +10,15 @@ import (
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/router"
 	"backend/generated/ent/serviceinstance"
-	"backend/internal/events"
+	"backend/internal/common/ulid"
+
 	routerpkg "backend/internal/router"
-	"backend/pkg/ulid"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
-	_ "modernc.org/sqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
 )
 
 // openTestClient creates an ent client for testing with in-memory SQLite.
@@ -85,7 +85,7 @@ type MockRouterPort struct {
 	connected   bool
 }
 
-func (m *MockRouterPort) Connect(ctx context.Context) error {
+func (m *MockRouterPort) Connect(_ context.Context) error {
 	m.connected = true
 	return nil
 }
@@ -99,7 +99,7 @@ func (m *MockRouterPort) IsConnected() bool {
 	return m.connected
 }
 
-func (m *MockRouterPort) Health(ctx context.Context) routerpkg.HealthStatus {
+func (m *MockRouterPort) Health(_ context.Context) routerpkg.HealthStatus {
 	status := routerpkg.StatusDisconnected
 	if m.connected {
 		status = routerpkg.StatusConnected
@@ -184,7 +184,7 @@ func TestPBREngine_AssignDeviceRouting_MAC(t *testing.T) {
 		Where(devicerouting.DeviceIDEQ("dev-aabbccddeeff")).
 		Only(ctx)
 	require.NoError(t, err)
-	assert.Equal(t, "aa:bb:cc:dd:ee:ff", dbRecord.MacAddress)
+	assert.Equal(t, "aa:bb:cc:dd:ee:ff", dbRecord.MACAddress)
 	assert.Equal(t, "test-mark", dbRecord.RoutingMark)
 	assert.Equal(t, "*test-mangle-1", dbRecord.MangleRuleID)
 	assert.Equal(t, instanceID, dbRecord.InstanceID)
@@ -358,7 +358,7 @@ func TestPBREngine_BulkAssignRouting(t *testing.T) {
 				// Simulate failure for second assignment
 				return &routerpkg.CommandResult{
 					Success: false,
-					Error:   "router error",
+					Error:   fmt.Errorf("router error"),
 				}, fmt.Errorf("router error")
 			}
 			return &routerpkg.CommandResult{

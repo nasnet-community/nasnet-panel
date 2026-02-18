@@ -9,8 +9,10 @@ import (
 	"strings"
 	"sync"
 
+	"backend/internal/orchestrator/dependencies"
+	"backend/internal/orchestrator/lifecycle"
+
 	"backend/internal/events"
-	"backend/internal/orchestrator"
 
 	"github.com/rs/zerolog"
 )
@@ -26,8 +28,8 @@ var builtInTemplatesFS embed.FS
 type TemplateService struct {
 	mu                sync.RWMutex
 	builtInTemplates  map[string]*ServiceTemplate
-	instanceManager   *orchestrator.InstanceManager
-	dependencyManager *orchestrator.DependencyManager
+	instanceManager   *lifecycle.InstanceManager
+	dependencyManager *dependencies.DependencyManager
 	eventBus          events.EventBus
 	publisher         *events.Publisher
 	logger            zerolog.Logger
@@ -35,8 +37,8 @@ type TemplateService struct {
 
 // TemplateServiceConfig holds configuration for the template service
 type TemplateServiceConfig struct {
-	InstanceManager   *orchestrator.InstanceManager
-	DependencyManager *orchestrator.DependencyManager
+	InstanceManager   *lifecycle.InstanceManager
+	DependencyManager *dependencies.DependencyManager
 	EventBus          events.EventBus
 	Logger            zerolog.Logger
 }
@@ -270,7 +272,7 @@ func (s *TemplateService) validateVariables(template *ServiceTemplate, variables
 		}
 
 		// Pattern validation (for strings)
-		if varDef.ValidationPattern != "" && varDef.Type == VarTypeString {
+		if varDef.ValidationPattern != "" && varDef.Type == VarTypeString { //nolint:nestif // variable validation logic
 			strValue, ok := value.(string)
 			if ok {
 				matched, err := regexp.MatchString(varDef.ValidationPattern, strValue)
@@ -340,7 +342,7 @@ func (s *TemplateService) substituteVariables(text string, variables map[string]
 }
 
 // resolveConfigMap resolves variables in a configuration map recursively
-func (s *TemplateService) resolveConfigMap(config map[string]interface{}, variables map[string]interface{}, pattern *regexp.Regexp) map[string]interface{} {
+func (s *TemplateService) resolveConfigMap(config, variables map[string]interface{}, pattern *regexp.Regexp) map[string]interface{} {
 	resolved := make(map[string]interface{})
 
 	for key, value := range config {
@@ -406,6 +408,7 @@ func (s *TemplateService) SearchTemplates(ctx context.Context, query string) ([]
 		if strings.Contains(strings.ToLower(template.Name), query) ||
 			strings.Contains(strings.ToLower(template.Description), query) ||
 			s.containsTag(template.Tags, query) {
+
 			templateCopy := *template
 			templates = append(templates, &templateCopy)
 		}

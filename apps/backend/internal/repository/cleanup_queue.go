@@ -38,7 +38,7 @@ type CleanupTask struct {
 // CleanupQueueConfig holds configuration for the cleanup queue.
 type CleanupQueueConfig struct {
 	// DBManager provides access to router database files.
-	DBManager *database.DatabaseManager
+	DBManager *database.Manager
 
 	// MaxRetries is the maximum number of retry attempts.
 	MaxRetries int
@@ -63,7 +63,7 @@ type CleanupQueueConfig struct {
 type CleanupQueue struct {
 	mu            sync.Mutex
 	tasks         []CleanupTask
-	dbManager     *database.DatabaseManager
+	dbManager     *database.Manager
 	maxRetries    int
 	retryInterval time.Duration
 	ticker        *time.Ticker
@@ -72,7 +72,7 @@ type CleanupQueue struct {
 }
 
 // DefaultCleanupQueueConfig returns default configuration for the cleanup queue.
-func DefaultCleanupQueueConfig(dbManager *database.DatabaseManager) CleanupQueueConfig {
+func DefaultCleanupQueueConfig(dbManager *database.Manager) CleanupQueueConfig {
 	return CleanupQueueConfig{
 		DBManager:       dbManager,
 		MaxRetries:      5,
@@ -182,7 +182,7 @@ func (q *CleanupQueue) processTasks(ctx context.Context) {
 }
 
 // executeTask executes a single cleanup task.
-func (q *CleanupQueue) executeTask(ctx context.Context, task CleanupTask) error {
+func (q *CleanupQueue) executeTask(_ctx context.Context, task CleanupTask) error {
 	switch task.Type {
 	case CleanupRouterDB:
 		return q.cleanupRouterDB(task.RouterID)

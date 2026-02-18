@@ -10,8 +10,9 @@ import * as React from 'react';
 import { FormProvider } from 'react-hook-form';
 
 import { Button, Card, cn } from '@nasnet/ui/primitives';
-import { RHFFormField } from '../rhf-form-field';
+
 import { ConfirmationDialog } from '../confirmation-dialog';
+import { RHFFormField } from '../rhf-form-field';
 
 import type { UseConnectionTrackingSettingsReturn } from './use-connection-tracking-settings';
 
@@ -111,18 +112,6 @@ export function ConnectionTrackingSettingsDesktop({
               type="number"
               required
             />
-
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                {...form.register('trackLocal')}
-                id="trackLocal"
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <label htmlFor="trackLocal" className="text-sm">
-                Track connections for local traffic
-              </label>
-            </div>
 
             <div className="flex items-center gap-3">
               <input

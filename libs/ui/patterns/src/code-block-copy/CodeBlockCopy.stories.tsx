@@ -3,9 +3,10 @@
  * @see NAS-4.23 - Implement Clipboard Integration
  */
 
+import { CodeBlockCopy } from './CodeBlockCopy';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { CodeBlockCopy } from './CodeBlockCopy';
 
 const routerosFirewallRule = `/ip firewall filter
 add chain=forward action=accept protocol=tcp dst-port=80,443 comment="Allow HTTP/HTTPS"

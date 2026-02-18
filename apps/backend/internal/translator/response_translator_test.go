@@ -129,9 +129,9 @@ func TestResponseTranslator_ValueConversion(t *testing.T) {
 		response := &CanonicalResponse{
 			Success: true,
 			Data: map[string]interface{}{
-				"mtu":       "1500",       // has FieldTypeInt mapping at /interface
-				"cpu-load":  "45",         // mapped at /system/resource, auto-converts here
-				"tx-bytes":  "123456789",  // auto-converts as int
+				"mtu":      "1500",      // has FieldTypeInt mapping at /interface
+				"cpu-load": "45",        // mapped at /system/resource, auto-converts here
+				"tx-bytes": "123456789", // auto-converts as int
 			},
 		}
 

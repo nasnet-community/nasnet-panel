@@ -64,7 +64,7 @@ func setupTest(t *testing.T) (context.Context, *VLANAllocator, *ent.Client) {
 
 	// Create VLANAllocator with default pool (100-199)
 	allocator, err := NewVLANAllocator(VLANAllocatorConfig{
-		Store:       client,
+		Store:       &entStoreAdapter{client: client},
 		VlanService: mockVlanService,
 		PoolStart:   100,
 		PoolEnd:     199,
@@ -171,7 +171,7 @@ func TestAllocateVLAN_PoolExhaustion(t *testing.T) {
 	// Create allocator with tiny pool (100-102, only 3 VLANs)
 	mockVlanService := &mockVlanService{}
 	allocator, err := NewVLANAllocator(VLANAllocatorConfig{
-		Store:       client,
+		Store:       &entStoreAdapter{client: client},
 		VlanService: mockVlanService,
 		PoolStart:   100,
 		PoolEnd:     102,
@@ -336,7 +336,7 @@ func TestGetPoolStatus(t *testing.T) {
 	// Create allocator with pool of 100 VLANs (100-199)
 	mockVlanService := &mockVlanService{}
 	allocator, err := NewVLANAllocator(VLANAllocatorConfig{
-		Store:       client,
+		Store:       &entStoreAdapter{client: client},
 		VlanService: mockVlanService,
 		PoolStart:   100,
 		PoolEnd:     199,
@@ -501,7 +501,7 @@ func TestVLANPoolWarningEvents(t *testing.T) {
 
 	// Create allocator with small pool (10 VLANs: 100-109) for easy threshold testing
 	allocator, err := NewVLANAllocator(VLANAllocatorConfig{
-		Store:       client,
+		Store:       &entStoreAdapter{client: client},
 		VlanService: mockVlanService,
 		EventBus:    mockBus,
 		PoolStart:   100,
@@ -517,7 +517,7 @@ func TestVLANPoolWarningEvents(t *testing.T) {
 		for i := 0; i < 7; i++ {
 			instanceID := fmt.Sprintf("instance-%d", i)
 			createTestInstance(t, client, routerID, instanceID, "tor")
-			
+
 			_, err := allocator.AllocateVLAN(ctx, AllocateVLANRequest{
 				RouterID:    routerID,
 				InstanceID:  instanceID,
@@ -535,7 +535,7 @@ func TestVLANPoolWarningEvents(t *testing.T) {
 		// Allocate 8th VLAN (80% utilization - warning threshold)
 		instanceID := "instance-warning"
 		createTestInstance(t, client, routerID, instanceID, "tor")
-		
+
 		_, err := allocator.AllocateVLAN(ctx, AllocateVLANRequest{
 			RouterID:    routerID,
 			InstanceID:  instanceID,
@@ -546,7 +546,7 @@ func TestVLANPoolWarningEvents(t *testing.T) {
 		// Should emit warning event
 		events := mockBus.GetPublishedEvents()
 		require.Len(t, events, 1, "Should emit one warning event at 80% threshold")
-		
+
 		// Verify event type and details
 		// Note: events.Event interface doesn't expose fields directly, so we check the type
 		assert.NotNil(t, events[0], "Event should not be nil")
@@ -556,7 +556,7 @@ func TestVLANPoolWarningEvents(t *testing.T) {
 		// Allocate 10th VLAN (100% utilization - triggers 95%+ critical threshold)
 		instanceID := "instance-critical"
 		createTestInstance(t, client, routerID, instanceID, "tor")
-		
+
 		_, err := allocator.AllocateVLAN(ctx, AllocateVLANRequest{
 			RouterID:    routerID,
 			InstanceID:  instanceID,
@@ -583,11 +583,11 @@ func TestVLANPoolWarningEventWithoutEventBus(t *testing.T) {
 
 	// Create allocator WITHOUT event bus
 	allocator, err := NewVLANAllocator(VLANAllocatorConfig{
-		Store:       client,
+		Store:       &entStoreAdapter{client: client},
 		VlanService: mockVlanService,
 		// EventBus intentionally nil
-		PoolStart:   100,
-		PoolEnd:     109,
+		PoolStart: 100,
+		PoolEnd:   109,
 	})
 	require.NoError(t, err)
 
@@ -598,7 +598,7 @@ func TestVLANPoolWarningEventWithoutEventBus(t *testing.T) {
 	for i := 0; i < 9; i++ {
 		instanceID := fmt.Sprintf("instance-%d", i)
 		createTestInstance(t, client, routerID, instanceID, "tor")
-		
+
 		_, err := allocator.AllocateVLAN(ctx, AllocateVLANRequest{
 			RouterID:    routerID,
 			InstanceID:  instanceID,

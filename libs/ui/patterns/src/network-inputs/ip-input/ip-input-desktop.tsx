@@ -112,7 +112,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
         {segments.map((segment, index) => (
           <div key={index} className="inline-flex items-center">
             <Input
-              ref={segmentRefs[index]}
+              ref={segmentRefs[index] as React.Ref<HTMLInputElement>}
               type="text"
               inputMode="numeric"
               value={segment}
@@ -157,7 +157,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               /
             </span>
             <Input
-              ref={cidrRef}
+              ref={cidrRef as React.Ref<HTMLInputElement>}
               type="text"
               inputMode="numeric"
               value={cidrPrefix}

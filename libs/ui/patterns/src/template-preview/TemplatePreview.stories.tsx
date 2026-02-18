@@ -4,9 +4,11 @@
  * Demonstrates all variants of the TemplatePreview component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
+
+import { TemplatePreview } from './TemplatePreview';
+import { useTemplatePreview } from './use-template-preview';
 import {
   mockBasicSecurityTemplate,
   mockHomeNetworkTemplate,
@@ -17,9 +19,8 @@ import {
   generateMockVariables,
 } from '../__test-utils__/firewall-templates/template-fixtures';
 
-import { TemplatePreview } from './TemplatePreview';
-import { useTemplatePreview } from './use-template-preview';
 import type { TemplatePreviewResult, TemplateVariableValues } from './template-preview.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof TemplatePreview> = {
   title: 'Patterns/TemplatePreview',

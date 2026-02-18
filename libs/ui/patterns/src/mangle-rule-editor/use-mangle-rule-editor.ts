@@ -9,8 +9,9 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import {
   MangleRuleSchema,
@@ -23,7 +24,7 @@ import {
   type MangleRuleInput,
   type MangleAction,
   type MangleChain,
-} from '@nasnet/core/types/firewall';
+} from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -117,8 +118,9 @@ export function useMangleRuleEditor(
     const errorMap: Record<string, string> = {};
 
     Object.entries(formErrors).forEach(([key, error]) => {
-      if (error?.message) {
-        errorMap[key] = error.message;
+      const err = error as { message?: string } | undefined;
+      if (err?.message) {
+        errorMap[key] = err.message;
       }
     });
 

@@ -4,9 +4,10 @@
  * Comprehensive stories demonstrating all ResourceUsageBar states and variants.
  */
 
+import { ResourceUsageBar } from './ResourceUsageBar';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { ResourceUsageBar } from './ResourceUsageBar';
 
 const meta: Meta<typeof ResourceUsageBar> = {
   title: 'Patterns/ResourceUsageBar',

@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { RESET_ALERT_TEMPLATE, GET_ALERT_TEMPLATES } from './alert-templates.graphql';
-import type { NotificationChannel } from '@nasnet/core/types';
+import type { NotificationChannel } from '@nasnet/api-client/generated';
 
 export function useResetAlertTemplate() {
   const [mutate, { loading, error }] = useMutation(RESET_ALERT_TEMPLATE, {

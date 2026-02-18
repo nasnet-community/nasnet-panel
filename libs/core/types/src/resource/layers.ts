@@ -220,6 +220,8 @@ export const RuntimeHealth = {
   WARNING: 'WARNING',
   /** Resource is running but degraded */
   DEGRADED: 'DEGRADED',
+  /** Resource is in critical state */
+  CRITICAL: 'CRITICAL',
   /** Resource has failed */
   FAILED: 'FAILED',
   /** Health status unknown */

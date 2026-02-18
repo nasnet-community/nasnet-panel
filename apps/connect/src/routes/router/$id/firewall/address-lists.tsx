@@ -7,10 +7,12 @@
  * @see NAS-7.3: Implement Address Lists - Task 7
  */
 
+import { lazy } from 'react';
+
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
 import { Skeleton } from '@nasnet/ui/primitives';
-import { lazy } from 'react';
 
 // Lazy-load the AddressListView component
 const LazyAddressListView = lazy(() =>

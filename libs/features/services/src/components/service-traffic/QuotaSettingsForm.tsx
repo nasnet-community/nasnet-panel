@@ -20,8 +20,8 @@ import { Loader2, Save, AlertCircle, Trash2 } from 'lucide-react';
 import {
   useSetTrafficQuota,
   useResetTrafficQuota,
-  type TrafficQuota,
 } from '@nasnet/api-client/queries';
+import type { TrafficQuota } from '@nasnet/api-client/generated';
 import { QuotaPeriod, QuotaAction } from '@nasnet/api-client/generated';
 import {
   Card,

@@ -20,6 +20,7 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { InterfaceTypeIcon, getInterfaceTypeLabel } from './interface-type-icon';
+
 import type { InterfaceType, InterfaceTypeFilterProps } from './interface-selector.types';
 
 /**

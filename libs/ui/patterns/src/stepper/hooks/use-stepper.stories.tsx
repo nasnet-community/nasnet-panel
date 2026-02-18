@@ -9,14 +9,16 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
-import * as React from 'react';
 import { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@nasnet/ui/primitives';
+
 import { useStepper } from './use-stepper';
+
 import type { StepConfig, ValidationResult } from './use-stepper.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ===== Meta Configuration =====
 
@@ -282,8 +284,9 @@ export const WithValidation: Story = {
             {/* Step-specific forms */}
             {stepper.currentStep.id === 'wan' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">WAN IP Address</label>
+                <label htmlFor="wan-ip-input" className="text-sm font-medium">WAN IP Address</label>
                 <Input
+                  id="wan-ip-input"
                   placeholder="192.168.1.1"
                   defaultValue={(stepper.getStepData('wan') as { ip?: string })?.ip ?? ''}
                   onChange={(e) => stepper.setStepData({ ip: e.target.value })}
@@ -297,8 +300,9 @@ export const WithValidation: Story = {
 
             {stepper.currentStep.id === 'lan' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">LAN Subnet</label>
+                <label htmlFor="lan-subnet-input" className="text-sm font-medium">LAN Subnet</label>
                 <Input
+                  id="lan-subnet-input"
                   placeholder="192.168.0.0/24"
                   defaultValue={(stepper.getStepData('lan') as { subnet?: string })?.subnet ?? ''}
                   onChange={(e) => stepper.setStepData({ subnet: e.target.value })}

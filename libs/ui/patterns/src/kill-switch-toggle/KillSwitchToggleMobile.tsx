@@ -5,27 +5,26 @@
  * Large touch targets (44px), vertical stacking, simplified layout.
  */
 
+import { AlertCircle, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
+
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from '@nasnet/ui/primitives/card';
-import { Label } from '@nasnet/ui/primitives/label';
-import { Switch } from '@nasnet/ui/primitives/switch';
-import {
+  Label,
+  Switch,
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@nasnet/ui/primitives/select';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import { AlertCircle, Shield, ShieldAlert, ShieldCheck } from 'lucide-react';
-import { cn } from '@nasnet/ui/utils';
+  Badge,
+ cn } from '@nasnet/ui/primitives';
 
 import { useKillSwitchToggle } from './useKillSwitchToggle';
+
 import type { KillSwitchToggleProps, KillSwitchMode } from './types';
 
 /**
@@ -61,7 +60,7 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
     statusColor === 'success'
       ? 'default'
       : statusColor === 'error'
-        ? 'destructive'
+        ? 'error'
         : statusColor === 'warning'
           ? 'secondary'
           : 'outline';
@@ -115,7 +114,7 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
               </Label>
               <Select
                 value={mode}
-                onValueChange={(value) => handleModeChange(value as KillSwitchMode)}
+                onValueChange={(value: string) => handleModeChange(value as KillSwitchMode)}
                 disabled={isDisabled}
               >
                 <SelectTrigger

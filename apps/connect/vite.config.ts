@@ -1,10 +1,12 @@
 /// <reference types='vitest' />
-import { defineConfig, type Plugin } from 'vite';
-import react from '@vitejs/plugin-react';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
-import checker from 'vite-plugin-checker';
-import { resolve } from 'path';
 import { spawn } from 'child_process';
+import { resolve } from 'path';
+
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig, type Plugin } from 'vite';
+import checker from 'vite-plugin-checker';
+
 
 /**
  * Custom plugin to watch design tokens and rebuild on changes
@@ -88,6 +90,9 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/features/logs': resolve(import.meta.dirname, '../../libs/features/logs/src'),
       '@nasnet/features/configuration-import': resolve(import.meta.dirname, '../../libs/features/configuration-import/src'),
       '@nasnet/features/network': resolve(import.meta.dirname, '../../libs/features/network/src'),
+      '@nasnet/features/alerts': resolve(import.meta.dirname, '../../libs/features/alerts/src'),
+      '@nasnet/features/diagnostics': resolve(import.meta.dirname, '../../libs/features/diagnostics/src'),
+      '@nasnet/features/services': resolve(import.meta.dirname, '../../libs/features/services/src'),
       '@nasnet/api-client/core': resolve(import.meta.dirname, '../../libs/api-client/core/src'),
       '@nasnet/api-client/generated': resolve(import.meta.dirname, '../../libs/api-client/generated'),
       '@nasnet/api-client/queries': resolve(import.meta.dirname, '../../libs/api-client/queries/src'),

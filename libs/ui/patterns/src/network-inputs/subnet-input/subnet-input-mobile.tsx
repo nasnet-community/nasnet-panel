@@ -12,6 +12,9 @@
  */
 
 import * as React from 'react';
+
+import { Calculator, ChevronDown } from 'lucide-react';
+
 import {
   cn,
   Input,
@@ -23,10 +26,11 @@ import {
   SheetTrigger,
   Button,
 } from '@nasnet/ui/primitives';
-import { Calculator, ChevronDown } from 'lucide-react';
-import { SubnetCalculations } from './subnet-calculations';
-import { PrefixSelector } from './prefix-selector';
+
 import { OverlapWarning, OverlapBadge } from './overlap-warning';
+import { PrefixSelector } from './prefix-selector';
+import { SubnetCalculations } from './subnet-calculations';
+
 import type { SubnetInputPresenterProps } from './subnet-input.types';
 
 /**
@@ -46,26 +50,21 @@ export function SubnetInputMobile({
   onBlur,
   showCalculations = true,
 }: SubnetInputPresenterProps) {
-  const inputId = id || React.useId();
+  const generatedId = React.useId();
+  const inputId = id || generatedId;
   const errorId = `${inputId}-error`;
   const helpId = `${inputId}-help`;
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
-  // Handle IP input change
-  const handleIPChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      state.setIP(e.target.value);
-    },
-    [state]
-  );
+  // Handle IP input change - moved outside render function
+  const handleIPChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    state.setIP(e.target.value);
+  };
 
-  // Handle prefix change
-  const handlePrefixChange = React.useCallback(
-    (prefix: number) => {
-      state.setPrefix(prefix);
-    },
-    [state]
-  );
+  // Handle prefix change - moved outside render function
+  const handlePrefixChange = (prefix: number) => {
+    state.setPrefix(prefix);
+  };
 
   return (
     <div className={cn('space-y-3', className)}>

@@ -3,8 +3,9 @@
  * @see NAS-4.5: Implement UI State with Zustand
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import {
   useNotificationStore,
   selectNotifications,

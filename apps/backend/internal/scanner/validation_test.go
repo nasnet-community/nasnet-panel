@@ -103,7 +103,7 @@ func TestValidateRouterOSResponse_VersionWithRouterOSString(t *testing.T) {
 	body, _ := json.Marshal(data)
 	result := ValidateRouterOSResponse(body)
 
-	// Should have extra confidence from "routeros" in version string
+	// Should have extra confidence from "routers" in version string
 	assert.True(t, result.IsValid)
 	assert.True(t, result.Confidence >= 40)
 }

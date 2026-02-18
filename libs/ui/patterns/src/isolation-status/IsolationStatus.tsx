@@ -10,9 +10,10 @@
  */
 
 import { usePlatform } from '@nasnet/ui/layouts';
-import { useIsolationStatus } from './useIsolationStatus';
-import { IsolationStatusMobile } from './IsolationStatus.Mobile';
+
 import { IsolationStatusDesktop } from './IsolationStatus.Desktop';
+import { IsolationStatusMobile } from './IsolationStatus.Mobile';
+import { useIsolationStatus } from './useIsolationStatus';
 
 import type { IsolationStatusProps } from './types';
 

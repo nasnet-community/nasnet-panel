@@ -21,16 +21,16 @@ const (
 
 // UpdateInfo contains metadata about an available update
 type UpdateInfo struct {
-	FeatureID       string         `json:"featureId"`
-	CurrentVersion  string         `json:"currentVersion"`
-	AvailableVersion string        `json:"availableVersion"`
-	Severity        UpdateSeverity `json:"severity"`
-	ReleaseNotes    string         `json:"releaseNotes"`
-	PublishedAt     string         `json:"publishedAt"`
-	DownloadURL     string         `json:"downloadUrl"`
-	ChecksumURL     string         `json:"checksumUrl"`
-	Size            int64          `json:"size"`
-	Architecture    string         `json:"architecture"`
+	FeatureID        string         `json:"featureId"`
+	CurrentVersion   string         `json:"currentVersion"`
+	AvailableVersion string         `json:"availableVersion"`
+	Severity         UpdateSeverity `json:"severity"`
+	ReleaseNotes     string         `json:"releaseNotes"`
+	PublishedAt      string         `json:"publishedAt"`
+	DownloadURL      string         `json:"downloadUrl"`
+	ChecksumURL      string         `json:"checksumUrl"`
+	Size             int64          `json:"size"`
+	Architecture     string         `json:"architecture"`
 }
 
 // UpdateServiceConfig holds configuration for the update service
@@ -136,14 +136,10 @@ func (s *UpdateService) CheckForUpdate(ctx context.Context, featureID, currentVe
 
 // findArchitectureAsset finds the binary asset matching the current architecture
 // Returns (downloadURL, checksumURL, size)
-func (s *UpdateService) findArchitectureAsset(release *GitHubRelease, featureID string) (string, string, int64) {
+func (s *UpdateService) findArchitectureAsset(release *GitHubRelease, featureID string) (downloadURL, checksumURL string, size int64) {
 	// Expected asset names:
 	// - {featureID}-{version}-{os}-{arch} (e.g., tor-0.4.8.1-linux-amd64)
 	// - checksums.txt (contains SHA256 checksums)
-
-	var downloadURL string
-	var size int64
-	checksumURL := ""
 
 	archSuffix := fmt.Sprintf("linux-%s", s.config.Architecture)
 

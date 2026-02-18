@@ -7,8 +7,7 @@
  * @module @/components/skeletons/FormSkeleton
  */
 
-import { Skeleton } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+import { Skeleton , cn } from '@nasnet/ui/primitives';
 
 export interface FormSkeletonProps {
   /** Number of form field groups to display */

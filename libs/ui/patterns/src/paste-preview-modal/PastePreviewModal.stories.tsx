@@ -5,13 +5,13 @@
 
 import { useState } from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { Button } from '@nasnet/ui/primitives';
 
-import type { ParseResult } from '../hooks/usePasteImport';
-
 import { PastePreviewModal } from './PastePreviewModal';
+
+import type { ParseResult } from '../hooks/usePasteImport';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const ipListResult: ParseResult = {
   success: true,

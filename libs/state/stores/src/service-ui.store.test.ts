@@ -5,8 +5,9 @@
  * Story: Service Instance Manager - Frontend State Management
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { useServiceUIStore, type ServiceInstallWizardDraft } from './service-ui.store';
 
 describe('useServiceUIStore', () => {

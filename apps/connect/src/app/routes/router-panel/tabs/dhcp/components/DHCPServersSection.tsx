@@ -3,9 +3,10 @@
  * Compact server list with key metrics and status
  */
 
+import { Network, Clock, Server } from 'lucide-react';
+
 import type { DHCPServer, DHCPPool } from '@nasnet/core/types';
 import { formatLeaseTime } from '@nasnet/core/utils';
-import { Network, Clock, Server } from 'lucide-react';
 
 interface DHCPServersSectionProps {
   servers: DHCPServer[];

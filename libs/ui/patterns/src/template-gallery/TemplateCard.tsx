@@ -39,14 +39,14 @@ export interface TemplateCardProps {
  */
 function getComplexityVariant(
   complexity: TemplateComplexity
-): 'default' | 'secondary' | 'destructive' {
+): 'default' | 'secondary' | 'error' {
   switch (complexity) {
     case 'SIMPLE':
       return 'secondary';
     case 'MODERATE':
       return 'default';
     case 'ADVANCED':
-      return 'destructive';
+      return 'error';
     default:
       return 'default';
   }

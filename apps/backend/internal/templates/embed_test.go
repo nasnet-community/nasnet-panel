@@ -9,12 +9,12 @@ func TestEmbedFS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to read embedded dir: %v", err)
 	}
-	
+
 	t.Logf("Found %d entries in built_in/", len(entries))
 	for _, entry := range entries {
 		t.Logf("- %s (IsDir: %v)", entry.Name(), entry.IsDir())
 	}
-	
+
 	// Try to read one file
 	data, err := builtInTemplatesFS.ReadFile("built_in/privacy-bundle.json")
 	if err != nil {

@@ -286,7 +286,7 @@ export function ServiceTrafficPanelDesktop({
             <div className="space-y-3 rounded-md border bg-card p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Badge variant={quotaExceeded ? 'destructive' : quotaWarning ? 'warning' : 'default'}>
+                  <Badge variant={quotaExceeded ? 'error' : quotaWarning ? 'warning' : 'default'}>
                     {stats.quota.period}
                   </Badge>
                   <span className="text-sm font-medium">

@@ -17,14 +17,12 @@ import {
   Input,
   Label,
   Progress,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
   Button,
 } from '@nasnet/ui/primitives';
 import { FieldHelp } from '@nasnet/ui/patterns';
@@ -140,10 +138,7 @@ export function DnsSettingsForm({
             <Label htmlFor="allowRemoteRequests">
               Allow Remote Requests
             </Label>
-            <FieldHelp
-              field="remoteRequests"
-              text="When enabled, any device can use this router for DNS queries. For security, ensure your firewall blocks port 53 from untrusted networks."
-            />
+            <FieldHelp field="remoteRequests" />
           </div>
           <Switch
             id="allowRemoteRequests"
@@ -158,10 +153,7 @@ export function DnsSettingsForm({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="cacheSize">Cache Size (KB)</Label>
-            <FieldHelp
-              field="cacheSize"
-              text="Larger cache improves performance but uses more memory. Default is 2048 KB. RouterOS limits: 512-10240 KB."
-            />
+            <FieldHelp field="cacheSize" />
           </div>
           <Input
             id="cacheSize"
@@ -197,8 +189,7 @@ export function DnsSettingsForm({
             <div className="flex items-center gap-2">
               <Progress
                 value={cacheUsedPercent}
-                className="flex-1"
-                indicatorClassName={getCacheUsageColor()}
+                className={`flex-1 ${getCacheUsageColor()}`}
                 aria-label={`Cache usage: ${cacheUsedPercent}%`}
               />
               <span className="text-sm font-medium text-muted-foreground min-w-[3rem] text-right">
@@ -228,17 +219,17 @@ export function DnsSettingsForm({
       </form>
 
       {/* Security Warning Dialog */}
-      <AlertDialog
+      <Dialog
         open={showSecurityWarning}
         onOpenChange={setShowSecurityWarning}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-warning" />
               Security Warning
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3">
+            </DialogTitle>
+            <DialogDescription className="space-y-3">
               <p>
                 Enabling remote requests allows <strong>ANY device</strong> on{' '}
                 <strong>ANY network</strong> to use this router as a DNS
@@ -253,21 +244,21 @@ export function DnsSettingsForm({
                 security implications and have proper firewall protection in
                 place.
               </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelSecurityWarning}>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelSecurityWarning}>
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </Button>
+            <Button
               onClick={handleConfirmSecurityWarning}
               className="bg-warning hover:bg-warning/90"
             >
               I Understand, Enable
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

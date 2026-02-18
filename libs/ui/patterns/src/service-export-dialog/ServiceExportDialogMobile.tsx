@@ -4,6 +4,7 @@
  */
 
 import { Download, Copy, CheckCircle2, Share2, AlertCircle, X } from 'lucide-react';
+
 import {
   Sheet,
   SheetContent,
@@ -11,15 +12,19 @@ import {
   SheetTitle,
   SheetDescription,
   SheetTrigger,
-} from '@nasnet/ui/primitives/sheet';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Label } from '@nasnet/ui/primitives/label';
-import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives/radio-group';
-import { Switch } from '@nasnet/ui/primitives/switch';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import type { ServiceExportDialogProps } from './types';
+  Button,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Switch,
+  Alert,
+  AlertDescription,
+  Badge,
+} from '@nasnet/ui/primitives';
+
 import { useServiceExportDialog } from './useServiceExportDialog';
+
+import type { ServiceExportDialogProps } from './types';
 
 export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
   const { open, onOpenChange, trigger } = props;
@@ -131,7 +136,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   <Switch
                     id="redact-secrets-mobile"
                     checked={state.options.redactSecrets}
-                    onCheckedChange={(checked) => setOptions({ redactSecrets: checked })}
+                    onCheckedChange={(checked: boolean) => setOptions({ redactSecrets: checked })}
                   />
                 </div>
 
@@ -147,7 +152,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   <Switch
                     id="include-routing-mobile"
                     checked={state.options.includeRoutingRules}
-                    onCheckedChange={(checked) => setOptions({ includeRoutingRules: checked })}
+                    onCheckedChange={(checked: boolean) => setOptions({ includeRoutingRules: checked })}
                   />
                 </div>
               </div>

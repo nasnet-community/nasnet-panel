@@ -12,8 +12,9 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/alertrule"
-	"backend/internal/events"
 	"backend/internal/notifications"
+
+	"backend/internal/events"
 )
 
 // eventBusAdapter adapts events.EventBus to the local EventBus interface.
@@ -105,9 +106,13 @@ func (e *Engine) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to subscribe to events: %w", err)
 	}
 
-	_ = e.eventBus.Subscribe("alert.rule.created", e.handleRuleChange)
-	_ = e.eventBus.Subscribe("alert.rule.updated", e.handleRuleChange)
-	_ = e.eventBus.Subscribe("alert.rule.deleted", e.handleRuleChange)
+	subs := []string{"alert.rule.created", "alert.rule.updated", "alert.rule.deleted"}
+	for _, eventType := range subs {
+		if err := e.eventBus.Subscribe(eventType, e.handleRuleChange); err != nil {
+			e.log.Warnw("failed to subscribe to rule change event",
+				"event_type", eventType, "error", err)
+		}
+	}
 
 	go e.throttleManager.StartSummaryWorker(ctx, 5*time.Minute)
 	e.log.Info("throttle summary worker started (5 minute interval)")
@@ -285,12 +290,12 @@ func (e *Engine) trackSuppression(ruleID, reason string) {
 }
 
 // getAndResetSuppression returns and clears the suppression info for a rule.
-func (e *Engine) getAndResetSuppression(ruleID string) (int, string) {
+func (e *Engine) getAndResetSuppression(ruleID string) (count int, reason string) {
 	e.suppressionMu.Lock()
 	defer e.suppressionMu.Unlock()
 
-	count := e.suppressionCounts[ruleID]
-	reason := e.suppressionReasons[ruleID]
+	count = e.suppressionCounts[ruleID]
+	reason = e.suppressionReasons[ruleID]
 
 	delete(e.suppressionCounts, ruleID)
 	delete(e.suppressionReasons, ruleID)
@@ -299,7 +304,7 @@ func (e *Engine) getAndResetSuppression(ruleID string) (int, string) {
 }
 
 // formatAlertMessage generates a human-readable alert message.
-func (e *Engine) formatAlertMessage(rule *ent.AlertRule, eventData map[string]interface{}) string {
+func (e *Engine) formatAlertMessage(rule *ent.AlertRule, _eventData map[string]interface{}) string {
 	if rule.Description != "" {
 		return rule.Description
 	}

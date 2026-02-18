@@ -135,7 +135,7 @@ func (e *ParseError) DiagnosticString() string {
 }
 
 // NewParseTimeoutError creates a timeout error.
-func NewParseTimeoutError(command string, timeoutDuration string) *ParseError {
+func NewParseTimeoutError(command, timeoutDuration string) *ParseError {
 	return &ParseError{
 		Code:    ErrCodeParseTimeout,
 		Message: fmt.Sprintf("parsing timed out after %s", timeoutDuration),
@@ -176,7 +176,7 @@ func NewUnknownCommandError(cmdType CommandType) *ParseError {
 }
 
 // NewPartialParseError creates a partial parse error with context.
-func NewPartialParseError(parsed int, failed int, lastLine int) *ParseError {
+func NewPartialParseError(parsed, failed, lastLine int) *ParseError {
 	return &ParseError{
 		Code:       ErrCodePartialParse,
 		Message:    fmt.Sprintf("only partially parsed output: %d succeeded, %d failed", parsed, failed),
@@ -190,7 +190,7 @@ func NewPartialParseError(parsed int, failed int, lastLine int) *ParseError {
 }
 
 // NewOutputTooLargeError creates an output size exceeded error.
-func NewOutputTooLargeError(actualSize int, maxSize int) *ParseError {
+func NewOutputTooLargeError(actualSize, maxSize int) *ParseError {
 	return &ParseError{
 		Code:    ErrCodeOutputTooLarge,
 		Message: fmt.Sprintf("output size (%d bytes) exceeds maximum (%d bytes)", actualSize, maxSize),
@@ -275,6 +275,8 @@ func (e *ParseError) IsRetryable() bool {
 	switch e.Code {
 	case ErrCodeParseTimeout:
 		return true
+	case ErrCodeInvalidFormat, ErrCodeUnknownCommand, ErrCodePartialParse, ErrCodeOutputTooLarge, ErrCodeMalformedTable, ErrCodeMalformedDetail, ErrCodeMalformedExport, ErrCodeNoMatchingParser, ErrCodeEmptyOutput:
+		return false
 	default:
 		return false
 	}

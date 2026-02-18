@@ -18,11 +18,12 @@ import {
   ArrowRightLeft,
   RotateCcw,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+
 
 import { cn } from '@nasnet/ui/primitives';
 
 import type { InterfaceType, InterfaceTypeIconProps } from './interface-selector.types';
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * Icon mapping for each interface type.

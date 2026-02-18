@@ -4,27 +4,33 @@
  * Multi-step wizard: select → validate → resolve → importing → complete
  */
 
+import { useState } from 'react';
+
 import { Upload, FileText, AlertCircle, CheckCircle2, Download } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@nasnet/ui/primitives/dialog';
-import { Button } from '@nasnet/ui/primitives/button';
-import { Label } from '@nasnet/ui/primitives/label';
-import { Textarea } from '@nasnet/ui/primitives/textarea';
-import { Input } from '@nasnet/ui/primitives/input';
-import { Progress } from '@nasnet/ui/primitives/progress';
-import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
-import { Badge } from '@nasnet/ui/primitives/badge';
-import { ScrollArea } from '@nasnet/ui/primitives/scroll-area';
-import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives/radio-group';
-import { Checkbox } from '@nasnet/ui/primitives/checkbox';
-import type { ServiceImportDialogProps } from './types';
+  Button,
+  Label,
+  Textarea,
+  Input,
+  Progress,
+  Alert,
+  AlertDescription,
+  Badge,
+  ScrollArea,
+  RadioGroup,
+  RadioGroupItem,
+  Checkbox,
+} from '@nasnet/ui/primitives';
+
 import { useServiceImportDialog } from './useServiceImportDialog';
-import { useState } from 'react';
+
+import type { ServiceImportDialogProps } from './types';
 
 export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
   const { open, onOpenChange, trigger } = props;
@@ -129,7 +135,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                 id="paste-content"
                 placeholder='{"version": "1.0", "service": {...}}'
                 value={state.content}
-                onChange={(e) => {
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                   setContent(e.target.value);
                   setSource('paste');
                 }}
@@ -198,7 +204,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                   <div className="space-y-2">
                     {state.validationResult.errors.map((error, index) => (
                       <div key={index} className="text-sm">
-                        <Badge variant="destructive" className="mr-2">
+                        <Badge variant="error" className="mr-2">
                           {error.code}
                         </Badge>
                         <span className="font-mono text-error">{error.field || 'global'}:</span>{' '}
@@ -216,7 +222,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                 <div className="space-y-2">
                   <Label>Provide Values for Redacted Fields</Label>
                   <div className="space-y-3 rounded-lg border p-4">
-                    {state.validationResult.redactedFields.map((field) => (
+                    {state.validationResult.redactedFields.map((field: string) => (
                       <div key={field} className="space-y-1">
                         <Label htmlFor={`redacted-${field}`} className="text-sm">
                           {field}
@@ -226,7 +232,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                           type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                           placeholder={`Enter ${field}`}
                           value={state.redactedFieldValues[field] || ''}
-                          onChange={(e) => setRedactedFieldValue(field, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
                         />
                       </div>
                     ))}
@@ -295,7 +301,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                     (!state.conflictResolution ||
                       (state.validationResult.redactedFields &&
                         state.validationResult.redactedFields.some(
-                          (field) => !state.redactedFieldValues[field]
+                          (field: string) => !state.redactedFieldValues[field]
                         )))) ||
                   loading
                 }

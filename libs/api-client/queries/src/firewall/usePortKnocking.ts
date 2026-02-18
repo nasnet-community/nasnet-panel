@@ -11,7 +11,7 @@
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-12-implement-port-knocking.md
  */
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useInfiniteQuery } from '@tanstack/react-query';
 import { gql } from '@apollo/client';
 import { useMutation as useApolloMutation, useQuery as useApolloQuery } from '@apollo/client';
 import type {
@@ -278,18 +278,10 @@ export function usePortKnockLog(
  * Create a new port knock sequence
  */
 export function useCreatePortKnockSequence() {
-  const queryClient = useQueryClient();
-
   return useApolloMutation<
     { createPortKnockSequence: PortKnockSequence },
     { routerId: string; input: PortKnockSequenceInput }
   >(CREATE_PORT_KNOCK_SEQUENCE, {
-    onSuccess: (data, variables) => {
-      // Invalidate sequences list
-      queryClient.invalidateQueries({
-        queryKey: portKnockKeys.sequences(variables.routerId),
-      });
-    },
     refetchQueries: ['GetPortKnockSequences'],
     awaitRefetchQueries: true,
   });
@@ -299,21 +291,10 @@ export function useCreatePortKnockSequence() {
  * Update existing port knock sequence
  */
 export function useUpdatePortKnockSequence() {
-  const queryClient = useQueryClient();
-
   return useApolloMutation<
     { updatePortKnockSequence: PortKnockSequence },
     { routerId: string; id: string; input: PortKnockSequenceInput }
   >(UPDATE_PORT_KNOCK_SEQUENCE, {
-    onSuccess: (data, variables) => {
-      // Invalidate sequences list and specific sequence
-      queryClient.invalidateQueries({
-        queryKey: portKnockKeys.sequences(variables.routerId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: portKnockKeys.sequence(variables.routerId, variables.id),
-      });
-    },
     refetchQueries: ['GetPortKnockSequences', 'GetPortKnockSequence'],
     awaitRefetchQueries: true,
   });
@@ -323,18 +304,10 @@ export function useUpdatePortKnockSequence() {
  * Delete port knock sequence
  */
 export function useDeletePortKnockSequence() {
-  const queryClient = useQueryClient();
-
   return useApolloMutation<
     { deletePortKnockSequence: boolean },
     { routerId: string; id: string }
   >(DELETE_PORT_KNOCK_SEQUENCE, {
-    onSuccess: (data, variables) => {
-      // Invalidate sequences list
-      queryClient.invalidateQueries({
-        queryKey: portKnockKeys.sequences(variables.routerId),
-      });
-    },
     refetchQueries: ['GetPortKnockSequences'],
     awaitRefetchQueries: true,
   });
@@ -344,25 +317,10 @@ export function useDeletePortKnockSequence() {
  * Toggle port knock sequence enabled/disabled
  */
 export function useTogglePortKnockSequence() {
-  const queryClient = useQueryClient();
-
   return useApolloMutation<
     { togglePortKnockSequence: PortKnockSequence },
     { routerId: string; id: string; enabled: boolean }
   >(TOGGLE_PORT_KNOCK_SEQUENCE, {
-    onSuccess: (data, variables) => {
-      // Optimistically update cache
-      queryClient.setQueryData(
-        portKnockKeys.sequence(variables.routerId, variables.id),
-        (old: any) => ({
-          ...old,
-          portKnockSequence: {
-            ...old?.portKnockSequence,
-            enabled: variables.enabled,
-          },
-        })
-      );
-    },
     refetchQueries: ['GetPortKnockSequences'],
   });
 }

@@ -23,7 +23,7 @@ export interface DHCPLeaseManagementDesktopProps {
   leases: DHCPLease[];
 
   /** Available DHCP servers */
-  servers: string[];
+  servers: Array<{ name: string; interface: string }>;
 
   /** Set of lease IDs that are new (for "New" badge) */
   newLeaseIds: Set<string>;
@@ -97,7 +97,7 @@ export function DHCPLeaseManagementDesktop({
       </div>
 
       {/* Filters */}
-      <LeaseFilters servers={servers} />
+      <LeaseFilters servers={servers.map((s) => ({ id: s.name, name: s.name }))} />
 
       {/* Bulk Actions Toolbar - shows when items selected */}
       {selectedLeases.length > 0 && (
@@ -130,14 +130,9 @@ export function DHCPLeaseManagementDesktop({
           leases={leases}
           newLeaseIds={newLeaseIds}
           isLoading={isLoading}
-          makeStatic={async (leaseId) => {
-            const lease = leases.find(l => l.id === leaseId);
-            if (lease) {
-              await makeAllStatic([leaseId], [lease]);
-            }
-          }}
-          deleteLease={async (leaseId) => {
-            await deleteMultiple([leaseId]);
+          selectedIds={new Set(selectedLeases)}
+          onSelectionChange={(ids: Set<string>) => {
+            // sync selection
           }}
         />
       </div>

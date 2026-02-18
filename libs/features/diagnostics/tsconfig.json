@@ -13,8 +13,12 @@
     "skipLibCheck": true,
     "noEmit": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "composite": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vite/client"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/*.stories.ts", "**/*.stories.tsx", "**/*.test-utils.ts", "**/*.test-utils.tsx"]
 }

@@ -40,11 +40,11 @@ func TestConfigureLTESuccess(t *testing.T) {
 		Success: true,
 		Data: []map[string]string{
 			{
-				"rssi":             "-75dBm",
-				"current-operator": "T-Mobile",
+				"rssi":              "-75dBm",
+				"current-operator":  "T-Mobile",
 				"access-technology": "LTE",
-				"session-status":   "established",
-				"ip-address":       "10.123.45.67",
+				"session-status":    "established",
+				"ip-address":        "10.123.45.67",
 			},
 		},
 	})

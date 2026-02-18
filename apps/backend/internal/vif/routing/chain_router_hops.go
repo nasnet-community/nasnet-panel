@@ -6,9 +6,15 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/routingchain"
+
 	"backend/internal/router"
 
 	"github.com/rs/zerolog/log"
+)
+
+// MikroTik boolean constants for routing chain rules.
+const (
+	mikrotikBoolYes = "yes"
 )
 
 // createChainHops creates router rules and database records for each hop in the chain.
@@ -18,8 +24,9 @@ func (cr *ChainRouter) createChainHops(
 	input CreateRoutingChainInput,
 	interfaceMap map[string]*ent.VirtualInterface,
 ) (*ent.RoutingChain, error) {
+
 	// Track cleanup functions in LIFO order
-	var cleanups []func() error
+	cleanups := make([]func() error, 0)
 	defer func() {
 		if len(cleanups) > 0 {
 			log.Warn().Msg("Rolling back chain creation")
@@ -62,8 +69,8 @@ func (cr *ChainRouter) createChainHops(
 		cleanups = append(cleanups, cr.removeMangleCleanup(ctx, mangleRuleID))
 
 		// Step 2: Create routing table
-		if err := cr.createRoutingTable(ctx, routeTableName); err != nil {
-			return nil, fmt.Errorf("failed to create routing table for hop %d: %w", hopOrder, err)
+		if tblErr := cr.createRoutingTable(ctx, routeTableName); tblErr != nil {
+			return nil, fmt.Errorf("failed to create routing table for hop %d: %w", hopOrder, tblErr)
 		}
 		cleanups = append(cleanups, cr.removeRoutingTableCleanup(ctx, routeTableName))
 
@@ -122,6 +129,7 @@ func (cr *ChainRouter) createHopMangleRule(
 	routingMark string,
 	interfaceMap map[string]*ent.VirtualInterface,
 ) (string, error) {
+
 	var mangleCmd router.Command
 	if hopOrder == 1 || hopIndex == 0 {
 		// First hop: match by device MAC/IP
@@ -133,7 +141,7 @@ func (cr *ChainRouter) createHopMangleRule(
 		mangleCmd.Args["chain"] = "prerouting"
 		mangleCmd.Args["action"] = "mark-routing"
 		mangleCmd.Args["new-routing-mark"] = routingMark
-		mangleCmd.Args["passthrough"] = "yes"
+		mangleCmd.Args["passthrough"] = mikrotikBoolYes
 		mangleCmd.Args["place-before"] = "0"
 		mangleCmd.Args["comment"] = fmt.Sprintf("nnc-chain-%s-hop%d", chain.ID, hopOrder)
 
@@ -204,6 +212,7 @@ func (cr *ChainRouter) createHopRoute(
 	routeTableName string,
 	hopOrder int,
 ) (string, error) {
+
 	gatewayIP := iface.IPAddress
 	if idx := len(gatewayIP); idx > 0 {
 		for j := 0; j < len(gatewayIP); j++ {
@@ -249,6 +258,7 @@ func (cr *ChainRouter) createHopKillSwitch(
 	input CreateRoutingChainInput,
 	hopOrder int,
 ) (string, error) {
+
 	killSwitchCmd := router.Command{
 		Path:   "/ip/firewall/filter",
 		Action: "add",
@@ -256,7 +266,7 @@ func (cr *ChainRouter) createHopKillSwitch(
 	}
 	killSwitchCmd.Args["chain"] = "forward"
 	killSwitchCmd.Args["action"] = "drop"
-	killSwitchCmd.Args["disabled"] = "yes"
+	killSwitchCmd.Args["disabled"] = mikrotikBoolYes
 	killSwitchCmd.Args["place-before"] = "0"
 	killSwitchCmd.Args["comment"] = fmt.Sprintf("nnc-chainks-%s-hop%d", chain.ID, hopOrder)
 

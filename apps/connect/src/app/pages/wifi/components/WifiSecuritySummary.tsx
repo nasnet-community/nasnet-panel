@@ -3,9 +3,11 @@
  * Shows security profile status per interface
  */
 
-import type { WirelessInterface } from '@nasnet/core/types';
-import { SectionHeader } from '../../network/components/SectionHeader';
 import { Shield, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
+
+import type { WirelessInterface } from '@nasnet/core/types';
+
+import { SectionHeader } from '../../network/components/SectionHeader';
 
 interface WifiSecuritySummaryProps {
   interfaces: WirelessInterface[];

@@ -39,6 +39,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { InterfaceSelectorDesktop } from './interface-selector-desktop';
 import { InterfaceSelectorMobile } from './interface-selector-mobile';
+
 import type { InterfaceSelectorProps } from './interface-selector.types';
 
 /**

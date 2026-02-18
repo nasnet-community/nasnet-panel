@@ -6,12 +6,12 @@ import "time"
 type TemplateCategory string
 
 const (
-	CategoryPrivacy       TemplateCategory = "privacy"
+	CategoryPrivacy        TemplateCategory = "privacy"
 	CategoryAntiCensorship TemplateCategory = "anti-censorship"
-	CategoryMessaging     TemplateCategory = "messaging"
-	CategoryGaming        TemplateCategory = "gaming"
-	CategorySecurity      TemplateCategory = "security"
-	CategoryNetworking    TemplateCategory = "networking"
+	CategoryMessaging      TemplateCategory = "messaging"
+	CategoryGaming         TemplateCategory = "gaming"
+	CategorySecurity       TemplateCategory = "security"
+	CategoryNetworking     TemplateCategory = "networking"
 )
 
 // TemplateScope defines the deployment scope of a template
@@ -49,10 +49,10 @@ type ServiceTemplate struct {
 	UpdatedAt   time.Time        `json:"updatedAt,omitempty"`
 
 	// Template configuration
-	Services          []ServiceSpec          `json:"services"`
-	ConfigVariables   []TemplateVariable     `json:"configVariables"`
-	SuggestedRouting  []SuggestedRoutingRule `json:"suggestedRouting,omitempty"`
-	EstimatedResources ResourceEstimate      `json:"estimatedResources,omitempty"`
+	Services           []ServiceSpec          `json:"services"`
+	ConfigVariables    []TemplateVariable     `json:"configVariables"`
+	SuggestedRouting   []SuggestedRoutingRule `json:"suggestedRouting,omitempty"`
+	EstimatedResources ResourceEstimate       `json:"estimatedResources,omitempty"`
 
 	// Documentation
 	Tags          []string `json:"tags,omitempty"`
@@ -127,15 +127,15 @@ type ResourceEstimate struct {
 
 // InstallationProgress tracks the installation progress of a template
 type InstallationProgress struct {
-	TemplateID     string            `json:"templateId"`
-	TotalServices  int               `json:"totalServices"`
-	InstalledCount int               `json:"installedCount"`
-	CurrentService string            `json:"currentService,omitempty"`
+	TemplateID     string             `json:"templateId"`
+	TotalServices  int                `json:"totalServices"`
+	InstalledCount int                `json:"installedCount"`
+	CurrentService string             `json:"currentService,omitempty"`
 	Status         InstallationStatus `json:"status"`
-	ErrorMessage   string            `json:"errorMessage,omitempty"`
-	StartedAt      time.Time         `json:"startedAt"`
-	CompletedAt    *time.Time        `json:"completedAt,omitempty"`
-	ServiceResults []ServiceResult   `json:"serviceResults"`
+	ErrorMessage   string             `json:"errorMessage,omitempty"`
+	StartedAt      time.Time          `json:"startedAt"`
+	CompletedAt    *time.Time         `json:"completedAt,omitempty"`
+	ServiceResults []ServiceResult    `json:"serviceResults"`
 }
 
 // InstallationStatus represents the status of template installation
@@ -167,9 +167,9 @@ type InstallationRequest struct {
 
 // InstallationResult represents the result of a template installation
 type InstallationResult struct {
-	Success        bool            `json:"success"`
-	InstanceIDs    []string        `json:"instanceIds"`    // Created service instance IDs
-	ServiceMapping map[string]string `json:"serviceMapping"` // Map of service names to instance IDs
-	Errors         []string        `json:"errors,omitempty"`
+	Success        bool                  `json:"success"`
+	InstanceIDs    []string              `json:"instanceIds"`    // Created service instance IDs
+	ServiceMapping map[string]string     `json:"serviceMapping"` // Map of service names to instance IDs
+	Errors         []string              `json:"errors,omitempty"`
 	Progress       *InstallationProgress `json:"progress,omitempty"`
 }

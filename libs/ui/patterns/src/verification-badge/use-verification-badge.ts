@@ -10,6 +10,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
+
 import { VerificationStatus as GraphQLStatus } from '@nasnet/api-client/generated';
 import { useReverifyFeature } from '@nasnet/api-client/queries';
 

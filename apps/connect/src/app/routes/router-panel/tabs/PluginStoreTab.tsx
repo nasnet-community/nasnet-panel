@@ -13,11 +13,7 @@
  */
 
 import { useState } from 'react';
-import { Route } from '@/routes/router/$id/route';
-import { PluginCard, type Plugin } from '@nasnet/ui/patterns';
-import { Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@nasnet/ui/primitives';
-import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
-import type { ServiceTemplate } from '@nasnet/api-client/generated';
+
 import {
   Shield,
   Zap,
@@ -25,6 +21,12 @@ import {
   MessageSquare,
   Info
 } from 'lucide-react';
+
+import type { ServiceTemplate } from '@nasnet/api-client/generated';
+import { TemplatesBrowser, TemplateInstallWizard } from '@nasnet/features/services';
+import { PluginCard, type Plugin } from '@nasnet/ui/patterns';
+import { Tabs, TabsContent, TabsList, TabsTrigger, useToast } from '@nasnet/ui/primitives';
+
 
 /**
  * Mock plugin data for demonstration
@@ -153,8 +155,11 @@ const createMockPlugins = (): Plugin[] => [
   }
 ];
 
-export function PluginStoreTab() {
-  const { id: routerId } = Route.useParams();
+interface PluginStoreTabProps {
+  routerId: string;
+}
+
+export function PluginStoreTab({ routerId }: PluginStoreTabProps) {
   const { toast } = useToast();
   const [plugins, setPlugins] = useState<Plugin[]>(createMockPlugins());
 

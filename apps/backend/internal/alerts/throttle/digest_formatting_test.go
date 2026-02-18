@@ -1,6 +1,7 @@
 package throttle
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -112,3 +113,5 @@ func TestDigestFormatting(t *testing.T) {
 		assert.Contains(t, digest, "INFO (1)", "empty severity should default to INFO")
 	})
 }
+
+func indexOfSubstring(s, substr string) int { return strings.Index(s, substr) }

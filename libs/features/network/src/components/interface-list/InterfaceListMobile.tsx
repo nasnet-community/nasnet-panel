@@ -94,7 +94,7 @@ export function InterfaceListMobile({
             iface.status === 'UP'
               ? 'success'
               : iface.status === 'DOWN'
-              ? 'destructive'
+              ? 'error'
               : 'secondary';
 
           return (

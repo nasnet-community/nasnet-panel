@@ -1,7 +1,7 @@
 package dns
 
-// DnsLookupInput represents the input parameters for a DNS lookup operation
-type DnsLookupInput struct {
+// LookupInput represents the input parameters for a DNS lookup operation.
+type LookupInput struct {
 	DeviceId   string
 	Hostname   string
 	RecordType string
@@ -9,8 +9,8 @@ type DnsLookupInput struct {
 	Timeout    *int    // seconds
 }
 
-// DnsRecord represents a single DNS record
-type DnsRecord struct {
+// Record represents a single DNS record.
+type Record struct {
 	Name     string
 	Type     string
 	TTL      int
@@ -20,12 +20,12 @@ type DnsRecord struct {
 	Port     *int
 }
 
-// DnsLookupResult represents the result of a DNS lookup operation
-type DnsLookupResult struct {
+// LookupResult represents the result of a DNS lookup operation.
+type LookupResult struct {
 	Hostname      string
 	RecordType    string
 	Status        string
-	Records       []DnsRecord
+	Records       []Record
 	Server        string
 	QueryTime     int
 	Authoritative bool
@@ -33,50 +33,50 @@ type DnsLookupResult struct {
 	Timestamp     string
 }
 
-// DnsServer represents a single DNS server configuration
-type DnsServer struct {
+// Server represents a single DNS server configuration.
+type Server struct {
 	Address     string
 	IsPrimary   bool
 	IsSecondary bool
 }
 
-// DnsServers represents the collection of DNS servers
-type DnsServers struct {
-	Servers   []DnsServer
+// Servers represents the collection of DNS servers.
+type Servers struct {
+	Servers   []Server
 	Primary   string
 	Secondary *string
 }
 
-// DnsCacheStats represents DNS cache statistics
-type DnsCacheStats struct {
+// CacheStats represents DNS cache statistics.
+type CacheStats struct {
 	TotalEntries      int
 	CacheUsedBytes    int64
 	CacheMaxBytes     int64
 	CacheUsagePercent float64
 	HitRatePercent    *float64
-	TopDomains        []DnsTopDomain
+	TopDomains        []TopDomain
 	Timestamp         string
 }
 
-// DnsTopDomain represents a frequently queried domain
-type DnsTopDomain struct {
+// TopDomain represents a frequently queried domain.
+type TopDomain struct {
 	Domain      string
 	QueryCount  int
 	LastQueried *string
 }
 
-// FlushDnsCacheResult represents the result of flushing the DNS cache
-type FlushDnsCacheResult struct {
+// FlushCacheResult represents the result of flushing the DNS cache.
+type FlushCacheResult struct {
 	Success        bool
 	EntriesRemoved int
-	BeforeStats    DnsCacheStats
-	AfterStats     DnsCacheStats
+	BeforeStats    CacheStats
+	AfterStats     CacheStats
 	Message        string
 	Timestamp      string
 }
 
-// DnsBenchmarkServerResult represents benchmark result for a single DNS server
-type DnsBenchmarkServerResult struct {
+// BenchmarkServerResult represents benchmark result for a single DNS server.
+type BenchmarkServerResult struct {
 	Server         string
 	ResponseTimeMs int
 	Status         string
@@ -84,11 +84,11 @@ type DnsBenchmarkServerResult struct {
 	Error          *string
 }
 
-// DnsBenchmarkResult represents complete benchmark result comparing DNS servers
-type DnsBenchmarkResult struct {
+// BenchmarkResult represents complete benchmark result comparing DNS servers.
+type BenchmarkResult struct {
 	TestHostname  string
-	ServerResults []DnsBenchmarkServerResult
-	FastestServer *DnsBenchmarkServerResult
+	ServerResults []BenchmarkServerResult
+	FastestServer *BenchmarkServerResult
 	Timestamp     string
 	TotalTimeMs   int
 }

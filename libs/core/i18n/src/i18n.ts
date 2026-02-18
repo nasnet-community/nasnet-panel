@@ -12,9 +12,9 @@
  * @see NAS-4A.4: Set Up i18n Namespace Structure for Ported Components
  */
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import HttpBackend from 'i18next-http-backend';
+import { initReactI18next } from 'react-i18next';
 
 // Supported languages - add more as translations are completed
 export const supportedLanguages = ['en', 'fa'] as const;

@@ -6,15 +6,17 @@
  * @module @nasnet/ui/patterns/security/nat-rule-builder
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor , renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+
+import type { NATRuleInput } from '@nasnet/core/types/firewall';
 
 import { NATRuleBuilder } from './NATRuleBuilder';
 import { useNATRuleBuilder } from './use-nat-rule-builder';
+
 import type { NATRuleBuilderProps } from './nat-rule-builder.types';
-import type { NATRuleInput } from '@nasnet/core/types/firewall';
 
 // ============================================================================
 // Mocks

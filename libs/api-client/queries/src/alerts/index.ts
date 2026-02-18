@@ -16,7 +16,13 @@ export * from './digest.graphql';
 
 // Apollo Client hooks
 export * from './useAlertRuleTemplates';
-export * from './useAlertEscalations';
+export {
+  useAlertEscalations,
+  useAlertWithEscalation,
+  useActiveEscalations,
+  type AlertEscalation as AlertEscalationEntry,
+  type UseAlertEscalationsOptions,
+} from './useAlertEscalations';
 export * from './useAlertTemplates';
 export * from './useAlertTemplate';
 export * from './useSaveAlertTemplate';

@@ -36,7 +36,7 @@ export function useVlanTopology(routerId: string) {
   const topology = useMemo<VlanTopologyInterface[]>(() => {
     const interfaceMap = new Map<string, VlanTopologyInterface>();
 
-    vlans.forEach((vlan) => {
+    vlans.forEach((vlan: any) => {
       const parentId = vlan.interface.id;
 
       if (!interfaceMap.has(parentId)) {
@@ -73,8 +73,8 @@ export function useVlanTopology(routerId: string) {
   // Calculate statistics
   const stats = useMemo(() => {
     const totalVlans = vlans.length;
-    const runningVlans = vlans.filter((v) => v.running && !v.disabled).length;
-    const disabledVlans = vlans.filter((v) => v.disabled).length;
+    const runningVlans = vlans.filter((v: any) => v.running && !v.disabled).length;
+    const disabledVlans = vlans.filter((v: any) => v.disabled).length;
     const parentInterfaces = topology.length;
 
     return {

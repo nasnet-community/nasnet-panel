@@ -102,12 +102,12 @@ export function useTemplateInstallWizard(
           type: 'INSTALL_COMPLETE',
           result: {
             success: true,
-            instanceIDs: result.instanceIDs,
-            errors: result.errors || [],
+            instanceIDs: [...(result.instanceIDs || [])],
+            errors: [...(result.errors || [])],
           },
         });
         if (onComplete) {
-          onComplete(result.instanceIDs);
+          onComplete([...(result.instanceIDs || [])]);
         }
       } else {
         send({
@@ -129,7 +129,7 @@ export function useTemplateInstallWizard(
 
   // Progress subscription (only when installing)
   const { progress } = useTemplateInstallProgress({
-    routerId,
+    routerID: routerId,
     enabled: state.matches('installing'),
     onCompleted: (progressData) => {
       console.log('Installation completed:', progressData);
@@ -151,7 +151,7 @@ export function useTemplateInstallWizard(
           phase: progress.status,
           current: progress.installedCount,
           total: progress.totalServices,
-          currentService: progress.currentService,
+          currentService: progress.currentService ?? null,
         },
       });
     }

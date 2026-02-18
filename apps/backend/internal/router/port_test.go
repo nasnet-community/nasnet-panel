@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// MockAdapter is a mock implementation of RouterPort for testing.
-type MockAdapter struct {
+// portTestAdapter is a mock implementation of RouterPort for testing.
+type portTestAdapter struct {
 	connected bool
 	protocol  Protocol
 	health    HealthStatus
@@ -15,8 +15,8 @@ type MockAdapter struct {
 	caps      PlatformCapabilities
 }
 
-func NewMockAdapter(protocol Protocol) *MockAdapter {
-	return &MockAdapter{
+func newPortTestAdapter(protocol Protocol) *portTestAdapter {
+	return &portTestAdapter{
 		protocol: protocol,
 		health: HealthStatus{
 			Status:    StatusDisconnected,
@@ -41,43 +41,43 @@ func NewMockAdapter(protocol Protocol) *MockAdapter {
 	}
 }
 
-func (m *MockAdapter) Connect(ctx context.Context) error {
+func (m *portTestAdapter) Connect(ctx context.Context) error {
 	m.connected = true
 	m.health.Status = StatusConnected
 	m.health.LastSuccess = time.Now()
 	return nil
 }
 
-func (m *MockAdapter) Disconnect() error {
+func (m *portTestAdapter) Disconnect() error {
 	m.connected = false
 	m.health.Status = StatusDisconnected
 	return nil
 }
 
-func (m *MockAdapter) IsConnected() bool {
+func (m *portTestAdapter) IsConnected() bool {
 	return m.connected
 }
 
-func (m *MockAdapter) Health(ctx context.Context) HealthStatus {
+func (m *portTestAdapter) Health(ctx context.Context) HealthStatus {
 	return m.health
 }
 
-func (m *MockAdapter) Capabilities() PlatformCapabilities {
+func (m *portTestAdapter) Capabilities() PlatformCapabilities {
 	return m.caps
 }
 
-func (m *MockAdapter) Info() (*RouterInfo, error) {
+func (m *portTestAdapter) Info() (*RouterInfo, error) {
 	return m.info, nil
 }
 
-func (m *MockAdapter) ExecuteCommand(ctx context.Context, cmd Command) (*CommandResult, error) {
+func (m *portTestAdapter) ExecuteCommand(ctx context.Context, cmd Command) (*CommandResult, error) {
 	return &CommandResult{
 		Success:  true,
 		Duration: 10 * time.Millisecond,
 	}, nil
 }
 
-func (m *MockAdapter) QueryState(ctx context.Context, query StateQuery) (*StateResult, error) {
+func (m *portTestAdapter) QueryState(ctx context.Context, query StateQuery) (*StateResult, error) {
 	return &StateResult{
 		Resources: []map[string]string{
 			{"name": "test", "type": "ether"},
@@ -87,16 +87,16 @@ func (m *MockAdapter) QueryState(ctx context.Context, query StateQuery) (*StateR
 	}, nil
 }
 
-func (m *MockAdapter) Protocol() Protocol {
+func (m *portTestAdapter) Protocol() Protocol {
 	return m.protocol
 }
 
 // Compile-time verification that MockAdapter implements RouterPort.
-var _ RouterPort = (*MockAdapter)(nil)
+var _ RouterPort = (*portTestAdapter)(nil)
 
 func TestRouterPortInterface(t *testing.T) {
-	t.Run("MockAdapter implements RouterPort", func(t *testing.T) {
-		var port RouterPort = NewMockAdapter(ProtocolREST)
+	t.Run("portTestAdapter implements RouterPort", func(t *testing.T) {
+		var port RouterPort = newPortTestAdapter(ProtocolREST)
 
 		// Test Connect
 		err := port.Connect(context.Background())

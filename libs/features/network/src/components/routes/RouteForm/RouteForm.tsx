@@ -78,4 +78,4 @@ function RouteFormComponent(props: RouteFormProps) {
 export const RouteForm = memo(RouteFormComponent);
 
 // Set display name for React DevTools
-(RouteForm as React.FC).displayName = 'RouteForm';
+RouteForm.displayName = 'RouteForm';

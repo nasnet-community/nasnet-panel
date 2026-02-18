@@ -83,16 +83,16 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 func getFSType(fsType int64) string {
 	// Common filesystem type magic numbers
 	const (
-		EXT2_SUPER_MAGIC      = 0xEF53
-		EXT3_SUPER_MAGIC      = 0xEF53
-		EXT4_SUPER_MAGIC      = 0xEF53
-		TMPFS_MAGIC           = 0x01021994
-		SQUASHFS_MAGIC        = 0x73717368
-		VFAT_SUPER_MAGIC      = 0x4d44
-		NTFS_SB_MAGIC         = 0x5346544e
-		F2FS_SUPER_MAGIC      = 0xF2F52010
-		BTRFS_SUPER_MAGIC     = 0x9123683E
-		XFS_SUPER_MAGIC       = 0x58465342
+		EXT2_SUPER_MAGIC  = 0xEF53
+		EXT3_SUPER_MAGIC  = 0xEF53
+		EXT4_SUPER_MAGIC  = 0xEF53
+		TMPFS_MAGIC       = 0x01021994
+		SQUASHFS_MAGIC    = 0x73717368
+		VFAT_SUPER_MAGIC  = 0x4d44
+		NTFS_SB_MAGIC     = 0x5346544e
+		F2FS_SUPER_MAGIC  = 0xF2F52010
+		BTRFS_SUPER_MAGIC = 0x9123683E
+		XFS_SUPER_MAGIC   = 0x58465342
 	)
 
 	switch fsType {

@@ -3,7 +3,6 @@
  * Displays appropriate icon for each interface type
  */
 
-import { InterfaceType } from '@nasnet/core/types';
 import {
   Network,
   Layers,
@@ -16,6 +15,8 @@ import {
   Signal,
   HelpCircle,
 } from 'lucide-react';
+
+import { type InterfaceType } from '@nasnet/core/types';
 
 interface InterfaceTypeIconProps {
   type: InterfaceType;

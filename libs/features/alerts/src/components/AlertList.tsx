@@ -72,7 +72,7 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
 
   return (
     <div className="space-y-2">
-      {alerts.map(({ node: alert }) => {
+      {alerts.map(({ node: alert }: { node: Record<string, any> }) => {
         const severityInfo = severityConfig[alert.severity as keyof typeof severityConfig];
         const isAcknowledged = Boolean(alert.acknowledgedAt);
 

@@ -85,7 +85,7 @@ function buildValidationSchema(variables: readonly TemplateVariable[]): z.ZodObj
 
       case 'ENUM':
         if (variable.enumValues && variable.enumValues.length > 0) {
-          schema = z.enum(variable.enumValues as [string, ...string[]]);
+          schema = z.enum([...variable.enumValues] as unknown as [string, ...string[]]);
         } else {
           schema = z.string();
         }

@@ -36,12 +36,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
   // Auto-save form data to stepper
   useEffect(() => {
     const subscription = form.watch((value) => {
-      if (value.username && value.password) {
-        stepper.setStepData('credentials', value);
-        stepper.markStepAsValid('credentials');
-      } else {
-        stepper.markStepAsInvalid('credentials');
-      }
+      stepper.setStepData(value);
     });
     return () => subscription.unsubscribe();
   }, [form, stepper]);
@@ -60,10 +55,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
                 <User className="inline h-4 w-4 mr-1" />
                 Username
               </Label>
-              <FieldHelp
-                field="username"
-                text="PPPoE username provided by your ISP. May be an email address or account ID."
-              />
+              <FieldHelp field="username" />
             </div>
             <Input
               id="username"
@@ -91,10 +83,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
                 <Lock className="inline h-4 w-4 mr-1" />
                 Password
               </Label>
-              <FieldHelp
-                field="password"
-                text="PPPoE password provided by your ISP. This is securely stored and never logged."
-              />
+              <FieldHelp field="password" />
             </div>
             <div className="relative">
               <Input
@@ -142,10 +131,7 @@ export function PppoeCredentialsStep({ stepper }: PppoeCredentialsStepProps) {
                 <ServerCog className="inline h-4 w-4 mr-1" />
                 Service Name (Optional)
               </Label>
-              <FieldHelp
-                field="serviceName"
-                text="Only required if your ISP specifies a service name. Leave empty if unsure."
-              />
+              <FieldHelp field="serviceName" />
             </div>
             <Input
               id="service-name"

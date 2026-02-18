@@ -119,35 +119,29 @@ func deleteAddressListEntry(ctx context.Context, port router.RouterPort, id stri
 	return nil
 }
 
-// fetchFirewallRules fetches firewall rules that reference an address list
-func fetchFirewallRules(ctx context.Context, port router.RouterPort, listName string) ([]FirewallRule, error) {
+// fetchRules fetches firewall rules that reference an address list
+//
+//nolint:unparam // error kept for interface compatibility
+func fetchRules(ctx context.Context, port router.RouterPort, listName string) ([]Rule, error) {
 	// Query filter rules
-	filterRules, err := fetchFilterRulesReferencingList(ctx, port, listName)
-	if err != nil {
-		return nil, err
-	}
+	filterRules := fetchFilterRulesReferencingList(ctx, port, listName)
 
 	// Query NAT rules
-	natRules, err := fetchNATRulesReferencingList(ctx, port, listName)
-	if err != nil {
-		return nil, err
-	}
+	natRules := fetchNATRulesReferencingList(ctx, port, listName)
 
 	// Query mangle rules
-	mangleRules, err := fetchMangleRulesReferencingList(ctx, port, listName)
-	if err != nil {
-		return nil, err
-	}
+	mangleRules := fetchMangleRulesReferencingList(ctx, port, listName)
 
 	// Combine all rules
-	allRules := append(filterRules, natRules...)
+	allRules := filterRules
+	allRules = append(allRules, natRules...)
 	allRules = append(allRules, mangleRules...)
 
 	return allRules, nil
 }
 
 // fetchFilterRulesReferencingList fetches filter rules that reference a list
-func fetchFilterRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) ([]FirewallRule, error) {
+func fetchFilterRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) []Rule {
 	cmd := router.Command{
 		Path:   "/ip/firewall/filter",
 		Action: "print",
@@ -155,14 +149,14 @@ func fetchFilterRulesReferencingList(ctx context.Context, port router.RouterPort
 
 	result, err := port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return []FirewallRule{}, nil // Return empty slice on error, don't fail
+		return []Rule{} // Return empty slice on error, don't fail
 	}
 
-	return parseFirewallRulesForList(result.RawOutput, "filter", listName), nil
+	return parseRulesForList(result.RawOutput, "filter", listName)
 }
 
 // fetchNATRulesReferencingList fetches NAT rules that reference a list
-func fetchNATRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) ([]FirewallRule, error) {
+func fetchNATRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) []Rule {
 	cmd := router.Command{
 		Path:   "/ip/firewall/nat",
 		Action: "print",
@@ -170,14 +164,14 @@ func fetchNATRulesReferencingList(ctx context.Context, port router.RouterPort, l
 
 	result, err := port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return []FirewallRule{}, nil
+		return []Rule{}
 	}
 
-	return parseFirewallRulesForList(result.RawOutput, "nat", listName), nil
+	return parseRulesForList(result.RawOutput, "nat", listName)
 }
 
 // fetchMangleRulesReferencingList fetches mangle rules that reference a list
-func fetchMangleRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) ([]FirewallRule, error) {
+func fetchMangleRulesReferencingList(ctx context.Context, port router.RouterPort, listName string) []Rule {
 	cmd := router.Command{
 		Path:   "/ip/firewall/mangle",
 		Action: "print",
@@ -185,10 +179,10 @@ func fetchMangleRulesReferencingList(ctx context.Context, port router.RouterPort
 
 	result, err := port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return []FirewallRule{}, nil
+		return []Rule{}
 	}
 
-	return parseFirewallRulesForList(result.RawOutput, "mangle", listName), nil
+	return parseRulesForList(result.RawOutput, "mangle", listName)
 }
 
 // parseAddressListEntries parses RouterOS response into AddressListEntry structs
@@ -233,10 +227,10 @@ func parseAddressListEntry(line string) *AddressListEntry {
 	}
 
 	entry := &AddressListEntry{
-		ID:      id,
-		List:    list,
-		Address: address,
-		Dynamic: fields["dynamic"] == "true",
+		ID:       id,
+		List:     list,
+		Address:  address,
+		Dynamic:  fields["dynamic"] == "true",
 		Disabled: fields["disabled"] == "true",
 	}
 
@@ -258,9 +252,9 @@ func parseAddressListEntry(line string) *AddressListEntry {
 	return entry
 }
 
-// parseFirewallRulesForList parses firewall rules that reference a specific list
-func parseFirewallRulesForList(rawOutput string, table string, listName string) []FirewallRule {
-	rules := []FirewallRule{}
+// parseRulesForList parses firewall rules that reference a specific list
+func parseRulesForList(rawOutput, table, listName string) []Rule {
+	rules := []Rule{}
 	lines := strings.Split(rawOutput, "\n")
 
 	for _, line := range lines {
@@ -276,7 +270,7 @@ func parseFirewallRulesForList(rawOutput string, table string, listName string) 
 		dstList, hasDstList := fields["dst-address-list"]
 
 		if (hasSrcList && srcList == listName) || (hasDstList && dstList == listName) {
-			rule := FirewallRule{
+			rule := Rule{
 				ID:     fields[".id"],
 				Table:  table,
 				Chain:  fields["chain"],

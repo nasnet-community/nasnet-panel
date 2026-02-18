@@ -3,9 +3,10 @@
  * Dashboard Pro style stats grid showing overall network health
  */
 
-import { NetworkInterface } from '@nasnet/core/types';
-import { formatBytes } from '@nasnet/core/utils';
 import { Activity, ArrowDown, ArrowUp } from 'lucide-react';
+
+import { type NetworkInterface } from '@nasnet/core/types';
+import { formatBytes } from '@nasnet/core/utils';
 
 interface NetworkStatusHeroProps {
   interfaces: NetworkInterface[];

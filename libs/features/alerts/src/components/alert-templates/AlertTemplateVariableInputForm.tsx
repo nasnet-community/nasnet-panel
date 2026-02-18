@@ -320,7 +320,7 @@ export function AlertTemplateVariableInputForm({
                   <Label htmlFor={variable.name} className="flex items-center gap-2">
                     {variable.label}
                     {variable.required && (
-                      <Badge variant="destructive" className="text-xs h-5">
+                      <Badge variant="error" className="text-xs h-5">
                         Required
                       </Badge>
                     )}

@@ -60,7 +60,6 @@ export {
 // Types
 export type {
   ConnectionTrackingSettings as ConnectionTrackingSettingsType,
-  ConnectionTrackingTimeouts,
   ConnectionTrackingFormValues,
 } from './types';
-export { DEFAULT_TIMEOUTS, DEFAULT_SETTINGS } from './types';
+export { DEFAULT_SETTINGS } from './types';

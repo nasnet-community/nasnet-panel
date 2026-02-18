@@ -8,10 +8,12 @@ import (
 	"sync"
 	"time"
 
+	"backend/internal/storage"
+
 	"backend/generated/ent"
 	"backend/internal/features"
-	"backend/internal/orchestrator"
-	"backend/internal/storage"
+	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/orchestrator/supervisor"
 
 	"github.com/rs/zerolog"
 )
@@ -113,7 +115,7 @@ func (gm *GatewayManager) StartGateway(ctx context.Context, instance *ent.Servic
 
 	// Create managed process
 	processID := fmt.Sprintf("gw-%s", instanceID)
-	mp := &orchestrator.ManagedProcess{
+	mp := &supervisor.ManagedProcess{
 		ID:          processID,
 		Command:     gm.hevBinaryPath,
 		Args:        []string{fullConfigPath},
@@ -129,14 +131,14 @@ func (gm *GatewayManager) StartGateway(ctx context.Context, instance *ent.Servic
 
 	// Start the process
 	if err := gm.supervisor.Start(ctx, processID); err != nil {
-		gm.supervisor.Remove(processID)
+		_ = gm.supervisor.Remove(processID) //nolint:errcheck // best-effort cleanup after failed start
 		return fmt.Errorf("failed to start gateway process: %w", err)
 	}
 
 	// Wait for TUN interface to be created (poll with timeout)
 	if err := gm.waitForTUN(ctx, tunName, 5*time.Second); err != nil {
-		gm.supervisor.Stop(ctx, processID)
-		gm.supervisor.Remove(processID)
+		_ = gm.supervisor.Stop(ctx, processID) //nolint:errcheck // best-effort cleanup after TUN creation failure
+		_ = gm.supervisor.Remove(processID)    //nolint:errcheck // best-effort cleanup after TUN creation failure
 		return fmt.Errorf("TUN interface not created: %w", err)
 	}
 
@@ -200,39 +202,40 @@ func (gm *GatewayManager) StopGateway(ctx context.Context, instanceID string) er
 }
 
 // GetStatus returns the current status of a gateway
-func (gm *GatewayManager) GetStatus(instanceID string) (*orchestrator.GatewayStatus, error) {
+func (gm *GatewayManager) GetStatus(instanceID string) (*lifecycle.GatewayStatus, error) {
 	gm.mu.RLock()
 	defer gm.mu.RUnlock()
 
 	gateway, exists := gm.gateways[instanceID]
 	if !exists {
-		return &orchestrator.GatewayStatus{
-			State: orchestrator.GatewayStopped,
+		return &lifecycle.GatewayStatus{
+			State: lifecycle.GatewayStopped,
 		}, nil
 	}
 
 	// Query supervisor for process state
 	mp, found := gm.supervisor.Get(gateway.ProcessID)
 	if !found {
-		return &orchestrator.GatewayStatus{
-			State:        orchestrator.GatewayError,
+		return &lifecycle.GatewayStatus{
+			State:        lifecycle.GatewayError,
 			TunName:      gateway.TunName,
 			ErrorMessage: "process not found in supervisor",
 		}, nil
 	}
 
 	// Determine state
-	var state orchestrator.GatewayState
+	var state lifecycle.GatewayState
 	var errorMsg string
 	processState := mp.State()
 
-	if processState == orchestrator.ProcessStateRunning {
-		state = orchestrator.GatewayRunning
-	} else if processState == orchestrator.ProcessStateCrashed {
-		state = orchestrator.GatewayError
+	switch processState { //nolint:exhaustive // only Running and Crashed states need specific handling, all others map to Stopped
+	case supervisor.ProcessStateRunning:
+		state = lifecycle.GatewayRunning
+	case supervisor.ProcessStateCrashed:
+		state = lifecycle.GatewayError
 		errorMsg = "process crashed"
-	} else {
-		state = orchestrator.GatewayStopped
+	default:
+		state = lifecycle.GatewayStopped
 	}
 
 	// Get PID using accessor method
@@ -241,7 +244,7 @@ func (gm *GatewayManager) GetStatus(instanceID string) (*orchestrator.GatewaySta
 	// Calculate uptime
 	uptime := time.Since(gateway.StartTime)
 
-	return &orchestrator.GatewayStatus{
+	return &lifecycle.GatewayStatus{
 		State:           state,
 		TunName:         gateway.TunName,
 		PID:             pid,

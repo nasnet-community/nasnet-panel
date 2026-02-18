@@ -84,7 +84,7 @@ export function RecentLogs({ deviceId, className }: RecentLogsProps) {
             asChild
             className="min-h-[44px]"
           >
-            <Link to="/logs" search={viewAllSearch}>
+            <Link to={"/logs" as string} search={viewAllSearch as Record<string, string>}>
               View All
               <ExternalLink className="ml-1 h-3 w-3" />
             </Link>

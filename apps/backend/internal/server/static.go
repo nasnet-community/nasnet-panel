@@ -11,13 +11,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	fileNotFoundMsg = "File not found"
+	indexHTML       = "index.html"
+)
+
 // NewFrontendHandler returns an Echo handler that serves embedded frontend files.
 // It supports SPA routing by falling back to index.html for unknown paths.
 func NewFrontendHandler(fsys fs.FS) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		path := strings.TrimPrefix(c.Request().URL.Path, "/")
 		if path == "" {
-			path = "index.html"
+			path = indexHTML
 		}
 
 		// Skip API and GraphQL routes
@@ -26,30 +31,47 @@ func NewFrontendHandler(fsys fs.FS) echo.HandlerFunc {
 		}
 
 		file, err := fsys.Open(path)
-		if err != nil {
-			// Fallback to index.html for SPA routing
-			if path != "index.html" {
-				file, err = fsys.Open("index.html")
-				if err != nil {
-					return c.String(http.StatusNotFound, "File not found")
-				}
-				path = "index.html"
+		//nolint:nestif // static file serving logic
+		if err == nil {
+			defer file.Close()
+			contentType := resolveContentType(path)
+			c.Response().Header().Set("Content-Type", contentType)
+			setCacheHeaders(c.Response(), path)
+
+			if seeker, ok := file.(io.ReadSeeker); ok {
+				http.ServeContent(c.Response(), c.Request(), path, time.Time{}, seeker)
 			} else {
-				return c.String(http.StatusNotFound, "File not found")
+				data, readErr := io.ReadAll(file)
+				if readErr != nil {
+					log.Printf("Error reading embedded file %s: %v", path, readErr)
+					return c.String(http.StatusInternalServerError, "Error reading file")
+				}
+				return c.Blob(http.StatusOK, contentType, data)
 			}
+			return nil
+		}
+
+		// Fallback to index.html for SPA routing
+		if path == "index.html" {
+			return c.String(http.StatusNotFound, fileNotFoundMsg)
+		}
+
+		file, err = fsys.Open("index.html")
+		if err != nil {
+			return c.String(http.StatusNotFound, fileNotFoundMsg)
 		}
 		defer file.Close()
 
-		contentType := resolveContentType(path)
+		contentType := resolveContentType("index.html")
 		c.Response().Header().Set("Content-Type", contentType)
-		setCacheHeaders(c.Response(), path)
+		setCacheHeaders(c.Response(), "index.html")
 
 		if seeker, ok := file.(io.ReadSeeker); ok {
-			http.ServeContent(c.Response(), c.Request(), path, time.Time{}, seeker)
+			http.ServeContent(c.Response(), c.Request(), "index.html", time.Time{}, seeker)
 		} else {
 			data, err := io.ReadAll(file)
 			if err != nil {
-				log.Printf("Error reading embedded file %s: %v", path, err)
+				log.Printf("Error reading embedded file index.html: %v", err)
 				return c.String(http.StatusInternalServerError, "Error reading file")
 			}
 			return c.Blob(http.StatusOK, contentType, data)
@@ -85,11 +107,12 @@ func resolveContentType(path string) string {
 
 // setCacheHeaders sets appropriate cache headers based on the file path.
 func setCacheHeaders(w http.ResponseWriter, path string) {
-	if strings.Contains(path, "assets/") {
+	switch {
+	case strings.Contains(path, "assets/"):
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-	} else if path == "index.html" {
+	case path == "index.html":
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	} else {
+	default:
 		w.Header().Set("Cache-Control", "public, max-age=3600")
 	}
 }

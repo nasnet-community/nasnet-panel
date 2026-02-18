@@ -7,7 +7,6 @@
  * @see NAS-4A.13: Build Form Section Component
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import * as React from 'react';
 
@@ -15,6 +14,8 @@ import { Input, Label, cn } from '@nasnet/ui/primitives';
 
 import { FormSection } from './FormSection';
 import { FormSectionErrors } from './FormSectionErrors';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof FormSection> = {
   title: 'Patterns/FormSection',

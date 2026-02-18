@@ -85,7 +85,7 @@ export function VlanPortConfig({
   const { configureVlanPort, loading } = useConfigureVlanPort(routerId);
 
   const form = useForm<VlanPortConfigFormValues>({
-    resolver: zodResolver(vlanPortConfigSchema),
+    resolver: zodResolver(vlanPortConfigSchema) as any,
     defaultValues: {
       mode: initialValues.mode || 'access',
       pvid: initialValues.pvid || undefined,
@@ -174,9 +174,9 @@ export function VlanPortConfig({
         onSuccess?.();
       } else {
         const errors = result.data?.errors || [];
-        errors.forEach((err) => toast.error(err.message));
+        errors.forEach((err: any) => toast.error(err.message));
       }
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error('Failed to configure port');
     }
   };
@@ -326,8 +326,11 @@ export function VlanPortConfig({
           {showPreview && (
             <ConfigPreview
               title="RouterOS Commands"
-              commands={generateCommands(form.getValues())}
-              language="routeros"
+              script={generateCommands({
+                mode: form.getValues().mode,
+                pvid: form.getValues().pvid,
+                taggedVlanIds: form.getValues().taggedVlanIds ?? [],
+              }).join('\n')}
             />
           )}
         </CardContent>

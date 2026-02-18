@@ -7,6 +7,8 @@
 
 import * as React from 'react';
 
+import { FileText } from 'lucide-react';
+
 import {
   Badge,
   Button,
@@ -22,9 +24,10 @@ import {
   TabsTrigger,
   cn,
 } from '@nasnet/ui/primitives';
-import { EmptyState } from '../empty-state';
 
+import { EmptyState } from '../empty-state';
 import { TemplateCard } from './TemplateCard';
+
 import type { FirewallTemplate, TemplateCategory, TemplateComplexity } from './types';
 import type { UseTemplateGalleryReturn } from './use-template-gallery';
 
@@ -73,6 +76,8 @@ function FilterSheet({ gallery }: FilterSheetProps) {
     IOT: 'IoT Isolation',
     GUEST: 'Guest Network',
     CUSTOM: 'Custom',
+    VPN: 'VPN',
+    SECURITY: 'Security',
   };
 
   const complexityLabels: Record<TemplateComplexity | 'all', string> = {
@@ -80,6 +85,7 @@ function FilterSheet({ gallery }: FilterSheetProps) {
     SIMPLE: 'Simple',
     MODERATE: 'Moderate',
     ADVANCED: 'Advanced',
+    EXPERT: 'Expert',
   };
 
   return (
@@ -290,6 +296,7 @@ export function TemplateGalleryMobile({
           </div>
         ) : filteredTemplates.length === 0 ? (
           <EmptyState
+            icon={FileText}
             title="No templates found"
             description="Try adjusting your filters or search criteria."
           />

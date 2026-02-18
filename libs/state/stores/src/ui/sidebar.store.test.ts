@@ -3,8 +3,9 @@
  * @see NAS-4.3: Build Responsive Layout System
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
 import {
   useSidebarStore,
   selectSidebarCollapsed,

@@ -1,18 +1,18 @@
 package verification
 
 import (
-	"backend/pkg/manifest"
-	"backend/pkg/registry"
+	"backend/internal/common/manifest"
+	"backend/internal/registry"
 )
 
 // VerifyError is an alias for pkg/registry.VerifyError.
 type VerifyError = registry.VerifyError
 
-// VerificationResult is an alias for pkg/registry.VerificationResult.
-type VerificationResult = registry.VerificationResult
+// Result is an alias for pkg/registry.VerificationResult.
+type Result = registry.VerificationResult
 
-// VerificationSpec is an alias for pkg/manifest.VerificationSpec.
-type VerificationSpec = manifest.VerificationSpec
+// Spec is an alias for pkg/manifest.VerificationSpec.
+type Spec = manifest.VerificationSpec
 
 // GPGSpec is an alias for pkg/manifest.GPGSpec.
 type GPGSpec = manifest.GPGSpec

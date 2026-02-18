@@ -7,8 +7,8 @@
  * @module @nasnet/core/forms/mapBackendErrors
  */
 
-import type { UseFormSetError, FieldPath, FieldValues, UseFormClearErrors } from 'react-hook-form';
 import type { ValidationError } from './types';
+import type { UseFormSetError, FieldPath, FieldValues, UseFormClearErrors } from 'react-hook-form';
 
 /**
  * Maps backend validation errors to React Hook Form field errors.

@@ -14,9 +14,10 @@
  * - WCAG AAA accessible
  */
 
-import type { ResourceBudgetPanelProps } from './types';
 import { ResourceBudgetPanelDesktop } from './ResourceBudgetPanelDesktop';
 import { ResourceBudgetPanelMobile } from './ResourceBudgetPanelMobile';
+
+import type { ResourceBudgetPanelProps } from './types';
 
 /**
  * ResourceBudgetPanel Component

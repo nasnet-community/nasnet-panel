@@ -10,6 +10,7 @@
  */
 
 import { usePlatform } from '@nasnet/ui/layouts';
+
 import { CounterCellDesktop } from './CounterCellDesktop';
 import { CounterCellMobile } from './CounterCellMobile';
 
@@ -67,4 +68,3 @@ export function CounterCell(props: CounterCellProps) {
 
 // Re-export presenters for direct usage
 export { CounterCellDesktop, CounterCellMobile };
-export type { CounterCellProps };

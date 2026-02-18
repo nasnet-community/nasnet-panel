@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package notifications_test
@@ -7,9 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"backend/internal/events"
 	"backend/internal/notifications"
 	"backend/internal/notifications/channels/push"
+
+	"backend/internal/events"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

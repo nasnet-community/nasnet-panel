@@ -5,8 +5,11 @@
  * Displays notifications in a scrollable list with severity filters.
  */
 
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+
 import { X } from 'lucide-react';
+
+import type { AlertSeverity, InAppNotification } from '@nasnet/state/stores';
 import {
   Sheet,
   SheetContent,
@@ -17,10 +20,11 @@ import {
   ScrollArea,
   cn,
 } from '@nasnet/ui/primitives';
-import { useNotificationCenter } from './use-notification-center';
+
 import { NotificationItem } from './NotificationItem';
+import { useNotificationCenter } from './use-notification-center';
+
 import type { NotificationCenterProps } from './types';
-import type { AlertSeverity } from '@nasnet/state/stores';
 
 const SEVERITY_OPTIONS: Array<{ value: AlertSeverity | 'ALL'; label: string }> = [
   { value: 'ALL', label: 'All' },
@@ -56,7 +60,7 @@ function NotificationCenterDesktopComponent({
   } = useNotificationCenter();
 
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [focusedIndex, setFocusedIndex] = React.useState<number>(-1);
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -165,7 +169,7 @@ function NotificationCenterDesktopComponent({
               {/* Close button */}
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 onClick={onClose}
                 aria-label="Close notification center"
               >
@@ -220,7 +224,7 @@ function NotificationCenterDesktopComponent({
                 </p>
               </div>
             ) : (
-              filteredNotifications.map((notification, index) => (
+              filteredNotifications.map((notification: InAppNotification, index: number) => (
                 <div
                   key={notification.id}
                   ref={(el) => {

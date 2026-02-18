@@ -8,6 +8,19 @@
  */
 
 import { memo, useCallback, useState } from 'react';
+
+import {
+  Play,
+  Pause,
+  Download,
+  Search,
+  Filter,
+  ExternalLink,
+  BarChart3,
+  X,
+} from 'lucide-react';
+
+import type { FirewallLogEntry } from '@nasnet/core/types';
 import {
   Card,
   CardHeader,
@@ -27,21 +40,12 @@ import {
   SheetTrigger,
   Separator,
 } from '@nasnet/ui/primitives';
-import {
-  Play,
-  Pause,
-  Download,
-  Search,
-  Filter,
-  ExternalLink,
-  BarChart3,
-  X,
-} from 'lucide-react';
-import { FirewallLogFilters } from '../firewall-log-filters';
+
+import { FirewallLogFilters, type FirewallLogFilterState } from '../firewall-log-filters';
 import { FirewallLogStats } from '../firewall-log-stats';
-import type { FirewallLogViewerPresenterProps } from './FirewallLogViewer.types';
 import { getActionColorClasses } from './FirewallLogViewer.types';
-import type { FirewallLogEntry } from '@nasnet/core/types';
+
+import type { FirewallLogViewerPresenterProps } from './FirewallLogViewer.types';
 
 /**
  * Mobile presenter for firewall log viewer.
@@ -166,8 +170,8 @@ export const FirewallLogViewerMobile = memo(
                 </SheetHeader>
                 <div className="mt-4 overflow-auto h-[calc(80vh-80px)]">
                   <FirewallLogFilters
-                    filters={viewer.state.filters}
-                    onFiltersChange={viewer.setFilters}
+                    filters={viewer.state.filters as unknown as FirewallLogFilterState}
+                    onFiltersChange={(filters) => viewer.setFilters(filters as any)}
                     availablePrefixes={availablePrefixes}
                   />
                 </div>
@@ -224,7 +228,7 @@ export const FirewallLogViewerMobile = memo(
         {viewer.state.expandedStats && (
           <div className="border-b border-border bg-muted/30 p-4">
             <FirewallLogStats
-              routerId={routerId}
+              logs={viewer.logs}
               onAddToBlocklist={onAddToBlocklist}
             />
           </div>

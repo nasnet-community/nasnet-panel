@@ -8,10 +8,10 @@
  * @see NAS-7.3: Implement Address Lists
  */
 
-import { ChevronDown, ChevronRight, Shield, Trash2 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
+
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
+import { ChevronDown, ChevronRight, Shield, Trash2 } from 'lucide-react';
 
 import {
   Table,
@@ -20,17 +20,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@nasnet/ui/primitives';
-import { Badge } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Card } from '@nasnet/ui/primitives';
-import {
+  Badge,
+  Button,
+  Card,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  cn,
 } from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/core/utils';
 
 import type { AddressListManagerProps, AddressList, SortConfig } from './types';
 import type { UseAddressListManagerStateReturn } from './useAddressListManagerState';

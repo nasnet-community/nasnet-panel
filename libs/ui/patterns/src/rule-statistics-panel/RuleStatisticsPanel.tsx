@@ -6,8 +6,10 @@
  */
 
 import { useMediaQuery } from '@nasnet/ui/primitives';
+
 import { RuleStatisticsPanelDesktop } from './RuleStatisticsPanelDesktop';
 import { RuleStatisticsPanelMobile } from './RuleStatisticsPanelMobile';
+
 import type { RuleStatisticsPanelProps } from './types';
 
 /**

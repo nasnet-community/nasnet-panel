@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useRef, useCallback } from 'react';
+
 import { useAuthStore } from '../auth/auth.store';
 import { useNotificationStore } from '../ui/notification.store';
 
@@ -263,4 +264,4 @@ export function createMutationRefreshFn(
 
 // ===== Type Exports =====
 
-export type { TokenRefreshResult, TokenRefreshFn, UseTokenRefreshOptions };
+// Types are already exported inline above

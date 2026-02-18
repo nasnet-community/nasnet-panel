@@ -3,15 +3,16 @@
 package ent
 
 import (
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"math"
+
 	"backend/generated/ent/apikey"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/session"
 	"backend/generated/ent/user"
-	"context"
-	"database/sql/driver"
-	"fmt"
-	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

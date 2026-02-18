@@ -12,9 +12,10 @@
  * - Icon + color indicators (not color alone)
  */
 
-import type { ResourceUsageBarProps } from './types';
 import { ResourceUsageBarDesktop } from './ResourceUsageBarDesktop';
 import { ResourceUsageBarMobile } from './ResourceUsageBarMobile';
+
+import type { ResourceUsageBarProps } from './types';
 
 /**
  * ResourceUsageBar Component

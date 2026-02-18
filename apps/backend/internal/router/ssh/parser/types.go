@@ -251,6 +251,8 @@ type ExportCommand struct {
 }
 
 // ParserConfig contains configuration options for the parser service.
+//
+//nolint:revive // type name is appropriate
 type ParserConfig struct {
 	// MaxOutputSize is the maximum output size to parse (bytes). Default: 10MB.
 	MaxOutputSize int

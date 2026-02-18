@@ -36,10 +36,10 @@ var sensitiveValuePatterns = []*regexp.Regexp{
 	// Bearer tokens
 	regexp.MustCompile(`^Bearer\s+.+`),
 	// API keys (common formats)
-	regexp.MustCompile(`^sk-[A-Za-z0-9]{32,}$`),       // OpenAI style
-	regexp.MustCompile(`^[A-Za-z0-9]{32,64}$`),        // Generic long alphanumeric
-	regexp.MustCompile(`^[A-Fa-f0-9]{64}$`),           // SHA256 hash
-	regexp.MustCompile(`^[A-Za-z0-9+/]{40,}={0,2}$`),  // Base64 encoded
+	regexp.MustCompile(`^sk-[A-Za-z0-9]{32,}$`),      // OpenAI style
+	regexp.MustCompile(`^[A-Za-z0-9]{32,64}$`),       // Generic long alphanumeric
+	regexp.MustCompile(`^[A-Fa-f0-9]{64}$`),          // SHA256 hash
+	regexp.MustCompile(`^[A-Za-z0-9+/]{40,}={0,2}$`), // Base64 encoded
 }
 
 // IsSensitiveKey checks if a key name indicates sensitive data.

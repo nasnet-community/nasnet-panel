@@ -6,14 +6,16 @@
  * @see NAS-4A.15: Build Vertical Stepper (Sidebar Pattern)
  */
 
-import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { within, userEvent, expect, waitFor } from 'storybook/test';
+
+import { Button } from '@nasnet/ui/primitives';
 
 import { VStepper } from './v-stepper';
 import { useStepper } from '../../hooks/use-stepper';
+
 import type { StepConfig, StepperConfig } from '../../hooks/use-stepper.types';
-import { Button } from '@nasnet/ui/primitives';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ===== Meta =====
 

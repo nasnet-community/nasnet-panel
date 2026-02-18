@@ -5,9 +5,16 @@ import (
 	"time"
 )
 
+const (
+	yes       = "yes"
+	no        = "no"
+	trueStr   = "true"
+	noOpError = "no-op"
+)
+
 // parseBridges parses multiple bridges from RouterOS response data.
-func (s *BridgeService) parseBridges(data []map[string]string) ([]*BridgeData, error) {
-	bridges := make([]*BridgeData, 0, len(data))
+func (s *Service) parseBridges(data []map[string]string) ([]*Data, error) {
+	bridges := make([]*Data, 0, len(data))
 	for _, item := range data {
 		bridge, err := s.parseBridgeFromMap(item)
 		if err != nil {
@@ -19,16 +26,16 @@ func (s *BridgeService) parseBridges(data []map[string]string) ([]*BridgeData, e
 }
 
 // parseBridge parses a single bridge from the first element of response data.
-func (s *BridgeService) parseBridge(data []map[string]string) (*BridgeData, error) {
+func (s *Service) parseBridge(data []map[string]string) (*Data, error) {
 	if len(data) == 0 {
 		return nil, fmt.Errorf("no bridge data returned")
 	}
 	return s.parseBridgeFromMap(data[0])
 }
 
-// parseBridgeFromMap creates a BridgeData from a RouterOS response map.
-func (s *BridgeService) parseBridgeFromMap(item map[string]string) (*BridgeData, error) {
-	bridge := &BridgeData{
+// parseBridgeFromMap creates a Data from a RouterOS response map.
+func (s *Service) parseBridgeFromMap(item map[string]string) (*Data, error) {
+	bridge := &Data{
 		UUID:       item[".id"],
 		Name:       item["name"],
 		Comment:    item["comment"],
@@ -37,11 +44,11 @@ func (s *BridgeService) parseBridgeFromMap(item map[string]string) (*BridgeData,
 	}
 
 	if disabled, ok := item["disabled"]; ok {
-		bridge.Disabled = (disabled == "yes" || disabled == "true")
+		bridge.Disabled = (disabled == yes || disabled == trueStr)
 	}
 
 	if running, ok := item["running"]; ok {
-		bridge.Running = (running == "yes" || running == "true")
+		bridge.Running = (running == yes || running == trueStr)
 	} else {
 		bridge.Running = !bridge.Disabled
 	}
@@ -59,7 +66,7 @@ func (s *BridgeService) parseBridgeFromMap(item map[string]string) (*BridgeData,
 	}
 
 	if vlanFiltering, ok := item["vlan-filtering"]; ok {
-		bridge.VlanFiltering = (vlanFiltering == "yes" || vlanFiltering == "true")
+		bridge.VlanFiltering = (vlanFiltering == yes || vlanFiltering == trueStr)
 	}
 
 	if pvid, ok := item["pvid"]; ok {
@@ -68,16 +75,16 @@ func (s *BridgeService) parseBridgeFromMap(item map[string]string) (*BridgeData,
 		}
 	}
 
-	bridge.Ports = make([]*BridgePortData, 0)
-	bridge.Vlans = make([]*BridgeVlanData, 0)
+	bridge.Ports = make([]*PortData, 0)
+	bridge.Vlans = make([]*VlanData, 0)
 	bridge.IPAddresses = make([]string, 0)
 
 	return bridge, nil
 }
 
 // parseBridgePorts parses multiple bridge ports from RouterOS response data.
-func (s *BridgeService) parseBridgePorts(data []map[string]string) ([]*BridgePortData, error) {
-	ports := make([]*BridgePortData, 0, len(data))
+func (s *Service) parseBridgePorts(data []map[string]string) ([]*PortData, error) {
+	ports := make([]*PortData, 0, len(data))
 	for _, item := range data {
 		port, err := s.parseBridgePortFromMap(item)
 		if err != nil {
@@ -89,16 +96,18 @@ func (s *BridgeService) parseBridgePorts(data []map[string]string) ([]*BridgePor
 }
 
 // parseBridgePort parses a single bridge port from response data.
-func (s *BridgeService) parseBridgePort(data []map[string]string) (*BridgePortData, error) {
+func (s *Service) parseBridgePort(data []map[string]string) (*PortData, error) {
 	if len(data) == 0 {
 		return nil, fmt.Errorf("no bridge port data returned")
 	}
 	return s.parseBridgePortFromMap(data[0])
 }
 
-// parseBridgePortFromMap creates a BridgePortData from a RouterOS response map.
-func (s *BridgeService) parseBridgePortFromMap(item map[string]string) (*BridgePortData, error) {
-	port := &BridgePortData{
+// parseBridgePortFromMap creates a PortData from a RouterOS response map.
+//
+//nolint:gocyclo // RouterOS bridge port parsing inherently complex
+func (s *Service) parseBridgePortFromMap(item map[string]string) (*PortData, error) {
+	port := &PortData{
 		UUID:          item[".id"],
 		BridgeID:      item["bridge"],
 		InterfaceID:   item["interface"],
@@ -115,11 +124,11 @@ func (s *BridgeService) parseBridgePortFromMap(item map[string]string) (*BridgeP
 	}
 
 	if ingressFiltering, ok := item["ingress-filtering"]; ok {
-		port.IngressFiltering = (ingressFiltering == "yes" || ingressFiltering == "true")
+		port.IngressFiltering = (ingressFiltering == yes || ingressFiltering == trueStr)
 	}
 
 	if edge, ok := item["edge"]; ok {
-		port.Edge = (edge == "yes" || edge == "true")
+		port.Edge = (edge == yes || edge == trueStr)
 	}
 
 	if pathCost, ok := item["path-cost"]; ok {
@@ -154,8 +163,8 @@ func (s *BridgeService) parseBridgePortFromMap(item map[string]string) (*BridgeP
 }
 
 // parseBridgeVlans parses multiple bridge VLANs from RouterOS response data.
-func (s *BridgeService) parseBridgeVlans(data []map[string]string) ([]*BridgeVlanData, error) {
-	vlans := make([]*BridgeVlanData, 0, len(data))
+func (s *Service) parseBridgeVlans(data []map[string]string) ([]*VlanData, error) {
+	vlans := make([]*VlanData, 0, len(data))
 	for _, item := range data {
 		vlan, err := s.parseBridgeVlanFromMap(item)
 		if err != nil {
@@ -167,16 +176,16 @@ func (s *BridgeService) parseBridgeVlans(data []map[string]string) ([]*BridgeVla
 }
 
 // parseBridgeVlan parses a single bridge VLAN from response data.
-func (s *BridgeService) parseBridgeVlan(data []map[string]string) (*BridgeVlanData, error) {
+func (s *Service) parseBridgeVlan(data []map[string]string) (*VlanData, error) {
 	if len(data) == 0 {
 		return nil, fmt.Errorf("no bridge VLAN data returned")
 	}
 	return s.parseBridgeVlanFromMap(data[0])
 }
 
-// parseBridgeVlanFromMap creates a BridgeVlanData from a RouterOS response map.
-func (s *BridgeService) parseBridgeVlanFromMap(item map[string]string) (*BridgeVlanData, error) {
-	vlan := &BridgeVlanData{
+// parseBridgeVlanFromMap creates a VlanData from a RouterOS response map.
+func (s *Service) parseBridgeVlanFromMap(item map[string]string) (*VlanData, error) {
+	vlan := &VlanData{
 		UUID:     item[".id"],
 		BridgeID: item["bridge"],
 	}
@@ -204,19 +213,19 @@ func (s *BridgeService) parseBridgeVlanFromMap(item map[string]string) (*BridgeV
 }
 
 // parseStpStatus parses STP status from RouterOS response data.
-func (s *BridgeService) parseStpStatus(data []map[string]string) (*BridgeStpStatusData, error) {
+func (s *Service) parseStpStatus(data []map[string]string) (*StpStatusData, error) {
 	if len(data) == 0 {
 		return nil, fmt.Errorf("no STP status data returned")
 	}
 
 	item := data[0]
-	status := &BridgeStpStatusData{
+	status := &StpStatusData{
 		RootBridgeID: item["root-bridge-id"],
 		RootPort:     item["root-port"],
 	}
 
 	if rootBridge, ok := item["root-bridge"]; ok {
-		status.RootBridge = (rootBridge == "yes" || rootBridge == "true")
+		status.RootBridge = (rootBridge == yes || rootBridge == trueStr)
 	}
 
 	if rootPathCost, ok := item["root-path-cost"]; ok {
@@ -246,8 +255,10 @@ func ParseInt(s string) (int, error) {
 		return 0, nil
 	}
 	var val int
-	_, err := fmt.Sscanf(s, "%d", &val)
-	return val, err
+	if _, err := fmt.Sscanf(s, "%d", &val); err != nil {
+		return 0, err
+	}
+	return val, nil
 }
 
 // ParseIntList parses a comma-separated string of ints.
@@ -345,12 +356,14 @@ func ParseRouterOSDuration(s string) (time.Duration, error) {
 	current := ""
 	for i := 0; i < len(s); i++ {
 		ch := s[i]
-		if ch >= '0' && ch <= '9' {
+		if ch >= '0' && ch <= '9' { //nolint:nestif // duration parsing logic
 			current += string(ch)
 		} else {
 			val := 0
 			if current != "" {
-				fmt.Sscanf(current, "%d", &val)
+				if _, err := fmt.Sscanf(current, "%d", &val); err != nil {
+					return 0, err
+				}
 				current = ""
 			}
 			switch ch {

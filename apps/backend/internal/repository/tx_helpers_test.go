@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"backend/generated/ent"
+	"backend/internal/common/ulid"
 	"backend/internal/repository"
-	"backend/pkg/ulid"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"

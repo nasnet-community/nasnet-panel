@@ -9,14 +9,16 @@
  * - Vertical layout for readability
  */
 
-import { ChevronDown, ChevronUp, Server } from 'lucide-react';
 import { useState } from 'react';
+
+import { ChevronDown, ChevronUp, Server } from 'lucide-react';
 
 import { Badge, Button, Card, CardContent, CardHeader, cn } from '@nasnet/ui/primitives';
 
 import { ResourceUsageBar } from '../resource-usage-bar';
-import type { ResourceBudgetPanelProps, EnhancedServiceInstanceResource } from './types';
 import { useResourceBudgetPanel } from './useResourceBudgetPanel';
+
+import type { ResourceBudgetPanelProps, EnhancedServiceInstanceResource } from './types';
 
 /**
  * Status badge color mapping

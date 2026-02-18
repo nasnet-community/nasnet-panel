@@ -6,6 +6,7 @@ import { useBridgePortDiagram } from './use-bridge-port-diagram';
 import { PortNode } from './PortNode';
 import { AvailableInterfaces } from './AvailableInterfaces';
 import { SafetyConfirmation } from '@nasnet/ui/patterns';
+import type { BridgePort } from '@nasnet/api-client/generated';
 
 /**
  * Bridge Port Diagram Component - Visual port membership management
@@ -39,7 +40,7 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
     isLoading,
   } = useBridgePortDiagram(bridgeId, routerId);
 
-  const portToRemoveData = ports?.find((p) => p.uuid === portToRemove);
+  const portToRemoveData = ports?.find((p: BridgePort) => p.id === portToRemove);
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -75,9 +76,9 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
             <BridgeDropZone bridgeId={bridgeId} portCount={ports?.length || 0}>
               <div className="space-y-2" role="list" aria-label="Bridge ports">
                 {ports && ports.length > 0 ? (
-                  ports.map((port) => (
+                  ports.map((port: BridgePort) => (
                     <PortNode
-                      key={port.uuid}
+                      key={port.id}
                       port={port}
                       onRemove={(portId) => setPortToRemove(portId)}
                       onEdit={onEditPort || (() => {})}
@@ -136,9 +137,7 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
         <SafetyConfirmation
           open={!!portToRemove}
           onOpenChange={(open) => !open && setPortToRemove(null)}
-          title={`Remove port "${portToRemoveData.interfaceName}"?`}
-          severity="warning"
-          urgency="normal"
+          title={`Remove port "${portToRemoveData.interface.name}"?`}
           description="This port will be removed from the bridge and become available for other uses."
           consequences={[
             portToRemoveData.taggedVlans && portToRemoveData.taggedVlans.length > 0
@@ -148,8 +147,8 @@ export function BridgePortDiagram({ bridgeId, routerId, onEditPort }: BridgePort
               ? `Untagged VLANs: ${portToRemoveData.untaggedVlans.join(', ')}`
               : undefined,
           ].filter(Boolean) as string[]}
-          confirmLabel="Remove Port"
-          onConfirm={() => handleRemovePort(portToRemove)}
+          confirmText="REMOVE"
+          onConfirm={() => handleRemovePort(portToRemove!)}
           onCancel={() => setPortToRemove(null)}
         />
       )}

@@ -132,6 +132,7 @@ export function OfflineIndicator({
 
       return () => clearTimeout(timeout);
     }
+    return undefined;
   }, [isOnline, wasOffline, onlineDuration, setWasOffline]);
 
   // Reset dismissed state when going offline
@@ -244,4 +245,3 @@ export function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactPr
   );
 }
 
-export type { OfflineIndicatorProps, OfflineIndicatorCompactProps };

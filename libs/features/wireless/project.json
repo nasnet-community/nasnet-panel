@@ -3,5 +3,13 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/features/wireless/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:features"]
+  "tags": ["type:lib", "scope:features"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/features/wireless/tsconfig.lib.json"
+      }
+    }
+  }
 }

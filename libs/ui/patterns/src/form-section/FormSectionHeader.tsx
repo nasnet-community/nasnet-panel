@@ -73,7 +73,7 @@ export function FormSectionHeader({
         {/* Error count badge */}
         {errorCount > 0 && (
           <Badge
-            variant="destructive"
+            variant="error"
             className="text-xs rounded-full bg-error/15 text-error border-error/30"
           >
             {errorCount} {errorCount === 1 ? 'error' : 'errors'}

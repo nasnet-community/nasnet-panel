@@ -86,6 +86,7 @@ func (s *InterfaceService) ListInterfaces(
 	routerID string,
 	interfaceType *string,
 ) ([]*InterfaceData, error) {
+
 	if cached := s.cache.Get(routerID); cached != nil {
 		log.Printf("returning cached interfaces for router %s (count: %d)", routerID, len(cached))
 		return filterByType(cached, interfaceType), nil
@@ -121,6 +122,7 @@ func (s *InterfaceService) GetInterface(
 	routerID string,
 	interfaceID string,
 ) (*InterfaceData, error) {
+
 	interfaces, err := s.ListInterfaces(ctx, routerID, nil)
 	if err != nil {
 		return nil, err
@@ -140,7 +142,7 @@ func (s *InterfaceService) InvalidateCache(routerID string) {
 }
 
 // fetchInterfaces retrieves basic interface data from RouterOS.
-func (s *InterfaceService) fetchInterfaces(ctx context.Context, routerID string) ([]*InterfaceData, error) {
+func (s *InterfaceService) fetchInterfaces(ctx context.Context, _routerID string) ([]*InterfaceData, error) {
 	cmd := router.Command{
 		Path:   "/interface",
 		Action: "print",
@@ -157,8 +159,8 @@ func (s *InterfaceService) fetchInterfaces(ctx context.Context, routerID string)
 			ID:      data[".id"],
 			Name:    data["name"],
 			Type:    data["type"],
-			Enabled: data["disabled"] != "true",
-			Running: data["running"] == "true",
+			Enabled: data["disabled"] != trueValue,
+			Running: data["running"] == trueValue,
 		}
 
 		if mac, ok := data["mac-address"]; ok {

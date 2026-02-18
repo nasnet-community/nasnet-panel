@@ -1,30 +1,32 @@
 package storage
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ErrorCode represents storage-specific error codes.
 type ErrorCode string
 
 const (
 	// Mount point errors
-	ErrCodeMountNotFound      ErrorCode = "MOUNT_NOT_FOUND"
-	ErrCodeNotMounted         ErrorCode = "NOT_MOUNTED"
-	ErrCodeInsufficientSpace  ErrorCode = "INSUFFICIENT_SPACE"
-	ErrCodeInvalidPath        ErrorCode = "INVALID_PATH"
+	ErrCodeMountNotFound     ErrorCode = "MOUNT_NOT_FOUND"
+	ErrCodeNotMounted        ErrorCode = "NOT_MOUNTED"
+	ErrCodeInsufficientSpace ErrorCode = "INSUFFICIENT_SPACE"
+	ErrCodeInvalidPath       ErrorCode = "INVALID_PATH"
 
 	// Configuration errors
-	ErrCodeInvalidConfig      ErrorCode = "INVALID_CONFIG"
-	ErrCodeFlashNotAllowed    ErrorCode = "FLASH_NOT_ALLOWED"
-	ErrCodeExternalRequired   ErrorCode = "EXTERNAL_REQUIRED"
+	ErrCodeInvalidConfig    ErrorCode = "INVALID_CONFIG"
+	ErrCodeFlashNotAllowed  ErrorCode = "FLASH_NOT_ALLOWED"
+	ErrCodeExternalRequired ErrorCode = "EXTERNAL_REQUIRED"
 
 	// Boot validation errors
-	ErrCodeChecksumMismatch   ErrorCode = "CHECKSUM_MISMATCH"
-	ErrCodeBinaryNotFound     ErrorCode = "BINARY_NOT_FOUND"
-	ErrCodeManifestInvalid    ErrorCode = "MANIFEST_INVALID"
+	ErrCodeChecksumMismatch ErrorCode = "CHECKSUM_MISMATCH"
+	ErrCodeBinaryNotFound   ErrorCode = "BINARY_NOT_FOUND"
+	ErrCodeManifestInvalid  ErrorCode = "MANIFEST_INVALID"
 )
 
 // StorageError represents a storage-related error with additional context.
-type StorageError struct {
+type StorageError struct { //nolint:revive // used across packages
 	Code    ErrorCode
 	Message string
 	Path    string
@@ -46,7 +48,7 @@ func (e *StorageError) Unwrap() error {
 }
 
 // NewStorageError creates a new StorageError.
-func NewStorageError(code ErrorCode, message string, path string) *StorageError {
+func NewStorageError(code ErrorCode, message, path string) *StorageError {
 	return &StorageError{
 		Code:    code,
 		Message: message,
@@ -55,7 +57,7 @@ func NewStorageError(code ErrorCode, message string, path string) *StorageError 
 }
 
 // NewStorageErrorWithDetails creates a StorageError with additional details.
-func NewStorageErrorWithDetails(code ErrorCode, message string, path string, details map[string]interface{}) *StorageError {
+func NewStorageErrorWithDetails(code ErrorCode, message, path string, details map[string]interface{}) *StorageError {
 	return &StorageError{
 		Code:    code,
 		Message: message,
@@ -65,7 +67,7 @@ func NewStorageErrorWithDetails(code ErrorCode, message string, path string, det
 }
 
 // WrapStorageError wraps an existing error with storage context.
-func WrapStorageError(code ErrorCode, message string, path string, err error) *StorageError {
+func WrapStorageError(code ErrorCode, message, path string, err error) *StorageError {
 	return &StorageError{
 		Code:    code,
 		Message: message,

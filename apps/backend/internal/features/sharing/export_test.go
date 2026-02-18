@@ -1,14 +1,15 @@
 package sharing
 
 import (
-	"backend/generated/ent"
-	"backend/generated/ent/serviceinstance"
-	"backend/internal/events"
-	"backend/internal/router"
 	"context"
 	"encoding/json"
 	"testing"
 	"time"
+
+	"backend/generated/ent"
+
+	"backend/internal/events"
+	"backend/internal/router"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -147,7 +148,7 @@ func TestExport_SecretRedactionOn(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Test redaction logic
 	config := map[string]interface{}{
@@ -190,7 +191,7 @@ func TestExport_RoutingRulesOn(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Mock router query response
 	mockRouter.On("QueryState", mock.Anything, mock.Anything).Return(&router.StateResult{
@@ -244,7 +245,7 @@ func TestExport_SensitivePatterns(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Create service
-	service := NewSharingService(nil, mockRouter, mockEventBus, registry, mockAudit)
+	service := NewService(nil, mockRouter, mockEventBus, registry, mockAudit)
 
 	// Test all 8 sensitive patterns
 	testCases := []struct {

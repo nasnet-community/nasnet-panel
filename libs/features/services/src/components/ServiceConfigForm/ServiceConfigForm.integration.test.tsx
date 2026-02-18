@@ -8,15 +8,15 @@ import type { ConfigSchema } from '@nasnet/api-client/queries';
 import { FormProvider, useForm } from 'react-hook-form';
 
 // Mock the usePlatform hook
-vi.mock('@nasnet/ui/patterns', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@nasnet/ui/patterns')>();
+vi.mock('@nasnet/ui/layouts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@nasnet/ui/layouts')>();
   return {
     ...actual,
     usePlatform: vi.fn(),
   };
 });
 
-import { usePlatform } from '@nasnet/ui/patterns';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 const mockUsePlatform = vi.mocked(usePlatform);
 

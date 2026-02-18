@@ -18,7 +18,7 @@ import {
   Badge,
 } from '@nasnet/ui/primitives';
 import { CopyButton } from '@nasnet/ui/patterns';
-import { cn } from '@nasnet/core/utils';
+import { cn } from '@nasnet/ui/primitives';
 import type { DnsLookupResult } from './DnsLookupTool.types';
 import { formatRecordValue, formatTTL, sortRecordsByPriority } from './dnsLookup.utils';
 
@@ -95,7 +95,7 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
                   {formatTTL(record.ttl)}
                 </TableCell>
                 <TableCell>
-                  <CopyButton value={record.data} size="sm" />
+                  <CopyButton value={record.data} />
                 </TableCell>
               </TableRow>
             ))}

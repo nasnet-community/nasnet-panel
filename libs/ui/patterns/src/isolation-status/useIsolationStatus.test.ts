@@ -9,6 +9,7 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { IsolationSeverity } from '@nasnet/api-client/generated';
 import type { IsolationStatus as GraphQLIsolationStatus } from '@nasnet/api-client/generated';
 

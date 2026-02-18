@@ -3,9 +3,11 @@
  * Card-Heavy design - Router info + resource stats grid
  */
 
-import { SystemInfo, SystemResource } from '@nasnet/core/types';
-import { formatBytes, parseRouterOSUptime, calculateStatus } from '@nasnet/core/utils';
 import { Cpu, HardDrive, Clock, Wifi } from 'lucide-react';
+
+import { type SystemInfo, type SystemResource } from '@nasnet/core/types';
+import { formatBytes, parseRouterOSUptime, calculateStatus } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
 
 type NetworkStatus = 'healthy' | 'warning' | 'error' | 'loading';

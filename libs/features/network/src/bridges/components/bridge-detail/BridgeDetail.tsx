@@ -80,7 +80,7 @@ export function BridgeDetail({
           onClose();
         } else {
           const errors = result.data?.createBridge?.errors || [];
-          errors.forEach((err) => toast.error(err.message));
+          errors.forEach((err: { message: string }) => toast.error(err.message));
         }
       } else if (bridgeId) {
         // Update existing bridge
@@ -116,10 +116,10 @@ export function BridgeDetail({
           refetch();
         } else {
           const errors = result.data?.updateBridge?.errors || [];
-          errors.forEach((err) => toast.error(err.message));
+          errors.forEach((err: { message: string }) => toast.error(err.message));
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error('Failed to save bridge');
       console.error(err);
     }
@@ -129,7 +129,7 @@ export function BridgeDetail({
   const sharedProps = {
     bridge: isCreating ? null : bridge,
     loading,
-    error,
+    error: error ? new Error(error.message) : null,
     open,
     onClose,
     onSubmit: handleSubmit,

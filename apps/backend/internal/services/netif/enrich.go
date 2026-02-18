@@ -8,7 +8,7 @@ import (
 )
 
 // enrichWithIPs fetches IP addresses and assigns them to interfaces.
-func (s *InterfaceService) enrichWithIPs(ctx context.Context, routerID string, interfaces []*InterfaceData) {
+func (s *InterfaceService) enrichWithIPs(ctx context.Context, _routerID string, interfaces []*InterfaceData) {
 	cmd := router.Command{
 		Path:   "/ip/address",
 		Action: "print",
@@ -22,19 +22,25 @@ func (s *InterfaceService) enrichWithIPs(ctx context.Context, routerID string, i
 
 	ipMap := make(map[string]string)
 	for _, data := range result.Data {
-		if ifaceName, ok := data["interface"]; ok {
-			if address, ok := data["address"]; ok {
-				if idx := len(address); idx > 0 {
-					for i, c := range address {
-						if c == '/' {
-							idx = i
-							break
-						}
-					}
-					ipMap[ifaceName] = address[:idx]
-				}
+		ifaceName, ok := data["interface"]
+		if !ok {
+			continue
+		}
+		address, ok := data["address"]
+		if !ok {
+			continue
+		}
+		if address == "" {
+			continue
+		}
+		idx := len(address)
+		for i, c := range address {
+			if c == '/' {
+				idx = i
+				break
 			}
 		}
+		ipMap[ifaceName] = address[:idx]
 	}
 
 	for _, iface := range interfaces {
@@ -50,7 +56,7 @@ func (s *InterfaceService) enrichWithTraffic(ctx context.Context, routerID strin
 }
 
 // enrichWithLinkPartners fetches LLDP neighbor information.
-func (s *InterfaceService) enrichWithLinkPartners(ctx context.Context, routerID string, interfaces []*InterfaceData) {
+func (s *InterfaceService) enrichWithLinkPartners(ctx context.Context, _routerID string, interfaces []*InterfaceData) {
 	cmd := router.Command{
 		Path:   "/ip/neighbor",
 		Action: "print",
@@ -81,27 +87,33 @@ func (s *InterfaceService) enrichWithLinkPartners(ctx context.Context, routerID 
 }
 
 // enrichWithUsage determines which services are using each interface.
-func (s *InterfaceService) enrichWithUsage(ctx context.Context, routerID string, interfaces []*InterfaceData) {
+func (s *InterfaceService) enrichWithUsage(ctx context.Context, _routerID string, interfaces []*InterfaceData) {
 	cmd := router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "print",
 	}
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
-	if err == nil {
-		usageMap := make(map[string][]string)
-		for _, data := range result.Data {
-			if ifaceName, ok := data["interface"]; ok {
-				if bridge, ok := data["bridge"]; ok {
-					usageMap[ifaceName] = append(usageMap[ifaceName], "bridge:"+bridge)
-				}
-			}
-		}
+	if err != nil {
+		return
+	}
 
-		for _, iface := range interfaces {
-			if usage, ok := usageMap[iface.Name]; ok {
-				iface.UsedBy = append(iface.UsedBy, usage...)
-			}
+	usageMap := make(map[string][]string)
+	for _, data := range result.Data {
+		ifaceName, ok := data["interface"]
+		if !ok {
+			continue
+		}
+		bridge, ok := data["bridge"]
+		if !ok {
+			continue
+		}
+		usageMap[ifaceName] = append(usageMap[ifaceName], "bridge:"+bridge)
+	}
+
+	for _, iface := range interfaces {
+		if usage, ok := usageMap[iface.Name]; ok {
+			iface.UsedBy = append(iface.UsedBy, usage...)
 		}
 	}
 }
@@ -109,11 +121,12 @@ func (s *InterfaceService) enrichWithUsage(ctx context.Context, routerID string,
 // calculateStatus derives the operational status from running and enabled flags.
 func (s *InterfaceService) calculateStatus(interfaces []*InterfaceData) {
 	for _, iface := range interfaces {
-		if !iface.Enabled {
+		switch {
+		case !iface.Enabled:
 			iface.Status = "DISABLED"
-		} else if iface.Running {
+		case iface.Running:
 			iface.Status = "UP"
-		} else {
+		default:
 			iface.Status = "DOWN"
 		}
 	}

@@ -8,8 +8,11 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
+
+import type { BinaryVerification } from '@nasnet/api-client/generated';
+import { VerificationStatus as GraphQLStatus } from '@nasnet/api-client/generated';
 
 import {
   VerificationBadge,
@@ -20,8 +23,6 @@ import {
   STATUS_ICONS,
   STATUS_LABELS,
 } from './index';
-import type { BinaryVerification } from '@nasnet/api-client/generated';
-import { VerificationStatus as GraphQLStatus } from '@nasnet/api-client/generated';
 
 // Test helper component
 function HookTester(props: Parameters<typeof useVerificationBadge>[0]) {

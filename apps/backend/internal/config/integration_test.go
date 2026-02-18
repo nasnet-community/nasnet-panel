@@ -1,21 +1,24 @@
-package config
+package config_test
 
 import (
 	"testing"
+
+	"backend/internal/config"
+	"backend/internal/config/services"
 )
 
 // TestAllGenerators_Registration tests that all six generators can be registered.
 func TestAllGenerators_Registration(t *testing.T) {
-	registry := NewRegistry()
+	registry := config.NewRegistry()
 
 	// Create all generators
-	generators := []ConfigGenerator{
-		NewTorGenerator(),
-		NewSingboxGenerator(),
-		NewXrayGenerator(),
-		NewMTProxyGenerator(),
-		NewAdguardGenerator(),
-		NewPsiphonGenerator(),
+	generators := []config.Generator{
+		services.NewTorGenerator(),
+		services.NewSingboxGenerator(),
+		services.NewXrayGenerator(),
+		services.NewMTProxyGenerator(),
+		services.NewAdguardGenerator(),
+		services.NewPsiphonGenerator(),
 	}
 
 	// Register all generators
@@ -46,12 +49,12 @@ func TestAllGenerators_Generate(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		generator ConfigGenerator
+		generator config.Generator
 		config    map[string]interface{}
 	}{
 		{
 			name:      "tor",
-			generator: NewTorGenerator(),
+			generator: services.NewTorGenerator(),
 			config: map[string]interface{}{
 				"nickname":        "TestRelay",
 				"contact_info":    "test@example.com",
@@ -65,7 +68,7 @@ func TestAllGenerators_Generate(t *testing.T) {
 		},
 		{
 			name:      "singbox",
-			generator: NewSingboxGenerator(),
+			generator: services.NewSingboxGenerator(),
 			config: map[string]interface{}{
 				"socks_port":    10808,
 				"http_port":     10809,
@@ -76,7 +79,7 @@ func TestAllGenerators_Generate(t *testing.T) {
 		},
 		{
 			name:      "xray",
-			generator: NewXrayGenerator(),
+			generator: services.NewXrayGenerator(),
 			config: map[string]interface{}{
 				"protocol":    "vless",
 				"port":        10443,
@@ -87,7 +90,7 @@ func TestAllGenerators_Generate(t *testing.T) {
 		},
 		{
 			name:      "mtproxy",
-			generator: NewMTProxyGenerator(),
+			generator: services.NewMTProxyGenerator(),
 			config: map[string]interface{}{
 				"port":            8443,
 				"secret":          "0123456789abcdef0123456789abcdef",
@@ -97,7 +100,7 @@ func TestAllGenerators_Generate(t *testing.T) {
 		},
 		{
 			name:      "adguard",
-			generator: NewAdguardGenerator(),
+			generator: services.NewAdguardGenerator(),
 			config: map[string]interface{}{
 				"web_port":            3000,
 				"dns_port":            53,
@@ -115,7 +118,7 @@ func TestAllGenerators_Generate(t *testing.T) {
 		},
 		{
 			name:      "psiphon",
-			generator: NewPsiphonGenerator(),
+			generator: services.NewPsiphonGenerator(),
 			config: map[string]interface{}{
 				"socks_port":          1080,
 				"http_port":           8080,
@@ -155,13 +158,13 @@ func TestAllGenerators_Generate(t *testing.T) {
 
 // TestAllGenerators_IPBinding tests that all generators reject wildcard IPs.
 func TestAllGenerators_IPBinding(t *testing.T) {
-	generators := []ConfigGenerator{
-		NewTorGenerator(),
-		NewSingboxGenerator(),
-		NewXrayGenerator(),
-		NewMTProxyGenerator(),
-		NewAdguardGenerator(),
-		NewPsiphonGenerator(),
+	generators := []config.Generator{
+		services.NewTorGenerator(),
+		services.NewSingboxGenerator(),
+		services.NewXrayGenerator(),
+		services.NewMTProxyGenerator(),
+		services.NewAdguardGenerator(),
+		services.NewPsiphonGenerator(),
 	}
 
 	wildcardIPs := []string{"0.0.0.0", "::"}
@@ -192,16 +195,16 @@ func TestAllGenerators_IPBinding(t *testing.T) {
 func TestAllGenerators_ConfigFormat(t *testing.T) {
 	tests := []struct {
 		name           string
-		generator      ConfigGenerator
+		generator      config.Generator
 		expectedFormat string
 		expectedFile   string
 	}{
-		{name: "tor", generator: NewTorGenerator(), expectedFormat: "text", expectedFile: "torrc"},
-		{name: "singbox", generator: NewSingboxGenerator(), expectedFormat: "json", expectedFile: "config.json"},
-		{name: "xray", generator: NewXrayGenerator(), expectedFormat: "json", expectedFile: "config.json"},
-		{name: "mtproxy", generator: NewMTProxyGenerator(), expectedFormat: "json", expectedFile: "config.json"},
-		{name: "adguard", generator: NewAdguardGenerator(), expectedFormat: "yaml", expectedFile: "AdGuardHome.yaml"},
-		{name: "psiphon", generator: NewPsiphonGenerator(), expectedFormat: "json", expectedFile: "config.json"},
+		{name: "tor", generator: services.NewTorGenerator(), expectedFormat: "text", expectedFile: "torrc"},
+		{name: "singbox", generator: services.NewSingboxGenerator(), expectedFormat: "json", expectedFile: "config.json"},
+		{name: "xray", generator: services.NewXrayGenerator(), expectedFormat: "json", expectedFile: "config.json"},
+		{name: "mtproxy", generator: services.NewMTProxyGenerator(), expectedFormat: "json", expectedFile: "config.json"},
+		{name: "adguard", generator: services.NewAdguardGenerator(), expectedFormat: "yaml", expectedFile: "AdGuardHome.yaml"},
+		{name: "psiphon", generator: services.NewPsiphonGenerator(), expectedFormat: "json", expectedFile: "config.json"},
 	}
 
 	for _, tt := range tests {

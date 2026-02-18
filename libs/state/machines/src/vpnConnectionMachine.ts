@@ -24,7 +24,11 @@
  * @see NAS-4.6: Implement Complex Flows with XState
  */
 
+import { useCallback } from 'react';
+
+import { useMachine } from '@xstate/react';
 import { setup, assign, fromPromise } from 'xstate';
+
 import type { VPNConnectionContext, VPNConnectionEvent, ConnectionMetrics } from './types';
 
 // ===== Configuration =====
@@ -57,6 +61,7 @@ const BACKOFF_BASE_MS = 1000;
 interface ConnectInput {
   serverAddress: string;
   provider: string;
+  attempt?: number;
 }
 
 /**
@@ -339,9 +344,6 @@ export function createVPNConnectionMachine(services: VPNConnectionServices) {
 }
 
 // ===== React Hook =====
-
-import { useCallback, useEffect } from 'react';
-import { useMachine } from '@xstate/react';
 
 /**
  * Return type for useVPNConnection hook

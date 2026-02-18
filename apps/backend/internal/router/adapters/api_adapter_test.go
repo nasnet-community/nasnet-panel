@@ -140,12 +140,12 @@ func TestBuildAPIPath(t *testing.T) {
 
 func TestBuildAPIArgs(t *testing.T) {
 	tests := []struct {
-		name     string
-		args     map[string]string
-		id       string
-		query    string
-		wantLen  int
-		wantHas  []string
+		name    string
+		args    map[string]string
+		id      string
+		query   string
+		wantLen int
+		wantHas []string
 	}{
 		{
 			name:    "empty",
@@ -266,4 +266,3 @@ func TestTranslateAPIError(t *testing.T) {
 		})
 	}
 }
-

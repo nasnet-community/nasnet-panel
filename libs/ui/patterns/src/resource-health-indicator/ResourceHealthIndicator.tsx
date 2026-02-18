@@ -24,8 +24,10 @@ const healthDotVariants = cva(
     variants: {
       health: {
         HEALTHY: 'bg-success',
+        WARNING: 'bg-warning',
         DEGRADED: 'bg-warning',
         CRITICAL: 'bg-error',
+        FAILED: 'bg-error',
         UNKNOWN: 'bg-slate-400 dark:bg-slate-600',
       },
       size: {
@@ -52,8 +54,10 @@ const healthLabelVariants = cva(
     variants: {
       health: {
         HEALTHY: 'text-success',
+        WARNING: 'text-warning',
         DEGRADED: 'text-warning',
         CRITICAL: 'text-error',
+        FAILED: 'text-error',
         UNKNOWN: 'text-slate-500 dark:text-slate-400',
       },
     },
@@ -75,12 +79,20 @@ const HEALTH_INFO: Record<
     label: 'Healthy',
     description: 'Resource is running normally',
   },
+  WARNING: {
+    label: 'Warning',
+    description: 'Resource is running with warnings',
+  },
   DEGRADED: {
     label: 'Degraded',
     description: 'Resource is running with issues',
   },
   CRITICAL: {
     label: 'Critical',
+    description: 'Resource is in critical state',
+  },
+  FAILED: {
+    label: 'Failed',
     description: 'Resource has critical issues',
   },
   UNKNOWN: {

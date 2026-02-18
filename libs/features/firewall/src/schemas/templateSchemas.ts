@@ -151,8 +151,8 @@ export function validateSemver(val: string): boolean {
  * schema.parse(''); // Throws if required
  * ```
  */
-export function createVariableValueSchema(variable: TemplateVariable): z.ZodString | z.ZodNumber | z.ZodBoolean {
-  let schema: z.ZodString | z.ZodNumber | z.ZodBoolean;
+export function createVariableValueSchema(variable: TemplateVariable): z.ZodTypeAny {
+  let schema: z.ZodTypeAny;
 
   switch (variable.type) {
     case 'INTERFACE':
@@ -210,8 +210,8 @@ export function createVariableValueSchema(variable: TemplateVariable): z.ZodStri
   }
 
   // Handle required vs optional
-  if (!variable.required && (variable.type !== 'NUMBER' && variable.type !== 'BOOLEAN')) {
-    return schema.optional() as z.ZodString;
+  if (!variable.required && ((variable.type as string) !== 'NUMBER' && (variable.type as string) !== 'BOOLEAN')) {
+    return schema.optional();
   }
 
   return schema;

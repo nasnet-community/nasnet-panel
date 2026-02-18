@@ -83,7 +83,7 @@ func (r *EntUserRepository) UpdateLastLogin(ctx context.Context, userID string, 
 }
 
 // UpdatePassword updates the user's password hash
-func (r *EntUserRepository) UpdatePassword(ctx context.Context, userID string, passwordHash string) error {
+func (r *EntUserRepository) UpdatePassword(ctx context.Context, userID, passwordHash string) error {
 	_, err := r.client.User.UpdateOneID(userID).
 		SetPasswordHash(passwordHash).
 		SetPasswordChangedAt(time.Now()).
@@ -178,7 +178,7 @@ func (r *EntSessionRepository) UpdateLastActivity(ctx context.Context, sessionID
 }
 
 // Revoke revokes a session
-func (r *EntSessionRepository) Revoke(ctx context.Context, sessionID string, reason string) error {
+func (r *EntSessionRepository) Revoke(ctx context.Context, sessionID, reason string) error {
 	now := time.Now()
 	_, err := r.client.Session.UpdateOneID(sessionID).
 		SetRevoked(true).
@@ -189,7 +189,7 @@ func (r *EntSessionRepository) Revoke(ctx context.Context, sessionID string, rea
 }
 
 // RevokeAllForUser revokes all sessions for a user
-func (r *EntSessionRepository) RevokeAllForUser(ctx context.Context, userID string, reason string) error {
+func (r *EntSessionRepository) RevokeAllForUser(ctx context.Context, userID, reason string) error {
 	now := time.Now()
 	_, err := r.client.Session.Update().
 		Where(
@@ -204,7 +204,7 @@ func (r *EntSessionRepository) RevokeAllForUser(ctx context.Context, userID stri
 }
 
 // RevokeAllForUserExcept revokes all sessions for a user except the specified one
-func (r *EntSessionRepository) RevokeAllForUserExcept(ctx context.Context, userID string, exceptSessionID string, reason string) error {
+func (r *EntSessionRepository) RevokeAllForUserExcept(ctx context.Context, userID, exceptSessionID, reason string) error {
 	now := time.Now()
 	_, err := r.client.Session.Update().
 		Where(
@@ -266,12 +266,4 @@ func entSessionToSession(s *ent.Session) *Session {
 		RevokedReason: s.RevokedReason,
 		CreatedAt:     s.CreatedAt,
 	}
-}
-
-// stringValue returns the value of a string pointer or empty string
-func stringValue(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }

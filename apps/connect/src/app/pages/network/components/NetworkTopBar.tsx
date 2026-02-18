@@ -3,8 +3,10 @@
  * Dashboard Pro style - Compact header with router identity and status
  */
 
-import { SystemInfo } from '@nasnet/core/types';
 import { MoreVertical } from 'lucide-react';
+
+import { type SystemInfo } from '@nasnet/core/types';
+
 import { cn } from '@/lib/utils';
 
 type NetworkStatus = 'healthy' | 'warning' | 'error' | 'loading';

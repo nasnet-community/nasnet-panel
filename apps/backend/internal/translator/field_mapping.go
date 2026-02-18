@@ -38,6 +38,13 @@ const (
 	FieldTypeSize     FieldType = "size" // Bytes with suffix
 )
 
+// MikroTik boolean string constants used in value formatting and parsing.
+const (
+	boolYes  = "yes"
+	boolNo   = "no"
+	boolTrue = "true"
+)
+
 // FieldMappingRegistry holds all field mappings extracted from the GraphQL schema.
 // It is built at startup via schema introspection and used for command translation.
 type FieldMappingRegistry struct {
@@ -129,9 +136,7 @@ func CamelToKebab(s string) string {
 // Special handling for MikroTik internal fields like ".id" -> "id"
 func KebabToCamel(s string) string {
 	// Handle MikroTik internal fields that start with "."
-	if strings.HasPrefix(s, ".") {
-		s = s[1:] // Remove leading dot
-	}
+	s = strings.TrimPrefix(s, ".")
 
 	var result strings.Builder
 	capitalizeNext := false
@@ -171,6 +176,14 @@ func FormatMikroTikValue(value interface{}, fieldType FieldType) string {
 		return FormatList(value)
 	case FieldTypeSize:
 		return FormatSize(value)
+	case FieldTypeMAC:
+		return fmt.Sprintf("%v", value)
+	case FieldTypeIP:
+		return fmt.Sprintf("%v", value)
+	case FieldTypeString:
+		return fmt.Sprintf("%v", value)
+	case FieldTypeInt:
+		return fmt.Sprintf("%v", value)
 	default:
 		return fmt.Sprintf("%v", value)
 	}
@@ -181,17 +194,17 @@ func FormatBool(value interface{}) string {
 	switch v := value.(type) {
 	case bool:
 		if v {
-			return "yes"
+			return boolYes
 		}
-		return "no"
+		return boolNo
 	case string:
 		lower := strings.ToLower(v)
-		if lower == "true" || lower == "yes" || lower == "1" {
-			return "yes"
+		if lower == boolTrue || lower == boolYes || lower == "1" {
+			return boolYes
 		}
-		return "no"
+		return boolNo
 	default:
-		return "no"
+		return boolNo
 	}
 }
 
@@ -222,19 +235,19 @@ func FormatDuration(value interface{}) string {
 	days := d / (24 * time.Hour)
 	if days > 0 {
 		parts = append(parts, fmt.Sprintf("%dd", days))
-		d -= days * 24 * time.Hour
+		d -= time.Duration(int64(days)) * 24 * time.Hour
 	}
 
 	hours := d / time.Hour
 	if hours > 0 {
 		parts = append(parts, fmt.Sprintf("%dh", hours))
-		d -= hours * time.Hour
+		d -= time.Duration(int64(hours)) * time.Hour
 	}
 
 	minutes := d / time.Minute
 	if minutes > 0 {
 		parts = append(parts, fmt.Sprintf("%dm", minutes))
-		d -= minutes * time.Minute
+		d -= time.Duration(int64(minutes)) * time.Minute
 	}
 
 	seconds := d / time.Second
@@ -290,7 +303,7 @@ func FormatSize(value interface{}) string {
 // ParseMikroTikBool parses a MikroTik boolean (yes/no/true/false).
 func ParseMikroTikBool(s string) bool {
 	lower := strings.ToLower(s)
-	return lower == "yes" || lower == "true" || lower == "1"
+	return lower == boolYes || lower == boolTrue || lower == "1"
 }
 
 // ParseMikroTikDuration parses a MikroTik duration string (e.g., 1d2h3m4s, 1w2d).
@@ -315,23 +328,23 @@ func ParseMikroTikDuration(s string) (time.Duration, error) {
 	var d time.Duration
 
 	if matches[1] != "" { // weeks
-		w, _ := strconv.Atoi(matches[1])
+		w, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex capture group `(\d+)` guarantees digits-only match
 		d += time.Duration(w) * 7 * 24 * time.Hour
 	}
 	if matches[2] != "" { // days
-		days, _ := strconv.Atoi(matches[2])
+		days, _ := strconv.Atoi(matches[2]) //nolint:errcheck // regex capture group `(\d+)` guarantees digits-only match
 		d += time.Duration(days) * 24 * time.Hour
 	}
 	if matches[3] != "" { // hours
-		h, _ := strconv.Atoi(matches[3])
+		h, _ := strconv.Atoi(matches[3]) //nolint:errcheck // regex capture group `(\d+)` guarantees digits-only match
 		d += time.Duration(h) * time.Hour
 	}
 	if matches[4] != "" { // minutes
-		m, _ := strconv.Atoi(matches[4])
+		m, _ := strconv.Atoi(matches[4]) //nolint:errcheck // regex capture group `(\d+)` guarantees digits-only match
 		d += time.Duration(m) * time.Minute
 	}
 	if matches[5] != "" { // seconds
-		secs, _ := strconv.Atoi(matches[5])
+		secs, _ := strconv.Atoi(matches[5]) //nolint:errcheck // regex capture group `(\d+)` guarantees digits-only match
 		d += time.Duration(secs) * time.Second
 	}
 
@@ -361,7 +374,7 @@ func ParseMikroTikSize(s string) (int64, error) {
 	}
 
 	s = strings.TrimSpace(s)
-	if len(s) == 0 {
+	if s == "" {
 		return 0, nil
 	}
 

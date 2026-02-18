@@ -112,8 +112,8 @@ export function LeaseDetailPanel({
             </dd>
 
             <dt className="text-muted-foreground">Vendor:</dt>
-            <dd className={cn(!lease.vendor && 'text-muted-foreground')}>
-              {lease.vendor || 'Unknown'}
+            <dd className={cn(!(lease as any).vendor && 'text-muted-foreground')}>
+              {(lease as any).vendor || 'Unknown'}
             </dd>
           </dl>
         </div>
@@ -133,14 +133,14 @@ export function LeaseDetailPanel({
 
             <dt className="text-muted-foreground">Type:</dt>
             <dd>
-              <StatusBadge status={lease.dynamic ? 'dynamic' : 'static'} />
+              <StatusBadge status={lease.dynamic ? 'bound' : 'static'} />
             </dd>
 
             <dt className="text-muted-foreground">Status:</dt>
             <dd>
               <div className="flex items-center gap-2">
                 <StatusBadge status={lease.status} />
-                {lease.blocked && <StatusBadge status="blocked" />}
+                {lease.blocked && <StatusBadge status="stopped" />}
               </div>
             </dd>
           </dl>
@@ -157,8 +157,8 @@ export function LeaseDetailPanel({
             <dd>{formatExpirationTime(lease.expiresAfter)}</dd>
 
             <dt className="text-muted-foreground">Last Seen:</dt>
-            <dd className={cn(!lease.lastSeen && 'text-muted-foreground')}>
-              {lease.lastSeen || 'Never'}
+            <dd className={cn(!(lease as any).lastSeen && 'text-muted-foreground')}>
+              {String((lease as any).lastSeen || 'Never')}
             </dd>
           </dl>
         </div>

@@ -26,6 +26,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { SynFloodConfigPanelDesktop } from './SynFloodConfigPanelDesktop';
 import { SynFloodConfigPanelMobile } from './SynFloodConfigPanelMobile';
+
 import type { UseSynFloodConfigPanelReturn } from './use-syn-flood-config-panel';
 
 export interface SynFloodConfigPanelProps {

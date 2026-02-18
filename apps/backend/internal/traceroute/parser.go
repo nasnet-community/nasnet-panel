@@ -10,8 +10,8 @@ import (
 // Parser parses MikroTik traceroute output into structured data.
 type Parser struct {
 	// Regex patterns for parsing
-	hopLineRegex    *regexp.Regexp
-	timeoutRegex    *regexp.Regexp
+	hopLineRegex     *regexp.Regexp
+	timeoutRegex     *regexp.Regexp
 	unreachableRegex *regexp.Regexp
 }
 
@@ -37,7 +37,7 @@ func (p *Parser) ParseLine(line string) *Hop {
 
 	// Try to match hop line
 	matches := p.hopLineRegex.FindStringSubmatch(line)
-	if matches == nil || len(matches) < 6 {
+	if len(matches) < 6 {
 		return nil
 	}
 
@@ -78,8 +78,8 @@ func (p *Parser) ParseLine(line string) *Hop {
 		} else {
 			// Parse latency (remove "ms" suffix)
 			latencyStr := strings.TrimSuffix(probeStr, "ms")
-			latency, err := strconv.ParseFloat(latencyStr, 64)
-			if err == nil {
+			latency, parseErr := strconv.ParseFloat(latencyStr, 64)
+			if parseErr == nil {
 				probe.Success = true
 				probe.LatencyMs = &latency
 				totalLatency += latency
@@ -117,7 +117,7 @@ func (p *Parser) ParseLine(line string) *Hop {
 }
 
 // determineStatus determines the hop status based on the line content.
-func (p *Parser) determineStatus(line string, successCount, totalProbes int) HopStatus {
+func (p *Parser) determineStatus(line string, successCount, _ int) HopStatus {
 	// Check for explicit unreachable indicators
 	if p.unreachableRegex.MatchString(line) {
 		return HopStatusUnreachable
@@ -138,11 +138,12 @@ func (p *Parser) determineStatus(line string, successCount, totalProbes int) Hop
 
 // ParseMikroTikOutput parses complete MikroTik traceroute output.
 // Example MikroTik output:
-//   traceroute to 8.8.8.8 (8.8.8.8), 30 hops max
-//    1  192.168.1.1  0.5ms  0.6ms  0.4ms
-//    2  10.0.0.1  5.2ms  5.1ms  5.3ms
-//    3  8.8.8.8  15.3ms  15.2ms  15.4ms
-func (p *Parser) ParseMikroTikOutput(output string, target string, protocol Protocol) (*Result, error) {
+//
+//	traceroute to 8.8.8.8 (8.8.8.8), 30 hops max
+//	 1  192.168.1.1  0.5ms  0.6ms  0.4ms
+//	 2  10.0.0.1  5.2ms  5.1ms  5.3ms
+//	 3  8.8.8.8  15.3ms  15.2ms  15.4ms
+func (p *Parser) ParseMikroTikOutput(output, target string, protocol Protocol) (*Result, error) {
 	lines := strings.Split(output, "\n")
 
 	result := &Result{
@@ -191,10 +192,11 @@ func (p *Parser) ParseMikroTikOutput(output string, target string, protocol Prot
 
 // BuildMikroTikCommand builds the MikroTik traceroute command string.
 func BuildMikroTikCommand(input Input) string {
-	cmd := fmt.Sprintf("/tool traceroute address=%s", input.Target)
+	var cmd strings.Builder
+	cmd.WriteString(fmt.Sprintf("/tool traceroute address=%s", input.Target))
 
 	if input.MaxHops > 0 {
-		cmd += fmt.Sprintf(" max-hops=%d", input.MaxHops)
+		fmt.Fprintf(&cmd, " max-hops=%d", input.MaxHops)
 	}
 
 	if input.Timeout > 0 {
@@ -203,24 +205,24 @@ func BuildMikroTikCommand(input Input) string {
 		if timeoutSec < 1 {
 			timeoutSec = 1
 		}
-		cmd += fmt.Sprintf(" timeout=%ds", timeoutSec)
+		fmt.Fprintf(&cmd, " timeout=%ds", timeoutSec)
 	}
 
 	if input.ProbeCount > 0 {
-		cmd += fmt.Sprintf(" count=%d", input.ProbeCount)
+		fmt.Fprintf(&cmd, " count=%d", input.ProbeCount)
 	}
 
 	// MikroTik protocol parameter
 	switch input.Protocol {
 	case ProtocolICMP:
-		cmd += " protocol=icmp"
+		cmd.WriteString(" protocol=icmp")
 	case ProtocolUDP:
-		cmd += " protocol=udp"
+		cmd.WriteString(" protocol=udp")
 	case ProtocolTCP:
-		cmd += " protocol=tcp"
+		cmd.WriteString(" protocol=tcp")
 	default:
-		cmd += " protocol=icmp"
+		cmd.WriteString(" protocol=icmp")
 	}
 
-	return cmd
+	return cmd.String()
 }

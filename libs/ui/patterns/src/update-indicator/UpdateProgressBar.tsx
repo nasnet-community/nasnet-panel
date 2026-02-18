@@ -4,8 +4,9 @@
  */
 
 import * as React from 'react';
-import { cn } from '@nasnet/ui/primitives';
+
 import type { UpdateStage } from '@nasnet/api-client/queries';
+import { cn } from '@nasnet/ui/primitives';
 
 export interface UpdateProgressBarProps {
   /** Current update stage */

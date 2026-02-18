@@ -6,6 +6,9 @@ import (
 	"html/template"
 	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 //go:embed email/*.tmpl telegram/*.tmpl pushover/*.tmpl webhook/*.tmpl inapp/*.tmpl
@@ -73,7 +76,7 @@ func TemplateFuncMap() template.FuncMap {
 		// String manipulation
 		"upper": strings.ToUpper,
 		"lower": strings.ToLower,
-		"title": strings.Title,
+		"title": func(s string) string { return cases.Title(language.English).String(s) },
 		"trim":  strings.TrimSpace,
 
 		// Truncate with ellipsis

@@ -67,9 +67,9 @@ func ValidateEnum(fieldName, value string, allowedValues []string) error {
 }
 
 // ValidateRange validates that an integer is within a specified range.
-func ValidateRange(fieldName string, value, min, max int) error {
-	if value < min || value > max {
-		return fmt.Errorf("%s must be between %d and %d, got %d", fieldName, min, max, value)
+func ValidateRange(fieldName string, value, minVal, maxVal int) error {
+	if value < minVal || value > maxVal {
+		return fmt.Errorf("%s must be between %d and %d, got %d", fieldName, minVal, maxVal, value)
 	}
 	return nil
 }
@@ -96,9 +96,11 @@ func ValidateDNSName(hostname string) error {
 			(char >= 'A' && char <= 'Z') ||
 			(char >= '0' && char <= '9') ||
 			char == '-' || char == '.') {
+
 			return fmt.Errorf("invalid character in hostname: %c", char)
 		}
 	}
+
 	return nil
 }
 

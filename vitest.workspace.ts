@@ -52,9 +52,21 @@ export default defineWorkspace([
       globals: true,
     },
   },
+  // Core types library
+  'libs/core/types/vitest.config.ts',
+
+  // API client queries library
+  'libs/api-client/queries/vitest.config.ts',
+
   // UI layouts library
   'libs/ui/layouts/vitest.config.ts',
 
   // UI patterns library (WCAG AAA accessibility testing)
   'libs/ui/patterns/vitest.config.ts',
+
+  // Features alerts library
+  'libs/features/alerts/vitest.config.ts',
+
+  // Features services library
+  'libs/features/services/vitest.config.ts',
 ]);

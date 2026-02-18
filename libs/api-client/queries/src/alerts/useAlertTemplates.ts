@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { GET_ALERT_TEMPLATES } from './alert-templates.graphql';
-import type { NotificationChannel } from '@nasnet/core/types';
+import type { NotificationChannel } from '@nasnet/api-client/generated';
 
 export interface UseAlertTemplatesOptions {
   eventType?: string;

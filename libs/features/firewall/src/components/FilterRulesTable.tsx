@@ -40,8 +40,8 @@ export function FilterRulesTable({ className, chain }: FilterRulesTableProps) {
   const isMobile = useMediaQuery('(max-width: 640px)');
 
   return isMobile ? (
-    <FilterRulesTableMobile className={className} chain={chain} />
+    <FilterRulesTableMobile className={className} chain={chain as 'input' | 'output' | 'forward' | undefined} />
   ) : (
-    <FilterRulesTableDesktop className={className} chain={chain} />
+    <FilterRulesTableDesktop className={className} chain={chain as 'input' | 'output' | 'forward' | undefined} />
   );
 }

@@ -16,9 +16,12 @@
  */
 
 import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
+
 import { NotificationCenterDesktop } from './NotificationCenterDesktop';
 import { NotificationCenterMobile } from './NotificationCenterMobile';
+
 import type { NotificationCenterProps } from './types';
 
 /**

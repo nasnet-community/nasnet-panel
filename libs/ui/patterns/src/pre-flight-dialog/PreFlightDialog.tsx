@@ -14,9 +14,10 @@
  * - WCAG AAA accessible
  */
 
-import type { PreFlightDialogProps } from './types';
 import { PreFlightDialogDesktop } from './PreFlightDialogDesktop';
 import { PreFlightDialogMobile } from './PreFlightDialogMobile';
+
+import type { PreFlightDialogProps } from './types';
 
 /**
  * PreFlightDialog Component

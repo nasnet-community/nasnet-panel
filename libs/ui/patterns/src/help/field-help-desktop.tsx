@@ -13,9 +13,10 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { FieldHelpDesktopProps } from './help.types';
 import { HelpIcon } from './help-icon';
 import { HelpPopover } from './help-popover';
+
+import type { FieldHelpDesktopProps } from './help.types';
 
 /**
  * FieldHelpDesktop - Desktop presenter for field help

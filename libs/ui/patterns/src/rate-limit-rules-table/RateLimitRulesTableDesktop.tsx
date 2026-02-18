@@ -13,31 +13,7 @@
  */
 
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Button,
-  Badge,
-  Switch,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@nasnet/ui/primitives';
+
 import {
   DndContext,
   closestCenter,
@@ -55,7 +31,32 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pencil, Copy, Trash2, GripVertical } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
 import type { RateLimitRule } from '@nasnet/core/types';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Button,
+  Badge,
+  Switch,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@nasnet/ui/primitives';
+
 import type { RateLimitRulesTablePresenterProps, SortableRowProps } from './types';
 
 // ============================================================================
@@ -65,8 +66,8 @@ import type { RateLimitRulesTablePresenterProps, SortableRowProps } from './type
 function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
   // drop=destructive (red), tarpit=warning (amber), add-to-list=info (blue)
-  const variantMap: Record<string, 'default' | 'success' | 'destructive' | 'warning' | 'info'> = {
-    drop: 'destructive', // Red
+  const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
+    drop: 'error', // Red
     tarpit: 'warning', // Amber
     'add-to-list': 'info', // Blue
   };
@@ -376,14 +377,14 @@ export function RateLimitRulesTableDesktop({
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Rate Limit Rule?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Rate Limit Rule?</DialogTitle>
+            <DialogDescription>
               This action cannot be undone. The rule will be permanently removed from the firewall configuration.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">This will:</p>
             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -392,14 +393,16 @@ export function RateLimitRulesTableDesktop({
               <li>Take effect immediately on the router</li>
             </ul>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDelete}>
+              Cancel
+            </Button>
+            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
               Delete Rule
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Statistics Panel - Placeholder for RuleStatisticsPanel */}
       {statsRule && (

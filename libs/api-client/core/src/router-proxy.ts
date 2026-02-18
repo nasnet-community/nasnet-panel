@@ -38,6 +38,7 @@ export interface RouterOSRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   headers?: Record<string, string>;
+  params?: Record<string, string>;
 }
 
 /** Response wrapper for RouterOS API calls */

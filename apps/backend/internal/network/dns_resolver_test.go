@@ -183,12 +183,12 @@ func TestIsValidHostname(t *testing.T) {
 
 		// Invalid
 		{"", false},
-		{"-router", false},           // Starts with hyphen
-		{"router-", false},           // Ends with hyphen
-		{"router..local", false},     // Empty label
-		{"router .local", false},     // Space in label
-		{"router_local", false},      // Underscore not allowed
-		{"router.local.", false},     // Trailing dot creates empty label (simplified check)
+		{"-router", false},                 // Starts with hyphen
+		{"router-", false},                 // Ends with hyphen
+		{"router..local", false},           // Empty label
+		{"router .local", false},           // Space in label
+		{"router_local", false},            // Underscore not allowed
+		{"router.local.", false},           // Trailing dot creates empty label (simplified check)
 		{string(make([]byte, 254)), false}, // Too long
 	}
 

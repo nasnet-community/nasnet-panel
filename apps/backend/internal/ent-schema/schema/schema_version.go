@@ -8,18 +8,18 @@ import (
 	"entgo.io/ent/schema/index"
 )
 
-// SchemaVersion tracks database schema migrations.
+// Version tracks database schema migrations.
 // Each applied migration is recorded here for version tracking and auditing.
 // This enables:
 // - Knowing which migrations have been applied
 // - Detecting schema drift
 // - Supporting rollback operations
-type SchemaVersion struct {
+type Version struct {
 	ent.Schema
 }
 
-// Fields of the SchemaVersion entity.
-func (SchemaVersion) Fields() []ent.Field {
+// Fields of the Version entity.
+func (Version) Fields() []ent.Field {
 	return []ent.Field{
 		// ULID primary key
 		field.String("id").
@@ -67,13 +67,13 @@ func (SchemaVersion) Fields() []ent.Field {
 	}
 }
 
-// Edges of the SchemaVersion entity.
-func (SchemaVersion) Edges() []ent.Edge {
+// Edges of the Version entity.
+func (Version) Edges() []ent.Edge {
 	return nil
 }
 
-// Indexes of the SchemaVersion entity.
-func (SchemaVersion) Indexes() []ent.Index {
+// Indexes of the Version entity.
+func (Version) Indexes() []ent.Index {
 	return []ent.Index{
 		// Version is unique (already enforced by field)
 		index.Fields("version"),

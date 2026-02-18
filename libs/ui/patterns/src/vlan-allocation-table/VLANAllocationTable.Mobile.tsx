@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import {
   Card,
   CardContent,
@@ -9,8 +10,8 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
+
 import type {
   VLANAllocationTableProps,
   VLANAllocation,

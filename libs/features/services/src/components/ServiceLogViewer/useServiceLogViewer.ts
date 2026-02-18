@@ -249,7 +249,7 @@ export function formatLogTimestamp(timestamp: string): string {
     minute: '2-digit',
     second: '2-digit',
     fractionalSecondDigits: 3,
-  });
+  } as Intl.DateTimeFormatOptions);
 }
 
 /**

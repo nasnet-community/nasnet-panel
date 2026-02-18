@@ -20,13 +20,14 @@
  */
 
 import { memo, useMemo } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Ban, TrendingUp } from 'lucide-react';
 
-import type { FirewallLogEntry } from '@nasnet/core/types';
+import { Ban, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+
 import { getServiceByPort } from '@nasnet/core/constants';
-import { cn, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import type { FirewallLogEntry } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
+import { cn, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -224,7 +225,7 @@ function FirewallLogStatsDesktop({
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={(entry) => `${entry.action} (${entry.percentage.toFixed(1)}%)`}
+                label={((entry: Record<string, unknown>) => `${entry.action} (${(entry.percentage as number).toFixed(1)}%)`) as any}
                 labelLine={true}
               >
                 {stats.actionDistribution.map((entry, index) => (
@@ -238,7 +239,7 @@ function FirewallLogStatsDesktop({
                   borderRadius: '0.5rem',
                   color: 'hsl(var(--foreground))',
                 }}
-                formatter={(value: number) => value.toLocaleString()}
+                formatter={((value: number) => value.toLocaleString()) as never}
               />
               <Legend />
             </PieChart>
@@ -414,7 +415,7 @@ function FirewallLogStatsMobile({
                 cx="50%"
                 cy="50%"
                 outerRadius={80}
-                label={(entry) => `${entry.percentage.toFixed(0)}%`}
+                label={((entry: Record<string, unknown>) => `${(entry.percentage as number).toFixed(0)}%`) as any}
                 labelLine={false}
               >
                 {stats.actionDistribution.map((entry, index) => (
@@ -428,7 +429,7 @@ function FirewallLogStatsMobile({
                   borderRadius: '0.5rem',
                   fontSize: '0.875rem',
                 }}
-                formatter={(value: number) => value.toLocaleString()}
+                formatter={((value: number) => value.toLocaleString()) as never}
               />
               <Legend
                 wrapperStyle={{ fontSize: '0.75rem' }}

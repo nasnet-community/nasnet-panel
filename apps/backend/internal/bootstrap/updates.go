@@ -7,29 +7,31 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+
 	"backend/generated/ent"
 
-	"backend/internal/events"
 	"backend/internal/features"
 	"backend/internal/features/updates"
-	"backend/internal/orchestrator"
+	"backend/internal/orchestrator/lifecycle"
+
+	"backend/internal/events"
 	"backend/internal/storage"
 )
 
 // UpdateComponents holds all initialized update manager components.
 type UpdateComponents struct {
-	GitHubClient       *updates.GitHubClient
-	UpdateService      *updates.UpdateService
-	Verifier           *updates.Verifier
-	Journal            *updates.UpdateJournal
-	MigratorRegistry   *updates.MigratorRegistry
-	UpdateEngine       *updates.UpdateEngine
-	UpdateScheduler    *updates.UpdateScheduler
+	GitHubClient     *updates.GitHubClient
+	UpdateService    *updates.UpdateService
+	Verifier         *updates.Verifier
+	Journal          *updates.UpdateJournal
+	MigratorRegistry *updates.MigratorRegistry
+	UpdateEngine     *updates.UpdateEngine
+	UpdateScheduler  *updates.UpdateScheduler
 }
 
 // instanceHealthAdapter adapts InstanceManager to features.HealthChecker interface.
 type instanceHealthAdapter struct {
-	manager *orchestrator.InstanceManager
+	manager *lifecycle.InstanceManager
 }
 
 func (a *instanceHealthAdapter) GetStatus(instanceID string) (string, error) {
@@ -39,7 +41,7 @@ func (a *instanceHealthAdapter) GetStatus(instanceID string) (string, error) {
 
 // instanceStopperAdapter adapts InstanceManager to updates.InstanceStopper interface.
 type instanceStopperAdapter struct {
-	manager *orchestrator.InstanceManager
+	manager *lifecycle.InstanceManager
 }
 
 func (a *instanceStopperAdapter) Stop(ctx context.Context, instanceID string) error {
@@ -49,7 +51,7 @@ func (a *instanceStopperAdapter) Stop(ctx context.Context, instanceID string) er
 
 // instanceStarterAdapter adapts InstanceManager to updates.InstanceStarter interface.
 type instanceStarterAdapter struct {
-	manager *orchestrator.InstanceManager
+	manager *lifecycle.InstanceManager
 }
 
 func (a *instanceStarterAdapter) Start(ctx context.Context, instanceID string) error {
@@ -72,10 +74,11 @@ func InitializeUpdateManager(
 	eventBus events.EventBus,
 	pathResolver storage.PathResolverPort,
 	downloadManager *features.DownloadManager,
-	instanceManager *orchestrator.InstanceManager,
+	instanceManager *lifecycle.InstanceManager,
 	dataDir string,
 	logger zerolog.Logger,
 ) (*UpdateComponents, error) {
+
 	log.Printf("Initializing service update manager...")
 
 	// 1. GitHub Client for release checking
@@ -136,8 +139,8 @@ func InitializeUpdateManager(
 	log.Printf("Update engine initialized (6-phase atomic updates with rollback)")
 
 	// Boot-time recovery: Check for incomplete updates and roll them back
-	if err := updateEngine.RecoverFromCrash(ctx); err != nil {
-		log.Printf("Warning: boot-time update recovery encountered errors: %v", err)
+	if recoveryErr := updateEngine.RecoverFromCrash(ctx); recoveryErr != nil {
+		log.Printf("Warning: boot-time update recovery encountered errors: %v", recoveryErr)
 	}
 
 	// 8. Update Scheduler - coordinates periodic update checks with smart timing
@@ -158,6 +161,7 @@ func InitializeUpdateManager(
 	log.Printf("Update scheduler initialized")
 
 	// Start update scheduler (begins periodic update checks)
+	//nolint:contextcheck // scheduler.Start() creates its own context
 	if err := updateScheduler.Start(); err != nil {
 		log.Printf("Warning: failed to start update scheduler: %v", err)
 	} else {

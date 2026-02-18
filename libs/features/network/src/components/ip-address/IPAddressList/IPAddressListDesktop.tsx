@@ -108,7 +108,7 @@ export function IPAddressListDesktop({
               </Badge>
             )}
             {ip.invalid && (
-              <Badge variant="destructive" className="text-xs">
+              <Badge variant="error" className="text-xs">
                 Invalid
               </Badge>
             )}
@@ -241,11 +241,11 @@ export function IPAddressListDesktop({
 
         {/* Data Table */}
         <DataTable
-          columns={columns}
-          data={filteredIpAddresses}
+          columns={columns as any}
+          data={filteredIpAddresses as any}
           isLoading={loading}
           emptyMessage="No IP addresses found. Add an IP address to get started."
-          keyExtractor={(ip) => ip.id}
+          keyExtractor={(ip) => (ip as unknown as IPAddressData).id}
         />
 
         {/* Footer info */}

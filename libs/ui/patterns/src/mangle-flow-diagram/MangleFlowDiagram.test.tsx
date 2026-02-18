@@ -11,11 +11,13 @@
  * - WCAG AAA accessibility (axe-core - 0 violations)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { axe } from 'vitest-axe';
+
 import { MangleFlowDiagram } from './MangleFlowDiagram';
+
 import type { MangleFlowDiagramProps } from './MangleFlowDiagram';
 
 // Mock the platform hook

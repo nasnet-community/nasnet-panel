@@ -9,7 +9,8 @@
 
 import { createFileRoute, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import { Package, Boxes } from 'lucide-react';
-import { cn } from '@nasnet/ui/utils';
+
+import { cn } from '@nasnet/ui/primitives';
 
 /**
  * Service tab definition

@@ -320,5 +320,4 @@ export function createWsClient(options: WsClientOptions = {}): Client {
 export const wsClient: Client = createWsClient();
 
 // ===== Type Exports =====
-
-export type { WsClientOptions };
+// WsClientOptions is already exported at its definition above

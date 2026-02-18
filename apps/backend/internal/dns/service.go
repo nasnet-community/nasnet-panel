@@ -3,8 +3,9 @@ package dns
 import (
 	"context"
 	"fmt"
-	"backend/internal/router"
 	"time"
+
+	"backend/internal/router"
 )
 
 // Service provides DNS lookup operations via RouterPort
@@ -20,7 +21,7 @@ func NewService(rp router.RouterPort) *Service {
 }
 
 // PerformLookup executes a DNS lookup operation
-func (s *Service) PerformLookup(ctx context.Context, input *DnsLookupInput) (*DnsLookupResult, error) {
+func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*LookupResult, error) {
 	start := time.Now()
 
 	// Determine which server to use
@@ -30,7 +31,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *DnsLookupInput) (*Dn
 	}
 
 	// Route based on record type and server
-	var records []DnsRecord
+	var records []Record
 	var lookupErr error
 
 	// Use RouterOS native lookup for A/AAAA records when using router's DNS
@@ -45,11 +46,11 @@ func (s *Service) PerformLookup(ctx context.Context, input *DnsLookupInput) (*Dn
 	// If lookup failed, return error result
 	if lookupErr != nil {
 		errorMsg := lookupErr.Error()
-		return &DnsLookupResult{
+		return &LookupResult{
 			Hostname:      input.Hostname,
 			RecordType:    input.RecordType,
 			Status:        mapErrorToStatus(lookupErr),
-			Records:       []DnsRecord{},
+			Records:       []Record{},
 			Server:        server,
 			QueryTime:     queryTime,
 			Authoritative: false,
@@ -59,7 +60,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *DnsLookupInput) (*Dn
 	}
 
 	// Success - return result
-	return &DnsLookupResult{
+	return &LookupResult{
 		Hostname:      input.Hostname,
 		RecordType:    input.RecordType,
 		Status:        "SUCCESS",
@@ -72,7 +73,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *DnsLookupInput) (*Dn
 }
 
 // GetConfiguredServers retrieves DNS servers configured on the router
-func (s *Service) GetConfiguredServers(ctx context.Context, deviceId string) (*DnsServers, error) {
+func (s *Service) GetConfiguredServers(ctx context.Context, deviceId string) (*Servers, error) {
 	// Execute /ip/dns/print command
 	cmd := router.Command{
 		Path:   "/ip/dns",
@@ -85,11 +86,11 @@ func (s *Service) GetConfiguredServers(ctx context.Context, deviceId string) (*D
 	}
 
 	// Parse RouterOS response
-	return parseRouterOSDnsServers(result.RawOutput), nil
+	return parseRouterOSServers(result.RawOutput), nil
 }
 
 // GetCacheStats retrieves DNS cache statistics from the router
-func (s *Service) GetCacheStats(ctx context.Context, deviceId string) (*DnsCacheStats, error) {
+func (s *Service) GetCacheStats(ctx context.Context, deviceId string) (*CacheStats, error) {
 	// Execute /ip/dns/print command to get cache info
 	cmd := router.Command{
 		Path:   "/ip/dns",
@@ -102,14 +103,14 @@ func (s *Service) GetCacheStats(ctx context.Context, deviceId string) (*DnsCache
 	}
 
 	// Parse cache statistics from RouterOS response
-	stats := parseRouterOSDnsCacheStats(result.RawOutput)
+	stats := parseRouterOSCacheStats(result.RawOutput)
 	stats.Timestamp = time.Now().Format(time.RFC3339)
 
 	return stats, nil
 }
 
 // FlushCache flushes the DNS cache on the router
-func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushDnsCacheResult, error) {
+func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushCacheResult, error) {
 	// Get cache stats before flushing
 	beforeStats, err := s.GetCacheStats(ctx, deviceId)
 	if err != nil {
@@ -125,11 +126,11 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushDnsCac
 	_, err = s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
 		errMsg := "Failed to flush DNS cache"
-		return &FlushDnsCacheResult{
+		return &FlushCacheResult{
 			Success:        false,
 			EntriesRemoved: 0,
 			BeforeStats:    *beforeStats,
-			AfterStats:     DnsCacheStats{Timestamp: time.Now().Format(time.RFC3339)},
+			AfterStats:     CacheStats{Timestamp: time.Now().Format(time.RFC3339)},
 			Message:        errMsg,
 			Timestamp:      time.Now().Format(time.RFC3339),
 		}, err
@@ -139,7 +140,7 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushDnsCac
 	afterStats, err := s.GetCacheStats(ctx, deviceId)
 	if err != nil {
 		// If we can't get after stats, create empty stats
-		afterStats = &DnsCacheStats{
+		afterStats = &CacheStats{
 			TotalEntries:   0,
 			CacheUsedBytes: 0,
 			Timestamp:      time.Now().Format(time.RFC3339),
@@ -148,7 +149,7 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushDnsCac
 
 	entriesRemoved := beforeStats.TotalEntries - afterStats.TotalEntries
 
-	return &FlushDnsCacheResult{
+	return &FlushCacheResult{
 		Success:        true,
 		EntriesRemoved: entriesRemoved,
 		BeforeStats:    *beforeStats,
@@ -159,7 +160,7 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushDnsCac
 }
 
 // RunBenchmark benchmarks all configured DNS servers
-func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*DnsBenchmarkResult, error) {
+func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*BenchmarkResult, error) {
 	start := time.Now()
 
 	// Get configured DNS servers
@@ -176,14 +177,14 @@ func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*DnsBenchm
 	testHostname := "google.com"
 
 	// Run benchmarks in parallel
-	results := make([]DnsBenchmarkServerResult, len(servers.Servers))
+	results := make([]BenchmarkServerResult, len(servers.Servers))
 	type benchmarkJob struct {
 		index  int
 		server string
 	}
 
 	jobs := make(chan benchmarkJob, len(servers.Servers))
-	resultsChan := make(chan DnsBenchmarkServerResult, len(servers.Servers))
+	resultsChan := make(chan BenchmarkServerResult, len(servers.Servers))
 
 	// Start worker goroutines
 	numWorkers := len(servers.Servers)
@@ -215,16 +216,19 @@ func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*DnsBenchm
 	sortBenchmarkResults(results)
 
 	// Label fastest server and slow servers
-	var fastestServer *DnsBenchmarkServerResult
+	var fastestServer *BenchmarkServerResult
 	for i := range results {
 		if results[i].Success && results[i].ResponseTimeMs > 0 {
 			if fastestServer == nil {
 				results[i].Status = "FASTEST"
 				fastestServer = &results[i]
-			} else if results[i].ResponseTimeMs > 100 {
-				results[i].Status = "SLOW"
 			} else {
-				results[i].Status = "GOOD"
+				switch {
+				case results[i].ResponseTimeMs > 100:
+					results[i].Status = "SLOW"
+				default:
+					results[i].Status = "GOOD"
+				}
 			}
 		} else if !results[i].Success {
 			results[i].Status = "UNREACHABLE"
@@ -233,7 +237,7 @@ func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*DnsBenchm
 
 	totalTimeMs := int(time.Since(start).Milliseconds())
 
-	return &DnsBenchmarkResult{
+	return &BenchmarkResult{
 		TestHostname:  testHostname,
 		ServerResults: results,
 		FastestServer: fastestServer,
@@ -243,11 +247,11 @@ func (s *Service) RunBenchmark(ctx context.Context, deviceId string) (*DnsBenchm
 }
 
 // benchmarkSingleServer tests a single DNS server
-func (s *Service) benchmarkSingleServer(ctx context.Context, deviceId, hostname, server string) DnsBenchmarkServerResult {
+func (s *Service) benchmarkSingleServer(ctx context.Context, deviceId, hostname, server string) BenchmarkServerResult {
 	start := time.Now()
 
 	// Create lookup input
-	input := &DnsLookupInput{
+	input := &LookupInput{
 		DeviceId:   deviceId,
 		Hostname:   hostname,
 		RecordType: "A",
@@ -263,7 +267,7 @@ func (s *Service) benchmarkSingleServer(ctx context.Context, deviceId, hostname,
 
 	if err != nil {
 		errMsg := err.Error()
-		return DnsBenchmarkServerResult{
+		return BenchmarkServerResult{
 			Server:         server,
 			ResponseTimeMs: -1,
 			Status:         "UNREACHABLE",
@@ -272,7 +276,7 @@ func (s *Service) benchmarkSingleServer(ctx context.Context, deviceId, hostname,
 		}
 	}
 
-	return DnsBenchmarkServerResult{
+	return BenchmarkServerResult{
 		Server:         server,
 		ResponseTimeMs: responseTimeMs,
 		Status:         "GOOD",

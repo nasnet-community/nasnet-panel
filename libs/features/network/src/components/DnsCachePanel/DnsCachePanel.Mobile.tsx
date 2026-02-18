@@ -11,15 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasn
 import { Progress } from '@nasnet/ui/primitives/progress';
 import { Badge } from '@nasnet/ui/primitives/badge';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@nasnet/ui/primitives/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@nasnet/ui/primitives/dialog';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
 import { Database, Trash2, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useDnsCachePanel } from './useDnsCachePanel';
@@ -162,14 +160,14 @@ export function DnsCachePanelMobile({
       </Card>
 
       {/* Flush Confirmation Dialog */}
-      <AlertDialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
-        <AlertDialogContent className="max-w-[90vw]">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg">Flush DNS Cache?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm">
+      <Dialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
+        <DialogContent className="max-w-[90vw]">
+          <DialogHeader>
+            <DialogTitle className="text-lg">Flush DNS Cache?</DialogTitle>
+            <DialogDescription className="text-sm">
               This will remove all cached DNS entries. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
 
           {/* Before/After Stats Preview */}
           {cacheStats && !flushResult && (
@@ -202,20 +200,25 @@ export function DnsCachePanelMobile({
             </Alert>
           )}
 
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-            <AlertDialogCancel disabled={isFlushing} className="w-full sm:w-auto">
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              disabled={isFlushing}
+              onClick={closeFlushDialog}
+              className="w-full sm:w-auto"
+            >
               Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </Button>
+            <Button
               onClick={confirmFlush}
               disabled={isFlushing || !!flushResult}
               className="bg-semantic-error hover:bg-semantic-error/90 w-full sm:w-auto"
             >
               {isFlushing ? 'Flushing...' : 'Flush Cache'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

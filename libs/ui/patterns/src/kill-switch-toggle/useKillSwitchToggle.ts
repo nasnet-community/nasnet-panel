@@ -13,10 +13,12 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+
 import {
   useKillSwitchStatus,
   useSetKillSwitch,
-} from '@nasnet/api-client/queries/services';
+} from '@nasnet/api-client/queries';
+
 import type {
   KillSwitchToggleProps,
   UseKillSwitchToggleReturn,

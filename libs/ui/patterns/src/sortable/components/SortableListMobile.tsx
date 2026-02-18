@@ -7,13 +7,14 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
+
+import { cn, Button } from '@nasnet/ui/primitives';
+
 import { SortableList } from './SortableList';
 import { MIN_TOUCH_TARGET } from '../config';
+
 import type {
   SortableListProps,
   SortableItemData,

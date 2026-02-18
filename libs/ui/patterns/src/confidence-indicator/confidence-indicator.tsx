@@ -12,10 +12,11 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { ConfidenceIndicatorProps } from './confidence-indicator.types';
-import { useConfidenceIndicator } from './use-confidence-indicator';
 import { ConfidenceIndicatorDesktop } from './confidence-indicator-desktop';
 import { ConfidenceIndicatorMobile } from './confidence-indicator-mobile';
+import { useConfidenceIndicator } from './use-confidence-indicator';
+
+import type { ConfidenceIndicatorProps } from './confidence-indicator.types';
 
 /**
  * Confidence Indicator Component

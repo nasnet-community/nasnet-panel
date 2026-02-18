@@ -12,9 +12,11 @@
  */
 
 import { usePlatform } from '@nasnet/ui/layouts';
-import { useRateLimitRulesTable } from './use-rate-limit-rules-table';
+
 import { RateLimitRulesTableDesktop } from './RateLimitRulesTableDesktop';
 import { RateLimitRulesTableMobile } from './RateLimitRulesTableMobile';
+import { useRateLimitRulesTable } from './use-rate-limit-rules-table';
+
 import type { RateLimitRulesTableProps } from './types';
 
 /**

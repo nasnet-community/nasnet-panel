@@ -11,10 +11,11 @@ import * as React from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { DependencyGraphProps } from './dependency-graph.types';
-import { useDependencyGraph } from './use-dependency-graph';
 import { DependencyGraphDesktop } from './DependencyGraph.Desktop';
 import { DependencyGraphMobile } from './DependencyGraph.Mobile';
+import { useDependencyGraph } from './use-dependency-graph';
+
+import type { DependencyGraphProps } from './dependency-graph.types';
 
 /**
  * Dependency Graph Component

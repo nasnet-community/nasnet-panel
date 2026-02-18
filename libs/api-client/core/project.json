@@ -3,5 +3,13 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/api-client/core/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:api-client"]
+  "tags": ["type:lib", "scope:api-client"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit --project libs/api-client/core/tsconfig.lib.json"
+      }
+    }
+  }
 }

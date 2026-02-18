@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -8,20 +9,29 @@ import (
 // SuggestedFix generates a user-friendly suggested fix based on error type and context.
 func SuggestedFix(err error) string {
 	// Check for specific error types first (before GetRouterError which may fail for embedded types)
-	switch e := err.(type) {
-	case *ValidationError:
-		return suggestedFixForValidation(e)
-	case *ProtocolError:
-		return suggestedFixForProtocol(e)
-	case *AuthError:
-		return suggestedFixForAuth(e)
-	case *NetworkError:
-		return suggestedFixForNetwork(e)
-	case *PlatformError:
-		return suggestedFixForPlatform(e)
-	case *ResourceError:
-		return suggestedFixForResource(e)
-	case *InternalError:
+	// Use errors.As to handle wrapped errors
+	var validationErr *ValidationError
+	var protocolErr *ProtocolError
+	var authErr *AuthError
+	var networkErr *NetworkError
+	var platformErr *PlatformError
+	var resourceErr *ResourceError
+	var internalErr *InternalError
+
+	switch {
+	case errors.As(err, &validationErr):
+		return suggestedFixForValidation(validationErr)
+	case errors.As(err, &protocolErr):
+		return suggestedFixForProtocol(protocolErr)
+	case errors.As(err, &authErr):
+		return suggestedFixForAuth(authErr)
+	case errors.As(err, &networkErr):
+		return suggestedFixForNetwork(networkErr)
+	case errors.As(err, &platformErr):
+		return suggestedFixForPlatform(platformErr)
+	case errors.As(err, &resourceErr):
+		return suggestedFixForResource(resourceErr)
+	case errors.As(err, &internalErr):
 		return "An internal error occurred. Please try again later or contact support if the issue persists."
 	}
 
@@ -150,7 +160,7 @@ func suggestedFixForResource(err *ResourceError) string {
 	}
 }
 
-func suggestedFixForCode(code string, ctx map[string]interface{}) string {
+func suggestedFixForCode(code string, _ctx map[string]interface{}) string {
 	// Map error codes to generic suggestions
 	suggestions := map[string]string{
 		// Platform (P1xx)

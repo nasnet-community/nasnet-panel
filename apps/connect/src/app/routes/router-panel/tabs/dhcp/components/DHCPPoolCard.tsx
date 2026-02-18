@@ -3,8 +3,10 @@
  * Displays individual pool with utilization visualization
  */
 
-import type { DHCPPool, DHCPLease } from '@nasnet/core/types';
 import { Database } from 'lucide-react';
+
+import type { DHCPPool, DHCPLease } from '@nasnet/core/types';
+
 import { calculatePoolSize, getUtilizationTextColor, getUtilizationBgColor } from '../utils';
 
 interface DHCPPoolCardProps {

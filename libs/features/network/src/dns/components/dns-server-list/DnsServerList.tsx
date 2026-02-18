@@ -8,7 +8,7 @@
  */
 
 import { memo } from 'react';
-import { usePlatform } from '@nasnet/core/utils';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { DnsServerListDesktop } from './DnsServerListDesktop';
 import { DnsServerListMobile } from './DnsServerListMobile';
 

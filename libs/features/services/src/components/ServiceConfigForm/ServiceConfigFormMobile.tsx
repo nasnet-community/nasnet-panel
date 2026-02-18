@@ -78,7 +78,7 @@ export function ServiceConfigFormMobile({
               <CardTitle className="text-base">{groupName}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {fields.map((field) => (
+              {(fields as any[]).map((field: any) => (
                 <DynamicField
                   key={field.name}
                   field={field}

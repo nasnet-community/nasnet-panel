@@ -6,6 +6,7 @@
  */
 
 import type { ReactNode } from 'react';
+
 import type { Service, ServiceStatus, ServiceCategory } from '../service-card/types';
 
 /**

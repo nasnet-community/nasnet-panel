@@ -43,7 +43,6 @@ func DefaultEventBusOptions() EventBusOptions {
 // eventBus is the Watermill-based implementation of EventBus.
 type eventBus struct {
 	pubsub         *gochannel.GoChannel
-	router         *message.Router
 	handlers       map[string][]EventHandler
 	allHandler     []EventHandler
 	mu             sync.RWMutex
@@ -213,7 +212,8 @@ func (eb *eventBus) flushPendingEvents() {
 type TypedEventHandler[T Event] func(ctx context.Context, event T) error
 
 // SubscribableEventBus extends EventBus with typed subscription helpers.
-type SubscribableEventBus interface {
+// Each method provides type-safe subscription for a specific domain event.
+type SubscribableEventBus interface { //nolint:interfacebloat // typed subscription helpers for each domain event
 	EventBus
 	OnRouterStatusChanged(handler func(ctx context.Context, event *RouterStatusChangedEvent) error) error
 	OnResourceUpdated(handler func(ctx context.Context, event *ResourceUpdatedEvent) error) error

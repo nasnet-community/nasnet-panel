@@ -6,7 +6,6 @@
  * @module @nasnet/ui/patterns/validation-progress
  */
 
-import * as React from 'react';
 
 import { motion } from 'framer-motion';
 import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react';

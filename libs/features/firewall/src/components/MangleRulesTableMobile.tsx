@@ -38,14 +38,12 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@nasnet/ui/primitives';
 import { Pencil, Copy, Trash2 } from 'lucide-react';
 
@@ -217,9 +215,9 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
-  const { data: rules, isLoading, error } = useMangleRules(routerIp, chain);
-  const deleteMangleRule = useDeleteMangleRule();
-  const toggleMangleRule = useToggleMangleRule();
+  const { data: rules, isLoading, error } = useMangleRules(routerIp, chain ? { chain: chain as any } : undefined);
+  const deleteMangleRule = useDeleteMangleRule(routerIp);
+  const toggleMangleRule = useToggleMangleRule(routerIp);
 
   const [editingRule, setEditingRule] = useState<MangleRule | null>(null);
   const [deleteConfirmRule, setDeleteConfirmRule] = useState<MangleRule | null>(null);
@@ -248,7 +246,6 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
 
   const handleToggle = (rule: MangleRule) => {
     toggleMangleRule.mutate({
-      routerId: routerIp,
       ruleId: rule.id!,
       disabled: !rule.disabled,
     });
@@ -256,10 +253,7 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
 
   const confirmDelete = () => {
     if (deleteConfirmRule) {
-      deleteMangleRule.mutate({
-        routerId: routerIp,
-        ruleId: deleteConfirmRule.id!,
-      });
+      deleteMangleRule.mutate(deleteConfirmRule.id!);
       setDeleteConfirmRule(null);
     }
   };
@@ -323,22 +317,25 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
           </SheetHeader>
           {editingRule && (
             <MangleRuleEditor
-              rule={editingRule}
+              routerId={routerIp}
+              initialRule={editingRule}
+              open={!!editingRule}
               onClose={() => setEditingRule(null)}
+              onSave={async () => setEditingRule(null)}
             />
           )}
         </SheetContent>
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('mangle.dialogs.deleteRule.title')}</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('mangle.dialogs.deleteRule.title')}</DialogTitle>
+            <DialogDescription>
               {t('mangle.dialogs.deleteRule.description')}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">{t('mangle.dialogs.deleteRule.warning')}</p>
             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -347,14 +344,23 @@ export function MangleRulesTableMobile({ className, chain }: MangleRulesTableMob
               ))}
             </ul>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('button.cancel', { ns: 'common' })}</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmRule(null)}
+              className="min-h-[44px]"
+            >
+              {t('button.cancel', { ns: 'common' })}
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 min-h-[44px]"
+            >
               {t('button.delete', { ns: 'common' })}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

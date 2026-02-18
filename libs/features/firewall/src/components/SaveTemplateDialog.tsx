@@ -198,7 +198,7 @@ export function SaveTemplateDialog({
     reset,
     watch,
   } = useForm<SaveTemplateFormData>({
-    resolver: zodResolver(SaveTemplateFormSchema),
+    resolver: zodResolver(SaveTemplateFormSchema) as any,
     defaultValues: {
       name: '',
       description: '',
@@ -322,7 +322,7 @@ export function SaveTemplateDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleSaveTemplate)}>
+        <form onSubmit={handleSubmit(handleSaveTemplate as any)}>
           <ScrollArea className="max-h-[60vh] pr-4">
             <div className="space-y-4">
               {/* Name */}

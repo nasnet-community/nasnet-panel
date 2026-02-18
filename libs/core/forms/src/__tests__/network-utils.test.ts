@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+
 import {
   // IP manipulation
   ipToLong,
@@ -37,6 +38,7 @@ import {
   getVPNClientNetworks,
   generateNetworks,
 } from '../network-utils';
+
 import type {
   WANLinks,
   VPNClient,

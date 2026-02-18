@@ -14,6 +14,7 @@
  */
 
 import { redirect } from '@tanstack/react-router';
+
 import { useAuthStore } from '../auth/auth.store';
 
 // ===== Types =====
@@ -78,8 +79,8 @@ export function requireAuth({ location }: { location: RouteLocation }): void {
 
   if (!isAuthenticated || isExpired) {
     throw redirect({
-      to: '/login',
-      search: { redirect: location.pathname },
+      to: '/login' as string,
+      search: { redirect: location.pathname } as Record<string, unknown>,
     });
   }
 }
@@ -114,8 +115,8 @@ export function requirePermission(
 
     if (!hasPermission) {
       throw redirect({
-        to: '/unauthorized',
-        search: { required: permission },
+        to: '/unauthorized' as string,
+        search: { required: permission } as Record<string, unknown>,
       });
     }
   };
@@ -269,4 +270,4 @@ export function useAuthActions() {
 
 // ===== Type Exports =====
 
-export type { RouteLocation, AuthStatus };
+// Types are already exported inline above

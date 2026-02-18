@@ -6,13 +6,16 @@
  * @see NAS-4.24: Implement Undo/Redo History
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import React, { useEffect } from 'react';
+
+import { useHistoryStore } from '@nasnet/state/stores';
+
 import { HistoryPanel } from './HistoryPanel';
 import { HistoryPanelDesktop } from './HistoryPanelDesktop';
 import { HistoryPanelMobile } from './HistoryPanelMobile';
-import { useHistoryStore } from '@nasnet/state/stores';
+
 import type { HistoryPanelProps } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Reset history store before each story
 function StoryWrapper({ children }: { children: React.ReactNode }) {

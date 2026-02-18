@@ -73,13 +73,15 @@ export function useRouteList({
     routes,
     loading,
     error,
-    availableTables,
+    availableTables: availableTablesRaw,
     refetch,
   } = useRoutes(routerId, {
     table: filters.table,
-    type: filters.type,
+    type: filters.type as never,
     pollInterval,
   });
+
+  const availableTables = (availableTablesRaw || []) as string[];
 
   // Handle filter changes
   const handleFiltersChange = useCallback((newFilters: RouteFilters) => {

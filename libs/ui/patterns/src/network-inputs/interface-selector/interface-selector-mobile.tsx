@@ -31,10 +31,11 @@ import {
   Skeleton,
 } from '@nasnet/ui/primitives';
 
-import { useInterfaceSelector } from './use-interface-selector';
 import { InterfaceItemMobile } from './interface-item';
-import { InterfaceTypeIcon } from './interface-type-icon';
 import { InterfaceTypeFilter } from './interface-type-filter';
+import { InterfaceTypeIcon } from './interface-type-icon';
+import { useInterfaceSelector } from './use-interface-selector';
+
 import type { InterfaceSelectorMobileProps } from './interface-selector.types';
 
 /**
@@ -96,6 +97,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
       }, 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isOpen]);
 
   const displayError = externalError || subscriptionError?.message;

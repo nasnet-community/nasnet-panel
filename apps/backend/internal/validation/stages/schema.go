@@ -12,15 +12,15 @@ import (
 // field types match their expected types (Stage 1).
 type SchemaStage struct{}
 
-func (s *SchemaStage) Number() int    { return 1 }
-func (s *SchemaStage) Name() string   { return "schema" }
+func (s *SchemaStage) Number() int  { return 1 }
+func (s *SchemaStage) Name() string { return "schema" }
 
 // Validate checks schema correctness of the input.
-func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	if input.ResourceType == "" {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     1,
 			StageName: "schema",
 			Severity:  validation.SeverityError,
@@ -32,7 +32,7 @@ func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) 
 	}
 
 	if input.Operation == "" {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:     1,
 			StageName: "schema",
 			Severity:  validation.SeverityError,
@@ -46,7 +46,7 @@ func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) 
 	// Validate operation
 	validOps := map[string]bool{"create": true, "update": true, "delete": true}
 	if !validOps[input.Operation] {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      1,
 			StageName:  "schema",
 			Severity:   validation.SeverityError,
@@ -58,8 +58,8 @@ func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) 
 	}
 
 	// For update/delete, resource ID is required
-	if (input.Operation == "update" || input.Operation == "delete") && input.ResourceID == "" {
-		result.AddError(&validation.ValidationError{
+	if (input.Operation == "update" || input.Operation == operationDelete) && input.ResourceID == "" {
+		result.AddError(&validation.Error{
 			Stage:     1,
 			StageName: "schema",
 			Severity:  validation.SeverityError,
@@ -76,8 +76,8 @@ func (s *SchemaStage) Validate(_ context.Context, input *validation.StageInput) 
 }
 
 // validateRequiredFields checks that required fields are present based on resource type.
-func (s *SchemaStage) validateRequiredFields(input *validation.StageInput, result *validation.ValidationResult) {
-	if input.Operation == "delete" {
+func (s *SchemaStage) validateRequiredFields(input *validation.StageInput, result *validation.Result) {
+	if input.Operation == operationDelete {
 		return // No field validation needed for delete
 	}
 
@@ -88,7 +88,7 @@ func (s *SchemaStage) validateRequiredFields(input *validation.StageInput, resul
 
 	for _, field := range required {
 		if _, ok := input.Fields[field]; !ok {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     1,
 				StageName: "schema",
 				Severity:  validation.SeverityError,

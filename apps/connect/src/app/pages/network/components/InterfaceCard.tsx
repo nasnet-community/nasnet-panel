@@ -4,14 +4,18 @@
  */
 
 import { useState } from 'react';
-import { NetworkInterface } from '@nasnet/core/types';
+
+import { ChevronDown, ChevronUp, RefreshCw, ArrowDown, ArrowUp } from 'lucide-react';
+
 import { useInterfaceTraffic } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
+import { type NetworkInterface } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
+
+import { cn } from '@/lib/utils';
+
 import { InterfaceTypeIcon } from './InterfaceTypeIcon';
 import { TrafficIndicator } from './TrafficIndicator';
-import { ChevronDown, ChevronUp, RefreshCw, ArrowDown, ArrowUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface InterfaceCardProps {
   interface: NetworkInterface;

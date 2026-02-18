@@ -7,8 +7,15 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import {
+  useRateLimitRules,
+  useDeleteRateLimitRule,
+  useToggleRateLimitRule,
+} from '@nasnet/api-client/queries/firewall';
+
 import { useRateLimitRulesTable } from './use-rate-limit-rules-table';
 import {
   mockRateLimitRules,
@@ -28,13 +35,6 @@ vi.mock('@nasnet/api-client/queries/firewall', () => ({
   useDeleteRateLimitRule: vi.fn(),
   useToggleRateLimitRule: vi.fn(),
 }));
-
-// Import mocked functions after vi.mock
-import {
-  useRateLimitRules,
-  useDeleteRateLimitRule,
-  useToggleRateLimitRule,
-} from '@nasnet/api-client/queries/firewall';
 
 // Setup default mock implementations
 const mockUseRateLimitRules = vi.mocked(useRateLimitRules);

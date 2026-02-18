@@ -12,11 +12,13 @@
  * @see NAS-4A.22: Build Router Status Component
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import type { ReactNode } from 'react';
+
+import { MockedProvider } from '@apollo/client/testing';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
-import { MockedProvider } from '@apollo/client/testing';
 
 import { RouterStatusDesktop } from './router-status-desktop';
 import { RouterStatusMobile } from './router-status-mobile';
@@ -26,9 +28,9 @@ import {
   useRouterStatusSubscription,
 } from './use-router-status-subscription';
 
-import type { MockedResponse } from '@apollo/client/testing';
-import type { ReactNode } from 'react';
 import type { ConnectionStatus, RouterStatusData, UseRouterStatusReturn } from './types';
+import type { MockedResponse } from '@apollo/client/testing';
+
 
 // Note: vitest-axe matchers are extended in setup.ts
 

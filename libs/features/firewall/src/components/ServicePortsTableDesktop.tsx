@@ -33,14 +33,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Skeleton,
   Tooltip,
   TooltipContent,
@@ -391,11 +389,11 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('servicePorts.confirmations.deleteService')}</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('servicePorts.confirmations.deleteService')}</DialogTitle>
+            <DialogDescription>
               {t('servicePorts.confirmations.deleteServiceDescription')}
               {serviceToDelete && (
                 <div className="mt-4 rounded-md bg-muted p-3">
@@ -404,16 +402,18 @@ export function ServicePortsTableDesktop({ className }: ServicePortsTableDesktop
                   </p>
                 </div>
               )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t('servicePorts.buttons.cancel', 'Cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              {t('servicePorts.buttons.cancel', 'Cancel')}
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
               {t('servicePorts.deleteService')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

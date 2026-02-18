@@ -1,5 +1,6 @@
 import { DocumentNode } from 'graphql';
 import * as Apollo from '@apollo/client';
+import type { Exact, Scalars, InputMaybe, ConnectionStatus, RouterPlatform, PaginationInput } from './types';
 const defaultOptions = {} as const;
 export type RouterIdentityFragment = { id: string, name: string, host: string, createdAt: any, updatedAt: any };
 

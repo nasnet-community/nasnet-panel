@@ -11,6 +11,8 @@ import (
 )
 
 // WANHealthStatus represents the overall health status of a WAN interface.
+//
+//nolint:revive // exported WAN type
 type WANHealthStatus string
 
 const (
@@ -31,6 +33,8 @@ type HealthCheckTarget struct {
 }
 
 // WANHealthCheckConfig represents the health check configuration for a WAN interface.
+//
+//nolint:revive // exported WAN type
 type WANHealthCheckConfig struct {
 	Enabled          bool
 	Targets          []string
@@ -40,6 +44,8 @@ type WANHealthCheckConfig struct {
 }
 
 // WANHealthMonitor monitors WAN interface health using RouterOS netwatch.
+//
+//nolint:revive // exported WAN type
 type WANHealthMonitor struct {
 	routerPort     router.RouterPort
 	eventBus       events.EventBus
@@ -142,7 +148,7 @@ func (m *WANHealthMonitor) configureNetwatch(ctx context.Context, routerID, wanI
 			return fmt.Errorf("failed to add netwatch entry for %s: %w", target, err)
 		}
 		if !result.Success {
-			return fmt.Errorf("netwatch add command failed for %s: %s", target, result.Error)
+			return fmt.Errorf("netwatch add command failed for %s: %w", target, result.Error)
 		}
 	}
 
@@ -150,7 +156,7 @@ func (m *WANHealthMonitor) configureNetwatch(ctx context.Context, routerID, wanI
 }
 
 // removeNetwatchEntries removes all netwatch entries associated with a WAN interface.
-func (m *WANHealthMonitor) removeNetwatchEntries(ctx context.Context, routerID, wanID string) error {
+func (m *WANHealthMonitor) removeNetwatchEntries(ctx context.Context, _routerID, wanID string) error {
 	cmd := router.Command{
 		Path:   "/tool/netwatch",
 		Action: "print",
@@ -164,7 +170,7 @@ func (m *WANHealthMonitor) removeNetwatchEntries(ctx context.Context, routerID, 
 		return fmt.Errorf("failed to query netwatch entries: %w", err)
 	}
 	if !result.Success {
-		return fmt.Errorf("netwatch print command failed: %s", result.Error)
+		return fmt.Errorf("netwatch print command failed: %w", result.Error)
 	}
 
 	for _, entry := range result.Data {
@@ -181,7 +187,7 @@ func (m *WANHealthMonitor) removeNetwatchEntries(ctx context.Context, routerID, 
 			},
 		}
 
-		if _, err := m.routerPort.ExecuteCommand(ctx, removeCmd); err != nil {
+		if _, removeErr := m.routerPort.ExecuteCommand(ctx, removeCmd); removeErr != nil {
 			continue
 		}
 	}
@@ -209,7 +215,7 @@ func (m *WANHealthMonitor) monitorLoop(ctx context.Context, routerID, wanID stri
 }
 
 // checkHealth queries netwatch status and updates health status.
-func (m *WANHealthMonitor) checkHealth(ctx context.Context, routerID, wanID string, config *WANHealthCheckConfig) error {
+func (m *WANHealthMonitor) checkHealth(ctx context.Context, routerID, wanID string, _config *WANHealthCheckConfig) error {
 	cmd := router.Command{
 		Path:   "/tool/netwatch",
 		Action: "print",
@@ -223,7 +229,7 @@ func (m *WANHealthMonitor) checkHealth(ctx context.Context, routerID, wanID stri
 		return fmt.Errorf("failed to query netwatch status: %w", err)
 	}
 	if !result.Success {
-		return fmt.Errorf("netwatch print command failed: %s", result.Error)
+		return fmt.Errorf("netwatch print command failed: %w", result.Error)
 	}
 
 	totalTargets := len(result.Data)
@@ -254,7 +260,8 @@ func (m *WANHealthMonitor) checkHealth(ctx context.Context, routerID, wanID stri
 		event.LastCheckTime = time.Now()
 
 		if err := m.eventBus.Publish(ctx, event); err != nil {
-			// Log error but don't fail
+			// Log error but don't fail - no-op
+			_ = err
 		}
 	}
 
@@ -269,11 +276,11 @@ func (m *WANHealthMonitor) aggregateHealthStatus(reachableCount, totalTargets in
 
 	if reachableCount == totalTargets {
 		return WANHealthStatusHealthy
-	} else if reachableCount > 0 {
-		return WANHealthStatusDegraded
-	} else {
-		return WANHealthStatusDown
 	}
+	if reachableCount > 0 {
+		return WANHealthStatusDegraded
+	}
+	return WANHealthStatusDown
 }
 
 // getHealthStatus retrieves the current health status for a WAN interface.

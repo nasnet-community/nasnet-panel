@@ -4,11 +4,14 @@
  */
 
 import { useState } from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
+import { v4 as uuidv4 } from 'uuid';
+
+import { storeCredentials as storeApiCredentials } from '@nasnet/api-client/core';
+import { useTestConnection } from '@nasnet/api-client/queries';
 import type { Router, RouterCredentials, ScanResult } from '@nasnet/core/types';
-import { useRouterStore } from '@nasnet/state/stores';
-import { useConnectionStore } from '@nasnet/state/stores';
 import {
   NetworkScanner,
   ManualRouterEntry,
@@ -19,9 +22,8 @@ import {
   loadCredentials,
   type CredentialValidationResult,
 } from '@nasnet/features/router-discovery';
-import { useTestConnection } from '@nasnet/api-client/queries';
-import { storeCredentials as storeApiCredentials } from '@nasnet/api-client/core';
-import { v4 as uuidv4 } from 'uuid';
+import { useRouterStore , useConnectionStore } from '@nasnet/state/stores';
+
 
 type ViewMode = 'scan' | 'manual' | 'list';
 
@@ -42,7 +44,6 @@ export function RouterDiscoveryPage() {
 
   // Stores
   const {
-    routers: routerMap,
     addRouter,
     updateRouter,
     removeRouter,

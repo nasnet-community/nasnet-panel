@@ -132,10 +132,11 @@ export function useServiceTrafficPanel({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [stats]);
 
   return {
-    stats,
+    stats: stats ?? null,
     uploadRate,
     downloadRate,
     quotaUsagePercent: quotaMetrics.quotaUsagePercent,

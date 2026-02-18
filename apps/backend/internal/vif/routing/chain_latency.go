@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
+
 	"backend/internal/events"
 
 	"github.com/rs/zerolog/log"
@@ -24,10 +26,10 @@ type HopLatency struct {
 
 // ChainLatencyResult represents the result of measuring all hops in a chain.
 type ChainLatencyResult struct {
-	ChainID       string
-	Hops          []HopLatency
-	TotalLatency  float64 // Sum of all hop latencies
-	AllHealthy    bool
+	ChainID      string
+	Hops         []HopLatency
+	TotalLatency float64 // Sum of all hop latencies
+	AllHealthy   bool
 }
 
 // ChainLatencyMeasurer measures latency for routing chains by probing each hop.
@@ -69,7 +71,7 @@ func (m *ChainLatencyMeasurer) MeasureChainLatencies(ctx context.Context, chainI
 	}
 
 	hops := chain.Edges.Hops
-	if hops == nil || len(hops) == 0 {
+	if len(hops) == 0 {
 		return nil, fmt.Errorf("chain has no hops")
 	}
 
@@ -106,9 +108,9 @@ func (m *ChainLatencyMeasurer) MeasureChainLatencies(ctx context.Context, chainI
 			events.PriorityBackground,
 			chain.RouterID,
 			map[string]interface{}{
-				"chain_id":       chainID,
-				"total_latency":  result.TotalLatency,
-				"hop_count":      len(result.Hops),
+				"chain_id":      chainID,
+				"total_latency": result.TotalLatency,
+				"hop_count":     len(result.Hops),
 			},
 		)
 		if err := m.publisher.Publish(ctx, event); err != nil {
@@ -131,6 +133,7 @@ func (m *ChainLatencyMeasurer) measureHopLatency(
 	hop *ent.ChainHop,
 	iface *ent.VirtualInterface,
 ) HopLatency {
+
 	result := HopLatency{
 		HopOrder:  hop.HopOrder,
 		Interface: iface.InterfaceName,
@@ -161,7 +164,7 @@ func (m *ChainLatencyMeasurer) measureHopLatency(
 	var latency time.Duration
 
 	for _, port := range ports {
-		address := fmt.Sprintf("%s:%d", vlanIP, port)
+		address := net.JoinHostPort(vlanIP, strconv.Itoa(port))
 
 		start := time.Now()
 		conn, err := net.DialTimeout("tcp", address, timeout)
@@ -174,7 +177,7 @@ func (m *ChainLatencyMeasurer) measureHopLatency(
 			break
 		}
 
-		// If context is cancelled, stop trying
+		// If context is canceled, stop trying
 		if ctx.Err() != nil {
 			break
 		}
@@ -236,6 +239,7 @@ func (m *ChainLatencyMeasurer) StartPeriodicMeasurement(
 	routerID string,
 	interval time.Duration,
 ) {
+
 	if interval <= 0 {
 		interval = 30 * time.Second // Default to 30 seconds
 	}

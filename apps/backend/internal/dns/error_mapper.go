@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// mapErrorToStatus maps Go DNS error messages to DnsLookupStatus enum values
+// mapErrorToStatus maps Go DNS error messages to LookupStatus enum values
 func mapErrorToStatus(err error) string {
 	errStr := strings.ToLower(err.Error())
 

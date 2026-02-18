@@ -18,8 +18,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '../rhf-form-field';
+
 import { ConfirmationDialog } from '../confirmation-dialog';
+import { RHFFormField } from '../rhf-form-field';
 
 import type { UseConnectionTrackingSettingsReturn } from './use-connection-tracking-settings';
 
@@ -122,18 +123,6 @@ export function ConnectionTrackingSettingsMobile({
             <div className="flex items-center gap-3 min-h-[44px]">
               <input
                 type="checkbox"
-                {...form.register('trackLocal')}
-                id="trackLocal-mobile"
-                className="h-5 w-5 rounded border-gray-300"
-              />
-              <label htmlFor="trackLocal-mobile" className="text-sm">
-                Track local traffic
-              </label>
-            </div>
-
-            <div className="flex items-center gap-3 min-h-[44px]">
-              <input
-                type="checkbox"
                 {...form.register('looseTracking')}
                 id="looseTracking-mobile"
                 className="h-5 w-5 rounded border-gray-300"
@@ -146,7 +135,7 @@ export function ConnectionTrackingSettingsMobile({
         </Card>
 
         {/* Timeout Settings - Accordion */}
-        <Accordion type="single" collapsible className="space-y-2">
+        <Accordion type="single" className="space-y-2">
           {/* TCP Timeouts */}
           <AccordionItem value="tcp" className="border rounded-lg">
             <AccordionTrigger className="px-4 min-h-[44px]">

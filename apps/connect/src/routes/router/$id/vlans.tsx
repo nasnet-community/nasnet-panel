@@ -6,6 +6,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { VlanManagementPage } from '@/app/pages/VlanManagementPage';
 
 export const Route = createFileRoute('/router/$id/vlans')({

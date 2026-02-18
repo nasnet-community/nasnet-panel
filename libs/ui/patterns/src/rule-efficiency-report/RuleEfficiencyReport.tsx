@@ -10,6 +10,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+
 import {
   Card,
   CardContent,
@@ -33,19 +34,20 @@ import {
   DialogHeader,
   DialogTitle,
   ScrollArea,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
+
 import { detectRedundantRules } from './detect-redundancy';
 import { suggestReorder } from './suggest-reorder';
+
 import type { RuleEfficiencyReportProps, Suggestion, SuggestionSeverity } from './types';
 
 /**
  * Get badge variant based on severity
  */
-function getSeverityVariant(severity: SuggestionSeverity): 'destructive' | 'default' | 'secondary' {
+function getSeverityVariant(severity: SuggestionSeverity): 'error' | 'default' | 'secondary' {
   switch (severity) {
     case 'high':
-      return 'destructive';
+      return 'error';
     case 'medium':
       return 'default';
     case 'low':

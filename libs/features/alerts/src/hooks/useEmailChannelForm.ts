@@ -100,7 +100,7 @@ export function useEmailChannelForm(
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<EmailConfig>({
-    resolver: zodResolver(emailConfigSchema),
+    resolver: zodResolver(emailConfigSchema) as any,
     defaultValues: {
       ...defaultEmailConfig,
       ...initialConfig,

@@ -150,11 +150,11 @@ export function DeviceDiscoveryTable({
     <div className={cn('rounded-md border', className)}>
       {useVirtualization ? (
         <VirtualizedTable
-          {...tableProps}
+          {...tableProps as any}
           height={600}
         />
       ) : (
-        <DataTable {...tableProps} />
+        <DataTable {...tableProps as any} />
       )}
 
       {/* Device count footer */}

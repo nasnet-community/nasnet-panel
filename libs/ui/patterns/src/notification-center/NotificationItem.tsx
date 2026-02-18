@@ -6,11 +6,14 @@
  */
 
 import { memo } from 'react';
+
 import { formatDistanceToNow } from 'date-fns';
 import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import type { NotificationItemProps } from './types';
+
 import type { AlertSeverity } from '@nasnet/state/stores';
+import { cn } from '@nasnet/ui/primitives';
+
+import type { NotificationItemProps } from './types';
 
 /**
  * Get icon component for severity level

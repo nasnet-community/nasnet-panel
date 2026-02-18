@@ -182,11 +182,11 @@ export function createOptimisticOptions<TData, TVariables extends OperationVaria
   ) => void;
 }): Partial<MutationHookOptions<TData, TVariables>> {
   return {
-    optimisticResponse: config.optimisticResponse as TData,
+    optimisticResponse: config.optimisticResponse as any,
     update: config.cacheUpdate
-      ? (cache, { data }) => {
+      ? (cache: any, { data }: any) => {
           if (data) {
-            config.cacheUpdate!(cache, data);
+            config.cacheUpdate!(cache, data as TData);
           }
         }
       : undefined,

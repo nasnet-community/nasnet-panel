@@ -1,5 +1,6 @@
 import { ResourceHealthDot } from '../resource-health-indicator';
 import { useServiceHealthBadge } from './useServiceHealthBadge';
+
 import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
 
 /**

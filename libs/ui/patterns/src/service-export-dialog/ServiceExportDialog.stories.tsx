@@ -2,14 +2,18 @@
  * ServiceExportDialog Storybook Stories
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+
 import { expect, within, userEvent } from '@storybook/test';
+
+import type { ServiceInstance } from '@nasnet/api-client/queries/services';
+
 import { ServiceExportDialog } from './ServiceExportDialog';
 import { ServiceExportDialogDesktop } from './ServiceExportDialogDesktop';
-import { ServiceExportDialogTablet } from './ServiceExportDialogTablet';
 import { ServiceExportDialogMobile } from './ServiceExportDialogMobile';
-import type { ServiceInstance } from '@nasnet/api-client/queries/services';
+import { ServiceExportDialogTablet } from './ServiceExportDialogTablet';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const mockInstance: ServiceInstance = {
   id: 'instance-123',

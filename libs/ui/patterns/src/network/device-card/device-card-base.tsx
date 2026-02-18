@@ -9,11 +9,13 @@
  */
 
 import * as React from 'react';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { Card, cn } from '@nasnet/ui/primitives';
 
 import { ConfidenceIndicator } from '../../confidence-indicator';
+
 import type { DeviceCardBaseProps } from './device-card.types';
 
 /**

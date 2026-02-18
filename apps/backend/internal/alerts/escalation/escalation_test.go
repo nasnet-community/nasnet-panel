@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 
 	"backend/generated/ent"
@@ -15,7 +16,6 @@ import (
 	"backend/generated/ent/alertescalation"
 	"backend/generated/ent/alertrule"
 	"backend/generated/ent/enttest"
-	"backend/internal/notifications"
 )
 
 // mockDispatcher tracks dispatched notifications for testing
@@ -25,25 +25,33 @@ type mockDispatcher struct {
 }
 
 type mockDispatchCall struct {
-	notification notifications.Notification
-	channels     []string
-	timestamp    time.Time
+	title     string
+	message   string
+	severity  string
+	data      map[string]interface{}
+	deviceID  *string
+	channels  []string
+	timestamp time.Time
 }
 
-func (m *mockDispatcher) Dispatch(ctx context.Context, notification notifications.Notification, channels []string) []notifications.DeliveryResult {
+func (m *mockDispatcher) Dispatch(_ context.Context, title, message, severity string, data map[string]interface{}, deviceID *string, channels []string) []DispatchResult {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	m.dispatched = append(m.dispatched, mockDispatchCall{
-		notification: notification,
-		channels:     channels,
-		timestamp:    time.Now(),
+		title:     title,
+		message:   message,
+		severity:  severity,
+		data:      data,
+		deviceID:  deviceID,
+		channels:  channels,
+		timestamp: time.Now(),
 	})
 
 	// Simulate successful delivery
-	results := make([]notifications.DeliveryResult, len(channels))
+	results := make([]DispatchResult, len(channels))
 	for i, ch := range channels {
-		results[i] = notifications.DeliveryResult{
+		results[i] = DispatchResult{
 			Channel: ch,
 			Success: true,
 		}
@@ -107,17 +115,17 @@ func (h *testHelpers) createTestAlert(rule *ent.AlertRule) *ent.Alert {
 	return alertEntity
 }
 
-// TestEscalationEngine_TrackAlert verifies escalation is created and timer scheduled
-// Per AC2: Start escalation tracking when alert is created
+// TestEscalationEngine_TrackAlert verifies escalation is created and timer scheduled.
+// Per AC2: Start escalation tracking when alert is created.
 func TestEscalationEngine_TrackAlert(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create rule with escalation config
@@ -163,17 +171,17 @@ func TestEscalationEngine_TrackAlert(t *testing.T) {
 	assert.Equal(t, 0, state.currentLevel)
 }
 
-// TestEscalationEngine_CancelEscalation verifies timer stopped and DB updated
-// Per AC5: Cancel immediately when alert is acknowledged
+// TestEscalationEngine_CancelEscalation verifies timer stopped and DB updated.
+// Per AC5: Cancel immediately when alert is acknowledged.
 func TestEscalationEngine_CancelEscalation(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create and track alert
@@ -206,9 +214,9 @@ func TestEscalationEngine_CancelEscalation(t *testing.T) {
 	engine.mu.RUnlock()
 	assert.False(t, exists, "escalation should be removed from memory")
 
-	// Verify cancelled flag set
+	// Verify canceled flag set
 	state.mu.Lock()
-	assert.True(t, state.cancelled, "cancelled flag should be set")
+	assert.True(t, state.canceled, "canceled flag should be set")
 	state.mu.Unlock()
 
 	// Verify DB updated
@@ -221,17 +229,17 @@ func TestEscalationEngine_CancelEscalation(t *testing.T) {
 	assert.Equal(t, "alert acknowledged", esc.ResolvedBy)
 }
 
-// TestEscalationEngine_AcknowledgeBeforeTimeout verifies no escalation dispatched
-// Per AC2: If acknowledged before timeout, no escalation occurs
+// TestEscalationEngine_AcknowledgeBeforeTimeout verifies no escalation dispatched.
+// Per AC2: If acknowledged before timeout, no escalation occurs.
 func TestEscalationEngine_AcknowledgeBeforeTimeout(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create and track alert with 2-second delay
@@ -268,17 +276,17 @@ func TestEscalationEngine_AcknowledgeBeforeTimeout(t *testing.T) {
 	assert.Equal(t, "acknowledged early", esc.ResolvedBy)
 }
 
-// TestEscalationEngine_EscalateAfterTimeout verifies escalation triggered
-// Per AC3: Escalate at 15min mark
+// TestEscalationEngine_EscalateAfterTimeout verifies escalation triggered.
+// Per AC3: Escalate at 15min mark.
 func TestEscalationEngine_EscalateAfterTimeout(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create and track alert with 1-second delay (time compression for testing)
@@ -303,8 +311,8 @@ func TestEscalationEngine_EscalateAfterTimeout(t *testing.T) {
 	require.Len(t, dispatched, 1, "one escalation notification should be sent")
 
 	call := dispatched[0]
-	assert.Contains(t, call.notification.Title, "[ESCALATED L1]")
-	assert.Contains(t, call.channels, "inapp")  // Original channel
+	assert.Contains(t, call.title, "[ESCALATED L1]")
+	assert.Contains(t, call.channels, "inapp") // Original channel
 	assert.Contains(t, call.channels, "email") // Additional channel
 
 	// Verify currentLevel incremented in DB
@@ -316,17 +324,17 @@ func TestEscalationEngine_EscalateAfterTimeout(t *testing.T) {
 	assert.Equal(t, alertescalation.StatusPENDING, esc.Status)
 }
 
-// TestEscalationEngine_MultiLevelEscalation verifies 3 levels with increasing intervals
-// Per AC4: Progress through levels with increasing intervals
+// TestEscalationEngine_MultiLevelEscalation verifies 3 levels with increasing intervals.
+// Per AC4: Progress through levels with increasing intervals.
 func TestEscalationEngine_MultiLevelEscalation(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create alert with 3 escalation levels (1s, 1s, 2s for testing)
@@ -347,19 +355,19 @@ func TestEscalationEngine_MultiLevelEscalation(t *testing.T) {
 	time.Sleep(2 * time.Second)
 	dispatched := h.dispatcher.GetDispatched()
 	require.GreaterOrEqual(t, len(dispatched), 1)
-	assert.Contains(t, dispatched[0].notification.Title, "[ESCALATED L1]")
+	assert.Contains(t, dispatched[0].title, "[ESCALATED L1]")
 
 	// Wait for level 2 (additional 1 second)
 	time.Sleep(2 * time.Second)
 	dispatched = h.dispatcher.GetDispatched()
 	require.GreaterOrEqual(t, len(dispatched), 2)
-	assert.Contains(t, dispatched[1].notification.Title, "[ESCALATED L2]")
+	assert.Contains(t, dispatched[1].title, "[ESCALATED L2]")
 
 	// Wait for level 3 (additional 2 seconds)
 	time.Sleep(3 * time.Second)
 	dispatched = h.dispatcher.GetDispatched()
 	require.GreaterOrEqual(t, len(dispatched), 3)
-	assert.Contains(t, dispatched[2].notification.Title, "[ESCALATED L3]")
+	assert.Contains(t, dispatched[2].title, "[ESCALATED L3]")
 
 	// Verify channels merged correctly (original inapp + additional email, pushover)
 	for _, call := range dispatched {
@@ -382,11 +390,11 @@ func TestEscalationEngine_MaxLevelReached(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create alert with maxEscalations=2
@@ -415,7 +423,7 @@ func TestEscalationEngine_MaxLevelReached(t *testing.T) {
 		Where(alertescalation.AlertIDEQ(alertEntity.ID)).
 		Only(h.ctx)
 	require.NoError(t, err)
-	assert.Equal(t, alertescalation.StatusMAXREACHED, esc.Status)
+	assert.Equal(t, alertescalation.StatusMAX_REACHED, esc.Status)
 	assert.Equal(t, 2, esc.CurrentLevel)
 
 	// Verify no timer scheduled (removed from map)
@@ -435,11 +443,11 @@ func TestEscalationEngine_ChannelDeduplication(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	// Create rule with channels that overlap with additional channels
@@ -486,12 +494,12 @@ func TestEscalationEngine_ChannelDeduplication(t *testing.T) {
 	assert.Equal(t, 1, emailCount, "email should appear exactly once (deduplicated)")
 }
 
-// TestParseEscalationConfig_Valid verifies valid JSON parsing
-func TestParseEscalationConfig_Valid(t *testing.T) {
+// TestParseConfig_Valid verifies valid JSON parsing
+func TestParseConfig_Valid(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    map[string]interface{}
-		expected EscalationConfig
+		expected Config
 	}{
 		{
 			name: "complete config",
@@ -503,7 +511,7 @@ func TestParseEscalationConfig_Valid(t *testing.T) {
 				"additionalChannels":     []interface{}{"email", "telegram"},
 				"repeatIntervalSeconds":  []interface{}{900, 1800, 3600},
 			},
-			expected: EscalationConfig{
+			expected: Config{
 				Enabled:                true,
 				RequireAck:             true,
 				EscalationDelaySeconds: 900,
@@ -517,15 +525,15 @@ func TestParseEscalationConfig_Valid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := parseEscalationConfig(tt.input)
+			result, err := ParseConfig(tt.input)
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
 }
 
-// TestParseEscalationConfig_Invalid verifies error handling
-func TestParseEscalationConfig_Invalid(t *testing.T) {
+// TestParseConfig_Invalid verifies error handling
+func TestParseConfig_Invalid(t *testing.T) {
 	tests := []struct {
 		name  string
 		input interface{}
@@ -538,7 +546,7 @@ func TestParseEscalationConfig_Invalid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := parseEscalationConfig(tt.input)
+			_, err := ParseConfig(tt.input)
 			assert.Error(t, err)
 		})
 	}
@@ -549,11 +557,11 @@ func TestEscalationEngine_ConcurrentAccess(t *testing.T) {
 	h := newTestHelpers(t)
 	defer h.Close()
 
-	engine := NewEscalationEngine(EscalationEngineConfig{
-		DB:         h.db,
-		Dispatcher: h.dispatcher,
-		EventBus:   nil,
-		Logger:     h.logger,
+	engine := NewEngine(EngineConfig{
+		DB:       h.db,
+		Dispatch: h.dispatcher.Dispatch,
+		EventBus: nil,
+		Logger:   h.logger,
 	})
 
 	rule := h.createTestRule(map[string]interface{}{
@@ -614,20 +622,20 @@ func TestEscalationEngine_ConcurrentAccess(t *testing.T) {
 	mapSize := len(engine.escalations)
 	engine.mu.RUnlock()
 
-	// Some escalations may still be active, some cancelled
+	// Some escalations may still be active, some canceled
 	t.Logf("Final escalation map size: %d", mapSize)
 }
 
-// TestValidateEscalationConfig verifies config validation
-func TestValidateEscalationConfig(t *testing.T) {
+// TestValidateConfig verifies config validation
+func TestValidateConfig(t *testing.T) {
 	tests := []struct {
 		name      string
-		config    EscalationConfig
+		config    Config
 		expectErr bool
 	}{
 		{
 			name: "valid config",
-			config: EscalationConfig{
+			config: Config{
 				EscalationDelaySeconds: 900,
 				MaxEscalations:         3,
 				RepeatIntervalSeconds:  []int{900, 1800},
@@ -636,7 +644,7 @@ func TestValidateEscalationConfig(t *testing.T) {
 		},
 		{
 			name: "zero delay",
-			config: EscalationConfig{
+			config: Config{
 				EscalationDelaySeconds: 0,
 				MaxEscalations:         3,
 				RepeatIntervalSeconds:  []int{900},
@@ -645,7 +653,7 @@ func TestValidateEscalationConfig(t *testing.T) {
 		},
 		{
 			name: "too many levels",
-			config: EscalationConfig{
+			config: Config{
 				EscalationDelaySeconds: 900,
 				MaxEscalations:         11,
 				RepeatIntervalSeconds:  []int{900},
@@ -654,7 +662,7 @@ func TestValidateEscalationConfig(t *testing.T) {
 		},
 		{
 			name: "empty intervals",
-			config: EscalationConfig{
+			config: Config{
 				EscalationDelaySeconds: 900,
 				MaxEscalations:         3,
 				RepeatIntervalSeconds:  []int{},
@@ -665,7 +673,7 @@ func TestValidateEscalationConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateEscalationConfig(tt.config)
+			err := ValidateConfig(tt.config)
 			if tt.expectErr {
 				assert.Error(t, err)
 			} else {

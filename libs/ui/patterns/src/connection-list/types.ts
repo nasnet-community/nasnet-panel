@@ -5,11 +5,52 @@
  * Import official types from @nasnet/core/types and add pattern-specific types.
  */
 
-// Import official types from core
-import type { Connection, ConnectionTrackingState, ConnectionFilters } from '@nasnet/core/types';
+/**
+ * Connection tracking state for active connections
+ * Matches MikroTik's connection tracking states
+ */
+export type ConnectionTrackingState =
+  | 'established'
+  | 'new'
+  | 'related'
+  | 'invalid'
+  | 'time-wait'
+  | 'syn-sent'
+  | 'syn-received'
+  | 'fin-wait'
+  | 'close-wait'
+  | 'last-ack'
+  | 'close';
 
-// Re-export core types for convenience
-export type { Connection, ConnectionTrackingState, ConnectionFilters };
+/**
+ * Active connection entry from connection tracking table
+ */
+export interface Connection {
+  id: string;
+  protocol: 'tcp' | 'udp' | 'icmp' | 'gre' | string;
+  srcAddress: string;
+  srcPort?: number;
+  dstAddress: string;
+  dstPort?: number;
+  replyDstAddress?: string;
+  replyDstPort?: number;
+  state: ConnectionTrackingState;
+  timeout: string;
+  packets: number;
+  bytes: number;
+  assured?: boolean;
+  confirmed?: boolean;
+}
+
+/**
+ * Filter options for connection search
+ */
+export interface ConnectionFilters {
+  ipAddress?: string;
+  port?: number;
+  protocol?: string;
+  state?: ConnectionTrackingState;
+}
 
 // Alias for backward compatibility
 export type ConnectionState = ConnectionTrackingState;

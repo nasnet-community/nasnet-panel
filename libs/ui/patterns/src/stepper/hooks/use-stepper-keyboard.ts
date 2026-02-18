@@ -18,6 +18,7 @@
  */
 
 import { useEffect, useCallback } from 'react';
+
 import type { UseStepperReturn, UseStepperKeyboardOptions } from './use-stepper.types';
 
 /**

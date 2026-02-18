@@ -95,6 +95,14 @@ func DefaultSkipper(c echo.Context) bool {
 	return path == "/health" || path == "/ready" || path == "/playground"
 }
 
+// authResult holds the result of an authentication attempt.
+type authResult struct {
+	user        *AuthUser
+	claims      *auth.Claims
+	method      AuthMethod
+	sessionInfo *SessionInfo
+}
+
 // AuthMiddleware returns an Echo middleware for authentication
 // It supports multiple authentication methods:
 // 1. JWT Bearer token (Authorization: Bearer xxx)
@@ -103,86 +111,83 @@ func DefaultSkipper(c echo.Context) bool {
 func AuthMiddleware(config AuthMiddlewareConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Check skipper
 			if config.Skipper != nil && config.Skipper(c) {
 				return next(c)
 			}
 
 			ctx := c.Request().Context()
 
-			// Try authentication methods in order
-			var user *AuthUser
-			var claims *auth.Claims
-			var method AuthMethod
-			var sessionInfo *SessionInfo
-
-			// Method 1: JWT Bearer Token
-			if token := extractBearerToken(c); token != "" {
-				if u, cl, si, err := authenticateJWT(ctx, config, token); err == nil {
-					user = u
-					claims = cl
-					method = AuthMethodJWT
-					sessionInfo = si
-				}
-			}
-
-			// Method 2: JWT from Cookie (if no bearer token)
-			if user == nil {
-				if token := extractCookieToken(c, AccessTokenCookie); token != "" {
-					if u, cl, si, err := authenticateJWT(ctx, config, token); err == nil {
-						user = u
-						claims = cl
-						method = AuthMethodSession
-						sessionInfo = si
-					}
-				}
-			}
-
-			// Method 3: API Key
-			if user == nil && config.APIKeyValidator != nil {
-				if apiKey := c.Request().Header.Get("X-API-Key"); apiKey != "" {
-					if u, err := config.APIKeyValidator(ctx, apiKey); err == nil {
-						user = u
-						method = AuthMethodAPIKey
-					}
-				}
-			}
-
-			// No valid authentication found
-			if user == nil {
+			result := tryAuthenticate(ctx, c, config)
+			if result == nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, map[string]interface{}{
 					"code":    auth.ErrCodeInvalidCredentials,
 					"message": "Authentication required",
 				})
 			}
 
-			// Set auth info in context
-			ctx = context.WithValue(ctx, UserContextKey, user)
-			ctx = context.WithValue(ctx, AuthMethodContextKey, method)
-			if claims != nil {
-				ctx = context.WithValue(ctx, ClaimsContextKey, claims)
-			}
-			if sessionInfo != nil {
-				ctx = context.WithValue(ctx, SessionContextKey, sessionInfo)
-			}
+			ctx = setAuthContext(ctx, result)
 			c.SetRequest(c.Request().WithContext(ctx))
 
-			// Handle sliding session token refresh
-			if claims != nil && sessionInfo != nil && config.JWTService.ShouldRefresh(claims) {
-				newToken, expiresAt, err := config.JWTService.RefreshToken(claims, sessionInfo.CreatedAt)
-				if err == nil && newToken != "" {
-					// Set new token in cookie
-					setAuthCookie(c, AccessTokenCookie, newToken, expiresAt, config)
-
-					// Notify callback
-					if config.OnTokenRefresh != nil {
-						config.OnTokenRefresh(ctx, claims, newToken, expiresAt)
-					}
-				}
-			}
+			handleTokenRefresh(ctx, c, config, result)
 
 			return next(c)
 		}
+	}
+}
+
+// tryAuthenticate tries all authentication methods in order and returns the first success.
+func tryAuthenticate(ctx context.Context, c echo.Context, config AuthMiddlewareConfig) *authResult {
+	// Method 1: JWT Bearer Token
+	if token := extractBearerToken(c); token != "" {
+		if u, cl, si, err := authenticateJWT(ctx, config, token); err == nil {
+			return &authResult{user: u, claims: cl, method: AuthMethodJWT, sessionInfo: si}
+		}
+	}
+
+	// Method 2: JWT from Cookie
+	if token := extractCookieToken(c, AccessTokenCookie); token != "" {
+		if u, cl, si, err := authenticateJWT(ctx, config, token); err == nil {
+			return &authResult{user: u, claims: cl, method: AuthMethodSession, sessionInfo: si}
+		}
+	}
+
+	// Method 3: API Key
+	if config.APIKeyValidator != nil {
+		if apiKey := c.Request().Header.Get("X-API-Key"); apiKey != "" {
+			if u, err := config.APIKeyValidator(ctx, apiKey); err == nil {
+				return &authResult{user: u, method: AuthMethodAPIKey}
+			}
+		}
+	}
+
+	return nil
+}
+
+// setAuthContext adds authentication information to the request context.
+func setAuthContext(ctx context.Context, result *authResult) context.Context {
+	ctx = context.WithValue(ctx, UserContextKey, result.user)
+	ctx = context.WithValue(ctx, AuthMethodContextKey, result.method)
+	if result.claims != nil {
+		ctx = context.WithValue(ctx, ClaimsContextKey, result.claims)
+	}
+	if result.sessionInfo != nil {
+		ctx = context.WithValue(ctx, SessionContextKey, result.sessionInfo)
+	}
+	return ctx
+}
+
+// handleTokenRefresh performs sliding session token refresh if needed.
+func handleTokenRefresh(ctx context.Context, c echo.Context, config AuthMiddlewareConfig, result *authResult) {
+	if result.claims == nil || result.sessionInfo == nil || !config.JWTService.ShouldRefresh(result.claims) {
+		return
+	}
+	newToken, expiresAt, err := config.JWTService.RefreshToken(result.claims, result.sessionInfo.CreatedAt)
+	if err != nil || newToken == "" {
+		return
+	}
+	setAuthCookie(c, AccessTokenCookie, newToken, expiresAt, config)
+	if config.OnTokenRefresh != nil {
+		config.OnTokenRefresh(ctx, result.claims, newToken, expiresAt)
 	}
 }
 

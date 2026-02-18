@@ -13,10 +13,11 @@
 
 import { usePlatform } from '@nasnet/ui/layouts';
 
-import type { SafetyConfirmationProps } from './safety-confirmation.types';
-import { useSafetyConfirmation } from './use-safety-confirmation';
 import { SafetyConfirmationDesktop } from './safety-confirmation-desktop';
 import { SafetyConfirmationMobile } from './safety-confirmation-mobile';
+import { useSafetyConfirmation } from './use-safety-confirmation';
+
+import type { SafetyConfirmationProps } from './safety-confirmation.types';
 
 /**
  * SafetyConfirmation Component

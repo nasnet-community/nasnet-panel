@@ -10,9 +10,8 @@
  * @see NAS-4.15: Implement Error Boundaries & Global Error Handling
  */
 
-import { apolloClient } from '@nasnet/api-client/core';
-import { useNotificationStore } from '../ui/notification.store';
 import { calculateBackoff, sleep } from './reconnect';
+import { useNotificationStore } from '../ui/notification.store';
 
 // ===== Types =====
 
@@ -206,7 +205,9 @@ export function createRetryHandler<T>(
  */
 export async function clearAllCache(): Promise<void> {
   try {
-    // Clear Apollo cache
+    // Clear Apollo cache (dynamic import to avoid circular dependency)
+    // eslint-disable-next-line @nx/enforce-module-boundaries
+    const { apolloClient } = await import('@nasnet/api-client/core');
     if (apolloClient) {
       await apolloClient.clearStore();
     }

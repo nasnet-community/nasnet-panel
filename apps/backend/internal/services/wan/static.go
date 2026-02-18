@@ -11,6 +11,8 @@ import (
 )
 
 // ConfigureStaticIP configures static IP on a WAN interface.
+//
+//nolint:gocyclo // static IP configuration complexity
 func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, input StaticIPInput) (*WANInterfaceData, error) {
 	log.Printf("[WANService] Configuring static IP on router %s, interface %s, address %s", routerID, input.Interface, input.Address)
 
@@ -35,8 +37,8 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 					Action: "remove",
 					Args:   map[string]string{".id": id},
 				}
-				if _, err := s.routerPort.ExecuteCommand(ctx, removeIPCmd); err != nil {
-					return nil, fmt.Errorf("failed to remove existing IP address: %w", err)
+				if _, removeErr := s.routerPort.ExecuteCommand(ctx, removeIPCmd); removeErr != nil {
+					return nil, fmt.Errorf("failed to remove existing IP address: %w", removeErr)
 				}
 			}
 		}
@@ -62,7 +64,7 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 		return nil, fmt.Errorf("failed to add IP address: %w", err)
 	}
 	if !addIPResult.Success {
-		return nil, fmt.Errorf("IP address configuration failed: %s", addIPResult.Error)
+		return nil, fmt.Errorf("IP address configuration failed: %w", addIPResult.Error)
 	}
 
 	log.Printf("[WANService] IP address %s added to interface %s", input.Address, input.Interface)
@@ -85,7 +87,7 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 		return nil, fmt.Errorf("failed to add default route: %w", err)
 	}
 	if !addRouteResult.Success {
-		return nil, fmt.Errorf("default route configuration failed: %s", addRouteResult.Error)
+		return nil, fmt.Errorf("default route configuration failed: %w", addRouteResult.Error)
 	}
 
 	log.Printf("[WANService] Default route added via gateway %s", input.Gateway)
@@ -103,12 +105,13 @@ func (s *WANService) ConfigureStaticIP(ctx context.Context, routerID string, inp
 			Args:   map[string]string{"servers": dnsServers},
 		}
 
-		dnsResult, err := s.routerPort.ExecuteCommand(ctx, setDNSCmd)
-		if err != nil {
-			log.Printf("[WANService] Warning: Failed to set DNS servers: %v", err)
-		} else if !dnsResult.Success {
+		dnsResult, dnsErr := s.routerPort.ExecuteCommand(ctx, setDNSCmd)
+		switch {
+		case dnsErr != nil:
+			log.Printf("[WANService] Warning: Failed to set DNS servers: %v", dnsErr)
+		case !dnsResult.Success:
 			log.Printf("[WANService] Warning: DNS configuration failed: %s", dnsResult.Error)
-		} else {
+		default:
 			log.Printf("[WANService] DNS servers configured: %s", dnsServers)
 		}
 	}

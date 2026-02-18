@@ -1,8 +1,10 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 import { Circle, Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Since ConnectionIndicator uses hooks that depend on stores,
 // we create mock presenters for Storybook demonstration

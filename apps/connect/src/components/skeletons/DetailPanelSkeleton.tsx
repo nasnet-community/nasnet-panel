@@ -10,9 +10,7 @@
 import {
   Skeleton,
   SkeletonAvatar,
-  SkeletonText,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
 
 export interface DetailPanelSkeletonProps {
   /** Show header with avatar/icon */

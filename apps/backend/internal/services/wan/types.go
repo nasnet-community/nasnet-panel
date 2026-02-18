@@ -4,6 +4,8 @@ package wan
 import "time"
 
 // WANInterfaceData represents enriched WAN interface information.
+//
+//nolint:revive // exported WAN type
 type WANInterfaceData struct {
 	ID             string
 	InterfaceName  string

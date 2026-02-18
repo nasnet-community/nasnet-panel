@@ -23,6 +23,16 @@ const (
 	PayloadFormatCustom  WebhookPayloadFormat = "custom"
 )
 
+// Severity level constants used in webhook payload formatting.
+const (
+	severityCritical = "CRITICAL"
+	severityWarning  = "WARNING"
+	severityInfo     = "INFO"
+)
+
+// Internal field name to skip in webhook field builders.
+const fieldRuleID = "ruleId"
+
 // BuildWebhookPayload builds the webhook payload based on the specified format.
 func BuildWebhookPayload(notification notifications.Notification, format WebhookPayloadFormat, customTemplate string) ([]byte, error) {
 	switch format {
@@ -114,7 +124,7 @@ func buildCustomPayload(notification notifications.Notification, templateStr str
 	tmpl, err := template.New("webhook").Funcs(template.FuncMap{
 		"upper":   strings.ToUpper,
 		"lower":   strings.ToLower,
-		"title":   strings.Title,
+		"title":   strings.ToTitle, //nolint:nolintlint,staticcheck // deprecated but needed for template compatibility
 		"trim":    strings.TrimSpace,
 		"join":    strings.Join,
 		"replace": strings.ReplaceAll,
@@ -142,11 +152,11 @@ func buildCustomPayload(notification notifications.Notification, templateStr str
 
 func severityToColor(severity string) string {
 	switch strings.ToUpper(severity) {
-	case "CRITICAL":
+	case severityCritical:
 		return "#ef4444"
-	case "WARNING":
+	case severityWarning:
 		return "#f59e0b"
-	case "INFO":
+	case severityInfo:
 		return "#3b82f6"
 	default:
 		return "#6b7280"
@@ -155,11 +165,11 @@ func severityToColor(severity string) string {
 
 func severityToEmoji(severity string) string {
 	switch strings.ToUpper(severity) {
-	case "CRITICAL":
+	case severityCritical:
 		return "\xf0\x9f\x94\xb4"
-	case "WARNING":
+	case severityWarning:
 		return "\xf0\x9f\x9f\xa1"
-	case "INFO":
+	case severityInfo:
 		return "\xf0\x9f\x94\xb5"
 	default:
 		return "\xe2\x9a\xaa"
@@ -186,7 +196,7 @@ func buildSlackFields(notification notifications.Notification) []map[string]inte
 		if count >= 5 {
 			break
 		}
-		if strings.HasPrefix(key, "_") || key == "ruleId" {
+		if strings.HasPrefix(key, "_") || key == fieldRuleID {
 			continue
 		}
 		fields = append(fields, map[string]interface{}{"title": key, "value": fmt.Sprintf("%v", value), "short": true})
@@ -206,7 +216,7 @@ func buildDiscordFields(notification notifications.Notification) []map[string]in
 		if count >= 5 {
 			break
 		}
-		if strings.HasPrefix(key, "_") || key == "ruleId" {
+		if strings.HasPrefix(key, "_") || key == fieldRuleID {
 			continue
 		}
 		fields = append(fields, map[string]interface{}{"name": key, "value": fmt.Sprintf("%v", value), "inline": true})
@@ -226,7 +236,7 @@ func buildTeamsFacts(notification notifications.Notification) []map[string]inter
 		if count >= 5 {
 			break
 		}
-		if strings.HasPrefix(key, "_") || key == "ruleId" {
+		if strings.HasPrefix(key, "_") || key == fieldRuleID {
 			continue
 		}
 		facts = append(facts, map[string]interface{}{"name": fmt.Sprintf("%s:", key), "value": fmt.Sprintf("%v", value)})
@@ -247,11 +257,11 @@ func (w *WebhookChannel) buildSlackDigestPayload(payload DigestPayload) map[stri
 	for _, group := range payload.Groups {
 		var emoji string
 		switch group.Severity {
-		case "CRITICAL":
+		case severityCritical:
 			emoji = "\xf0\x9f\x94\xb4"
-		case "WARNING":
+		case severityWarning:
 			emoji = "\xf0\x9f\x9f\xa1"
-		case "INFO":
+		case severityInfo:
 			emoji = "\xf0\x9f\x94\xb5"
 		default:
 			emoji = "\xe2\x9a\xaa"

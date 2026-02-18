@@ -7,10 +7,10 @@ import (
 	"log/slog"
 	"sync"
 
-	"backend/internal/events"
-	"backend/pkg/ulid"
 	"backend/generated/ent"
 	"backend/generated/ent/vlanallocation"
+	"backend/internal/common/ulid"
+	"backend/internal/events"
 )
 
 // VLANAllocator manages automatic VLAN allocation for service instances.
@@ -23,14 +23,14 @@ import (
 // - Maintains in-memory cache for fast lookups
 // - Database unique constraint on (router_id, vlan_id) prevents races at source
 type VLANAllocator struct {
-	store       *ent.Client
+	store       StorePort
 	vlanService VlanServicePort
 	eventBus    events.EventBus
 	logger      *slog.Logger
 	mu          sync.RWMutex
 
 	// In-memory cache for fast lookups: key format "routerID:vlanID"
-	cache map[string]*ent.VLANAllocation
+	cache map[string]VLANAllocationEntity
 
 	// VLAN pool configuration (hardcoded for MVP, configurable later via GlobalSettings)
 	poolStart int // Default: 100
@@ -69,7 +69,7 @@ func NewVLANAllocator(cfg VLANAllocatorConfig) (*VLANAllocator, error) {
 		vlanService: cfg.VlanService,
 		eventBus:    cfg.EventBus,
 		logger:      logger,
-		cache:       make(map[string]*ent.VLANAllocation),
+		cache:       make(map[string]VLANAllocationEntity),
 		poolStart:   poolStart,
 		poolEnd:     poolEnd,
 	}
@@ -115,14 +115,14 @@ func (va *VLANAllocator) AllocateVLAN(ctx context.Context, req AllocateVLANReque
 	subnet := va.generateSubnet(vlanID)
 
 	// Create allocation in database (unique constraint on router_id+vlan_id prevents races)
-	allocation, err := va.store.VLANAllocation.Create().
+	allocation, err := va.store.VLANAllocation().Create().
 		SetID(ulid.NewString()).
 		SetRouterID(req.RouterID).
 		SetVlanID(vlanID).
 		SetInstanceID(req.InstanceID).
 		SetServiceType(req.ServiceType).
 		SetSubnet(subnet).
-		SetStatus(vlanallocation.StatusAllocated).
+		SetStatus("allocated").
 		Save(ctx)
 
 	if err != nil {
@@ -152,7 +152,7 @@ func (va *VLANAllocator) AllocateVLAN(ctx context.Context, req AllocateVLANReque
 	va.checkAndEmitPoolWarningUnsafe(ctx, req.RouterID)
 
 	return &AllocateVLANResponse{
-		AllocationID: allocation.ID,
+		AllocationID: allocation.GetID(),
 		VlanID:       vlanID,
 		Subnet:       subnet,
 	}, nil
@@ -166,11 +166,11 @@ func (va *VLANAllocator) ReleaseVLAN(ctx context.Context, routerID string, vlanI
 	defer va.mu.Unlock()
 
 	// Find allocation in database
-	allocation, err := va.store.VLANAllocation.Query().
+	allocation, err := va.store.VLANAllocation().Query().
 		Where(
 			vlanallocation.RouterIDEQ(routerID),
 			vlanallocation.VlanIDEQ(vlanID),
-			vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+			vlanallocation.StatusEQ("allocated"),
 		).
 		Only(ctx)
 
@@ -183,7 +183,7 @@ func (va *VLANAllocator) ReleaseVLAN(ctx context.Context, routerID string, vlanI
 
 	// Update status to released
 	_, err = allocation.Update().
-		SetStatus(vlanallocation.StatusReleased).
+		SetStatus("released").
 		Save(ctx)
 
 	if err != nil {
@@ -197,7 +197,7 @@ func (va *VLANAllocator) ReleaseVLAN(ctx context.Context, routerID string, vlanI
 	va.logger.Info("vlan released",
 		"router_id", routerID,
 		"vlan_id", vlanID,
-		"instance_id", allocation.InstanceID)
+		"instance_id", allocation.GetInstanceID())
 
 	return nil
 }
@@ -222,11 +222,11 @@ func (va *VLANAllocator) findNextAvailableVLANUnsafe(ctx context.Context, router
 		}
 
 		// Double-check database (cache might be stale)
-		exists, err := va.store.VLANAllocation.Query().
+		exists, err := va.store.VLANAllocation().Query().
 			Where(
 				vlanallocation.RouterIDEQ(routerID),
 				vlanallocation.VlanIDEQ(vlanID),
-				vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+				vlanallocation.StatusEQ("allocated"),
 			).
 			Exist(ctx)
 
@@ -288,8 +288,8 @@ func (va *VLANAllocator) isVLANConflictOnRouter(ctx context.Context, routerID st
 
 // loadCache loads all allocated VLANs from the database into memory cache.
 func (va *VLANAllocator) loadCache(ctx context.Context) error {
-	allocations, err := va.store.VLANAllocation.Query().
-		Where(vlanallocation.StatusEQ(vlanallocation.StatusAllocated)).
+	allocations, err := va.store.VLANAllocation().Query().
+		Where(vlanallocation.StatusEQ("allocated")).
 		All(ctx)
 
 	if err != nil {
@@ -297,7 +297,7 @@ func (va *VLANAllocator) loadCache(ctx context.Context) error {
 	}
 
 	for _, alloc := range allocations {
-		cacheKey := va.cacheKey(alloc.RouterID, alloc.VlanID)
+		cacheKey := va.cacheKey(alloc.GetRouterID(), alloc.GetVlanID())
 		va.cache[cacheKey] = alloc
 	}
 

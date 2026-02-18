@@ -9,7 +9,7 @@ import (
 )
 
 // =============================================================================
-// IPv4 Scalar Tests
+// IPv4 Scalar Tests.
 // =============================================================================
 
 func TestIPv4_UnmarshalGQL_ValidAddresses(t *testing.T) {
@@ -70,7 +70,7 @@ func TestIPv4_MarshalGQL(t *testing.T) {
 }
 
 // =============================================================================
-// IPv6 Scalar Tests
+// IPv6 Scalar Tests.
 // =============================================================================
 
 func TestIPv6_UnmarshalGQL_ValidAddresses(t *testing.T) {
@@ -114,7 +114,7 @@ func TestIPv6_UnmarshalGQL_InvalidAddresses(t *testing.T) {
 }
 
 // =============================================================================
-// MAC Address Scalar Tests
+// MAC Address Scalar Tests.
 // =============================================================================
 
 func TestMAC_UnmarshalGQL_ValidAddresses(t *testing.T) {
@@ -165,7 +165,7 @@ func TestMAC_UnmarshalGQL_InvalidAddresses(t *testing.T) {
 }
 
 // =============================================================================
-// CIDR Scalar Tests
+// CIDR Scalar Tests.
 // =============================================================================
 
 func TestCIDR_UnmarshalGQL_ValidNotations(t *testing.T) {
@@ -212,7 +212,7 @@ func TestCIDR_UnmarshalGQL_InvalidNotations(t *testing.T) {
 }
 
 // =============================================================================
-// Port Scalar Tests
+// Port Scalar Tests.
 // =============================================================================
 
 func TestPort_UnmarshalGQL_ValidPorts(t *testing.T) {
@@ -262,7 +262,7 @@ func TestPort_UnmarshalGQL_InvalidPorts(t *testing.T) {
 }
 
 // =============================================================================
-// PortRange Scalar Tests
+// PortRange Scalar Tests.
 // =============================================================================
 
 func TestPortRange_UnmarshalGQL_ValidRanges(t *testing.T) {
@@ -309,7 +309,7 @@ func TestPortRange_UnmarshalGQL_InvalidRanges(t *testing.T) {
 }
 
 // =============================================================================
-// Duration Scalar Tests
+// Duration Scalar Tests.
 // =============================================================================
 
 func TestDuration_UnmarshalGQL_ValidDurations(t *testing.T) {
@@ -360,7 +360,7 @@ func TestDuration_UnmarshalGQL_InvalidDurations(t *testing.T) {
 }
 
 // =============================================================================
-// Bandwidth Scalar Tests
+// Bandwidth Scalar Tests.
 // =============================================================================
 
 func TestBandwidth_UnmarshalGQL_ValidBandwidths(t *testing.T) {
@@ -408,7 +408,7 @@ func TestBandwidth_UnmarshalGQL_InvalidBandwidths(t *testing.T) {
 }
 
 // =============================================================================
-// Size Scalar Tests
+// Size Scalar Tests.
 // =============================================================================
 
 func TestSize_UnmarshalGQL_ValidSizes(t *testing.T) {
@@ -456,7 +456,7 @@ func TestSize_UnmarshalGQL_InvalidSizes(t *testing.T) {
 }
 
 // =============================================================================
-// ULID Scalar Tests
+// ULID Scalar Tests.
 // =============================================================================
 
 func TestULID_UnmarshalGQL_ValidULIDs(t *testing.T) {

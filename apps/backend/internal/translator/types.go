@@ -115,7 +115,7 @@ func ParseVersion(s string) (RouterOSVersion, error) {
 		return v, fmt.Errorf("invalid minor version: %w", err)
 	}
 	if len(parts) > 2 {
-		fmt.Sscanf(parts[2], "%d", &v.Patch)
+		_, _ = fmt.Sscanf(parts[2], "%d", &v.Patch) //nolint:errcheck // best-effort parse
 	}
 
 	return v, nil
@@ -124,7 +124,7 @@ func ParseVersion(s string) (RouterOSVersion, error) {
 // Filter represents a query filter for print operations.
 type Filter struct {
 	Field    string      // Field name to filter on
-	Operator FilterOp   // Comparison operator
+	Operator FilterOp    // Comparison operator
 	Value    interface{} // Value to compare against
 }
 
@@ -290,7 +290,7 @@ func NewSuccessResponse(data interface{}) *CanonicalResponse {
 }
 
 // NewErrorResponse creates an error response.
-func NewErrorResponse(code string, message string, category ErrorCategory) *CanonicalResponse {
+func NewErrorResponse(code, message string, category ErrorCategory) *CanonicalResponse {
 	return &CanonicalResponse{
 		Success: false,
 		Error: &CommandError{

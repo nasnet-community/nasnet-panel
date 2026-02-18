@@ -4,8 +4,8 @@
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 
 import { ServiceImportDialog } from './ServiceImportDialog';
 import { ServiceImportDialogDesktop } from './ServiceImportDialogDesktop';

@@ -132,7 +132,7 @@ export function ManglePage() {
   // Fetch rules for current chain
   const { data: rules, isLoading } = useMangleRules(
     routerIp,
-    selectedChain === 'all' ? undefined : selectedChain
+    selectedChain === 'all' ? undefined : { chain: selectedChain }
   );
 
   const handleAddRule = () => {
@@ -246,8 +246,11 @@ export function ManglePage() {
           </SheetHeader>
           <div className="mt-6">
             <MangleRuleEditor
-              rule={{ chain: selectedChain === 'all' ? 'prerouting' : selectedChain }}
+              routerId={routerIp}
+              initialRule={{ chain: selectedChain === 'all' ? 'prerouting' : selectedChain }}
+              open={showAddRule}
               onClose={() => setShowAddRule(false)}
+              onSave={async () => { setShowAddRule(false); }}
             />
           </div>
         </SheetContent>

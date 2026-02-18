@@ -204,9 +204,9 @@ type mockRouterPort struct {
 	lastCommands []router.Command
 }
 
-func (m *mockRouterPort) Connect(ctx context.Context) error    { m.connected = true; return nil }
-func (m *mockRouterPort) Disconnect() error                    { m.connected = false; return nil }
-func (m *mockRouterPort) IsConnected() bool                    { return m.connected }
+func (m *mockRouterPort) Connect(ctx context.Context) error { m.connected = true; return nil }
+func (m *mockRouterPort) Disconnect() error                 { m.connected = false; return nil }
+func (m *mockRouterPort) IsConnected() bool                 { return m.connected }
 func (m *mockRouterPort) Health(ctx context.Context) router.HealthStatus {
 	return router.HealthStatus{Status: router.StatusConnected}
 }
@@ -373,8 +373,8 @@ func TestTranslatingPort_Delete(t *testing.T) {
 func TestTranslatingPort_ErrorHandling(t *testing.T) {
 	t.Run("adapter execution error", func(t *testing.T) {
 		mock := &mockRouterPort{
-			protocol:  router.ProtocolAPI,
-			connected: true,
+			protocol:    router.ProtocolAPI,
+			connected:   true,
 			execResults: []*router.CommandResult{nil},
 			execErrors:  []error{errors.New("connection refused")},
 		}

@@ -1,12 +1,13 @@
+import * as path from 'path';
+
 import {
-  Tree,
+  type Tree,
   formatFiles,
   generateFiles,
   names,
   readProjectConfiguration,
   joinPathFragments,
 } from '@nx/devkit';
-import * as path from 'path';
 
 export interface ComponentGeneratorSchema {
   name: string;

@@ -217,7 +217,7 @@ func TestDatabaseManager_Close(t *testing.T) {
 	// Should reject new operations
 	_, err = dm.GetRouterDB(ctx, "01HQCLOSE0000000NEWROUTE")
 	assert.Error(t, err)
-	var dbErr *DatabaseError
+	var dbErr *Error
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBClosed, dbErr.Code)
 }

@@ -36,7 +36,7 @@ func NewTemplateValidator(cfg TemplateValidatorConfig) *TemplateValidator {
 }
 
 // ValidateTemplate validates the basic structure of a template
-func (tv *TemplateValidator) ValidateTemplate(template *ServiceTemplate) error {
+func (tv *TemplateValidator) ValidateTemplate(template *ServiceTemplate) error { //nolint:gocyclo // template validation inherently complex
 	// Validate required fields
 	if template.ID == "" {
 		return &ValidationError{Field: "id", Message: "template ID is required"}
@@ -210,12 +210,13 @@ func (tv *TemplateValidator) validateConfigReferences(config map[string]interfac
 		case []interface{}:
 			for i, item := range v {
 				itemPath := fmt.Sprintf("%s[%d]", currentPath, i)
-				if strItem, ok := item.(string); ok {
-					if err := tv.validateStringReference(strItem, definedVars, itemPath); err != nil {
+				switch typedItem := item.(type) {
+				case string:
+					if err := tv.validateStringReference(typedItem, definedVars, itemPath); err != nil {
 						return err
 					}
-				} else if mapItem, ok := item.(map[string]interface{}); ok {
-					if err := tv.validateConfigReferences(mapItem, definedVars, itemPath); err != nil {
+				case map[string]interface{}:
+					if err := tv.validateConfigReferences(typedItem, definedVars, itemPath); err != nil {
 						return err
 					}
 				}
@@ -228,11 +229,14 @@ func (tv *TemplateValidator) validateConfigReferences(config map[string]interfac
 
 // validateStringReference validates variable references in a string
 func (tv *TemplateValidator) validateStringReference(input string, definedVars map[string]bool, path string) error {
-	// Pattern: {{VARIABLE_NAME}}
+	// Template variable pattern uses double-brace syntax
 	pattern := regexp.MustCompile(`\{\{([A-Z_][A-Z0-9_.]*)\}\}`)
 
 	matches := pattern.FindAllStringSubmatch(input, -1)
 	for _, match := range matches {
+		if len(match) < 2 {
+			continue
+		}
 		varName := match[1]
 
 		// Check if variable is defined
@@ -278,7 +282,7 @@ func (tv *TemplateValidator) isValidCategory(category TemplateCategory) bool {
 	return false
 }
 
-func (tv *TemplateValidator) validateServiceSpec(service *ServiceSpec, index int) error {
+func (tv *TemplateValidator) validateServiceSpec(service *ServiceSpec, _ int) error {
 	if service.ServiceType == "" {
 		return &ValidationError{Field: "serviceType", Message: "service type is required"}
 	}
@@ -313,7 +317,7 @@ func (tv *TemplateValidator) validateServiceSpec(service *ServiceSpec, index int
 	return nil
 }
 
-func (tv *TemplateValidator) validateConfigVariable(configVar *TemplateVariable, index int) error {
+func (tv *TemplateValidator) validateConfigVariable(configVar *TemplateVariable, _ int) error {
 	if configVar.Name == "" {
 		return &ValidationError{Field: "name", Message: "variable name is required"}
 	}

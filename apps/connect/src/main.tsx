@@ -1,6 +1,8 @@
-import { StrictMode, Suspense } from 'react';
-import * as ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+
 import { RouterProvider, createRouter } from '@tanstack/react-router';
+import * as ReactDOM from 'react-dom/client';
+
 import { routeTree } from './routeTree.gen';
 
 // Initialize i18n before app render - must be imported early

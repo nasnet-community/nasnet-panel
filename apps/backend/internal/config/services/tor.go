@@ -52,10 +52,10 @@ type TorGenerator struct {
 
 // NewTorGenerator creates a new Tor config generator.
 func NewTorGenerator() *TorGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "tor",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "nickname",
 				Type:        "string",
@@ -157,8 +157,8 @@ func (g *TorGenerator) Generate(instanceID string, config map[string]interface{}
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	// Prepare template data
@@ -171,12 +171,12 @@ func (g *TorGenerator) Generate(instanceID string, config map[string]interface{}
 // Validate performs Tor-specific validation.
 func (g *TorGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Tor-specific validation
-	relayType, _ := config["relay_type"].(string)
+	relayType, _ := config["relay_type"].(string) //nolint:errcheck // type assertion uses zero value default
 	if relayType == "exit" {
 		// Exit relays require exit_policy
 		if _, hasPolicy := config["exit_policy"]; !hasPolicy {
@@ -185,15 +185,15 @@ func (g *TorGenerator) Validate(config map[string]interface{}, bindIP string) er
 	}
 
 	// Validate nickname format (alphanumeric, max 19 chars)
-	nickname, _ := config["nickname"].(string)
+	nickname, _ := config["nickname"].(string) //nolint:errcheck // type assertion uses zero value default
 	if len(nickname) > 19 {
 		return fmt.Errorf("nickname must be max 19 characters, got %d", len(nickname))
 	}
 
 	// Validate contact_info is an email
-	contactInfo, _ := config["contact_info"].(string)
-	if err := cfglib.ValidateEmail(contactInfo); err != nil {
-		return fmt.Errorf("contact_info must be a valid email: %w", err)
+	contactInfo, _ := config["contact_info"].(string) //nolint:errcheck // type assertion uses zero value default
+	if emailErr := cfglib.ValidateEmail(contactInfo); emailErr != nil {
+		return fmt.Errorf("contact_info must be a valid email: %w", emailErr)
 	}
 
 	return nil

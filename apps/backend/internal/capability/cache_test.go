@@ -23,9 +23,9 @@ func TestMemoryCache_GetSet(t *testing.T) {
 	// Test cache set and hit
 	now := time.Now()
 	testCaps := &Capabilities{
-		Hardware: HardwareInfo{Architecture: "arm64"},
-		Software: SoftwareInfo{Version: RouterOSVersion{Major: 7, Minor: 13}},
-		Entries:  make(map[Capability]Entry),
+		Hardware:   HardwareInfo{Architecture: "arm64"},
+		Software:   SoftwareInfo{Version: RouterOSVersion{Major: 7, Minor: 13}},
+		Entries:    make(map[Capability]Entry),
 		DetectedAt: now,
 		ExpiresAt:  now.Add(24 * time.Hour),
 	}
@@ -198,11 +198,11 @@ func TestService_GetCapabilities(t *testing.T) {
 
 	// Create a mock detector
 	mockDetector := &mockDetectorImpl{
-		detectFunc: func(ctx context.Context, port RouterPort) (*Capabilities, error) {
+		detectFunc: func(_ context.Context, port RouterPort) (*Capabilities, error) {
 			return &Capabilities{
-				Hardware: HardwareInfo{Architecture: "arm64"},
-				Software: SoftwareInfo{Version: RouterOSVersion{Major: 7, Minor: 13}},
-				Entries:  make(map[Capability]Entry),
+				Hardware:   HardwareInfo{Architecture: "arm64"},
+				Software:   SoftwareInfo{Version: RouterOSVersion{Major: 7, Minor: 13}},
+				Entries:    make(map[Capability]Entry),
 				DetectedAt: time.Now(),
 				ExpiresAt:  time.Now().Add(CacheTTL),
 			}, nil
@@ -245,7 +245,7 @@ func TestService_RefreshCapabilities(t *testing.T) {
 
 	callCount := 0
 	mockDetector := &mockDetectorImpl{
-		detectFunc: func(ctx context.Context, port RouterPort) (*Capabilities, error) {
+		detectFunc: func(_ context.Context, port RouterPort) (*Capabilities, error) {
 			callCount++
 			return &Capabilities{
 				Hardware:   HardwareInfo{Architecture: "arm64"},

@@ -11,9 +11,9 @@ import (
 
 // Version represents a parsed RouterOS version with major, minor, patch, and channel.
 type Version struct {
-	Major   int    `json:"major" yaml:"major"`
-	Minor   int    `json:"minor" yaml:"minor"`
-	Patch   int    `json:"patch" yaml:"patch"`
+	Major   int    `json:"major"             yaml:"major"`
+	Minor   int    `json:"minor"             yaml:"minor"`
+	Patch   int    `json:"patch"             yaml:"patch"`
 	Channel string `json:"channel,omitempty" yaml:"channel,omitempty"` // "", "beta", "rc", "long-term"
 }
 

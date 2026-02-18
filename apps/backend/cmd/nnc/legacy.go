@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"backend/pkg/router/adapters/mikrotik"
-	"backend/pkg/router/adapters/mikrotik/parser"
-	"backend/pkg/router/batch"
-	pkgScanner "backend/pkg/router/scanner"
+	"backend/internal/router/adapters/mikrotik"
+	"backend/internal/router/adapters/mikrotik/parser"
+	"backend/internal/router/batch"
+	pkgScanner "backend/internal/router/scanner"
 )
 
 // ========== Scanner ==========
@@ -25,11 +25,12 @@ type RouterOSInfo = pkgScanner.RouterOSInfo
 
 type Scanner struct {
 	tasks       map[string]*ScanTask
-	mu          sync.RWMutex
 	maxWorkers  int
 	timeout     time.Duration
 	targetPorts []int
 }
+
+const statusCompleted = "completed"
 
 var scanner = &Scanner{
 	tasks:       make(map[string]*ScanTask),
@@ -51,7 +52,7 @@ func handleScan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	taskID := fmt.Sprintf("scan_%d", time.Now().UnixNano())
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	task := &ScanTask{
 		ID: taskID, Subnet: req.Subnet, StartTime: time.Now(),
 		Status: "running", Results: make([]Device, 0), Cancel: cancel,
@@ -59,10 +60,9 @@ func handleScan(w http.ResponseWriter, r *http.Request) {
 	scannerPool.mu.Lock()
 	scannerPool.activeTasks[taskID] = task
 	scannerPool.mu.Unlock()
-	go processScanTask(task)
+	go processScanTask(ctx, task) //nolint:contextcheck // intentional background context for async task
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": taskID, "status": "started", "message": "Scan started successfully",
 	})
 }
@@ -80,8 +80,7 @@ func handleScanStatus(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, http.StatusNotFound, "task_not_found", "Task not found")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": task.ID, "subnet": task.Subnet, "start_time": task.StartTime.Unix(),
 		"status": task.Status, "progress": task.Progress, "results": task.Results,
 	})
@@ -109,16 +108,15 @@ func handleScanStop(w http.ResponseWriter, r *http.Request) {
 	if task.Cancel != nil {
 		task.Cancel()
 	}
-	task.Status = "cancelled"
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"task_id": req.TaskID, "status": "cancelled", "message": "Scan stopped successfully",
+	task.Status = "canceled"
+	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
+		"task_id": req.TaskID, "status": "canceled", "message": "Scan stopped successfully",
 	})
 }
 
-func handleAutoScan(w http.ResponseWriter, r *http.Request) {
+func handleAutoScan(w http.ResponseWriter, _ *http.Request) {
 	taskID := fmt.Sprintf("auto_scan_%d", time.Now().UnixNano())
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
 	task := &ScanTask{
 		ID: taskID, Subnet: "192.168.0-255.1", StartTime: time.Now(),
 		Status: "running", Results: make([]Device, 0), Cancel: cancel,
@@ -126,16 +124,14 @@ func handleAutoScan(w http.ResponseWriter, r *http.Request) {
 	scannerPool.mu.Lock()
 	scannerPool.activeTasks[taskID] = task
 	scannerPool.mu.Unlock()
-	go processGatewayScanTask(task)
+	go processGatewayScanTask(ctx, task) //nolint:contextcheck // intentional background context for async task
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
 		"task_id": taskID, "status": "started", "message": "Gateway auto-scan started successfully",
 	})
 }
 
-func processGatewayScanTask(task *ScanTask) {
-	ctx := context.Background()
+func processGatewayScanTask(ctx context.Context, task *ScanTask) {
 	cfg := pkgScanner.Config{MaxWorkers: scanner.maxWorkers, Timeout: scanner.timeout}
 	var mu sync.Mutex
 	pkgScanner.ProcessGatewayScan(ctx, cfg, func(device pkgScanner.Device) {
@@ -143,7 +139,7 @@ func processGatewayScanTask(task *ScanTask) {
 		task.Results = append(task.Results, device)
 		mu.Unlock()
 	})
-	task.Status = "completed"
+	task.Status = statusCompleted
 	task.Progress = 100
 	go func() {
 		time.Sleep(30 * time.Minute)
@@ -153,15 +149,14 @@ func processGatewayScanTask(task *ScanTask) {
 	}()
 }
 
-func processScanTask(task *ScanTask) {
-	ctx := context.Background()
+func processScanTask(ctx context.Context, task *ScanTask) {
 	ips, err := pkgScanner.ParseIPRange(task.Subnet)
 	if err != nil {
 		task.Status = "error"
 		return
 	}
 	if len(ips) == 0 {
-		task.Status = "completed"
+		task.Status = statusCompleted
 		task.Progress = 100
 		return
 	}
@@ -208,7 +203,7 @@ func processScanTask(task *ScanTask) {
 		}
 	}()
 	wg.Wait()
-	task.Status = "completed"
+	task.Status = statusCompleted
 	task.Progress = 100
 	go func() {
 		time.Sleep(1 * time.Hour)
@@ -223,8 +218,6 @@ func processScanTask(task *ScanTask) {
 type RouterProxyRequest = mikrotik.RouterProxyRequest
 type RouterProxyResponse = mikrotik.RouterProxyResponse
 
-func initializeContainerIPs() { mikrotik.InitializeContainerIPs() }
-func detectDefaultGateway()   { mikrotik.DetectDefaultGateway() }
 func handleRouterProxy(w http.ResponseWriter, r *http.Request) {
 	mikrotik.HandleRouterProxy(w, r)
 }
@@ -235,8 +228,6 @@ type JobStatus = batch.JobStatus
 type BatchJob = batch.Job
 type BatchJobRequest = batch.JobRequest
 type BatchJobSubmitRequest = batch.SubmitRequest
-
-var jobStore = batch.DefaultJobStore
 
 func handleBatchJobs(w http.ResponseWriter, r *http.Request) {
 	batch.HandleBatchJobs(w, r)

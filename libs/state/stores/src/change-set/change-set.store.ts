@@ -15,6 +15,7 @@
 
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+
 import type {
   ChangeSet,
   ChangeSetItem,
@@ -705,8 +706,8 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
           if (!cs) return null;
 
           const operationCounts = getOperationCounts(cs.items);
-          const hasErrors = cs.validation?.errors?.length ?? 0 > 0;
-          const hasWarnings = cs.validation?.warnings?.length ?? 0 > 0;
+          const hasErrors = (cs.validation?.errors?.length ?? 0) > 0;
+          const hasWarnings = (cs.validation?.warnings?.length ?? 0) > 0;
 
           return {
             id: cs.id,

@@ -136,7 +136,7 @@ export function DHCPWizard() {
 
   // Handle wizard completion
   const handleComplete = async () => {
-    await stepper.handleComplete();
+    await stepper.next();
     // On success, navigate to DHCP server list
     navigate({ to: '/network/dhcp' });
   };
@@ -159,8 +159,7 @@ export function DHCPWizard() {
         stepper={stepper}
         stepContent={renderStepContent()}
         previewContent={renderPreview()}
-        previewTitle="Configuration Preview"
-        actions={
+        customNavigation={
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -171,14 +170,14 @@ export function DHCPWizard() {
             </Button>
             <Button
               variant="outline"
-              onClick={stepper.goToPrevious}
-              disabled={stepper.currentStepIndex === 0 || isCreating}
+              onClick={stepper.prev}
+              disabled={stepper.currentIndex === 0 || isCreating}
             >
               Previous
             </Button>
-            {stepper.currentStepIndex < stepper.steps.length - 1 ? (
+            {stepper.currentIndex < stepper.steps.length - 1 ? (
               <Button
-                onClick={stepper.goToNext}
+                onClick={() => stepper.next()}
                 disabled={isCreating}
               >
                 Next

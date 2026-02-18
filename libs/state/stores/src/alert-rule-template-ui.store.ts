@@ -8,7 +8,8 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { AlertRuleTemplateCategory } from '@nasnet/features/alerts/src/schemas/alert-rule-template.schema';
+/** Alert rule template categories - matches alerts feature schema */
+type AlertRuleTemplateCategory = 'NETWORK' | 'SECURITY' | 'RESOURCES' | 'VPN' | 'DHCP' | 'SYSTEM' | 'CUSTOM';
 
 // =============================================================================
 // Types

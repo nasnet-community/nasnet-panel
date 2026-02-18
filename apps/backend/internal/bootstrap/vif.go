@@ -4,20 +4,23 @@ import (
 	"log"
 
 	"github.com/rs/zerolog"
+
 	"backend/generated/ent"
 
+	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/orchestrator/supervisor"
+	"backend/internal/vif"
+
 	"backend/internal/events"
-	"backend/internal/orchestrator"
 	"backend/internal/router"
 	"backend/internal/storage"
-	"backend/internal/vif"
 )
 
 // VIFComponents holds all initialized Virtual Interface Factory components.
 type VIFComponents struct {
 	VLANAllocator      *vif.SimpleVLANAllocator
 	InterfaceFactory   *vif.InterfaceFactory
-	GatewayManager     orchestrator.GatewayPort
+	GatewayManager     lifecycle.GatewayPort
 	BridgeOrchestrator *vif.BridgeOrchestrator
 }
 
@@ -34,6 +37,7 @@ func InitializeVIF(
 	routerPort *router.MockAdapter,
 	logger zerolog.Logger,
 ) (*VIFComponents, error) {
+
 	log.Printf("Initializing Virtual Interface Factory (VIF)...")
 
 	// 1. Create VLAN Allocator (simple sequential for MVP, Story 8.18 upgrades to persistent)
@@ -51,7 +55,7 @@ func InitializeVIF(
 
 	// 3. Create GatewayManager
 	gatewayManager, err := vif.NewGatewayManager(vif.GatewayManagerConfig{
-		Supervisor:    orchestrator.NewProcessSupervisor(orchestrator.ProcessSupervisorConfig{Logger: logger}),
+		Supervisor:    supervisor.NewProcessSupervisor(supervisor.ProcessSupervisorConfig{Logger: logger}),
 		PathResolver:  pathResolver,
 		HevBinaryPath: "/app/hev-socks5-tunnel",
 		Logger:        logger,

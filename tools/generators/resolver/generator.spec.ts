@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { type Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { Tree } from '@nx/devkit';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import resolverGenerator from './generator';
 
 describe('resolver generator', () => {

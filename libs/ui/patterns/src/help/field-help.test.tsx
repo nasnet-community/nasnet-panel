@@ -8,11 +8,11 @@
  */
 
 import * as React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+
+import { render, screen, waitFor , renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { axe } from 'vitest-axe';
-import { renderHook, act } from '@testing-library/react';
 
 import {
   FieldHelp,
@@ -25,6 +25,7 @@ import {
   useFieldHelp,
   useHelpMode,
 } from './index';
+
 import type { HelpContent, UseFieldHelpReturn } from './help.types';
 
 // Note: vitest-axe matchers are extended in setup.ts

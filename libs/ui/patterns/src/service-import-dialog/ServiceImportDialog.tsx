@@ -3,10 +3,12 @@
  * Routes to appropriate presenter based on platform detection
  */
 
-import { usePlatform } from '../hooks/usePlatform';
+import { usePlatform } from '@nasnet/ui/layouts';
+
 import { ServiceImportDialogDesktop } from './ServiceImportDialogDesktop';
-import { ServiceImportDialogTablet } from './ServiceImportDialogTablet';
 import { ServiceImportDialogMobile } from './ServiceImportDialogMobile';
+import { ServiceImportDialogTablet } from './ServiceImportDialogTablet';
+
 import type { ServiceImportDialogProps } from './types';
 
 /**

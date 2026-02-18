@@ -154,7 +154,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <Accordion type="single" collapsible className="border-t">
+          <Accordion type="single" collapsible className="border-t" {...{} as any}>
             {run.results.map((result, index) => renderTestResult(result, index))}
           </Accordion>
         </AccordionContent>
@@ -253,6 +253,7 @@ export function DiagnosticsPanelMobile(props: DiagnosticsPanelProps) {
               type="single"
               collapsible
               defaultValue={latestRun ? 'run-0' : undefined}
+              {...{} as any}
             >
               {history.map((run, index) => renderDiagnosticRun(run, index))}
             </Accordion>

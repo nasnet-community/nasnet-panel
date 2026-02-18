@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"backend/internal/events"
-	"backend/pkg/ulid"
 	"backend/generated/ent"
 	"backend/generated/ent/globalsettings"
 	"backend/generated/ent/vlanallocation"
+	"backend/internal/common/ulid"
+	"backend/internal/events"
 )
 
 // GetPoolStart returns the start of the VLAN pool range.
@@ -40,8 +40,8 @@ func (va *VLANAllocator) UpdatePoolConfig(ctx context.Context, poolStart, poolEn
 	}
 
 	// Check if any existing allocations would be orphaned
-	allocations, err := va.store.VLANAllocation.Query().
-		Where(vlanallocation.StatusEQ(vlanallocation.StatusAllocated)).
+	allocations, err := va.store.VLANAllocation().Query().
+		Where(vlanallocation.StatusEQ("allocated")).
 		All(ctx)
 
 	if err != nil {
@@ -49,9 +49,9 @@ func (va *VLANAllocator) UpdatePoolConfig(ctx context.Context, poolStart, poolEn
 	}
 
 	for _, alloc := range allocations {
-		if alloc.VlanID < poolStart || alloc.VlanID > poolEnd {
+		if alloc.GetVlanID() < poolStart || alloc.GetVlanID() > poolEnd {
 			return fmt.Errorf("%w: existing allocation (VLAN %d) would be outside new pool range %d-%d",
-				ErrInvalidPoolConfig, alloc.VlanID, poolStart, poolEnd)
+				ErrInvalidPoolConfig, alloc.GetVlanID(), poolStart, poolEnd)
 		}
 	}
 
@@ -79,10 +79,10 @@ func (va *VLANAllocator) GetPoolStatus(ctx context.Context, routerID string) (*V
 	defer va.mu.RUnlock()
 
 	// Count allocated VLANs for this router
-	allocatedCount, err := va.store.VLANAllocation.Query().
+	allocatedCount, err := va.store.VLANAllocation().Query().
 		Where(
 			vlanallocation.RouterIDEQ(routerID),
-			vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+			vlanallocation.StatusEQ("allocated"),
 		).
 		Count(ctx)
 
@@ -106,21 +106,21 @@ func (va *VLANAllocator) GetPoolStatus(ctx context.Context, routerID string) (*V
 }
 
 // GetAllocationsByRouter returns all VLAN allocations for a router.
-func (va *VLANAllocator) GetAllocationsByRouter(ctx context.Context, routerID string) ([]*ent.VLANAllocation, error) {
+func (va *VLANAllocator) GetAllocationsByRouter(ctx context.Context, routerID string) ([]VLANAllocationEntity, error) {
 	va.mu.RLock()
 	defer va.mu.RUnlock()
 
-	return va.store.VLANAllocation.Query().
+	return va.store.VLANAllocation().Query().
 		Where(vlanallocation.RouterIDEQ(routerID)).
 		All(ctx)
 }
 
 // GetAllocationsByInstance returns all VLAN allocations for a service instance.
-func (va *VLANAllocator) GetAllocationsByInstance(ctx context.Context, instanceID string) ([]*ent.VLANAllocation, error) {
+func (va *VLANAllocator) GetAllocationsByInstance(ctx context.Context, instanceID string) ([]VLANAllocationEntity, error) {
 	va.mu.RLock()
 	defer va.mu.RUnlock()
 
-	return va.store.VLANAllocation.Query().
+	return va.store.VLANAllocation().Query().
 		Where(vlanallocation.InstanceIDEQ(instanceID)).
 		All(ctx)
 }
@@ -135,10 +135,10 @@ func (va *VLANAllocator) checkAndEmitPoolWarningUnsafe(ctx context.Context, rout
 	}
 
 	// Count allocated VLANs for this router
-	allocatedCount, err := va.store.VLANAllocation.Query().
+	allocatedCount, err := va.store.VLANAllocation().Query().
 		Where(
 			vlanallocation.RouterIDEQ(routerID),
-			vlanallocation.StatusEQ(vlanallocation.StatusAllocated),
+			vlanallocation.StatusEQ("allocated"),
 		).
 		Count(ctx)
 
@@ -157,15 +157,16 @@ func (va *VLANAllocator) checkAndEmitPoolWarningUnsafe(ctx context.Context, rout
 	var warningLevel string
 	var recommendedAction string
 
-	if utilization >= 95.0 {
+	switch {
+	case utilization >= 95.0:
 		// Critical threshold (95%)
 		warningLevel = "critical"
 		recommendedAction = "expand_pool"
-	} else if utilization >= 80.0 {
+	case utilization >= 80.0:
 		// Warning threshold (80%)
 		warningLevel = "warning"
 		recommendedAction = "cleanup"
-	} else {
+	default:
 		// Below warning threshold, no event needed
 		return
 	}
@@ -202,7 +203,7 @@ func (va *VLANAllocator) checkAndEmitPoolWarningUnsafe(ctx context.Context, rout
 
 // loadPoolConfigFromDB loads VLAN pool configuration from GlobalSettings.
 // Falls back to provided defaults or system defaults if not found.
-func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart, fallbackEnd int) (int, int, error) {
+func loadPoolConfigFromDB(ctx context.Context, store StorePort, fallbackStart, fallbackEnd int) (poolStart, poolEnd int, err error) {
 	// Set fallback defaults
 	if fallbackStart == 0 {
 		fallbackStart = DefaultPoolStart
@@ -212,8 +213,8 @@ func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart,
 	}
 
 	// Try to load pool_start from GlobalSettings
-	poolStart := fallbackStart
-	startSetting, err := store.GlobalSettings.Query().
+	poolStart = fallbackStart
+	startSetting, err := store.GlobalSettings().Query().
 		Where(
 			globalsettings.NamespaceEQ(SettingsNamespace),
 			globalsettings.KeyEQ(PoolStartKey),
@@ -222,7 +223,7 @@ func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart,
 
 	if err == nil {
 		// Extract value from JSON map
-		if val, ok := startSetting.Value["value"].(float64); ok {
+		if val, ok := startSetting.GetValue()["value"].(float64); ok {
 			poolStart = int(val)
 		}
 	} else if !ent.IsNotFound(err) {
@@ -230,8 +231,8 @@ func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart,
 	}
 
 	// Try to load pool_end from GlobalSettings
-	poolEnd := fallbackEnd
-	endSetting, err := store.GlobalSettings.Query().
+	poolEnd = fallbackEnd
+	endSetting, err := store.GlobalSettings().Query().
 		Where(
 			globalsettings.NamespaceEQ(SettingsNamespace),
 			globalsettings.KeyEQ(PoolEndKey),
@@ -240,7 +241,7 @@ func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart,
 
 	if err == nil {
 		// Extract value from JSON map
-		if val, ok := endSetting.Value["value"].(float64); ok {
+		if val, ok := endSetting.GetValue()["value"].(float64); ok {
 			poolEnd = int(val)
 		}
 	} else if !ent.IsNotFound(err) {
@@ -251,18 +252,19 @@ func loadPoolConfigFromDB(ctx context.Context, store *ent.Client, fallbackStart,
 }
 
 // savePoolConfigToDB saves VLAN pool configuration to GlobalSettings.
-func savePoolConfigToDB(ctx context.Context, store *ent.Client, poolStart, poolEnd int) error {
+func savePoolConfigToDB(ctx context.Context, store StorePort, poolStart, poolEnd int) error {
 	// Save pool_start
-	_, err := store.GlobalSettings.Query().
+	_, err := store.GlobalSettings().Query().
 		Where(
 			globalsettings.NamespaceEQ(SettingsNamespace),
 			globalsettings.KeyEQ(PoolStartKey),
 		).
 		Only(ctx)
 
-	if ent.IsNotFound(err) {
+	switch {
+	case ent.IsNotFound(err):
 		// Create new setting
-		_, err = store.GlobalSettings.Create().
+		_, err = store.GlobalSettings().Create().
 			SetID(ulid.NewString()).
 			SetNamespace(SettingsNamespace).
 			SetKey(PoolStartKey).
@@ -275,11 +277,11 @@ func savePoolConfigToDB(ctx context.Context, store *ent.Client, poolStart, poolE
 		if err != nil {
 			return fmt.Errorf("failed to create pool_start setting: %w", err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return fmt.Errorf("failed to query pool_start setting: %w", err)
-	} else {
+	default:
 		// Update existing setting
-		_, err = store.GlobalSettings.Update().
+		_, err = store.GlobalSettings().Update().
 			Where(
 				globalsettings.NamespaceEQ(SettingsNamespace),
 				globalsettings.KeyEQ(PoolStartKey),
@@ -292,16 +294,17 @@ func savePoolConfigToDB(ctx context.Context, store *ent.Client, poolStart, poolE
 	}
 
 	// Save pool_end
-	_, err = store.GlobalSettings.Query().
+	_, err = store.GlobalSettings().Query().
 		Where(
 			globalsettings.NamespaceEQ(SettingsNamespace),
 			globalsettings.KeyEQ(PoolEndKey),
 		).
 		Only(ctx)
 
-	if ent.IsNotFound(err) {
+	switch {
+	case ent.IsNotFound(err):
 		// Create new setting
-		_, err = store.GlobalSettings.Create().
+		_, err = store.GlobalSettings().Create().
 			SetID(ulid.NewString()).
 			SetNamespace(SettingsNamespace).
 			SetKey(PoolEndKey).
@@ -314,11 +317,11 @@ func savePoolConfigToDB(ctx context.Context, store *ent.Client, poolStart, poolE
 		if err != nil {
 			return fmt.Errorf("failed to create pool_end setting: %w", err)
 		}
-	} else if err != nil {
+	case err != nil:
 		return fmt.Errorf("failed to query pool_end setting: %w", err)
-	} else {
+	default:
 		// Update existing setting
-		_, err = store.GlobalSettings.Update().
+		_, err = store.GlobalSettings().Update().
 			Where(
 				globalsettings.NamespaceEQ(SettingsNamespace),
 				globalsettings.KeyEQ(PoolEndKey),

@@ -6,6 +6,7 @@
 package main
 
 import (
+	// Tools used by 'go generate'
 	_ "github.com/99designs/gqlgen"
 	_ "github.com/99designs/gqlgen/graphql/introspection"
 )

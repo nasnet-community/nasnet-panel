@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import {
   Dialog,
@@ -14,6 +14,8 @@ import {
 import { Button } from '../button';
 import { Input } from '../input';
 import { Label } from '../label';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof Dialog> = {
   title: 'Primitives/Dialog',

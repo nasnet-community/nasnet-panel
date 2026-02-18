@@ -23,14 +23,12 @@ import {
   Button,
   Badge,
   Switch,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@nasnet/ui/primitives';
 import { Pencil, Trash2, ShieldAlert, Clock, Activity } from 'lucide-react';
 
@@ -64,7 +62,7 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-base">{sequence.name}</h3>
               {sequence.protectedPort === 22 && (
-                <ShieldAlert className="h-4 w-4 text-amber-500" title="SSH Protected" />
+                <ShieldAlert className="h-4 w-4 text-amber-500" aria-label="SSH Protected" />
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -119,7 +117,7 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onEdit?.(sequence.id)}
+            onClick={() => onEdit?.(sequence.id!)}
             className="flex-1 h-11"
           >
             <Pencil className="h-4 w-4 mr-2" />
@@ -165,7 +163,7 @@ export function PortKnockSequenceManagerMobile({
       await toggleSequence({
         variables: {
           routerId: activeRouterId!,
-          id: sequence.id,
+          id: sequence.id!,
           enabled: !sequence.enabled,
         },
       });
@@ -186,7 +184,7 @@ export function PortKnockSequenceManagerMobile({
       await deleteSequence({
         variables: {
           routerId: activeRouterId!,
-          id: sequenceToDelete.id,
+          id: sequenceToDelete.id!,
         },
       });
       setDeleteDialogOpen(false);
@@ -244,11 +242,11 @@ export function PortKnockSequenceManagerMobile({
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Port Knock Sequence</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Port Knock Sequence</DialogTitle>
+            <DialogDescription>
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
@@ -257,16 +255,18 @@ export function PortKnockSequenceManagerMobile({
                   access before deleting.
                 </div>
               )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive">
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col gap-2">
+            <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px] w-full">
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="min-h-[44px] w-full">
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

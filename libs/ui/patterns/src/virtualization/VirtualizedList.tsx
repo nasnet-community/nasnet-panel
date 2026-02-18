@@ -40,13 +40,14 @@ import React, {
 
 import { type VirtualItem } from '@tanstack/react-virtual';
 
+import { cn } from '@nasnet/ui/primitives';
+
 import {
   useVirtualList,
   useScrollRestoration,
   VIRTUALIZATION_THRESHOLD,
   type UseVirtualListOptions,
 } from './useVirtualList';
-import { cn } from '@nasnet/ui/primitives';
 
 export interface VirtualizedListItemProps<T> {
   /** The actual item data */
@@ -102,6 +103,7 @@ export interface VirtualizedListProps<T> {
 
 interface VirtualizedListComponent {
   <T>(props: VirtualizedListProps<T> & { ref?: React.Ref<HTMLDivElement> }): ReactNode;
+  displayName?: string;
 }
 
 /**

@@ -15,15 +15,17 @@ import (
 	"go.uber.org/zap"
 
 	"backend/internal/bootstrap"
-	"backend/internal/router"
 	"backend/internal/server"
 	"backend/internal/services"
 	troubleshootPkg "backend/internal/troubleshoot"
+
+	"backend/internal/router"
 )
 
 //go:embed dist/**
 var frontendFiles embed.FS
 
+//nolint:gochecknoinits // required for production build tag registration
 func init() {
 	// Apply production runtime configuration
 	runtimeCfg := bootstrap.DefaultProdRuntimeConfig()
@@ -35,12 +37,8 @@ func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Production NasNetConnect server initialized")
 
-	// Initialize container network detection helpers for proxy
-	initializeContainerIPs()
-	detectDefaultGateway()
+	ServerVersion = "production-v2.0"
 }
-
-func init() { ServerVersion = "production-v2.0" }
 
 func run() {
 	ctx := context.Background()
@@ -73,7 +71,13 @@ func run() {
 	if err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
 	}
-	defer logger.Sync()
+	defer func() {
+		if syncErr := logger.Sync(); syncErr != nil {
+			// Ignore sync errors on stderr/stdout (common on Linux/Windows)
+			// Only log to stderr if it's a different error
+			log.Printf("Warning: Failed to sync logger: %v\n", syncErr)
+		}
+	}()
 	sugar := logger.Sugar()
 
 	// 5. Initialize Mock Router Adapter (until ClientFactory is implemented)
@@ -90,11 +94,12 @@ func run() {
 	// 7. Initialize Alert System
 	alertComponents, err := bootstrap.InitializeAlertSystem(ctx, systemDB, eventBus, sugar)
 	if err != nil {
+		//nolint:gocritic // defer cleanup intentional before fatal
 		log.Fatalf("Failed to initialize alert system: %v", err)
 	}
 
-	// 8. Initialize Production Services (Storage, VIF, Orchestrator, Updates, Templates)
-	prodSvcs, err := initProdServices(ctx, systemDB, eventBus, mockRouterPort, storageLogger, dbCfg.DataDir)
+	// 8. Initialize Production Services (Storage, VIF, Orchestrator, Updates, Templates, Core, etc.)
+	prodSvcs, err := initProdServices(ctx, systemDB, eventBus, mockRouterPort, storageLogger, sugar, alertComponents, dbCfg.DataDir)
 	if err != nil {
 		log.Fatalf("Failed to initialize production services: %v", err)
 	}
@@ -110,18 +115,30 @@ func run() {
 	}
 	frontendHandler := server.NewFrontendHandler(fsys)
 
+	// 14. Create Shutdown Coordinator (before defer that might use it)
+	shutdownCoordinator := bootstrap.NewShutdownCoordinator(
+		dbManager,
+		eventBus,
+		alertComponents.AlertEngine,
+		alertComponents.DigestScheduler,
+		prodSvcs.updates.UpdateScheduler,
+		prodSvcs.storage.Detector,
+	)
+
 	// 11. Setup Routes
-	setupProdRoutes(srv.Echo, prodRoutesDeps{
+	setupProdRoutes(srv.Echo, &prodRoutesDeps{
 		eventBus:             eventBus,
 		systemDB:             systemDB,
 		troubleshootSvc:      troubleshootSvc,
 		interfaceSvc:         interfaceSvc,
 		alertSvc:             alertComponents.AlertService,
+		alertTemplateSvc:     alertComponents.AlertTemplateService,
+		templateSvc:          alertComponents.TemplateService,
 		alertRuleTemplateSvc: alertComponents.AlertRuleTemplateService,
 		dispatcher:           alertComponents.Dispatcher,
 		frontendHandler:      frontendHandler,
 		storageDetector:      prodSvcs.storage.Detector,
-		storageConfig:        prodSvcs.storage.ConfigService,
+		storageConfig:        prodSvcs.storage.Service,
 		pathResolver:         prodSvcs.storage.PathResolver,
 		gatewayManager:       prodSvcs.vif.GatewayManager,
 		featureRegistry:      prodSvcs.orchestrator.FeatureRegistry,
@@ -136,6 +153,32 @@ func run() {
 		templateInstaller:    prodSvcs.templates.TemplateInstaller,
 		templateExporter:     prodSvcs.templates.TemplateExporter,
 		templateImporter:     prodSvcs.templates.TemplateImporter,
+		authSvc:              prodSvcs.core.AuthService,
+		scannerSvc:           prodSvcs.core.ScannerService,
+		capabilitySvc:        prodSvcs.core.CapabilityService,
+		routerSvc:            prodSvcs.core.RouterService,
+		credentialSvc:        prodSvcs.integration.CredentialService,
+		diagnosticsSvc:       prodSvcs.diagnostics.DiagnosticsService,
+		tracerouteSvc:        prodSvcs.diagnostics.TracerouteService,
+		dnsSvc:               prodSvcs.diagnostics.DnsService,
+		ipAddressSvc:         prodSvcs.network.IPAddressService,
+		wanSvc:               prodSvcs.network.WANService,
+		bridgeSvc:            prodSvcs.network.BridgeService,
+		vlanSvc:              prodSvcs.network.VlanService,
+		firewallTemplateSvc:  prodSvcs.firewall.TemplateService,
+		addressListSvc:       prodSvcs.firewall.AddressListService,
+		telemetrySvc:         prodSvcs.monitoring.TelemetryService,
+		statsPoller:          prodSvcs.monitoring.StatsPoller,
+		serviceTrafficPoller: prodSvcs.traffic.ServiceTrafficPoller,
+		trafficAggregator:    prodSvcs.traffic.TrafficAggregator,
+		deviceTrafficTracker: prodSvcs.traffic.DeviceTrafficTracker,
+		quotaEnforcer:        prodSvcs.traffic.QuotaEnforcer,
+		scheduleSvc:          prodSvcs.scheduling.ScheduleService,
+		scheduleEvaluator:    prodSvcs.scheduling.ScheduleEvaluator,
+		webhookSvc:           prodSvcs.integration.WebhookService,
+		sharingSvc:           prodSvcs.integration.SharingService,
+		configSvc:            prodSvcs.integration.ConfigService,
+		logger:               sugar,
 	})
 
 	// 12. Boot Sequence for Auto-Start Services
@@ -158,18 +201,9 @@ func run() {
 	log.Printf("Health check: http://localhost:%s/health", cfg.Port)
 	log.Printf("================================")
 
-	// 14. Create Shutdown Coordinator
-	shutdownCoordinator := bootstrap.NewShutdownCoordinator(
-		dbManager,
-		eventBus,
-		alertComponents.AlertEngine,
-		alertComponents.DigestScheduler,
-		prodSvcs.updates.UpdateScheduler,
-		prodSvcs.storage.Detector,
-	)
-
 	// 15. Start Server with Graceful Shutdown
 	srv.Start(func(ctx context.Context) {
+		//nolint:errcheck // best-effort shutdown
 		shutdownCoordinator.Shutdown(ctx)
 	})
 }

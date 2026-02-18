@@ -45,7 +45,7 @@ export function AvailableInterfaces({ interfaces, loading }: AvailableInterfaces
       </p>
       <div className="space-y-2" role="list" aria-label="Available interfaces">
         {interfaces.map((iface) => (
-          <DraggableInterface key={iface.uuid} interface={iface} />
+          <DraggableInterface key={iface.id} interface={iface} />
         ))}
       </div>
     </div>
@@ -58,7 +58,7 @@ interface DraggableInterfaceProps {
 
 function DraggableInterface({ interface: iface }: DraggableInterfaceProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: iface.uuid,
+    id: iface.id,
     data: {
       type: 'interface',
       name: iface.name,

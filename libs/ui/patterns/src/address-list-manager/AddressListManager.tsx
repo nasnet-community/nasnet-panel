@@ -75,4 +75,4 @@ function AddressListManagerComponent(props: AddressListManagerProps) {
 export const AddressListManager = memo(AddressListManagerComponent);
 
 // Set display name for React DevTools
-(AddressListManager as React.FC).displayName = 'AddressListManager';
+(AddressListManager as unknown as { displayName: string }).displayName = 'AddressListManager';

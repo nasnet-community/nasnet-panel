@@ -138,7 +138,7 @@ func TestErrorUnwrap(t *testing.T) {
 	t.Run("errors.As extracts RepositoryError", func(t *testing.T) {
 		err := repository.Duplicate("User", "username", "testuser")
 
-		var repoErr *repository.RepositoryError
+		var repoErr *repository.Error
 		require.True(t, errors.As(err, &repoErr))
 
 		assert.Equal(t, "User", repoErr.Entity)

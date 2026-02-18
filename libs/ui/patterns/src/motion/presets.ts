@@ -10,8 +10,9 @@
  * - Move: ease-in-out (smooth repositioning)
  */
 
-import type { Variants, Transition } from 'framer-motion';
 import { transitions, durations, easings } from '@nasnet/ui/tokens';
+
+import type { Variants, Transition } from 'framer-motion';
 
 // ============================================================================
 // Transition Exports

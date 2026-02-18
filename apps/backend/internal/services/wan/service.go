@@ -12,6 +12,8 @@ import (
 )
 
 // WANService provides WAN interface configuration and monitoring.
+//
+//nolint:revive // used across packages
 type WANService struct {
 	routerPort     router.RouterPort
 	eventBus       events.EventBus
@@ -23,6 +25,8 @@ type WANService struct {
 }
 
 // WANServiceConfig holds configuration for WANService.
+//
+//nolint:revive // used across packages
 type WANServiceConfig struct {
 	RouterPort router.RouterPort
 	EventBus   events.EventBus

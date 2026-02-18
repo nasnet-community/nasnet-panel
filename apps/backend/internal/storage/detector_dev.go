@@ -16,9 +16,9 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 		mp = &MountPoint{
 			Path:      path,
 			IsMounted: true,
-			TotalMB:   512,  // 512 MB
-			FreeMB:    102,  // ~20% free
-			UsedMB:    410,  // ~80% used
+			TotalMB:   512, // 512 MB
+			FreeMB:    102, // ~20% free
+			UsedMB:    410, // ~80% used
 			UsedPct:   80.0,
 			FSType:    "tmpfs",
 		}
@@ -27,9 +27,9 @@ func (d *StorageDetector) probeMountPoint(path string) (*MountPoint, error) {
 		mp = &MountPoint{
 			Path:      path,
 			IsMounted: true,
-			TotalMB:   8192,  // 8 GB
-			FreeMB:    4505,  // ~55% free
-			UsedMB:    3687,  // ~45% used
+			TotalMB:   8192, // 8 GB
+			FreeMB:    4505, // ~55% free
+			UsedMB:    3687, // ~45% used
 			UsedPct:   45.0,
 			FSType:    "vfat",
 		}

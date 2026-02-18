@@ -36,6 +36,7 @@ export function useInterfaceList(routerId: string, type?: InterfaceType) {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [subData, loading, subError, refetch]);
 
   // Extract interfaces from edges

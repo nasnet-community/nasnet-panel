@@ -40,8 +40,8 @@ function getStatusColor(lossPercent: number): string {
  */
 function getBadgeVariant(
   lossPercent: number
-): 'destructive' | 'warning' | 'success' {
-  if (lossPercent >= 50) return 'destructive';
+): 'error' | 'warning' | 'success' {
+  if (lossPercent >= 50) return 'error';
   if (lossPercent > 0) return 'warning';
   return 'success';
 }
@@ -92,7 +92,7 @@ export const PingStatistics = memo(function PingStatistics({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Statistics</h3>
         {lossPercent >= 100 ? (
-          <Badge variant="destructive">Host Unreachable</Badge>
+          <Badge variant="error">Host Unreachable</Badge>
         ) : lossPercent > 0 ? (
           <Badge variant={badgeVariant}>{lossPercent}% Loss</Badge>
         ) : sent > 0 ? (

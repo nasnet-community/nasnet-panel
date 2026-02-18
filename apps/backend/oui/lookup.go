@@ -1,7 +1,7 @@
 package oui
 
 import (
-	_ "embed"
+	_ "embed" // Required for //go:embed directive
 	"strings"
 	"sync"
 )
@@ -11,20 +11,20 @@ import (
 //go:embed oui-database.txt
 var ouiDatabaseRaw string
 
-// OUIDatabase represents the in-memory OUI lookup table
-type OUIDatabase struct {
+// Database represents the in-memory OUI lookup table
+type Database struct {
 	entries map[string]string // MAC prefix -> Vendor name
 	mu      sync.RWMutex
 }
 
 // Global instance
-var db *OUIDatabase
+var db *Database
 var once sync.Once
 
 // GetDatabase returns the singleton OUI database instance
-func GetDatabase() *OUIDatabase {
+func GetDatabase() *Database {
 	once.Do(func() {
-		db = &OUIDatabase{
+		db = &Database{
 			entries: make(map[string]string),
 		}
 		db.load()
@@ -33,7 +33,7 @@ func GetDatabase() *OUIDatabase {
 }
 
 // load parses the embedded OUI database into memory
-func (db *OUIDatabase) load() {
+func (db *Database) load() {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -65,7 +65,7 @@ func (db *OUIDatabase) load() {
 //
 // Accepts formats: AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, or AABBCCDDEEFF
 // Returns vendor name and true if found, empty string and false otherwise
-func (db *OUIDatabase) Lookup(macAddress string) (string, bool) {
+func (db *Database) Lookup(macAddress string) (string, bool) {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
@@ -81,7 +81,7 @@ func (db *OUIDatabase) Lookup(macAddress string) (string, bool) {
 
 // LookupBatch performs batch lookup for multiple MAC addresses
 // Returns a map of MAC address -> vendor name
-func (db *OUIDatabase) LookupBatch(macAddresses []string) map[string]string {
+func (db *Database) LookupBatch(macAddresses []string) map[string]string {
 	results := make(map[string]string)
 
 	for _, mac := range macAddresses {
@@ -94,7 +94,7 @@ func (db *OUIDatabase) LookupBatch(macAddresses []string) map[string]string {
 }
 
 // Size returns the number of OUI entries in the database
-func (db *OUIDatabase) Size() int {
+func (db *Database) Size() int {
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 	return len(db.entries)

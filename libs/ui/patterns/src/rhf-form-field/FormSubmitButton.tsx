@@ -7,8 +7,6 @@
  * @module @nasnet/ui/patterns/rhf-form-field
  */
 
-import * as React from 'react';
-
 import { Loader2 } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 

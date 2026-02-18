@@ -14,10 +14,13 @@
  * - visibleFields computed correctly
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useFilterRuleEditor, validateLogPrefix, validateJumpTarget } from './use-filter-rule-editor';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import type { FilterRule } from '@nasnet/core/types';
+
+import { useFilterRuleEditor, validateLogPrefix, validateJumpTarget } from './use-filter-rule-editor';
+
 
 describe('useFilterRuleEditor', () => {
   describe('Initialization', () => {

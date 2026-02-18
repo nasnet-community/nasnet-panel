@@ -382,9 +382,11 @@ export function FirewallLogsPage() {
   // Use headless hook for log viewer logic
   const viewer = useFirewallLogViewer({
     routerId: routerIp,
-    filters,
-    autoRefresh,
-    refreshInterval: refreshInterval || undefined,
+    initialState: {
+      filters,
+      autoRefresh,
+      refreshInterval: refreshInterval || undefined,
+    } as any,
   });
 
   // ARIA live region ref for accessibility announcements
@@ -475,7 +477,7 @@ export function FirewallLogsPage() {
       autoRefresh={autoRefresh}
       refreshInterval={refreshInterval}
       onToggleRefresh={toggleAutoRefresh}
-      onIntervalChange={setRefreshInterval}
+      onIntervalChange={setRefreshInterval as any}
       onExport={handleExport}
     />
   );

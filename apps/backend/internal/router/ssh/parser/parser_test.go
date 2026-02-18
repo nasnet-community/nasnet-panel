@@ -43,7 +43,7 @@ func TestNewSSHParserService(t *testing.T) {
 	assert.NotNil(t, service)
 
 	strategies := service.GetStrategies()
-	assert.Len(t, strategies, 5) // terse, table, detail, export, keyvalue
+	assert.Len(t, strategies, 5)            // terse, table, detail, export, keyvalue
 	assert.Equal(t, "terse", strategies[0]) // Highest priority first
 }
 
@@ -59,8 +59,8 @@ func TestTerseParser(t *testing.T) {
 		expected int
 	}{
 		{
-			name: "single line",
-			input: `.id=*1;name=vpn-usa;listen-port=51820;running=true`,
+			name:     "single line",
+			input:    `.id=*1;name=vpn-usa;listen-port=51820;running=true`,
 			expected: 1,
 		},
 		{
@@ -70,8 +70,8 @@ func TestTerseParser(t *testing.T) {
 			expected: 2,
 		},
 		{
-			name: "with quotes",
-			input: `.id=*1;name="vpn with spaces";comment="test comment"`,
+			name:     "with quotes",
+			input:    `.id=*1;name="vpn with spaces";comment="test comment"`,
 			expected: 1,
 		},
 	}
@@ -388,9 +388,9 @@ func TestServiceParseResponse(t *testing.T) {
 		strategy string
 	}{
 		{
-			name: "terse format",
-			input: `.id=*1;name=vpn-usa;listen-port=51820`,
-			hints: ParseHints{CommandType: CommandPrintTerse},
+			name:     "terse format",
+			input:    `.id=*1;name=vpn-usa;listen-port=51820`,
+			hints:    ParseHints{CommandType: CommandPrintTerse},
 			expected: 1,
 			strategy: "terse",
 		},

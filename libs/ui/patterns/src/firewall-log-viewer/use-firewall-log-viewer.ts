@@ -12,6 +12,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+
 import { useFirewallLogs, type FirewallLogFilters } from '@nasnet/api-client/queries';
 import type { FirewallLogEntry, InferredAction } from '@nasnet/core/types';
 import { exportLogsToCSV } from '@nasnet/core-utils';
@@ -120,6 +121,9 @@ export interface UseFirewallLogViewerReturn {
   // Virtualization support
   totalCount: number;
   visibleCount: number;
+
+  /** Number of active filters */
+  activeFilterCount: number;
 }
 
 // ============================================================================
@@ -130,7 +134,7 @@ export interface UseFirewallLogViewerReturn {
  * Default viewer state
  */
 const DEFAULT_STATE: FirewallLogViewerState = {
-  filters: {},
+  filters: {} as FirewallLogFilters,
   isAutoRefreshEnabled: true,
   refreshInterval: 5000,
   selectedLog: null,
@@ -259,7 +263,7 @@ export function useFirewallLogViewer(
 
   // Debounced search query
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(state.searchQuery);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Debounce search query updates
   useEffect(() => {
@@ -280,7 +284,7 @@ export function useFirewallLogViewer(
 
   // Debounced text filters
   const [debouncedFilters, setDebouncedFilters] = useState(state.filters);
-  const filtersTimeoutRef = useRef<NodeJS.Timeout>();
+  const filtersTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Debounce filter updates (for IP/port inputs)
   useEffect(() => {
@@ -394,6 +398,19 @@ export function useFirewallLogViewer(
     exportLogsToCSV(processedLogs, routerId);
   }, [processedLogs, routerId]);
 
+  // Count active filters
+  const activeFilterCount = useMemo(() => {
+    const filters = state.filters;
+    let count = 0;
+    if (filters.action) count++;
+    if (filters.chain) count++;
+    if (filters.srcIp) count++;
+    if (filters.dstIp) count++;
+    if (filters.port) count++;
+    if (filters.prefix) count++;
+    return count;
+  }, [state.filters]);
+
   return {
     state,
     logs: processedLogs,
@@ -412,5 +429,6 @@ export function useFirewallLogViewer(
     exportToCSV,
     totalCount: rawLogs.length,
     visibleCount: processedLogs.length,
+    activeFilterCount,
   };
 }

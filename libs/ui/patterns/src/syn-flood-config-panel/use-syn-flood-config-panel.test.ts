@@ -7,8 +7,9 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { useSynFloodConfigPanel } from './use-syn-flood-config-panel';
 import {
   mockSynFloodDrop,

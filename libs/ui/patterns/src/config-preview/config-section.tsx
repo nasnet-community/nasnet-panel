@@ -8,13 +8,15 @@
  */
 
 import * as React from 'react';
+
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 import { cn, Button } from '@nasnet/ui/primitives';
 
-import type { ConfigSectionComponentProps } from './config-preview.types';
 import { SyntaxHighlight } from './syntax-highlight';
+
+import type { ConfigSectionComponentProps } from './config-preview.types';
 
 /**
  * Get display name for section header

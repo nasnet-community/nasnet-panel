@@ -6,7 +6,7 @@
  * @module @nasnet/core/forms/error-messages
  */
 
-import { z, type ZodErrorMap, ZodIssueCode, type ZodIssue } from 'zod';
+import { z, type ZodErrorMap, ZodIssueCode } from 'zod';
 
 /**
  * Translation function type.
@@ -85,7 +85,7 @@ function defaultTranslate(
 export function createZodErrorMap(
   t: TranslateFunction = defaultTranslate
 ): ZodErrorMap {
-  return (issue: ZodIssue, ctx) => {
+  return (issue, ctx) => {
     let message: string;
 
     switch (issue.code) {
@@ -102,12 +102,12 @@ export function createZodErrorMap(
           if (issue.minimum === 1) {
             message = t('validation.required');
           } else {
-            message = t('validation.string.min', { min: issue.minimum });
+            message = t('validation.string.min', { min: Number(issue.minimum) });
           }
         } else if (issue.type === 'number') {
-          message = t('validation.number.min', { min: issue.minimum });
+          message = t('validation.number.min', { min: Number(issue.minimum) });
         } else if (issue.type === 'array') {
-          message = t('validation.array.min', { min: issue.minimum });
+          message = t('validation.array.min', { min: Number(issue.minimum) });
         } else {
           message = ctx.defaultError;
         }
@@ -115,11 +115,11 @@ export function createZodErrorMap(
 
       case ZodIssueCode.too_big:
         if (issue.type === 'string') {
-          message = t('validation.string.max', { max: issue.maximum });
+          message = t('validation.string.max', { max: Number(issue.maximum) });
         } else if (issue.type === 'number') {
-          message = t('validation.number.max', { max: issue.maximum });
+          message = t('validation.number.max', { max: Number(issue.maximum) });
         } else if (issue.type === 'array') {
-          message = t('validation.array.max', { max: issue.maximum });
+          message = t('validation.array.max', { max: Number(issue.maximum) });
         } else {
           message = ctx.defaultError;
         }

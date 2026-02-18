@@ -104,6 +104,7 @@ export type {
 // Subscription Hooks
 export {
   useInstallProgress,
+  useInstallProgress as useInstallProgressSubscription, // Alias for backward compatibility
   useInstanceStatusChanged,
   useInstanceMonitoring,
 } from './useInstanceSubscriptions';
@@ -131,13 +132,10 @@ export type { BridgeStatus } from './useBridgeStatus';
 // Isolation Status Hooks (NAS-8.4)
 export {
   useInstanceIsolation,
-  useSetResourceLimits,
 } from './useInstanceIsolation';
 export type {
   GetInstanceIsolationVariables,
   GetInstanceIsolationResult,
-  SetResourceLimitsVariables,
-  SetResourceLimitsResult,
 } from './useInstanceIsolation';
 
 // Gateway Status Hooks (NAS-8.14)
@@ -280,7 +278,7 @@ export type {
 } from './useSchedules';
 
 // Query Keys (for manual cache invalidation)
-export { serviceKeys } from './queryKeys';
+export { serviceQueryKeys, serviceQueryKeys as serviceKeys } from './queryKeys';
 
 // GraphQL Documents (for advanced usage)
 export {
@@ -314,9 +312,8 @@ export {
 export {
   GET_FEATURE_VERIFICATION,
   GET_INSTANCE_VERIFICATION_STATUS,
-  REVERIFY_INSTANCE,
 } from './useFeatureVerification';
-export { REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './useReverifyFeature';
+export { REVERIFY_INSTANCE, REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './useReverifyFeature';
 
 export {
   GET_VIRTUAL_INTERFACES,
@@ -326,7 +323,6 @@ export { GET_BRIDGE_STATUS } from './useBridgeStatus';
 
 export {
   GET_INSTANCE_ISOLATION,
-  SET_RESOURCE_LIMITS,
 } from './useInstanceIsolation';
 
 export {

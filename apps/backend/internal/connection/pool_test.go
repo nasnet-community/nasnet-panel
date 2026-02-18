@@ -28,8 +28,8 @@ func TestProtocol_String(t *testing.T) {
 	}
 }
 
-func TestDefaultConnectionConfig(t *testing.T) {
-	config := DefaultConnectionConfig()
+func TestDefaultConfig(t *testing.T) {
+	config := DefaultConfig()
 
 	assert.Equal(t, 8728, config.Port)
 	assert.Equal(t, 30*time.Second, config.ConnectionTimeout)
@@ -37,7 +37,7 @@ func TestDefaultConnectionConfig(t *testing.T) {
 }
 
 func TestNewConnection(t *testing.T) {
-	config := ConnectionConfig{
+	config := Config{
 		Host:     "192.168.88.1",
 		Port:     8728,
 		Username: "admin",
@@ -57,7 +57,7 @@ func TestNewConnection(t *testing.T) {
 }
 
 func TestConnection_GetStatus(t *testing.T) {
-	config := ConnectionConfig{
+	config := Config{
 		Host:     "192.168.88.1",
 		Port:     8728,
 		Username: "admin",
@@ -75,7 +75,7 @@ func TestConnection_GetStatus(t *testing.T) {
 }
 
 func TestConnection_SetPreferredProtocol(t *testing.T) {
-	config := ConnectionConfig{
+	config := Config{
 		Host:     "192.168.88.1",
 		Port:     8728,
 		Username: "admin",
@@ -89,7 +89,7 @@ func TestConnection_SetPreferredProtocol(t *testing.T) {
 }
 
 func TestConnection_ManualDisconnect(t *testing.T) {
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+	conn := NewConnection("router-1", Config{}, nil)
 
 	assert.False(t, conn.IsManuallyDisconnected())
 
@@ -101,7 +101,7 @@ func TestConnection_ManualDisconnect(t *testing.T) {
 }
 
 func TestConnection_CanAttemptReconnect(t *testing.T) {
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+	conn := NewConnection("router-1", Config{}, nil)
 
 	// First attempt should be allowed
 	canAttempt, waitTime := conn.CanAttemptReconnect()
@@ -118,25 +118,25 @@ func TestConnection_CanAttemptReconnect(t *testing.T) {
 }
 
 func TestConnection_UpdateStatus(t *testing.T) {
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+	conn := NewConnection("router-1", Config{}, nil)
 
-	conn.UpdateStatus(func(status *ConnectionStatus) {
+	conn.UpdateStatus(func(status *Status) {
 		_ = status.SetConnecting()
 	})
 
 	assert.Equal(t, StateConnecting, conn.Status.State)
 }
 
-func TestConnectionPool_NewConnectionPool(t *testing.T) {
-	pool := NewConnectionPool()
+func TestPool_NewPool(t *testing.T) {
+	pool := NewPool()
 
 	assert.NotNil(t, pool)
 	assert.Zero(t, pool.Count())
 }
 
-func TestConnectionPool_Add(t *testing.T) {
-	pool := NewConnectionPool()
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+func TestPool_Add(t *testing.T) {
+	pool := NewPool()
+	conn := NewConnection("router-1", Config{}, nil)
 
 	pool.Add(conn)
 
@@ -144,9 +144,9 @@ func TestConnectionPool_Add(t *testing.T) {
 	assert.Equal(t, conn, pool.Get("router-1"))
 }
 
-func TestConnectionPool_Get(t *testing.T) {
-	pool := NewConnectionPool()
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+func TestPool_Get(t *testing.T) {
+	pool := NewPool()
+	conn := NewConnection("router-1", Config{}, nil)
 	pool.Add(conn)
 
 	// Existing connection
@@ -158,9 +158,9 @@ func TestConnectionPool_Get(t *testing.T) {
 	assert.Nil(t, notFound)
 }
 
-func TestConnectionPool_GetOrCreate(t *testing.T) {
-	pool := NewConnectionPool()
-	config := ConnectionConfig{
+func TestPool_GetOrCreate(t *testing.T) {
+	pool := NewPool()
+	config := Config{
 		Host:     "192.168.88.1",
 		Port:     8728,
 		Username: "admin",
@@ -180,9 +180,9 @@ func TestConnectionPool_GetOrCreate(t *testing.T) {
 	assert.Equal(t, 1, pool.Count())
 }
 
-func TestConnectionPool_Remove(t *testing.T) {
-	pool := NewConnectionPool()
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+func TestPool_Remove(t *testing.T) {
+	pool := NewPool()
+	conn := NewConnection("router-1", Config{}, nil)
 	pool.Add(conn)
 
 	removed := pool.Remove("router-1")
@@ -196,11 +196,11 @@ func TestConnectionPool_Remove(t *testing.T) {
 	assert.Nil(t, notFound)
 }
 
-func TestConnectionPool_GetAll(t *testing.T) {
-	pool := NewConnectionPool()
-	conn1 := NewConnection("router-1", ConnectionConfig{}, nil)
-	conn2 := NewConnection("router-2", ConnectionConfig{}, nil)
-	conn3 := NewConnection("router-3", ConnectionConfig{}, nil)
+func TestPool_GetAll(t *testing.T) {
+	pool := NewPool()
+	conn1 := NewConnection("router-1", Config{}, nil)
+	conn2 := NewConnection("router-2", Config{}, nil)
+	conn3 := NewConnection("router-3", Config{}, nil)
 
 	pool.Add(conn1)
 	pool.Add(conn2)
@@ -211,20 +211,20 @@ func TestConnectionPool_GetAll(t *testing.T) {
 	assert.Len(t, all, 3)
 }
 
-func TestConnectionPool_CountByState(t *testing.T) {
-	pool := NewConnectionPool()
+func TestPool_CountByState(t *testing.T) {
+	pool := NewPool()
 
-	conn1 := NewConnection("router-1", ConnectionConfig{}, nil)
-	conn2 := NewConnection("router-2", ConnectionConfig{}, nil)
-	conn3 := NewConnection("router-3", ConnectionConfig{}, nil)
+	conn1 := NewConnection("router-1", Config{}, nil)
+	conn2 := NewConnection("router-2", Config{}, nil)
+	conn3 := NewConnection("router-3", Config{}, nil)
 
 	// Set different states
-	conn2.UpdateStatus(func(status *ConnectionStatus) {
+	conn2.UpdateStatus(func(status *Status) {
 		_ = status.SetConnecting()
 		_ = status.SetConnected("API", "7.12")
 	})
 
-	conn3.UpdateStatus(func(status *ConnectionStatus) {
+	conn3.UpdateStatus(func(status *Status) {
 		_ = status.SetConnecting()
 	})
 
@@ -238,11 +238,11 @@ func TestConnectionPool_CountByState(t *testing.T) {
 	assert.Equal(t, 0, pool.CountByState(StateError))
 }
 
-func TestConnectionPool_CloseAll(t *testing.T) {
-	pool := NewConnectionPool()
+func TestPool_CloseAll(t *testing.T) {
+	pool := NewPool()
 
-	conn1 := NewConnection("router-1", ConnectionConfig{}, nil)
-	conn2 := NewConnection("router-2", ConnectionConfig{}, nil)
+	conn1 := NewConnection("router-1", Config{}, nil)
+	conn2 := NewConnection("router-2", Config{}, nil)
 
 	pool.Add(conn1)
 	pool.Add(conn2)
@@ -301,7 +301,7 @@ func TestTransitionError(t *testing.T) {
 }
 
 func TestConnection_CancelFunctions(t *testing.T) {
-	conn := NewConnection("router-1", ConnectionConfig{}, nil)
+	conn := NewConnection("router-1", Config{}, nil)
 
 	// Test reconnect cancel
 	ctx1, cancel1 := context.WithCancel(context.Background())
@@ -340,7 +340,7 @@ func TestConnection_CircuitBreakerRateLimiting(t *testing.T) {
 	}
 	cb := NewCircuitBreaker("router-1", cbConfig)
 
-	conn := NewConnection("router-1", ConnectionConfig{}, cb)
+	conn := NewConnection("router-1", Config{}, cb)
 
 	// Trip the circuit breaker
 	for i := 0; i < 2; i++ {

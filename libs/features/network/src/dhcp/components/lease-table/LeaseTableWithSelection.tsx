@@ -304,8 +304,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                 {/* Select All checkbox */}
                 <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={allSelected}
-                    indeterminate={someSelected}
+                    checked={someSelected ? 'indeterminate' : allSelected}
                     onCheckedChange={handleSelectAll}
                     aria-label="Select all leases"
                   />

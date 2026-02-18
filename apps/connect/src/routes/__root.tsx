@@ -1,6 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { Toaster } from '@nasnet/ui/primitives';
+
+import { useAlertNotifications } from '@nasnet/features/alerts';
 import { AppShell } from '@nasnet/ui/layouts';
 import {
   CommandPalette,
@@ -9,12 +10,14 @@ import {
   SearchFAB,
   ConnectionBanner,
 } from '@nasnet/ui/patterns';
-import { Providers } from '../app/providers';
+import { Toaster } from '@nasnet/ui/primitives';
+
 import { AppHeader } from '../app/components/AppHeader';
-import { useConnectionToast } from '../app/hooks/useConnectionToast';
 import { useConnectionHeartbeat } from '../app/hooks/useConnectionHeartbeat';
+import { useConnectionToast } from '../app/hooks/useConnectionToast';
 import { useDefaultCommands } from '../app/hooks/useDefaultCommands';
-import { useAlertNotifications } from '@nasnet/features/alerts';
+import { Providers } from '../app/providers';
+
 
 function RootComponent() {
   // Enable connection toast notifications

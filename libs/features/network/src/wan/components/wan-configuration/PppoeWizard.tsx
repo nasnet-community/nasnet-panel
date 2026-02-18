@@ -98,7 +98,7 @@ export function PppoeWizard({
   // Initialize stepper
   const stepper = useStepper({
     steps,
-    initialStep: 'interface',
+    initialStep: 0,
   });
 
   /**
@@ -108,21 +108,21 @@ export function PppoeWizard({
   const handleSubmit = async () => {
     try {
       // Collect all data from stepper
-      const interfaceData = stepper.getStepData('interface');
-      const credentialsData = stepper.getStepData('credentials');
-      const optionsData = stepper.getStepData('options');
+      const interfaceData = stepper.getStepData('interface') as Record<string, any> || {};
+      const credentialsData = stepper.getStepData('credentials') as Record<string, any> || {};
+      const optionsData = stepper.getStepData('options') as Record<string, any> || {};
 
       const formData: PppoeClientFormValues = {
-        name: interfaceData?.name || '',
-        interface: interfaceData?.interface || '',
-        username: credentialsData?.username || '',
-        password: credentialsData?.password || '', // NEVER LOG THIS
-        serviceName: credentialsData?.serviceName,
-        mtu: optionsData?.mtu,
-        mru: optionsData?.mru,
-        addDefaultRoute: optionsData?.addDefaultRoute ?? true,
-        usePeerDNS: optionsData?.usePeerDNS ?? true,
-        comment: optionsData?.comment,
+        name: interfaceData.name || '',
+        interface: interfaceData.interface || '',
+        username: credentialsData.username || '',
+        password: credentialsData.password || '', // NEVER LOG THIS
+        serviceName: credentialsData.serviceName,
+        mtu: optionsData.mtu,
+        mru: optionsData.mru,
+        addDefaultRoute: optionsData.addDefaultRoute ?? true,
+        usePeerDNS: optionsData.usePeerDNS ?? true,
+        comment: optionsData.comment,
       };
 
       // Execute mutation
@@ -161,9 +161,7 @@ export function PppoeWizard({
     <div className="space-y-6">
       {/* Wizard Progress Indicator */}
       <VStepper
-        steps={steps}
-        currentStepId={stepper.currentStep?.id || 'interface'}
-        completedStepIds={stepper.completedSteps.map((s) => s.id)}
+        stepper={stepper}
       />
 
       {/* Step Content */}
@@ -204,10 +202,10 @@ export function PppoeWizard({
       {/* Navigation Buttons */}
       <div className="flex justify-between items-center pt-6 border-t">
         <div>
-          {stepper.currentStepIndex > 0 && !configurationResult && (
+          {stepper.currentIndex > 0 && !configurationResult && (
             <Button
               variant="outline"
-              onClick={stepper.goToPreviousStep}
+              onClick={stepper.prev}
               disabled={loading}
             >
               Back
@@ -222,8 +220,8 @@ export function PppoeWizard({
 
           {stepper.currentStep?.id !== 'confirm' && (
             <Button
-              onClick={stepper.goToNextStep}
-              disabled={!stepper.canGoToNextStep() || loading}
+              onClick={stepper.next}
+              disabled={!stepper.canProceed || loading}
             >
               Next
             </Button>

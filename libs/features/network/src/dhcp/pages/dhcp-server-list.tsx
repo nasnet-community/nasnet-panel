@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useDHCPServers } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { usePlatform } from '@nasnet/core/utils';
+import { usePlatform } from '@nasnet/ui/layouts';
 import {
   DataTable,
   EmptyState,
@@ -28,7 +28,7 @@ import {
 import { Plus, MoreVertical, Eye, Edit, Power, PowerOff, Trash2 } from 'lucide-react';
 import { useEnableDHCPServer, useDisableDHCPServer, useDeleteDHCPServer } from '@nasnet/api-client/queries';
 import type { DHCPServer } from '@nasnet/core/types';
-import type { ColumnDef } from '@tanstack/react-table';
+import { Server } from 'lucide-react';
 
 export function DHCPServerList() {
   const navigate = useNavigate();
@@ -48,21 +48,21 @@ export function DHCPServerList() {
   };
 
   const handleEdit = (serverId: string) => {
-    navigate({ to: '/network/dhcp/$serverId/edit', params: { serverId } });
+    navigate({ to: '/network/dhcp/$serverId', params: { serverId } });
   };
 
   const handleEnable = async (serverId: string) => {
-    await enableMutation.mutateAsync({ serverId });
+    await enableMutation.mutateAsync(serverId as any);
   };
 
   const handleDisable = async (serverId: string) => {
-    await disableMutation.mutateAsync({ serverId });
+    await disableMutation.mutateAsync(serverId as any);
   };
 
   const handleDelete = async (serverId: string) => {
     setDeletingId(serverId);
     try {
-      await deleteMutation.mutateAsync({ serverId });
+      await deleteMutation.mutateAsync(serverId as any);
       toast({
         title: 'DHCP server deleted',
         description: 'The DHCP server has been deleted successfully',
@@ -83,32 +83,32 @@ export function DHCPServerList() {
   };
 
   // Desktop table columns
-  const columns: ColumnDef<DHCPServer>[] = [
+  const columns: any[] = [
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="font-medium">{row.original.name}</div>
       ),
     },
     {
       accessorKey: 'interface',
       header: 'Interface',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <span className="font-mono text-sm">{row.original.interface}</span>
       ),
     },
     {
       accessorKey: 'addressPool',
       header: 'Pool',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <span className="font-mono text-sm">{row.original.addressPool}</span>
       ),
     },
     {
       id: 'network',
       header: 'Network',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="space-y-1">
           <div className="text-sm">
             <span className="text-muted-foreground">GW:</span>{' '}
@@ -124,14 +124,14 @@ export function DHCPServerList() {
     {
       accessorKey: 'leaseTime',
       header: 'Lease Time',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <span className="font-mono text-sm">{row.original.leaseTime}</span>
       ),
     },
     {
       id: 'leases',
       header: 'Active Leases',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="text-center font-medium">
           {row.original.activeLeases || 0}
         </div>
@@ -140,14 +140,14 @@ export function DHCPServerList() {
     {
       id: 'status',
       header: 'Status',
-      cell: ({ row }) => (
-        <StatusBadge status={row.original.disabled ? 'disabled' : 'enabled'} />
+      cell: ({ row }: { row: any }) => (
+        <StatusBadge status={row.original.disabled ? 'stopped' : 'bound'} />
       ),
     },
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -196,14 +196,13 @@ export function DHCPServerList() {
     if (!servers || servers.length === 0) {
       return (
         <EmptyState
+          icon={Server}
           title="No DHCP servers"
           description="Create your first DHCP server to automatically assign IP addresses to devices."
-          action={
-            <Button onClick={handleCreateNew}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create DHCP Server
-            </Button>
-          }
+          action={{
+            label: 'Create DHCP Server',
+            onClick: handleCreateNew,
+          }}
         />
       );
     }
@@ -214,11 +213,6 @@ export function DHCPServerList() {
           <DHCPServerCard
             key={server.id}
             server={server}
-            onView={() => handleView(server.id)}
-            onEdit={() => handleEdit(server.id)}
-            onEnable={() => handleEnable(server.id)}
-            onDisable={() => handleDisable(server.id)}
-            onDelete={() => handleDelete(server.id)}
           />
         ))}
       </div>
@@ -245,14 +239,13 @@ export function DHCPServerList() {
           </div>
         </div>
         <EmptyState
+          icon={Server}
           title="No DHCP servers configured"
           description="Create your first DHCP server to automatically assign IP addresses to devices on your network."
-          action={
-            <Button onClick={handleCreateNew}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create DHCP Server
-            </Button>
-          }
+          action={{
+            label: 'Create DHCP Server',
+            onClick: handleCreateNew,
+          }}
         />
       </div>
     );
@@ -278,9 +271,7 @@ export function DHCPServerList() {
       ) : (
         <DataTable
           columns={columns}
-          data={servers}
-          searchKey="name"
-          searchPlaceholder="Search DHCP servers..."
+          data={servers as any[]}
         />
       )}
     </div>

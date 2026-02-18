@@ -8,9 +8,9 @@
  */
 
 import { useEffect, useState } from 'react';
+
 import { toast } from 'sonner';
 
-import { Button } from '@nasnet/ui/primitives';
 import {
   useNotificationStore,
   showSuccess,
@@ -18,6 +18,7 @@ import {
   showWarning,
   showInfo,
 } from '@nasnet/state/stores';
+import { Button } from '@nasnet/ui/primitives';
 
 import { ToastProvider } from './ToastProvider';
 import { useToast } from '../hooks/useToast';

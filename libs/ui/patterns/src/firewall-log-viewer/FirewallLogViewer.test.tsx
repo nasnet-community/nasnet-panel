@@ -7,12 +7,16 @@
  * @module @nasnet/ui/patterns/firewall-log-viewer
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { axe, toHaveNoViolations } from 'vitest-axe/matchers';
-import { FirewallLogViewer } from './FirewallLogViewer';
+
 import type { FirewallLogEntry } from '@nasnet/core/types';
+import { usePlatform } from '@nasnet/ui/layouts';
+
+import { FirewallLogViewer } from './FirewallLogViewer';
+import { useFirewallLogViewer } from './use-firewall-log-viewer';
 
 // Extend matchers
 expect.extend(toHaveNoViolations);
@@ -53,10 +57,6 @@ vi.mock('../firewall-log-stats', () => ({
 vi.mock('./use-firewall-log-viewer', () => ({
   useFirewallLogViewer: vi.fn(),
 }));
-
-// Import mocked module
-import { usePlatform } from '@nasnet/ui/layouts';
-import { useFirewallLogViewer } from './use-firewall-log-viewer';
 
 describe('FirewallLogViewer', () => {
   // Sample test data

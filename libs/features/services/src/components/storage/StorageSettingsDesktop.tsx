@@ -136,7 +136,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
               <Badge
                 variant={
                   isStorageDisconnected
-                    ? 'destructive'
+                    ? 'error'
                     : isStorageConfigured
                     ? 'default'
                     : 'secondary'
@@ -170,7 +170,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
                 <Label htmlFor="storage-enabled-desktop">
                   Enable External Storage
                 </Label>
-                <Tooltip content="Store service binaries on external storage instead of flash">
+                <Tooltip {...{ content: "Store service binaries on external storage instead of flash" } as any}>
                   <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                 </Tooltip>
               </div>

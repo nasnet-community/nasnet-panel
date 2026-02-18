@@ -87,9 +87,21 @@ export type {
 export { StatusIndicator, statusIndicatorVariants } from './status-indicator';
 export type { StatusIndicatorProps } from './status-indicator';
 
+// StatusDot - Simple visual status indicator dot
+export { StatusDot } from './status-dot';
+export type { StatusDotProps } from './status-dot';
+
 // DataTable - Generic data table with column configuration
 export { DataTable } from './data-table';
 export type { DataTableColumn, DataTableProps } from './data-table';
+
+// DataTableToolbar - Toolbar container for DataTable filtering and actions
+export { DataTableToolbar } from './data-table-toolbar';
+export type { DataTableToolbarProps } from './data-table-toolbar';
+
+// PageHeader - Page-level header with title and optional actions
+export { PageHeader } from './page-header';
+export type { PageHeaderProps } from './page-header';
 
 // SystemInfoCard - Router system information display
 export { SystemInfoCard } from './system-info-card';
@@ -609,7 +621,75 @@ export * from './history-panel';
 
 // SortableList - Drag and drop reorderable lists
 // Note: Also available via '@nasnet/ui/patterns/sortable' for tree-shaking
-export * from './sortable';
+// Using explicit exports to avoid conflicts with ./motion (DragHandle, DragHandleProps)
+export {
+  SortableList,
+  SortableItem as SortableListItem,
+  SortableItemWithActions,
+  DragHandle as SortableDragHandle,
+  DropZoneIndicator,
+  InsertionLine,
+  SortableListMobile,
+  SortableListDesktop,
+  SortableListDesktop as SortableListWithActions,
+  useSortableList,
+  useMultiSelect,
+  defaultAnnouncements,
+  createAnnouncements,
+  toDndKitAnnouncements,
+  multiSelectAnnouncements,
+  keyboardAnnouncements,
+  SortableContext,
+  useSortableContext,
+  useSortableContextOptional,
+  useSortableSensors,
+  defaultMouseSensorOptions,
+  defaultTouchSensorOptions,
+  defaultKeyboardSensorOptions,
+  collisionStrategies,
+  getCollisionDetection,
+  getSortingStrategy,
+  ANIMATION_DURATION as SORTABLE_ANIMATION_DURATION,
+  dragOverlayAnimation,
+  layoutTransition,
+  MIN_TOUCH_TARGET,
+  autoScrollConfig,
+  keyboardBindings,
+  SORTABLE_LIST_ROLE,
+  SORTABLE_ITEM_ROLE,
+  errorMessages,
+  FirewallRuleList,
+} from './sortable';
+export type {
+  SortableItemData,
+  SortableItem,
+  SortableDirection,
+  CollisionStrategy,
+  DropValidationResult,
+  ValidateDropFn,
+  ReorderEvent,
+  MultiReorderEvent,
+  UseSortableListOptions,
+  UseSortableListReturn,
+  SortableListProps,
+  SortableItemRenderOptions,
+  SortableItemProps,
+  DragHandleProps as SortableDragHandleProps,
+  DropZoneIndicatorProps,
+  SortableContextValue,
+  SortableAnnouncements,
+  SortableItemWithActionsProps,
+  InsertionLineProps,
+  SortableListMobileProps,
+  SortableListDesktopProps,
+  ContextMenuActions,
+  UseMultiSelectOptions,
+  UseMultiSelectReturn,
+  AnnouncementData,
+  CreateAnnouncementsOptions,
+  FirewallRule as SortableFirewallRule,
+  FirewallRuleListProps,
+} from './sortable';
 
 // ============================================================================
 // Clipboard Integration (NAS-4.23)
@@ -868,7 +948,7 @@ export type {
   UseRouterStatusReturn,
   UseRouterStatusConfig,
   RouterStatusPresenterProps,
-  StatusIndicatorProps,
+  StatusIndicatorProps as RouterStatusIndicatorProps,
   StatusIndicatorSize,
   RouterStatusEvent,
   SubscriptionRouter,
@@ -916,7 +996,7 @@ export type {
   TopologyNode,
   TopologyConnection,
   ConnectionPathData,
-  TooltipContent as TopologyTooltipContent,
+  TooltipContent as TopologyTooltipContentType,
   LayoutConfig,
   NodePosition,
   ContainerDimensions,
@@ -948,8 +1028,8 @@ export type {
   AddressListEntry,
   FirewallRule,
   SortConfig,
-  SortField,
-  SortDirection,
+  SortField as AddressListSortField,
+  SortDirection as AddressListSortDirection,
   UseAddressListManagerStateReturn,
 } from './address-list-manager';
 
@@ -1204,7 +1284,7 @@ export type {
   ConnectionSort,
   ConnectionSortField,
   ConnectionState,
-  SortDirection,
+  SortDirection as ConnectionSortDirection,
 } from './connection-list';
 
 // ConnectionTrackingSettings - Connection tracking configuration
@@ -1218,7 +1298,6 @@ export {
   isValidDuration,
   getDurationOrDefault,
   parseOrDefault,
-  DEFAULT_TIMEOUTS,
   DEFAULT_SETTINGS,
 } from './connection-tracking-settings';
 export type {
@@ -1227,7 +1306,6 @@ export type {
   UseConnectionTrackingSettingsReturn,
   ConnectionTrackingSchema,
   ConnectionTrackingSettingsType,
-  ConnectionTrackingTimeouts,
   ConnectionTrackingFormValues,
 } from './connection-tracking-settings';
 
@@ -1248,7 +1326,7 @@ export type {
   UseFirewallLogViewerOptions,
   UseFirewallLogViewerReturn,
   FirewallLogViewerState,
-  SortField,
+  SortField as FirewallLogSortField,
   SortOrder,
   RefreshInterval,
 } from './firewall-log-viewer';

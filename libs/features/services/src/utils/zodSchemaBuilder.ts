@@ -45,7 +45,7 @@ export function buildZodSchema(configSchema: ConfigSchema): z.ZodObject<any> {
  * Builds a Zod schema for a single configuration field
  */
 function buildFieldSchema(field: ConfigSchemaField): z.ZodTypeAny {
-  switch (field.type) {
+  switch (field.type as string) {
     case 'TEXT':
       return buildTextSchema(field);
 
@@ -76,13 +76,13 @@ function buildFieldSchema(field: ConfigSchemaField): z.ZodTypeAny {
     case 'TEXT_ARRAY':
       return buildTextArraySchema(field);
 
-    case 'IP_ADDRESS':
+    case 'IP':
       return buildIpAddressSchema(field);
 
     case 'PORT':
       return buildPortSchema(field);
 
-    case 'FILE_PATH':
+    case 'PATH':
       return buildFilePathSchema(field);
 
     default:
@@ -96,10 +96,11 @@ function buildFieldSchema(field: ConfigSchemaField): z.ZodTypeAny {
  */
 function buildTextSchema(field: ConfigSchemaField): z.ZodString {
   let schema = z.string();
+  const pattern = (field as any).pattern as string | undefined;
 
-  if (field.pattern) {
+  if (pattern) {
     schema = schema.regex(
-      new RegExp(field.pattern),
+      new RegExp(pattern),
       field.description
         ? `${field.description} (invalid format)`
         : 'Invalid format'
@@ -128,6 +129,7 @@ function buildTextSchema(field: ConfigSchemaField): z.ZodString {
  */
 function buildPasswordSchema(field: ConfigSchemaField): z.ZodString {
   let schema = z.string();
+  const pattern = (field as any).pattern as string | undefined;
 
   const minLength = (field.min as number) || 8;
   schema = schema.min(minLength, `Password must be at least ${minLength} characters`);
@@ -139,9 +141,9 @@ function buildPasswordSchema(field: ConfigSchemaField): z.ZodString {
     );
   }
 
-  if (field.pattern) {
+  if (pattern) {
     schema = schema.regex(
-      new RegExp(field.pattern),
+      new RegExp(pattern),
       'Password does not meet complexity requirements'
     );
   }
@@ -239,10 +241,11 @@ function buildMultiSelectSchema(field: ConfigSchemaField): z.ZodArray<any> {
  */
 function buildTextArraySchema(field: ConfigSchemaField): z.ZodArray<any> {
   let itemSchema = z.string();
+  const pattern = (field as any).pattern as string | undefined;
 
-  if (field.pattern) {
+  if (pattern) {
     itemSchema = itemSchema.regex(
-      new RegExp(field.pattern),
+      new RegExp(pattern),
       'Invalid format for array item'
     );
   }
@@ -287,9 +290,10 @@ function buildPortSchema(field: ConfigSchemaField): z.ZodNumber {
  */
 function buildFilePathSchema(field: ConfigSchemaField): z.ZodString {
   let schema = z.string();
+  const pattern = (field as any).pattern as string | undefined;
 
-  if (field.pattern) {
-    schema = schema.regex(new RegExp(field.pattern), 'Invalid file path format');
+  if (pattern) {
+    schema = schema.regex(new RegExp(pattern), 'Invalid file path format');
   }
 
   return schema;

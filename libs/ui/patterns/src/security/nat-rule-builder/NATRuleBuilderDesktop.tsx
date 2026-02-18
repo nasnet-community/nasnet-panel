@@ -8,7 +8,7 @@
  */
 
 import { memo, useMemo, useState } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Shield,
@@ -20,7 +20,13 @@ import {
   ArrowRight,
   Globe,
 } from 'lucide-react';
+import { Controller } from 'react-hook-form';
 
+import {
+  NatChainSchema,
+  NatActionSchema,
+  ProtocolSchema,
+} from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -28,8 +34,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -41,18 +46,14 @@ import {
   Switch,
   Badge,
   Separator,
-  Label,
-} from '@nasnet/ui/primitives';
-import { ConfirmationDialog } from '@nasnet/ui/patterns/confirmation-dialog';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
-
-import {
-  NatChainSchema,
-  NatActionSchema,
-  ProtocolSchema,
-} from '@nasnet/core/types/firewall';
+  Label} from '@nasnet/ui/primitives';
 
 import { useNATRuleBuilder } from './use-nat-rule-builder';
+import { ConfirmationDialog } from '../../confirmation-dialog';
+import { RHFFormField } from '../../rhf-form-field';
+
+
+
 import type { NATRuleBuilderProps } from './nat-rule-builder.types';
 
 /**
@@ -98,7 +99,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
     if (action === 'masquerade') return 'success';
     if (action === 'dst-nat' || action === 'src-nat') return 'info';
-    if (action === 'drop') return 'destructive';
+    if (action === 'drop') return 'error';
     if (action === 'redirect') return 'warning';
 
     return 'default';
@@ -173,7 +174,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                           <SelectValue placeholder="Select chain" />
                         </SelectTrigger>
                         <SelectContent>
-                          {NatChainSchema.options.map((chain) => (
+                          {NatChainSchema.options.map((chain: string) => (
                             <SelectItem key={chain} value={chain}>
                               <div className="flex flex-col items-start">
                                 <span className="font-medium">{chain}</span>
@@ -208,7 +209,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                           <SelectValue placeholder="Select action" />
                         </SelectTrigger>
                         <SelectContent>
-                          {NatActionSchema.options.map((action) => (
+                          {NatActionSchema.options.map((action: string) => (
                             <SelectItem key={action} value={action}>
                               {action}
                             </SelectItem>
@@ -246,7 +247,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                             <SelectValue placeholder="Any protocol" />
                           </SelectTrigger>
                           <SelectContent>
-                            {ProtocolSchema.options.map((protocol) => (
+                            {ProtocolSchema.options.map((protocol: string) => (
                               <SelectItem key={protocol} value={protocol}>
                                 {protocol.toUpperCase()}
                               </SelectItem>
@@ -711,8 +712,8 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
         onOpenChange={setShowDeleteConfirm}
         title="Delete NAT Rule"
         description="Are you sure you want to delete this NAT rule? This action cannot be undone."
-        confirmText="Delete Rule"
-        cancelText="Cancel"
+        confirmLabel="Delete Rule"
+        cancelLabel="Cancel"
         variant="destructive"
         onConfirm={confirmDelete}
         isLoading={isDeleting}

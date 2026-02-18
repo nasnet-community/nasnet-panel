@@ -147,7 +147,7 @@ function formatValue(value: number, unit: string): string {
  */
 function calculateStatus(
   percentage: number,
-  thresholds: typeof DEFAULT_THRESHOLDS
+  thresholds: { idle: number; normal: number; warning: number; critical: number }
 ): UsageStatus {
   if (Number.isNaN(percentage) || percentage < 0) {
     return 'unknown';

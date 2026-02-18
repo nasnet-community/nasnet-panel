@@ -10,10 +10,11 @@
  * Story: NAS-7.4 - Implement Connection Tracking
  */
 
+import { MockedProvider } from '@apollo/client/testing';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MockedProvider } from '@apollo/client/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
+
 // import { ConnectionTrackingSettings } from './ConnectionTrackingSettings';
 // import {
 //   GET_CONNECTION_TRACKING_SETTINGS,

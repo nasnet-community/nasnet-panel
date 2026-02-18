@@ -10,8 +10,9 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/alertrule"
 	"backend/internal/alerts/throttle"
-	"backend/internal/events"
 	"backend/internal/features"
+
+	"backend/internal/events"
 )
 
 // HandleEventFunc is a callback for forwarding events to the alert engine.
@@ -48,7 +49,7 @@ type Config struct {
 }
 
 // NewServiceAlertBridge creates a new service alert bridge.
-func NewServiceAlertBridge(cfg Config) *ServiceAlertBridge {
+func NewServiceAlertBridge(cfg *Config) *ServiceAlertBridge {
 	return &ServiceAlertBridge{
 		db:                  cfg.DB,
 		eventBus:            cfg.EventBus,
@@ -63,7 +64,7 @@ func NewServiceAlertBridge(cfg Config) *ServiceAlertBridge {
 }
 
 // Start begins subscribing to service.* events and processing them.
-func (sab *ServiceAlertBridge) Start(ctx context.Context) error {
+func (sab *ServiceAlertBridge) Start(_ context.Context) error {
 	sab.log.Info("starting service alert bridge")
 
 	serviceEventTypes := []string{
@@ -80,8 +81,8 @@ func (sab *ServiceAlertBridge) Start(ctx context.Context) error {
 	}
 
 	for _, eventType := range serviceEventTypes {
-		if err := sab.eventBus.Subscribe(eventType, sab.handleServiceEvent); err != nil {
-			return fmt.Errorf("failed to subscribe to %s: %w", eventType, err)
+		if subscribeErr := sab.eventBus.Subscribe(eventType, sab.handleServiceEvent); subscribeErr != nil {
+			return fmt.Errorf("failed to subscribe to %s: %w", eventType, subscribeErr)
 		}
 		sab.log.Infow("subscribed to service event", "event_type", eventType)
 	}
@@ -134,20 +135,20 @@ func (sab *ServiceAlertBridge) handleServiceEvent(ctx context.Context, event eve
 			"severity", severity,
 			"reason", queueReason)
 
-		if err := sab.queueNotification(ctx, event, instanceID, string(severity)); err != nil {
+		if queueErr := sab.queueNotification(ctx, event, instanceID, string(severity)); queueErr != nil {
 			sab.log.Errorw("failed to queue service alert",
 				"instance_id", instanceID,
 				"event_type", eventType,
-				"error", err)
+				"error", queueErr)
 		}
 		return nil
 	}
 
 	if eventType == events.EventTypeServiceInstalled {
-		if err := sab.createDefaultRulesIfNeeded(ctx, instanceID); err != nil {
+		if rulesErr := sab.createDefaultRulesIfNeeded(ctx, instanceID); rulesErr != nil {
 			sab.log.Errorw("failed to create default alert rules",
 				"instance_id", instanceID,
-				"error", err)
+				"error", rulesErr)
 		}
 	}
 
@@ -159,12 +160,12 @@ func (sab *ServiceAlertBridge) handleServiceEvent(ctx context.Context, event eve
 		enrichedEvent = event
 	}
 
-	if err := sab.handleEvent(ctx, enrichedEvent); err != nil {
+	if handleErr := sab.handleEvent(ctx, enrichedEvent); handleErr != nil {
 		sab.log.Errorw("alert engine failed to process service event",
 			"instance_id", instanceID,
 			"event_type", eventType,
-			"error", err)
-		return err
+			"error", handleErr)
+		return handleErr
 	}
 
 	sab.log.Debugw("service event processed successfully",
@@ -174,7 +175,7 @@ func (sab *ServiceAlertBridge) handleServiceEvent(ctx context.Context, event eve
 	return nil
 }
 
-func (sab *ServiceAlertBridge) queueNotification(ctx context.Context, event events.Event, instanceID, severity string) error {
+func (sab *ServiceAlertBridge) queueNotification(_ context.Context, event events.Event, _instanceID, severity string) error {
 	notification := throttle.QueuedNotification{
 		ChannelID: "default",
 		AlertID:   event.GetID().String(),
@@ -185,10 +186,10 @@ func (sab *ServiceAlertBridge) queueNotification(ctx context.Context, event even
 		Data:      extractEventData(event),
 	}
 
-	return sab.quietHoursQueue.Enqueue(notification)
+	return sab.quietHoursQueue.Enqueue(&notification)
 }
 
-func (sab *ServiceAlertBridge) enrichEvent(event events.Event, instanceID string) (events.Event, error) {
+func (sab *ServiceAlertBridge) enrichEvent(event events.Event, _instanceID string) (events.Event, error) {
 	serviceType, err := extractServiceType(event)
 	if err != nil {
 		return event, err

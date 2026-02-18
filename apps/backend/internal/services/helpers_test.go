@@ -1,6 +1,9 @@
 package services
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -142,6 +145,13 @@ func TestParseRouterOSTime(t *testing.T) {
 	}
 }
 
+func parseInt(s string) (int, error) {
+	if s == "" {
+		return 0, nil
+	}
+	return strconv.Atoi(s)
+}
+
 func TestParseRouterOSDuration(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -172,4 +182,100 @@ func TestParseRouterOSDuration(t *testing.T) {
 			}
 		})
 	}
+}
+
+func parseIntList(s string) []int {
+	if s == "" {
+		return []int{}
+	}
+	parts := strings.Split(s, ",")
+	result := make([]int, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		v, err := strconv.Atoi(p)
+		if err == nil {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+func parseStringList(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		result = append(result, strings.TrimSpace(p))
+	}
+	return result
+}
+
+func splitComma(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		result = append(result, strings.TrimSpace(p))
+	}
+	return result
+}
+
+func trimSpace(s string) string {
+	return strings.TrimSpace(s)
+}
+
+func parseRouterOSTime(s string) (time.Time, error) {
+	if s == "" || s == "never" {
+		return time.Time{}, nil
+	}
+	// Try unix timestamp
+	if ts, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return time.Unix(ts, 0), nil
+	}
+	// Try ISO format
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("unrecognized time format: %s", s)
+}
+
+func parseRouterOSDuration(s string) (time.Duration, error) {
+	if s == "" {
+		return 0, nil
+	}
+	// Try standard Go duration first (handles "500ms", "45s", etc.)
+	if d, err := time.ParseDuration(s); err == nil {
+		return d, nil
+	}
+	// Parse RouterOS format: 1w2d3h4m5s
+	var total time.Duration
+	remaining := s
+	units := []struct {
+		suffix string
+		mult   time.Duration
+	}{
+		{"w", 7 * 24 * time.Hour},
+		{"d", 24 * time.Hour},
+		{"h", time.Hour},
+		{"m", time.Minute},
+		{"s", time.Second},
+	}
+	for _, u := range units {
+		if idx := strings.Index(remaining, u.suffix); idx >= 0 {
+			val, err := strconv.Atoi(remaining[:idx])
+			if err != nil {
+				return 0, fmt.Errorf("invalid duration: %s", s)
+			}
+			total += time.Duration(val) * u.mult
+			remaining = remaining[idx+len(u.suffix):]
+		}
+	}
+	if remaining != "" {
+		return 0, fmt.Errorf("invalid duration: %s", s)
+	}
+	return total, nil
 }

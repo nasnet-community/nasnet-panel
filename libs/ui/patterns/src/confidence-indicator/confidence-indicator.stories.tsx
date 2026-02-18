@@ -9,7 +9,6 @@
 
 import * as React from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from 'storybook/test';
 
 import { Input } from '@nasnet/ui/primitives';
@@ -22,6 +21,8 @@ import {
   ConfidenceIndicatorDot,
   useConfidenceIndicator,
 } from './index';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Confidence Indicator displays a visual indicator for auto-detected values with confidence scoring.
@@ -348,9 +349,10 @@ export const WithFormField: Story = {
 
     return (
       <div className="flex flex-col gap-4 w-[300px]">
-        <label className="text-sm font-medium">Default Gateway</label>
+        <label htmlFor="gateway-input" className="text-sm font-medium">Default Gateway</label>
         <div className="flex items-center gap-2">
           <Input
+            id="gateway-input"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             disabled={!isEditing}

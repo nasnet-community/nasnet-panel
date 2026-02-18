@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
 
 import {
   Skeleton,
@@ -8,7 +7,10 @@ import {
   SkeletonTable,
   SkeletonChart,
   SkeletonAvatar,
-} from './Skeleton';
+} from './skeleton';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 const meta: Meta<typeof Skeleton> = {
   title: 'Primitives/Skeleton',

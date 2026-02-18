@@ -14,7 +14,9 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { vi } from 'vitest';
+
 import { useConnectionList } from './use-connection-list';
+
 import type { ConnectionEntry, ConnectionFilter } from './types';
 
 // Mock connection data for testing

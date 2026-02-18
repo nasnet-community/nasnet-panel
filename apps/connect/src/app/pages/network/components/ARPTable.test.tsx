@@ -2,11 +2,14 @@
  * ARP Table Component Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, expect } from 'vitest';
+
+import { type ARPEntry } from '@nasnet/core/types';
+
 import { ARPTable } from './ARPTable';
-import { ARPEntry } from '@nasnet/core/types';
+
 
 describe('ARPTable', () => {
   const mockEntries: ARPEntry[] = [

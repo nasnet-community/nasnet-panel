@@ -65,7 +65,7 @@ func TestStartScan_ValidSubnet(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	status := task.GetStatus()
-	assert.True(t, status == ScanStatusCompleted || status == ScanStatusCancelled,
+	assert.True(t, status == ScanStatusCompleted || status == ScanStatusCanceled,
 		"expected completed or cancelled, got %s", status)
 }
 
@@ -158,7 +158,7 @@ func TestCancelScan(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	status := cancelled.GetStatus()
-	assert.Equal(t, ScanStatusCancelled, status)
+	assert.Equal(t, ScanStatusCanceled, status)
 }
 
 func TestCancelScan_NotFound(t *testing.T) {

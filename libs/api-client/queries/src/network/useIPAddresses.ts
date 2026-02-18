@@ -41,6 +41,7 @@ export function useIPAddresses(routerId: string, interfaceId?: string) {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [subData, loading, subError, refetch]);
 
   // Extract IP addresses from response

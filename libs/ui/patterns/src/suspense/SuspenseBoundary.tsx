@@ -28,7 +28,7 @@ export interface SuspenseBoundaryProps {
   /** Name for accessibility and debugging */
   name: string;
   /** Error fallback UI */
-  errorFallback?: ReactNode | ((error: Error, reset: () => void) => ReactNode);
+  errorFallback?: ReactNode | ((error: Error | null, reset: () => void) => ReactNode);
   /** Callback when error occurs */
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   /** Additional CSS classes */
@@ -61,7 +61,7 @@ class SuspenseErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryS
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.props.onError?.(error, errorInfo);
     console.error(`SuspenseBoundary "${this.props.name}" caught error:`, error, errorInfo);
   }
@@ -70,7 +70,7 @@ class SuspenseErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryS
     this.setState({ hasError: false, error: null });
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       const { fallback } = this.props;
 

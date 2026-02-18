@@ -4,9 +4,10 @@
  * Demonstrates all states and variants of the Kill Switch Toggle component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { KillSwitchToggle, KillSwitchToggleDesktop, KillSwitchToggleMobile } from './index';
+
 import type { VirtualInterfaceOption } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock available interfaces
 const mockInterfaces: VirtualInterfaceOption[] = [

@@ -13,10 +13,10 @@ type PsiphonGenerator struct {
 
 // NewPsiphonGenerator creates a new Psiphon config generator.
 func NewPsiphonGenerator() *PsiphonGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "psiphon",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "socks_port",
 				Type:        "port",
@@ -99,15 +99,19 @@ func (g *PsiphonGenerator) Generate(instanceID string, config map[string]interfa
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	socksPort := getIntValue(config, "socks_port", 1080)
 	httpPort := getIntValue(config, "http_port", 8080)
+	//nolint:errcheck // type assertion uses zero value default
 	sponsorID, _ := config["sponsor_id"].(string)
+	//nolint:errcheck // type assertion uses zero value default
 	propagationChannelID, _ := config["propagation_channel_id"].(string)
+	//nolint:errcheck // type assertion uses zero value default
 	enableSplitTunnel, _ := config["enable_split_tunnel"].(bool)
+	//nolint:errcheck // type assertion uses zero value default
 	logLevel, _ := config["log_level"].(string)
 
 	// Build Psiphon configuration
@@ -144,8 +148,8 @@ func (g *PsiphonGenerator) Generate(instanceID string, config map[string]interfa
 // Validate performs Psiphon-specific validation.
 func (g *PsiphonGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Validate sponsor_id format (32-character hex string if provided)
@@ -164,20 +168,26 @@ func (g *PsiphonGenerator) Validate(config map[string]interface{}, bindIP string
 
 	// Validate upstream_proxy_url format if provided
 	if upstreamProxy, ok := config["upstream_proxy_url"].(string); ok && upstreamProxy != "" {
-		if err := cfglib.ValidateURL(upstreamProxy); err != nil {
-			return fmt.Errorf("upstream_proxy_url validation failed: %w", err)
+		if urlErr := cfglib.ValidateURL(upstreamProxy); urlErr != nil {
+			return fmt.Errorf("upstream_proxy_url validation failed: %w", urlErr)
 		}
 	}
 
 	return nil
 }
 
+// Config file constants for Psiphon.
+const (
+	psiphonConfigFileName = "config.json"
+	psiphonConfigFormat   = "json"
+)
+
 // GetConfigFileName returns the filename for the generated config.
 func (g *PsiphonGenerator) GetConfigFileName() string {
-	return "config.json"
+	return psiphonConfigFileName
 }
 
 // GetConfigFormat returns the config file format.
 func (g *PsiphonGenerator) GetConfigFormat() string {
-	return "json"
+	return psiphonConfigFormat
 }

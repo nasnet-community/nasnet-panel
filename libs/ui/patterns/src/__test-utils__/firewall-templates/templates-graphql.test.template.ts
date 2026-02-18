@@ -10,9 +10,10 @@
  * @see libs/api-client/queries/src/firewall/templates.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 // TODO: Uncomment once implementation exists
 // import {
 //   useFirewallTemplates,
@@ -44,6 +45,8 @@ vi.mock('@nasnet/api-client/core', () => ({
   graphqlRequest: vi.fn(),
 }));
 
+// TODO: Uncomment once useFirewallTemplates is implemented
+/*
 // Test utilities
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -62,9 +65,6 @@ function createWrapper() {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
-
-// TODO: Uncomment once useFirewallTemplates is implemented
-/*
 describe('useFirewallTemplates', () => {
   beforeEach(() => {
     vi.clearAllMocks();

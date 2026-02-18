@@ -44,7 +44,7 @@ export function mergeSchemas<
   T extends ZodRawShape,
   U extends ZodRawShape
 >(base: ZodObject<T>, extension: ZodObject<U>): ZodObject<T & U> {
-  return base.merge(extension);
+  return base.merge(extension) as unknown as ZodObject<T & U>;
 }
 
 /**
@@ -62,7 +62,8 @@ export function pickFields<
     (acc, key) => ({ ...acc, [key]: true }),
     {} as { [P in K]: true }
   );
-  return schema.pick(mask);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return schema.pick(mask as any) as unknown as ZodObject<Pick<T, K>>;
 }
 
 /**
@@ -80,7 +81,8 @@ export function omitFields<
     (acc, key) => ({ ...acc, [key]: true }),
     {} as { [P in K]: true }
   );
-  return schema.omit(mask);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return schema.omit(mask as any) as unknown as ZodObject<Omit<T, K>>;
 }
 
 /**

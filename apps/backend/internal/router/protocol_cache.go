@@ -62,7 +62,7 @@ func (c *ProtocolCache) Get(key string) (CacheEntry, bool) {
 	if elem, ok := c.cache[key]; ok {
 		// Move to front (most recently used)
 		c.lru.MoveToFront(elem)
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		return item.entry, true
 	}
 
@@ -83,6 +83,7 @@ func (c *ProtocolCache) Set(key string, protocol Protocol) {
 	if elem, ok := c.cache[key]; ok {
 		// Update existing entry
 		c.lru.MoveToFront(elem)
+		//nolint:forcetypeassert,errcheck // safe within locked section
 		elem.Value.(*cacheItem).entry = entry
 		return
 	}
@@ -107,7 +108,7 @@ func (c *ProtocolCache) RecordFailure(key string) {
 	defer c.mu.Unlock()
 
 	if elem, ok := c.cache[key]; ok {
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		item.entry.Failures++
 
 		// Invalidate after 3 consecutive failures
@@ -125,7 +126,7 @@ func (c *ProtocolCache) RecordSuccess(key string) {
 
 	if elem, ok := c.cache[key]; ok {
 		c.lru.MoveToFront(elem)
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		item.entry.LastSuccess = time.Now()
 		item.entry.Failures = 0
 	}
@@ -165,7 +166,7 @@ func (c *ProtocolCache) Keys() []string {
 
 	keys := make([]string, 0, c.lru.Len())
 	for elem := c.lru.Front(); elem != nil; elem = elem.Next() {
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		keys = append(keys, item.key)
 	}
 	return keys
@@ -175,7 +176,7 @@ func (c *ProtocolCache) Keys() []string {
 func (c *ProtocolCache) evictOldest() {
 	elem := c.lru.Back()
 	if elem != nil {
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		c.lru.Remove(elem)
 		delete(c.cache, item.key)
 	}
@@ -188,7 +189,7 @@ func (c *ProtocolCache) Export() map[string]CacheEntry {
 
 	result := make(map[string]CacheEntry)
 	for elem := c.lru.Front(); elem != nil; elem = elem.Next() {
-		item := elem.Value.(*cacheItem)
+		item := elem.Value.(*cacheItem) //nolint:forcetypeassert,errcheck // safe within list.Element iteration
 		result[item.key] = item.entry
 	}
 	return result

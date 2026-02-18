@@ -16,10 +16,11 @@
  * @see Docs/design/ux-design/8-responsive-design-accessibility.md
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { TemplateGallery } from './TemplateGallery';
 import {
   mockAllTemplates,

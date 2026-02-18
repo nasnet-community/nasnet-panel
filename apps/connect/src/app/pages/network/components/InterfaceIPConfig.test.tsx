@@ -2,10 +2,13 @@
  * Interface IP Configuration Component Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+
+import { type IPAddress } from '@nasnet/core/types';
+
 import { InterfaceIPConfig } from './InterfaceIPConfig';
-import { IPAddress } from '@nasnet/core/types';
+
 
 describe('InterfaceIPConfig', () => {
   const mockIPAddresses: IPAddress[] = [

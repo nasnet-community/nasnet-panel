@@ -8,7 +8,7 @@ import (
 // resolveServer determines which DNS server to use for the lookup.
 // If input.Server is provided, uses that.
 // Otherwise, retrieves the router's configured primary DNS server.
-func (s *Service) resolveServer(ctx context.Context, input *DnsLookupInput) (string, error) {
+func (s *Service) resolveServer(ctx context.Context, input *LookupInput) (string, error) {
 	// Use explicit server if provided
 	if input.Server != nil && *input.Server != "" {
 		return *input.Server, nil

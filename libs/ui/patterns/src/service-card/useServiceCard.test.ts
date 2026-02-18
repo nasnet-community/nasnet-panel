@@ -5,13 +5,12 @@
  * Tests business logic, derived state, and event handlers.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 
 import { useServiceCard } from './useServiceCard';
 
-import type { ServiceCardProps } from './types';
-import type { Service } from './types';
+import type { ServiceCardProps , Service } from './types';
 
 describe('useServiceCard', () => {
   const mockService: Service = {

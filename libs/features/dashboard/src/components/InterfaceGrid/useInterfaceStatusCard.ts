@@ -81,6 +81,8 @@ export function useInterfaceStatusCard({
       const timer = setTimeout(() => setIsStatusChanged(false), 2000);
       return () => clearTimeout(timer);
     }
+    // No cleanup needed if status hasn't changed
+    return undefined;
   }, [iface.status]);
 
   const handleClick = useCallback(() => {

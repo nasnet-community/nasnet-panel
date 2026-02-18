@@ -29,7 +29,7 @@ type JobStatus string
 const (
 	JobStatusRunning   JobStatus = "RUNNING"
 	JobStatusCompleted JobStatus = "COMPLETED"
-	JobStatusCancelled JobStatus = "CANCELLED"
+	JobStatusCanceled  JobStatus = "CANCELED"
 	JobStatusError     JobStatus = "ERROR"
 )
 
@@ -40,7 +40,7 @@ const (
 	EventTypeHopDiscovered EventType = "HOP_DISCOVERED"
 	EventTypeComplete      EventType = "COMPLETE"
 	EventTypeError         EventType = "ERROR"
-	EventTypeCancelled     EventType = "CANCELLED"
+	EventTypeCanceled      EventType = "CANCELED"
 )
 
 // Input contains the traceroute parameters.
@@ -73,16 +73,16 @@ type Hop struct {
 
 // Result represents the complete traceroute result.
 type Result struct {
-	Target              string
-	TargetIP            string
-	Protocol            Protocol
-	MaxHops             int
-	Hops                []Hop
-	Completed           bool
-	ReachedDestination  bool
-	TotalTimeMs         float64
-	StartedAt           time.Time
-	CompletedAt         *time.Time
+	Target             string
+	TargetIP           string
+	Protocol           Protocol
+	MaxHops            int
+	Hops               []Hop
+	Completed          bool
+	ReachedDestination bool
+	TotalTimeMs        float64
+	StartedAt          time.Time
+	CompletedAt        *time.Time
 }
 
 // Job represents a running traceroute job.

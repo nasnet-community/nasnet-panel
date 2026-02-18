@@ -330,7 +330,7 @@ export function ImportTemplateDialog({
                     {parsedData.template.description}
                   </p>
                 </div>
-                <Badge variant={parsedData.validation.success ? 'default' : 'destructive'}>
+                <Badge variant={parsedData.validation.success ? 'default' : 'error'}>
                   {parsedData.format.toUpperCase()}
                 </Badge>
               </div>

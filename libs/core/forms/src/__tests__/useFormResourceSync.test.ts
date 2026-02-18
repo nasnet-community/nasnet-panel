@@ -2,9 +2,10 @@
  * Tests for useFormResourceSync
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
+import { describe, it, expect, vi } from 'vitest';
+
 import { useFormResourceSync } from '../useFormResourceSync';
 
 interface TestFormData {

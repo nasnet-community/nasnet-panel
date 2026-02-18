@@ -203,7 +203,7 @@ export function VlanTopologyDesktop({
                                   </Badge>
                                 )}
                                 {vlan.disabled ? (
-                                  <Badge variant="muted">Disabled</Badge>
+                                  <Badge variant="secondary">Disabled</Badge>
                                 ) : vlan.running ? (
                                   <Badge variant="success">Running</Badge>
                                 ) : (

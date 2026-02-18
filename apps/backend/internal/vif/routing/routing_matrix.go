@@ -10,11 +10,12 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/virtualinterface"
+
 	"backend/internal/router"
 )
 
 // RoutingMatrixService provides device discovery and routing matrix queries.
-type RoutingMatrixService struct {
+type RoutingMatrixService struct { //nolint:revive // stuttering name kept for clarity as the primary exported type in the routing package
 	routerPort router.RouterPort
 	client     *ent.Client
 }

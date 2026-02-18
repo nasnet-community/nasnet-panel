@@ -9,8 +9,9 @@
  */
 
 import { useCallback, useMemo, useState, useEffect } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import {
   RateLimitRuleSchema,
@@ -21,7 +22,7 @@ import {
   type RateLimitRuleInput,
   type RateLimitAction,
   type TimeWindow,
-} from '@nasnet/core/types/firewall';
+} from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -123,8 +124,9 @@ export function useRateLimitEditor(
     const errorMap: Record<string, string> = {};
 
     Object.entries(formErrors).forEach(([key, error]) => {
-      if (error?.message) {
-        errorMap[key] = error.message;
+      const err = error as { message?: string } | undefined;
+      if (err?.message) {
+        errorMap[key] = err.message;
       }
     });
 
@@ -299,11 +301,12 @@ function getRateDescription(rule: Partial<RateLimitRule>): string {
     return '';
   }
 
-  const timeWindowText = {
+  const timeWindowMap: Record<string, string> = {
     'per-second': 'per second',
     'per-minute': 'per minute',
     'per-hour': 'per hour',
-  }[rule.timeWindow] || rule.timeWindow;
+  };
+  const timeWindowText = (rule.timeWindow ? timeWindowMap[rule.timeWindow] : undefined) || rule.timeWindow;
 
   return `when exceeding ${rule.connectionLimit} connections ${timeWindowText}`;
 }

@@ -147,7 +147,7 @@ export const PortInputMobile = memo(function PortInputMobile(
 
     return (
       <div
-        ref={suggestionsRef}
+        ref={suggestionsRef as any}
         id={suggestionsId}
         role="listbox"
         aria-label="Port suggestions"
@@ -236,7 +236,7 @@ export const PortInputMobile = memo(function PortInputMobile(
         <div className="relative">
           <div className="flex items-center gap-2">
             <Input
-              ref={inputRef}
+              ref={inputRef as any}
               id={inputId}
               name={name}
               type="text"
@@ -319,7 +319,7 @@ export const PortInputMobile = memo(function PortInputMobile(
               Start Port
             </Label>
             <Input
-              ref={rangeStartRef}
+              ref={rangeStartRef as any}
               id={`${inputId}-start`}
               name={name ? `${name}-start` : undefined}
               type="text"
@@ -347,7 +347,7 @@ export const PortInputMobile = memo(function PortInputMobile(
               End Port
             </Label>
             <Input
-              ref={rangeEndRef}
+              ref={rangeEndRef as any}
               id={`${inputId}-end`}
               name={name ? `${name}-end` : undefined}
               type="text"
@@ -415,7 +415,7 @@ export const PortInputMobile = memo(function PortInputMobile(
         {/* Input row with add button */}
         <div className="flex items-center gap-2">
           <Input
-            ref={inputRef}
+            ref={inputRef as any}
             id={inputId}
             name={name}
             type="text"

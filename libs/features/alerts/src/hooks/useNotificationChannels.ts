@@ -37,6 +37,7 @@ export interface ChannelConfig {
   // Pushover config
   userKey?: string;
   apiToken?: string;
+  device?: string;
 
   // Webhook config
   url?: string;

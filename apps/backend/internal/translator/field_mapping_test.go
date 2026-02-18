@@ -131,8 +131,8 @@ func TestFormatDuration(t *testing.T) {
 		{time.Minute * 90, "1h30m"},
 		{time.Second * 90, "1m30s"},
 		{time.Duration(0), "0s"},
-		{int(3600), "1h"},          // seconds as int
-		{int64(86400), "1d"},       // seconds as int64
+		{int(3600), "1h"},    // seconds as int
+		{int64(86400), "1d"}, // seconds as int64
 		{"already-formatted", "already-formatted"},
 	}
 

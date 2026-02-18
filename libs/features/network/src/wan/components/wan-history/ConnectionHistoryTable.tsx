@@ -24,7 +24,7 @@ import {
   ChevronRight,
   RefreshCw,
 } from 'lucide-react';
-import { usePlatform } from '@nasnet/ui/patterns';
+import { usePlatform } from '@nasnet/ui/layouts';
 import {
   ConnectionEventCard,
   ConnectionEventCardCompact,
@@ -169,7 +169,7 @@ export function ConnectionHistoryTable({
   if (events.length === 0) {
     return (
       <EmptyState
-        icon={<History className="h-12 w-12" />}
+        icon={History}
         title="No Connection History"
         description="Connection events will appear here as WAN interfaces connect, disconnect, or change status."
       />
@@ -189,7 +189,6 @@ export function ConnectionHistoryTable({
               placeholder="Search by IP, interface, or reason..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              icon={<Search className="h-4 w-4" />}
             />
           </div>
           <Select value={filterType} onValueChange={handleFilterChange}>
@@ -210,20 +209,17 @@ export function ConnectionHistoryTable({
 
         {/* Empty results */}
         <EmptyState
-          icon={<Search className="h-12 w-12" />}
+          icon={Search}
           title="No matching events"
           description="Try adjusting your filters or search query."
-          action={
-            <Button
-              variant="outline"
-              onClick={() => {
-                setFilterType('all');
-                setSearchQuery('');
-              }}
-            >
-              Clear Filters
-            </Button>
-          }
+          action={{
+            label: 'Clear Filters',
+            onClick: () => {
+              setFilterType('all');
+              setSearchQuery('');
+            },
+            variant: 'outline',
+          }}
         />
       </div>
     );
@@ -241,7 +237,6 @@ export function ConnectionHistoryTable({
             placeholder="Search by IP, interface, or reason..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            icon={<Search className="h-4 w-4" />}
           />
         </div>
         <div className="flex gap-2">

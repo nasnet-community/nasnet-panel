@@ -6,7 +6,6 @@
  * @see NAS-4.23 - Refactored to use useClipboard hook
  */
 
-import * as React from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, ChevronDown } from 'lucide-react';

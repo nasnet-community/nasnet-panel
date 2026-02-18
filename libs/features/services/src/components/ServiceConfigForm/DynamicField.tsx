@@ -89,12 +89,12 @@ function renderFieldInput(
     placeholder: field.placeholder || undefined,
   };
 
-  switch (field.type) {
+  switch (field.type as string) {
     case 'TEXT':
     case 'EMAIL':
     case 'URL':
-    case 'IP_ADDRESS':
-    case 'FILE_PATH':
+    case 'IP':
+    case 'PATH':
       return (
         <TextField
           {...commonProps}
@@ -154,7 +154,7 @@ function renderFieldInput(
           {...commonProps}
           value={formField.value}
           onChange={formField.onChange}
-          pattern={field.pattern || undefined}
+          pattern={(field as any).pattern || undefined}
         />
       );
 

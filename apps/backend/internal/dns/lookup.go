@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"backend/internal/router"
 	"strings"
 	"time"
+
+	"backend/internal/router"
 )
 
 // lookupViaRouterOS uses RouterOS /tool/dns-lookup for A/AAAA records
-func (s *Service) lookupViaRouterOS(ctx context.Context, input *DnsLookupInput) ([]DnsRecord, error) {
+func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]Record, error) {
 	// Build command for RouterOS
 	cmd := router.Command{
 		Path: "/tool/dns-lookup",
@@ -35,11 +36,11 @@ func (s *Service) lookupViaRouterOS(ctx context.Context, input *DnsLookupInput) 
 	}
 
 	// Parse RouterOS response
-	return parseRouterOSDnsResponse(result.RawOutput, input.RecordType)
+	return parseRouterOSResponse(result.RawOutput, input.RecordType)
 }
 
 // lookupViaGoResolver uses Go's net package for non-A/AAAA record types
-func (s *Service) lookupViaGoResolver(ctx context.Context, input *DnsLookupInput, server string) ([]DnsRecord, error) {
+func (s *Service) lookupViaGoResolver(ctx context.Context, input *LookupInput, server string) ([]Record, error) {
 	// Create custom resolver pointing to the specified DNS server
 	resolver := &net.Resolver{
 		PreferGo: true,
@@ -81,15 +82,15 @@ func (s *Service) lookupViaGoResolver(ctx context.Context, input *DnsLookupInput
 }
 
 // lookupA looks up A (IPv4) records
-func (s *Service) lookupA(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupA(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	ips, err := r.LookupIP(ctx, "ip4", hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(ips))
+	records := make([]Record, len(ips))
 	for i, ip := range ips {
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name: hostname,
 			Type: "A",
 			TTL:  3600, // Default TTL (net.Resolver doesn't provide TTL)
@@ -100,15 +101,15 @@ func (s *Service) lookupA(ctx context.Context, r *net.Resolver, hostname string)
 }
 
 // lookupAAAA looks up AAAA (IPv6) records
-func (s *Service) lookupAAAA(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupAAAA(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	ips, err := r.LookupIP(ctx, "ip6", hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(ips))
+	records := make([]Record, len(ips))
 	for i, ip := range ips {
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name: hostname,
 			Type: "AAAA",
 			TTL:  3600,
@@ -119,16 +120,16 @@ func (s *Service) lookupAAAA(ctx context.Context, r *net.Resolver, hostname stri
 }
 
 // lookupMX looks up MX (mail exchange) records
-func (s *Service) lookupMX(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupMX(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	mxs, err := r.LookupMX(ctx, hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(mxs))
+	records := make([]Record, len(mxs))
 	for i, mx := range mxs {
 		priority := int(mx.Pref)
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name:     hostname,
 			Type:     "MX",
 			TTL:      3600,
@@ -140,15 +141,15 @@ func (s *Service) lookupMX(ctx context.Context, r *net.Resolver, hostname string
 }
 
 // lookupTXT looks up TXT (text) records
-func (s *Service) lookupTXT(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupTXT(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	txts, err := r.LookupTXT(ctx, hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(txts))
+	records := make([]Record, len(txts))
 	for i, txt := range txts {
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name: hostname,
 			Type: "TXT",
 			TTL:  3600,
@@ -159,13 +160,13 @@ func (s *Service) lookupTXT(ctx context.Context, r *net.Resolver, hostname strin
 }
 
 // lookupCNAME looks up CNAME (canonical name) records
-func (s *Service) lookupCNAME(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupCNAME(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	cname, err := r.LookupCNAME(ctx, hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	return []DnsRecord{{
+	return []Record{{
 		Name: hostname,
 		Type: "CNAME",
 		TTL:  3600,
@@ -174,15 +175,15 @@ func (s *Service) lookupCNAME(ctx context.Context, r *net.Resolver, hostname str
 }
 
 // lookupNS looks up NS (name server) records
-func (s *Service) lookupNS(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupNS(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	nss, err := r.LookupNS(ctx, hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(nss))
+	records := make([]Record, len(nss))
 	for i, ns := range nss {
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name: hostname,
 			Type: "NS",
 			TTL:  3600,
@@ -193,16 +194,16 @@ func (s *Service) lookupNS(ctx context.Context, r *net.Resolver, hostname string
 }
 
 // lookupPTR looks up PTR (pointer/reverse DNS) records
-func (s *Service) lookupPTR(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupPTR(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	// For PTR lookups, hostname should be an IP address
 	names, err := r.LookupAddr(ctx, hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(names))
+	records := make([]Record, len(names))
 	for i, name := range names {
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name: hostname,
 			Type: "PTR",
 			TTL:  3600,
@@ -213,7 +214,7 @@ func (s *Service) lookupPTR(ctx context.Context, r *net.Resolver, hostname strin
 }
 
 // lookupSRV looks up SRV (service) records
-func (s *Service) lookupSRV(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupSRV(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	// Parse hostname into service, proto, and name
 	// Expected format: _service._proto.name (e.g., _http._tcp.example.com)
 	parts := strings.SplitN(hostname, ".", 3)
@@ -230,12 +231,12 @@ func (s *Service) lookupSRV(ctx context.Context, r *net.Resolver, hostname strin
 		return nil, err
 	}
 
-	records := make([]DnsRecord, len(srvs))
+	records := make([]Record, len(srvs))
 	for i, srv := range srvs {
 		priority := int(srv.Priority)
 		weight := int(srv.Weight)
 		port := int(srv.Port)
-		records[i] = DnsRecord{
+		records[i] = Record{
 			Name:     hostname,
 			Type:     "SRV",
 			TTL:      3600,
@@ -249,7 +250,7 @@ func (s *Service) lookupSRV(ctx context.Context, r *net.Resolver, hostname strin
 }
 
 // lookupSOA looks up SOA (start of authority) records
-func (s *Service) lookupSOA(ctx context.Context, r *net.Resolver, hostname string) ([]DnsRecord, error) {
+func (s *Service) lookupSOA(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	// Go's net package doesn't have a direct LookupSOA method
 	// We would need to use a DNS library like miekg/dns for SOA lookups
 	// For now, return an error indicating it's not supported

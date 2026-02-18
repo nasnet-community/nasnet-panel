@@ -6,8 +6,9 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import type { Active, Over, UniqueIdentifier } from '@dnd-kit/core';
 import type { ReactNode } from 'react';
+
+import type { Active, Over, UniqueIdentifier } from '@dnd-kit/core';
 
 // ============================================================================
 // Core Types

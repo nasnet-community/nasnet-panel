@@ -23,7 +23,7 @@ func TestGenerateGatewayConfig_Tor(t *testing.T) {
 	}
 
 	manifest := &features.Manifest{
-		Service: "tor",
+		ID: "tor",
 	}
 
 	config, tunName, err := GenerateGatewayConfig(instance, manifest)
@@ -48,7 +48,7 @@ func TestGenerateGatewayConfig_SingBox(t *testing.T) {
 	}
 
 	manifest := &features.Manifest{
-		Service: "singbox",
+		ID: "singbox",
 	}
 
 	config, tunName, err := GenerateGatewayConfig(instance, manifest)
@@ -71,7 +71,7 @@ func TestGenerateGatewayConfig_Xray(t *testing.T) {
 	}
 
 	manifest := &features.Manifest{
-		Service: "xray",
+		ID: "xray",
 	}
 
 	config, _, err := GenerateGatewayConfig(instance, manifest)
@@ -91,7 +91,7 @@ func TestGenerateGatewayConfig_Psiphon(t *testing.T) {
 	}
 
 	manifest := &features.Manifest{
-		Service: "psiphon",
+		ID: "psiphon",
 	}
 
 	config, tunName, err := GenerateGatewayConfig(instance, manifest)
@@ -311,7 +311,7 @@ func TestSupportsUDP(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.service, func(t *testing.T) {
 			manifest := &features.Manifest{
-				Service: tt.service,
+				ID: tt.service,
 			}
 			result := supportsUDP(manifest)
 			assert.Equal(t, tt.expect, result)

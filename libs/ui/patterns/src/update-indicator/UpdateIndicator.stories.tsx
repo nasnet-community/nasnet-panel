@@ -2,10 +2,12 @@
  * UpdateIndicator Storybook Stories (NAS-8.7)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { UpdateIndicator } from './UpdateIndicator';
+
 import type { UpdateIndicatorProps } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof UpdateIndicator> = {
   title: 'Patterns/UpdateIndicator',

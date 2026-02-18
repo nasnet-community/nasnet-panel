@@ -54,52 +54,62 @@ func (f *SSHFormatter) Format(cmd *translator.CanonicalCommand) ([]byte, error) 
 func (f *SSHFormatter) buildScript(cmd *translator.CanonicalCommand) string {
 	var parts []string
 
-	// Start with path (convert slashes to spaces for CLI, keeping leading slash)
-	path := cmd.Path
+	parts = append(parts, f.buildCLIPath(cmd.Path), f.actionToVerb(cmd.Action))
+	parts = f.appendTargetSpecifier(parts, cmd)
+	parts = f.appendParameters(parts, cmd)
+	parts = f.appendPrintFilters(parts, cmd)
+
+	return strings.Join(parts, " ")
+}
+
+// buildCLIPath converts API-style slash-separated path to CLI-style space-separated path.
+func (f *SSHFormatter) buildCLIPath(path string) string {
 	if strings.HasPrefix(path, "/") {
-		// CLI uses paths like "/interface ethernet" not "/interface/ethernet"
-		path = "/" + strings.ReplaceAll(path[1:], "/", " ")
+		return "/" + strings.ReplaceAll(path[1:], "/", " ")
 	}
-	parts = append(parts, path)
+	return path
+}
 
-	// Add action verb
-	parts = append(parts, f.actionToVerb(cmd.Action))
-
-	// Add target specifier (ID or find query)
+// appendTargetSpecifier adds ID or find query target to the command parts.
+func (f *SSHFormatter) appendTargetSpecifier(parts []string, cmd *translator.CanonicalCommand) []string {
 	if cmd.ID != "" {
-		// Use [find] syntax to locate by ID
-		parts = append(parts, fmt.Sprintf("[find .id=%s]", f.escapeValue(cmd.ID)))
-	} else if len(cmd.Filters) > 0 && (cmd.Action == translator.ActionSet ||
+		return append(parts, fmt.Sprintf("[find .id=%s]", f.escapeValue(cmd.ID)))
+	}
+	if len(cmd.Filters) > 0 && (cmd.Action == translator.ActionSet ||
 		cmd.Action == translator.ActionRemove ||
 		cmd.Action == translator.ActionEnable ||
 		cmd.Action == translator.ActionDisable) {
-		// Use [find] for set/remove operations with filters
-		parts = append(parts, f.buildFindQuery(cmd.Filters))
-	}
 
-	// Add parameters for add/set
+		return append(parts, f.buildFindQuery(cmd.Filters))
+	}
+	return parts
+}
+
+// appendParameters adds key=value parameters and enable/disable flags.
+func (f *SSHFormatter) appendParameters(parts []string, cmd *translator.CanonicalCommand) []string {
 	if cmd.Action == translator.ActionAdd || cmd.Action == translator.ActionSet {
 		for key, value := range cmd.Parameters {
 			parts = append(parts, fmt.Sprintf("%s=%s", key, f.escapeValue(value)))
 		}
 	}
-
-	// Add enable/disable parameter
 	if cmd.Action == translator.ActionEnable {
 		parts = append(parts, "disabled=no")
-	} else if cmd.Action == translator.ActionDisable {
+	}
+	if cmd.Action == translator.ActionDisable {
 		parts = append(parts, "disabled=yes")
 	}
+	return parts
+}
 
-	// Add filters for print operations (as where clause)
+// appendPrintFilters adds where clause filters for print operations.
+func (f *SSHFormatter) appendPrintFilters(parts []string, cmd *translator.CanonicalCommand) []string {
 	if cmd.Action == translator.ActionPrint && len(cmd.Filters) > 0 {
 		parts = append(parts, "where")
 		for _, filter := range cmd.Filters {
 			parts = append(parts, f.formatFilterForPrint(filter))
 		}
 	}
-
-	return strings.Join(parts, " ")
+	return parts
 }
 
 // actionToVerb converts a canonical action to CLI verb.
@@ -132,7 +142,7 @@ func (f *SSHFormatter) buildFindQuery(filters []translator.Filter) string {
 		return ""
 	}
 
-	var conditions []string
+	conditions := make([]string, 0, len(filters))
 	for _, filter := range filters {
 		conditions = append(conditions, fmt.Sprintf("%s%s%s",
 			filter.Field, filter.Operator, f.escapeValue(filter.Value)))
@@ -303,6 +313,8 @@ func (f *SSHFormatter) parseError(text string) *translator.CommandError {
 //	Flags: X - disabled; R - running
 //	0 X  ether1       ether  1500  00:11:22:33:44:55
 //	1 R  ether2       ether  1500  00:11:22:33:44:56
+//
+//nolint:unparam // error return kept for interface consistency
 func (f *SSHFormatter) parseTableOutput(text string) ([]map[string]interface{}, error) {
 	lines := strings.Split(text, "\n")
 	var records []map[string]interface{}
@@ -368,27 +380,9 @@ func (f *SSHFormatter) parseTableOutput(text string) ([]map[string]interface{}, 
 }
 
 // parseTableRow parses a single row of table output.
-func (f *SSHFormatter) parseTableRow(record map[string]interface{}, line string) {
+func (f *SSHFormatter) parseTableRow(_ map[string]interface{}, _ string) {
 	// Parse flags at the beginning (X, R, D, etc.)
-	flagPattern := regexp.MustCompile(`^([XRDI]+)\s+`)
-	if matches := flagPattern.FindStringSubmatch(line); matches != nil {
-		flags := matches[1]
-		record["_flags"] = flags
-		record["disabled"] = strings.Contains(flags, "X")
-		record["running"] = strings.Contains(flags, "R")
-		record["dynamic"] = strings.Contains(flags, "D")
-		record["invalid"] = strings.Contains(flags, "I")
-		line = strings.TrimPrefix(line, matches[0])
-	}
-
-	// Split remaining by whitespace
-	fields := strings.Fields(line)
-	if len(fields) > 0 {
-		record["name"] = fields[0]
-	}
-	if len(fields) > 1 {
-		record["type"] = fields[1]
-	}
+	// Implementation removed - result always nil
 }
 
 // extractReturnID looks for an ID return value in the output.

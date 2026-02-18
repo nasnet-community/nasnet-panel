@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+
 
 import {
   Toast,
@@ -11,6 +11,8 @@ import {
   ToastViewport,
 } from './toast';
 import { Button } from '../button';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof Toast> = {
   title: 'Primitives/Toast',

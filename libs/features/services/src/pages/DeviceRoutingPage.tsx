@@ -301,7 +301,7 @@ export function DeviceRoutingPage({ routerId }: DeviceRoutingPageProps) {
       {matrix ? (
         <DeviceRoutingMatrix
           routerId={routerId}
-          matrix={matrix}
+          matrix={matrix as any}
           actions={actions}
           loading={isLoading}
           error={matrixError}

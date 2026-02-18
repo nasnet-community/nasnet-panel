@@ -22,7 +22,7 @@ func TestResultAddError(t *testing.T) {
 	r := validation.NewResult()
 
 	// Add warning - should stay valid
-	r.AddError(&validation.ValidationError{
+	r.AddError(&validation.Error{
 		Stage:     1,
 		StageName: "schema",
 		Severity:  validation.SeverityWarning,
@@ -38,7 +38,7 @@ func TestResultAddError(t *testing.T) {
 	}
 
 	// Add error - should become invalid
-	r.AddError(&validation.ValidationError{
+	r.AddError(&validation.Error{
 		Stage:     1,
 		StageName: "schema",
 		Severity:  validation.SeverityError,
@@ -56,7 +56,7 @@ func TestResultAddError(t *testing.T) {
 
 func TestResultMerge(t *testing.T) {
 	r1 := validation.NewResult()
-	r1.AddError(&validation.ValidationError{
+	r1.AddError(&validation.Error{
 		Stage:    1,
 		Severity: validation.SeverityWarning,
 		Field:    "f1",
@@ -64,7 +64,7 @@ func TestResultMerge(t *testing.T) {
 	})
 
 	r2 := validation.NewResult()
-	r2.AddError(&validation.ValidationError{
+	r2.AddError(&validation.Error{
 		Stage:    2,
 		Severity: validation.SeverityError,
 		Field:    "f2",
@@ -90,7 +90,7 @@ func TestResultSummary(t *testing.T) {
 		t.Error("summary should not be empty")
 	}
 
-	r.AddError(&validation.ValidationError{
+	r.AddError(&validation.Error{
 		Stage:     1,
 		StageName: "schema",
 		Severity:  validation.SeverityError,
@@ -341,7 +341,7 @@ func TestSeverityString(t *testing.T) {
 }
 
 func TestValidationErrorString(t *testing.T) {
-	err := &validation.ValidationError{
+	err := &validation.Error{
 		StageName: "schema",
 		Field:     "name",
 		Message:   "required",

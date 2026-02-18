@@ -7,8 +7,9 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
-	"backend/internal/events"
 	"backend/internal/features/verification"
+
+	"backend/internal/events"
 
 	"github.com/rs/zerolog"
 )
@@ -38,12 +39,12 @@ func NewVerificationIntegration(verifier *verification.Verifier, store *ent.Clie
 // Integration point: InstanceManager.CreateInstance() download callback (line ~168)
 // Replace the download section with this workflow:
 //
-//	1. Download checksums.txt from checksumsURL
-//	2. Download archive from binaryURL
-//	3. Call VerifyAndInstall() to verify archive
-//	4. Extract archive on success
-//	5. Call ComputeBinaryHash() on extracted binary
-//	6. Update database with verification fields
+//  1. Download checksums.txt from checksumsURL
+//  2. Download archive from binaryURL
+//  3. Call VerifyAndInstall() to verify archive
+//  4. Extract archive on success
+//  5. Call ComputeBinaryHash() on extracted binary
+//  6. Update database with verification fields
 func (vi *VerificationIntegration) VerifyAndInstall(
 	ctx context.Context,
 	instanceID string,
@@ -51,7 +52,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 	archivePath string,
 	checksumsPath string,
 	checksumsURL string,
-	spec *verification.VerificationSpec,
+	spec *verification.Spec,
 ) error {
 	// Verify archive
 	result, err := vi.verifier.VerifyArchive(ctx, archivePath, checksumsPath, checksumsURL, spec)
@@ -65,7 +66,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 		// Emit verification failed event
 		verifiedAt := time.Now().Format(time.RFC3339)
 		if vi.publisher != nil {
-			_ = vi.publisher.PublishBinaryVerificationFailed(
+			_ = vi.publisher.PublishBinaryVerificationFailed( //nolint:errcheck // event publication is best-effort, verification failure is already being returned
 				ctx,
 				featureID,
 				instanceID,
@@ -93,7 +94,7 @@ func (vi *VerificationIntegration) VerifyAndInstall(
 
 		// Emit verification failed event
 		if vi.publisher != nil {
-			_ = vi.publisher.PublishBinaryVerificationFailed(
+			_ = vi.publisher.PublishBinaryVerificationFailed( //nolint:errcheck // event publication is best-effort, hash mismatch is already being returned
 				ctx,
 				featureID,
 				instanceID,
@@ -159,7 +160,7 @@ func (vi *VerificationIntegration) UpdateInstanceVerification(
 
 	// Emit binary verified event
 	if vi.publisher != nil {
-		_ = vi.publisher.PublishBinaryVerified(
+		_ = vi.publisher.PublishBinaryVerified( //nolint:errcheck // event publication is best-effort, verification data was already persisted
 			ctx,
 			featureID,
 			instanceID,

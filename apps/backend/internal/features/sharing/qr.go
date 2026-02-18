@@ -1,10 +1,11 @@
 package sharing
 
 import (
-	"backend/internal/events"
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"backend/internal/events"
 
 	"github.com/skip2/go-qrcode"
 )
@@ -22,13 +23,13 @@ const (
 
 // QRCodeOptions configures QR code generation
 type QRCodeOptions struct {
-	Size             int                        // PNG size in pixels (default 256)
-	ErrorCorrection  qrcode.RecoveryLevel       // Error correction level (default Medium)
-	UserID           string                     // User generating the QR code
+	Size            int                  // PNG size in pixels (default 256)
+	ErrorCorrection qrcode.RecoveryLevel // Error correction level (default Medium)
+	UserID          string               // User generating the QR code
 }
 
 // GenerateQR generates a QR code PNG for a service export package
-func (s *SharingService) GenerateQR(ctx context.Context, pkg *ServiceExportPackage, options QRCodeOptions) ([]byte, error) {
+func (s *Service) GenerateQR(ctx context.Context, pkg *ServiceExportPackage, options QRCodeOptions) ([]byte, error) {
 	// Serialize package to JSON
 	data, err := json.Marshal(pkg)
 	if err != nil {
@@ -94,10 +95,10 @@ func (e *QRCodeError) Error() string {
 // QRCodeGeneratedEvent is emitted when a QR code is generated
 type QRCodeGeneratedEvent struct {
 	events.BaseEvent
-	ServiceType      string `json:"serviceType"`
-	ServiceName      string `json:"serviceName"`
-	DataSize         int    `json:"dataSize"`         // JSON data size in bytes
-	ImageSize        int    `json:"imageSize"`        // PNG image size in bytes
+	ServiceType       string `json:"serviceType"`
+	ServiceName       string `json:"serviceName"`
+	DataSize          int    `json:"dataSize"`  // JSON data size in bytes
+	ImageSize         int    `json:"imageSize"` // PNG image size in bytes
 	GeneratedByUserID string `json:"generatedByUserId,omitempty"`
 }
 
@@ -112,6 +113,7 @@ func NewQRCodeGeneratedEvent(
 	dataSize, imageSize int,
 	generatedByUserID, source string,
 ) *QRCodeGeneratedEvent {
+
 	return &QRCodeGeneratedEvent{
 		BaseEvent:         events.NewBaseEvent("service.qrcode.generated", events.PriorityLow, source),
 		ServiceType:       serviceType,

@@ -7,8 +7,9 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { useBlockedIPsTable } from './use-blocked-ips-table';
 import {
   mockBlockedIPs,

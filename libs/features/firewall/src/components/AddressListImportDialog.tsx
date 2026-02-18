@@ -55,7 +55,7 @@ export function AddressListImportDialog({
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<ImportStep>('select');
   const [content, setContent] = useState('');
-  const [format, setFormat] = useState<'auto' | 'csv' | 'json' | 'txt'>('auto');
+  const [format, setFormat] = useState<'csv' | 'json' | 'txt' | 'unknown'>('unknown');
   const [targetList, setTargetList] = useState('');
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -65,7 +65,7 @@ export function AddressListImportDialog({
   const handleReset = useCallback(() => {
     setStep('select');
     setContent('');
-    setFormat('auto');
+    setFormat('unknown');
     setTargetList('');
     setParseResult(null);
     setImportProgress(0);
@@ -114,8 +114,8 @@ export function AddressListImportDialog({
       return;
     }
 
-    const detectedFormat = format === 'auto' ? detectFormat(content) : format;
-    const result = parseAddressList(content, detectedFormat === 'auto' ? undefined : detectedFormat);
+    const detectedFormat = format === 'unknown' ? detectFormat(content) : format;
+    const result = parseAddressList(content, detectedFormat === 'unknown' ? undefined : detectedFormat);
 
     // For large imports, validate in batches
     if (result.data.length > 100) {
@@ -188,7 +188,7 @@ export function AddressListImportDialog({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="auto">Auto-detect</SelectItem>
+            <SelectItem value="unknown">Auto-detect</SelectItem>
             <SelectItem value="csv">CSV (IP,comment,timeout)</SelectItem>
             <SelectItem value="json">JSON (array of objects)</SelectItem>
             <SelectItem value="txt">TXT (one IP per line)</SelectItem>

@@ -11,10 +11,10 @@ import (
 
 // Password policy errors
 var (
-	ErrPasswordTooShort  = errors.New("password must be at least 8 characters")
-	ErrPasswordTooLong   = errors.New("password must not exceed 128 characters")
-	ErrPasswordCommon    = errors.New("password is too common, please choose a stronger one")
-	ErrPasswordMismatch  = errors.New("current password is incorrect")
+	ErrPasswordTooShort = errors.New("password must be at least 8 characters")
+	ErrPasswordTooLong  = errors.New("password must not exceed 128 characters")
+	ErrPasswordCommon   = errors.New("password is too common, please choose a stronger one")
+	ErrPasswordMismatch = errors.New("current password is incorrect")
 )
 
 // Password error codes for API responses
@@ -48,8 +48,8 @@ func DefaultPasswordPolicy() PasswordPolicy {
 
 // PasswordService handles password hashing and validation
 type PasswordService struct {
-	policy         PasswordPolicy
-	bcryptCost     int
+	policy          PasswordPolicy
+	bcryptCost      int
 	commonPasswords map[string]struct{}
 }
 
@@ -112,7 +112,7 @@ func (ps *PasswordService) loadBuiltinCommonPasswords() {
 		"abc123", "111111", "123123",
 		"passw0rd", "p@ssword", "p@ssw0rd",
 		"nasnet", "nasnetconnect", "mikrotik",
-		"router", "router123", "routeros",
+		"router", "router123", "routers",
 	}
 
 	for _, p := range common {

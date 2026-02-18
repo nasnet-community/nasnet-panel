@@ -3,13 +3,14 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"backend/generated/ent"
 	"backend/generated/ent/session"
 	"backend/generated/ent/user"
-	"backend/pkg/ulid"
+	"backend/internal/common/ulid"
 
 	oklogulid "github.com/oklog/ulid/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -41,18 +42,8 @@ func NewUserRepository(cfg UserRepositoryConfig) UserRepository {
 //
 // Query count: 1 (single INSERT)
 func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*ent.User, error) {
-	// Validate input
-	if input.Username == "" {
-		return nil, InvalidInput("CreateUserInput", "username", "cannot be empty")
-	}
-	if input.Password == "" {
-		return nil, InvalidInput("CreateUserInput", "password", "cannot be empty")
-	}
-	if len(input.Password) < 8 {
-		return nil, InvalidInput("CreateUserInput", "password", "must be at least 8 characters")
-	}
-	if len(input.Password) > 128 {
-		return nil, InvalidInput("CreateUserInput", "password", "must be at most 128 characters")
+	if err := r.validateCreateInput(input); err != nil {
+		return nil, err
 	}
 
 	// Check for duplicate username
@@ -80,17 +71,6 @@ func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*en
 		return nil, fmt.Errorf("marshal settings: %w", err)
 	}
 
-	// Map role
-	var entRole user.Role
-	switch input.Role {
-	case UserRoleAdmin:
-		entRole = user.RoleAdmin
-	case UserRoleOperator:
-		entRole = user.RoleOperator
-	default:
-		entRole = user.RoleViewer
-	}
-
 	// Get audit context if available
 	audit := GetAuditContext(ctx)
 
@@ -99,7 +79,7 @@ func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*en
 		SetID(ulid.NewString()).
 		SetUsername(input.Username).
 		SetPasswordHash(string(hashedPassword)).
-		SetRole(entRole).
+		SetRole(r.mapUserRole(input.Role)).
 		SetActive(true)
 
 	// Optional fields
@@ -127,6 +107,37 @@ func (r *userRepository) Create(ctx context.Context, input CreateUserInput) (*en
 	}
 
 	return newUser, nil
+}
+
+// validateCreateInput validates the CreateUserInput fields.
+func (r *userRepository) validateCreateInput(input CreateUserInput) error {
+	if input.Username == "" {
+		return InvalidInput("CreateUserInput", "username", "cannot be empty")
+	}
+	if input.Password == "" {
+		return InvalidInput("CreateUserInput", "password", "cannot be empty")
+	}
+	if len(input.Password) < 8 {
+		return InvalidInput("CreateUserInput", "password", "must be at least 8 characters")
+	}
+	if len(input.Password) > 128 {
+		return InvalidInput("CreateUserInput", "password", "must be at most 128 characters")
+	}
+	return nil
+}
+
+// mapUserRole converts a domain UserRole to the ent user.Role type.
+func (r *userRepository) mapUserRole(role UserRole) user.Role {
+	switch role {
+	case UserRoleAdmin:
+		return user.RoleAdmin
+	case UserRoleOperator:
+		return user.RoleOperator
+	case UserRoleViewer:
+		return user.RoleViewer
+	default:
+		return user.RoleViewer
+	}
 }
 
 // GetByUsername finds a user by their unique username.
@@ -256,7 +267,7 @@ func (r *userRepository) VerifyPassword(ctx context.Context, id oklogulid.ULID, 
 	// Compare password with hash
 	err = bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return ErrInvalidCredentials
 		}
 		return fmt.Errorf("compare password: %w", err)

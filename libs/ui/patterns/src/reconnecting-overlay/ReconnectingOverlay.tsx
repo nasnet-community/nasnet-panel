@@ -243,4 +243,3 @@ export function useReconnectingState() {
   };
 }
 
-export type { ReconnectingOverlayProps };

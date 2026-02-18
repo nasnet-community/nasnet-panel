@@ -6,6 +6,13 @@ import (
 	"backend/generated/ent"
 )
 
+// Severity level constants used in template sample data.
+const (
+	severityWarning  = "WARNING"
+	severityCritical = "CRITICAL"
+	severityInfo     = "INFO"
+)
+
 // TemplateData is the data structure passed to notification templates.
 // It provides a consistent interface for all alert data that templates can access.
 type TemplateData struct {
@@ -51,24 +58,7 @@ func BuildTemplateData(alert *ent.Alert) TemplateData {
 
 	// Extract device information from alert data
 	if alert.Data != nil {
-		// Try to get device name
-		if deviceName, ok := alert.Data["device_name"].(string); ok && deviceName != "" {
-			data.DeviceName = deviceName
-		}
-		// Try to get device IP
-		if deviceIP, ok := alert.Data["device_ip"].(string); ok && deviceIP != "" {
-			data.DeviceIP = deviceIP
-		}
-		// Try to get suggested actions
-		if actions, ok := alert.Data["suggested_actions"].([]interface{}); ok {
-			data.SuggestedActions = make([]string, 0, len(actions))
-			for _, action := range actions {
-				if actionStr, ok := action.(string); ok {
-					data.SuggestedActions = append(data.SuggestedActions, actionStr)
-				}
-			}
-		}
-		// Store the entire data map for custom template access
+		extractDeviceInfo(alert.Data, &data)
 		data.EventData = alert.Data
 	}
 
@@ -88,12 +78,35 @@ func BuildTemplateData(alert *ent.Alert) TemplateData {
 	return data
 }
 
+// extractDeviceInfo extracts device information from alert data.
+func extractDeviceInfo(data map[string]interface{}, tmplData *TemplateData) {
+	// Try to get device name
+	if deviceName, ok := data["device_name"].(string); ok && deviceName != "" {
+		tmplData.DeviceName = deviceName
+	}
+
+	// Try to get device IP
+	if deviceIP, ok := data["device_ip"].(string); ok && deviceIP != "" {
+		tmplData.DeviceIP = deviceIP
+	}
+
+	// Try to get suggested actions
+	if actions, ok := data["suggested_actions"].([]interface{}); ok {
+		tmplData.SuggestedActions = make([]string, 0, len(actions))
+		for _, action := range actions {
+			if actionStr, ok := action.(string); ok {
+				tmplData.SuggestedActions = append(tmplData.SuggestedActions, actionStr)
+			}
+		}
+	}
+}
+
 // BuildSampleTemplateData creates sample data for template preview/validation.
 // It provides realistic example data for each event type to help users preview templates.
 func BuildSampleTemplateData(eventType string) TemplateData {
 	data := TemplateData{
 		EventType:        eventType,
-		Severity:         "WARNING",
+		Severity:         severityWarning,
 		Title:            "Sample Alert Title",
 		Message:          "This is a sample alert message for preview purposes.",
 		RuleName:         "Sample Alert Rule",
@@ -111,7 +124,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "router.offline":
 		data.Title = "Router Offline"
 		data.Message = "Router router-01 (192.168.1.1) is not responding to health checks."
-		data.Severity = "CRITICAL"
+		data.Severity = severityCritical
 		data.SuggestedActions = []string{
 			"Check physical connection",
 			"Verify power supply",
@@ -123,7 +136,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "interface.down":
 		data.Title = "Interface Down"
 		data.Message = "Network interface ether1 on router-01 has gone down."
-		data.Severity = "WARNING"
+		data.Severity = severityWarning
 		data.SuggestedActions = []string{
 			"Check cable connection",
 			"Verify interface configuration",
@@ -135,7 +148,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "system.cpu_high":
 		data.Title = "High CPU Usage"
 		data.Message = "CPU usage on router-01 has exceeded 90% for 5 minutes."
-		data.Severity = "WARNING"
+		data.Severity = severityWarning
 		data.SuggestedActions = []string{
 			"Check running processes",
 			"Review recent configuration changes",
@@ -148,7 +161,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "vpn.disconnected":
 		data.Title = "VPN Connection Lost"
 		data.Message = "IPsec VPN tunnel to remote-site has disconnected."
-		data.Severity = "CRITICAL"
+		data.Severity = severityCritical
 		data.SuggestedActions = []string{
 			"Check remote endpoint reachability",
 			"Verify VPN credentials",
@@ -160,7 +173,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "backup.failed":
 		data.Title = "Backup Failed"
 		data.Message = "Scheduled backup for router-01 failed to complete."
-		data.Severity = "WARNING"
+		data.Severity = severityWarning
 		data.SuggestedActions = []string{
 			"Check storage space",
 			"Verify backup destination accessibility",
@@ -172,7 +185,7 @@ func BuildSampleTemplateData(eventType string) TemplateData {
 	case "backup.completed":
 		data.Title = "Backup Completed"
 		data.Message = "Scheduled backup for router-01 completed successfully."
-		data.Severity = "INFO"
+		data.Severity = severityInfo
 		data.SuggestedActions = []string{}
 		data.EventData["backup_type"] = "scheduled"
 		data.EventData["backup_size"] = "2.4 MB"

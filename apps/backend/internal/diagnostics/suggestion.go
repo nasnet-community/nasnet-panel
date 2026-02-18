@@ -155,7 +155,7 @@ func (m *SuggestionMapper) tlsErrorSuggestion(status *TLSStatus) DiagnosticSugge
 	}
 }
 
-func (m *SuggestionMapper) authFailedSuggestion(status AuthStatus) DiagnosticSuggestion {
+func (m *SuggestionMapper) authFailedSuggestion(_status AuthStatus) DiagnosticSuggestion {
 	docsURL := m.docsBaseURL + "/troubleshooting/authentication"
 	return DiagnosticSuggestion{
 		Severity:    SuggestionSeverityError,
@@ -166,7 +166,7 @@ func (m *SuggestionMapper) authFailedSuggestion(status AuthStatus) DiagnosticSug
 	}
 }
 
-func (m *SuggestionMapper) timeoutSuggestion(detail string) DiagnosticSuggestion {
+func (m *SuggestionMapper) timeoutSuggestion(_detail string) DiagnosticSuggestion {
 	docsURL := m.docsBaseURL + "/troubleshooting/timeout"
 	return DiagnosticSuggestion{
 		Severity:    SuggestionSeverityError,
@@ -177,7 +177,7 @@ func (m *SuggestionMapper) timeoutSuggestion(detail string) DiagnosticSuggestion
 	}
 }
 
-func (m *SuggestionMapper) connectionRefusedSuggestion(detail string) DiagnosticSuggestion {
+func (m *SuggestionMapper) connectionRefusedSuggestion(_detail string) DiagnosticSuggestion {
 	docsURL := m.docsBaseURL + "/troubleshooting/connection-refused"
 	return DiagnosticSuggestion{
 		Severity:    SuggestionSeverityError,
@@ -253,43 +253,44 @@ func hasOpenPort(ports []PortStatus, service string) bool {
 	return false
 }
 
-// ClassifyError determines the error category from an error.
+// errorPattern maps a set of substrings to an error category.
+type errorPattern struct {
+	substrings []string
+	category   ErrorCategory
+}
+
+// errorPatterns defines the ordered list of patterns for error classification.
+// The first matching pattern wins.
+var errorPatterns = []errorPattern{
+	{[]string{"timeout", "deadline exceeded"}, ErrorCategoryTimeout},
+	{[]string{"connection refused", "actively refused"}, ErrorCategoryRefused},
+	{[]string{"auth", "password", "login", "credential", "401", "403"}, ErrorCategoryAuthFailed},
+	{[]string{"tls", "certificate", "ssl", "x509"}, ErrorCategoryTLSError},
+	{[]string{"no route", "unreachable", "dns", "network"}, ErrorCategoryNetworkError},
+}
+
+// ClassifyError determines the error category from an error using table-driven matching.
 func ClassifyError(err error) ErrorCategory {
 	if err == nil {
 		return ""
 	}
 
 	errStr := err.Error()
-
-	// Check for timeout
-	if contains(errStr, "timeout") || contains(errStr, "deadline exceeded") {
-		return ErrorCategoryTimeout
+	for _, p := range errorPatterns {
+		if matchesAny(errStr, p.substrings) {
+			return p.category
+		}
 	}
 
-	// Check for connection refused
-	if contains(errStr, "connection refused") || contains(errStr, "actively refused") {
-		return ErrorCategoryRefused
-	}
-
-	// Check for auth errors
-	if contains(errStr, "auth") || contains(errStr, "password") ||
-		contains(errStr, "login") || contains(errStr, "credential") ||
-		contains(errStr, "401") || contains(errStr, "403") {
-		return ErrorCategoryAuthFailed
-	}
-
-	// Check for TLS errors
-	if contains(errStr, "tls") || contains(errStr, "certificate") ||
-		contains(errStr, "ssl") || contains(errStr, "x509") {
-		return ErrorCategoryTLSError
-	}
-
-	// Check for network errors
-	if contains(errStr, "no route") || contains(errStr, "unreachable") ||
-		contains(errStr, "dns") || contains(errStr, "network") {
-		return ErrorCategoryNetworkError
-	}
-
-	// Default to protocol error
 	return ErrorCategoryProtocolError
+}
+
+// matchesAny returns true if s contains any of the given substrings (case-insensitive).
+func matchesAny(s string, substrings []string) bool {
+	for _, sub := range substrings {
+		if contains(s, sub) {
+			return true
+		}
+	}
+	return false
 }

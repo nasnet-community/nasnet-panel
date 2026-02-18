@@ -7,16 +7,19 @@
 
 import * as React from 'react';
 
-import type { ColumnDef } from '@tanstack/react-table';
+
+import { Filter, Network } from 'lucide-react';
 
 import { Button, cn } from '@nasnet/ui/primitives';
+
 import { EmptyState } from '../empty-state';
 import { VirtualizedTable, createTextColumn } from '../virtualization';
-
-import { ConnectionStateBadge } from './ConnectionStateBadge';
 import { ConnectionFilterBar } from './ConnectionFilterBar';
+import { ConnectionStateBadge } from './ConnectionStateBadge';
+
 import type { ConnectionEntry } from './types';
 import type { UseConnectionListReturn } from './use-connection-list';
+import type { ColumnDef } from '@tanstack/react-table';
 
 export interface ConnectionListDesktopProps {
   /** Connection list hook return value */
@@ -206,21 +209,21 @@ export function ConnectionListDesktop({
     if (hasActiveFilter) {
       return (
         <EmptyState
-          icon="filter"
+          icon={Filter}
           title="No matching connections"
           description="Try adjusting your filters"
-          action={
-            <Button variant="outline" onClick={clearFilter}>
-              Clear Filters
-            </Button>
-          }
+          action={{
+            label: 'Clear Filters',
+            onClick: clearFilter,
+            variant: 'outline',
+          }}
         />
       );
     }
 
     return (
       <EmptyState
-        icon="network"
+        icon={Network}
         title="No active connections"
         description="There are currently no tracked connections on this router"
       />

@@ -41,13 +41,13 @@ func TestXrayGenerator_Generate(t *testing.T) {
 		{
 			name: "valid config with TLS",
 			config: map[string]interface{}{
-				"protocol":       "vless",
-				"port":           10443,
-				"uuid":           "12345678-1234-1234-1234-123456789012",
-				"tls_enabled":    true,
-				"tls_cert_path":  "/etc/xray/cert.pem",
-				"tls_key_path":   "/etc/xray/key.pem",
-				"log_level":      "warning",
+				"protocol":      "vless",
+				"port":          10443,
+				"uuid":          "12345678-1234-1234-1234-123456789012",
+				"tls_enabled":   true,
+				"tls_cert_path": "/etc/xray/cert.pem",
+				"tls_key_path":  "/etc/xray/key.pem",
+				"log_level":     "warning",
 			},
 			wantErr: false,
 		},
@@ -106,12 +106,12 @@ func TestXrayGenerator_Validate(t *testing.T) {
 		{
 			name: "TLS enabled without cert path",
 			config: map[string]interface{}{
-				"protocol":    "vless",
-				"port":        10443,
-				"uuid":        "12345678-1234-1234-1234-123456789012",
-				"tls_enabled": true,
+				"protocol":     "vless",
+				"port":         10443,
+				"uuid":         "12345678-1234-1234-1234-123456789012",
+				"tls_enabled":  true,
 				"tls_key_path": "/etc/xray/key.pem",
-				"log_level":   "warning",
+				"log_level":    "warning",
 			},
 			bindIP:  bindIP,
 			wantErr: true,
@@ -194,4 +194,3 @@ func TestXrayGenerator_GetConfigFormat(t *testing.T) {
 		t.Errorf("GetConfigFormat() = %v, want %v", format, "json")
 	}
 }
-

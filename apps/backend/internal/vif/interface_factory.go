@@ -7,6 +7,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/virtualinterface"
+
 	"backend/internal/events"
 	"backend/internal/router"
 
@@ -94,8 +95,8 @@ func (f *InterfaceFactory) CreateInterface(
 			// Rollback in reverse order
 			log.Warn().Msg("Rolling back interface creation")
 			for i := len(cleanups) - 1; i >= 0; i-- {
-				if err := cleanups[i](); err != nil {
-					log.Error().Err(err).Msg("Cleanup failed")
+				if cleanupErr := cleanups[i](); cleanupErr != nil {
+					log.Error().Err(cleanupErr).Msg("Cleanup failed")
 				}
 			}
 		}
@@ -111,10 +112,10 @@ func (f *InterfaceFactory) CreateInterface(
 			"interface": f.parentIface,
 		},
 	}
-	if _, err := f.router.ExecuteCommand(ctx, vlanCmd); err != nil {
+	if _, vlanErr := f.router.ExecuteCommand(ctx, vlanCmd); vlanErr != nil {
 		// Update status to ERROR
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create VLAN interface: %w", err)
+		return nil, fmt.Errorf("failed to create VLAN interface: %w", vlanErr)
 	}
 	cleanups = append(cleanups, func() error {
 		removeVlanCmd := router.Command{
@@ -124,8 +125,8 @@ func (f *InterfaceFactory) CreateInterface(
 				"numbers": interfaceName,
 			},
 		}
-		_, err := f.router.ExecuteCommand(ctx, removeVlanCmd)
-		return err
+		_, rmErr := f.router.ExecuteCommand(ctx, removeVlanCmd)
+		return rmErr
 	})
 
 	// Step 2: Assign IP address
@@ -137,9 +138,9 @@ func (f *InterfaceFactory) CreateInterface(
 			"interface": interfaceName,
 		},
 	}
-	if _, err := f.router.ExecuteCommand(ctx, ipCmd); err != nil {
+	if _, ipErr := f.router.ExecuteCommand(ctx, ipCmd); ipErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to assign IP address: %w", err)
+		return nil, fmt.Errorf("failed to assign IP address: %w", ipErr)
 	}
 	cleanups = append(cleanups, func() error {
 		removeIpCmd := router.Command{
@@ -149,8 +150,8 @@ func (f *InterfaceFactory) CreateInterface(
 				"numbers": ipAddress,
 			},
 		}
-		_, err := f.router.ExecuteCommand(ctx, removeIpCmd)
-		return err
+		_, rmErr := f.router.ExecuteCommand(ctx, removeIpCmd)
+		return rmErr
 	})
 
 	// Step 3: Create routing table
@@ -161,9 +162,9 @@ func (f *InterfaceFactory) CreateInterface(
 			"name": routingTableName,
 		},
 	}
-	if _, err := f.router.ExecuteCommand(ctx, tableCmd); err != nil {
+	if _, tblErr := f.router.ExecuteCommand(ctx, tableCmd); tblErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create routing table: %w", err)
+		return nil, fmt.Errorf("failed to create routing table: %w", tblErr)
 	}
 	cleanups = append(cleanups, func() error {
 		removeTableCmd := router.Command{
@@ -173,8 +174,8 @@ func (f *InterfaceFactory) CreateInterface(
 				"numbers": routingTableName,
 			},
 		}
-		_, err := f.router.ExecuteCommand(ctx, removeTableCmd)
-		return err
+		_, rmErr := f.router.ExecuteCommand(ctx, removeTableCmd)
+		return rmErr
 	})
 
 	// Step 4: Add default route to gateway
@@ -188,9 +189,9 @@ func (f *InterfaceFactory) CreateInterface(
 			"routing-table": routingTableName,
 		},
 	}
-	if _, err := f.router.ExecuteCommand(ctx, routeCmd); err != nil {
+	if _, rtErr := f.router.ExecuteCommand(ctx, routeCmd); rtErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create default route: %w", err)
+		return nil, fmt.Errorf("failed to create default route: %w", rtErr)
 	}
 	cleanups = append(cleanups, func() error {
 		removeRouteCmd := router.Command{
@@ -201,8 +202,8 @@ func (f *InterfaceFactory) CreateInterface(
 				"dst-address":   "0.0.0.0/0",
 			},
 		}
-		_, err := f.router.ExecuteCommand(ctx, removeRouteCmd)
-		return err
+		_, rmErr := f.router.ExecuteCommand(ctx, removeRouteCmd)
+		return rmErr
 	})
 
 	// All steps succeeded - update status to ACTIVE and clear cleanup

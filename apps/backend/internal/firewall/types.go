@@ -6,18 +6,18 @@ import (
 
 // Template represents a firewall template
 type Template struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Category    string              `json:"category"`
-	Complexity  string              `json:"complexity"`
-	RuleCount   int                 `json:"ruleCount"`
-	Version     string              `json:"version"`
-	IsBuiltIn   bool                `json:"isBuiltIn"`
-	Variables   []TemplateVariable  `json:"variables"`
-	Rules       []TemplateRule      `json:"rules"`
-	CreatedAt   *time.Time          `json:"createdAt,omitempty"`
-	UpdatedAt   *time.Time          `json:"updatedAt,omitempty"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Category    string             `json:"category"`
+	Complexity  string             `json:"complexity"`
+	RuleCount   int                `json:"ruleCount"`
+	Version     string             `json:"version"`
+	IsBuiltIn   bool               `json:"isBuiltIn"`
+	Variables   []TemplateVariable `json:"variables"`
+	Rules       []TemplateRule     `json:"rules"`
+	CreatedAt   *time.Time         `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time         `json:"updatedAt,omitempty"`
 }
 
 // TemplateVariable represents a template parameter
@@ -51,18 +51,18 @@ type PreviewResult struct {
 
 // Conflict represents a detected conflict
 type Conflict struct {
-	Type            string
-	Message         string
-	ExistingRuleID  string
-	ProposedRule    TemplateRule
+	Type           string
+	Message        string
+	ExistingRuleID string
+	ProposedRule   TemplateRule
 }
 
 // ImpactAnalysis provides impact metrics
 type ImpactAnalysis struct {
-	NewRulesCount       int
-	AffectedChains      []string
-	EstimatedApplyTime  int
-	Warnings            []string
+	NewRulesCount      int
+	AffectedChains     []string
+	EstimatedApplyTime int
+	Warnings           []string
 }
 
 // ApplyResult contains the result of template application
@@ -75,17 +75,17 @@ type ApplyResult struct {
 
 // RollbackState stores state for template rollback
 type RollbackState struct {
-	ID              string
-	RouterID        string
-	TemplateID      string
-	AppliedAt       time.Time
-	ExpiresAt       time.Time
-	CreatedRuleIDs  []string
-	PreviousState   []FirewallRule
+	ID             string
+	RouterID       string
+	TemplateID     string
+	AppliedAt      time.Time
+	ExpiresAt      time.Time
+	CreatedRuleIDs []string
+	PreviousState  []Rule
 }
 
-// FirewallRule represents an existing firewall rule
-type FirewallRule struct {
+// Rule represents an existing firewall rule
+type Rule struct {
 	ID         string
 	Table      string
 	Chain      string

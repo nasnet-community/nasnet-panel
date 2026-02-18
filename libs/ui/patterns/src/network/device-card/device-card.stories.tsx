@@ -7,14 +7,15 @@
  * @see NAS-4A.20: Build Device Discovery Card Component
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { DeviceCard } from './device-card';
+import { DeviceCardCompact } from './device-card-compact';
 import { DeviceCardDesktop } from './device-card-desktop';
 import { DeviceCardMobile } from './device-card-mobile';
-import { DeviceCardCompact } from './device-card-compact';
 import { useDeviceCard } from './use-device-card';
-import type { DiscoveredDevice, DeviceType } from './device-card.types';
+
+import type { DiscoveredDevice } from './device-card.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Create a mock device for stories

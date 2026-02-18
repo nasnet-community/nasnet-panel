@@ -4,13 +4,17 @@
  */
 
 import { useState } from 'react';
-import { NetworkInterface } from '@nasnet/core/types';
-import { useInterfaceTraffic } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
-import { formatBytes } from '@nasnet/core/utils';
-import { InterfaceTypeIcon } from './InterfaceTypeIcon';
+
 import { ChevronDown, ChevronUp, ArrowDown, ArrowUp } from 'lucide-react';
+
+import { useInterfaceTraffic } from '@nasnet/api-client/queries';
+import { type NetworkInterface } from '@nasnet/core/types';
+import { formatBytes } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
+
 import { cn } from '@/lib/utils';
+
+import { InterfaceTypeIcon } from './InterfaceTypeIcon';
 
 interface InterfaceGridCardProps {
   interface: NetworkInterface;

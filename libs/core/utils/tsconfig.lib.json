@@ -2,17 +2,16 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "declaration": true,
-    "declarationMap": true,
     "emitDeclarationOnly": true,
-    "composite": true,
+    "composite": false,
+    "declarationMap": false,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "paths": {
       "@nasnet/core/*": ["../*/src"]
     }
@@ -24,9 +23,5 @@
     "src/**/*.test.tsx",
     "src/**/*.spec.tsx"
   ],
-  "references": [
-    {
-      "path": "../types/tsconfig.lib.json"
-    }
-  ]
+  "references": []
 }

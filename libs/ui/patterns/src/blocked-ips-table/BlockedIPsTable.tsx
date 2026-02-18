@@ -45,10 +45,12 @@
  */
 
 import * as React from 'react';
-import { usePlatform } from '@nasnet/ui/primitives';
+
+import { usePlatform } from '@nasnet/ui/layouts';
 
 import { BlockedIPsTableDesktop } from './BlockedIPsTableDesktop';
 import { BlockedIPsTableMobile } from './BlockedIPsTableMobile';
+
 import type { UseBlockedIPsTableReturn } from './use-blocked-ips-table';
 
 export interface BlockedIPsTableProps {

@@ -4,8 +4,6 @@
  * Based on UX Design Specification - Direction 1: Clean Minimal
  */
 
-import * as React from 'react';
-
 import { type LucideIcon } from 'lucide-react';
 
 import { Card, CardContent, Badge } from '@nasnet/ui/primitives';

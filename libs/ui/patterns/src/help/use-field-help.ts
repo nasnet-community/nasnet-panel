@@ -13,7 +13,10 @@
  */
 
 import { useMemo, useState, useCallback } from 'react';
+
 import { useTranslation } from '@nasnet/core/i18n';
+
+import { useHelpMode } from './use-help-mode';
 
 import type {
   FieldHelpConfig,
@@ -21,7 +24,6 @@ import type {
   HelpContent,
   HelpMode,
 } from './help.types';
-import { useHelpMode } from './use-help-mode';
 
 /**
  * Default help content when translation is missing or loading

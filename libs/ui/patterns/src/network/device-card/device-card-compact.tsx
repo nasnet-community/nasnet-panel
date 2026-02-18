@@ -13,8 +13,9 @@ import { useCallback } from 'react';
 
 import { Card, cn } from '@nasnet/ui/primitives';
 
-import type { DeviceCardPresenterProps } from './device-card.types';
 import { statusDotVariants } from './device-card-base';
+
+import type { DeviceCardPresenterProps } from './device-card.types';
 
 /**
  * Device Card Compact Presenter

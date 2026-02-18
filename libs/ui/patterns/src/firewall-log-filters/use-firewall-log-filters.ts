@@ -8,7 +8,9 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import type { InferredAction } from '@nasnet/core/types/firewall';
+
+import type { InferredAction } from '@nasnet/core/types';
+
 import type {
   FirewallLogFilterState,
   TimeRangePreset,

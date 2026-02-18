@@ -5,8 +5,13 @@
  */
 
 import * as React from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
-import { Route } from '@/routes/router/$id/vpn/index';
+import { RefreshCw, Settings } from 'lucide-react';
+
+import { useVPNStats } from '@nasnet/api-client/queries';
+import type { VPNProtocol } from '@nasnet/core/types';
+import { useConnectionStore } from '@nasnet/state/stores';
 import { 
   VPNStatusHero,
   VPNProtocolStatsCard,
@@ -14,10 +19,8 @@ import {
   VPNIssuesList,
 } from '@nasnet/ui/patterns';
 import { Button, Skeleton } from '@nasnet/ui/primitives';
-import { RefreshCw, Settings } from 'lucide-react';
-import { useVPNStats } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
-import type { VPNProtocol } from '@nasnet/core/types';
+
+import { Route } from '@/routes/router/$id/vpn/index';
 
 /**
  * Protocol display order
@@ -64,7 +67,7 @@ export function VPNDashboard() {
   const handleProtocolClick = (protocol: VPNProtocol) => {
     // Navigate to servers page with protocol filter
     if (routerId) {
-      navigate({ to: `/router/${routerId}/vpn/servers`, search: { protocol } });
+      navigate({ to: `/router/${routerId}/vpn/servers` as string, search: { protocol } as Record<string, unknown> });
     }
   };
 

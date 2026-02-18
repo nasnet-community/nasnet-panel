@@ -3,9 +3,11 @@
  * Dashboard Pro style with visual bars and compact layout
  */
 
-import { TrafficStatistics } from '@nasnet/core/types';
-import { formatBytes, formatNumber } from '@nasnet/core/utils';
 import { ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react';
+
+import { type TrafficStatistics } from '@nasnet/core/types';
+import { formatBytes, formatNumber } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
 
 interface TrafficStatsProps {

@@ -8,14 +8,20 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Settings,
   Info,
   Trash2,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  FilterChainSchema,
+  FilterActionSchema,
+  ConnectionStateSchema,
+} from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -23,8 +29,7 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -36,16 +41,15 @@ import {
   Switch,
   Badge,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
 
-import {
-  FilterChainSchema,
-  FilterActionSchema,
-  ConnectionStateSchema,
-} from '@nasnet/core/types/firewall';
-
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useFilterRuleEditor } from './use-filter-rule-editor';
+
 import type { FilterRuleEditorProps } from './filter-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Mobile presenter for filter rule editor.
@@ -77,18 +81,19 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
     if (action === 'accept') return 'success';
-    if (action === 'drop' || action === 'reject' || action === 'tarpit') return 'destructive';
+    if (action === 'drop' || action === 'reject' || action === 'tarpit') return 'error';
     if (action === 'log') return 'info';
     if (action === 'jump' || action === 'passthrough') return 'warning';
     return 'default';
   }, [rule.action]);
 
   return (
+    <FormProvider {...form}>
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] flex flex-col">
         <SheetHeader>
@@ -121,7 +126,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
           <Card className="p-4 space-y-4">
             <h3 className="text-sm font-semibold">Chain & Action</h3>
 
-            <RHFFormField
+            <FormField
               name="chain"
               label="Chain"
               description="Packet processing stage"
@@ -136,7 +141,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                       <SelectValue placeholder="Select chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      {FilterChainSchema.options.map((chain) => (
+                      {FilterChainSchema.options.map((chain: string) => (
                         <SelectItem key={chain} value={chain} className="h-11">
                           {chain}
                         </SelectItem>
@@ -145,9 +150,9 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField
+            <FormField
               name="action"
               label="Action"
               description="What to do with matched packets"
@@ -162,7 +167,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                       <SelectValue placeholder="Select action" />
                     </SelectTrigger>
                     <SelectContent>
-                      {FilterActionSchema.options.map((action) => (
+                      {FilterActionSchema.options.map((action: string) => (
                         <SelectItem key={action} value={action} className="h-11">
                           {action}
                         </SelectItem>
@@ -171,7 +176,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
           </Card>
 
           {/* Action-Specific Fields */}
@@ -180,7 +185,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
               <h3 className="text-sm font-semibold">Action Settings</h3>
 
               {visibleFields.includes('logPrefix') && (
-                <RHFFormField
+                <FormField
                   name="logPrefix"
                   label="Log Prefix"
                   description="Prefix for log entries"
@@ -198,29 +203,29 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('jumpTarget') && (
-                <RHFFormField
+                <FormField
                   name="jumpTarget"
                   label="Jump Target"
                   description="Custom chain name"
                   required
                 >
                   <Controller
-                    name="jumpTarget"
+                    name={"jumpTarget" as any}
                     control={control}
-                    render={({ field }) => (
+                    render={({ field: { value, ...fieldRest } }) => (
                       <Input
-                        {...field}
+                        {...fieldRest}
                         placeholder="e.g., custom-chain"
-                        value={field.value || ''}
+                        value={String(value ?? '')}
                         className="h-11"
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </Card>
           )}
@@ -232,7 +237,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
               Traffic Matchers
             </h3>
 
-            <RHFFormField name="protocol" label="Protocol">
+            <FormField name="protocol" label="Protocol">
               <Controller
                 name="protocol"
                 control={control}
@@ -250,9 +255,9 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="srcAddress" label="Source Address">
+            <FormField name="srcAddress" label="Source Address">
               <Controller
                 name="srcAddress"
                 control={control}
@@ -265,9 +270,9 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="dstAddress" label="Destination Address">
+            <FormField name="dstAddress" label="Destination Address">
               <Controller
                 name="dstAddress"
                 control={control}
@@ -280,9 +285,9 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="dstPort" label="Destination Port">
+            <FormField name="dstPort" label="Destination Port">
               <Controller
                 name="dstPort"
                 control={control}
@@ -295,10 +300,10 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
             {canUseInInterface && (
-              <RHFFormField name="inInterface" label="Input Interface">
+              <FormField name="inInterface" label="Input Interface">
                 <Controller
                   name="inInterface"
                   control={control}
@@ -311,11 +316,11 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
 
             {canUseOutInterface && (
-              <RHFFormField name="outInterface" label="Output Interface">
+              <FormField name="outInterface" label="Output Interface">
                 <Controller
                   name="outInterface"
                   control={control}
@@ -328,7 +333,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             )}
           </Card>
 
@@ -339,7 +344,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
               Settings
             </h3>
 
-            <RHFFormField name="comment" label="Comment">
+            <FormField name="comment" label="Comment">
               <Controller
                 name="comment"
                 control={control}
@@ -352,7 +357,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
             <div className="flex items-center justify-between h-11">
               <span className="text-sm font-medium">Disabled</span>
@@ -419,6 +424,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+    </FormProvider>
   );
 });
 

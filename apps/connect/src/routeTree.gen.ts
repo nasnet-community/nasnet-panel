@@ -46,6 +46,7 @@ import { Route as RouterIdVpnServersRouteImport } from './routes/router/$id/vpn/
 import { Route as RouterIdVpnClientsRouteImport } from './routes/router/$id/vpn/clients'
 import { Route as RouterIdServicesTemplatesRouteImport } from './routes/router/$id/services/templates'
 import { Route as RouterIdFirewallTemplatesRouteImport } from './routes/router/$id/firewall/templates'
+import { Route as RouterIdFirewallServicePortsRouteImport } from './routes/router/$id/firewall/service-ports'
 import { Route as RouterIdFirewallRawRouteImport } from './routes/router/$id/firewall/raw'
 import { Route as RouterIdFirewallRateLimitingRouteImport } from './routes/router/$id/firewall/rate-limiting'
 import { Route as RouterIdFirewallPortKnockingRouteImport } from './routes/router/$id/firewall/port-knocking'
@@ -243,6 +244,12 @@ const RouterIdFirewallTemplatesRoute =
     path: '/templates',
     getParentRoute: () => RouterIdFirewallRoute,
   } as any)
+const RouterIdFirewallServicePortsRoute =
+  RouterIdFirewallServicePortsRouteImport.update({
+    id: '/service-ports',
+    path: '/service-ports',
+    getParentRoute: () => RouterIdFirewallRoute,
+  } as any)
 const RouterIdFirewallRawRoute = RouterIdFirewallRawRouteImport.update({
   id: '/raw',
   path: '/raw',
@@ -320,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/router/$id/firewall/port-knocking': typeof RouterIdFirewallPortKnockingRoute
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
+  '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
@@ -365,6 +373,7 @@ export interface FileRoutesByTo {
   '/router/$id/firewall/port-knocking': typeof RouterIdFirewallPortKnockingRoute
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
+  '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
@@ -412,6 +421,7 @@ export interface FileRoutesById {
   '/router/$id/firewall/port-knocking': typeof RouterIdFirewallPortKnockingRoute
   '/router/$id/firewall/rate-limiting': typeof RouterIdFirewallRateLimitingRoute
   '/router/$id/firewall/raw': typeof RouterIdFirewallRawRoute
+  '/router/$id/firewall/service-ports': typeof RouterIdFirewallServicePortsRoute
   '/router/$id/firewall/templates': typeof RouterIdFirewallTemplatesRoute
   '/router/$id/services/templates': typeof RouterIdServicesTemplatesRoute
   '/router/$id/vpn/clients': typeof RouterIdVpnClientsRoute
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/port-knocking'
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
+    | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
@@ -505,6 +516,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/port-knocking'
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
+    | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
@@ -551,6 +563,7 @@ export interface FileRouteTypes {
     | '/router/$id/firewall/port-knocking'
     | '/router/$id/firewall/rate-limiting'
     | '/router/$id/firewall/raw'
+    | '/router/$id/firewall/service-ports'
     | '/router/$id/firewall/templates'
     | '/router/$id/services/templates'
     | '/router/$id/vpn/clients'
@@ -834,6 +847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterIdFirewallTemplatesRouteImport
       parentRoute: typeof RouterIdFirewallRoute
     }
+    '/router/$id/firewall/service-ports': {
+      id: '/router/$id/firewall/service-ports'
+      path: '/service-ports'
+      fullPath: '/router/$id/firewall/service-ports'
+      preLoaderRoute: typeof RouterIdFirewallServicePortsRouteImport
+      parentRoute: typeof RouterIdFirewallRoute
+    }
     '/router/$id/firewall/raw': {
       id: '/router/$id/firewall/raw'
       path: '/raw'
@@ -956,6 +976,7 @@ interface RouterIdFirewallRouteChildren {
   RouterIdFirewallPortKnockingRoute: typeof RouterIdFirewallPortKnockingRoute
   RouterIdFirewallRateLimitingRoute: typeof RouterIdFirewallRateLimitingRoute
   RouterIdFirewallRawRoute: typeof RouterIdFirewallRawRoute
+  RouterIdFirewallServicePortsRoute: typeof RouterIdFirewallServicePortsRoute
   RouterIdFirewallTemplatesRoute: typeof RouterIdFirewallTemplatesRoute
 }
 
@@ -967,6 +988,7 @@ const RouterIdFirewallRouteChildren: RouterIdFirewallRouteChildren = {
   RouterIdFirewallPortKnockingRoute: RouterIdFirewallPortKnockingRoute,
   RouterIdFirewallRateLimitingRoute: RouterIdFirewallRateLimitingRoute,
   RouterIdFirewallRawRoute: RouterIdFirewallRawRoute,
+  RouterIdFirewallServicePortsRoute: RouterIdFirewallServicePortsRoute,
   RouterIdFirewallTemplatesRoute: RouterIdFirewallTemplatesRoute,
 }
 

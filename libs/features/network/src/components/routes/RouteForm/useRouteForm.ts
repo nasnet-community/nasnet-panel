@@ -31,8 +31,8 @@ export function useRouteForm(props: RouteFormProps) {
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<RouteFormData>({
-    resolver: zodResolver(routeFormSchema),
-    defaultValues: initialValues || routeFormDefaults,
+    resolver: zodResolver(routeFormSchema) as never,
+    defaultValues: (initialValues || routeFormDefaults) as RouteFormData,
     mode: 'onChange', // Validate on change for real-time feedback
   });
 
@@ -44,8 +44,8 @@ export function useRouteForm(props: RouteFormProps) {
 
   // Gateway reachability check hook (lazy query)
   const {
-    checkReachability,
-    data: reachabilityData,
+    check: checkReachability,
+    result: reachabilityData,
     loading: reachabilityLoading,
   } = useCheckGatewayReachability(routerId);
 
@@ -106,7 +106,7 @@ export function useRouteForm(props: RouteFormProps) {
   }, [gatewayValue, reachabilityData, reachabilityLoading]);
 
   // Handle form submission
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit(async (data: any) => {
     // Gateway reachability warning is non-blocking, so we allow submission
     // even if gateway is unreachable (user has been warned)
     await onSubmit(data);

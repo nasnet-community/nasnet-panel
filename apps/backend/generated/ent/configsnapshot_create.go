@@ -3,11 +3,12 @@
 package ent
 
 import (
-	"backend/generated/ent/configsnapshot"
 	"context"
 	"errors"
 	"fmt"
 	"time"
+
+	"backend/generated/ent/configsnapshot"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

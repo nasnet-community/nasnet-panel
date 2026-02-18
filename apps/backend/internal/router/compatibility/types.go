@@ -66,6 +66,8 @@ type PathMapping struct {
 }
 
 // CompatibilityMatrix is the complete version compatibility configuration.
+//
+//nolint:revive // type name is appropriate despite stutter
 type CompatibilityMatrix struct {
 	// Version is the matrix schema version.
 	Version string `json:"version" yaml:"version"`

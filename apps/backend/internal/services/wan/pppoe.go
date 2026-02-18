@@ -11,6 +11,8 @@ import (
 )
 
 // ConfigurePPPoEClient configures PPPoE client on a WAN interface.
+//
+//nolint:gocyclo // PPPoE configuration complexity
 func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, input PppoeClientInput) (*WANInterfaceData, error) {
 	log.Printf("[WANService] Configuring PPPoE client on router %s, name=%s, interface %s", routerID, input.Name, input.Interface)
 
@@ -34,8 +36,8 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 					Action: "remove",
 					Args:   map[string]string{".id": id},
 				}
-				if _, err := s.routerPort.ExecuteCommand(ctx, removeCmd); err != nil {
-					return nil, fmt.Errorf("failed to remove existing PPPoE client: %w", err)
+				if _, removeErr := s.routerPort.ExecuteCommand(ctx, removeCmd); removeErr != nil {
+					return nil, fmt.Errorf("failed to remove existing PPPoE client: %w", removeErr)
 				}
 			}
 		}
@@ -75,7 +77,7 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 		return nil, fmt.Errorf("failed to add PPPoE client: %w", err)
 	}
 	if !addResult.Success {
-		return nil, fmt.Errorf("PPPoE client configuration failed: %s", addResult.Error)
+		return nil, fmt.Errorf("PPPoE client configuration failed: %w", addResult.Error)
 	}
 
 	log.Printf("[WANService] PPPoE client configured successfully: %s", input.Name)
@@ -108,23 +110,24 @@ func (s *WANService) ConfigurePPPoEClient(ctx context.Context, routerID string, 
 			ID:              pppoeData[".id"],
 			Name:            input.Name,
 			Interface:       input.Interface,
-			Disabled:        pppoeData["disabled"] == "true",
+			Disabled:        pppoeData["disabled"] == dhcpTrue,
 			Username:        input.Username,
 			ServiceName:     input.ServiceName,
 			AddDefaultRoute: input.AddDefaultRoute,
 			UsePeerDNS:      input.UsePeerDNS,
-			Running:         pppoeData["running"] == "true",
+			Running:         pppoeData["running"] == dhcpTrue,
 			MTU:             input.MTU,
 			MRU:             input.MRU,
 			Comment:         input.Comment,
 		}
 
-		if pppoeData["running"] == "true" {
+		switch {
+		case pppoeData["running"] == dhcpTrue:
 			wanData.Status = "CONNECTED"
 			wanData.LastConnected = time.Now()
-		} else if pppoeData["disabled"] == "false" {
+		case pppoeData["disabled"] == "false":
 			wanData.Status = "CONNECTING"
-		} else {
+		default:
 			wanData.Status = "DISABLED"
 		}
 	}

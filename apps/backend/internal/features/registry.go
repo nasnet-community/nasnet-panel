@@ -86,11 +86,11 @@ func (r *FeatureRegistry) GetManifest(id string) (*Manifest, error) {
 }
 
 // ListManifests returns all manifests, optionally filtered by category and/or architecture
-func (r *FeatureRegistry) ListManifests(category string, architecture string) []*Manifest {
+func (r *FeatureRegistry) ListManifests(category, architecture string) []*Manifest {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	var results []*Manifest
+	results := make([]*Manifest, 0, len(r.manifests))
 
 	for _, manifest := range r.manifests {
 		// Filter by category if specified
@@ -154,7 +154,7 @@ func (r *FeatureRegistry) GetCategories() []string {
 		categorySet[category] = true
 	}
 
-	var categories []string
+	categories := make([]string, 0, len(categorySet))
 	for category := range categorySet {
 		categories = append(categories, category)
 	}
@@ -169,7 +169,7 @@ func (r *FeatureRegistry) SearchManifests(query string) []*Manifest {
 	defer r.mu.RUnlock()
 
 	query = strings.ToLower(query)
-	var results []*Manifest
+	results := make([]*Manifest, 0, len(r.manifests))
 
 	for _, manifest := range r.manifests {
 		// Search in name

@@ -138,11 +138,10 @@ export function DnsStaticEntriesListDesktop({
     <>
       <div className="space-y-4">
         {/* Data Table */}
-        <DataTable<DNSStaticEntry>
+        <DataTable
           columns={columns}
-          data={sortedEntries}
-          keyExtractor={(entry) => entry['.id']}
-          loading={loading}
+          data={sortedEntries as any[]}
+          isLoading={loading}
         />
 
         {/* Add Entry Button */}

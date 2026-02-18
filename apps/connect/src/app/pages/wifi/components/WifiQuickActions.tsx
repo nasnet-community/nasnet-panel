@@ -3,8 +3,9 @@
  * Action buttons for refresh and restart operations
  */
 
-import { RefreshCw, Power } from 'lucide-react';
 import { useState } from 'react';
+
+import { RefreshCw, Power } from 'lucide-react';
 
 interface WifiQuickActionsProps {
   onRefresh: () => void;
@@ -42,7 +43,17 @@ export function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsPr
       {/* Restart Confirmation Dialog */}
       {showRestartDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowRestartDialog(false)} />
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setShowRestartDialog(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setShowRestartDialog(false);
+              }
+            }}
+            role="presentation"
+            tabIndex={-1}
+          />
           <div className="relative bg-white dark:bg-slate-900 rounded-xl p-6 max-w-md mx-4 shadow-xl">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Restart WiFi?</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">

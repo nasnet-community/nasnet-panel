@@ -9,13 +9,14 @@
 
 import { useMemo, useCallback } from 'react';
 
+import { SCOPE_COLORS } from './types';
+
 import type {
   ServiceTemplateCardProps,
   TemplateAction,
   TemplateScope,
   TemplateCategory,
 } from './types';
-import { SCOPE_COLORS } from './types';
 
 /**
  * Return type for useServiceTemplateCard hook

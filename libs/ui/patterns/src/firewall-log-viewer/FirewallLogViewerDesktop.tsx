@@ -8,6 +8,19 @@
  */
 
 import { memo, useCallback } from 'react';
+
+import {
+  Play,
+  Pause,
+  Download,
+  Search,
+  ChevronUp,
+  ChevronDown,
+  ExternalLink,
+  BarChart3,
+} from 'lucide-react';
+
+import type { FirewallLogEntry } from '@nasnet/core/types';
 import {
   Table,
   TableHeader,
@@ -26,21 +39,12 @@ import {
   SelectItem,
   Separator,
 } from '@nasnet/ui/primitives';
-import {
-  Play,
-  Pause,
-  Download,
-  Search,
-  ChevronUp,
-  ChevronDown,
-  ExternalLink,
-  BarChart3,
-} from 'lucide-react';
-import { FirewallLogFilters } from '../firewall-log-filters';
+
+import { FirewallLogFilters, type FirewallLogFilterState } from '../firewall-log-filters';
 import { FirewallLogStats } from '../firewall-log-stats';
-import type { FirewallLogViewerPresenterProps } from './FirewallLogViewer.types';
 import { getActionColorClasses } from './FirewallLogViewer.types';
-import type { FirewallLogEntry } from '@nasnet/core/types';
+
+import type { FirewallLogViewerPresenterProps } from './FirewallLogViewer.types';
 
 /**
  * Desktop presenter for firewall log viewer.
@@ -122,8 +126,8 @@ export const FirewallLogViewerDesktop = memo(
       <div className={`flex h-screen ${className || ''}`}>
         {/* Filters Sidebar */}
         <FirewallLogFilters
-          filters={viewer.state.filters}
-          onFiltersChange={viewer.setFilters}
+          filters={viewer.state.filters as unknown as FirewallLogFilterState}
+          onFiltersChange={(filters) => viewer.setFilters(filters as any)}
           availablePrefixes={availablePrefixes}
         />
 
@@ -223,7 +227,7 @@ export const FirewallLogViewerDesktop = memo(
           {viewer.state.expandedStats && (
             <div className="border-b border-border bg-muted/30 p-4">
               <FirewallLogStats
-                routerId={routerId}
+                logs={viewer.logs}
                 onAddToBlocklist={onAddToBlocklist}
               />
             </div>

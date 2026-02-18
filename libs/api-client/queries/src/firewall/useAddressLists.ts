@@ -341,10 +341,11 @@ async function bulkCreateAddressListEntries(
           successCount++;
         } else {
           failedCount++;
+          const val = result.value as { success: boolean; index: number; address: string; message: any };
           errors.push({
-            index: result.value.index,
-            address: result.value.address,
-            message: result.value.message,
+            index: val.index,
+            address: val.address,
+            message: val.message,
           });
         }
       } else {
@@ -432,8 +433,8 @@ export function useAddressListEntries(
     },
     enabled: !!routerId && !!listName && (options?.enabled ?? true),
     staleTime: 30_000, // 30 seconds
-    keepPreviousData: true, // Keeps previous data while fetching new page
-  });
+    placeholderData: (prev: any) => prev, // Keeps previous data while fetching new page
+  }) as UseQueryResult<AddressListEntriesConnection, Error>;
 }
 
 // =============================================================================

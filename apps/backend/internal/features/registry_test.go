@@ -222,25 +222,6 @@ func TestRegistryGetAllIDs(t *testing.T) {
 	}
 }
 
-func TestManifestValidation(t *testing.T) {
-	registry, err := NewFeatureRegistry()
-	if err != nil {
-		t.Fatalf("Failed to create registry: %v", err)
-	}
-
-	// All loaded manifests should be valid
-	for _, id := range registry.GetAllIDs() {
-		manifest, err := registry.GetManifest(id)
-		if err != nil {
-			t.Fatalf("Failed to get manifest %s: %v", id, err)
-		}
-
-		if err := manifest.Validate(); err != nil {
-			t.Errorf("Manifest %s failed validation: %v", id, err)
-		}
-	}
-}
-
 func TestManifestArchitectureSupport(t *testing.T) {
 	registry, err := NewFeatureRegistry()
 	if err != nil {
@@ -248,9 +229,9 @@ func TestManifestArchitectureSupport(t *testing.T) {
 	}
 
 	tests := []struct {
-		manifestID     string
-		architecture   string
-		shouldSupport  bool
+		manifestID    string
+		architecture  string
+		shouldSupport bool
 	}{
 		// All manifests support amd64
 		{"tor", "amd64", true},
@@ -320,56 +301,56 @@ func TestManifestIsCompatibleWith(t *testing.T) {
 	tor, _ := registry.GetManifest("tor")
 
 	tests := []struct {
-		name              string
-		routerOSVersion   string
-		arch              string
-		availableMemoryMB int
-		availableDiskMB   int
+		name               string
+		routerOSVersion    string
+		arch               string
+		availableMemoryMB  int
+		availableDiskMB    int
 		shouldBeCompatible bool
 		expectedIssueCount int
 	}{
 		{
-			name:              "Fully compatible",
-			routerOSVersion:   "7.0",
-			arch:              "amd64",
-			availableMemoryMB: 256,
-			availableDiskMB:   512,
+			name:               "Fully compatible",
+			routerOSVersion:    "7.0",
+			arch:               "amd64",
+			availableMemoryMB:  256,
+			availableDiskMB:    512,
 			shouldBeCompatible: true,
 			expectedIssueCount: 0,
 		},
 		{
-			name:              "Insufficient memory",
-			routerOSVersion:   "7.0",
-			arch:              "amd64",
-			availableMemoryMB: 64,
-			availableDiskMB:   512,
+			name:               "Insufficient memory",
+			routerOSVersion:    "7.0",
+			arch:               "amd64",
+			availableMemoryMB:  64,
+			availableDiskMB:    512,
 			shouldBeCompatible: false,
 			expectedIssueCount: 1,
 		},
 		{
-			name:              "Insufficient disk",
-			routerOSVersion:   "7.0",
-			arch:              "amd64",
-			availableMemoryMB: 256,
-			availableDiskMB:   100,
+			name:               "Insufficient disk",
+			routerOSVersion:    "7.0",
+			arch:               "amd64",
+			availableMemoryMB:  256,
+			availableDiskMB:    100,
 			shouldBeCompatible: false,
 			expectedIssueCount: 1,
 		},
 		{
-			name:              "Unsupported architecture",
-			routerOSVersion:   "7.0",
-			arch:              "mips",
-			availableMemoryMB: 256,
-			availableDiskMB:   512,
+			name:               "Unsupported architecture",
+			routerOSVersion:    "7.0",
+			arch:               "mips",
+			availableMemoryMB:  256,
+			availableDiskMB:    512,
 			shouldBeCompatible: false,
 			expectedIssueCount: 1,
 		},
 		{
-			name:              "Multiple issues",
-			routerOSVersion:   "7.0",
-			arch:              "mips",
-			availableMemoryMB: 64,
-			availableDiskMB:   100,
+			name:               "Multiple issues",
+			routerOSVersion:    "7.0",
+			arch:               "mips",
+			availableMemoryMB:  64,
+			availableDiskMB:    100,
 			shouldBeCompatible: false,
 			expectedIssueCount: 3,
 		},

@@ -14,8 +14,8 @@ func TestIntegration_ThrottleAndStormDetector(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
 
 	// Create throttle manager
-	tm := NewThrottleManager(WithClock(clock))
-	throttleConfig := ThrottleConfig{
+	tm := NewManager(WithClock(clock))
+	throttleConfig := Config{
 		MaxAlerts:     5,
 		PeriodSeconds: 60,
 	}
@@ -100,11 +100,11 @@ func TestIntegration_ThrottleAndStormDetector(t *testing.T) {
 func TestIntegration_MultipleRulesWithStorm(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
 
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(DefaultStormConfig(), clock)
 
-	rule1Config := ThrottleConfig{MaxAlerts: 5, PeriodSeconds: 60}
-	rule2Config := ThrottleConfig{MaxAlerts: 10, PeriodSeconds: 60}
+	rule1Config := Config{MaxAlerts: 5, PeriodSeconds: 60}
+	rule2Config := Config{MaxAlerts: 10, PeriodSeconds: 60}
 
 	eventData := map[string]interface{}{"test": "data"}
 
@@ -149,10 +149,10 @@ func TestIntegration_MultipleRulesWithStorm(t *testing.T) {
 // TestIntegration_ConcurrentAccessStressTest tests thread safety under load.
 func TestIntegration_ConcurrentAccessStressTest(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(DefaultStormConfig(), clock)
 
-	config := ThrottleConfig{MaxAlerts: 100, PeriodSeconds: 60}
+	config := Config{MaxAlerts: 100, PeriodSeconds: 60}
 
 	var wg sync.WaitGroup
 	numGoroutines := 20
@@ -202,14 +202,14 @@ func TestIntegration_ConcurrentAccessStressTest(t *testing.T) {
 func TestIntegration_TimeBasedScenarios(t *testing.T) {
 	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock := NewMockClock(startTime)
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(StormConfig{
 		Threshold:       10,
 		WindowSeconds:   60,
 		CooldownSeconds: 120,
 	}, clock)
 
-	config := ThrottleConfig{MaxAlerts: 3, PeriodSeconds: 60}
+	config := Config{MaxAlerts: 3, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	// Phase 1: Morning spike (0-11 seconds) - 11 alerts to trigger storm (threshold is 10)
@@ -271,14 +271,14 @@ func TestIntegration_TimeBasedScenarios(t *testing.T) {
 // TestIntegration_FieldGroupingWithStorm tests grouped throttling with storm detection.
 func TestIntegration_FieldGroupingWithStorm(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(StormConfig{
 		Threshold:       30,
 		WindowSeconds:   60,
 		CooldownSeconds: 60,
 	}, clock)
 
-	config := ThrottleConfig{
+	config := Config{
 		MaxAlerts:     5,
 		PeriodSeconds: 60,
 		GroupByField:  "device",
@@ -329,14 +329,14 @@ func TestIntegration_FieldGroupingWithStorm(t *testing.T) {
 // TestIntegration_ResetAndRecovery tests system recovery after reset.
 func TestIntegration_ResetAndRecovery(t *testing.T) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(StormConfig{
 		Threshold:       10,
 		WindowSeconds:   60,
 		CooldownSeconds: 300,
 	}, clock)
 
-	config := ThrottleConfig{MaxAlerts: 5, PeriodSeconds: 60}
+	config := Config{MaxAlerts: 5, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	// Create throttle and storm state
@@ -389,10 +389,10 @@ func TestIntegration_ResetAndRecovery(t *testing.T) {
 // BenchmarkIntegration_ThrottleAndStorm benchmarks the combined pipeline.
 func BenchmarkIntegration_ThrottleAndStorm(b *testing.B) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(DefaultStormConfig(), clock)
 
-	config := ThrottleConfig{MaxAlerts: 100, PeriodSeconds: 60}
+	config := Config{MaxAlerts: 100, PeriodSeconds: 60}
 	eventData := map[string]interface{}{"test": "data"}
 
 	b.ResetTimer()
@@ -405,10 +405,10 @@ func BenchmarkIntegration_ThrottleAndStorm(b *testing.B) {
 // BenchmarkIntegration_ConcurrentPipeline benchmarks concurrent pipeline processing.
 func BenchmarkIntegration_ConcurrentPipeline(b *testing.B) {
 	clock := NewMockClock(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-	tm := NewThrottleManager(WithClock(clock))
+	tm := NewManager(WithClock(clock))
 	sd := NewStormDetector(DefaultStormConfig(), clock)
 
-	config := ThrottleConfig{MaxAlerts: 100, PeriodSeconds: 60}
+	config := Config{MaxAlerts: 100, PeriodSeconds: 60}
 
 	b.RunParallel(func(pb *testing.PB) {
 		eventData := map[string]interface{}{"test": "data"}

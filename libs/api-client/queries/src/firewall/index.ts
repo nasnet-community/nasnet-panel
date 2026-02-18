@@ -12,8 +12,16 @@ export {
   useToggleFilterRule,
   firewallKeys,
 } from './useFilterRules';
-export { useNATRules } from './useNATRules';
-export { useRoutes, routingKeys } from './useRoutes';
+export {
+  useNATRules,
+  useCreateNATRule,
+  useUpdateNATRule,
+  useDeleteNATRule,
+  useCreatePortForward,
+  useCreateMasqueradeRule,
+  useToggleNATRule,
+} from './useNATRules';
+export { useRoutes as useFirewallRoutes, routingKeys as firewallRoutingKeys } from './useRoutes';
 export { useServices, servicesKeys } from './useServices';
 export {
   useMangleRules,
@@ -99,3 +107,24 @@ export type {
   UseFirewallLogsOptions,
   FirewallLogStats,
 } from './useFirewallLogs';
+
+// Rate Limiting (NAS-7.5)
+export { rateLimitingKeys } from './useRateLimiting';
+export {
+  useRateLimitRules,
+  useSynFloodConfig,
+  useRateLimitStats,
+  useBlockedIPs,
+  useCreateRateLimitRule,
+  useUpdateRateLimitRule,
+  useDeleteRateLimitRule,
+  useToggleRateLimitRule,
+  useUpdateSynFloodConfig,
+  useWhitelistIP,
+  useRemoveBlockedIP,
+} from './useRateLimiting';
+export type {
+  CreateRateLimitRuleInput,
+  UpdateRateLimitRuleInput,
+  WhitelistIPInput,
+} from './useRateLimiting';

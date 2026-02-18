@@ -59,7 +59,7 @@ const (
 	SessionStatusApplyingFix         SessionStatus = "APPLYING_FIX"
 	SessionStatusVerifyingFix        SessionStatus = "VERIFYING_FIX"
 	SessionStatusCompleted           SessionStatus = "COMPLETED"
-	SessionStatusCancelled           SessionStatus = "CANCELLED"
+	SessionStatusCanceled            SessionStatus = "CANCELED"
 )
 
 // StepResult represents the result of a diagnostic step execution.
@@ -74,15 +74,15 @@ type StepResult struct {
 
 // FixSuggestion represents a suggested fix for a failed diagnostic step.
 type FixSuggestion struct {
-	IssueCode           string
-	Title               string
-	Explanation         string
-	Confidence          FixConfidence
+	IssueCode            string
+	Title                string
+	Explanation          string
+	Confidence           FixConfidence
 	RequiresConfirmation bool
-	IsManualFix         bool
-	ManualSteps         []string
-	Command             string
-	RollbackCommand     string
+	IsManualFix          bool
+	ManualSteps          []string
+	Command              string
+	RollbackCommand      string
 }
 
 // ISPInfo contains ISP contact information.

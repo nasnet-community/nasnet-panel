@@ -13,10 +13,10 @@ type SingboxGenerator struct {
 
 // NewSingboxGenerator creates a new sing-box config generator.
 func NewSingboxGenerator() *SingboxGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "singbox",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "listen_address",
 				Type:        "ip",
@@ -85,8 +85,8 @@ func (g *SingboxGenerator) Generate(instanceID string, config map[string]interfa
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	// Use bind_ip as listen_address if not specified
@@ -98,9 +98,9 @@ func (g *SingboxGenerator) Generate(instanceID string, config map[string]interfa
 	// Build JSON configuration
 	socksPort := getIntValue(config, "socks_port", 10808)
 	httpPort := getIntValue(config, "http_port", 10809)
-	logLevel, _ := config["log_level"].(string)
-	dnsServer, _ := config["dns_server"].(string)
-	sniffEnabled, _ := config["sniff_enabled"].(bool)
+	logLevel, _ := config["log_level"].(string)       //nolint:errcheck // type assertion uses zero value default
+	dnsServer, _ := config["dns_server"].(string)     //nolint:errcheck // type assertion uses zero value default
+	sniffEnabled, _ := config["sniff_enabled"].(bool) //nolint:errcheck // type assertion uses zero value default
 
 	singboxConfig := map[string]interface{}{
 		"log": map[string]interface{}{
@@ -135,13 +135,16 @@ func (g *SingboxGenerator) Generate(instanceID string, config map[string]interfa
 
 	// Add mixed port if specified
 	if mixedPort, ok := config["mixed_port"].(int); ok && mixedPort > 0 {
-		singboxConfig["inbounds"] = append(singboxConfig["inbounds"].([]interface{}), map[string]interface{}{
+		//nolint:errcheck,forcetypeassert // type assertion uses zero value default; we know inbounds is []interface{}
+		inbounds := singboxConfig["inbounds"].([]interface{})
+		inbounds = append(inbounds, map[string]interface{}{
 			"type":   "mixed",
 			"tag":    "mixed-in",
 			"listen": listenAddr,
 			"port":   mixedPort,
 			"sniff":  sniffEnabled,
 		})
+		singboxConfig["inbounds"] = inbounds
 	}
 
 	// Render as JSON
@@ -151,20 +154,20 @@ func (g *SingboxGenerator) Generate(instanceID string, config map[string]interfa
 // Validate performs sing-box-specific validation.
 func (g *SingboxGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Validate DNS server is a valid IP or hostname
-	dnsServer, _ := config["dns_server"].(string)
-	if err := cfglib.ValidateNonEmpty("dns_server", dnsServer); err != nil {
-		return err
+	dnsServer, _ := config["dns_server"].(string) //nolint:errcheck // type assertion uses zero value default
+	if dnsErr := cfglib.ValidateNonEmpty("dns_server", dnsServer); dnsErr != nil {
+		return dnsErr
 	}
 
 	// Validate listen_address if provided
 	if listenAddr, ok := config["listen_address"].(string); ok && listenAddr != "" {
-		if err := cfglib.ValidateBindIP(listenAddr); err != nil {
-			return fmt.Errorf("listen_address validation failed: %w", err)
+		if ipErr := cfglib.ValidateBindIP(listenAddr); ipErr != nil {
+			return fmt.Errorf("listen_address validation failed: %w", ipErr)
 		}
 	}
 

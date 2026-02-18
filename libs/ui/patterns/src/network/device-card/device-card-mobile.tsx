@@ -8,8 +8,8 @@
  * @see NAS-4A.20: Build Device Discovery Card Component
  */
 
-import * as React from 'react';
 import { useState, useCallback } from 'react';
+
 import {
   Edit,
   Network,
@@ -38,14 +38,15 @@ import {
   DialogFooter,
 } from '@nasnet/ui/primitives';
 
-import { ConfidenceIndicator } from '../../confidence-indicator';
-import { SafetyConfirmation } from '../../feedback/safety-confirmation';
-import type { DeviceCardPresenterProps } from './device-card.types';
 import {
   statusDotVariants,
   statusBadgeVariants,
   connectionBadgeVariants,
 } from './device-card-base';
+import { ConfidenceIndicator } from '../../confidence-indicator';
+import { SafetyConfirmation } from '../../feedback/safety-confirmation';
+
+import type { DeviceCardPresenterProps } from './device-card.types';
 
 /**
  * Device Card Mobile Presenter

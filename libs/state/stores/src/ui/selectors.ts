@@ -197,10 +197,10 @@ export type { NotificationState, Notification, NotificationType } from './notifi
 
 // ===== Combined/Derived Selectors =====
 
-import type { SidebarState } from './sidebar.store';
-import type { UIState } from './ui.store';
-import type { ThemeState } from './theme.store';
 import type { NotificationState } from './notification.store';
+import type { SidebarState } from './sidebar.store';
+import type { ThemeState } from './theme.store';
+import type { UIState } from './ui.store';
 
 /**
  * Select whether any UI overlay is open (modal, command palette)

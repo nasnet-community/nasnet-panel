@@ -18,7 +18,7 @@ func NewTypeConverter(normalizer *Normalizer) *TypeConverter {
 }
 
 // ConvertValue converts a string value to the appropriate Go type based on field name.
-func (c *TypeConverter) ConvertValue(fieldName string, value string) any {
+func (c *TypeConverter) ConvertValue(fieldName, value string) any {
 	fieldType := c.normalizer.GetFieldType(fieldName)
 	return c.ConvertToType(value, fieldType)
 }
@@ -122,14 +122,14 @@ func ParseDuration(value string) (time.Duration, error) {
 
 	// Week pattern
 	if matches := weekPattern.FindStringSubmatch(value); len(matches) > 1 {
-		weeks, _ := strconv.Atoi(matches[1])
+		weeks, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
 		total += time.Duration(weeks) * 7 * 24 * time.Hour
 		value = weekPattern.ReplaceAllString(value, "")
 	}
 
 	// Day pattern
 	if matches := dayPattern.FindStringSubmatch(value); len(matches) > 1 {
-		days, _ := strconv.Atoi(matches[1])
+		days, _ := strconv.Atoi(matches[1]) //nolint:errcheck // regex guarantees numeric match
 		total += time.Duration(days) * 24 * time.Hour
 		value = dayPattern.ReplaceAllString(value, "")
 	}
@@ -169,6 +169,7 @@ func (c *TypeConverter) toBytes(value string) int64 {
 
 	// Parse the numeric part (may be float)
 	value = strings.TrimSpace(value)
+
 	f, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return 0
@@ -229,6 +230,7 @@ func InferType(value string) FieldType {
 	lowerValue := strings.ToLower(value)
 	if lowerValue == "true" || lowerValue == "false" ||
 		lowerValue == "yes" || lowerValue == "no" {
+
 		return FieldTypeBool
 	}
 

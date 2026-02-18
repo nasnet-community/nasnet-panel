@@ -7,14 +7,17 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
-import * as React from 'react';
+
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
+
 import { cn } from '@nasnet/ui/primitives';
+
 import { DragHandle } from './DragHandle';
 import { DropZoneIndicator } from './DropZoneIndicator';
 import { useSortableContext } from '../context';
+
 import type { SortableItemProps } from '../types';
 
 // ============================================================================

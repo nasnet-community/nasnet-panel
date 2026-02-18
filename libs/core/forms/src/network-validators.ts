@@ -199,7 +199,10 @@ export const comment = z
   .string()
   .max(255, 'Comment must be 255 characters or less')
   .refine(
-    (val) => !/[\x00-\x1F\x7F]/.test(val),
+    (val) => {
+      // eslint-disable-next-line no-control-regex
+      return !/[\x00-\x1F\x7F]/.test(val);
+    },
     { message: 'Comment cannot contain control characters' }
   );
 

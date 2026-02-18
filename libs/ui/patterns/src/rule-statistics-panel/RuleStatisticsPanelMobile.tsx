@@ -5,17 +5,19 @@
  */
 
 import { useState, useMemo } from 'react';
+
+import { Download, X } from 'lucide-react';
+
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from '@nasnet/ui/primitives';
-import { Button } from '@nasnet/ui/primitives';
-import { Tabs, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
-import { Download, X } from 'lucide-react';
+  Button, Tabs, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+
 import { TrafficHistoryChart } from './TrafficHistoryChart';
+
 import type { RuleStatisticsPanelMobileProps, TimeRange, CounterHistoryEntry } from './types';
 
 /**
@@ -86,7 +88,7 @@ export function RuleStatisticsPanelMobile({
 
         {/* Time Range Selector */}
         <div className="mt-4">
-          <label className="text-sm font-medium text-foreground mb-2 block">
+          <label htmlFor="time-range-tabs" className="text-sm font-medium text-foreground mb-2 block">
             Time Range
           </label>
           <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>

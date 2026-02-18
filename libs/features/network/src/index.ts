@@ -20,3 +20,6 @@ export * from './vlans';
 // DNS Cache & Diagnostics (NAS-6.12)
 export * from './components/DnsBenchmark';
 export * from './components/DnsCachePanel';
+
+// DNS Configuration (NAS-6.4)
+export * from './dns';

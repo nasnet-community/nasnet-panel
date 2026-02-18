@@ -31,8 +31,9 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-import type { PreFlightDialogProps } from './types';
 import { usePreFlightDialog } from './usePreFlightDialog';
+
+import type { PreFlightDialogProps } from './types';
 
 /**
  * Mobile presenter for PreFlightDialog

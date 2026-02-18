@@ -48,8 +48,8 @@ var (
 // Error Constructors with Context
 // =============================================================================
 
-// RepositoryError wraps a sentinel error with additional context.
-type RepositoryError struct {
+// Error wraps a sentinel error with additional context.
+type Error struct {
 	// Err is the sentinel error (ErrNotFound, ErrDuplicate, etc.)
 	Err error
 
@@ -67,7 +67,7 @@ type RepositoryError struct {
 }
 
 // Error implements the error interface.
-func (e *RepositoryError) Error() string {
+func (e *Error) Error() string {
 	if e.Message != "" {
 		return e.Message
 	}
@@ -84,7 +84,7 @@ func (e *RepositoryError) Error() string {
 }
 
 // Unwrap returns the underlying sentinel error for errors.Is() support.
-func (e *RepositoryError) Unwrap() error {
+func (e *Error) Unwrap() error {
 	return e.Err
 }
 
@@ -95,7 +95,7 @@ func (e *RepositoryError) Unwrap() error {
 //	return nil, repository.NotFound("Router", id)
 //	return nil, repository.NotFound("User", username)
 func NotFound(entity string, id interface{}) error {
-	return &RepositoryError{
+	return &Error{
 		Err:    ErrNotFound,
 		Entity: entity,
 		Value:  id,
@@ -108,7 +108,7 @@ func NotFound(entity string, id interface{}) error {
 //
 //	return nil, repository.NotFoundWithField("User", "username", username)
 func NotFoundWithField(entity, field string, value interface{}) error {
-	return &RepositoryError{
+	return &Error{
 		Err:    ErrNotFound,
 		Entity: entity,
 		Field:  field,
@@ -123,7 +123,7 @@ func NotFoundWithField(entity, field string, value interface{}) error {
 //	return nil, repository.Duplicate("Router", "host:port", fmt.Sprintf("%s:%d", host, port))
 //	return nil, repository.Duplicate("User", "username", username)
 func Duplicate(entity, field string, value interface{}) error {
-	return &RepositoryError{
+	return &Error{
 		Err:    ErrDuplicate,
 		Entity: entity,
 		Field:  field,
@@ -137,7 +137,7 @@ func Duplicate(entity, field string, value interface{}) error {
 //
 //	return nil, repository.ConcurrentModification("Router", id, currentVersion, expectedVersion)
 func ConcurrentModification(entity string, id interface{}, current, expected int) error {
-	return &RepositoryError{
+	return &Error{
 		Err:     ErrConcurrentModification,
 		Entity:  entity,
 		Value:   id,
@@ -155,7 +155,7 @@ func ResourceLocked(entity string, id interface{}, heldBy string) error {
 	if heldBy != "" {
 		msg = fmt.Sprintf("resource locked: %s with id %v is locked by %s", entity, id, heldBy)
 	}
-	return &RepositoryError{
+	return &Error{
 		Err:     ErrResourceLocked,
 		Entity:  entity,
 		Value:   id,
@@ -169,7 +169,7 @@ func ResourceLocked(entity string, id interface{}, heldBy string) error {
 //
 //	return nil, repository.InvalidInput("CreateRouterInput", "host", "cannot be empty")
 func InvalidInput(entity, field, reason string) error {
-	return &RepositoryError{
+	return &Error{
 		Err:     ErrInvalidInput,
 		Entity:  entity,
 		Field:   field,
@@ -183,7 +183,7 @@ func InvalidInput(entity, field, reason string) error {
 //
 //	return nil, repository.InvalidInputWithValue("CreateRouterInput", "port", 0, "must be between 1 and 65535")
 func InvalidInputWithValue(entity, field string, value interface{}, reason string) error {
-	return &RepositoryError{
+	return &Error{
 		Err:     ErrInvalidInput,
 		Entity:  entity,
 		Field:   field,
@@ -198,7 +198,7 @@ func InvalidInputWithValue(entity, field string, value interface{}, reason strin
 //
 //	return nil, repository.TransactionFailed("CreateRouterWithSecrets", err)
 func TransactionFailed(operation string, cause error) error {
-	return &RepositoryError{
+	return &Error{
 		Err:     ErrTransactionFailed,
 		Entity:  operation,
 		Message: fmt.Sprintf("transaction failed during %s: %v", operation, cause),
@@ -248,10 +248,10 @@ func IsTransactionFailed(err error) bool {
 // Error Details Extraction
 // =============================================================================
 
-// GetErrorDetails extracts details from a RepositoryError if available.
-// Returns nil if the error is not a RepositoryError.
-func GetErrorDetails(err error) *RepositoryError {
-	var repoErr *RepositoryError
+// GetErrorDetails extracts details from a Error if available.
+// Returns nil if the error is not a Error.
+func GetErrorDetails(err error) *Error {
+	var repoErr *Error
 	if errors.As(err, &repoErr) {
 		return repoErr
 	}

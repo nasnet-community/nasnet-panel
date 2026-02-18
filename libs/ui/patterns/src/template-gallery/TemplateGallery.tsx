@@ -25,6 +25,7 @@ import { usePlatform } from '@nasnet/ui/layouts';
 
 import { TemplateGalleryDesktop } from './TemplateGalleryDesktop';
 import { TemplateGalleryMobile } from './TemplateGalleryMobile';
+
 import type { FirewallTemplate } from './types';
 import type { UseTemplateGalleryReturn } from './use-template-gallery';
 

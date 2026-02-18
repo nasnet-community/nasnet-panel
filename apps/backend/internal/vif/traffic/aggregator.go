@@ -23,7 +23,7 @@ const (
 // TrafficAggregator implements write-behind buffering for traffic statistics.
 // It accumulates traffic samples in memory and periodically flushes to database.
 // Pattern: Write-behind buffer to minimize database writes for high-frequency data (10s polls).
-type TrafficAggregator struct {
+type TrafficAggregator struct { //nolint:revive // stuttering name kept for clarity as the primary exported type
 	client *ent.Client
 
 	// In-memory accumulation buffer: instanceID -> hourKey -> stats
@@ -114,10 +114,10 @@ func (a *TrafficAggregator) flushLoop(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
-			if err := a.flush(ctx); err != nil {
+			if flushErr := a.flush(ctx); flushErr != nil {
 				// Log error but continue (transient failures are expected)
 				// In production, this would use a proper logger
-				_ = err
+				_ = flushErr
 			}
 
 		case <-a.stopChan:
@@ -144,14 +144,16 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback() //nolint:errcheck // deferred rollback is a no-op after successful commit
+	}()
 
 	// Iterate over all buffered stats
 	for instanceID, hours := range a.buffer {
 		for hourKey, stats := range hours {
 			// Upsert: INSERT ... ON CONFLICT UPDATE
 			// Pattern: Accumulate if hour record already exists (multiple flushes per hour)
-			_, err := tx.ServiceTrafficHourly.Create().
+			_, saveErr := tx.ServiceTrafficHourly.Create().
 				SetID(ulid.Make().String()).
 				SetInstanceID(stats.instanceID).
 				SetHourStart(stats.hourStart).
@@ -161,8 +163,8 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 				SetRxPackets(stats.rxPackets).
 				Save(ctx)
 
-			if err != nil {
-				return err
+			if saveErr != nil {
+				return saveErr
 			}
 
 			// Remove from buffer after successful write
@@ -187,17 +189,17 @@ func (a *TrafficAggregator) cleanupLoop(ctx context.Context) {
 	defer ticker.Stop()
 
 	// Run cleanup immediately on start
-	if err := a.cleanup(ctx); err != nil {
+	if cleanupErr := a.cleanup(ctx); cleanupErr != nil {
 		// Log error but continue
-		_ = err
+		_ = cleanupErr
 	}
 
 	for {
 		select {
 		case <-ticker.C:
-			if err := a.cleanup(ctx); err != nil {
+			if cleanupErr := a.cleanup(ctx); cleanupErr != nil {
 				// Log error but continue
-				_ = err
+				_ = cleanupErr
 			}
 
 		case <-a.stopChan:
@@ -228,6 +230,7 @@ func (a *TrafficAggregator) GetHourlyTraffic(
 	instanceID string,
 	startTime, endTime time.Time,
 ) ([]*ent.ServiceTrafficHourly, error) {
+
 	return a.client.ServiceTrafficHourly.Query().
 		Where(
 			servicetraffichourly.InstanceIDEQ(instanceID),
@@ -245,6 +248,7 @@ func (a *TrafficAggregator) GetTotalTraffic(
 	instanceID string,
 	startTime, endTime time.Time,
 ) (txTotal, rxTotal int64, err error) {
+
 	records, err := a.GetHourlyTraffic(ctx, instanceID, startTime, endTime)
 	if err != nil {
 		return 0, 0, err

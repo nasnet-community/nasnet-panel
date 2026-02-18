@@ -4,10 +4,13 @@
  * Tests hook logic, field visibility, validation, and description generation.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useNATRuleBuilder } from './use-nat-rule-builder';
+import { describe, it, expect, vi } from 'vitest';
+
 import type { NATRuleInput } from '@nasnet/core/types/firewall';
+
+import { useNATRuleBuilder } from './use-nat-rule-builder';
+
 
 describe('useNATRuleBuilder', () => {
   describe('Initialization', () => {

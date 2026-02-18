@@ -46,8 +46,8 @@ func BackupDatabase(ctx context.Context, db *sql.DB, sourcePath, backupDir strin
 	startTime := time.Now()
 
 	// Ensure backup directory exists
-	if err := os.MkdirAll(backupDir, 0755); err != nil {
-		return nil, NewDatabaseError(ErrCodeDBBackupFailed, "failed to create backup directory", err).
+	if err := os.MkdirAll(backupDir, 0o755); err != nil {
+		return nil, NewError(ErrCodeDBBackupFailed, "failed to create backup directory", err).
 			WithPath(backupDir)
 	}
 
@@ -61,13 +61,14 @@ func BackupDatabase(ctx context.Context, db *sql.DB, sourcePath, backupDir strin
 
 	// Use VACUUM INTO for online backup (consistent snapshot)
 	// This is the safest method for SQLite backups
+	//nolint:gosec // dynamic SQL is not user-controlled, only file paths
 	vacuumSQL := fmt.Sprintf("VACUUM INTO '%s'", backupPath)
 	_, err := db.ExecContext(ctx, vacuumSQL)
 	if err != nil {
 		// If VACUUM INTO fails, try checkpoint + file copy
 		log.Printf("[backup] VACUUM INTO failed, trying checkpoint + copy: %v", err)
 		if copyErr := backupWithCheckpoint(ctx, db, sourcePath, backupPath); copyErr != nil {
-			return nil, NewDatabaseError(ErrCodeDBBackupFailed, "backup failed", copyErr).
+			return nil, NewError(ErrCodeDBBackupFailed, "backup failed", copyErr).
 				WithPath(sourcePath)
 		}
 	}
@@ -75,7 +76,7 @@ func BackupDatabase(ctx context.Context, db *sql.DB, sourcePath, backupDir strin
 	// Get backup file info
 	info, err := os.Stat(backupPath)
 	if err != nil {
-		return nil, NewDatabaseError(ErrCodeDBBackupFailed, "failed to stat backup file", err).
+		return nil, NewError(ErrCodeDBBackupFailed, "failed to stat backup file", err).
 			WithPath(backupPath)
 	}
 
@@ -138,8 +139,8 @@ func cleanupOldBackups(backupDir, baseName string, keepCount int) error {
 
 	// Sort by modification time (newest first)
 	sort.Slice(matches, func(i, j int) bool {
-		infoI, _ := os.Stat(matches[i])
-		infoJ, _ := os.Stat(matches[j])
+		infoI, _ := os.Stat(matches[i]) //nolint:errcheck // stat error handled by nil check below
+		infoJ, _ := os.Stat(matches[j]) //nolint:errcheck // stat error handled by nil check below
 		if infoI == nil || infoJ == nil {
 			return false
 		}
@@ -162,7 +163,7 @@ func cleanupOldBackups(backupDir, baseName string, keepCount int) error {
 func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 	// Verify backup exists
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		return NewDatabaseError(ErrCodeDBRestoreFailed, "backup file not found", err).
+		return NewError(ErrCodeDBRestoreFailed, "backup file not found", err).
 			WithPath(backupPath)
 	}
 
@@ -176,13 +177,13 @@ func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 
 	// Copy backup to target
 	if err := copyFile(backupPath, targetPath); err != nil {
-		return NewDatabaseError(ErrCodeDBRestoreFailed, "failed to restore backup", err).
+		return NewError(ErrCodeDBRestoreFailed, "failed to restore backup", err).
 			WithPath(targetPath)
 	}
 
 	// Remove WAL and SHM files to force fresh start
-	os.Remove(targetPath + "-wal")
-	os.Remove(targetPath + "-shm")
+	_ = os.Remove(targetPath + "-wal")
+	_ = os.Remove(targetPath + "-shm")
 
 	log.Printf("[backup] Restored database from %s to %s", backupPath, targetPath)
 	return nil
@@ -245,7 +246,7 @@ func GetLatestBackup(backupDir, baseName string) (*BackupResult, error) {
 		return nil, err
 	}
 	if len(backups) == 0 {
-		return nil, NewDatabaseError(ErrCodeDBBackupFailed, "no backups found", nil).
+		return nil, NewError(ErrCodeDBBackupFailed, "no backups found", nil).
 			WithPath(backupDir)
 	}
 	return &backups[0], nil

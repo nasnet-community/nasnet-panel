@@ -8,8 +8,9 @@
  */
 
 import { useState, useCallback, useMemo, useRef } from 'react';
+
 import { arrayMove } from '@dnd-kit/sortable';
-import type { UniqueIdentifier, DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core';
+
 import type {
   SortableItemData,
   UseSortableListOptions,
@@ -17,6 +18,7 @@ import type {
   ReorderEvent,
   MultiReorderEvent,
 } from '../types';
+import type { UniqueIdentifier, DragStartEvent, DragEndEvent, DragOverEvent } from '@dnd-kit/core';
 
 // ============================================================================
 // History State for Undo/Redo

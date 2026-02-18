@@ -11,8 +11,9 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/alertdigestentry"
-	"backend/internal/events"
 	alerts "backend/templates/alerts"
+
+	"backend/internal/events"
 )
 
 // Service manages queuing and delivery of digest notifications.
@@ -59,7 +60,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 }
 
 // ShouldQueue determines if an alert should be queued for digest delivery.
-func (ds *Service) ShouldQueue(digestConfig DigestConfig, severity string) bool {
+func (ds *Service) ShouldQueue(digestConfig Config, severity string) bool {
 	if digestConfig.Mode == "immediate" {
 		return false
 	}
@@ -125,7 +126,9 @@ func (ds *Service) QueueAlert(ctx context.Context, alert Alert, channelID, chann
 		})
 
 		if err := ds.eventBus.Publish(ctx, event); err != nil {
-			ds.log.Warnw("failed to publish digest queued event", "error", err)
+			ds.log.Warnw("failed to publish digest queued event",
+				"error", err,
+				"entry_id", savedEntry.ID.String())
 		}
 	}
 
@@ -133,7 +136,7 @@ func (ds *Service) QueueAlert(ctx context.Context, alert Alert, channelID, chann
 }
 
 // CompileDigest retrieves and groups pending alerts for a channel since a given time.
-func (ds *Service) CompileDigest(ctx context.Context, channelID string, since time.Time) (*DigestPayload, error) {
+func (ds *Service) CompileDigest(ctx context.Context, channelID string, since time.Time) (*Payload, error) {
 	entries, err := ds.db.AlertDigestEntry.Query().
 		Where(
 			alertdigestentry.ChannelID(channelID),
@@ -148,10 +151,10 @@ func (ds *Service) CompileDigest(ctx context.Context, channelID string, since ti
 	}
 
 	if len(entries) == 0 {
-		return nil, nil
+		return nil, fmt.Errorf("no pending alerts")
 	}
 
-	payload := &DigestPayload{
+	payload := &Payload{
 		DigestID:       uuid.New().String(),
 		ChannelID:      channelID,
 		ChannelType:    entries[0].ChannelType,
@@ -249,7 +252,9 @@ func (ds *Service) DeliverDigest(ctx context.Context, channelID string) error {
 		})
 
 		if err := ds.eventBus.Publish(ctx, event); err != nil {
-			ds.log.Warnw("failed to publish digest delivered event", "error", err)
+			ds.log.Warnw("failed to publish digest delivered event",
+				"error", err,
+				"digest_id", payload.DigestID)
 		}
 	}
 

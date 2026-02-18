@@ -7,6 +7,8 @@
  * @module @nasnet/core/forms/validation-pipeline
  */
 
+import { RISK_LEVEL_STAGES, VALIDATION_STAGES } from './types';
+
 import type {
   ValidationStageName,
   ValidationStageResult,
@@ -16,7 +18,6 @@ import type {
   ValidationRequest,
   ValidationResponse,
 } from './types';
-import { RISK_LEVEL_STAGES, VALIDATION_STAGES } from './types';
 
 /**
  * Options for creating a validation pipeline

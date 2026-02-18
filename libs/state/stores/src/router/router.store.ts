@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
 import type { Router, ScanProgress } from '@nasnet/core/types';
 
 /**

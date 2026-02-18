@@ -49,6 +49,14 @@ export interface RHFFormFieldProps<TFieldValues extends FieldValues = FieldValue
     fieldId: string;
     mode: FieldMode;
   }) => React.ReactNode;
+  /** Children to render as the input (alternative to renderInput) */
+  children?: React.ReactNode;
+  /** Form control instance (optional, uses context by default) */
+  control?: import('react-hook-form').Control<TFieldValues>;
+  /** Pre-resolved error message */
+  error?: string;
+  /** Hint text shown below the field */
+  hint?: string;
 }
 
 /**
@@ -77,8 +85,15 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
   className,
   inputClassName,
   renderInput,
+  children,
+  control: controlProp,
+  error: errorProp,
+  hint,
 }: RHFFormFieldProps<TFieldValues>) {
-  const { control, watch, formState: { errors } } = useFormContext<TFieldValues>();
+  const formContext = useFormContext<TFieldValues>();
+  const control = controlProp ?? formContext.control;
+  const watch = formContext.watch;
+  const errors = formContext.formState.errors;
 
   // Generate unique IDs for accessibility
   const fieldId = React.useId();
@@ -102,7 +117,7 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
     return undefined;
   };
 
-  const error = getNestedError(name);
+  const error = errorProp ?? getNestedError(name);
 
   // Build aria-describedby value
   const ariaDescribedBy = [
@@ -147,44 +162,53 @@ export function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
       )}
 
       {/* Input Field */}
-      <Controller
-        name={name}
-        control={control}
-        render={({ field }) => {
-          // Allow custom rendering
-          if (renderInput) {
+      {children ? (
+        children
+      ) : (
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => {
+            // Allow custom rendering
+            if (renderInput) {
+              return (
+                <>
+                  {renderInput({ field, error, fieldId, mode })}
+                </>
+              );
+            }
+
+            // Default input rendering
+            const inputValue = mode === 'computed' ? computedValue : field.value;
+
             return (
-              <>
-                {renderInput({ field, error, fieldId, mode })}
-              </>
+              <Input
+                {...field}
+                id={fieldId}
+                type={type}
+                placeholder={placeholder}
+                value={inputValue ?? ''}
+                readOnly={isReadOnly}
+                disabled={mode === 'readonly'}
+                aria-invalid={!!error}
+                aria-describedby={ariaDescribedBy}
+                aria-required={required}
+                className={cn(
+                  inputClassName,
+                  isReadOnly && 'bg-muted cursor-not-allowed',
+                  mode === 'computed' && 'bg-muted/50 italic',
+                  error && 'border-error focus-visible:ring-error'
+                )}
+              />
             );
-          }
+          }}
+        />
+      )}
 
-          // Default input rendering
-          const inputValue = mode === 'computed' ? computedValue : field.value;
-
-          return (
-            <Input
-              {...field}
-              id={fieldId}
-              type={type}
-              placeholder={placeholder}
-              value={inputValue ?? ''}
-              readOnly={isReadOnly}
-              disabled={mode === 'readonly'}
-              aria-invalid={!!error}
-              aria-describedby={ariaDescribedBy}
-              aria-required={required}
-              className={cn(
-                inputClassName,
-                isReadOnly && 'bg-muted cursor-not-allowed',
-                mode === 'computed' && 'bg-muted/50 italic',
-                error && 'border-error focus-visible:ring-error'
-              )}
-            />
-          );
-        }}
-      />
+      {/* Hint text */}
+      {hint && !error && (
+        <p className="text-sm text-muted-foreground">{hint}</p>
+      )}
 
       {/* Error Message */}
       {error && (

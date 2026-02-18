@@ -7,7 +7,7 @@ vi.mock('../hooks/useLeasePage', () => ({
   useLeasePage: vi.fn(),
 }));
 
-vi.mock('@nasnet/ui/primitives', () => ({
+vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(),
 }));
 
@@ -20,7 +20,7 @@ vi.mock('./DHCPLeaseManagementMobile', () => ({
 }));
 
 import { useLeasePage } from '../hooks/useLeasePage';
-import { usePlatform } from '@nasnet/ui/primitives';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 describe('DHCPLeaseManagementPage', () => {
   const mockLeasePageData = {

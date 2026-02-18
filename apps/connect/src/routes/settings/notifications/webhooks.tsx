@@ -7,9 +7,10 @@
  */
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { WebhookConfigForm } from '@nasnet/features/alerts';
-import type { Webhook } from '@nasnet/api-client/queries/notifications';
 import { ArrowLeft, Webhook as WebhookIcon } from 'lucide-react';
+
+import type { Webhook } from '@nasnet/api-client/queries/notifications';
+import { WebhookConfigForm } from '@nasnet/features/alerts';
 import { Button } from '@nasnet/ui/primitives';
 
 export const Route = createFileRoute('/settings/notifications/webhooks')({

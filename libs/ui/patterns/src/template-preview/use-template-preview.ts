@@ -8,16 +8,19 @@
  */
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { createTemplateVariablesSchema } from './template-preview.types';
 
 import type {
   FirewallTemplate,
   TemplatePreviewResult,
   TemplateVariableValues,
+  TemplateVariable,
   PreviewMode,
 } from './template-preview.types';
-import { createTemplateVariablesSchema } from './template-preview.types';
 
 export interface UseTemplatePreviewOptions {
   /** Template to preview */
@@ -72,7 +75,7 @@ function getDefaultValues(
 ): TemplateVariableValues {
   const defaults: TemplateVariableValues = {};
 
-  template.variables.forEach((variable) => {
+  template.variables.forEach((variable: TemplateVariable) => {
     if (initialValues && initialValues[variable.name]) {
       defaults[variable.name] = initialValues[variable.name];
     } else if (variable.defaultValue) {

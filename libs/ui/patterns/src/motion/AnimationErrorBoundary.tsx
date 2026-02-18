@@ -5,7 +5,7 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import { Component, type ReactNode, type ErrorInfo } from 'react';
+import { Component, useState, useEffect, useRef, type ReactNode, type ErrorInfo } from 'react';
 
 // ============================================================================
 // Types
@@ -121,8 +121,6 @@ export interface AnimationTimeoutProps {
  * </AnimationTimeout>
  * ```
  */
-import { useState, useEffect, useRef } from 'react';
-
 export function AnimationTimeout({
   children,
   timeout = 3000,

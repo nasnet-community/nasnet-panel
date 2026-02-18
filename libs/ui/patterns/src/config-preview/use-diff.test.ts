@@ -6,8 +6,8 @@
  * @see NAS-4A.21 - Build Config Preview Component
  */
 
-import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 
 import { useDiff } from './use-diff';
 

@@ -4,18 +4,19 @@
  * Demonstrates all variants of the TemplateGallery component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
+
+import { TemplateGallery } from './TemplateGallery';
+import { useTemplateGallery } from './use-template-gallery';
 import {
   mockAllTemplates,
   mockBuiltInTemplates,
   mockCustomTemplates,
 } from '../__test-utils__/firewall-templates/template-fixtures';
 
-import { TemplateGallery } from './TemplateGallery';
-import { useTemplateGallery } from './use-template-gallery';
 import type { FirewallTemplate } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof TemplateGallery> = {
   title: 'Patterns/TemplateGallery',

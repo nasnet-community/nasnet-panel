@@ -110,6 +110,7 @@ export function useBootSequenceProgress() {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [subData, loading, subError, refetch]);
 
   const progress = data?.bootSequenceProgress as BootSequenceProgress | undefined;

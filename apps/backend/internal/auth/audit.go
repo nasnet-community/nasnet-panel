@@ -9,17 +9,17 @@ import (
 
 // Audit event types for authentication
 const (
-	AuditLoginSuccess      = "auth.login.success"
-	AuditLoginFailure      = "auth.login.failure"
-	AuditLogout            = "auth.logout"
-	AuditPasswordChange    = "auth.password.change"
-	AuditPasswordFailure   = "auth.password.change.failure"
-	AuditSessionRevoked    = "auth.session.revoked"
-	AuditPermissionDenied  = "auth.permission.denied"
-	AuditRateLimited       = "auth.rate.limited"
-	AuditAPIKeyCreated     = "apikey.created"
-	AuditAPIKeyRevoked     = "apikey.revoked"
-	AuditAPIKeyUsed        = "apikey.used"
+	AuditLoginSuccess     = "auth.login.success"
+	AuditLoginFailure     = "auth.login.failure"
+	AuditLogout           = "auth.logout"
+	AuditPasswordChange   = "auth.password.change"
+	AuditPasswordFailure  = "auth.password.change.failure"
+	AuditSessionRevoked   = "auth.session.revoked"
+	AuditPermissionDenied = "auth.permission.denied"
+	AuditRateLimited      = "auth.rate.limited"
+	AuditAPIKeyCreated    = "apikey.created"
+	AuditAPIKeyRevoked    = "apikey.revoked"
+	AuditAPIKeyUsed       = "apikey.used"
 )
 
 // LoggerAuditLogger implements AuditLogger using standard logging

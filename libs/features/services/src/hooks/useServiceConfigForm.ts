@@ -2,11 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { UseFormReturn } from 'react-hook-form';
-import {
-  useServiceConfigOperations,
-  type ConfigSchema,
-  type ConfigSchemaField,
-} from '@nasnet/api-client/queries';
+import { useServiceConfigOperations } from '@nasnet/api-client/queries';
+import type { ConfigSchema, ConfigSchemaField } from '@nasnet/api-client/generated';
 import { buildZodSchema, evaluateCondition } from '../utils';
 
 /**
@@ -189,10 +186,11 @@ export function useServiceConfigForm({
 
     return schema.fields.filter((field) => {
       // If no condition, always visible
-      if (!field.showIf) return true;
+      const showIf = (field as any).showIf as string | undefined;
+      if (!showIf) return true;
 
       // Evaluate condition
-      return evaluateCondition(field.showIf, formValues);
+      return evaluateCondition(showIf, formValues);
     });
   }, [schema, formValues]);
 
@@ -220,7 +218,7 @@ export function useServiceConfigForm({
 
       if (!result.valid) {
         // Set server-side errors on form fields
-        result.errors?.forEach((err) => {
+        result.errors?.forEach((err: any) => {
           form.setError(err.field, {
             type: 'server',
             message: err.message,
@@ -265,13 +263,13 @@ export function useServiceConfigForm({
         onSuccess?.(result.configPath ?? undefined);
       } else {
         // Set field-level errors if provided
-        result.errors?.forEach((err) => {
+        result.errors?.forEach((err: any) => {
           form.setError(err.field, {
             type: 'server',
             message: err.message,
           });
         });
-        onError?.(result.message ?? 'Configuration failed to apply');
+        onError?.((result as any).message ?? 'Configuration failed to apply');
       }
     } catch (error) {
       const message =

@@ -28,7 +28,7 @@ func (e *Engine) handleEscalationTimer(alertID string) {
 	}
 
 	state.mu.Lock()
-	if state.cancelled {
+	if state.canceled {
 		state.mu.Unlock()
 		return
 	}
@@ -51,10 +51,14 @@ func (e *Engine) handleEscalationTimer(alertID string) {
 	}
 
 	if fetchedAlert.AcknowledgedAt != nil {
-		e.log.Infow("alert was acknowledged, cancelling escalation",
+		e.log.Infow("alert was acknowledged, canceling escalation",
 			"alert_id", alertID,
 			"acknowledged_at", fetchedAlert.AcknowledgedAt)
-		_ = e.CancelEscalation(ctx, alertID, "alert acknowledged")
+		if err := e.CancelEscalation(ctx, alertID, "alert acknowledged"); err != nil {
+			e.log.Warnw("failed to cancel escalation after acknowledgment",
+				"alert_id", alertID,
+				"error", err)
+		}
 		return
 	}
 
@@ -92,25 +96,31 @@ func (e *Engine) handleMaxLevelReached(ctx context.Context, alertID, escalationI
 		"max_level", maxEscalations)
 
 	now := time.Now()
-	_ = e.db.AlertEscalation.UpdateOneID(escalationID).
+	if err := e.db.AlertEscalation.UpdateOneID(escalationID).
 		SetStatus(alertescalation.StatusMAX_REACHED).
 		SetCurrentLevel(newLevel).
 		SetResolvedAt(now).
 		SetResolvedBy("maximum escalation level reached").
 		ClearNextEscalationAt().
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		e.log.Errorw("failed to update escalation status to max_reached",
+			"escalation_id", escalationID,
+			"error", err)
+	}
 
 	e.mu.Lock()
 	delete(e.escalations, alertID)
 	e.mu.Unlock()
 
 	if e.eventBus != nil {
-		_ = e.eventBus.Publish(ctx, map[string]interface{}{
+		if err := e.eventBus.Publish(ctx, map[string]interface{}{
 			"type":          "alert.escalation.max_reached",
 			"alert_id":      alertID,
 			"escalation_id": escalationID,
 			"max_level":     maxEscalations,
-		})
+		}); err != nil {
+			e.log.Warnw("failed to publish max escalation event", "error", err)
+		}
 	}
 }
 
@@ -126,10 +136,15 @@ func (e *Engine) scheduleNextEscalation(ctx context.Context, alertID, escalation
 
 	nextEscalationAt := time.Now().Add(nextDelay)
 
-	_ = e.db.AlertEscalation.UpdateOneID(escalationID).
+	if err := e.db.AlertEscalation.UpdateOneID(escalationID).
 		SetCurrentLevel(newLevel).
 		SetNextEscalationAt(nextEscalationAt).
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		e.log.Errorw("failed to update escalation for next level",
+			"escalation_id", escalationID,
+			"level", newLevel,
+			"error", err)
+	}
 
 	state.mu.Lock()
 	state.timer = time.AfterFunc(nextDelay, func() {
@@ -143,24 +158,27 @@ func (e *Engine) scheduleNextEscalation(ctx context.Context, alertID, escalation
 		"delay_seconds", int(nextDelay.Seconds()))
 
 	if e.eventBus != nil {
-		_ = e.eventBus.Publish(ctx, map[string]interface{}{
+		if err := e.eventBus.Publish(ctx, map[string]interface{}{
 			"type":               "alert.escalated",
 			"alert_id":           alertID,
-			"escalation_id":     escalationID,
-			"level":             newLevel,
+			"escalation_id":      escalationID,
+			"level":              newLevel,
 			"next_escalation_at": nextEscalationAt,
-		})
+		}); err != nil {
+			e.log.Warnw("failed to publish escalated event", "error", err)
+		}
 	}
 }
 
 // triggerEscalationLevel sends escalated notifications with additional channels.
 func (e *Engine) triggerEscalationLevel(
 	ctx context.Context,
-	escalationID string,
+	_ string,
 	alertEnt *ent.Alert,
 	config Config,
 	level int,
 ) error {
+
 	rule := alertEnt.Edges.Rule
 	if rule == nil {
 		return fmt.Errorf("alert missing rule edge")

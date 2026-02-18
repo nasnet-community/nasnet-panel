@@ -11,6 +11,7 @@ package translator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -87,6 +88,12 @@ func (b *AdapterBridge) filtersToQuery(filters []Filter) string {
 			query += fmt.Sprintf("%s<%v", f.Field, f.Value)
 		case FilterOpContains:
 			query += fmt.Sprintf("%s~%v", f.Field, f.Value)
+		case FilterOpGreaterOrEq:
+			query += fmt.Sprintf("%s>=%v", f.Field, f.Value)
+		case FilterOpLessOrEq:
+			query += fmt.Sprintf("%s<=%v", f.Field, f.Value)
+		case FilterOpIn:
+			query += fmt.Sprintf("%s%s%v", f.Field, f.Operator, f.Value)
 		default:
 			query += fmt.Sprintf("%s=%v", f.Field, f.Value)
 		}
@@ -113,9 +120,9 @@ func (b *AdapterBridge) FromCommandResult(result *router.CommandResult, protocol
 				Category: categorizeAdapterError(result.Error),
 			},
 			Metadata: ResponseMetadata{
-				Protocol:   protocol,
-				Duration:   result.Duration,
-							},
+				Protocol: protocol,
+				Duration: result.Duration,
+			},
 		}
 	}
 
@@ -159,7 +166,8 @@ func categorizeAdapterError(err error) ErrorCategory {
 	}
 
 	// Check for AdapterError type
-	if adapterErr, ok := err.(*router.AdapterError); ok {
+	var adapterErr *router.AdapterError
+	if errors.As(err, &adapterErr) {
 		return categorizeByRouterOSError(adapterErr)
 	}
 
@@ -198,6 +206,8 @@ func MapRouterProtocol(p router.Protocol) Protocol {
 		return ProtocolAPI // Treat API-SSL same as API for translation
 	case router.ProtocolSSH:
 		return ProtocolSSH
+	case router.ProtocolTelnet:
+		return ProtocolTelnet
 	default:
 		return ProtocolSSH // Default to SSH for telnet/unknown
 	}
@@ -439,13 +449,13 @@ func (be *BatchExecutor) Execute(ctx context.Context, commands []BatchCommand) *
 	for i, bc := range commands {
 		select {
 		case <-ctx.Done():
-			// Context cancelled, fill remaining with error
+			// Context canceled, fill remaining with error
 			for j := i; j < len(commands); j++ {
 				result.Results[j] = &CanonicalResponse{
 					Success: false,
 					Error: &CommandError{
-						Code:     "CANCELLED",
-						Message:  "batch execution cancelled",
+						Code:     "CANCELED",
+						Message:  "batch execution canceled",
 						Category: ErrorCategoryTimeout,
 					},
 				}

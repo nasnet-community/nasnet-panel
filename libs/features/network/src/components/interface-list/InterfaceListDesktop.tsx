@@ -43,39 +43,35 @@ export function InterfaceListDesktop({
   // Column definitions
   const columns = [
     {
-      id: 'name',
+      key: 'name',
       header: 'Name',
-      accessorKey: 'name',
       cell: (row: any) => (
         <span className="font-medium">{row.name}</span>
       ),
     },
     {
-      id: 'type',
+      key: 'type',
       header: 'Type',
-      accessorKey: 'type',
       cell: (row: any) => (
         <Badge variant="outline">{row.type}</Badge>
       ),
     },
     {
-      id: 'status',
+      key: 'status',
       header: 'Status',
-      accessorKey: 'status',
       cell: (row: any) => {
         const variant =
           row.status === 'UP'
             ? 'success'
             : row.status === 'DOWN'
-            ? 'destructive'
+            ? 'error'
             : 'secondary';
         return <Badge variant={variant}>{row.status}</Badge>;
       },
     },
     {
-      id: 'enabled',
+      key: 'enabled',
       header: 'Enabled',
-      accessorKey: 'enabled',
       cell: (row: any) => (
         <Badge variant={row.enabled ? 'default' : 'outline'}>
           {row.enabled ? 'Yes' : 'No'}
@@ -83,9 +79,8 @@ export function InterfaceListDesktop({
       ),
     },
     {
-      id: 'ip',
+      key: 'ip',
       header: 'IP Address',
-      accessorKey: 'ip',
       cell: (row: any) => (
         <span className="text-sm text-muted-foreground">
           {row.ip?.join(', ') || '-'}
@@ -93,17 +88,15 @@ export function InterfaceListDesktop({
       ),
     },
     {
-      id: 'mtu',
+      key: 'mtu',
       header: 'MTU',
-      accessorKey: 'mtu',
       cell: (row: any) => (
         <span className="text-sm">{row.mtu || '-'}</span>
       ),
     },
     {
-      id: 'comment',
+      key: 'comment',
       header: 'Comment',
-      accessorKey: 'comment',
       cell: (row: any) => (
         <span className="text-sm text-muted-foreground truncate max-w-xs">
           {row.comment || '-'}
@@ -150,19 +143,12 @@ export function InterfaceListDesktop({
       <DataTable
         columns={columns}
         data={interfaces}
-        loading={loading}
-        selectable
-        selectedRows={selectedIds}
-        onSelectRows={onSelect}
-        onRowClick={(row) => onOpenDetail(row.id)}
-        emptyState={
-          <div className="p-8 text-center">
-            <p className="text-muted-foreground">
-              {filters.type || filters.status || filters.search
-                ? 'No interfaces match the current filters'
-                : 'No interfaces found'}
-            </p>
-          </div>
+        isLoading={loading}
+        onRowClick={(row: any) => onOpenDetail(row.id)}
+        emptyMessage={
+          filters.type || filters.status || filters.search
+            ? 'No interfaces match the current filters'
+            : 'No interfaces found'
         }
       />
     </div>

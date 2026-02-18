@@ -21,8 +21,11 @@
  */
 
 import * as React from 'react';
+
 import { ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
+
 import { cn, Button } from '@nasnet/ui/primitives';
+
 import type { SubnetCalculationsProps, SubnetInfo } from './subnet-input.types';
 
 /**

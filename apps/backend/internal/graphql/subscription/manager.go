@@ -14,32 +14,32 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// SubscriptionID uniquely identifies a subscription
-type SubscriptionID = ulid.ULID
+// ID uniquely identifies a subscription.
+type ID = ulid.ULID
 
 // Subscription represents an active GraphQL subscription
 type Subscription struct {
-	ID         SubscriptionID
-	UserID     string                   // Optional: for user-specific filtering
-	EventTypes []string                 // Event types this subscription listens to
-	Filter     func(events.Event) bool  // Optional: filter function for events
-	Priority   events.Priority          // Minimum priority level to receive
-	Channel    chan<- events.Event      // Channel to deliver events
+	ID         ID
+	UserID     string                  // Optional: for user-specific filtering
+	EventTypes []string                // Event types this subscription listens to
+	Filter     func(events.Event) bool // Optional: filter function for events
+	Priority   events.Priority         // Minimum priority level to receive
+	Channel    chan<- events.Event     // Channel to deliver events
 	CreatedAt  time.Time
 	LastEvent  time.Time
-	Metadata   map[string]string        // Additional metadata (routerId, etc.)
+	Metadata   map[string]string // Additional metadata (routerId, etc.)
 }
 
 // Manager handles GraphQL subscription lifecycle and event delivery
 type Manager struct {
 	eventBus      events.EventBus
-	subscriptions map[SubscriptionID]*Subscription
+	subscriptions map[ID]*Subscription
 	mu            sync.RWMutex
 	closed        bool
 
 	// Statistics
-	totalDelivered   uint64
-	totalDropped     uint64
+	totalDelivered    uint64
+	totalDropped      uint64
 	activeConnections int
 }
 
@@ -47,7 +47,7 @@ type Manager struct {
 func NewManager(eventBus events.EventBus) *Manager {
 	m := &Manager{
 		eventBus:      eventBus,
-		subscriptions: make(map[SubscriptionID]*Subscription),
+		subscriptions: make(map[ID]*Subscription),
 	}
 
 	// Subscribe to all events for distribution
@@ -61,7 +61,7 @@ func NewManager(eventBus events.EventBus) *Manager {
 }
 
 // Subscribe creates a new subscription and returns its ID
-func (m *Manager) Subscribe(opts SubscriptionOptions) (SubscriptionID, error) {
+func (m *Manager) Subscribe(opts Options) (ID, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -92,7 +92,7 @@ func (m *Manager) Subscribe(opts SubscriptionOptions) (SubscriptionID, error) {
 }
 
 // Unsubscribe removes a subscription
-func (m *Manager) Unsubscribe(id SubscriptionID) error {
+func (m *Manager) Unsubscribe(id ID) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -195,8 +195,8 @@ func (m *Manager) Close() error {
 	return nil
 }
 
-// SubscriptionOptions configures a new subscription
-type SubscriptionOptions struct {
+// Options configures a new subscription.
+type Options struct {
 	UserID     string
 	EventTypes []string
 	Filter     func(events.Event) bool
@@ -214,7 +214,7 @@ type ManagerStats struct {
 
 // Errors
 var (
-	ErrManagerClosed       = &subscriptionError{message: "subscription manager is closed"}
+	ErrManagerClosed        = &subscriptionError{message: "subscription manager is closed"}
 	ErrSubscriptionNotFound = &subscriptionError{message: "subscription not found"}
 )
 

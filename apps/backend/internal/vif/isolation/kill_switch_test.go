@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"backend/generated/ent/enttest"
+
 	"backend/internal/events"
 )
 
@@ -370,6 +371,7 @@ func TestKillSwitchManager_ReconcileRouter(t *testing.T) {
 		SetIPAddress("10.99.100.1/24").
 		SetRoutingMark("tor-mark").
 		SaveX(ctx)
+	_ = testVIF // Mark as intentionally unused
 
 	// Scenario 1: Orphaned rule (on router but not in DB)
 	mockPort.queryResources = []map[string]string{

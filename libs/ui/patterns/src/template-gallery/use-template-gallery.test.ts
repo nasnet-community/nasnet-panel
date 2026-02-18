@@ -13,9 +13,9 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect , vi } from 'vitest';
+
 import { useTemplateGallery } from './use-template-gallery';
-import type { FirewallTemplate } from './types';
 import {
   mockAllTemplates,
   mockBasicSecurityTemplate,
@@ -25,6 +25,8 @@ import {
   mockGuestNetworkTemplate,
   mockCustomTemplate,
 } from '../__test-utils__/firewall-templates/template-fixtures';
+
+import type { FirewallTemplate } from './types';
 
 describe('useTemplateGallery', () => {
   describe('Initialization', () => {

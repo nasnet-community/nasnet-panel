@@ -58,10 +58,10 @@ type AdguardGenerator struct {
 
 // NewAdguardGenerator creates a new AdGuard Home config generator.
 func NewAdguardGenerator() *AdguardGenerator {
-	schema := &cfglib.ConfigSchema{
+	schema := &cfglib.Schema{
 		ServiceType: "adguard",
 		Version:     "1.0.0",
-		Fields: []cfglib.ConfigField{
+		Fields: []cfglib.Field{
 			{
 				Name:        "web_port",
 				Type:        "port",
@@ -171,15 +171,15 @@ func (g *AdguardGenerator) Generate(instanceID string, config map[string]interfa
 	config = g.Schema.MergeWithDefaults(config)
 
 	// Then validate (after defaults are applied)
-	if err := g.Validate(config, bindIP); err != nil {
-		return nil, fmt.Errorf("validation failed: %w", err)
+	if validateErr := g.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	// Split comma-separated DNS servers into slices
-	upstreamDNS, _ := config["upstream_dns"].(string)
+	upstreamDNS, _ := config["upstream_dns"].(string) //nolint:errcheck // type assertion uses zero value default
 	config["upstream_dns_slice"] = splitCommaSeparated(upstreamDNS)
 
-	bootstrapDNS, _ := config["bootstrap_dns"].(string)
+	bootstrapDNS, _ := config["bootstrap_dns"].(string) //nolint:errcheck // type assertion uses zero value default
 	config["bootstrap_dns_slice"] = splitCommaSeparated(bootstrapDNS)
 
 	// Prepare template data
@@ -215,23 +215,19 @@ func (d *AdguardTemplateData) GetStringSlice(key string) []string {
 // Validate performs AdGuard-specific validation.
 func (g *AdguardGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
-	if err := g.ValidateConfig(config, bindIP); err != nil {
-		return err
+	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
+		return configErr
 	}
 
 	// Validate admin username is not empty
-	adminUser, _ := config["admin_user"].(string)
-	if err := cfglib.ValidateNonEmpty("admin_user", adminUser); err != nil {
-		return err
+	adminUser, _ := config["admin_user"].(string) //nolint:errcheck // type assertion uses zero value default
+	if userErr := cfglib.ValidateNonEmpty("admin_user", adminUser); userErr != nil {
+		return userErr
 	}
 
 	// Validate admin password is not empty
-	adminPassword, _ := config["admin_password"].(string)
-	if err := cfglib.ValidateNonEmpty("admin_password", adminPassword); err != nil {
-		return err
-	}
-
-	return nil
+	adminPassword, _ := config["admin_password"].(string) //nolint:errcheck // type assertion uses zero value default
+	return cfglib.ValidateNonEmpty("admin_password", adminPassword)
 }
 
 // GetConfigFileName returns the filename for the generated config.
@@ -251,10 +247,9 @@ func splitCommaSeparated(s string) []string {
 	}
 
 	result := []string{}
-	parts := []rune(s)
 	current := []rune{}
 
-	for _, char := range parts {
+	for _, char := range s {
 		if char == ',' {
 			if len(current) > 0 {
 				result = append(result, string(current))

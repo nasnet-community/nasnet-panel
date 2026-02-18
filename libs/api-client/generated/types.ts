@@ -1728,6 +1728,8 @@ export type ConfigSchemaField = {
   readonly defaultValue?: Maybe<Scalars['JSON']['output']>;
   /** Field description/help text */
   readonly description?: Maybe<Scalars['String']['output']>;
+  /** Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network') */
+  readonly group?: Maybe<Scalars['String']['output']>;
   /** Field label (display name) */
   readonly label: Scalars['String']['output'];
   /** Maximum value (for NUMBER/PORT types) */

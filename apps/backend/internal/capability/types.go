@@ -281,16 +281,16 @@ func NewCapabilities() *Capabilities {
 
 // GetLevel returns the capability level for the given capability.
 // Returns LevelNone if the capability is not found.
-func (c *Capabilities) GetLevel(cap Capability) Level {
-	if entry, ok := c.Entries[cap]; ok {
+func (c *Capabilities) GetLevel(capability Capability) Level {
+	if entry, ok := c.Entries[capability]; ok {
 		return entry.Level
 	}
 	return LevelNone
 }
 
 // HasCapability returns true if the capability is at least at the specified level.
-func (c *Capabilities) HasCapability(cap Capability, minLevel Level) bool {
-	return c.GetLevel(cap) >= minLevel
+func (c *Capabilities) HasCapability(capability Capability, minLevel Level) bool {
+	return c.GetLevel(capability) >= minLevel
 }
 
 // IsExpired returns true if the capabilities have expired.
@@ -306,9 +306,9 @@ func (c *Capabilities) IsStale() bool {
 }
 
 // SetEntry sets or updates a capability entry.
-func (c *Capabilities) SetEntry(cap Capability, level Level, description, guidance string) {
-	c.Entries[cap] = Entry{
-		Capability:  cap,
+func (c *Capabilities) SetEntry(capability Capability, level Level, description, guidance string) {
+	c.Entries[capability] = Entry{
+		Capability:  capability,
 		Level:       level,
 		Description: description,
 		Guidance:    guidance,

@@ -7,8 +7,8 @@
 import { ConflictCard } from './ConflictCard';
 import { ConflictList } from './ConflictList';
 
-import type { Meta, StoryObj } from '@storybook/react';
 import type { ResourceConflict } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // ===== ConflictCard Stories =====
 

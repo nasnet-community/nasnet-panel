@@ -24,7 +24,6 @@
  * @see NAS-4.12: Performance Optimization
  */
 
-import { lazy, Suspense } from 'react';
 import { createLazyWithPreload } from '@nasnet/ui/patterns';
 
 // ===== Heavy Tab Components =====

@@ -139,35 +139,41 @@ function sortTemplates(
   const multiplier = direction === 'asc' ? 1 : -1;
 
   return [...templates].sort((a, b) => {
-    let aVal: string | number | Date | null;
-    let bVal: string | number | Date | null;
+    let aVal: string | number | Date | null | undefined;
+    let bVal: string | number | Date | null | undefined;
 
     switch (field) {
-      case 'name':
+      case 'name': {
         aVal = a.name;
         bVal = b.name;
         break;
-      case 'complexity':
+      }
+      case 'complexity': {
         // Order: SIMPLE < MODERATE < ADVANCED
-        const complexityOrder = { SIMPLE: 1, MODERATE: 2, ADVANCED: 3 };
-        aVal = complexityOrder[a.complexity];
-        bVal = complexityOrder[b.complexity];
+        const complexityOrder: Record<string, number> = { SIMPLE: 1, MODERATE: 2, ADVANCED: 3, EXPERT: 4 };
+        aVal = complexityOrder[a.complexity] ?? 0;
+        bVal = complexityOrder[b.complexity] ?? 0;
         break;
-      case 'ruleCount':
+      }
+      case 'ruleCount': {
         aVal = a.ruleCount;
         bVal = b.ruleCount;
         break;
-      case 'category':
+      }
+      case 'category': {
         aVal = a.category;
         bVal = b.category;
         break;
-      case 'updatedAt':
+      }
+      case 'updatedAt': {
         aVal = a.updatedAt;
         bVal = b.updatedAt;
         break;
-      default:
+      }
+      default: {
         aVal = a.name;
         bVal = b.name;
+      }
     }
 
     // Handle null/undefined values (push to end)

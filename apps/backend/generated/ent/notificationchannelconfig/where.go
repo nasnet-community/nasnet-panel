@@ -3,8 +3,9 @@
 package notificationchannelconfig
 
 import (
-	"backend/generated/ent/predicate"
 	"time"
+
+	"backend/generated/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 )

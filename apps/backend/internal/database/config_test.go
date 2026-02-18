@@ -180,7 +180,7 @@ func TestRunIntegrityCheckWithDegradation_Router(t *testing.T) {
 
 func TestDatabaseError(t *testing.T) {
 	t.Run("basic error", func(t *testing.T) {
-		err := NewDatabaseError(ErrCodeDBConnectionFailed, "connection failed", nil)
+		err := NewError(ErrCodeDBConnectionFailed, "connection failed", nil)
 		assert.Equal(t, ErrCodeDBConnectionFailed, err.Code)
 		assert.Contains(t, err.Error(), "DB_CONNECTION_FAILED")
 		assert.Contains(t, err.Error(), "connection failed")
@@ -188,13 +188,13 @@ func TestDatabaseError(t *testing.T) {
 
 	t.Run("error with cause", func(t *testing.T) {
 		cause := assert.AnError
-		err := NewDatabaseError(ErrCodeDBQueryFailed, "query failed", cause)
+		err := NewError(ErrCodeDBQueryFailed, "query failed", cause)
 		assert.Equal(t, cause, err.Unwrap())
 		assert.Contains(t, err.Error(), "query failed")
 	})
 
 	t.Run("error with context", func(t *testing.T) {
-		err := NewDatabaseError(ErrCodeDBRouterNotFound, "router not found", nil).
+		err := NewError(ErrCodeDBRouterNotFound, "router not found", nil).
 			WithRouterID("router-123").
 			WithPath("/var/nasnet/router-123.db").
 			WithOperation("GetRouterDB")
@@ -205,13 +205,13 @@ func TestDatabaseError(t *testing.T) {
 	})
 
 	t.Run("recoverable errors", func(t *testing.T) {
-		timeoutErr := NewDatabaseError(ErrCodeDBTimeout, "timeout", nil)
+		timeoutErr := NewError(ErrCodeDBTimeout, "timeout", nil)
 		assert.True(t, timeoutErr.IsRecoverable())
 
-		connectionErr := NewDatabaseError(ErrCodeDBConnectionFailed, "connection failed", nil)
+		connectionErr := NewError(ErrCodeDBConnectionFailed, "connection failed", nil)
 		assert.True(t, connectionErr.IsRecoverable())
 
-		integrityErr := NewDatabaseError(ErrCodeDBIntegrityFailed, "integrity failed", nil)
+		integrityErr := NewError(ErrCodeDBIntegrityFailed, "integrity failed", nil)
 		assert.False(t, integrityErr.IsRecoverable())
 	})
 }
@@ -225,7 +225,7 @@ func TestOpenDatabase_InvalidPath(t *testing.T) {
 	require.Error(t, err)
 
 	// Should be a DatabaseError
-	var dbErr *DatabaseError
+	var dbErr *Error
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBConnectionFailed, dbErr.Code)
 }

@@ -2,13 +2,16 @@
  * ServiceImportDialog Storybook Stories
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+
 import { expect, within, userEvent, waitFor } from '@storybook/test';
+
 import { ServiceImportDialog } from './ServiceImportDialog';
 import { ServiceImportDialogDesktop } from './ServiceImportDialogDesktop';
-import { ServiceImportDialogTablet } from './ServiceImportDialogTablet';
 import { ServiceImportDialogMobile } from './ServiceImportDialogMobile';
+import { ServiceImportDialogTablet } from './ServiceImportDialogTablet';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const mockValidJSON = JSON.stringify(
   {

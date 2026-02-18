@@ -99,7 +99,7 @@ export function InterfaceDetailMobile({
                     iface.status === 'UP'
                       ? 'success'
                       : iface.status === 'DOWN'
-                      ? 'destructive'
+                      ? 'error'
                       : 'secondary'
                   }
                 >

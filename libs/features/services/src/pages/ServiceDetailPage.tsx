@@ -156,8 +156,8 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
 
   // Determine if export is available (instance has config)
   const canExport = instance &&
-    instance.status !== 'PENDING' &&
-    instance.status !== 'INSTALLING';
+    (instance.status as string) !== 'PENDING' &&
+    (instance.status as string) !== 'INSTALLING';
 
   return (
     <div className="p-6 space-y-6">
@@ -206,10 +206,10 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
           <TabsContent value="overview" className="space-y-4">
             {/* Service instance card */}
             <ServiceCard
-              service={service}
-              onAction={(action) => {
+              service={service as any}
+              onClick={() => {
                 // TODO: Implement actions (start, stop, restart, delete)
-                console.log('Action:', action, 'on instance:', instance.id);
+                console.log('Card clicked for instance:', instance.id);
               }}
             />
 
@@ -319,10 +319,12 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
 
       {/* Export Dialog */}
       <ServiceExportDialog
-        open={exportDialogOpen}
-        onClose={() => setExportDialogOpen(false)}
-        instanceId={instanceId}
-        routerId={routerId}
+        {...{
+          open: exportDialogOpen,
+          onClose: () => setExportDialogOpen(false),
+          instanceId,
+          routerId,
+        } as any}
       />
     </div>
   );

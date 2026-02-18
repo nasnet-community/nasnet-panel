@@ -5,10 +5,28 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useEffect } from 'react';
 import { FormSection } from '@nasnet/ui/patterns';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
-import { Code, Eye, Network, User, Settings } from 'lucide-react';
+import { Code, Network, User, Settings } from 'lucide-react';
+
+interface PppoeInterfaceData {
+  name?: string;
+  interface?: string;
+}
+
+interface PppoeCredentialsData {
+  username?: string;
+  password?: string;
+  serviceName?: string;
+}
+
+interface PppoeOptionsData {
+  mtu?: number;
+  mru?: number;
+  addDefaultRoute?: boolean;
+  usePeerDNS?: boolean;
+  comment?: string;
+}
 
 interface PppoePreviewStepProps {
   routerId: string;
@@ -19,14 +37,9 @@ export function PppoePreviewStep({
   routerId,
   stepper,
 }: PppoePreviewStepProps) {
-  const interfaceData = stepper.getStepData('interface');
-  const credentialsData = stepper.getStepData('credentials');
-  const optionsData = stepper.getStepData('options');
-
-  // Mark step as valid when rendered
-  useEffect(() => {
-    stepper.markStepAsValid('preview');
-  }, [stepper]);
+  const interfaceData = stepper.getStepData<PppoeInterfaceData>('interface');
+  const credentialsData = stepper.getStepData<PppoeCredentialsData>('credentials');
+  const optionsData = stepper.getStepData<PppoeOptionsData>('options');
 
   /**
    * Generate RouterOS command preview

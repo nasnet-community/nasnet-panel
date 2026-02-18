@@ -24,9 +24,12 @@
  */
 
 import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
+
 import { MACInputDesktop } from './mac-input-desktop';
 import { MACInputMobile } from './mac-input-mobile';
+
 import type { MACInputProps } from './mac-input.types';
 
 /**

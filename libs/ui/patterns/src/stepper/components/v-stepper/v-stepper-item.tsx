@@ -8,11 +8,11 @@
  */
 
 import * as React from 'react';
+
 import { motion } from 'framer-motion';
 import { Check, XCircle } from 'lucide-react';
-import { cn } from '@nasnet/ui/primitives';
-import { useReducedMotion } from '@nasnet/ui/primitives';
-import {
+
+import { cn , useReducedMotion ,
   Tooltip,
   TooltipContent,
   TooltipTrigger,

@@ -163,7 +163,7 @@ func Print(path string) *CommandBuilder {
 }
 
 // Get creates a get command builder.
-func Get(path string, id string) *CommandBuilder {
+func Get(path, id string) *CommandBuilder {
 	return NewCommandBuilder(path).WithAction(ActionGet).WithID(id)
 }
 
@@ -173,21 +173,21 @@ func Add(path string) *CommandBuilder {
 }
 
 // Set creates a set command builder.
-func Set(path string, id string) *CommandBuilder {
+func Set(path, id string) *CommandBuilder {
 	return NewCommandBuilder(path).WithAction(ActionSet).WithID(id)
 }
 
 // Remove creates a remove command builder.
-func Remove(path string, id string) *CommandBuilder {
+func Remove(path, id string) *CommandBuilder {
 	return NewCommandBuilder(path).WithAction(ActionRemove).WithID(id)
 }
 
 // Enable creates an enable command builder.
-func Enable(path string, id string) *CommandBuilder {
+func Enable(path, id string) *CommandBuilder {
 	return NewCommandBuilder(path).WithAction(ActionEnable).WithID(id)
 }
 
 // Disable creates a disable command builder.
-func Disable(path string, id string) *CommandBuilder {
+func Disable(path, id string) *CommandBuilder {
 	return NewCommandBuilder(path).WithAction(ActionDisable).WithID(id)
 }

@@ -71,7 +71,7 @@ if [ ${#needs_custom_scalars[@]} -gt 0 ]; then
 fi
 echo ""
 
-echo "🔄 Files using ONLY generated types (change to backend/generated/graphql):"
+echo "🔄 Files using ONLY generated types (change to backend/graph/model):"
 echo "   Count: ${#needs_generated_types[@]}"
 if [ ${#needs_generated_types[@]} -gt 0 ]; then
   for file in "${needs_generated_types[@]}"; do
@@ -93,18 +93,18 @@ echo "📝 Summary:"
 echo "==========="
 echo "Total files analyzed: $(echo "$model_files" | wc -l)"
 echo "Keep backend/graph/model: ${#needs_custom_scalars[@]}"
-echo "Change to backend/generated/graphql: ${#needs_generated_types[@]}"
+echo "Change to backend/graph/model: ${#needs_generated_types[@]}"
 echo "Needs both imports or review: ${#needs_both[@]}"
 echo ""
 
 echo "💡 Next steps:"
 echo "1. For files using ONLY generated types, run:"
-echo "   sed -i 's|\"backend/graph/model\"|\"backend/generated/graphql\"|g' <file>"
+echo "   sed -i 's|\"backend/graph/model\"|\"backend/graph/model\"|g' <file>"
 echo ""
 echo "2. For files needing BOTH, add second import:"
 echo "   import ("
 echo "     \"backend/graph/model\"                  // For custom scalars"
-echo "     gqlmodel \"backend/generated/graphql\"   // For generated types (aliased)"
+echo "     gqlmodel \"backend/graph/model\"   // For generated types (aliased)"
 echo "   )"
 echo ""
 echo "3. For files using ONLY custom scalars, no changes needed!"

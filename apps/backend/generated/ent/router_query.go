@@ -3,6 +3,11 @@
 package ent
 
 import (
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"math"
+
 	"backend/generated/ent/devicerouting"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/portallocation"
@@ -14,10 +19,6 @@ import (
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/servicetemplate"
 	"backend/generated/ent/vlanallocation"
-	"context"
-	"database/sql/driver"
-	"fmt"
-	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

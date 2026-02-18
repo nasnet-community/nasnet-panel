@@ -9,8 +9,8 @@
  * @module @nasnet/ui/patterns
  */
 
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 // TODO: Import component once created
 // import { PortKnockVisualizer } from './PortKnockVisualizer';
 

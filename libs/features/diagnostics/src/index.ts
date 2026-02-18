@@ -4,6 +4,9 @@
 export * from './components/TroubleshootWizard';
 export * from './components/TracerouteTool';
 export * from './components/DnsLookupTool';
+export * from './components/PingTool';
+export * from './components/DeviceScan';
+// export * from './components/RouteLookupTool'; // TODO: Component not implemented yet
 
 // Hooks
 export * from './hooks';

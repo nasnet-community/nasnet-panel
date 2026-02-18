@@ -54,7 +54,7 @@ func (s *AddressListService) GetAddressLists(ctx context.Context, port router.Ro
 		go func(name string) {
 			defer wg.Done()
 
-			rules, err := fetchFirewallRules(ctx, port, name)
+			rules, err := fetchRules(ctx, port, name)
 			if err != nil {
 				// Log error but continue
 				return
@@ -85,6 +85,7 @@ func (s *AddressListService) GetAddressListEntries(
 	first *int,
 	after *string,
 ) (*AddressListEntryConnection, error) {
+
 	// Fetch all entries for the list
 	entries, err := fetchAddressListEntriesByName(ctx, port, listName)
 	if err != nil {
@@ -158,8 +159,9 @@ func (s *AddressListService) GetReferencingRules(
 	ctx context.Context,
 	port router.RouterPort,
 	listName string,
-) ([]FirewallRule, error) {
-	rules, err := fetchFirewallRules(ctx, port, listName)
+) ([]Rule, error) {
+
+	rules, err := fetchRules(ctx, port, listName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch referencing rules: %w", err)
 	}
@@ -173,6 +175,7 @@ func (s *AddressListService) CreateAddressListEntry(
 	port router.RouterPort,
 	input CreateAddressListEntryInput,
 ) (*AddressListEntry, error) {
+
 	// Validate input
 	if err := s.validateCreateInput(input); err != nil {
 		return nil, err
@@ -192,6 +195,7 @@ func (s *AddressListService) DeleteAddressListEntry(
 	port router.RouterPort,
 	id string,
 ) (bool, error) {
+
 	err := deleteAddressListEntry(ctx, port, id)
 	if err != nil {
 		return false, fmt.Errorf("failed to delete address list entry: %w", err)
@@ -207,6 +211,7 @@ func (s *AddressListService) BulkCreateAddressListEntries(
 	listName string,
 	entries []BulkAddressInput,
 ) (*BulkCreateResult, error) {
+
 	result := &BulkCreateResult{
 		SuccessCount: 0,
 		FailedCount:  0,
@@ -263,7 +268,7 @@ func (s *AddressListService) validateCreateInput(input CreateAddressListEntryInp
 
 // isValidListName checks if a list name is valid
 func isValidListName(name string) bool {
-	if len(name) == 0 || len(name) > 64 {
+	if name == "" || len(name) > 64 {
 		return false
 	}
 
@@ -272,6 +277,7 @@ func isValidListName(name string) bool {
 			(ch >= 'A' && ch <= 'Z') ||
 			(ch >= '0' && ch <= '9') ||
 			ch == '_' || ch == '-') {
+
 			return false
 		}
 	}

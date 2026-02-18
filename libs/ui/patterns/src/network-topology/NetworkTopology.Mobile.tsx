@@ -41,7 +41,7 @@ function StatusBadge({
 }: {
   status: 'online' | 'offline' | 'connected' | 'disconnected' | 'pending' | 'unknown';
 }) {
-  const config: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
+  const config: Record<string, { variant: 'default' | 'secondary' | 'error' | 'outline'; label: string }> = {
     online: { variant: 'default', label: 'Online' },
     offline: { variant: 'secondary', label: 'Offline' },
     connected: { variant: 'default', label: 'Connected' },

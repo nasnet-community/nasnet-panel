@@ -7,6 +7,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import type { Resource, ResourceMetadata } from '@nasnet/core/types';
+
 import {
   ReconciliationScheduler,
   initializeScheduler,
@@ -14,7 +17,6 @@ import {
   getDefaultScheduler,
 } from './reconciliationScheduler';
 import { DriftStatus, ResourcePriority, getResourcePriority } from './types';
-import type { Resource, ResourceMetadata } from '@nasnet/core/types';
 
 // =============================================================================
 // Test Helpers

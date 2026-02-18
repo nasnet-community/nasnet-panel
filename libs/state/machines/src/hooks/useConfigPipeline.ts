@@ -17,7 +17,9 @@
  */
 
 import { useMemo, useCallback, useEffect } from 'react';
+
 import { useMachine } from '@xstate/react';
+
 import {
   createConfigPipelineMachine,
   type ConfigPipelineConfig,
@@ -27,6 +29,7 @@ import {
   isPipelineProcessing,
   getPipelineStateDescription,
 } from '../configPipelineMachine';
+
 import type { ValidationError, ConfigDiff } from '../types';
 
 // ===== Hook Return Type =====
@@ -317,8 +320,9 @@ export function useConfigPipeline<TConfig = unknown>(
   );
 
   // Use the machine
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [snapshot, send] = useMachine(machine, {
-    context: {
+    input: {
       resourceId,
       originalConfig: originalConfig as TConfig | null,
       pendingConfig: null,
@@ -328,7 +332,7 @@ export function useConfigPipeline<TConfig = unknown>(
       applyStartedAt: null,
       errorMessage: null,
     },
-  });
+  } as any);
 
   // Current state as string
   const currentState = (

@@ -27,16 +27,16 @@ type RateLimitConfig struct {
 // DefaultRateLimitConfigs provides rate limit configurations for common endpoints
 var DefaultRateLimitConfigs = map[string]RateLimitConfig{
 	"login": {
-		Rate:  0.1,  // 1 per 10 seconds
-		Burst: 5,    // 5 attempts max
+		Rate:  0.1, // 1 per 10 seconds
+		Burst: 5,   // 5 attempts max
 	},
 	"graphql": {
-		Rate:  10,   // 10 per second
-		Burst: 100,  // 100 requests max
+		Rate:  10,  // 10 per second
+		Burst: 100, // 100 requests max
 	},
 	"api_key": {
-		Rate:  20,   // 20 per second (higher for automation)
-		Burst: 200,  // 200 requests max
+		Rate:  20,  // 20 per second (higher for automation)
+		Burst: 200, // 200 requests max
 	},
 	"discovery": {
 		Rate:  0.033, // 1 per 30 seconds
@@ -46,11 +46,11 @@ var DefaultRateLimitConfigs = map[string]RateLimitConfig{
 
 // TokenBucket implements the token bucket algorithm for rate limiting
 type TokenBucket struct {
-	mu          sync.Mutex
-	tokens      float64
-	maxTokens   float64
-	refillRate  float64
-	lastRefill  time.Time
+	mu         sync.Mutex
+	tokens     float64
+	maxTokens  float64
+	refillRate float64
+	lastRefill time.Time
 }
 
 // NewTokenBucket creates a new token bucket
@@ -202,7 +202,7 @@ func LoginRateLimitMiddleware() echo.MiddlewareFunc {
 	}
 	config.Skipper = func(c echo.Context) bool {
 		// Only apply to login endpoint
-		return c.Path() != "/graphql" || c.Request().Method != "POST"
+		return c.Path() != "/graphql" || c.Request().Method != http.MethodPost
 	}
 	return RateLimitMiddleware(config)
 }

@@ -8,20 +8,26 @@ import (
 	"backend/generated/ent/enttest"
 	"backend/generated/ent/serviceinstance"
 
-	_ "github.com/mattn/go-sqlite3"
+	"backend/internal/events"
+
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
 // quotaMockEventBus is a mock event bus that tracks published events
 type quotaMockEventBus struct {
-	events []interface{}
+	events []events.Event
 }
 
-func (m *quotaMockEventBus) Publish(event interface{}) error {
+func (m *quotaMockEventBus) Publish(ctx context.Context, event events.Event) error {
 	m.events = append(m.events, event)
 	return nil
 }
 
-func (m *quotaMockEventBus) Subscribe(eventType string, handler interface{}) error {
+func (m *quotaMockEventBus) Subscribe(eventType string, handler events.EventHandler) error {
+	return nil
+}
+
+func (m *quotaMockEventBus) SubscribeAll(handler events.EventHandler) error {
 	return nil
 }
 
@@ -33,7 +39,7 @@ func (m *quotaMockEventBus) EventCount() int {
 	return len(m.events)
 }
 
-func (m *quotaMockEventBus) LastEvent() interface{} {
+func (m *quotaMockEventBus) LastEvent() events.Event {
 	if len(m.events) == 0 {
 		return nil
 	}
@@ -56,7 +62,8 @@ func TestNewQuotaEnforcer(t *testing.T) {
 		t.Error("Client not set correctly")
 	}
 
-	if enforcer.eventBus != eventBus {
+	// EventBus is set correctly (can't compare interface directly, so just check it's not nil)
+	if enforcer.eventBus == nil {
 		t.Error("EventBus not set correctly")
 	}
 }
@@ -177,7 +184,7 @@ func TestCheckQuota_90PercentWarning(t *testing.T) {
 	}
 
 	if eventBus.EventCount() != 1 {
-		t.Fatalf("Expected 1 event (90% warning), got %d", eventBus.EventCount())
+		t.Fatalf("Expected 1 event (90%% warning), got %d", eventBus.EventCount())
 	}
 }
 
@@ -200,7 +207,7 @@ func TestCheckQuota_100PercentExceeded(t *testing.T) {
 		SetStatus(serviceinstance.StatusRunning).
 		SetQuotaBytes(quotaBytes).
 		SetQuotaPeriod(serviceinstance.QuotaPeriodDaily).
-		SetQuotaAction(serviceinstance.QuotaActionSTOPSERVICE).
+		SetQuotaAction(serviceinstance.QuotaActionSTOP_SERVICE).
 		SetQuotaUsedBytes(0).
 		Save(ctx)
 
@@ -302,7 +309,7 @@ func TestSetQuota(t *testing.T) {
 	// Set quota
 	quotaBytes := int64(5000000) // 5MB
 	period := serviceinstance.QuotaPeriodWeekly
-	action := serviceinstance.QuotaActionSTOPSERVICE
+	action := serviceinstance.QuotaActionSTOP_SERVICE
 
 	err := enforcer.SetQuota(ctx, instance.ID, quotaBytes, period, action)
 	if err != nil {

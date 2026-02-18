@@ -170,7 +170,7 @@ func (s *Service) DecryptBytes(ciphertext string) ([]byte, error) {
 	// Decode from base64
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
 	if err != nil {
-		return nil, fmt.Errorf("%w: base64 decode failed: %v", ErrInvalidCiphertext, err)
+		return nil, fmt.Errorf("%w: base64 decode failed: %w", ErrInvalidCiphertext, err)
 	}
 
 	s.mu.RLock()

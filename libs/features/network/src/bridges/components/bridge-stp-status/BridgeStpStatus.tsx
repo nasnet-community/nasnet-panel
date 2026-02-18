@@ -118,7 +118,7 @@ export function BridgeStpStatus({ bridgeId }: BridgeStpStatusProps) {
             {stpStatus?.rootBridge ? (
               <Badge variant="success">Root</Badge>
             ) : (
-              <Badge variant="muted">Non-Root</Badge>
+              <Badge variant="secondary">Non-Root</Badge>
             )}
           </div>
 

@@ -134,7 +134,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
     return (
       <div
-        ref={suggestionsRef}
+        ref={suggestionsRef as any}
         id={suggestionsId}
         role="listbox"
         aria-label="Port suggestions"
@@ -219,7 +219,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
         <div className="relative">
           <div className="flex items-center gap-2">
             <Input
-              ref={inputRef}
+              ref={inputRef as any}
               id={inputId}
               name={name}
               type="text"
@@ -298,7 +298,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
         <div className="relative">
           <div className="flex items-center gap-2">
             <Input
-              ref={rangeStartRef}
+              ref={rangeStartRef as any}
               id={`${inputId}-start`}
               name={name ? `${name}-start` : undefined}
               type="text"
@@ -322,7 +322,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             <span className="text-muted-foreground">-</span>
 
             <Input
-              ref={rangeEndRef}
+              ref={rangeEndRef as any}
               id={`${inputId}-end`}
               name={name ? `${name}-end` : undefined}
               type="text"
@@ -415,7 +415,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
           {/* Input for adding new ports */}
           <Input
-            ref={inputRef}
+            ref={inputRef as any}
             id={inputId}
             name={name}
             type="text"

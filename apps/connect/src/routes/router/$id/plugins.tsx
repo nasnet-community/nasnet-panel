@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { LazyBoundary } from '@nasnet/ui/patterns';
-import { LazyPluginStoreTab } from '@/app/routes/router-panel/tabs/lazy';
 import { Skeleton } from '@nasnet/ui/primitives';
+
+import { LazyPluginStoreTab } from '@/app/routes/router-panel/tabs/lazy';
 
 /**
  * Plugin Store Route - Code-split for optimal bundle size
@@ -25,10 +27,15 @@ function PluginStoreTabSkeleton() {
   );
 }
 
-export const Route = createFileRoute('/router/$id/plugins')({
-  component: () => (
+function PluginStoreRoute() {
+  const { id: routerId } = Route.useParams();
+  return (
     <LazyBoundary fallback={<PluginStoreTabSkeleton />}>
-      <LazyPluginStoreTab />
+      <LazyPluginStoreTab routerId={routerId} />
     </LazyBoundary>
-  ),
+  );
+}
+
+export const Route = createFileRoute('/router/$id/plugins')({
+  component: PluginStoreRoute,
 });

@@ -15,8 +15,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { BlockedIPsTable } from './BlockedIPsTable';
 import {
   mockBlockedIPs,
@@ -27,6 +27,8 @@ import {
   mockTopBlockedIPs,
   generateMockBlockedIPs,
 } from '../__test-utils__/rate-limit-fixtures';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * BlockedIPsTable - Display and manage blocked IP addresses

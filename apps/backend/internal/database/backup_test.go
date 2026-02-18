@@ -153,7 +153,7 @@ func TestGetLatestBackup_NoBackups(t *testing.T) {
 	_, err := GetLatestBackup(backupDir, "nonexistent")
 	assert.Error(t, err)
 
-	var dbErr *DatabaseError
+	var dbErr *Error
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBBackupFailed, dbErr.Code)
 }
@@ -207,7 +207,7 @@ func TestRestoreDatabase_BackupNotFound(t *testing.T) {
 	err := RestoreDatabase(ctx, filepath.Join(tmpDir, "nonexistent.bak"), filepath.Join(tmpDir, "target.db"))
 	assert.Error(t, err)
 
-	var dbErr *DatabaseError
+	var dbErr *Error
 	require.ErrorAs(t, err, &dbErr)
 	assert.Equal(t, ErrCodeDBRestoreFailed, dbErr.Code)
 }

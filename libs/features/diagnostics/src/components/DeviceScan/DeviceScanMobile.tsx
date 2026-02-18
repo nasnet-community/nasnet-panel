@@ -88,7 +88,7 @@ export function DeviceScanMobile({
         <InterfaceSelector
           routerId={routerId || ''}
           value={selectedInterface}
-          onChange={setSelectedInterface}
+          onChange={(value: string | string[]) => setSelectedInterface(Array.isArray(value) ? value[0] : value)}
           disabled={isScanning || !routerId}
           label="Interface (optional)"
         />

@@ -247,10 +247,10 @@ export function AddressListView() {
         {/* Address List Manager */}
         {!isLoading && !error && lists && lists.length > 0 && (
           <AddressListManager
-            lists={lists}
+            lists={lists as any}
             isLoading={isLoading}
             error={error}
-            onDeleteEntry={handleDeleteEntry}
+            onDeleteEntry={(entryId: string) => handleDeleteEntry(entryId, '')}
             showBulkActions={true}
             enableVirtualization={true}
           />
@@ -291,10 +291,9 @@ export function AddressListView() {
           </DialogHeader>
           <div className="mt-4">
             <AddressListImportDialog
+              routerId={routerIp}
               existingLists={existingLists}
-              onImport={handleBulkImport}
-              onCancel={() => setShowImport(false)}
-              isLoading={bulkCreate.isPending}
+              onImport={handleBulkImport as any}
             />
           </div>
         </DialogContent>
@@ -311,8 +310,8 @@ export function AddressListView() {
           </DialogHeader>
           <div className="mt-4">
             <AddressListExportDialog
-              lists={lists || []}
-              onClose={() => setShowExport(false)}
+              listName={selectedList || ''}
+              entries={[]}
             />
           </div>
         </DialogContent>

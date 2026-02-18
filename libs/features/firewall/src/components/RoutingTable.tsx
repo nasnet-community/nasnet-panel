@@ -66,7 +66,7 @@ export interface RoutingTableProps {
  */
 export function RoutingTable({ className }: RoutingTableProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
-  const { data: routes, isLoading, error } = useRoutes(routerIp);
+  const { routes, loading: isLoading, error } = useRoutes(routerIp);
   const [sortColumn, setSortColumn] = useState<keyof RouteEntry>('destination');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 

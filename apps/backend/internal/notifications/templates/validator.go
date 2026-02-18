@@ -87,7 +87,7 @@ func ValidateFunctions(tmplStr string) []string {
 }
 
 // ValidateLength checks if the rendered template output is within channel limits.
-func ValidateLength(subjectRendered, bodyRendered string, channel string) []string {
+func ValidateLength(subjectRendered, bodyRendered, channel string) []string {
 	limits := GetChannelLimits(channel)
 	errors := make([]string, 0)
 
@@ -111,14 +111,14 @@ func ValidateLength(subjectRendered, bodyRendered string, channel string) []stri
 // RenderForValidation attempts to render a template with sample data.
 func RenderForValidation(subjectTmpl, bodyTmpl string, funcMap template.FuncMap, data TemplateData) (subject, body string, err error) {
 	if subjectTmpl != "" {
-		tmpl, err := template.New("subject").Funcs(funcMap).Option("missingkey=zero").Parse(subjectTmpl)
-		if err != nil {
-			return "", "", fmt.Errorf("subject template parse error: %w", err)
+		subjectParsed, parseErr := template.New("subject").Funcs(funcMap).Option("missingkey=zero").Parse(subjectTmpl)
+		if parseErr != nil {
+			return "", "", fmt.Errorf("subject template parse error: %w", parseErr)
 		}
 
 		var subjectBuf strings.Builder
-		if err := tmpl.Execute(&subjectBuf, data); err != nil {
-			return "", "", fmt.Errorf("subject template execution error: %w", err)
+		if execErr := subjectParsed.Execute(&subjectBuf, data); execErr != nil {
+			return "", "", fmt.Errorf("subject template execution error: %w", execErr)
 		}
 		subject = subjectBuf.String()
 	}
@@ -127,14 +127,14 @@ func RenderForValidation(subjectTmpl, bodyTmpl string, funcMap template.FuncMap,
 		return "", "", fmt.Errorf("body template cannot be empty")
 	}
 
-	tmpl, err := template.New("body").Funcs(funcMap).Option("missingkey=zero").Parse(bodyTmpl)
+	bodyParsed, err := template.New("body").Funcs(funcMap).Option("missingkey=zero").Parse(bodyTmpl)
 	if err != nil {
 		return "", "", fmt.Errorf("body template parse error: %w", err)
 	}
 
 	var bodyBuf strings.Builder
-	if err := tmpl.Execute(&bodyBuf, data); err != nil {
-		return "", "", fmt.Errorf("body template execution error: %w", err)
+	if execErr := bodyParsed.Execute(&bodyBuf, data); execErr != nil {
+		return "", "", fmt.Errorf("body template execution error: %w", execErr)
 	}
 	body = bodyBuf.String()
 
@@ -142,7 +142,7 @@ func RenderForValidation(subjectTmpl, bodyTmpl string, funcMap template.FuncMap,
 }
 
 // ValidateComplete performs comprehensive template validation.
-func ValidateComplete(subjectTmpl, bodyTmpl string, channel string, funcMap template.FuncMap, eventType string) []string {
+func ValidateComplete(subjectTmpl, bodyTmpl, channel string, funcMap template.FuncMap, eventType string) []string {
 	errors := make([]string, 0)
 
 	// 1. Validate syntax
@@ -173,9 +173,9 @@ func ValidateComplete(subjectTmpl, bodyTmpl string, channel string, funcMap temp
 
 	// 3. Render with sample data to catch runtime errors
 	sampleData := BuildSampleTemplateData(eventType)
-	subject, body, err := RenderForValidation(subjectTmpl, bodyTmpl, funcMap, sampleData)
-	if err != nil {
-		errors = append(errors, err.Error())
+	subject, body, renderErr := RenderForValidation(subjectTmpl, bodyTmpl, funcMap, sampleData)
+	if renderErr != nil {
+		errors = append(errors, renderErr.Error())
 		return errors
 	}
 

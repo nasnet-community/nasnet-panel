@@ -4,9 +4,11 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { type ReactNode } from 'react';
+
 import { renderHook, act } from '@testing-library/react';
-import { ReactNode } from 'react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { AnimationProvider, useAnimation, useAnimationOptional } from '../AnimationProvider';
 
 // Mock the UI store

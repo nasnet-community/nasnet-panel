@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"sync"
+
 	"time"
 )
 
@@ -21,6 +22,8 @@ type SSHParserService interface {
 }
 
 // ParserStrategy defines the interface for a pluggable parsing strategy.
+//
+//nolint:revive // type name is appropriate despite stutter
 type ParserStrategy interface {
 	// Name returns the strategy name for logging/debugging.
 	Name() string
@@ -58,10 +61,10 @@ func NewSSHParserService(config ParserConfig, normalizer *Normalizer) SSHParserS
 	}
 
 	// Register default strategies in priority order
-	s.RegisterStrategy(NewTerseParser(normalizer))   // Priority 1: Simplest format
-	s.RegisterStrategy(NewTableParser(normalizer))   // Priority 2: Most common format
-	s.RegisterStrategy(NewDetailParser(normalizer))  // Priority 3: Detail format
-	s.RegisterStrategy(NewExportParser(normalizer))  // Priority 4: Export format
+	s.RegisterStrategy(NewTerseParser(normalizer))    // Priority 1: Simplest format
+	s.RegisterStrategy(NewTableParser(normalizer))    // Priority 2: Most common format
+	s.RegisterStrategy(NewDetailParser(normalizer))   // Priority 3: Detail format
+	s.RegisterStrategy(NewExportParser(normalizer))   // Priority 4: Export format
 	s.RegisterStrategy(NewKeyValueParser(normalizer)) // Priority 5: System info format
 
 	return s
@@ -120,7 +123,7 @@ func (s *sshParserService) parseWithFallback(ctx context.Context, raw string, hi
 	copy(strategies, s.strategies)
 	s.mu.RUnlock()
 
-	var triedStrategies []string
+	triedStrategies := make([]string, 0, len(strategies))
 	var lastError error
 
 	for _, strategy := range strategies {

@@ -8,21 +8,22 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import {
   RawRuleSchema,
   getVisibleFieldsForRawAction,
-  generateRulePreview,
-  chainAllowsOutInterface,
-  chainAllowsInInterface,
+  generateRawRulePreview as generateRulePreview,
+  rawChainAllowsOutInterface as chainAllowsOutInterface,
+  rawChainAllowsInInterface as chainAllowsInInterface,
   type RawRule,
   type RawRuleInput,
   type RawAction,
   type RawChain,
   DEFAULT_RAW_RULE,
-} from '@nasnet/core/types/firewall';
+} from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -116,8 +117,9 @@ export function useRawRuleEditor(
     const errorMap: Record<string, string> = {};
 
     Object.entries(formErrors).forEach(([key, error]) => {
-      if (error?.message) {
-        errorMap[key] = error.message;
+      const err = error as { message?: string } | undefined;
+      if (err?.message) {
+        errorMap[key] = err.message;
       }
     });
 

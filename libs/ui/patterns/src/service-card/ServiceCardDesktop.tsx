@@ -7,7 +7,6 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-import * as React from 'react';
 
 import {
   Badge,
@@ -19,8 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@nasnet/ui/primitives';
-import { ResourceUsageBar } from '../resource-usage-bar';
 
+import { ResourceUsageBar } from '../resource-usage-bar';
 import { useServiceCard, formatBytes } from './useServiceCard';
 
 import type { ServiceCardProps } from './types';
@@ -153,11 +152,10 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
               <div className="shrink-0 w-48">
                 <ResourceUsageBar
                   label="Memory"
-                  current={service.metrics.currentMemory}
-                  limit={service.metrics.memoryLimit}
+                  used={service.metrics.currentMemory}
+                  total={service.metrics.memoryLimit}
                   unit="MB"
-                  showLabel={false}
-                  compact={true}
+                  showValues={false}
                 />
               </div>
             )}

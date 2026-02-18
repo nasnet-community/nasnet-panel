@@ -4,8 +4,11 @@
  */
 
 import { useMemo, useState } from 'react';
-import { IPAddress } from '@nasnet/core/types';
+
 import { Globe, ChevronDown, ChevronUp, XCircle } from 'lucide-react';
+
+import { type IPAddress } from '@nasnet/core/types';
+
 import { cn } from '@/lib/utils';
 
 interface QuickIPOverviewProps {

@@ -5,9 +5,16 @@ import (
 	"sync"
 	"time"
 
-	"backend/internal/events"
 	"github.com/rs/zerolog"
+
+	"backend/internal/events"
 )
+
+// publisherPort is a local interface for publishing events,
+// enabling dependency injection and testability.
+type publisherPort interface {
+	Publish(ctx context.Context, event events.Event) error
+}
 
 // MountPoint represents a storage device mount point.
 type MountPoint struct {
@@ -37,24 +44,24 @@ func DefaultSpaceThreshold() SpaceThreshold {
 }
 
 // StorageState tracks the current state of all mount points.
-type StorageState struct {
+type StorageState struct { //nolint:revive // used across packages
 	MountPoints map[string]*MountPoint // Key: mount path
 	LastUpdate  time.Time              // When this state was last updated
 }
 
 // StorageDetector monitors external storage devices and emits events on state changes.
-type StorageDetector struct {
+type StorageDetector struct { //nolint:revive // used across packages
 	// Configuration
 	pollInterval time.Duration
 	thresholds   SpaceThreshold
 	mountPaths   []string // Paths to monitor (e.g., ["/usb1", "/disk1", "/disk2"])
 
 	// Event bus for publishing storage events
-	publisher *events.Publisher
+	publisher publisherPort
 
 	// State tracking
-	mu           sync.RWMutex
-	currentState *StorageState
+	mu            sync.RWMutex
+	currentState  *StorageState
 	previousState *StorageState
 
 	// Control
@@ -65,11 +72,11 @@ type StorageDetector struct {
 }
 
 // StorageDetectorConfig holds configuration for the StorageDetector.
-type StorageDetectorConfig struct {
+type StorageDetectorConfig struct { //nolint:revive // used across packages
 	PollInterval time.Duration
 	Thresholds   SpaceThreshold
 	MountPaths   []string
-	Publisher    *events.Publisher
+	Publisher    publisherPort
 	Logger       zerolog.Logger
 }
 
@@ -201,6 +208,8 @@ func (d *StorageDetector) pollMountPoints() {
 }
 
 // detectChanges compares previous and current mount point state and emits events.
+//
+//nolint:unparam // path reserved for future use
 func (d *StorageDetector) detectChanges(path string, current, previous *MountPoint) {
 	// Handle mount/unmount transitions
 	if previous == nil {

@@ -7,8 +7,11 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import { useRateLimitStats } from '@nasnet/api-client/queries';
+
 import { useRateLimitStatsOverview } from './use-rate-limit-stats-overview';
 import {
   mockStatsWithActivity,
@@ -20,9 +23,6 @@ import {
 vi.mock('@nasnet/api-client/queries', () => ({
   useRateLimitStats: vi.fn(),
 }));
-
-// Import mocked function after vi.mock
-import { useRateLimitStats } from '@nasnet/api-client/queries';
 
 // Setup mock
 const mockUseRateLimitStats = vi.mocked(useRateLimitStats);

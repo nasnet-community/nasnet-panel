@@ -7,10 +7,12 @@
  * @module @nasnet/ui/patterns/mangle-flow-diagram
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { MangleFlowDiagram } from './MangleFlowDiagram';
+
 import type { MangleFlowDiagramProps } from './MangleFlowDiagram';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * MangleFlowDiagram - Visual packet flow through mangle chains

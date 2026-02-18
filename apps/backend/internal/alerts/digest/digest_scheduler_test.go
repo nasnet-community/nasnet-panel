@@ -7,17 +7,18 @@ import (
 	"time"
 
 	"backend/generated/ent/enttest"
+	"backend/internal/notifications"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver for tests
 )
 
-// setupDigestScheduler creates a DigestScheduler with test dependencies.
-func setupDigestScheduler(t *testing.T) (*DigestScheduler, *DigestService, *mockDispatcher) {
+// setupDigestScheduler creates a Scheduler with test dependencies.
+func setupDigestScheduler(t *testing.T) (*Scheduler, *Service, *mockDispatcher) {
 	db := enttest.Open(t, "sqlite3", "file:scheduler?mode=memory&cache=shared&_fk=1")
 	eventBus := newMockEventBus()
 	dispatcher := newMockDispatcher()
@@ -26,15 +27,15 @@ func setupDigestScheduler(t *testing.T) (*DigestScheduler, *DigestService, *mock
 	// Allow Publish to succeed by default
 	eventBus.On("Publish", mock.Anything, mock.Anything).Return(nil)
 
-	digestService, err := NewDigestService(DigestServiceConfig{
-		DB:         db,
-		EventBus:   eventBus,
-		Dispatcher: dispatcher,
-		Logger:     logger,
+	digestService, err := NewService(ServiceConfig{
+		DB:       db,
+		EventBus: eventBus,
+		Dispatch: dispatcher.toDispatchFunc(),
+		Logger:   logger,
 	})
 	require.NoError(t, err)
 
-	scheduler := NewDigestScheduler(DigestSchedulerConfig{
+	scheduler := NewScheduler(SchedulerConfig{
 		DigestService: digestService,
 		Logger:        logger,
 	})
@@ -51,7 +52,7 @@ func setupDigestScheduler(t *testing.T) (*DigestScheduler, *DigestService, *mock
 func TestScheduleNext_DailyAt0900(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "daily",
 		Schedule: "09:00",
 		Timezone: "America/New_York",
@@ -114,7 +115,7 @@ func TestScheduleNext_IntervalBased(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode:     "hourly",
 				Schedule: tt.schedule,
 				Timezone: "UTC",
@@ -144,7 +145,7 @@ func TestScheduleNext_IntervalBased(t *testing.T) {
 func TestReschedule_CancelsOldTimer(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "daily",
 		Schedule: "10:00",
 		Timezone: "UTC",
@@ -163,7 +164,7 @@ func TestReschedule_CancelsOldTimer(t *testing.T) {
 	require.NotNil(t, firstTimer)
 
 	// Reschedule with new time
-	newConfig := DigestConfig{
+	newConfig := Config{
 		Mode:     "daily",
 		Schedule: "15:00",
 		Timezone: "UTC",
@@ -186,7 +187,7 @@ func TestReschedule_CancelsOldTimer(t *testing.T) {
 func TestReschedule_API(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "hourly",
 		Schedule: "00",
 		Timezone: "UTC",
@@ -217,7 +218,7 @@ func TestReschedule_API(t *testing.T) {
 func TestStop_CancelsAllTimers(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "daily",
 		Schedule: "09:00",
 		Timezone: "UTC",
@@ -249,7 +250,7 @@ func TestStop_CancelsAllTimers(t *testing.T) {
 func TestConcurrentQueueAlert(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "hourly",
 		Schedule: "00",
 		Timezone: "UTC",
@@ -297,7 +298,7 @@ func TestConcurrentQueueAlert(t *testing.T) {
 func TestScheduleNext_ImmediateModeReturnsError(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "immediate",
 		Timezone: "UTC",
 	}
@@ -319,7 +320,7 @@ func TestScheduleNext_ImmediateModeReturnsError(t *testing.T) {
 func TestGetScheduledChannels(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "daily",
 		Schedule: "09:00",
 		Timezone: "UTC",
@@ -349,7 +350,7 @@ func TestGetScheduledChannels(t *testing.T) {
 func TestCalculateNextDeliveryTime_InvalidTimezone(t *testing.T) {
 	scheduler, _, _ := setupDigestScheduler(t)
 
-	config := DigestConfig{
+	config := Config{
 		Mode:     "daily",
 		Schedule: "09:00",
 		Timezone: "Invalid/Timezone",
@@ -378,7 +379,7 @@ func TestCalculateNextDeliveryTime_DailyInvalidSchedule(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode:     "daily",
 				Schedule: tt.schedule,
 				Timezone: "UTC",
@@ -406,7 +407,7 @@ func TestCalculateNextDeliveryTime_HourlyInvalidSchedule(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config := DigestConfig{
+			config := Config{
 				Mode:     "hourly",
 				Schedule: tt.schedule,
 				Timezone: "UTC",
@@ -429,7 +430,6 @@ func TestDeliverDigest_Integration(t *testing.T) {
 
 	ctx := context.Background()
 	channelID := "channel-integration"
-	now := time.Now()
 
 	// Create pending alert
 	alert := Alert{
@@ -452,7 +452,7 @@ func TestDeliverDigest_Integration(t *testing.T) {
 	)
 
 	// Manually trigger delivery (simulating timer callback)
-	config := DigestConfig{
+	config := Config{
 		Mode:     "hourly",
 		Schedule: "00",
 		Timezone: "UTC",

@@ -26,6 +26,7 @@
  */
 
 import { setup, assign, fromPromise, emit } from 'xstate';
+
 import type { Resource, ValidationResult, RuntimeState } from '@nasnet/core/types';
 
 // ============================================================================

@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"backend/internal/events"
-	"backend/generated/ent"
 )
 
 // TODO: Remove these stubs once GraphQL schema includes Vlan types (NAS-8.10)
@@ -26,8 +25,8 @@ type VlanServicePort interface {
 
 // VLANAllocatorConfig holds configuration for the VLAN allocator.
 type VLANAllocatorConfig struct {
-	// Store is the ent client for database operations.
-	Store *ent.Client
+	// Store is the database port interface for database operations.
+	Store StorePort
 
 	// VlanService is used for router conflict detection (compose existing service).
 	// Uses VlanServicePort interface to avoid import cycles.
@@ -62,12 +61,12 @@ type AllocateVLANResponse struct {
 
 // VLANPoolStatus represents the current state of the VLAN pool for a router.
 type VLANPoolStatus struct {
-	RouterID        string
-	TotalVLANs      int
-	AllocatedVLANs  int
-	AvailableVLANs  int
-	Utilization     float64
-	ShouldWarn      bool // True if utilization > 80%
+	RouterID       string
+	TotalVLANs     int
+	AllocatedVLANs int
+	AvailableVLANs int
+	Utilization    float64
+	ShouldWarn     bool // True if utilization > 80%
 }
 
 // Constants for GlobalSettings namespace and keys.

@@ -13,11 +13,12 @@ import { useCallback } from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type { DeviceCardProps } from './device-card.types';
-import { useDeviceCard } from './use-device-card';
+import { DeviceCardCompact } from './device-card-compact';
 import { DeviceCardDesktop } from './device-card-desktop';
 import { DeviceCardMobile } from './device-card-mobile';
-import { DeviceCardCompact } from './device-card-compact';
+import { useDeviceCard } from './use-device-card';
+
+import type { DeviceCardProps } from './device-card.types';
 
 /**
  * Device Card Component

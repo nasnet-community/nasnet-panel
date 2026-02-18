@@ -81,7 +81,7 @@ export function TemplateInstallWizardMobile({
     <Dialog open={open} onOpenChange={isInstalling ? undefined : onClose}>
       <DialogContent
         className="fixed inset-0 z-50 bg-background p-0 flex flex-col"
-        hideClose
+        {...{ hideClose: true } as any}
       >
         {/* Header with step indicator */}
         <div className="border-b bg-background">

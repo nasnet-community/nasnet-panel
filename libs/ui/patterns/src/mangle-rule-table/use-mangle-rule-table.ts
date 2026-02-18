@@ -13,6 +13,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+
 import type { MangleRule, MangleAction } from '@nasnet/core/types';
 
 // ============================================================================

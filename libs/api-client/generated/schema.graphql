@@ -1757,6 +1757,10 @@ type ConfigSchemaField {
   defaultValue: JSON
   """Field description/help text"""
   description: String
+  """
+  Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network')
+  """
+  group: String
   """Field label (display name)"""
   label: String!
   """Maximum value (for NUMBER/PORT types)"""

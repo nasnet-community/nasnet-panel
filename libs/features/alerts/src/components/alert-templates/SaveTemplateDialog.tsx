@@ -134,14 +134,14 @@ export function SaveTemplateDialog(props: SaveTemplateDialogProps) {
 
   // Form with validation
   const form = useForm<CustomAlertRuleTemplateInput>({
-    resolver: zodResolver(customAlertRuleTemplateInputSchema),
+    resolver: zodResolver(customAlertRuleTemplateInputSchema) as any,
     defaultValues: {
       name: alertRule.name,
       description: alertRule.description,
       category: 'CUSTOM',
       eventType: alertRule.eventType,
       severity: alertRule.severity,
-      conditions: alertRule.conditions,
+      conditions: alertRule.conditions as any,
       channels: alertRule.channels,
       throttle: alertRule.throttle,
       variables: [],

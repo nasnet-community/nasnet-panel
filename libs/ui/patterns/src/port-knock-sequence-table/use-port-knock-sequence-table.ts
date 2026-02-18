@@ -10,6 +10,7 @@
  */
 
 import { useState, useMemo } from 'react';
+
 import type { PortKnockSequence } from '@nasnet/core/types';
 
 // ============================================================================

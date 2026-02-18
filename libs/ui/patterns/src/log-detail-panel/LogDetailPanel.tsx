@@ -152,7 +152,7 @@ export function LogDetailPanel({
         <div className="space-y-4">
           {/* Timestamp */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label htmlFor="timestamp-display" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Timestamp
             </label>
             <p className="font-mono text-sm mt-1">
@@ -163,7 +163,7 @@ export function LogDetailPanel({
           {/* Topic & Severity */}
           <div className="flex items-center gap-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label htmlFor="topic-badge" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Topic
               </label>
               <div className="mt-1">
@@ -173,7 +173,7 @@ export function LogDetailPanel({
               </div>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label htmlFor="severity-badge" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Severity
               </label>
               <div className="mt-1">
@@ -184,7 +184,7 @@ export function LogDetailPanel({
 
           {/* Message */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label htmlFor="message-display" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Message
             </label>
             <div className="mt-1 p-3 rounded-card-sm bg-slate-50 dark:bg-slate-800 border">
@@ -197,7 +197,7 @@ export function LogDetailPanel({
           {/* Related entries */}
           {relatedEntries.length > 0 && (
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <label htmlFor="related-entries-list" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 Related Entries ({relatedEntries.length})
               </label>
               <div className="mt-1 space-y-1 max-h-32 overflow-y-auto">

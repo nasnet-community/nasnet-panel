@@ -109,9 +109,9 @@ export function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
 
   // Initialize template gallery hook with alert-specific configuration
   const gallery = useTemplateGallery({
-    templates,
+    templates: templates as any[],
     initialFilter: {
-      category: initialCategory || 'all',
+      category: (initialCategory || 'all') as 'all',
     },
     onSelect: (template) => {
       // Template selected - handled by TemplateGallery detail panel

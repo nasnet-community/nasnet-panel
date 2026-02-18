@@ -18,6 +18,7 @@
  */
 
 import hljs from 'highlight.js/lib/core';
+
 import type { LanguageFn } from 'highlight.js';
 
 /**

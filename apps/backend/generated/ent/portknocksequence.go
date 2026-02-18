@@ -3,12 +3,13 @@
 package ent
 
 import (
-	"backend/generated/ent/portknocksequence"
-	"backend/generated/ent/router"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	"backend/generated/ent/portknocksequence"
+	"backend/generated/ent/router"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

@@ -70,9 +70,9 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
       // In a real implementation, you'd call a dedicated query to detect orphans
       // For now, we'll just refetch allocations
       setOrphansDetected(true);
-      toast.info('Orphan detection complete. Review results below.');
+      toast({ title: 'Orphan detection complete. Review results below.' });
     } catch (error) {
-      toast.error('Failed to detect orphaned VLANs');
+      toast({ title: 'Failed to detect orphaned VLANs', variant: 'destructive' });
     } finally {
       setDetectingOrphans(false);
     }
@@ -81,22 +81,24 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
   const handleCleanupOrphans = async () => {
     try {
       const count = await cleanupOrphanedVLANs(routerID);
-      toast.success(`Cleaned up ${count} orphaned VLAN allocation${count !== 1 ? 's' : ''}`);
+      toast({ title: `Cleaned up ${count} orphaned VLAN allocation${count !== 1 ? 's' : ''}` });
       setOrphansDetected(false);
       refetchAllocations();
       refetchPool();
     } catch (error) {
-      toast.error(
-        error instanceof Error
+      toast({
+        title: 'Error',
+        description: error instanceof Error
           ? error.message
-          : 'Failed to cleanup orphaned VLANs'
-      );
+          : 'Failed to cleanup orphaned VLANs',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleConfigSuccess = () => {
     refetchPool();
-    toast.success('VLAN pool configuration updated');
+    toast({ title: 'VLAN pool configuration updated' });
   };
 
   // Transform allocations for table

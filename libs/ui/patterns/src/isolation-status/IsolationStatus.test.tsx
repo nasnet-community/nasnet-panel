@@ -9,8 +9,10 @@
 
 import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 import { IsolationSeverity } from '@nasnet/api-client/generated';
 import type { IsolationStatus as GraphQLIsolationStatus } from '@nasnet/api-client/generated';
+import { usePlatform } from '@nasnet/ui/layouts';
 
 import { IsolationStatus, IsolationStatusMobile, IsolationStatusDesktop } from './IsolationStatus';
 
@@ -26,9 +28,6 @@ vi.mock('@nasnet/api-client/queries', () => ({
     { loading: false },
   ]),
 }));
-
-// Import the mocked usePlatform for testing
-import { usePlatform } from '@nasnet/ui/layouts';
 
 describe('IsolationStatus', () => {
   beforeEach(() => {

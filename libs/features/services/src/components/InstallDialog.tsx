@@ -69,13 +69,13 @@ export function InstallDialog({
   onSuccess,
 }: InstallDialogProps) {
   // Fetch available services
-  const { data: services, loading: servicesLoading } = useAvailableServices();
+  const { services, loading: servicesLoading } = useAvailableServices();
 
   // Install mutation
   const [installService, { loading: installing }] = useInstallService();
 
   // Subscribe to install progress
-  const { data: progress } = useInstallProgressSubscription(routerId);
+  const { progress } = useInstallProgressSubscription(routerId);
 
   // Current step
   const [step, setStep] = useState<InstallStep>('select');
@@ -120,7 +120,7 @@ export function InstallDialog({
   }, [progress, step]);
 
   // Get selected service
-  const selectedService = services?.find((s) => s.id === selectedServiceId);
+  const selectedService = services?.find((s: any) => s.id === selectedServiceId);
 
   // Auto-populate instance name when service is selected
   useEffect(() => {
@@ -226,7 +226,7 @@ export function InstallDialog({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {services?.map((service) => (
+                  {services?.map((service: any) => (
                     <button
                       key={service.id}
                       onClick={() => setSelectedServiceId(service.id)}

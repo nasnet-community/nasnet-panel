@@ -86,7 +86,7 @@ export function InterfaceEditForm({
       const data = result.data?.updateInterface;
       if (data?.errors && data.errors.length > 0) {
         // Show validation errors from backend
-        data.errors.forEach((error) => {
+        data.errors.forEach((error: { message: string }) => {
           toast({
             title: 'Validation error',
             description: error.message,

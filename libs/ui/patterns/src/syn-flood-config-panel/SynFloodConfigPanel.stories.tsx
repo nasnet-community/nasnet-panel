@@ -8,8 +8,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { SynFloodConfigPanel } from './SynFloodConfigPanel';
 import {
   mockSynFloodDrop,
@@ -17,6 +17,8 @@ import {
   mockSynFloodDisabled,
   mockSynFloodStrict,
 } from '../__test-utils__/rate-limit-fixtures';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * SynFloodConfigPanel - SYN flood protection configuration

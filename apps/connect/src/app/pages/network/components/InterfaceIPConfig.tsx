@@ -4,11 +4,15 @@
  */
 
 import { useState } from 'react';
-import { IPAddress } from '@nasnet/core/types';
-import { parseCIDR } from '@nasnet/core/utils';
-import { SectionHeader } from './SectionHeader';
+
 import { Globe, ChevronRight, ChevronDown } from 'lucide-react';
+
+import { type IPAddress } from '@nasnet/core/types';
+import { parseCIDR } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
+
+import { SectionHeader } from './SectionHeader';
 
 interface InterfaceIPConfigProps {
   ipAddresses: IPAddress[];

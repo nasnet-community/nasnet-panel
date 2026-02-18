@@ -1,18 +1,16 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationMap": true,
-    "composite": true,
+    "composite": false,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
-  "include": ["*.ts", "*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": []
 }

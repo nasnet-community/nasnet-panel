@@ -1,11 +1,12 @@
 package troubleshoot
 
 import (
-	"backend/internal/router"
 	"context"
 	"errors"
 	"testing"
 	"time"
+
+	"backend/internal/router"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -17,7 +18,7 @@ type MockRouterPort struct {
 	executeErr error
 }
 
-func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+func (m *MockRouterPort) ExecuteCommand(_ context.Context, cmd router.Command) (*router.CommandResult, error) {
 	if m.executeErr != nil {
 		return nil, m.executeErr
 	}
@@ -28,13 +29,17 @@ func (m *MockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command)
 	return &router.CommandResult{Success: true, Data: []map[string]string{}}, nil
 }
 
-func (m *MockRouterPort) Connect(ctx context.Context) error              { return nil }
-func (m *MockRouterPort) Disconnect() error                              { return nil }
-func (m *MockRouterPort) IsConnected() bool                              { return true }
-func (m *MockRouterPort) Health(ctx context.Context) router.HealthStatus { return router.HealthStatus{} }
-func (m *MockRouterPort) Capabilities() router.PlatformCapabilities      { return router.PlatformCapabilities{} }
-func (m *MockRouterPort) Info() (*router.RouterInfo, error)              { return nil, nil }
-func (m *MockRouterPort) QueryState(ctx context.Context, query router.StateQuery) (*router.StateResult, error) {
+func (m *MockRouterPort) Connect(_ context.Context) error { return nil }
+func (m *MockRouterPort) Disconnect() error               { return nil }
+func (m *MockRouterPort) IsConnected() bool               { return true }
+func (m *MockRouterPort) Health(_ context.Context) router.HealthStatus {
+	return router.HealthStatus{}
+}
+func (m *MockRouterPort) Capabilities() router.PlatformCapabilities {
+	return router.PlatformCapabilities{}
+}
+func (m *MockRouterPort) Info() (*router.RouterInfo, error) { return nil, nil }
+func (m *MockRouterPort) QueryState(_ context.Context, query router.StateQuery) (*router.StateResult, error) {
 	return nil, nil
 }
 func (m *MockRouterPort) Protocol() router.Protocol { return router.ProtocolAPI }
@@ -151,7 +156,7 @@ func TestRunTroubleshootStep_WAN(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, StepStatusPassed, step.Status)
 		assert.True(t, step.Result.Success)
-		assert.Contains(t, step.Result.Message, "operational")
+		assert.Contains(t, step.Result.Message, "up and running")
 	})
 
 	t.Run("interface disabled", func(t *testing.T) {
@@ -264,7 +269,7 @@ func TestRunTroubleshootStep_Gateway(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, StepStatusFailed, step.Status)
-		assert.Equal(t, "GATEWAY_TIMEOUT", step.Result.IssueCode)
+		assert.Equal(t, "GATEWAY_UNREACHABLE", step.Result.IssueCode)
 	})
 }
 
@@ -323,7 +328,7 @@ func TestRunTroubleshootStep_Internet(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, StepStatusFailed, step.Status)
-		assert.Equal(t, "INTERNET_TIMEOUT", step.Result.IssueCode)
+		assert.Equal(t, "NO_INTERNET", step.Result.IssueCode)
 	})
 }
 
@@ -380,7 +385,7 @@ func TestRunTroubleshootStep_DNS(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Equal(t, StepStatusFailed, step.Status)
-		assert.Equal(t, "DNS_TIMEOUT", step.Result.IssueCode)
+		assert.Equal(t, "DNS_FAILED", step.Result.IssueCode)
 	})
 }
 
@@ -488,7 +493,7 @@ func TestApplyTroubleshootFix(t *testing.T) {
 
 		require.Error(t, err)
 		assert.False(t, success)
-		assert.Contains(t, err.Error(), "unknown")
+		assert.Contains(t, err.Error(), "no fix available")
 		assert.Equal(t, FixStatusFailed, status)
 	})
 
@@ -685,11 +690,11 @@ func TestCancelTroubleshoot(t *testing.T) {
 		svc := newTestService()
 
 		session, _ := svc.StartTroubleshoot(context.Background(), "router-123")
-		cancelledSession, err := svc.CancelTroubleshoot(context.Background(), session.ID)
+		canceledSession, err := svc.CancelTroubleshoot(context.Background(), session.ID)
 
 		require.NoError(t, err)
-		assert.Equal(t, SessionStatusCancelled, cancelledSession.Status)
-		assert.NotNil(t, cancelledSession.CompletedAt)
+		assert.Equal(t, SessionStatusCanceled, canceledSession.Status)
+		assert.NotNil(t, canceledSession.CompletedAt)
 	})
 
 	t.Run("cancel nonexistent session", func(t *testing.T) {

@@ -11,6 +11,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
+
 import { DnsLookupTool } from '@nasnet/features/diagnostics';
 
 export const Route = createFileRoute('/dashboard/dns-lookup')({

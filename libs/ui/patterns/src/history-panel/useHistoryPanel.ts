@@ -14,15 +14,15 @@
  */
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+
+import type { UndoableAction } from '@nasnet/state/stores';
 import {
   useHistoryStore,
   selectPastActions,
   selectFutureActions,
   selectCanUndo,
   selectCanRedo,
-} from '@nasnet/state/stores';
-import type { UndoableAction } from '@nasnet/state/stores';
-import { formatShortcutKeys } from '@nasnet/state/stores';
+ formatShortcutKeys } from '@nasnet/state/stores';
 
 // =============================================================================
 // Types

@@ -21,8 +21,24 @@ import type {
   TemplateComplexity,
   VariableType,
   FirewallTable,
-  ConflictType,
+  TemplateConflictType,
 } from '@nasnet/core/types';
+
+// Re-export types for consumers that import from this fixture
+export type {
+  FirewallTemplate,
+  TemplateVariable,
+  TemplateRule,
+  TemplatePreviewResult,
+  TemplateConflict,
+  ImpactAnalysis,
+  FirewallTemplateResult,
+  TemplateCategory,
+  TemplateComplexity,
+  VariableType,
+  FirewallTable,
+  TemplateConflictType,
+};
 
 // ============================================
 // MOCK TEMPLATE VARIABLES
@@ -381,28 +397,28 @@ export const mockAllTemplates: FirewallTemplate[] = [...mockBuiltInTemplates, ..
 // ============================================
 
 export const mockDuplicateRuleConflict: TemplateConflict = {
-  type: 'DUPLICATE_RULE' as ConflictType,
+  type: 'DUPLICATE_RULE' as TemplateConflictType,
   message: 'A similar rule already exists in the input chain',
   existingRuleId: '*10',
   proposedRule: mockFilterRule,
 };
 
 export const mockIpOverlapConflict: TemplateConflict = {
-  type: 'IP_OVERLAP' as ConflictType,
+  type: 'IP_OVERLAP' as TemplateConflictType,
   message: 'Subnet 192.168.88.0/24 overlaps with existing rule',
   existingRuleId: '*5',
   proposedRule: mockNatRule,
 };
 
 export const mockChainConflict: TemplateConflict = {
-  type: 'CHAIN_CONFLICT' as ConflictType,
+  type: 'CHAIN_CONFLICT' as TemplateConflictType,
   message: 'Chain "forward" already has a default drop rule',
   existingRuleId: '*15',
   proposedRule: mockDropRule,
 };
 
 export const mockPositionConflict: TemplateConflict = {
-  type: 'POSITION_CONFLICT' as ConflictType,
+  type: 'POSITION_CONFLICT' as TemplateConflictType,
   message: 'Position 0 is already occupied',
   existingRuleId: '*1',
   proposedRule: mockFilterRule,
@@ -637,33 +653,38 @@ export function validateTemplateVariables(
     if (value) {
       // Type-specific validation
       switch (variable.type) {
-        case 'INTERFACE':
+        case 'INTERFACE': {
           if (variable.options && !variable.options.includes(value)) {
             errors.push(`Invalid interface "${value}" for variable "${variable.name}"`);
           }
           break;
-        case 'SUBNET':
+        }
+        case 'SUBNET': {
           if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/.test(value)) {
             errors.push(`Invalid subnet format for variable "${variable.name}"`);
           }
           break;
-        case 'IP':
+        }
+        case 'IP': {
           if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(value)) {
             errors.push(`Invalid IP address format for variable "${variable.name}"`);
           }
           break;
-        case 'PORT':
+        }
+        case 'PORT': {
           const port = parseInt(value, 10);
           if (isNaN(port) || port < 1 || port > 65535) {
             errors.push(`Invalid port number for variable "${variable.name}"`);
           }
           break;
-        case 'VLAN_ID':
+        }
+        case 'VLAN_ID': {
           const vlanId = parseInt(value, 10);
           if (isNaN(vlanId) || vlanId < 1 || vlanId > 4094) {
             errors.push(`Invalid VLAN ID for variable "${variable.name}"`);
           }
           break;
+        }
       }
     }
   });

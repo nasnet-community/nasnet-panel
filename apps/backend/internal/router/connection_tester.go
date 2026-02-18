@@ -179,11 +179,12 @@ func (ct *ConnectionTester) tryProtocol(ctx context.Context, proto Protocol, hos
 	if err != nil {
 		return nil, err
 	}
-	defer adapter.Disconnect()
+	defer func() { _ = adapter.Disconnect() }() //nolint:errcheck // best effort disconnect
 
 	// Attempt connection
-	if err := adapter.Connect(ctx); err != nil {
-		return nil, err
+	connectErr := adapter.Connect(ctx)
+	if connectErr != nil {
+		return nil, connectErr
 	}
 
 	// Get router info
@@ -232,10 +233,9 @@ func (ct *ConnectionTester) getProtocolChain(preference *Protocol) []Protocol {
 // TestConnectionService provides a high-level interface for testing connections.
 // It integrates with the resolver, adapter factory, and handles audit logging.
 type TestConnectionService struct {
-	tester        *ConnectionTester
 	adapterFactory AdapterFactory
-	dnsResolver   *network.DNSResolver
-	timeout       time.Duration
+	dnsResolver    *network.DNSResolver
+	timeout        time.Duration
 }
 
 // TestConnectionServiceConfig holds configuration for the test connection service.
@@ -318,7 +318,7 @@ func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions
 		cancel()
 
 		if err != nil {
-			adapter.Disconnect()
+			_ = adapter.Disconnect() //nolint:errcheck // best effort disconnect
 			lastError = ClassifyError(err, proto, host, port)
 
 			// Stop on auth errors
@@ -332,7 +332,7 @@ func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions
 		// Success - get router info
 		info, infoErr := adapter.Info()
 		caps := adapter.Capabilities()
-		adapter.Disconnect()
+		_ = adapter.Disconnect() //nolint:errcheck // best effort disconnect
 
 		result.Success = true
 		result.ProtocolUsed = proto

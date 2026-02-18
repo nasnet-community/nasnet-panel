@@ -21,11 +21,12 @@ import {
   SheetTitle,
 } from '@nasnet/ui/primitives';
 
-import type { SafetyConfirmationPresenterProps } from './safety-confirmation.types';
-import { SafetyConfirmationHeader } from './safety-confirmation-header';
 import { SafetyConfirmationConsequences } from './safety-confirmation-consequences';
-import { SafetyConfirmationInput } from './safety-confirmation-input';
 import { SafetyConfirmationCountdown } from './safety-confirmation-countdown';
+import { SafetyConfirmationHeader } from './safety-confirmation-header';
+import { SafetyConfirmationInput } from './safety-confirmation-input';
+
+import type { SafetyConfirmationPresenterProps } from './safety-confirmation.types';
 
 /**
  * Mobile presenter for SafetyConfirmation

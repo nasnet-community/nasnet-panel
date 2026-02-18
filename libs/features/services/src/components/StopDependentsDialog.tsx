@@ -137,8 +137,8 @@ export function StopDependentsDialog({
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <StatusBadge
-                      status={dep.fromInstance.status as 'online' | 'offline' | 'pending'}
-                      size="sm"
+                      status={dep.fromInstance.status as any}
+                      className="text-xs"
                     />
                     <div className="flex flex-col min-w-0">
                       <span className="text-sm font-medium truncate">

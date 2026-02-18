@@ -3,14 +3,15 @@
 package ent
 
 import (
+	"context"
+	"fmt"
+	"math"
+
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/predicate"
 	"backend/generated/ent/routingchain"
 	"backend/generated/ent/virtualinterface"
-	"context"
-	"fmt"
-	"math"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

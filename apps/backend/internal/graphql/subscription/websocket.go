@@ -48,13 +48,13 @@ type ConnectionInitPayload struct {
 
 // WebSocketConfig configures the WebSocket handler
 type WebSocketConfig struct {
-	WriteWait        time.Duration
-	PongWait         time.Duration
-	PingPeriod       time.Duration
-	MaxMessageSize   int64
-	CheckOrigin      func(r *http.Request) bool
-	OnConnect        func(ctx context.Context, params ConnectionInitPayload) (context.Context, error)
-	OnDisconnect     func(ctx context.Context)
+	WriteWait      time.Duration
+	PongWait       time.Duration
+	PingPeriod     time.Duration
+	MaxMessageSize int64
+	CheckOrigin    func(r *http.Request) bool
+	OnConnect      func(ctx context.Context, params ConnectionInitPayload) (context.Context, error)
+	OnDisconnect   func(ctx context.Context)
 }
 
 // DefaultWebSocketConfig returns sensible defaults
@@ -106,16 +106,16 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // wsClient represents a WebSocket client connection
 type wsClient struct {
-	conn     *websocket.Conn
-	config   WebSocketConfig
-	manager  *Manager
-	send     chan []byte
-	ctx      context.Context
-	cancel   context.CancelFunc
-	subs     map[string]SubscriptionID // operationId -> subscriptionId
-	subsMu   sync.Mutex
-	closed   bool
-	closeMu  sync.RWMutex
+	conn    *websocket.Conn
+	config  WebSocketConfig
+	manager *Manager
+	send    chan []byte
+	ctx     context.Context
+	cancel  context.CancelFunc
+	subs    map[string]ID // operationId -> subscriptionId
+	subsMu  sync.Mutex
+	closed  bool
+	closeMu sync.RWMutex
 }
 
 // newWSClient creates a new WebSocket client
@@ -129,7 +129,7 @@ func newWSClient(conn *websocket.Conn, config WebSocketConfig, manager *Manager)
 		send:    make(chan []byte, 256),
 		ctx:     ctx,
 		cancel:  cancel,
-		subs:    make(map[string]SubscriptionID),
+		subs:    make(map[string]ID),
 	}
 }
 
@@ -141,9 +141,9 @@ func (c *wsClient) readPump() {
 	}()
 
 	c.conn.SetReadLimit(c.config.MaxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(c.config.PongWait))
+	_ = c.conn.SetReadDeadline(time.Now().Add(c.config.PongWait)) //nolint:errcheck // SetReadDeadline is non-critical
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(c.config.PongWait))
+		_ = c.conn.SetReadDeadline(time.Now().Add(c.config.PongWait)) //nolint:errcheck // best-effort deadline
 		return nil
 	})
 
@@ -171,20 +171,20 @@ func (c *wsClient) writePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteWait))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteWait)) //nolint:errcheck // SetWriteDeadline is non-critical
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{}) //nolint:errcheck // Close message write error is non-critical
 				return
 			}
 
-			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
-				log.Printf("[WS] Write error: %v", err)
+			if writeErr := c.conn.WriteMessage(websocket.TextMessage, message); writeErr != nil {
+				log.Printf("[WS] Write error: %v", writeErr)
 				return
 			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteWait))
-			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			_ = c.conn.SetWriteDeadline(time.Now().Add(c.config.WriteWait)) //nolint:errcheck // SetWriteDeadline is non-critical
+			if pingErr := c.conn.WriteMessage(websocket.PingMessage, nil); pingErr != nil {
 				return
 			}
 
@@ -230,7 +230,7 @@ func (c *wsClient) handleMessage(data []byte) {
 func (c *wsClient) handleConnectionInit(msg WSMessage) {
 	var params ConnectionInitPayload
 	if msg.Payload != nil {
-		json.Unmarshal(msg.Payload, &params)
+		_ = json.Unmarshal(msg.Payload, &params) //nolint:errcheck // Unmarshal error is silently handled
 	}
 
 	// Call OnConnect hook if provided
@@ -272,9 +272,9 @@ func (c *wsClient) handleSubscribe(msg WSMessage) {
 	// The actual subscription execution would be handled by the GraphQL executor
 	// For now, we store the subscription ID mapping
 	c.subsMu.Lock()
+	defer c.subsMu.Unlock()
 	// Note: In a full implementation, we'd create a proper subscription through the manager
 	// and map the operation ID to the subscription ID
-	c.subsMu.Unlock()
 
 	log.Printf("[WS] Subscription started: %s", msg.ID)
 
@@ -303,7 +303,7 @@ func (c *wsClient) handleComplete(msg WSMessage) {
 
 	if subID, exists := c.subs[msg.ID]; exists {
 		if c.manager != nil {
-			c.manager.Unsubscribe(subID)
+			_ = c.manager.Unsubscribe(subID) //nolint:errcheck // Unsubscribe error is logged elsewhere
 		}
 		delete(c.subs, msg.ID)
 		log.Printf("[WS] Subscription completed: %s", msg.ID)
@@ -334,7 +334,7 @@ func (c *wsClient) sendMessage(msg *WSMessage) {
 
 // sendNext sends a subscription data message
 func (c *wsClient) sendNext(id string, payload interface{}) {
-	data, _ := json.Marshal(payload)
+	data, _ := json.Marshal(payload) //nolint:errcheck,errchkjson // WebSocket message
 	c.sendMessage(&WSMessage{
 		ID:      id,
 		Type:    GQLNext,
@@ -344,7 +344,7 @@ func (c *wsClient) sendNext(id string, payload interface{}) {
 
 // sendError sends an error message
 func (c *wsClient) sendError(id, code, message string) {
-	payload, _ := json.Marshal([]map[string]interface{}{
+	payload, _ := json.Marshal([]map[string]interface{}{ //nolint:errcheck,errchkjson // WebSocket message
 		{
 			"message": message,
 			"extensions": map[string]string{
@@ -383,7 +383,7 @@ func (c *wsClient) cleanup() {
 	c.subsMu.Lock()
 	for opID, subID := range c.subs {
 		if c.manager != nil {
-			c.manager.Unsubscribe(subID)
+			_ = c.manager.Unsubscribe(subID) //nolint:errcheck // Unsubscribe error is logged elsewhere
 		}
 		delete(c.subs, opID)
 	}

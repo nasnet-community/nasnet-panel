@@ -12,6 +12,7 @@ import { DataTable } from '@nasnet/ui/patterns';
 import { BandwidthChart } from './bandwidth-chart';
 import { useInterfaceStatsSubscription } from '@nasnet/api-client/queries';
 import type { TimeRangePreset } from './time-range-selector';
+import type { StatsTimeRangeInput } from '@nasnet/api-client/generated';
 
 export interface InterfaceInfo {
   id: string;
@@ -52,6 +53,42 @@ function formatBandwidth(bytesPerSec: number): string {
 }
 
 /**
+ * Convert time range preset string to StatsTimeRangeInput with ISO timestamps
+ */
+function convertTimeRangeToInput(timeRange: TimeRangePreset): StatsTimeRangeInput {
+  const now = new Date();
+  const end = now.toISOString();
+
+  let start: Date;
+  switch (timeRange) {
+    case '1h':
+      start = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+      break;
+    case '6h':
+      start = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+      break;
+    case '24h':
+      start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      break;
+    case '7d':
+      start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case '30d':
+      start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    default:
+      // TypeScript exhaustiveness check - this should never happen
+      const _exhaustive: never = timeRange;
+      return _exhaustive;
+  }
+
+  return {
+    start: start.toISOString(),
+    end,
+  };
+}
+
+/**
  * InterfaceComparison Component
  *
  * Displays a comparison table of multiple interfaces with real-time statistics.
@@ -74,7 +111,7 @@ function formatBandwidth(bytesPerSec: number): string {
 export function InterfaceComparison({
   routerId,
   interfaces,
-  timeRange = '24h',
+  timeRange = '24h' as const,
   interval = '5s',
 }: InterfaceComparisonProps) {
   const [selectedInterfaces, setSelectedInterfaces] = useState<string[]>([]);
@@ -196,7 +233,7 @@ export function InterfaceComparison({
       cell: (row: InterfaceStats) => {
         const statusVariants = {
           online: 'success' as const,
-          offline: 'destructive' as const,
+          offline: 'error' as const,
           degraded: 'warning' as const,
         };
         return <Badge variant={statusVariants[row.status]}>{row.status}</Badge>;
@@ -219,9 +256,8 @@ export function InterfaceComparison({
         </CardHeader>
         <CardContent>
           <DataTable
-            columns={columns}
-            data={interfaceStats}
-            defaultSortColumn="name"
+            columns={columns as any}
+            data={interfaceStats as any}
             emptyMessage="No interfaces available"
           />
           {selectedInterfaces.length > 0 && (
@@ -254,7 +290,8 @@ export function InterfaceComparison({
                   <BandwidthChart
                     routerId={routerId}
                     interfaceId={iface.id}
-                    timeRange={timeRange}
+                    interfaceName={iface.name}
+                    timeRange={convertTimeRangeToInput(timeRange)}
                     interval={interval}
                   />
                 </div>

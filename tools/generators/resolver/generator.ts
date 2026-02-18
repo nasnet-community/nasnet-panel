@@ -1,11 +1,12 @@
+import * as path from 'path';
+
 import {
-  Tree,
+  type Tree,
   formatFiles,
   generateFiles,
   names,
   joinPathFragments,
 } from '@nx/devkit';
-import * as path from 'path';
 
 export interface ResolverGeneratorSchema {
   name: string;

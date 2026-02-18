@@ -181,10 +181,6 @@ export function useSafetyConfirmation(
     try {
       await onConfirm();
       reset();
-    } catch (error) {
-      // Re-throw to let caller handle errors
-      // The processing state will remain until reset is called
-      throw error;
     } finally {
       setIsProcessing(false);
     }

@@ -4,10 +4,13 @@
  * Tests for RAW rule table state management hook.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useRawRuleTable } from './use-raw-rule-table';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import type { RawRule } from '@nasnet/core/types';
+
+import { useRawRuleTable } from './use-raw-rule-table';
+
 
 describe('useRawRuleTable', () => {
   let mockRules: RawRule[];

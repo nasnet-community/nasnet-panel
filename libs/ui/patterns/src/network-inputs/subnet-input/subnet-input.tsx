@@ -36,10 +36,13 @@
  */
 
 import * as React from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
-import { useSubnetInput } from './use-subnet-input';
+
 import { SubnetInputDesktop } from './subnet-input-desktop';
 import { SubnetInputMobile } from './subnet-input-mobile';
+import { useSubnetInput } from './use-subnet-input';
+
 import type { SubnetInputProps } from './subnet-input.types';
 
 /**

@@ -4,6 +4,12 @@
  * Redesigned with StatusCard, VPNCardEnhanced, and QuickActionButton
  */
 
+import { useNavigate } from '@tanstack/react-router';
+import { Wifi, Network, Shield, Settings, AlertCircle } from 'lucide-react';
+
+import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
+import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
+import { useConnectionStore } from '@nasnet/state/stores';
 import {
   SystemInfoCard,
   ResourceGauge,
@@ -13,11 +19,6 @@ import {
   VPNCardEnhanced,
   QuickActionButton,
 } from '@nasnet/ui/patterns';
-import { useRouterInfo, useRouterResource, useRouterboard } from '@nasnet/api-client/queries';
-import { calculateStatus, formatBytes, parseRouterOSUptime } from '@nasnet/core/utils';
-import { Wifi, Network, Shield, Settings, AlertCircle } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
-import { useConnectionStore } from '@nasnet/state/stores';
 
 /**
  * DashboardPage Component
@@ -161,7 +162,6 @@ export function DashboardPage() {
             icon={AlertCircle}
             label="Troubleshoot"
             onClick={() => navigate({ to: '/dashboard/troubleshoot', search: { routerId: routerIp, autoStart: false } })}
-            variant="secondary"
           />
         </div>
       </div>

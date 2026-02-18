@@ -9,10 +9,12 @@
  */
 
 import { memo } from 'react';
+
 import { useMediaQuery } from '@nasnet/ui/primitives';
 
-import { ScheduleEditorMobile } from './ScheduleEditorMobile';
 import { ScheduleEditorDesktop } from './ScheduleEditorDesktop';
+import { ScheduleEditorMobile } from './ScheduleEditorMobile';
+
 import type { ScheduleEditorProps } from './types';
 
 /**

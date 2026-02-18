@@ -33,16 +33,16 @@ func (tm *Manager) GetStatus(ruleID *string) []StatusData {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
-	var results []StatusData
-
 	if ruleID != nil && *ruleID != "" {
 		state, exists := tm.states[*ruleID]
 		if !exists {
-			return results
+			return []StatusData{}
 		}
 		status := tm.getStatusForRule(*ruleID, state)
 		return []StatusData{status}
 	}
+
+	results := make([]StatusData, 0, len(tm.states))
 
 	for id, state := range tm.states {
 		status := tm.getStatusForRule(id, state)
@@ -130,14 +130,14 @@ func (tm *Manager) deliverSummaries(ctx context.Context) {
 			continue
 		}
 
-		totalSuppressed, _ := summary["total_suppressed"].(int)
-		if totalSuppressed == 0 {
+		totalSuppressed, ok := summary["total_suppressed"].(int)
+		if !ok || totalSuppressed == 0 {
 			continue
 		}
 
-		totalAllowed, _ := summary["total_allowed"].(int)
-		periodSeconds, _ := summary["period_seconds"].(int)
-		groups, _ := summary["groups"].([]map[string]interface{})
+		totalAllowed, _ := summary["total_allowed"].(int)         //nolint:errcheck // intentional, use 0 default
+		periodSeconds, _ := summary["period_seconds"].(int)       //nolint:errcheck // intentional, use 0 default
+		groups, _ := summary["groups"].([]map[string]interface{}) //nolint:errcheck // intentional, use nil default
 
 		event := map[string]interface{}{
 			"type":             "throttle.summary",
@@ -182,19 +182,21 @@ func (tm *Manager) Stop() {
 func ParseConfig(configJSON map[string]interface{}) (Config, error) {
 	config := Config{}
 
-	if maxAlerts, ok := configJSON["maxAlerts"].(float64); ok {
+	switch maxAlerts := configJSON["maxAlerts"].(type) {
+	case float64:
 		config.MaxAlerts = int(maxAlerts)
-	} else if maxAlerts, ok := configJSON["maxAlerts"].(int); ok {
+	case int:
 		config.MaxAlerts = maxAlerts
-	} else {
+	default:
 		return config, fmt.Errorf("maxAlerts is required and must be a number")
 	}
 
-	if periodSeconds, ok := configJSON["periodSeconds"].(float64); ok {
+	switch periodSeconds := configJSON["periodSeconds"].(type) {
+	case float64:
 		config.PeriodSeconds = int(periodSeconds)
-	} else if periodSeconds, ok := configJSON["periodSeconds"].(int); ok {
+	case int:
 		config.PeriodSeconds = periodSeconds
-	} else {
+	default:
 		return config, fmt.Errorf("periodSeconds is required and must be a number")
 	}
 

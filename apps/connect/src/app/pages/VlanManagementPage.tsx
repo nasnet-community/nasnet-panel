@@ -9,6 +9,11 @@
  */
 
 import { useState } from 'react';
+
+import { Plus, List, Network } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { useCreateVlan } from '@nasnet/api-client/queries';
 import { VlanList, VlanTopology, VlanForm } from '@nasnet/features/network';
 import {
   Tabs,
@@ -21,9 +26,7 @@ import {
   DialogTitle,
   Button,
 } from '@nasnet/ui/primitives';
-import { Plus, List, Network } from 'lucide-react';
-import { useCreateVlan } from '@nasnet/api-client/queries';
-import { toast } from 'sonner';
+
 
 export interface VlanManagementPageProps {
   routerId: string;
@@ -34,18 +37,30 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { createVlan, loading } = useCreateVlan(routerId);
 
-  const handleCreateVlan = async (values: any) => {
+  const handleCreateVlan = async (values: {
+    name: string;
+    vlanId: number;
+    interface: string;
+    mtu?: number | null;
+    comment?: string | null;
+    disabled?: boolean;
+  }) => {
     try {
-      const result = await createVlan(values);
+      const sanitized = {
+        ...values,
+        mtu: values.mtu ?? undefined,
+        comment: values.comment ?? undefined,
+      };
+      const result = await createVlan(sanitized) as any;
 
-      if (result.data?.vlan) {
+      if (result?.vlan) {
         toast.success('VLAN created successfully', {
           description: `${values.name} (VLAN ID: ${values.vlanId})`,
         });
         setCreateDialogOpen(false);
       } else {
-        const errors = result.data?.errors || [];
-        errors.forEach((err: any) => toast.error(err.message));
+        const errors = result?.errors || [];
+        errors.forEach((err: { message: string }) => toast.error(err.message));
       }
     } catch (err) {
       toast.error('Failed to create VLAN');
@@ -72,7 +87,7 @@ export function VlanManagementPage({ routerId }: VlanManagementPageProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'list' | 'topology')}>
         <TabsList>
           <TabsTrigger value="list">
             <List className="h-4 w-4 mr-2" />

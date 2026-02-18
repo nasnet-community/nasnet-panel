@@ -185,9 +185,8 @@ interface PreviewSectionProps {
 }
 
 function PreviewSection({ templateId, variables }: PreviewSectionProps) {
-  const { data, loading, error } = usePreviewAlertRuleTemplate({
-    variables: { templateId, variables },
-    skip: Object.keys(variables).length === 0,
+  const { data, loading, error } = usePreviewAlertRuleTemplate(templateId, variables, {
+    enabled: Object.keys(variables).length > 0,
   });
 
   const preview = data?.previewAlertRuleTemplate.preview;
@@ -290,8 +289,8 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
 
 interface FormContentProps {
   template: AlertRuleTemplate;
-  form: ReturnType<typeof useForm<ApplyAlertRuleTemplateInput>>;
-  onSubmit: (data: ApplyAlertRuleTemplateInput) => Promise<void>;
+  form: any; // UseFormReturn - typed as any to avoid generic variance issues
+  onSubmit: (data: any) => Promise<void>;
   loading: boolean;
 }
 
@@ -300,7 +299,7 @@ function FormContent({ template, form, onSubmit, loading }: FormContentProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
         {/* Template info */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -434,33 +433,17 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
   // Fetch template data
   const { data: templateData, loading: templateLoading, error: templateError } = useAlertRuleTemplate(
     templateId || '',
-    { skip: !templateId || !open }
+    { enabled: !!templateId && open }
   );
 
   const template = templateData?.alertRuleTemplate;
 
   // Apply template mutation
-  const [applyTemplate, { loading: applying }] = useApplyAlertRuleTemplate({
-    onCompleted: (result) => {
-      const alertRule = result.applyAlertRuleTemplate.alertRule;
-      const errors = result.applyAlertRuleTemplate.errors;
-
-      if (alertRule) {
-        onSuccess?.(alertRule.id);
-        onClose();
-      } else if (errors.length > 0) {
-        onError?.(errors.map(e => e.message).join(', '));
-      }
-    },
-    onError: (error) => {
-      onError?.(error.message);
-    },
-    refetchQueries: ['GetAlertRules'], // Refresh alert rules list
-  });
+  const [applyTemplate, { loading: applying }] = useApplyAlertRuleTemplate();
 
   // Form setup
   const form = useForm<ApplyAlertRuleTemplateInput>({
-    resolver: zodResolver(applyAlertRuleTemplateInputSchema),
+    resolver: zodResolver(applyAlertRuleTemplateInputSchema) as any,
     defaultValues: {
       templateId: templateId || '',
       variables: template?.variables.reduce((acc, variable) => {
@@ -494,7 +477,20 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
   }, [template, form]);
 
   const handleSubmit = async (data: ApplyAlertRuleTemplateInput) => {
-    await applyTemplate({ variables: data });
+    try {
+      const result = await applyTemplate({ variables: data });
+      const alertRule = result.data?.applyAlertRuleTemplate.alertRule;
+      const errors = result.data?.applyAlertRuleTemplate.errors;
+
+      if (alertRule) {
+        onSuccess?.(alertRule.id);
+        onClose();
+      } else if (errors && errors.length > 0) {
+        onError?.(errors.map((e: { message: string }) => e.message).join(', '));
+      }
+    } catch (error: any) {
+      onError?.(error?.message || 'Failed to apply template');
+    }
   };
 
   // Loading state
@@ -570,7 +566,7 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
       <div className="p-1">
         <FormContent
           template={template}
-          form={form}
+          form={form as any}
           onSubmit={handleSubmit}
           loading={applying}
         />

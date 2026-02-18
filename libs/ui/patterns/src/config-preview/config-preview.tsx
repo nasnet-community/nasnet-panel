@@ -12,9 +12,10 @@ import * as React from 'react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
 
-import type { ConfigPreviewProps } from './config-preview.types';
 import { ConfigPreviewDesktop } from './config-preview-desktop';
 import { ConfigPreviewMobile } from './config-preview-mobile';
+
+import type { ConfigPreviewProps } from './config-preview.types';
 
 /**
  * ConfigPreview Component

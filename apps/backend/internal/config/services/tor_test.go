@@ -207,7 +207,7 @@ func TestTorGenerator_Validate(t *testing.T) {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr && tt.errMsg != "" && err != nil {
-				if !stringContains(err.Error(), tt.errMsg) {
+				if !strings.Contains(err.Error(), tt.errMsg) {
 					t.Errorf("Validate() error message = %v, want to contain %v", err.Error(), tt.errMsg)
 				}
 			}

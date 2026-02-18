@@ -7,18 +7,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"backend/internal/registry"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGitHubClient_FetchLatestRelease(t *testing.T) {
 	tests := []struct {
-		name           string
-		responseCode   int
-		responseBody   string
-		etag           string
+		name             string
+		responseCode     int
+		responseBody     string
+		etag             string
 		expectedModified bool
-		expectError    bool
+		expectError      bool
 	}{
 		{
 			name:         "successful fetch",
@@ -69,8 +71,8 @@ func TestGitHubClient_FetchLatestRelease(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := NewGitHubClient()
-			client.httpClient = server.Client()
+			client := NewGitHubClient(registry.WithHTTPClient(server.Client()))
+			_ = client // Mark as intentionally unused
 
 			// Override URL for testing (hack the client to use test server)
 			ctx := context.Background()
@@ -82,7 +84,7 @@ func TestGitHubClient_FetchLatestRelease(t *testing.T) {
 			req.Header.Set("Accept", "application/vnd.github.v3+json")
 			req.Header.Set("User-Agent", "NasNetConnect-UpdateManager/1.0")
 
-			resp, err := client.httpClient.Do(req)
+			resp, err := server.Client().Do(req)
 			require.NoError(t, err)
 			defer resp.Body.Close()
 
@@ -108,16 +110,16 @@ func TestGitHubClient_FetchLatestRelease(t *testing.T) {
 
 func TestUpdateService_CheckForUpdate(t *testing.T) {
 	tests := []struct {
-		name            string
-		currentVersion  string
-		releaseVersion  string
-		releaseBody     string
-		draft           bool
-		prerelease      bool
-		assets          []GitHubAsset
+		name              string
+		currentVersion    string
+		releaseVersion    string
+		releaseBody       string
+		draft             bool
+		prerelease        bool
+		assets            []GitHubAsset
 		expectedAvailable bool
-		expectedSeverity UpdateSeverity
-		expectError     bool
+		expectedSeverity  UpdateSeverity
+		expectError       bool
 	}{
 		{
 			name:           "newer version available",
@@ -161,40 +163,40 @@ func TestUpdateService_CheckForUpdate(t *testing.T) {
 			expectError:       false,
 		},
 		{
-			name:           "same version",
-			currentVersion: "1.0.0",
-			releaseVersion: "v1.0.0",
-			releaseBody:    "Release notes",
-			assets:         []GitHubAsset{},
+			name:              "same version",
+			currentVersion:    "1.0.0",
+			releaseVersion:    "v1.0.0",
+			releaseBody:       "Release notes",
+			assets:            []GitHubAsset{},
 			expectedAvailable: false,
 			expectError:       false,
 		},
 		{
-			name:           "older version (downgrade)",
-			currentVersion: "2.0.0",
-			releaseVersion: "v1.5.0",
-			releaseBody:    "Release notes",
-			assets:         []GitHubAsset{},
+			name:              "older version (downgrade)",
+			currentVersion:    "2.0.0",
+			releaseVersion:    "v1.5.0",
+			releaseBody:       "Release notes",
+			assets:            []GitHubAsset{},
 			expectedAvailable: false,
 			expectError:       false,
 		},
 		{
-			name:           "draft release",
-			currentVersion: "1.0.0",
-			releaseVersion: "v1.1.0",
-			releaseBody:    "Draft release",
-			draft:          true,
-			assets:         []GitHubAsset{},
+			name:              "draft release",
+			currentVersion:    "1.0.0",
+			releaseVersion:    "v1.1.0",
+			releaseBody:       "Draft release",
+			draft:             true,
+			assets:            []GitHubAsset{},
 			expectedAvailable: false,
 			expectError:       false,
 		},
 		{
-			name:           "prerelease",
-			currentVersion: "1.0.0",
-			releaseVersion: "v1.1.0-beta.1",
-			releaseBody:    "Beta release",
-			prerelease:     true,
-			assets:         []GitHubAsset{},
+			name:              "prerelease",
+			currentVersion:    "1.0.0",
+			releaseVersion:    "v1.1.0-beta.1",
+			releaseBody:       "Beta release",
+			prerelease:        true,
+			assets:            []GitHubAsset{},
 			expectedAvailable: false,
 			expectError:       false,
 		},
@@ -220,9 +222,8 @@ func TestUpdateService_CheckForUpdate(t *testing.T) {
 			}))
 			defer server.Close()
 
-			// Create GitHub client
-			githubClient := NewGitHubClient()
-			githubClient.httpClient = server.Client()
+			// Create GitHub client with test server's HTTP client
+			githubClient := NewGitHubClient(registry.WithHTTPClient(server.Client()))
 
 			// Create update service
 			service, err := NewUpdateService(UpdateServiceConfig{

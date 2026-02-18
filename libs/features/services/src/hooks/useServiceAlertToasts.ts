@@ -15,7 +15,6 @@
  */
 
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import {
   useServiceAlertSubscription,
@@ -48,6 +47,12 @@ export interface UseServiceAlertToastsProps {
    * Optional callback when a toast is shown
    */
   onToastShown?: (alertId: string, severity: AlertSeverity) => void;
+
+  /**
+   * Optional callback for navigation when "View Service" is clicked
+   * Receives the service instance ID
+   */
+  onNavigateToService?: (instanceId: string) => void;
 }
 
 // ============================================================================
@@ -98,11 +103,16 @@ const MAX_DEDUP_SIZE = 100;
  *
  * @example
  * ```tsx
- * // In app root layout
+ * // In app root layout with navigation
  * function AppLayout() {
+ *   const navigate = useNavigate(); // From @tanstack/react-router
+ *
  *   useServiceAlertToasts({
  *     routerId: currentRouterId,
  *     enabled: true,
+ *     onNavigateToService: (instanceId) => {
+ *       navigate({ to: `/services/${instanceId}` });
+ *     },
  *   });
  *
  *   return <div>{children}</div>;
@@ -121,9 +131,8 @@ const MAX_DEDUP_SIZE = 100;
 export function useServiceAlertToasts(
   props: UseServiceAlertToastsProps = {}
 ) {
-  const { routerId, enabled = true, onToastShown } = props;
+  const { routerId, enabled = true, onToastShown, onNavigateToService } = props;
 
-  const navigate = useNavigate();
   const { addNotification } = useNotificationStore();
 
   // Deduplication tracking: Set of alert IDs we've already shown
@@ -178,16 +187,16 @@ export function useServiceAlertToasts(
 
         // Add "View Service" action for CRITICAL alerts only
         action:
-          alert.severity === 'CRITICAL'
+          alert.severity === 'CRITICAL' && onNavigateToService
             ? {
                 label: 'View Service',
                 onClick: () => {
-                  // Navigate to service detail page
+                  // Navigate to service detail page via callback
                   // Extract instanceId from alert.data or use deviceId
                   const instanceId =
                     (alert.data?.instanceId as string) || alert.deviceId;
                   if (instanceId) {
-                    navigate(`/services/${instanceId}`);
+                    onNavigateToService(instanceId);
                   }
                 },
               }
@@ -199,7 +208,7 @@ export function useServiceAlertToasts(
         onToastShown(alert.id, alert.severity);
       }
     },
-    [addNotification, navigate, onToastShown]
+    [addNotification, onNavigateToService, onToastShown]
   );
 
   // Effect: Handle alert events

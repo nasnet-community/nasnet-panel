@@ -24,7 +24,7 @@ export function useIPAddressForm(props: IPAddressFormProps) {
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<IpAddressFormData>({
-    resolver: zodResolver(ipAddressFormSchema),
+    resolver: zodResolver(ipAddressFormSchema) as any,
     defaultValues: initialValues || ipAddressFormDefaults,
     mode: 'onChange', // Validate on change for real-time feedback
   });
@@ -133,7 +133,7 @@ export function useIPAddressForm(props: IPAddressFormProps) {
       return;
     }
 
-    await onSubmit(data);
+    await onSubmit(data as IpAddressFormData);
   });
 
   return {

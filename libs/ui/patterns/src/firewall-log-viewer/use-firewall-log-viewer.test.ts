@@ -12,10 +12,14 @@
  * @see NAS-7.9: Implement Firewall Logging
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useFirewallLogViewer } from './use-firewall-log-viewer';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import { useFirewallLogs } from '@nasnet/api-client/queries';
 import type { FirewallLogEntry } from '@nasnet/core/types';
+import { exportLogsToCSV } from '@nasnet/core-utils';
+
+import { useFirewallLogViewer } from './use-firewall-log-viewer';
 
 // Mock the API hooks
 vi.mock('@nasnet/api-client/queries', () => ({
@@ -30,9 +34,6 @@ vi.mock('@nasnet/api-client/queries', () => ({
 vi.mock('@nasnet/core-utils', () => ({
   exportLogsToCSV: vi.fn(),
 }));
-
-import { useFirewallLogs } from '@nasnet/api-client/queries';
-import { exportLogsToCSV } from '@nasnet/core-utils';
 
 // Mock data
 const mockLogs: FirewallLogEntry[] = [

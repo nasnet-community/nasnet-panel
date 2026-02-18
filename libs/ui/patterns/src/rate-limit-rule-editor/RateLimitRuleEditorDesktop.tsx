@@ -8,9 +8,16 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
-import { Shield, AlertCircle, Info, Trash2, Clock, Network } from 'lucide-react';
 
+import { Shield, AlertCircle, Info, Trash2, Clock, Network } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
+
+import {
+  RateLimitActionSchema,
+  TimeWindowSchema,
+  TIMEOUT_PRESETS,
+  CONNECTION_LIMIT_PRESETS,
+} from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -18,8 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -32,17 +38,15 @@ import {
   Separator,
   Label,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
-
-import {
-  RateLimitActionSchema,
-  TimeWindowSchema,
-  TIMEOUT_PRESETS,
-  CONNECTION_LIMIT_PRESETS,
-} from '@nasnet/core/types/firewall';
 
 import { useRateLimitEditor } from '../rate-limit-editor/use-rate-limit-editor';
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
+
 import type { RateLimitRuleEditorProps } from './types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Desktop presenter for rate limit rule editor.
@@ -75,18 +79,18 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
-    if (action === 'drop') return 'destructive';
+    if (action === 'drop') return 'error';
     if (action === 'tarpit') return 'warning';
     if (action === 'add-to-list') return 'info';
     return 'default';
   }, [rule.action]);
 
   return (
-    <>
+    <FormProvider {...form}>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -124,7 +128,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
-                <RHFFormField
+                <FormField
                   name="connectionLimit"
                   label="Connection Limit"
                   description="Maximum connections allowed"
@@ -165,9 +169,9 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                       </div>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
 
-                <RHFFormField
+                <FormField
                   name="timeWindow"
                   label="Time Window"
                   description="Rate calculation period"
@@ -182,7 +186,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                           <SelectValue placeholder="Select time window" />
                         </SelectTrigger>
                         <SelectContent>
-                          {TimeWindowSchema.options.map((window) => (
+                          {TimeWindowSchema.options.map((window: string) => (
                             <SelectItem key={window} value={window}>
                               {window === 'per-second' && 'Per Second'}
                               {window === 'per-minute' && 'Per Minute'}
@@ -193,7 +197,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                       </Select>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               </div>
             </div>
 
@@ -206,7 +210,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                 Action Configuration
               </h3>
 
-              <RHFFormField
+              <FormField
                 name="action"
                 label="Action"
                 description="What to do when rate limit is exceeded"
@@ -221,7 +225,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                         <SelectValue placeholder="Select action" />
                       </SelectTrigger>
                       <SelectContent>
-                        {RateLimitActionSchema.options.map((action) => (
+                        {RateLimitActionSchema.options.map((action: string) => (
                           <SelectItem key={action} value={action}>
                             {action === 'drop' && 'Drop - Block connections immediately'}
                             {action === 'tarpit' && 'Tarpit - Slow down connections'}
@@ -232,12 +236,12 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                     </Select>
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
               {/* Conditional fields for add-to-list action */}
               {visibleFields.addressList && (
                 <>
-                  <RHFFormField
+                  <FormField
                     name="addressList"
                     label="Address List"
                     description="Target address list for blocked IPs"
@@ -277,9 +281,9 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                         </div>
                       )}
                     />
-                  </RHFFormField>
+                  </FormField>
 
-                  <RHFFormField
+                  <FormField
                     name="addressListTimeout"
                     label="Timeout"
                     description="How long to keep IPs in the list"
@@ -294,7 +298,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                               <SelectValue placeholder="Select timeout" />
                             </SelectTrigger>
                             <SelectContent>
-                              {TIMEOUT_PRESETS.map((preset) => (
+                              {TIMEOUT_PRESETS.map((preset: { value: string; label: string }) => (
                                 <SelectItem key={preset.value} value={preset.value}>
                                   {preset.label}
                                 </SelectItem>
@@ -304,7 +308,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                         </div>
                       )}
                     />
-                  </RHFFormField>
+                  </FormField>
                 </>
               )}
             </div>
@@ -318,7 +322,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                 Source Matching (optional)
               </h3>
 
-              <RHFFormField
+              <FormField
                 name="srcAddress"
                 label="Source Address"
                 description="IP or CIDR to match (leave empty for any)"
@@ -334,9 +338,9 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
 
-              <RHFFormField
+              <FormField
                 name="comment"
                 label="Comment"
                 description="Optional description for this rule"
@@ -352,7 +356,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                     />
                   )}
                 />
-              </RHFFormField>
+              </FormField>
             </div>
           </form>
 
@@ -392,7 +396,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </FormProvider>
   );
 });
 

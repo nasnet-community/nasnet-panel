@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"backend/generated/ent"
@@ -38,6 +39,7 @@ func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) 
 	defer func() {
 		if v := recover(); v != nil {
 			// Attempt to rollback, ignore any error since we're panicking
+			//nolint:errcheck // can't do anything with error during panic
 			_ = tx.Rollback()
 			panic(v) // Re-throw the panic
 		}
@@ -47,7 +49,7 @@ func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) 
 	if err := fn(tx); err != nil {
 		// Rollback on error
 		if rerr := tx.Rollback(); rerr != nil {
-			return fmt.Errorf("%w (rollback failed: %v)", err, rerr)
+			return fmt.Errorf("%w", errors.Join(err, rerr))
 		}
 		return err
 	}
@@ -83,6 +85,7 @@ func WithTxResult[T any](ctx context.Context, client *ent.Client, fn func(tx *en
 	// Handle panic recovery
 	defer func() {
 		if v := recover(); v != nil {
+			//nolint:errcheck // can't do anything with error during panic
 			_ = tx.Rollback()
 			panic(v)
 		}
@@ -92,7 +95,7 @@ func WithTxResult[T any](ctx context.Context, client *ent.Client, fn func(tx *en
 	result, err = fn(tx)
 	if err != nil {
 		if rerr := tx.Rollback(); rerr != nil {
-			return result, fmt.Errorf("%w (rollback failed: %v)", err, rerr)
+			return result, fmt.Errorf("%w", errors.Join(err, rerr))
 		}
 		return result, err
 	}

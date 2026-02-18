@@ -85,6 +85,7 @@ func NewFallbackChainWithSettings(
 	fallbackOrder []Protocol,
 	cbSettings CircuitBreakerSettings,
 ) *FallbackChain {
+
 	fc := &FallbackChain{
 		config:              config,
 		fallbackOrder:       fallbackOrder,
@@ -112,7 +113,7 @@ func (fc *FallbackChain) SetEventPublisher(publisher EventPublisher) {
 }
 
 // publishStatusChange publishes a RouterStatusChangedEvent if a publisher is set.
-func (fc *FallbackChain) publishStatusChange(ctx context.Context, newStatus events.RouterStatus, protocol string, errorMsg string) {
+func (fc *FallbackChain) publishStatusChange(ctx context.Context, newStatus events.RouterStatus, protocol, errorMsg string) {
 	if fc.eventPublisher == nil {
 		return
 	}
@@ -277,12 +278,12 @@ func (fc *FallbackChain) ExecuteCommand(ctx context.Context, cmd Command) (*Comm
 		// If circuit breaker opened, try reconnecting with fallback
 		if cb.State() == gobreaker.StateOpen {
 			log.Printf("%s Circuit breaker opened for %s, attempting reconnect", fc.logPrefix, proto.String())
-			go fc.attemptReconnect(context.Background())
+			go fc.attemptReconnect(context.Background()) //nolint:contextcheck // background reconnect intentional
 		}
 		return nil, err
 	}
 
-	return result.(*CommandResult), nil
+	return result.(*CommandResult), nil //nolint:forcetypeassert,errcheck // safe within circuit breaker Execute
 }
 
 // QueryState queries state through the current adapter.
@@ -304,12 +305,12 @@ func (fc *FallbackChain) QueryState(ctx context.Context, query StateQuery) (*Sta
 
 	if err != nil {
 		if cb.State() == gobreaker.StateOpen {
-			go fc.attemptReconnect(context.Background())
+			go fc.attemptReconnect(context.Background()) //nolint:contextcheck // background reconnect intentional
 		}
 		return nil, err
 	}
 
-	return result.(*StateResult), nil
+	return result.(*StateResult), nil //nolint:forcetypeassert,errcheck // safe within circuit breaker Execute
 }
 
 // attemptReconnect tries to reconnect with fallback protocols.
@@ -324,7 +325,8 @@ func (fc *FallbackChain) attemptReconnect(ctx context.Context) {
 
 	// Disconnect current
 	if fc.currentPort != nil {
-		fc.currentPort.Disconnect()
+		//nolint:errcheck // best-effort disconnect
+		_ = fc.currentPort.Disconnect()
 		fc.currentPort = nil
 	}
 

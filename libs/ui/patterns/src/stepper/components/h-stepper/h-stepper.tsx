@@ -37,10 +37,14 @@
  */
 
 import * as React from 'react';
+
 import { ChevronLeft, Menu } from 'lucide-react';
+
 import { cn } from '@nasnet/ui/primitives';
-import { HStepperProgress } from './h-stepper-progress';
+
 import { HStepperItem } from './h-stepper-item';
+import { HStepperProgress } from './h-stepper-progress';
+
 import type { HStepperProps } from './h-stepper.types';
 
 // ===== Live Region Component =====
@@ -158,7 +162,6 @@ export function HStepper({
         <nav
           aria-label={ariaLabel}
           className="container mx-auto py-3"
-          role="navigation"
         >
           {/* Header row: Back button + Step label + Menu button */}
           <div className="flex items-center gap-2 px-4 mb-3">
@@ -217,7 +220,6 @@ export function HStepper({
 
           {/* Step indicators */}
           <ol
-            role="list"
             className="relative flex justify-between px-4 pt-2"
           >
             {steps.map((step, index) => {

@@ -3,8 +3,10 @@
  * Compact inline traffic visualization with mini bars
  */
 
-import { formatBytes } from '@nasnet/core/utils';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+
+import { formatBytes } from '@nasnet/core/utils';
+
 import { cn } from '@/lib/utils';
 
 interface TrafficIndicatorProps {

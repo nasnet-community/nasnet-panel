@@ -8,8 +8,9 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
-	"backend/internal/events"
 	"backend/internal/vif/routing"
+
+	"backend/internal/events"
 )
 
 // EventHandler handles device routing events and cascade cleanup.
@@ -92,7 +93,8 @@ func (h *EventHandler) HandleVirtualInterfaceDeleted(ctx context.Context, event 
 			events.PriorityNormal,
 			"vif-event-handler",
 		)
-		_ = h.publisher.Publish(ctx, &cleanupEvent)
+		if err := h.publisher.Publish(ctx, &cleanupEvent); err != nil { //nolint:revive,staticcheck // intentional no-op
+		}
 	}
 
 	return nil
@@ -164,7 +166,7 @@ func (h *EventHandler) extractInstanceID(event events.Event) string {
 
 // RegisterHandlers registers all device routing event handlers with the event bus.
 // This should be called during application initialization.
-func RegisterHandlers(ctx context.Context, eventBus events.EventBus, handler *EventHandler) error {
+func RegisterHandlers(_ context.Context, eventBus events.EventBus, handler *EventHandler) error {
 	// Register handler for VirtualInterface deletion events
 	// Note: The exact event type constant would need to be defined in the events package
 	virtualInterfaceDeletedEvent := "virtual_interface.deleted"

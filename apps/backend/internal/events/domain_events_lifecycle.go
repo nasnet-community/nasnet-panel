@@ -102,8 +102,12 @@ func (e *BinaryIntegrityCheckStartedEvent) Payload() ([]byte, error) { return js
 
 func NewBinaryIntegrityCheckStartedEvent(routerID string, instanceCount int, featureIDs []string, startedAt, reason, source string) *BinaryIntegrityCheckStartedEvent {
 	return &BinaryIntegrityCheckStartedEvent{
-		BaseEvent: NewBaseEvent(EventTypeBinaryIntegrityCheckStarted, PriorityLow, source),
-		RouterID: routerID, InstanceCount: instanceCount, FeatureIDs: featureIDs, StartedAt: startedAt, Reason: reason,
+		BaseEvent:     NewBaseEvent(EventTypeBinaryIntegrityCheckStarted, PriorityLow, source),
+		RouterID:      routerID,
+		InstanceCount: instanceCount,
+		FeatureIDs:    featureIDs,
+		StartedAt:     startedAt,
+		Reason:        reason,
 	}
 }
 
@@ -125,7 +129,7 @@ func (e *TemplateInstallStartedEvent) Payload() ([]byte, error) { return json.Ma
 
 func NewTemplateInstallStartedEvent(templateID, templateName, routerID string, totalServices int, variables map[string]interface{}, requestedByUID, source string) *TemplateInstallStartedEvent {
 	return &TemplateInstallStartedEvent{
-		BaseEvent: NewBaseEvent(EventTypeTemplateInstallStarted, PriorityCritical, source),
+		BaseEvent:  NewBaseEvent(EventTypeTemplateInstallStarted, PriorityCritical, source),
 		TemplateID: templateID, TemplateName: templateName, RouterID: routerID,
 		TotalServices: totalServices, Variables: variables, RequestedByUID: requestedByUID,
 	}
@@ -149,7 +153,7 @@ func (e *TemplateInstallProgressEvent) Payload() ([]byte, error) { return json.M
 
 func NewTemplateInstallProgressEvent(templateID, templateName, routerID string, totalServices, installedCount int, currentService, currentServiceID, phase, message, source string, startedAt time.Time) *TemplateInstallProgressEvent {
 	return &TemplateInstallProgressEvent{
-		BaseEvent: NewBaseEvent(EventTypeTemplateInstallProgress, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeTemplateInstallProgress, PriorityNormal, source),
 		TemplateID: templateID, TemplateName: templateName, RouterID: routerID,
 		TotalServices: totalServices, InstalledCount: installedCount, CurrentService: currentService,
 		CurrentServiceID: currentServiceID, Phase: phase, Message: message, StartedAt: startedAt,
@@ -175,7 +179,7 @@ func (e *TemplateInstallCompletedEvent) Payload() ([]byte, error) { return json.
 func NewTemplateInstallCompletedEvent(templateID, templateName, routerID string, totalServices, installedCount int, instanceIDs []string, serviceMapping map[string]string, startedAt, completedAt time.Time, source string) *TemplateInstallCompletedEvent {
 	duration := int(completedAt.Sub(startedAt).Seconds())
 	return &TemplateInstallCompletedEvent{
-		BaseEvent: NewBaseEvent(EventTypeTemplateInstallCompleted, PriorityCritical, source),
+		BaseEvent:  NewBaseEvent(EventTypeTemplateInstallCompleted, PriorityCritical, source),
 		TemplateID: templateID, TemplateName: templateName, RouterID: routerID,
 		TotalServices: totalServices, InstalledCount: installedCount, InstanceIDs: instanceIDs,
 		ServiceMapping: serviceMapping, StartedAt: startedAt, CompletedAt: completedAt, DurationSeconds: duration,
@@ -205,7 +209,7 @@ func (e *TemplateInstallFailedEvent) Payload() ([]byte, error) { return json.Mar
 func NewTemplateInstallFailedEvent(templateID, templateName, routerID string, totalServices, installedCount int, failedService, errorMessage, errorPhase string, instanceIDs []string, serviceMapping map[string]string, startedAt, failedAt time.Time, rollbackNeeded bool, source string) *TemplateInstallFailedEvent {
 	duration := int(failedAt.Sub(startedAt).Seconds())
 	return &TemplateInstallFailedEvent{
-		BaseEvent: NewBaseEvent(EventTypeTemplateInstallFailed, PriorityImmediate, source),
+		BaseEvent:  NewBaseEvent(EventTypeTemplateInstallFailed, PriorityImmediate, source),
 		TemplateID: templateID, TemplateName: templateName, RouterID: routerID,
 		TotalServices: totalServices, InstalledCount: installedCount, FailedService: failedService,
 		ErrorMessage: errorMessage, ErrorPhase: errorPhase, InstanceIDs: instanceIDs,
@@ -233,7 +237,7 @@ func (e *ScheduleCreatedEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewScheduleCreatedEvent(scheduleID, routingID, startTime, endTime, timezone string, days []int, enabled bool, source string) *ScheduleCreatedEvent {
 	return &ScheduleCreatedEvent{
-		BaseEvent: NewBaseEvent(EventTypeScheduleCreated, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeScheduleCreated, PriorityNormal, source),
 		ScheduleID: scheduleID, RoutingID: routingID, StartTime: startTime, EndTime: endTime,
 		Timezone: timezone, Days: days, Enabled: enabled,
 	}
@@ -254,7 +258,7 @@ func (e *ScheduleUpdatedEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewScheduleUpdatedEvent(scheduleID, routingID, startTime, endTime, timezone string, days []int, enabled bool, source string) *ScheduleUpdatedEvent {
 	return &ScheduleUpdatedEvent{
-		BaseEvent: NewBaseEvent(EventTypeScheduleUpdated, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeScheduleUpdated, PriorityNormal, source),
 		ScheduleID: scheduleID, RoutingID: routingID, StartTime: startTime, EndTime: endTime,
 		Timezone: timezone, Days: days, Enabled: enabled,
 	}
@@ -270,7 +274,7 @@ func (e *ScheduleDeletedEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewScheduleDeletedEvent(scheduleID, routingID, source string) *ScheduleDeletedEvent {
 	return &ScheduleDeletedEvent{
-		BaseEvent: NewBaseEvent(EventTypeScheduleDeleted, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeScheduleDeleted, PriorityNormal, source),
 		ScheduleID: scheduleID, RoutingID: routingID,
 	}
 }
@@ -287,7 +291,7 @@ func (e *ScheduleActivatedEvent) Payload() ([]byte, error) { return json.Marshal
 
 func NewScheduleActivatedEvent(scheduleID, routingID, deviceMAC, instanceID, source string) *ScheduleActivatedEvent {
 	return &ScheduleActivatedEvent{
-		BaseEvent: NewBaseEvent(EventTypeScheduleActivated, PriorityCritical, source),
+		BaseEvent:  NewBaseEvent(EventTypeScheduleActivated, PriorityCritical, source),
 		ScheduleID: scheduleID, RoutingID: routingID, DeviceMAC: deviceMAC, InstanceID: instanceID,
 	}
 }
@@ -304,7 +308,7 @@ func (e *ScheduleDeactivatedEvent) Payload() ([]byte, error) { return json.Marsh
 
 func NewScheduleDeactivatedEvent(scheduleID, routingID, deviceMAC, instanceID, source string) *ScheduleDeactivatedEvent {
 	return &ScheduleDeactivatedEvent{
-		BaseEvent: NewBaseEvent(EventTypeScheduleDeactivated, PriorityCritical, source),
+		BaseEvent:  NewBaseEvent(EventTypeScheduleDeactivated, PriorityCritical, source),
 		ScheduleID: scheduleID, RoutingID: routingID, DeviceMAC: deviceMAC, InstanceID: instanceID,
 	}
 }
@@ -329,7 +333,7 @@ func (e *QuotaWarning80Event) Payload() ([]byte, error) { return json.Marshal(e)
 
 func NewQuotaWarning80Event(instanceID, routerID string, quotaBytes, usedBytes, remainingBytes int64, percentUsed float64, period, resetAt, source string) *QuotaWarning80Event {
 	return &QuotaWarning80Event{
-		BaseEvent: NewBaseEvent(EventTypeQuotaWarning80, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeQuotaWarning80, PriorityNormal, source),
 		InstanceID: instanceID, RouterID: routerID, QuotaBytes: quotaBytes, UsedBytes: usedBytes,
 		RemainingBytes: remainingBytes, PercentUsed: percentUsed, Period: period, ResetAt: resetAt,
 	}
@@ -351,7 +355,7 @@ func (e *QuotaWarning90Event) Payload() ([]byte, error) { return json.Marshal(e)
 
 func NewQuotaWarning90Event(instanceID, routerID string, quotaBytes, usedBytes, remainingBytes int64, percentUsed float64, period, resetAt, source string) *QuotaWarning90Event {
 	return &QuotaWarning90Event{
-		BaseEvent: NewBaseEvent(EventTypeQuotaWarning90, PriorityCritical, source),
+		BaseEvent:  NewBaseEvent(EventTypeQuotaWarning90, PriorityCritical, source),
 		InstanceID: instanceID, RouterID: routerID, QuotaBytes: quotaBytes, UsedBytes: usedBytes,
 		RemainingBytes: remainingBytes, PercentUsed: percentUsed, Period: period, ResetAt: resetAt,
 	}
@@ -373,7 +377,7 @@ func (e *QuotaExceededEvent) Payload() ([]byte, error) { return json.Marshal(e) 
 
 func NewQuotaExceededEvent(instanceID, routerID string, quotaBytes, usedBytes, overageBytes int64, period, action, resetAt, source string) *QuotaExceededEvent {
 	return &QuotaExceededEvent{
-		BaseEvent: NewBaseEvent(EventTypeQuotaExceeded, PriorityImmediate, source),
+		BaseEvent:  NewBaseEvent(EventTypeQuotaExceeded, PriorityImmediate, source),
 		InstanceID: instanceID, RouterID: routerID, QuotaBytes: quotaBytes, UsedBytes: usedBytes,
 		OverageBytes: overageBytes, Period: period, Action: action, ResetAt: resetAt,
 	}
@@ -391,7 +395,7 @@ func (e *QuotaResetEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
 func NewQuotaResetEvent(instanceID, routerID, period, nextResetAt, source string) *QuotaResetEvent {
 	return &QuotaResetEvent{
-		BaseEvent: NewBaseEvent(EventTypeQuotaReset, PriorityNormal, source),
+		BaseEvent:  NewBaseEvent(EventTypeQuotaReset, PriorityNormal, source),
 		InstanceID: instanceID, RouterID: routerID, Period: period, NextResetAt: nextResetAt,
 	}
 }
@@ -410,7 +414,7 @@ func (e *BootSequenceStartedEvent) Payload() ([]byte, error) { return json.Marsh
 
 func NewBootSequenceStartedEvent(source string, instanceCount int, instanceIDs []string) *BootSequenceStartedEvent {
 	return &BootSequenceStartedEvent{
-		BaseEvent: NewBaseEvent(EventTypeBootSequenceStarted, PriorityCritical, source),
+		BaseEvent:     NewBaseEvent(EventTypeBootSequenceStarted, PriorityCritical, source),
 		InstanceCount: instanceCount, InstanceIDs: instanceIDs,
 	}
 }
@@ -428,7 +432,7 @@ func (e *BootSequenceLayerCompleteEvent) Payload() ([]byte, error) { return json
 func NewBootSequenceLayerCompleteEvent(source string, layer int, instanceIDs []string, successCount, failureCount int) *BootSequenceLayerCompleteEvent {
 	return &BootSequenceLayerCompleteEvent{
 		BaseEvent: NewBaseEvent(EventTypeBootSequenceLayerComplete, PriorityNormal, source),
-		Layer: layer, InstanceIDs: instanceIDs, SuccessCount: successCount, FailureCount: failureCount,
+		Layer:     layer, InstanceIDs: instanceIDs, SuccessCount: successCount, FailureCount: failureCount,
 	}
 }
 
@@ -445,7 +449,7 @@ func (e *BootSequenceCompleteEvent) Payload() ([]byte, error) { return json.Mars
 
 func NewBootSequenceCompleteEvent(source string, totalInstances, startedInstances, failedInstances int, durationMs int64, failedIDs []string) *BootSequenceCompleteEvent {
 	return &BootSequenceCompleteEvent{
-		BaseEvent: NewBaseEvent(EventTypeBootSequenceComplete, PriorityCritical, source),
+		BaseEvent:      NewBaseEvent(EventTypeBootSequenceComplete, PriorityCritical, source),
 		TotalInstances: totalInstances, StartedInstances: startedInstances,
 		FailedInstances: failedInstances, DurationMs: durationMs, FailedIDs: failedIDs,
 	}
@@ -464,7 +468,7 @@ func (e *BootSequenceFailedEvent) Payload() ([]byte, error) { return json.Marsha
 func NewBootSequenceFailedEvent(source string, layer int, failedInstanceID, errorMessage string, startedIDs []string) *BootSequenceFailedEvent {
 	return &BootSequenceFailedEvent{
 		BaseEvent: NewBaseEvent(EventTypeBootSequenceFailed, PriorityImmediate, source),
-		Layer: layer, FailedInstanceID: failedInstanceID, ErrorMessage: errorMessage, StartedIDs: startedIDs,
+		Layer:     layer, FailedInstanceID: failedInstanceID, ErrorMessage: errorMessage, StartedIDs: startedIDs,
 	}
 }
 
@@ -483,7 +487,7 @@ func (e *DependencyAddedEvent) Payload() ([]byte, error) { return json.Marshal(e
 
 func NewDependencyAddedEvent(source, fromInstanceID, toInstanceID, dependencyType string) *DependencyAddedEvent {
 	return &DependencyAddedEvent{
-		BaseEvent: NewBaseEvent(EventTypeDependencyAdded, PriorityNormal, source),
+		BaseEvent:      NewBaseEvent(EventTypeDependencyAdded, PriorityNormal, source),
 		FromInstanceID: fromInstanceID, ToInstanceID: toInstanceID, DependencyType: dependencyType,
 	}
 }
@@ -498,7 +502,7 @@ func (e *DependencyRemovedEvent) Payload() ([]byte, error) { return json.Marshal
 
 func NewDependencyRemovedEvent(source, fromInstanceID, toInstanceID string) *DependencyRemovedEvent {
 	return &DependencyRemovedEvent{
-		BaseEvent: NewBaseEvent(EventTypeDependencyRemoved, PriorityNormal, source),
+		BaseEvent:      NewBaseEvent(EventTypeDependencyRemoved, PriorityNormal, source),
 		FromInstanceID: fromInstanceID, ToInstanceID: toInstanceID,
 	}
 }

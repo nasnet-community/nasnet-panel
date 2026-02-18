@@ -14,7 +14,7 @@ type VersionAwareTranslator struct {
 
 // NewVersionAwareTranslator creates a translator that uses the compatibility service
 // for version-aware field and path translations.
-func NewVersionAwareTranslator(cfg TranslatorConfig) *VersionAwareTranslator {
+func NewVersionAwareTranslator(cfg Config) *VersionAwareTranslator {
 	return &VersionAwareTranslator{
 		Translator: NewTranslator(cfg),
 		compatSvc:  compatibility.DefaultService,
@@ -22,7 +22,7 @@ func NewVersionAwareTranslator(cfg TranslatorConfig) *VersionAwareTranslator {
 }
 
 // NewVersionAwareTranslatorWithService creates a translator with a custom compatibility service.
-func NewVersionAwareTranslatorWithService(cfg TranslatorConfig, svc compatibility.Service) *VersionAwareTranslator {
+func NewVersionAwareTranslatorWithService(cfg Config, svc compatibility.Service) *VersionAwareTranslator {
 	return &VersionAwareTranslator{
 		Translator: NewTranslator(cfg),
 		compatSvc:  svc,

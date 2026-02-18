@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"backend/internal/router"
 	"backend/internal/validation"
+
+	"backend/internal/router"
 )
 
 // PlatformStage validates against router platform capabilities (Stage 6).
@@ -19,11 +20,11 @@ func NewPlatformStage(port router.RouterPort) *PlatformStage {
 	return &PlatformStage{routerPort: port}
 }
 
-func (s *PlatformStage) Number() int    { return 6 }
-func (s *PlatformStage) Name() string   { return "platform" }
+func (s *PlatformStage) Number() int  { return 6 }
+func (s *PlatformStage) Name() string { return "platform" }
 
 // Validate checks platform capability constraints.
-func (s *PlatformStage) Validate(_ context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *PlatformStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	if s.routerPort == nil {
@@ -47,12 +48,13 @@ func (s *PlatformStage) Validate(_ context.Context, input *validation.StageInput
 func (s *PlatformStage) validateBridgePortCaps(
 	input *validation.StageInput,
 	caps router.PlatformCapabilities,
-	result *validation.ValidationResult,
+	result *validation.Result,
 ) {
+
 	if caps.MaxBridgePorts > 0 {
 		existingPorts := input.RelatedResources["bridge-port"]
 		if len(existingPorts) >= caps.MaxBridgePorts {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     6,
 				StageName: "platform",
 				Severity:  validation.SeverityError,
@@ -67,12 +69,13 @@ func (s *PlatformStage) validateBridgePortCaps(
 func (s *PlatformStage) validateVLANCaps(
 	input *validation.StageInput,
 	caps router.PlatformCapabilities,
-	result *validation.ValidationResult,
+	result *validation.Result,
 ) {
+
 	if caps.MaxVLANs > 0 {
 		existingVLANs := input.RelatedResources["vlan"]
 		if len(existingVLANs) >= caps.MaxVLANs {
-			result.AddError(&validation.ValidationError{
+			result.AddError(&validation.Error{
 				Stage:     6,
 				StageName: "platform",
 				Severity:  validation.SeverityError,
@@ -86,10 +89,11 @@ func (s *PlatformStage) validateVLANCaps(
 
 func (s *PlatformStage) validateWireGuardCaps(
 	caps router.PlatformCapabilities,
-	result *validation.ValidationResult,
+	result *validation.Result,
 ) {
+
 	if !caps.SupportsWireGuard {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      6,
 			StageName:  "platform",
 			Severity:   validation.SeverityError,

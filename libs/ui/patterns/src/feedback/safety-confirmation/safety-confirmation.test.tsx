@@ -9,12 +9,13 @@
  * @see NAS-4A.11: Build Safety Confirmation Component
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { SafetyConfirmation } from './safety-confirmation';
 import { SafetyConfirmationDesktop } from './safety-confirmation-desktop';
 import { SafetyConfirmationMobile } from './safety-confirmation-mobile';
+
 import type { SafetyConfirmationProps } from './safety-confirmation.types';
 
 // Mock usePlatform hook

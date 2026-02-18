@@ -13,14 +13,15 @@ import { render, screen, renderHook, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 
-import { DeviceListItem } from './device-list-item';
-import { DeviceListItemMobile } from './device-list-item-mobile';
-import { DeviceListItemTablet } from './device-list-item-tablet';
-import { DeviceListItemDesktop } from './device-list-item-desktop';
-import { useDeviceListItem } from './use-device-list-item';
-
 import { DeviceType } from '@nasnet/core/types';
 import type { ConnectedDeviceEnriched } from '@nasnet/core/types';
+
+import { DeviceListItem } from './device-list-item';
+import { DeviceListItemDesktop } from './device-list-item-desktop';
+import { DeviceListItemMobile } from './device-list-item-mobile';
+import { DeviceListItemTablet } from './device-list-item-tablet';
+import { useDeviceListItem } from './use-device-list-item';
+
 
 // Mock device factory
 const createMockDevice = (

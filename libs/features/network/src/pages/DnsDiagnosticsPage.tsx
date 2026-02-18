@@ -4,7 +4,8 @@
  */
 
 import { DnsLookupTool } from '@nasnet/features/diagnostics';
-import { DnsBenchmark, DnsCachePanel } from '../components';
+import { DnsBenchmark } from '../components/DnsBenchmark';
+import { DnsCachePanel } from '../components/DnsCachePanel';
 
 /**
  * DnsDiagnosticsPage Component
@@ -18,7 +19,11 @@ import { DnsBenchmark, DnsCachePanel } from '../components';
  * - Desktop (lg+): 2-column grid for lookup and benchmark, full-width cache panel
  * - Mobile: Stacked single-column layout
  */
-export function DnsDiagnosticsPage() {
+interface DnsDiagnosticsPageProps {
+  deviceId?: string;
+}
+
+export function DnsDiagnosticsPage({ deviceId = 'default' }: DnsDiagnosticsPageProps) {
   return (
     <div className="container mx-auto px-6 py-6 space-y-6">
       {/* Page Header with category accent */}
@@ -39,14 +44,14 @@ export function DnsDiagnosticsPage() {
       {/* Diagnostic Tools Grid - 2 columns on desktop, stacked on mobile */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* DNS Lookup Tool */}
-        <DnsLookupTool />
+        <DnsLookupTool deviceId={deviceId} />
 
         {/* DNS Server Benchmark */}
-        <DnsBenchmark />
+        <DnsBenchmark deviceId={deviceId} />
       </div>
 
       {/* DNS Cache Management - Full width */}
-      <DnsCachePanel />
+      <DnsCachePanel deviceId={deviceId} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { type Tree, readJson } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { Tree, readJson } from '@nx/devkit';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import libraryGenerator from './generator';
 
 describe('library generator', () => {

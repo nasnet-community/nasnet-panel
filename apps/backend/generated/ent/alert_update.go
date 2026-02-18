@@ -3,16 +3,17 @@
 package ent
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
 	"backend/generated/ent/alert"
 	"backend/generated/ent/alertescalation"
 	"backend/generated/ent/alertrule"
 	"backend/generated/ent/internal"
 	"backend/generated/ent/notificationlog"
 	"backend/generated/ent/predicate"
-	"context"
-	"errors"
-	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

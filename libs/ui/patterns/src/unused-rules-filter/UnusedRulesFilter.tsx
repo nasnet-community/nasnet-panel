@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+
 import {
   Checkbox,
   Label,
@@ -19,8 +20,7 @@ import {
   SelectValue,
   Card,
   CardContent,
-} from '@nasnet/ui/primitives';
-import { cn } from '@nasnet/ui/primitives';
+ cn } from '@nasnet/ui/primitives';
 
 export type SortOption = 'default' | 'packets-asc' | 'packets-desc';
 

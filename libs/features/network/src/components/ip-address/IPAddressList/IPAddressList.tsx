@@ -52,4 +52,4 @@ function IPAddressListComponent(props: IPAddressListProps) {
 export const IPAddressList = memo(IPAddressListComponent);
 
 // Set display name for React DevTools
-(IPAddressList as React.FC).displayName = 'IPAddressList';
+(IPAddressList as { displayName?: string }).displayName = 'IPAddressList';

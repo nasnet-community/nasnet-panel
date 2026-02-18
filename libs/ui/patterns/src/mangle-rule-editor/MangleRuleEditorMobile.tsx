@@ -8,7 +8,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import { Controller } from 'react-hook-form';
+
 import {
   Network,
   Shield,
@@ -18,7 +18,14 @@ import {
   Trash2,
   ChevronDown,
 } from 'lucide-react';
+import { Controller, FormProvider } from 'react-hook-form';
 
+import {
+  MangleChainSchema,
+  MangleActionSchema,
+  ConnectionStateSchema,
+  DSCP_CLASSES,
+} from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -26,8 +33,7 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-} from '@nasnet/ui/primitives';
-import {
+
   Button,
   Card,
   Input,
@@ -39,17 +45,15 @@ import {
   Switch,
   Badge,
 } from '@nasnet/ui/primitives';
-import { RHFFormField } from '@nasnet/ui/patterns/rhf-form-field';
 
-import {
-  MangleChainSchema,
-  MangleActionSchema,
-  ConnectionStateSchema,
-  DSCP_CLASSES,
-} from '@nasnet/core/types/firewall';
-
+import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useMangleRuleEditor } from './use-mangle-rule-editor';
+
 import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
+
+// Force FieldValues default to prevent generic inference issues across multiple JSX usages
+type FormFieldProps = RHFFormFieldProps;
+const FormField = RHFFormField as React.FC<FormFieldProps>;
 
 /**
  * Mobile presenter for mangle rule editor.
@@ -81,18 +85,19 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo(() => {
+  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
     if (action.startsWith('mark-')) return 'info';
     if (action.startsWith('change-')) return 'warning';
     if (action === 'accept') return 'success';
-    if (action === 'drop') return 'destructive';
+    if (action === 'drop') return 'error';
     return 'default';
   }, [rule.action]);
 
   return (
+    <FormProvider {...form}>
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] flex flex-col">
         <SheetHeader>
@@ -125,7 +130,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
           <Card className="p-4 space-y-4">
             <h3 className="text-sm font-semibold">Chain & Action</h3>
 
-            <RHFFormField
+            <FormField
               name="chain"
               label="Chain"
               description="Packet processing stage"
@@ -140,7 +145,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       <SelectValue placeholder="Select chain" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MangleChainSchema.options.map((chain) => (
+                      {MangleChainSchema.options.map((chain: string) => (
                         <SelectItem key={chain} value={chain} className="h-11">
                           {chain}
                         </SelectItem>
@@ -149,9 +154,9 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField
+            <FormField
               name="action"
               label="Action"
               description="What to do with matched packets"
@@ -166,7 +171,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       <SelectValue placeholder="Select action" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MangleActionSchema.options.map((action) => (
+                      {MangleActionSchema.options.map((action: string) => (
                         <SelectItem key={action} value={action} className="h-11">
                           {action}
                         </SelectItem>
@@ -175,7 +180,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
           </Card>
 
           {/* Action-Specific Fields */}
@@ -188,7 +193,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
               <h3 className="text-sm font-semibold">Mark Settings</h3>
 
               {visibleFields.includes('newConnectionMark') && (
-                <RHFFormField
+                <FormField
                   name="newConnectionMark"
                   label="Connection Mark"
                   description="Mark name for all packets in connection"
@@ -206,11 +211,11 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('newPacketMark') && (
-                <RHFFormField
+                <FormField
                   name="newPacketMark"
                   label="Packet Mark"
                   description="Mark name for individual packets"
@@ -228,11 +233,11 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('newRoutingMark') && (
-                <RHFFormField
+                <FormField
                   name="newRoutingMark"
                   label="Routing Mark"
                   description="Mark name for routing decisions"
@@ -250,11 +255,11 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       />
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('newDscp') && (
-                <RHFFormField
+                <FormField
                   name="newDscp"
                   label="DSCP Value"
                   description="QoS Differentiated Services Code Point"
@@ -272,7 +277,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                           <SelectValue placeholder="Select DSCP class" />
                         </SelectTrigger>
                         <SelectContent>
-                          {DSCP_CLASSES.map((dscp) => (
+                          {DSCP_CLASSES.map((dscp: { value: number; name: string; description: string; useCase: string }) => (
                             <SelectItem
                               key={dscp.value}
                               value={dscp.value.toString()}
@@ -292,11 +297,11 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       </Select>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
 
               {visibleFields.includes('passthrough') && (
-                <RHFFormField
+                <FormField
                   name="passthrough"
                   label="Passthrough"
                   description="Continue to next rule after marking"
@@ -316,7 +321,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                       </div>
                     )}
                   />
-                </RHFFormField>
+                </FormField>
               )}
             </Card>
           )}
@@ -328,7 +333,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
               Traffic Matchers
             </h3>
 
-            <RHFFormField name="protocol" label="Protocol">
+            <FormField name="protocol" label="Protocol">
               <Controller
                 name="protocol"
                 control={control}
@@ -351,9 +356,9 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   </Select>
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="srcAddress" label="Source Address">
+            <FormField name="srcAddress" label="Source Address">
               <Controller
                 name="srcAddress"
                 control={control}
@@ -366,9 +371,9 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="dstAddress" label="Destination Address">
+            <FormField name="dstAddress" label="Destination Address">
               <Controller
                 name="dstAddress"
                 control={control}
@@ -381,9 +386,9 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
-            <RHFFormField name="dstPort" label="Destination Port">
+            <FormField name="dstPort" label="Destination Port">
               <Controller
                 name="dstPort"
                 control={control}
@@ -396,7 +401,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
           </Card>
 
           {/* Meta */}
@@ -406,7 +411,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
               Settings
             </h3>
 
-            <RHFFormField name="comment" label="Comment">
+            <FormField name="comment" label="Comment">
               <Controller
                 name="comment"
                 control={control}
@@ -419,7 +424,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                   />
                 )}
               />
-            </RHFFormField>
+            </FormField>
 
             <div className="flex items-center justify-between h-11">
               <span className="text-sm font-medium">Disabled</span>
@@ -486,6 +491,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+    </FormProvider>
   );
 });
 

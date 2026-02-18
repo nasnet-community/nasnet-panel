@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/schedule-editor
  */
 
-import type { ScheduleInput } from '@nasnet/core/types/services/schedule.types';
+import type { ScheduleInput } from '@nasnet/core/types';
 
 /**
  * ScheduleEditor Props

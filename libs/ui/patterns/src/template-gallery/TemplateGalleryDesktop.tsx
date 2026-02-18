@@ -5,7 +5,8 @@
  * Uses grid layout with sidebar filters for efficient browsing.
  */
 
-import * as React from 'react';
+
+import { FileText } from 'lucide-react';
 
 import {
   Badge,
@@ -18,9 +19,10 @@ import {
   TabsTrigger,
   cn,
 } from '@nasnet/ui/primitives';
-import { EmptyState } from '../empty-state';
 
+import { EmptyState } from '../empty-state';
 import { TemplateCard } from './TemplateCard';
+
 import type { FirewallTemplate, TemplateCategory, TemplateComplexity } from './types';
 import type { UseTemplateGalleryReturn } from './use-template-gallery';
 
@@ -69,6 +71,8 @@ function FilterPanel({ gallery }: FilterPanelProps) {
     IOT: 'IoT Isolation',
     GUEST: 'Guest Network',
     CUSTOM: 'Custom',
+    VPN: 'VPN',
+    SECURITY: 'Security',
   };
 
   const complexityLabels: Record<TemplateComplexity | 'all', string> = {
@@ -76,6 +80,7 @@ function FilterPanel({ gallery }: FilterPanelProps) {
     SIMPLE: 'Simple',
     MODERATE: 'Moderate',
     ADVANCED: 'Advanced',
+    EXPERT: 'Expert',
   };
 
   return (
@@ -268,6 +273,7 @@ export function TemplateGalleryDesktop({
             </div>
           ) : filteredTemplates.length === 0 ? (
             <EmptyState
+              icon={FileText}
               title="No templates found"
               description="Try adjusting your filters or search criteria."
             />

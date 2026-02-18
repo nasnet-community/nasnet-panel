@@ -13,15 +13,17 @@
  */
 
 import * as React from 'react';
+
 import { Copy, Check, Download, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { cn, Button, Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
 
-import type { ConfigPreviewProps } from './config-preview.types';
-import { useConfigPreview } from './use-config-preview';
 import { ConfigSection } from './config-section';
 import { DiffView } from './diff-view';
 import { SyntaxHighlight } from './syntax-highlight';
+import { useConfigPreview } from './use-config-preview';
+
+import type { ConfigPreviewProps } from './config-preview.types';
 
 /**
  * ConfigPreviewDesktop Component

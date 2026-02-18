@@ -8,6 +8,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
+
 	"backend/internal/events"
 	"backend/internal/network"
 	"backend/internal/storage"
@@ -15,9 +16,9 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// ConfigService orchestrates the validate → generate → write → publish flow
+// Service orchestrates the validate → generate → write → publish flow
 // for service configuration management.
-type ConfigService struct {
+type Service struct {
 	registry      *Registry
 	store         *ent.Client
 	pathResolver  storage.PathResolverPort
@@ -27,8 +28,8 @@ type ConfigService struct {
 	logger        zerolog.Logger
 }
 
-// ConfigServiceConfig holds dependencies for ConfigService (constructor injection).
-type ConfigServiceConfig struct {
+// Config holds dependencies for Service (constructor injection).
+type Config struct {
 	Registry      *Registry
 	Store         *ent.Client
 	EventBus      events.EventBus
@@ -38,8 +39,8 @@ type ConfigServiceConfig struct {
 	Logger        zerolog.Logger
 }
 
-// NewConfigService creates a new ConfigService with dependency injection.
-func NewConfigService(cfg ConfigServiceConfig) (*ConfigService, error) {
+// NewService creates a new Service with dependency injection.
+func NewService(cfg Config) (*Service, error) {
 	if cfg.Registry == nil {
 		return nil, fmt.Errorf("registry is required")
 	}
@@ -55,7 +56,7 @@ func NewConfigService(cfg ConfigServiceConfig) (*ConfigService, error) {
 
 	publisher := events.NewPublisher(cfg.EventBus, "config_service")
 
-	return &ConfigService{
+	return &Service{
 		registry:      cfg.Registry,
 		store:         cfg.Store,
 		pathResolver:  cfg.PathResolver,
@@ -67,7 +68,7 @@ func NewConfigService(cfg ConfigServiceConfig) (*ConfigService, error) {
 }
 
 // ValidateConfig validates a configuration for a service instance.
-func (s *ConfigService) ValidateConfig(ctx context.Context, instanceID string, config map[string]interface{}) error {
+func (s *Service) ValidateConfig(ctx context.Context, instanceID string, config map[string]interface{}) error {
 	// Fetch instance from database
 	instance, err := s.store.ServiceInstance.Query().
 		Where(serviceinstance.ID(instanceID)).
@@ -92,15 +93,15 @@ func (s *ConfigService) ValidateConfig(ctx context.Context, instanceID string, c
 	}
 
 	// Validate config with generator
-	if err := generator.Validate(config, bindIP); err != nil {
-		return fmt.Errorf("validation failed: %w", err)
+	if validateErr := generator.Validate(config, bindIP); validateErr != nil {
+		return fmt.Errorf("validation failed: %w", validateErr)
 	}
 
 	return nil
 }
 
 // GetSchema retrieves the configuration schema for a service type.
-func (s *ConfigService) GetSchema(ctx context.Context, serviceType string) (*ConfigSchema, error) {
+func (s *Service) GetSchema(_ context.Context, serviceType string) (*Schema, error) {
 	schema, err := s.registry.GetSchema(serviceType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get schema: %w", err)
@@ -110,7 +111,7 @@ func (s *ConfigService) GetSchema(ctx context.Context, serviceType string) (*Con
 }
 
 // GetConfig retrieves the current configuration for a service instance.
-func (s *ConfigService) GetConfig(ctx context.Context, instanceID string) (map[string]interface{}, error) {
+func (s *Service) GetConfig(ctx context.Context, instanceID string) (map[string]interface{}, error) {
 	// Fetch instance from database
 	instance, err := s.store.ServiceInstance.Query().
 		Where(serviceinstance.ID(instanceID)).
@@ -131,7 +132,7 @@ func (s *ConfigService) GetConfig(ctx context.Context, instanceID string) (map[s
 }
 
 // ApplyConfig orchestrates the complete flow: validate → generate → write → persist → publish.
-func (s *ConfigService) ApplyConfig(ctx context.Context, instanceID string, config map[string]interface{}) error {
+func (s *Service) ApplyConfig(ctx context.Context, instanceID string, config map[string]interface{}) error {
 	// 1. Fetch instance from database
 	instance, err := s.store.ServiceInstance.Query().
 		Where(serviceinstance.ID(instanceID)).
@@ -154,92 +155,20 @@ func (s *ConfigService) ApplyConfig(ctx context.Context, instanceID string, conf
 		return fmt.Errorf("no generator found for service type %s: %w", instance.FeatureID, err)
 	}
 
-	// 3. Get bind IP from VLAN allocation or instance
-	bindIP, err := s.getBindIP(ctx, instance)
+	// 3. Validate and generate config content
+	configContent, err := s.validateAndGenerate(ctx, instance, generator, instanceID, config)
 	if err != nil {
-		return fmt.Errorf("failed to get bind IP: %w", err)
+		return err
 	}
 
-	s.logger.Debug().
-		Str("instance_id", instanceID).
-		Str("bind_ip", bindIP).
-		Msg("Resolved bind IP")
-
-	// 4. Validate config
-	if err := generator.Validate(config, bindIP); err != nil {
-		return fmt.Errorf("validation failed: %w", err)
-	}
-
-	// 5. Generate config content
-	configContent, err := generator.Generate(instanceID, config, bindIP)
-	if err != nil {
-		return fmt.Errorf("config generation failed: %w", err)
-	}
-
-	// 6. Get config file path
+	// 4. Write config file atomically with backup
 	configFileName := generator.GetConfigFileName()
-	configPath := s.pathResolver.ConfigPath(instance.FeatureID)
-
-	// Ensure config directory exists
-	configDir := filepath.Dir(configPath)
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		return fmt.Errorf("failed to create config directory: %w", err)
+	finalConfigPath, err := s.writeConfigFile(instance, configFileName, configContent)
+	if err != nil {
+		return err
 	}
 
-	// Adjust config path to include the specific filename
-	// PathResolver returns path like "/flash/features/config/tor.json"
-	// But we need "/flash/features/config/tor/torrc" for Tor
-	instanceConfigDir := filepath.Join(configDir, instance.FeatureID)
-	if err := os.MkdirAll(instanceConfigDir, 0755); err != nil {
-		return fmt.Errorf("failed to create instance config directory: %w", err)
-	}
-	finalConfigPath := filepath.Join(instanceConfigDir, configFileName)
-
-	// 7. Backup existing config
-	backupPath := finalConfigPath + ".backup"
-	if _, err := os.Stat(finalConfigPath); err == nil {
-		// Config exists, create backup
-		if err := os.Rename(finalConfigPath, backupPath); err != nil {
-			s.logger.Warn().
-				Err(err).
-				Str("config_path", finalConfigPath).
-				Msg("Failed to backup existing config")
-		} else {
-			s.logger.Debug().
-				Str("backup_path", backupPath).
-				Msg("Created config backup")
-		}
-	}
-
-	// 8. Atomic write: temp file + os.Rename()
-	tempPath := finalConfigPath + ".tmp"
-	if err := os.WriteFile(tempPath, configContent, 0644); err != nil {
-		return fmt.Errorf("failed to write temp config file: %w", err)
-	}
-
-	// Atomic rename (POSIX guarantee)
-	if err := os.Rename(tempPath, finalConfigPath); err != nil {
-		// Cleanup temp file on failure
-		os.Remove(tempPath)
-
-		// Restore backup if exists
-		if _, statErr := os.Stat(backupPath); statErr == nil {
-			if restoreErr := os.Rename(backupPath, finalConfigPath); restoreErr != nil {
-				s.logger.Error().
-					Err(restoreErr).
-					Msg("Failed to restore config from backup")
-			}
-		}
-
-		return fmt.Errorf("atomic rename failed: %w", err)
-	}
-
-	s.logger.Info().
-		Str("config_path", finalConfigPath).
-		Int("size_bytes", len(configContent)).
-		Msg("Config file written successfully")
-
-	// 9. Persist config to database
+	// 5. Persist config to database
 	_, err = instance.Update().
 		SetConfig(config).
 		Save(ctx)
@@ -248,19 +177,15 @@ func (s *ConfigService) ApplyConfig(ctx context.Context, instanceID string, conf
 			Err(err).
 			Str("instance_id", instanceID).
 			Msg("Failed to persist config to database (file written successfully)")
-
-		// NOTE: We don't rollback the file write here because the file is the source of truth
-		// The database persistence is for auditing/recovery only
 		return fmt.Errorf("failed to persist config to database: %w", err)
 	}
 
-	// 10. Publish ConfigApplied event
-	if err := s.publisher.PublishConfigApplied(ctx, instanceID, instance.RouterID, 1, []string{configFileName}); err != nil {
+	// 6. Publish ConfigApplied event (non-fatal)
+	if publishErr := s.publisher.PublishConfigApplied(ctx, instanceID, instance.RouterID, 1, []string{configFileName}); publishErr != nil {
 		s.logger.Warn().
-			Err(err).
+			Err(publishErr).
 			Str("instance_id", instanceID).
 			Msg("Failed to publish ConfigApplied event")
-		// Don't fail the operation if event publishing fails
 	}
 
 	s.logger.Info().
@@ -272,8 +197,81 @@ func (s *ConfigService) ApplyConfig(ctx context.Context, instanceID string, conf
 	return nil
 }
 
+// validateAndGenerate validates config and generates config content.
+func (s *Service) validateAndGenerate(ctx context.Context, instance *ent.ServiceInstance, generator Generator, instanceID string, config map[string]interface{}) ([]byte, error) {
+	bindIP, err := s.getBindIP(ctx, instance)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get bind IP: %w", err)
+	}
+
+	s.logger.Debug().
+		Str("instance_id", instanceID).
+		Str("bind_ip", bindIP).
+		Msg("Resolved bind IP")
+
+	if validateErr := generator.Validate(config, bindIP); validateErr != nil {
+		return nil, fmt.Errorf("validation failed: %w", validateErr)
+	}
+
+	configContent, err := generator.Generate(instanceID, config, bindIP)
+	if err != nil {
+		return nil, fmt.Errorf("config generation failed: %w", err)
+	}
+
+	return configContent, nil
+}
+
+// writeConfigFile writes config content atomically with backup and rollback support.
+func (s *Service) writeConfigFile(instance *ent.ServiceInstance, configFileName string, content []byte) (string, error) {
+	configPath := s.pathResolver.ConfigPath(instance.FeatureID)
+	configDir := filepath.Dir(configPath)
+	if err := os.MkdirAll(configDir, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create config directory: %w", err)
+	}
+
+	instanceConfigDir := filepath.Join(configDir, instance.FeatureID)
+	if err := os.MkdirAll(instanceConfigDir, 0o755); err != nil {
+		return "", fmt.Errorf("failed to create instance config directory: %w", err)
+	}
+	finalConfigPath := filepath.Join(instanceConfigDir, configFileName)
+
+	// Backup existing config
+	backupPath := finalConfigPath + ".backup"
+	if _, statErr := os.Stat(finalConfigPath); statErr == nil {
+		if backupErr := os.Rename(finalConfigPath, backupPath); backupErr != nil {
+			s.logger.Warn().Err(backupErr).Str("config_path", finalConfigPath).Msg("Failed to backup existing config")
+		} else {
+			s.logger.Debug().Str("backup_path", backupPath).Msg("Created config backup")
+		}
+	}
+
+	// Atomic write: temp file + rename
+	tempPath := finalConfigPath + ".tmp"
+	if err := os.WriteFile(tempPath, content, 0o644); err != nil {
+		return "", fmt.Errorf("failed to write temp config file: %w", err)
+	}
+
+	if err := os.Rename(tempPath, finalConfigPath); err != nil {
+		os.Remove(tempPath)
+		s.restoreBackup(backupPath, finalConfigPath)
+		return "", fmt.Errorf("atomic rename failed: %w", err)
+	}
+
+	s.logger.Info().Str("config_path", finalConfigPath).Int("size_bytes", len(content)).Msg("Config file written successfully")
+	return finalConfigPath, nil
+}
+
+// restoreBackup restores a config file from its backup.
+func (s *Service) restoreBackup(backupPath, configPath string) {
+	if _, statErr := os.Stat(backupPath); statErr == nil {
+		if restoreErr := os.Rename(backupPath, configPath); restoreErr != nil {
+			s.logger.Error().Err(restoreErr).Msg("Failed to restore config from backup")
+		}
+	}
+}
+
 // getBindIP retrieves the bind IP for a service instance from VLAN allocation.
-func (s *ConfigService) getBindIP(ctx context.Context, instance *ent.ServiceInstance) (string, error) {
+func (s *Service) getBindIP(_ context.Context, instance *ent.ServiceInstance) (string, error) {
 	// If instance already has a bind_ip set, use it
 	if instance.BindIP != "" {
 		return instance.BindIP, nil
@@ -291,7 +289,7 @@ func (s *ConfigService) getBindIP(ctx context.Context, instance *ent.ServiceInst
 }
 
 // GetConfigFilePath returns the full path to the config file for a service instance.
-func (s *ConfigService) GetConfigFilePath(ctx context.Context, instanceID string) (string, error) {
+func (s *Service) GetConfigFilePath(ctx context.Context, instanceID string) (string, error) {
 	// Fetch instance from database
 	instance, err := s.store.ServiceInstance.Query().
 		Where(serviceinstance.ID(instanceID)).

@@ -12,6 +12,8 @@ import type { ReverifyPayload } from '@nasnet/api-client/generated';
 import {
   GET_FEATURE_VERIFICATION,
   GET_INSTANCE_VERIFICATION_STATUS,
+} from './useFeatureVerification';
+import {
   GET_SERVICE_INSTANCE,
   GET_SERVICE_INSTANCES,
 } from './services.graphql';

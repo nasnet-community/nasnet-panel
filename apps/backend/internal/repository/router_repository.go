@@ -9,9 +9,10 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/router"
 	"backend/generated/ent/routersecret"
+	"backend/internal/common/ulid"
 	"backend/internal/database"
+
 	"backend/internal/events"
-	"backend/pkg/ulid"
 
 	oklogulid "github.com/oklog/ulid/v2"
 )
@@ -19,7 +20,7 @@ import (
 // routerRepository implements RouterRepository.
 type routerRepository struct {
 	systemDB     *ent.Client
-	dbManager    *database.DatabaseManager
+	dbManager    *database.Manager
 	eventBus     events.EventBus
 	cleanupQueue *CleanupQueue
 }
@@ -27,7 +28,7 @@ type routerRepository struct {
 // RouterRepositoryConfig holds configuration for RouterRepository.
 type RouterRepositoryConfig struct {
 	SystemDB     *ent.Client
-	DBManager    *database.DatabaseManager
+	DBManager    *database.Manager
 	EventBus     events.EventBus
 	CleanupQueue *CleanupQueue
 }
@@ -114,7 +115,7 @@ func (r *routerRepository) CreateWithSecrets(ctx context.Context, input CreateRo
 	}
 
 	// Create router and secrets in a transaction
-	result, err := WithTxResult(ctx, r.systemDB, func(tx *ent.Tx) (*ent.Router, error) {
+	result, txErr := WithTxResult(ctx, r.systemDB, func(tx *ent.Tx) (*ent.Router, error) {
 		// Generate IDs
 		routerID := ulid.NewString()
 		secretID := ulid.NewString()
@@ -144,15 +145,15 @@ func (r *routerRepository) CreateWithSecrets(ctx context.Context, input CreateRo
 			routerBuilder.SetVersion(input.Version)
 		}
 
-		newRouter, err := routerBuilder.Save(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("create router: %w", err)
+		newRouter, createErr := routerBuilder.Save(ctx)
+		if createErr != nil {
+			return nil, fmt.Errorf("create router: %w", createErr)
 		}
 
 		// Create router secrets (credentials)
 		// NOTE: In production, credentials should be encrypted with AES-256-GCM
 		// This is handled by the auth/encryption package (Story 2.5)
-		_, err = tx.RouterSecret.Create().
+		_, secretErr := tx.RouterSecret.Create().
 			SetID(secretID).
 			SetRouterID(routerID).
 			SetEncryptedUsername([]byte(input.Username)). // TODO: Encrypt with AES-256-GCM
@@ -160,15 +161,15 @@ func (r *routerRepository) CreateWithSecrets(ctx context.Context, input CreateRo
 			SetEncryptionNonce(make([]byte, 12)).         // TODO: Generate proper nonce
 			SetKeyVersion(1).
 			Save(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("create router secrets: %w", err)
+		if secretErr != nil {
+			return nil, fmt.Errorf("create router secrets: %w", secretErr)
 		}
 
 		return newRouter, nil
 	})
 
-	if err != nil {
-		return nil, err
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	// Publish event (after successful commit)
@@ -206,6 +207,8 @@ func (r *routerRepository) UpdateStatus(ctx context.Context, id oklogulid.ULID, 
 		entStatus = router.StatusOffline
 	case RouterStatusDegraded:
 		entStatus = router.StatusDegraded
+	case RouterStatusUnknown:
+		entStatus = router.StatusUnknown
 	default:
 		entStatus = router.StatusUnknown
 	}
@@ -252,6 +255,8 @@ func (r *routerRepository) ListWithCapabilities(ctx context.Context, filter Rout
 			entStatus = router.StatusOffline
 		case RouterStatusDegraded:
 			entStatus = router.StatusDegraded
+		case RouterStatusUnknown:
+			entStatus = router.StatusUnknown
 		default:
 			entStatus = router.StatusUnknown
 		}
@@ -314,34 +319,34 @@ func (r *routerRepository) Delete(ctx context.Context, id oklogulid.ULID) error 
 	}
 
 	// Delete in transaction (router and secrets)
-	err = WithTx(ctx, r.systemDB, func(tx *ent.Tx) error {
+	delErr := WithTx(ctx, r.systemDB, func(tx *ent.Tx) error {
 		// Delete secrets first (foreign key dependency)
-		_, err := tx.RouterSecret.
+		_, secretErr := tx.RouterSecret.
 			Delete().
 			Where(routersecret.RouterID(id.String())).
 			Exec(ctx)
-		if err != nil {
-			return fmt.Errorf("delete router secrets: %w", err)
+		if secretErr != nil {
+			return fmt.Errorf("delete router secrets: %w", secretErr)
 		}
 
 		// Delete router
-		err = tx.Router.DeleteOneID(id.String()).Exec(ctx)
-		if err != nil {
-			return fmt.Errorf("delete router: %w", err)
+		routerErr := tx.Router.DeleteOneID(id.String()).Exec(ctx)
+		if routerErr != nil {
+			return fmt.Errorf("delete router: %w", routerErr)
 		}
 
 		return nil
 	})
-	if err != nil {
-		return err
+	if delErr != nil {
+		return delErr
 	}
 
 	// Schedule router DB cleanup (eventual, non-blocking)
 	// This happens after the system.db transaction commits
 	if r.cleanupQueue != nil {
 		r.cleanupQueue.Enqueue(CleanupTask{
-			Type:     CleanupRouterDB,
-			RouterID: id.String(),
+			Type:       CleanupRouterDB,
+			RouterID:   id.String(),
 			EnqueuedAt: time.Now(),
 		})
 	}

@@ -66,14 +66,16 @@ export function useConfigureHealthCheck() {
 export function validateHealthCheckConfig(config: Partial<ConfigureHealthCheckInput>): string[] {
   const errors: string[] = [];
 
-  if (config.intervalSeconds !== undefined) {
-    if (config.intervalSeconds < 10 || config.intervalSeconds > 300) {
+  const interval = config.intervalSeconds;
+  if (interval != null) {
+    if (interval < 10 || interval > 300) {
       errors.push('Check interval must be between 10 and 300 seconds');
     }
   }
 
-  if (config.failureThreshold !== undefined) {
-    if (config.failureThreshold < 1 || config.failureThreshold > 10) {
+  const threshold = config.failureThreshold;
+  if (threshold != null) {
+    if (threshold < 1 || threshold > 10) {
       errors.push('Failure threshold must be between 1 and 10');
     }
   }

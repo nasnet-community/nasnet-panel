@@ -33,8 +33,8 @@ export function DnsServerListDesktop({
       {/* DNS Servers List with Drag-and-Drop */}
       {servers.length > 0 ? (
         <SortableListWithActions
-          items={servers}
-          onReorder={({ items }) => onReorder(items)}
+          items={servers.map((s: DnsServer) => ({ ...s, disabled: s.isDynamic || loading }))}
+          onReorder={({ items }: any) => onReorder(items)}
           renderItem={(server: DnsServer) => (
             <div className="flex items-center gap-3 p-3 bg-card rounded-input border border-input">
               {/* Icon */}
@@ -63,8 +63,6 @@ export function DnsServerListDesktop({
             </div>
           )}
           showDragHandle={true}
-          disabled={(server: DnsServer) => server.isDynamic || loading}
-          keyExtractor={(server: DnsServer) => server.id}
         />
       ) : (
         // Empty state

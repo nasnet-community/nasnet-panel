@@ -13,8 +13,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 
-import { cn } from '@nasnet/ui/primitives';
-import { useReducedMotion } from '@nasnet/ui/primitives';
+import { cn , useReducedMotion } from '@nasnet/ui/primitives';
 
 import type {
   ConfidenceLevel,

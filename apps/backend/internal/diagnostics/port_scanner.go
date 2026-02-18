@@ -3,6 +3,7 @@ package diagnostics
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -61,7 +62,7 @@ func (s *PortScanner) ScanPorts(ctx context.Context, host string) []PortStatus {
 					Port:    port,
 					Service: service,
 					Open:    false,
-					Error:   ptrString("scan cancelled"),
+					Error:   ptrString("scan canceled"),
 				}}
 				return
 			}
@@ -154,6 +155,7 @@ func (s *PortScanner) CheckTLSCertificate(ctx context.Context, host string, port
 
 	// Create TLS config that captures cert info even if invalid
 	tlsConfig := &tls.Config{
+		//nolint:gosec // required for diagnostic certificate inspection
 		InsecureSkipVerify: true, // We'll verify manually to get full cert info
 	}
 
@@ -209,7 +211,8 @@ func (s *PortScanner) CheckTLSCertificate(ctx context.Context, host string, port
 
 // classifyPortError converts a network error to a user-friendly message.
 func classifyPortError(err error) string {
-	if netErr, ok := err.(net.Error); ok {
+	var netErr net.Error
+	if errors.As(err, &netErr) {
 		if netErr.Timeout() {
 			return "connection timeout"
 		}
@@ -244,7 +247,7 @@ func isConnectionRefused(err error) bool {
 // contains checks if s contains substr (case-insensitive).
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr ||
-		len(s) > 0 && containsLower(s, substr))
+		s != "" && containsLower(s, substr))
 }
 
 func containsLower(s, substr string) bool {
@@ -278,9 +281,4 @@ func matchLower(a, b string) bool {
 // ptrString returns a pointer to the given string.
 func ptrString(s string) *string {
 	return &s
-}
-
-// ptrInt returns a pointer to the given int.
-func ptrInt(i int) *int {
-	return &i
 }

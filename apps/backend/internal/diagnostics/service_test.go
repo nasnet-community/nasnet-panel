@@ -18,7 +18,7 @@ type MockRouterProvider struct {
 	credErr     error
 }
 
-func (m *MockRouterProvider) GetRouterHost(ctx context.Context, routerID string) (string, error) {
+func (m *MockRouterProvider) GetRouterHost(_ context.Context, routerID string) (string, error) {
 	if m.hostErr != nil {
 		return "", m.hostErr
 	}
@@ -29,7 +29,7 @@ func (m *MockRouterProvider) GetRouterHost(ctx context.Context, routerID string)
 	return host, nil
 }
 
-func (m *MockRouterProvider) GetRouterCredentials(ctx context.Context, routerID string) (string, string, error) {
+func (m *MockRouterProvider) GetRouterCredentials(_ context.Context, routerID string) (string, string, error) {
 	if m.credErr != nil {
 		return "", "", m.credErr
 	}

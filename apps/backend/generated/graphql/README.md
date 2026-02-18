@@ -33,14 +33,14 @@ generated/graphql/
 - Contains GraphQL execution code
 - Implements the GraphQL resolver interface
 - Wires up query, mutation, and subscription resolvers
-- **Import as:** `import "backend/generated/graphql"`
+- **Import as:** `import "backend/graph/model"`
 
 ### `models.go`
 - Contains all GraphQL input types (e.g., `AddRouterInput`)
 - Contains all GraphQL payload types (e.g., `AddRouterPayload`)
 - Contains GraphQL enums, interfaces, unions
 - Contains connection/edge types for Relay pagination
-- **Import as:** `import "backend/generated/graphql"`
+- **Import as:** `import "backend/graph/model"`
 
 ## Custom Scalars (NOT Generated)
 
@@ -109,7 +109,7 @@ Example:
 ```go
 package resolver
 
-import "backend/generated/graphql"
+import "backend/graph/model"
 
 // This resolver implements graphql.MutationResolver
 type mutationResolver struct{ *Resolver }
@@ -121,7 +121,7 @@ func (r *mutationResolver) AddRouter(ctx context.Context, input graphql.AddRoute
 
 ## Import Guidelines
 
-### Use `backend/generated/graphql` when:
+### Use `backend/graph/model` when:
 - Using generated input types (`AddRouterInput`, `UpdateRouterInput`, etc.)
 - Using generated payload types (`AddRouterPayload`, `QueryPayload`, etc.)
 - Using generated enums, interfaces, unions
@@ -137,7 +137,7 @@ func (r *mutationResolver) AddRouter(ctx context.Context, input graphql.AddRoute
 ```go
 import (
     "backend/graph/model"                      // Custom scalars
-    gqlmodel "backend/generated/graphql"       // Generated types
+    gqlmodel "backend/graph/model"       // Generated types
 )
 
 func example(ip model.IPv4, input gqlmodel.AddRouterInput) {
@@ -149,7 +149,7 @@ func example(ip model.IPv4, input gqlmodel.AddRouterInput) {
 
 This directory structure was created as part of the "Generated Code Consolidation" refactoring:
 - **Before:** GraphQL generated code was in `apps/backend/graph/`
-- **After:** GraphQL generated code is in `apps/backend/generated/graphql/`
+- **After:** GraphQL generated code is in `apps/backend/graph/model/`
 - **Reason:** Clear separation of generated vs hand-written code
 
 See `MIGRATION_PLAN.md` for detailed migration steps and status.
@@ -159,7 +159,7 @@ See `MIGRATION_PLAN.md` for detailed migration steps and status.
 ### "package graphql is not in GOROOT"
 Run `go generate ./...` to generate the code first.
 
-### "cannot find package backend/generated/graphql"
+### "cannot find package backend/graph/model"
 Ensure you're in the `apps/backend` directory and run `go generate ./...`.
 
 ### Import cycle errors

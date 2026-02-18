@@ -34,8 +34,8 @@ func (s Severity) String() string {
 	}
 }
 
-// ValidationError represents a single validation finding.
-type ValidationError struct {
+// Error represents a single validation finding.
+type Error struct {
 	// Stage is the stage that produced this error (1-7).
 	Stage int
 
@@ -59,17 +59,17 @@ type ValidationError struct {
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string {
+func (e *Error) Error() string {
 	return fmt.Sprintf("[%s] %s: %s", e.StageName, e.Field, e.Message)
 }
 
-// ValidationResult holds the aggregate result of running the validation pipeline.
-type ValidationResult struct {
+// Result holds the aggregate result of running the validation pipeline.
+type Result struct {
 	// Valid is true if no blocking errors were found.
 	Valid bool
 
 	// Errors contains all validation findings (info, warning, error).
-	Errors []*ValidationError
+	Errors []*Error
 
 	// StagesRun is the number of stages that executed.
 	StagesRun int
@@ -79,16 +79,16 @@ type ValidationResult struct {
 }
 
 // NewResult creates a new empty validation result.
-func NewResult() *ValidationResult {
-	return &ValidationResult{
+func NewResult() *Result {
+	return &Result{
 		Valid:        true,
-		Errors:       make([]*ValidationError, 0),
+		Errors:       make([]*Error, 0),
 		StagesFailed: make([]int, 0),
 	}
 }
 
 // AddError adds a validation error to the result.
-func (r *ValidationResult) AddError(err *ValidationError) {
+func (r *Result) AddError(err *Error) {
 	r.Errors = append(r.Errors, err)
 	if err.Severity == SeverityError {
 		r.Valid = false
@@ -107,7 +107,7 @@ func (r *ValidationResult) AddError(err *ValidationError) {
 }
 
 // Merge combines another result into this one.
-func (r *ValidationResult) Merge(other *ValidationResult) {
+func (r *Result) Merge(other *Result) {
 	if other == nil {
 		return
 	}
@@ -117,12 +117,12 @@ func (r *ValidationResult) Merge(other *ValidationResult) {
 }
 
 // HasErrors returns true if any blocking errors exist.
-func (r *ValidationResult) HasErrors() bool {
+func (r *Result) HasErrors() bool {
 	return !r.Valid
 }
 
 // ErrorCount returns the number of blocking errors.
-func (r *ValidationResult) ErrorCount() int {
+func (r *Result) ErrorCount() int {
 	count := 0
 	for _, e := range r.Errors {
 		if e.Severity == SeverityError {
@@ -133,7 +133,7 @@ func (r *ValidationResult) ErrorCount() int {
 }
 
 // WarningCount returns the number of warnings.
-func (r *ValidationResult) WarningCount() int {
+func (r *Result) WarningCount() int {
 	count := 0
 	for _, e := range r.Errors {
 		if e.Severity == SeverityWarning {
@@ -144,7 +144,7 @@ func (r *ValidationResult) WarningCount() int {
 }
 
 // Summary returns a human-readable summary of the validation result.
-func (r *ValidationResult) Summary() string {
+func (r *Result) Summary() string {
 	if r.Valid {
 		return fmt.Sprintf("Validation passed (%d stages, %d warnings)",
 			r.StagesRun, r.WarningCount())

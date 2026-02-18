@@ -10,7 +10,7 @@ import { EmptyState } from '@nasnet/ui/patterns';
 import { Globe, Plus, RefreshCw } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives';
 import { WANCard, WANCardCompact } from '../wan-card/WANCard';
-import { usePlatform } from '@nasnet/ui/patterns';
+import { usePlatform } from '@nasnet/ui/layouts';
 import type { WANInterfaceData } from '../../types/wan.types';
 
 export interface WANOverviewListProps {
@@ -117,16 +117,17 @@ export function WANOverviewList({
   if (wans.length === 0) {
     return (
       <EmptyState
-        icon={<Globe className="h-12 w-12" />}
+        icon={Globe}
         title="No WAN Configured"
         description="Configure a WAN connection to connect your network to the internet."
         action={
-          onAddWAN ? (
-            <Button onClick={onAddWAN}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add WAN Connection
-            </Button>
-          ) : undefined
+          onAddWAN
+            ? {
+                label: 'Add WAN Connection',
+                onClick: onAddWAN,
+                variant: 'action',
+              }
+            : undefined
         }
       />
     );

@@ -12,10 +12,9 @@
  * @see NAS-4A.13: Build Form Section Component
  */
 
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, act , renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
 import { axe } from 'vitest-axe';
 
 import { FormSection } from './FormSection';

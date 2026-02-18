@@ -14,9 +14,10 @@
  * Story: NAS-7.4 - Implement Connection Tracking
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ConnectionList, useConnectionList } from './ConnectionList';
+
 import type { ConnectionEntry } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock data generators
 function generateMockConnection(id: number): ConnectionEntry {

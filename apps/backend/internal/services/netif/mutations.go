@@ -169,6 +169,8 @@ func (s *InterfaceService) DisableInterface(ctx context.Context, routerID, inter
 }
 
 // UpdateInterface updates interface settings (MTU, comment, enabled).
+//
+//nolint:gocyclo // interface updates require checking multiple conditions
 func (s *InterfaceService) UpdateInterface(ctx context.Context, routerID, interfaceID string, input UpdateInterfaceInput) (*InterfaceData, error) {
 	interfaces, err := s.fetchInterfaces(ctx, routerID)
 	if err != nil {
@@ -253,6 +255,7 @@ func (s *InterfaceService) BatchOperation(
 	action BatchAction,
 	input *UpdateInterfaceInput,
 ) (succeeded []*InterfaceData, failed []InterfaceOperationError, err error) {
+
 	succeeded = make([]*InterfaceData, 0, len(interfaceIDs))
 	failed = make([]InterfaceOperationError, 0)
 

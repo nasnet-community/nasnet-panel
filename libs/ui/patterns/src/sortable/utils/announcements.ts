@@ -7,9 +7,9 @@
  * @see NAS-4.21: Implement Drag & Drop System
  */
 
+import type { SortableAnnouncements } from '../types';
 import type { Active, Over } from '@dnd-kit/core';
 import type { Announcements } from '@dnd-kit/core/dist/components/Accessibility/types';
-import type { SortableAnnouncements } from '../types';
 
 // ============================================================================
 // Types

@@ -51,11 +51,11 @@ func (s *Service) Run(ctx context.Context, deviceID string, input Input) (string
 		Input:    input,
 		Status:   JobStatusRunning,
 		Result: &Result{
-			Target:     input.Target,
-			Protocol:   input.Protocol,
-			MaxHops:    input.MaxHops,
-			StartedAt:  time.Now(),
-			Hops:       []Hop{},
+			Target:    input.Target,
+			Protocol:  input.Protocol,
+			MaxHops:   input.MaxHops,
+			StartedAt: time.Now(),
+			Hops:      []Hop{},
 		},
 	}
 
@@ -85,12 +85,12 @@ func (s *Service) Cancel(ctx context.Context, jobID string) error {
 	}
 
 	// Update job status
-	job.Status = JobStatusCancelled
+	job.Status = JobStatusCanceled
 
-	// Publish cancelled event
+	// Publish canceled event
 	s.publishEvent(jobID, ProgressEvent{
 		JobID:     jobID,
-		EventType: EventTypeCancelled,
+		EventType: EventTypeCanceled,
 	})
 
 	return nil
@@ -163,7 +163,7 @@ func (s *Service) GetJob(jobID string) (*Job, error) {
 }
 
 // runTraceroute executes the traceroute and publishes progress events.
-func (s *Service) runTraceroute(ctx context.Context, job *Job) {
+func (s *Service) runTraceroute(_ context.Context, job *Job) {
 	startTime := time.Now()
 
 	// Build MikroTik command

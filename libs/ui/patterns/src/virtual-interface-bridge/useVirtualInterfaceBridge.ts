@@ -177,12 +177,12 @@ export function useVirtualInterfaceBridge(
   );
 
   const gatewayBadgeText = useMemo(
-    () => getGatewayBadgeText(bridgeInterface?.gatewayType, gatewayRunning),
+    () => getGatewayBadgeText(bridgeInterface?.gatewayType as any, gatewayRunning),
     [bridgeInterface?.gatewayType, gatewayRunning]
   );
 
   const gatewayBadgeVariant = useMemo(
-    () => getGatewayBadgeVariant(bridgeInterface?.gatewayType, gatewayRunning),
+    () => getGatewayBadgeVariant(bridgeInterface?.gatewayType as any, gatewayRunning),
     [bridgeInterface?.gatewayType, gatewayRunning]
   );
 

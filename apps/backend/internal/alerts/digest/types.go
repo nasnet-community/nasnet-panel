@@ -8,11 +8,12 @@ import (
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
+
 	"backend/internal/events"
 )
 
-// DigestConfig defines digest delivery configuration.
-type DigestConfig struct {
+// Config defines digest delivery configuration.
+type Config struct {
 	Mode           string   `json:"mode"`
 	Schedule       string   `json:"schedule"`
 	Timezone       string   `json:"timezone"`
@@ -22,8 +23,8 @@ type DigestConfig struct {
 	Severities     []string `json:"severities"`
 }
 
-// DigestPayload represents a compiled digest ready for delivery.
-type DigestPayload struct {
+// Payload represents a compiled digest ready for delivery.
+type Payload struct {
 	DigestID       string
 	ChannelID      string
 	ChannelType    string

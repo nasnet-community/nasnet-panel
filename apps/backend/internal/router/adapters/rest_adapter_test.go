@@ -453,4 +453,3 @@ func TestBuildRESTPath(t *testing.T) {
 		})
 	}
 }
-

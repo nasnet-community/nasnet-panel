@@ -3,9 +3,16 @@ package formatters
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"backend/internal/translator"
+)
+
+// REST API constants.
+const (
+	restBoolYes = "yes"
+	restBoolNo  = "no"
 )
 
 // RESTFormatter formats commands for the RouterOS REST API (7.1+).
@@ -51,7 +58,7 @@ func (f *RESTFormatter) Format(cmd *translator.CanonicalCommand) ([]byte, error)
 
 	switch cmd.Action {
 	case translator.ActionPrint:
-		req.Method = "GET"
+		req.Method = http.MethodGet
 		// Add filters as query parameters
 		for _, filter := range cmd.Filters {
 			req.Query[filter.Field] = fmt.Sprintf("%v", filter.Value)
@@ -62,28 +69,30 @@ func (f *RESTFormatter) Format(cmd *translator.CanonicalCommand) ([]byte, error)
 		}
 
 	case translator.ActionGet:
-		req.Method = "GET"
+		req.Method = http.MethodGet
 		// ID is already in the path
 
 	case translator.ActionAdd:
-		req.Method = "PUT"
+		req.Method = http.MethodPut
 		req.Body = f.formatBody(cmd.Parameters)
 
 	case translator.ActionSet:
-		req.Method = "PATCH"
+		req.Method = http.MethodPatch
 		req.Body = f.formatBody(cmd.Parameters)
 
 	case translator.ActionRemove:
-		req.Method = "DELETE"
+		req.Method = http.MethodDelete
 
 	case translator.ActionEnable:
-		req.Method = "PATCH"
-		req.Body = map[string]interface{}{"disabled": "no"}
+		req.Method = http.MethodPatch
+		req.Body = map[string]interface{}{"disabled": restBoolNo}
 
 	case translator.ActionDisable:
-		req.Method = "PATCH"
-		req.Body = map[string]interface{}{"disabled": "yes"}
+		req.Method = http.MethodPatch
+		req.Body = map[string]interface{}{"disabled": restBoolYes}
 
+	case translator.ActionMove:
+		req.Method = http.MethodPost
 	default:
 		return nil, fmt.Errorf("unsupported action for REST: %s", cmd.Action)
 	}
@@ -107,6 +116,7 @@ func (f *RESTFormatter) formatPath(cmd *translator.CanonicalCommand) string {
 		cmd.Action == translator.ActionRemove ||
 		cmd.Action == translator.ActionEnable ||
 		cmd.Action == translator.ActionDisable) {
+
 		path += "/" + cmd.ID
 	}
 
@@ -128,9 +138,9 @@ func (f *RESTFormatter) formatValue(v interface{}) interface{} {
 	switch val := v.(type) {
 	case bool:
 		if val {
-			return "yes"
+			return restBoolYes
 		}
-		return "no"
+		return restBoolNo
 	case []string:
 		return strings.Join(val, ",")
 	default:
@@ -174,13 +184,15 @@ func (f *RESTFormatter) Parse(response []byte) (*translator.CanonicalResponse, e
 
 	// Try to parse as single object
 	var objData map[string]interface{}
-	if err := json.Unmarshal(response, &objData); err == nil {
+	if err := json.Unmarshal(response, &objData); err == nil { //nolint:nestif // error response handling requires nested checks
 		// Check for error response
 		if errCode, hasErr := objData["error"]; hasErr {
-			errMsg, _ := objData["message"].(string)
-			errDetail, _ := objData["detail"].(string)
+			errMsg, _ := objData["message"].(string)   //nolint:errcheck // type assertion - zero value is acceptable
+			errDetail, _ := objData["detail"].(string) //nolint:errcheck // type assertion - zero value is acceptable
 			if errDetail != "" {
 				errMsg = errMsg + ": " + errDetail
+			} else {
+				_ = errMsg
 			}
 
 			return &translator.CanonicalResponse{

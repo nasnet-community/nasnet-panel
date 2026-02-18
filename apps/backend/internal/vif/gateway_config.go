@@ -79,7 +79,7 @@ func GenerateGatewayConfig(instance *ent.ServiceInstance, manifest *features.Man
 func WriteGatewayYAML(config *GatewayConfig, configPath string) error {
 	// Ensure directory exists
 	dir := filepath.Dir(configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
 
@@ -90,7 +90,7 @@ func WriteGatewayYAML(config *GatewayConfig, configPath string) error {
 	}
 
 	// Write to file
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0o644); err != nil {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 
@@ -129,7 +129,7 @@ func generateTunName(serviceName, instanceID string) string {
 }
 
 // extractSocksEndpoint extracts SOCKS5 address and port from instance config
-func extractSocksEndpoint(instance *ent.ServiceInstance) (string, int, error) {
+func extractSocksEndpoint(instance *ent.ServiceInstance) (addr string, port int, err error) {
 	config := instance.Config
 
 	// Extract address (VLAN IP or host IP)
@@ -142,14 +142,13 @@ func extractSocksEndpoint(instance *ent.ServiceInstance) (string, int, error) {
 	}
 
 	// Extract port
-	var port int
 	switch p := config["socks_port"].(type) {
 	case int:
 		port = p
 	case float64:
 		port = int(p)
 	case string:
-		fmt.Sscanf(p, "%d", &port)
+		_, _ = fmt.Sscanf(p, "%d", &port) //nolint:errcheck // port parsing with validation on next line
 	default:
 		return "", 0, fmt.Errorf("invalid socks_port type: %T", p)
 	}

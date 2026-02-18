@@ -6,14 +6,15 @@
  * @module @nasnet/ui/patterns/verification-badge
  */
 
-import * as React from 'react';
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from 'storybook/test';
+
 import { VerificationStatus as GraphQLStatus } from '@nasnet/api-client/generated';
 import type { BinaryVerification } from '@nasnet/api-client/generated';
 
 import { VerificationBadge } from './index';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Verification Badge displays the binary verification status for service features.

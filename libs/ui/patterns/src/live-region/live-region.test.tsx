@@ -4,10 +4,10 @@
  * @see NAS-4.17: Implement Accessibility (a11y) Foundation
  */
 
+import { render, screen, act, waitFor , renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, act, waitFor } from '@testing-library/react';
 import { axe } from 'vitest-axe';
-import { renderHook } from '@testing-library/react';
+
 import {
   LiveRegion,
   useAnnounce,

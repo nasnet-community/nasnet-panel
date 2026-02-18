@@ -7,6 +7,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/chainhop"
 	"backend/generated/ent/routingchain"
+
 	"backend/internal/events"
 	"backend/internal/router"
 
@@ -146,6 +147,7 @@ func (cr *ChainRouter) UpdateRoutingChain(
 	chainID string,
 	input CreateRoutingChainInput,
 ) (*ent.RoutingChain, error) {
+
 	log.Info().Str("chain_id", chainID).Msg("Updating routing chain")
 
 	existingChain, err := cr.store.RoutingChain.Get(ctx, chainID)
@@ -155,8 +157,8 @@ func (cr *ChainRouter) UpdateRoutingChain(
 
 	routerID := existingChain.RouterID
 
-	if err := cr.RemoveRoutingChain(ctx, chainID); err != nil {
-		return nil, fmt.Errorf("failed to remove existing chain: %w", err)
+	if rmErr := cr.RemoveRoutingChain(ctx, chainID); rmErr != nil {
+		return nil, fmt.Errorf("failed to remove existing chain: %w", rmErr)
 	}
 
 	newChain, err := cr.CreateRoutingChain(ctx, routerID, input)

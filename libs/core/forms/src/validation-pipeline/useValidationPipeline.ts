@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 
-import type { FieldValues, UseFormSetError, Path } from 'react-hook-form';
+import { ValidationPipeline, mapToFormErrors } from './ValidationPipeline';
 
 import type {
   ValidationStageName,
@@ -20,7 +20,8 @@ import type {
   ValidationResponse,
   RiskLevel,
 } from './types';
-import { ValidationPipeline, mapToFormErrors } from './ValidationPipeline';
+import type { FieldValues, UseFormSetError, Path } from 'react-hook-form';
+
 
 /**
  * State of the validation pipeline

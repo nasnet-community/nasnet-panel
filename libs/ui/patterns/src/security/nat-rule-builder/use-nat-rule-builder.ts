@@ -8,8 +8,9 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import {
   NATRuleInputSchema,
@@ -18,7 +19,7 @@ import {
   type NATRuleInput,
   type NatAction,
   type NatChain,
-} from '@nasnet/core/types/firewall';
+} from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -93,7 +94,7 @@ export function useNATRuleBuilder(
 
   // Initialize React Hook Form with Zod validation
   const form = useForm<NATRuleInput>({
-    resolver: zodResolver(NATRuleInputSchema),
+    resolver: zodResolver(NATRuleInputSchema) as any,
     defaultValues: {
       chain: 'srcnat',
       action: 'masquerade',
@@ -113,8 +114,9 @@ export function useNATRuleBuilder(
     const errorMap: Record<string, string> = {};
 
     Object.entries(formErrors).forEach(([key, error]) => {
-      if (error?.message) {
-        errorMap[key] = error.message;
+      const err = error as { message?: string } | undefined;
+      if (err?.message) {
+        errorMap[key] = err.message;
       }
     });
 
@@ -160,12 +162,12 @@ export function useNATRuleBuilder(
   );
 
   // Handle form submission
-  const onSubmit = form.handleSubmit(async (data) => {
+  const onSubmit = form.handleSubmit(async (data: any) => {
     await onSubmitCallback?.(data);
   });
 
   return {
-    form,
+    form: form as any,
     rule,
     isValid: form.formState.isValid,
     errors,

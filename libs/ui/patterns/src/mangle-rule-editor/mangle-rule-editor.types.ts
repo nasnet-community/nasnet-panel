@@ -6,7 +6,7 @@
  * @module @nasnet/ui/patterns/mangle-rule-editor
  */
 
-import type { MangleRule, MangleRuleInput } from '@nasnet/core/types/firewall';
+import type { MangleRule, MangleRuleInput } from '@nasnet/core/types';
 
 /**
  * MangleRuleEditor Props

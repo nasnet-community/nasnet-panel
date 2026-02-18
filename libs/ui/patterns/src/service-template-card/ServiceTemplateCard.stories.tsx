@@ -4,10 +4,11 @@
  * Interactive documentation and visual testing for ServiceTemplateCard pattern.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 
 import { ServiceTemplateCard } from './ServiceTemplateCard';
+
 import type { ServiceTemplate, TemplateAction } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof ServiceTemplateCard> = {
   title: 'Patterns/ServiceTemplateCard',

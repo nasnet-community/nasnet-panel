@@ -2,9 +2,11 @@ package mikrotik
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
-	"backend/generated/graphql"
+	"backend/graph/model"
 	"backend/internal/router"
 
 	"github.com/stretchr/testify/assert"
@@ -26,15 +28,15 @@ func TestGetInterfaceStats(t *testing.T) {
 			interfaceID: "*1",
 			mockData: []map[string]interface{}{
 				{
-					".id":        "*1",
-					"tx-byte":    "1234567890",
-					"rx-byte":    "9876543210",
-					"tx-packet":  "123456",
-					"rx-packet":  "654321",
-					"tx-error":   5,
-					"rx-error":   10,
-					"tx-drop":    2,
-					"rx-drop":    3,
+					".id":       "*1",
+					"tx-byte":   "1234567890",
+					"rx-byte":   "9876543210",
+					"tx-packet": "123456",
+					"rx-packet": "654321",
+					"tx-error":  5,
+					"rx-error":  10,
+					"tx-drop":   2,
+					"rx-drop":   3,
 				},
 			},
 			want: &model.InterfaceStats{
@@ -60,15 +62,15 @@ func TestGetInterfaceStats(t *testing.T) {
 			interfaceID: "*2",
 			mockData: []map[string]interface{}{
 				{
-					".id":        "*2",
-					"tx-byte":    "0",
-					"rx-byte":    "0",
-					"tx-packet":  "0",
-					"rx-packet":  "0",
-					"tx-error":   0,
-					"rx-error":   0,
-					"tx-drop":    0,
-					"rx-drop":    0,
+					".id":       "*2",
+					"tx-byte":   "0",
+					"rx-byte":   "0",
+					"tx-packet": "0",
+					"rx-packet": "0",
+					"tx-error":  0,
+					"rx-error":  0,
+					"tx-drop":   0,
+					"rx-drop":   0,
 				},
 			},
 			want: &model.InterfaceStats{
@@ -88,15 +90,15 @@ func TestGetInterfaceStats(t *testing.T) {
 			interfaceID: "*3",
 			mockData: []map[string]interface{}{
 				{
-					".id":        "*3",
-					"tx-byte":    "999999999999999",
-					"rx-byte":    "888888888888888",
-					"tx-packet":  "777777777777",
-					"rx-packet":  "666666666666",
-					"tx-error":   100,
-					"rx-error":   200,
-					"tx-drop":    50,
-					"rx-drop":    75,
+					".id":       "*3",
+					"tx-byte":   "999999999999999",
+					"rx-byte":   "888888888888888",
+					"tx-packet": "777777777777",
+					"rx-packet": "666666666666",
+					"tx-error":  100,
+					"rx-error":  200,
+					"tx-drop":   50,
+					"rx-drop":   75,
 				},
 			},
 			want: &model.InterfaceStats{
@@ -115,17 +117,16 @@ func TestGetInterfaceStats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create mock adapter
-			mockAdapter := &mockRouterAdapter{
-				executeFunc: func(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error) {
+			mock := &mockRouterPort{
+				executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
 					}
-					return tt.mockData, nil
+					return toCommandResult(tt.mockData), nil
 				},
 			}
 
-			adapter := &MikroTikAdapter{adapter: mockAdapter}
+			adapter := NewMikroTikAdapter(mock)
 
 			got, err := adapter.GetInterfaceStats(context.Background(), tt.interfaceID)
 
@@ -208,16 +209,16 @@ func TestGetAllInterfaceStats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockAdapter := &mockRouterAdapter{
-				executeFunc: func(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error) {
+			mock := &mockRouterPort{
+				executeFunc: func(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
 					}
-					return tt.mockData, nil
+					return toCommandResult(tt.mockData), nil
 				},
 			}
 
-			adapter := &MikroTikAdapter{adapter: mockAdapter}
+			adapter := NewMikroTikAdapter(mock)
 
 			got, err := adapter.GetAllInterfaceStats(context.Background())
 
@@ -287,23 +288,37 @@ func TestParseInt(t *testing.T) {
 	}
 }
 
-// mockRouterAdapter is a minimal mock for testing
-type mockRouterAdapter struct {
-	executeFunc func(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error)
+// mockRouterPort implements router.RouterPort for testing.
+type mockRouterPort struct {
+	executeFunc func(ctx context.Context, cmd router.Command) (*router.CommandResult, error)
 }
 
-func (m *mockRouterAdapter) Execute(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error) {
-	if m.executeFunc != nil {
-		return m.executeFunc(ctx, cmd)
-	}
+func (m *mockRouterPort) Connect(context.Context) error              { return nil }
+func (m *mockRouterPort) Disconnect() error                          { return nil }
+func (m *mockRouterPort) IsConnected() bool                          { return true }
+func (m *mockRouterPort) Health(context.Context) router.HealthStatus { return router.HealthStatus{} }
+func (m *mockRouterPort) Capabilities() router.PlatformCapabilities {
+	return router.PlatformCapabilities{}
+}
+func (m *mockRouterPort) Info() (*router.RouterInfo, error) { return nil, nil }
+func (m *mockRouterPort) Protocol() router.Protocol         { return router.ProtocolREST }
+func (m *mockRouterPort) QueryState(context.Context, router.StateQuery) (*router.StateResult, error) {
 	return nil, nil
 }
-
-// MikroTikAdapter wrapper for testing (assumes this structure exists)
-type MikroTikAdapter struct {
-	adapter *mockRouterAdapter
+func (m *mockRouterPort) ExecuteCommand(ctx context.Context, cmd router.Command) (*router.CommandResult, error) {
+	return m.executeFunc(ctx, cmd)
 }
 
-func (a *MikroTikAdapter) Execute(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error) {
-	return a.adapter.Execute(ctx, cmd)
+// toCommandResult converts test mock data ([]map[string]interface{}) to a CommandResult
+// with string-based Data, matching what a real RouterPort would return.
+func toCommandResult(data []map[string]interface{}) *router.CommandResult {
+	strData := make([]map[string]string, len(data))
+	for i, item := range data {
+		m := make(map[string]string, len(item))
+		for k, v := range item {
+			m[k] = fmt.Sprintf("%v", v)
+		}
+		strData[i] = m
+	}
+	return &router.CommandResult{Success: true, Data: strData, Duration: time.Millisecond}
 }

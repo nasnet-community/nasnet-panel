@@ -219,7 +219,7 @@ func TestReportFormatter_RedactValue(t *testing.T) {
 		{"token", "xyz", "[REDACTED]"},
 		{"credential", "user:pass", "[REDACTED]"},
 		{"private_key", "-----BEGIN", "[REDACTED]"},
-		{"username", "admin", "admin"},      // Not sensitive
+		{"username", "admin", "admin"},         // Not sensitive
 		{"host", "192.168.1.1", "192.168.1.1"}, // Not sensitive
 	}
 
@@ -361,10 +361,10 @@ func TestReportFormatter_NoSensitiveDataLeak(t *testing.T) {
 	}
 
 	systemInfo := map[string]string{
-		"host":      "192.168.1.1",
-		"password":  "password123",
-		"api_key":   "api_key_secret",
-		"token":     "auth_token_value",
+		"host":     "192.168.1.1",
+		"password": "password123",
+		"api_key":  "api_key_secret",
+		"token":    "auth_token_value",
 	}
 
 	// Test text format

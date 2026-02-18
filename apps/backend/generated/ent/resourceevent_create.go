@@ -3,12 +3,13 @@
 package ent
 
 import (
-	"backend/generated/ent/resource"
-	"backend/generated/ent/resourceevent"
 	"context"
 	"errors"
 	"fmt"
 	"time"
+
+	"backend/generated/ent/resource"
+	"backend/generated/ent/resourceevent"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

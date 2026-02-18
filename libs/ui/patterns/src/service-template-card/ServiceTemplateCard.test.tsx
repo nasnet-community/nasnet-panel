@@ -4,12 +4,15 @@
  * Unit tests for ServiceTemplateCard pattern component.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+
 import { ServiceTemplateCard } from './ServiceTemplateCard';
+
 import type { ServiceTemplate, TemplateAction } from './types';
 
 // Mock the usePlatform hook

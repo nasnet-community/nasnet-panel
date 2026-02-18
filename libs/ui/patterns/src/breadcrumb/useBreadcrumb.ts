@@ -14,7 +14,7 @@
 
 import { useMemo } from 'react';
 
-import { useMatches, useRouter, Link } from '@tanstack/react-router';
+import { useMatches, Link } from '@tanstack/react-router';
 
 /**
  * Breadcrumb segment

@@ -24,33 +24,33 @@ func newMockUserRepository() *mockUserRepository {
 	}
 }
 
-func (r *mockUserRepository) GetByID(ctx context.Context, id string) (*User, error) {
+func (r *mockUserRepository) GetByID(_ context.Context, id string) (*User, error) {
 	if u, ok := r.users[id]; ok {
 		return u, nil
 	}
 	return nil, ErrUserNotFound
 }
 
-func (r *mockUserRepository) GetByUsername(ctx context.Context, username string) (*User, error) {
+func (r *mockUserRepository) GetByUsername(_ context.Context, username string) (*User, error) {
 	if u, ok := r.byUsername[username]; ok {
 		return u, nil
 	}
 	return nil, ErrUserNotFound
 }
 
-func (r *mockUserRepository) Create(ctx context.Context, user *User) error {
+func (r *mockUserRepository) Create(_ context.Context, user *User) error {
 	r.users[user.ID] = user
 	r.byUsername[user.Username] = user
 	return nil
 }
 
-func (r *mockUserRepository) Update(ctx context.Context, user *User) error {
+func (r *mockUserRepository) Update(_ context.Context, user *User) error {
 	r.users[user.ID] = user
 	r.byUsername[user.Username] = user
 	return nil
 }
 
-func (r *mockUserRepository) UpdateLastLogin(ctx context.Context, userID string, loginTime time.Time) error {
+func (r *mockUserRepository) UpdateLastLogin(_ context.Context, userID string, loginTime time.Time) error {
 	r.lastLoginTime[userID] = loginTime
 	if u, ok := r.users[userID]; ok {
 		u.LastLogin = &loginTime
@@ -58,7 +58,7 @@ func (r *mockUserRepository) UpdateLastLogin(ctx context.Context, userID string,
 	return nil
 }
 
-func (r *mockUserRepository) UpdatePassword(ctx context.Context, userID string, passwordHash string) error {
+func (r *mockUserRepository) UpdatePassword(_ context.Context, userID string, passwordHash string) error {
 	if u, ok := r.users[userID]; ok {
 		u.PasswordHash = passwordHash
 		u.PasswordChanged = time.Now()
@@ -79,34 +79,34 @@ func newMockSessionRepository() *mockSessionRepository {
 	}
 }
 
-func (r *mockSessionRepository) GetByID(ctx context.Context, id string) (*Session, error) {
+func (r *mockSessionRepository) GetByID(_ context.Context, id string) (*Session, error) {
 	if s, ok := r.sessions[id]; ok {
 		return s, nil
 	}
 	return nil, ErrSessionNotFound
 }
 
-func (r *mockSessionRepository) GetByTokenID(ctx context.Context, tokenID string) (*Session, error) {
+func (r *mockSessionRepository) GetByTokenID(_ context.Context, tokenID string) (*Session, error) {
 	if s, ok := r.byToken[tokenID]; ok {
 		return s, nil
 	}
 	return nil, ErrSessionNotFound
 }
 
-func (r *mockSessionRepository) Create(ctx context.Context, session *Session) error {
+func (r *mockSessionRepository) Create(_ context.Context, session *Session) error {
 	r.sessions[session.ID] = session
 	r.byToken[session.TokenID] = session
 	return nil
 }
 
-func (r *mockSessionRepository) UpdateLastActivity(ctx context.Context, sessionID string, activityTime time.Time) error {
+func (r *mockSessionRepository) UpdateLastActivity(_ context.Context, sessionID string, activityTime time.Time) error {
 	if s, ok := r.sessions[sessionID]; ok {
 		s.LastActivity = activityTime
 	}
 	return nil
 }
 
-func (r *mockSessionRepository) Revoke(ctx context.Context, sessionID string, reason string) error {
+func (r *mockSessionRepository) Revoke(_ context.Context, sessionID string, reason string) error {
 	if s, ok := r.sessions[sessionID]; ok {
 		s.Revoked = true
 		now := time.Now()
@@ -116,7 +116,7 @@ func (r *mockSessionRepository) Revoke(ctx context.Context, sessionID string, re
 	return nil
 }
 
-func (r *mockSessionRepository) RevokeAllForUser(ctx context.Context, userID string, reason string) error {
+func (r *mockSessionRepository) RevokeAllForUser(_ context.Context, userID string, reason string) error {
 	now := time.Now()
 	for _, s := range r.sessions {
 		if s.UserID == userID && !s.Revoked {
@@ -128,7 +128,7 @@ func (r *mockSessionRepository) RevokeAllForUser(ctx context.Context, userID str
 	return nil
 }
 
-func (r *mockSessionRepository) RevokeAllForUserExcept(ctx context.Context, userID string, exceptSessionID string, reason string) error {
+func (r *mockSessionRepository) RevokeAllForUserExcept(_ context.Context, userID string, exceptSessionID string, reason string) error {
 	now := time.Now()
 	for _, s := range r.sessions {
 		if s.UserID == userID && s.ID != exceptSessionID && !s.Revoked {
@@ -140,7 +140,7 @@ func (r *mockSessionRepository) RevokeAllForUserExcept(ctx context.Context, user
 	return nil
 }
 
-func (r *mockSessionRepository) GetActiveForUser(ctx context.Context, userID string) ([]*Session, error) {
+func (r *mockSessionRepository) GetActiveForUser(_ context.Context, userID string) ([]*Session, error) {
 	var result []*Session
 	now := time.Now()
 	for _, s := range r.sessions {
@@ -151,7 +151,7 @@ func (r *mockSessionRepository) GetActiveForUser(ctx context.Context, userID str
 	return result, nil
 }
 
-func (r *mockSessionRepository) CleanExpired(ctx context.Context) (int, error) {
+func (r *mockSessionRepository) CleanExpired(_ context.Context) (int, error) {
 	count := 0
 	now := time.Now()
 	for id, s := range r.sessions {
@@ -164,8 +164,8 @@ func (r *mockSessionRepository) CleanExpired(ctx context.Context) (int, error) {
 	return count, nil
 }
 
-// setupTestAuthService creates an AuthService with mocks for testing
-func setupTestAuthService(t *testing.T) (*AuthService, *mockUserRepository, *mockSessionRepository, *InMemoryAuditLogger) {
+// setupTestAuthService creates a Service with mocks for testing
+func setupTestAuthService(t *testing.T) (*Service, *mockUserRepository, *mockSessionRepository, *InMemoryAuditLogger) {
 	t.Helper()
 
 	privateKey, publicKey, err := GenerateKeyPair()
@@ -189,7 +189,7 @@ func setupTestAuthService(t *testing.T) (*AuthService, *mockUserRepository, *moc
 	passwordService := NewDefaultPasswordService()
 	passwordService.SetBcryptCost(4)
 
-	authService, err := NewAuthService(AuthServiceConfig{
+	authService, err := NewService(Config{
 		JWTService:        jwtService,
 		PasswordService:   passwordService,
 		UserRepository:    userRepo,
@@ -225,7 +225,7 @@ func createTestUser(t *testing.T, userRepo *mockUserRepository, ps *PasswordServ
 	return user
 }
 
-func TestAuthService_Login(t *testing.T) {
+func TestService_Login(t *testing.T) {
 	authService, userRepo, _, auditLogger := setupTestAuthService(t)
 
 	// Create test user
@@ -314,7 +314,7 @@ func TestAuthService_Login(t *testing.T) {
 	})
 }
 
-func TestAuthService_Logout(t *testing.T) {
+func TestService_Logout(t *testing.T) {
 	authService, userRepo, sessionRepo, auditLogger := setupTestAuthService(t)
 
 	// Create test user and login
@@ -352,7 +352,7 @@ func TestAuthService_Logout(t *testing.T) {
 	})
 }
 
-func TestAuthService_ValidateSession(t *testing.T) {
+func TestService_ValidateSession(t *testing.T) {
 	authService, userRepo, sessionRepo, _ := setupTestAuthService(t)
 
 	// Create test user and login
@@ -389,7 +389,7 @@ func TestAuthService_ValidateSession(t *testing.T) {
 	})
 }
 
-func TestAuthService_ChangePassword(t *testing.T) {
+func TestService_ChangePassword(t *testing.T) {
 	authService, userRepo, sessionRepo, auditLogger := setupTestAuthService(t)
 
 	// Create test user
@@ -475,7 +475,7 @@ func TestAuthService_ChangePassword(t *testing.T) {
 	})
 }
 
-func TestAuthService_RevokeAllSessions(t *testing.T) {
+func TestService_RevokeAllSessions(t *testing.T) {
 	authService, userRepo, sessionRepo, auditLogger := setupTestAuthService(t)
 
 	// Create test user
@@ -516,7 +516,7 @@ func TestAuthService_RevokeAllSessions(t *testing.T) {
 	})
 }
 
-func TestAuthService_GetUserSessions(t *testing.T) {
+func TestService_GetUserSessions(t *testing.T) {
 	authService, userRepo, _, _ := setupTestAuthService(t)
 
 	// Create test user
@@ -540,7 +540,7 @@ func TestAuthService_GetUserSessions(t *testing.T) {
 	})
 }
 
-func TestNewAuthService_Validation(t *testing.T) {
+func TestNewService_Validation(t *testing.T) {
 	privateKey, publicKey, _ := GenerateKeyPair()
 	jwtService, _ := NewJWTService(JWTConfig{
 		PrivateKey: privateKey,
@@ -548,7 +548,7 @@ func TestNewAuthService_Validation(t *testing.T) {
 	})
 
 	t.Run("requires JWT service", func(t *testing.T) {
-		_, err := NewAuthService(AuthServiceConfig{
+		_, err := NewService(Config{
 			UserRepository:    newMockUserRepository(),
 			SessionRepository: newMockSessionRepository(),
 		})
@@ -556,7 +556,7 @@ func TestNewAuthService_Validation(t *testing.T) {
 	})
 
 	t.Run("requires user repository", func(t *testing.T) {
-		_, err := NewAuthService(AuthServiceConfig{
+		_, err := NewService(Config{
 			JWTService:        jwtService,
 			SessionRepository: newMockSessionRepository(),
 		})
@@ -564,7 +564,7 @@ func TestNewAuthService_Validation(t *testing.T) {
 	})
 
 	t.Run("requires session repository", func(t *testing.T) {
-		_, err := NewAuthService(AuthServiceConfig{
+		_, err := NewService(Config{
 			JWTService:     jwtService,
 			UserRepository: newMockUserRepository(),
 		})
@@ -572,7 +572,7 @@ func TestNewAuthService_Validation(t *testing.T) {
 	})
 
 	t.Run("creates default password service if not provided", func(t *testing.T) {
-		service, err := NewAuthService(AuthServiceConfig{
+		service, err := NewService(Config{
 			JWTService:        jwtService,
 			UserRepository:    newMockUserRepository(),
 			SessionRepository: newMockSessionRepository(),

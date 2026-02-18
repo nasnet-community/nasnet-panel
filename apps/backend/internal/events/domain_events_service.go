@@ -322,7 +322,12 @@ func (e *StorageMountedEvent) Payload() ([]byte, error) { return json.Marshal(e)
 func NewStorageMountedEvent(path string, totalMB, freeMB, usedMB uint64, usedPct float64, fsType, source string) *StorageMountedEvent {
 	return &StorageMountedEvent{
 		BaseEvent: NewBaseEvent(EventTypeStorageMounted, PriorityNormal, source),
-		Path: path, TotalMB: totalMB, FreeMB: freeMB, UsedMB: usedMB, UsedPct: usedPct, FSType: fsType,
+		Path:      path,
+		TotalMB:   totalMB,
+		FreeMB:    freeMB,
+		UsedMB:    usedMB,
+		UsedPct:   usedPct,
+		FSType:    fsType,
 	}
 }
 
@@ -352,13 +357,15 @@ type StorageSpaceThresholdEvent struct {
 func (e *StorageSpaceThresholdEvent) Payload() ([]byte, error) { return json.Marshal(e) }
 
 func NewStorageSpaceThresholdEvent(path string, totalMB, freeMB, usedMB uint64, usedPct float64, level, source string) *StorageSpaceThresholdEvent {
+	const levelCritical = "critical"
+	const levelFull = "full"
 	priority := PriorityNormal
-	if level == "critical" || level == "full" {
+	if level == levelCritical || level == levelFull {
 		priority = PriorityCritical
 	}
 	return &StorageSpaceThresholdEvent{
 		BaseEvent: NewBaseEvent(EventTypeStorageSpaceThreshold, priority, source),
-		Path: path, TotalMB: totalMB, FreeMB: freeMB, UsedMB: usedMB, UsedPct: usedPct, Level: level,
+		Path:      path, TotalMB: totalMB, FreeMB: freeMB, UsedMB: usedMB, UsedPct: usedPct, Level: level,
 	}
 }
 

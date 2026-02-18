@@ -41,7 +41,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
     setValue,
     formState: { errors, isDirty },
   } = useForm<AlertRuleFormData>({
-    resolver: zodResolver(alertRuleFormSchema),
+    resolver: zodResolver(alertRuleFormSchema) as any,
     defaultValues: initialData || defaultAlertRule,
   });
 

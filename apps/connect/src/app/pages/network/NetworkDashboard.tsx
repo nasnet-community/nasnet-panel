@@ -7,16 +7,17 @@
  * 4. DHCP Pool Status
  */
 
-import { useInterfaces, useARPTable, useIPAddresses } from '@nasnet/api-client/queries';
-import { useDHCPServers, useDHCPLeases, useDHCPPools } from '@nasnet/api-client/queries';
-import { useConnectionStore } from '@nasnet/state/stores';
-import { InterfaceGridCard } from './components/InterfaceGridCard';
-import { ConnectedDevicesCard } from './components/ConnectedDevicesCard';
-import { QuickIPOverview } from './components/QuickIPOverview';
-import { DHCPPoolSummary } from './components/DHCPPoolSummary';
-import { LoadingSkeleton } from './components/LoadingSkeleton';
-import { ErrorDisplay } from './components/ErrorDisplay';
 import { Network, ChevronRight } from 'lucide-react';
+
+import { useInterfaces, useARPTable, useIPAddresses , useDHCPServers, useDHCPLeases, useDHCPPools } from '@nasnet/api-client/queries';
+import { useConnectionStore } from '@nasnet/state/stores';
+
+import { ConnectedDevicesCard } from './components/ConnectedDevicesCard';
+import { DHCPPoolSummary } from './components/DHCPPoolSummary';
+import { ErrorDisplay } from './components/ErrorDisplay';
+import { InterfaceGridCard } from './components/InterfaceGridCard';
+import { LoadingSkeleton } from './components/LoadingSkeleton';
+import { QuickIPOverview } from './components/QuickIPOverview';
 
 export function NetworkDashboard() {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
@@ -35,8 +36,8 @@ export function NetworkDashboard() {
   } = useARPTable(routerIp);
 
   const {
-    data: ipAddresses,
-    isLoading: isLoadingIPs,
+    ipAddresses,
+    loading: isLoadingIPs,
     error: ipError,
   } = useIPAddresses(routerIp);
 

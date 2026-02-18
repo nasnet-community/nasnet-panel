@@ -52,8 +52,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 
-	"backend/generated/ent/internal"
 	stdsql "database/sql"
+
+	"backend/generated/ent/internal"
 )
 
 // Client is the client that holds all ent builders.

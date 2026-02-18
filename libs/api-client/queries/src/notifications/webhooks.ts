@@ -343,21 +343,23 @@ export function useWebhook(
 /**
  * Fetch notification logs with optional filtering
  */
+interface NotificationLogVariables {
+  channel?: string;
+  webhookId?: string;
+  status?: 'PENDING' | 'SENT' | 'FAILED' | 'RETRYING';
+  limit?: number;
+}
+
 export function useNotificationLogs(
-  variables?: {
-    channel?: string;
-    webhookId?: string;
-    status?: 'PENDING' | 'SENT' | 'FAILED' | 'RETRYING';
-    limit?: number;
-  },
-  options?: QueryHookOptions<{ notificationLogs: NotificationLog[] }, typeof variables>
+  variables?: NotificationLogVariables,
+  options?: Omit<QueryHookOptions, 'variables'>
 ) {
-  return useQuery<{ notificationLogs: NotificationLog[] }, typeof variables>(
+  return useQuery(
     GET_NOTIFICATION_LOGS,
     {
       ...options,
       variables,
-    }
+    } as any
   );
 }
 
@@ -379,22 +381,15 @@ export function useCreateWebhook(
     { input: CreateWebhookInput }
   >
 ) {
-  return useMutation<
-    {
-      createWebhook: {
-        webhook: Webhook | null;
-        errors: FieldError[];
-      };
-    },
-    { input: CreateWebhookInput }
-  >(CREATE_WEBHOOK, {
+  return useMutation(CREATE_WEBHOOK, {
     ...options,
-    update(cache, { data }) {
+    update(cache: any, result: any) {
+      const data = result?.data;
       if (data?.createWebhook.webhook) {
         // Update the webhooks list cache
-        const existingWebhooks = cache.readQuery<{ webhooks: Webhook[] }>({
+        const existingWebhooks = cache.readQuery({
           query: GET_WEBHOOKS,
-        });
+        }) as { webhooks: Webhook[] } | null;
 
         if (existingWebhooks) {
           cache.writeQuery({
@@ -407,7 +402,7 @@ export function useCreateWebhook(
       }
 
       // Call user-provided update function if exists
-      options?.update?.(cache, { data } as any);
+      (options?.update as any)?.(cache, result, {});
     },
   });
 }
@@ -426,17 +421,10 @@ export function useUpdateWebhook(
     { id: string; input: UpdateWebhookInput }
   >
 ) {
-  return useMutation<
-    {
-      updateWebhook: {
-        webhook: Webhook | null;
-        errors: FieldError[];
-      };
-    },
-    { id: string; input: UpdateWebhookInput }
-  >(UPDATE_WEBHOOK, {
+  return useMutation(UPDATE_WEBHOOK, {
     ...options,
-    update(cache, { data }) {
+    update(cache: any, result: any) {
+      const data = result?.data;
       if (data?.updateWebhook.webhook) {
         // Update the specific webhook in cache
         cache.writeQuery({
@@ -447,7 +435,7 @@ export function useUpdateWebhook(
       }
 
       // Call user-provided update function if exists
-      options?.update?.(cache, { data } as any);
+      (options?.update as any)?.(cache, result, {});
     },
   });
 }
@@ -467,18 +455,10 @@ export function useDeleteWebhook(
     { id: string }
   >
 ) {
-  return useMutation<
-    {
-      deleteWebhook: {
-        success: boolean;
-        deletedId: string | null;
-        errors: FieldError[];
-      };
-    },
-    { id: string }
-  >(DELETE_WEBHOOK, {
+  return useMutation(DELETE_WEBHOOK, {
     ...options,
-    update(cache, { data }) {
+    update(cache: any, result: any) {
+      const data = result?.data;
       if (data?.deleteWebhook.success && data.deleteWebhook.deletedId) {
         // Remove webhook from cache
         const deletedId = data.deleteWebhook.deletedId;
@@ -488,22 +468,22 @@ export function useDeleteWebhook(
         cache.gc();
 
         // Update the webhooks list cache
-        const existingWebhooks = cache.readQuery<{ webhooks: Webhook[] }>({
+        const existingWebhooks = cache.readQuery({
           query: GET_WEBHOOKS,
-        });
+        }) as { webhooks: Webhook[] } | null;
 
         if (existingWebhooks) {
           cache.writeQuery({
             query: GET_WEBHOOKS,
             data: {
-              webhooks: existingWebhooks.webhooks.filter((w) => w.id !== deletedId),
+              webhooks: existingWebhooks.webhooks.filter((w: Webhook) => w.id !== deletedId),
             },
           });
         }
       }
 
       // Call user-provided update function if exists
-      options?.update?.(cache, { data } as any);
+      (options?.update as any)?.(cache, result, {});
     },
   });
 }

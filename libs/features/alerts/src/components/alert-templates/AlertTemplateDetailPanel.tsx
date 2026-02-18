@@ -216,7 +216,7 @@ function DetailContent({
                           {variable.type}
                         </Badge>
                         {variable.required && (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="error" className="text-xs">
                             Required
                           </Badge>
                         )}

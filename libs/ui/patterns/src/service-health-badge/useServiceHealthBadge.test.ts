@@ -1,12 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+
+import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
+
 import {
   useServiceHealthBadge,
   mapHealthStateToRuntimeState,
   formatUptime,
   formatLastHealthy,
 } from './useServiceHealthBadge';
-import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 
 describe('useServiceHealthBadge', () => {
   it('should return UNKNOWN state when health is null', () => {

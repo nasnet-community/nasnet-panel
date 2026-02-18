@@ -8,8 +8,9 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import {
   ScheduleInputSchema,
@@ -20,7 +21,7 @@ import {
   matchesPreset,
   type ScheduleInput,
   type DayPresetKey,
-} from '@nasnet/core/types/services/schedule.types';
+} from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -108,7 +109,7 @@ export function useScheduleEditor(
 
   // Initialize React Hook Form with Zod validation
   const form = useForm<ScheduleInput>({
-    resolver: zodResolver(ScheduleInputSchema),
+    resolver: zodResolver(ScheduleInputSchema) as any,
     defaultValues: {
       routingID,
       days: [1, 2, 3, 4, 5], // Default to weekdays
@@ -175,7 +176,7 @@ export function useScheduleEditor(
     (day: number) => {
       const currentDays = schedule.days || [];
       const newDays = currentDays.includes(day)
-        ? currentDays.filter((d) => d !== day)
+        ? currentDays.filter((d: number) => d !== day)
         : [...currentDays, day].sort((a, b) => a - b);
 
       form.setValue('days', newDays, { shouldValidate: true });
@@ -197,12 +198,12 @@ export function useScheduleEditor(
   }, [form, routingID, defaultTimezone, initialSchedule]);
 
   // Handle form submission
-  const onSubmit = form.handleSubmit(async (data) => {
+  const onSubmit = form.handleSubmit(async (data: any) => {
     await onSubmitCallback?.(data);
   });
 
   return {
-    form,
+    form: form as any,
     schedule,
     isValid: form.formState.isValid,
     errors,

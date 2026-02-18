@@ -13,11 +13,11 @@ import (
 // Checks IP addresses, CIDR notation, port ranges, MAC addresses, etc.
 type SyntaxStage struct{}
 
-func (s *SyntaxStage) Number() int    { return 2 }
-func (s *SyntaxStage) Name() string   { return "syntax" }
+func (s *SyntaxStage) Number() int  { return 2 }
+func (s *SyntaxStage) Name() string { return "syntax" }
 
 // Validate checks syntax correctness of field values.
-func (s *SyntaxStage) Validate(_ context.Context, input *validation.StageInput) *validation.ValidationResult {
+func (s *SyntaxStage) Validate(_ context.Context, input *validation.StageInput) *validation.Result {
 	result := validation.NewResult()
 
 	if input.Operation == "delete" {
@@ -32,7 +32,9 @@ func (s *SyntaxStage) Validate(_ context.Context, input *validation.StageInput) 
 }
 
 // validateField dispatches field-specific syntax validation.
-func (s *SyntaxStage) validateField(field string, value interface{}, result *validation.ValidationResult) {
+//
+//nolint:gocyclo // syntax validation complexity
+func (s *SyntaxStage) validateField(field string, value interface{}, result *validation.Result) {
 	strVal, isStr := value.(string)
 	intVal, isInt := value.(int)
 
@@ -54,9 +56,9 @@ func (s *SyntaxStage) validateField(field string, value interface{}, result *val
 	}
 }
 
-func (s *SyntaxStage) validateIP(field, value string, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateIP(field, value string, result *validation.Result) {
 	if net.ParseIP(value) == nil {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -68,10 +70,10 @@ func (s *SyntaxStage) validateIP(field, value string, result *validation.Validat
 	}
 }
 
-func (s *SyntaxStage) validateCIDR(field, value string, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateCIDR(field, value string, result *validation.Result) {
 	_, _, err := net.ParseCIDR(value)
 	if err != nil {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -83,9 +85,9 @@ func (s *SyntaxStage) validateCIDR(field, value string, result *validation.Valid
 	}
 }
 
-func (s *SyntaxStage) validateVLANID(field string, value int, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateVLANID(field string, value int, result *validation.Result) {
 	if value < 1 || value > 4094 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -97,9 +99,9 @@ func (s *SyntaxStage) validateVLANID(field string, value int, result *validation
 	}
 }
 
-func (s *SyntaxStage) validateMTU(field string, value int, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateMTU(field string, value int, result *validation.Result) {
 	if value < 68 || value > 65535 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -111,9 +113,9 @@ func (s *SyntaxStage) validateMTU(field string, value int, result *validation.Va
 	}
 }
 
-func (s *SyntaxStage) validateDistance(field string, value int, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateDistance(field string, value int, result *validation.Result) {
 	if value < 0 || value > 255 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -125,9 +127,9 @@ func (s *SyntaxStage) validateDistance(field string, value int, result *validati
 	}
 }
 
-func (s *SyntaxStage) validatePriority(field string, value int, result *validation.ValidationResult) {
+func (s *SyntaxStage) validatePriority(field string, value int, result *validation.Result) {
 	if value < 0 || value > 65535 {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,
@@ -139,10 +141,10 @@ func (s *SyntaxStage) validatePriority(field string, value int, result *validati
 	}
 }
 
-func (s *SyntaxStage) validateMAC(field, value string, result *validation.ValidationResult) {
+func (s *SyntaxStage) validateMAC(field, value string, result *validation.Result) {
 	_, err := net.ParseMAC(value)
 	if err != nil {
-		result.AddError(&validation.ValidationError{
+		result.AddError(&validation.Error{
 			Stage:      2,
 			StageName:  "syntax",
 			Severity:   validation.SeverityError,

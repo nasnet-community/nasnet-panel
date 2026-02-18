@@ -16,8 +16,8 @@
  * @see NAS-7.11: Implement Connection Rate Limiting
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { RateLimitRulesTable } from './RateLimitRulesTable';
 import {
   mockRateLimitRules,
@@ -27,6 +27,8 @@ import {
   mockDisabledRule,
   generateMockRules,
 } from '../__test-utils__/rate-limit-fixtures';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * RateLimitRulesTable - Display and manage rate limiting firewall rules
