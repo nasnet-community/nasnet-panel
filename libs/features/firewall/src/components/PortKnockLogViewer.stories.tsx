@@ -5,9 +5,11 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 9
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
+
 import { PortKnockLogViewer } from './PortKnockLogViewer';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock log attempt data
 const mockAttempts = [

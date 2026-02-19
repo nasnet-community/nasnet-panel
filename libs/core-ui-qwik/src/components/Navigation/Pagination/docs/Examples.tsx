@@ -2,12 +2,12 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
+import AccessibleUsage from "../Examples/AccessibleUsage";
 import Basic from "../Examples/Basic";
-import WithPageSizeSelector from "../Examples/WithPageSizeSelector";
-import WithPageInput from "../Examples/WithPageInput";
 import CompactView from "../Examples/CompactView";
 import CustomStyling from "../Examples/CustomStyling";
-import AccessibleUsage from "../Examples/AccessibleUsage";
+import WithPageInput from "../Examples/WithPageInput";
+import WithPageSizeSelector from "../Examples/WithPageSizeSelector";
 
 export default component$(() => {
   const examples = [

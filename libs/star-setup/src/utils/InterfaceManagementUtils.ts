@@ -1,5 +1,5 @@
-import type { RouterModels, OccupiedInterface } from "@nas-net/star-context";
-import type { Ethernet, Wireless, Sfp, InterfaceType } from "@nas-net/star-context";
+import type { RouterModels, OccupiedInterface , Ethernet, Wireless, Sfp, InterfaceType } from "@nas-net/star-context";
+
 
 export interface OccupiedInterfaceInfo {
   name: string;

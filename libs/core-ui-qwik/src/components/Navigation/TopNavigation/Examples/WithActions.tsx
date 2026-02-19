@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import { TopNavigation } from "..";
-import type { TopNavigationItem } from "..";
 import { Button } from "@nas-net/core-ui-qwik";
+
+import { TopNavigation } from "..";
+
+import type { TopNavigationItem } from "..";
 
 export default component$(() => {
   const items: TopNavigationItem[] = [

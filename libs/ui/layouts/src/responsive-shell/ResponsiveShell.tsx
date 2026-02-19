@@ -208,13 +208,14 @@ export const ResponsiveShell = React.forwardRef<
             className={cn(
               'absolute -right-3 top-1/2 -translate-y-1/2 z-10',
               'w-6 h-6 rounded-full',
-              'bg-slate-200 dark:bg-slate-700',
-              'border border-slate-300 dark:border-slate-600',
+              'bg-muted',
+              'border border-border',
               'flex items-center justify-center',
-              'hover:bg-slate-300 dark:hover:bg-slate-600',
-              'focus:outline-none focus:ring-2 focus:ring-primary-500',
+              'hover:bg-accent',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               !prefersReducedMotion && 'transition-colors duration-150'
             )}
+            aria-expanded={!effectiveCollapsed}
             aria-label={effectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={`${effectiveCollapsed ? 'Expand' : 'Collapse'} sidebar (${
               navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'
@@ -222,7 +223,7 @@ export const ResponsiveShell = React.forwardRef<
           >
             <svg
               className={cn(
-                'w-4 h-4 text-slate-600 dark:text-slate-300',
+                'w-4 h-4 text-muted-foreground',
                 !prefersReducedMotion && 'transition-transform duration-200',
                 effectiveCollapsed && 'rotate-180'
               )}

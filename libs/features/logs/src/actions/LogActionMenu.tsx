@@ -111,7 +111,7 @@ export function LogActionMenu({
 
   const getIcon = (iconName: string) => {
     const Icon = iconMap[iconName] || MoreVertical;
-    return <Icon className="h-4 w-4 mr-2" />;
+    return <Icon className="h-4 w-4 mr-2" aria-hidden="true" />;
   };
 
   return (
@@ -119,10 +119,10 @@ export function LogActionMenu({
       <DropdownMenuTrigger asChild>
         {trigger || (
           <button
-            className={`p-1 rounded-button hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${className || ''}`}
+            className={`min-h-[44px] min-w-[44px] p-1 rounded-button hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${className || ''}`}
             aria-label="Log entry actions"
           >
-            <MoreVertical className="h-4 w-4 text-slate-500" />
+            <MoreVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           </button>
         )}
       </DropdownMenuTrigger>
@@ -154,7 +154,8 @@ export function LogActionMenu({
             {action.id === 'bookmark' ? (
               <>
                 <Pin
-                  className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current text-primary-500' : ''}`}
+                  className={`h-4 w-4 mr-2 ${isBookmarked ? 'fill-current text-primary' : ''}`}
+                  aria-hidden="true"
                 />
                 <span>{isBookmarked ? 'Remove Bookmark' : 'Bookmark'}</span>
               </>

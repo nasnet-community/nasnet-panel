@@ -1,8 +1,8 @@
+import type { MultiLinkConfig } from "./MultiLinkType";
 import type {
     InterfaceType,
     WirelessCredentials,
   } from "../types/common";
-import type { MultiLinkConfig } from "./MultiLinkType";
 
 
 

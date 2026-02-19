@@ -7,6 +7,7 @@
  */
 
 import { Heading } from "./Heading";
+
 import type {
   HeadingProps,
   HeadingLevel,

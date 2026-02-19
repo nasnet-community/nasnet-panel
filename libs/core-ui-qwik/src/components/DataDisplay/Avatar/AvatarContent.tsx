@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { AvatarProps } from "./Avatar.types";
 import type { Signal, QRL } from "@builder.io/qwik";
 

@@ -1,5 +1,5 @@
-import type { QRL, JSX } from "@builder.io/qwik";
 import type { StepHelpContent } from "../shared/types/base";
+import type { QRL, JSX } from "@builder.io/qwik";
 
 export type StepperMode = "easy" | "advance";
 

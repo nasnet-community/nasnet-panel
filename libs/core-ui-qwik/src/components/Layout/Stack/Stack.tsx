@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { StackProps } from "./Stack.types";
+
 import { useStack } from "./hooks";
+
+import type { StackProps } from "./Stack.types";
 
 /**
  * Enhanced Stack component - an advanced layout component for creating organized

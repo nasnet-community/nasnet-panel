@@ -1,8 +1,9 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
-import BasicAccordion from "../Examples/BasicAccordion";
-import AccordionVariants from "../Examples/AccordionVariants";
+
 import AccordionBehavior from "../Examples/AccordionBehavior";
+import AccordionVariants from "../Examples/AccordionVariants";
+import BasicAccordion from "../Examples/BasicAccordion";
 
 export default component$(() => {
   return (

@@ -1,10 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import { Form } from "../index";
+
+import { Button } from "../../../button";
+import { Select } from "../../../Select";
+import { Checkbox } from "../../Checkbox";
 import { Field } from "../../Field";
 import { TextArea } from "../../TextArea";
-import { Checkbox } from "../../Checkbox";
-import { Select } from "../../../Select";
-import { Button } from "../../../button";
+import { Form } from "../index";
 
 export default component$(() => {
   return (

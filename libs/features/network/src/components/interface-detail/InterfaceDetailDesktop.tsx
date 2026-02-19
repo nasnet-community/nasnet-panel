@@ -50,7 +50,7 @@ export function InterfaceDetailDesktop({
         )}
 
         {error && (
-          <div className="p-8 text-center">
+          <div className="p-8 text-center" role="alert">
             <p className="text-destructive font-medium">Failed to load interface</p>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message || 'Unknown error'}
@@ -248,7 +248,7 @@ function InterfaceConfigSection({
       )}
 
       <div className="pt-4">
-        <Button className="w-full" onClick={onEdit}>
+        <Button className="w-full" onClick={onEdit} aria-label="Edit interface settings">
           Edit Interface Settings
         </Button>
       </div>

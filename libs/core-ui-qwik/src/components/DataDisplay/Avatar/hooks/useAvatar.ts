@@ -1,5 +1,5 @@
 import { useSignal, useTask$, $ } from "@builder.io/qwik";
-import type { Signal, QRL } from "@builder.io/qwik";
+
 import type {
   AvatarSize,
   AvatarShape,
@@ -7,6 +7,7 @@ import type {
   AvatarStatus,
   AvatarStatusPosition,
 } from "../Avatar.types";
+import type { Signal, QRL } from "@builder.io/qwik";
 
 export interface UseAvatarParams {
   size?: AvatarSize;

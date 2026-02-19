@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { TableBodyProps } from "../Table.types";
 
 export const TableBody = component$<TableBodyProps>((props) => {

@@ -1,4 +1,3 @@
-import type { SstpServerConfig, SubnetConfig, VSCredentials, VSNetwork } from "@nas-net/star-context";
 import {
     type RouterConfig,
     CommandShortner,
@@ -9,7 +8,9 @@ import {
     generateIPPool,
     VSPorfile,
     SubnetToRange,
-} from "@nas-net/ros-cmd-generator";
+} from "../../../index";
+
+import type { SstpServerConfig, SubnetConfig, VSCredentials, VSNetwork } from "@nas-net/star-context";
 
 
 

@@ -8,7 +8,9 @@ import {
   HiXMarkOutline,
   HiChevronRightOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
+
 import type { ShowcaseTheme } from "../types";
 
 interface ThemeEditorProps {

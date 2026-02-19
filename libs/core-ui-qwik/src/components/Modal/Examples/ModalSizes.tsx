@@ -1,6 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Modal, type ModalSize } from "../Modal";
+
 import { Button } from "../../button";
+import { Modal, type ModalSize } from "../Modal";
 
 export const ModalSizes = component$(() => {
   const isOpen = useSignal(false);

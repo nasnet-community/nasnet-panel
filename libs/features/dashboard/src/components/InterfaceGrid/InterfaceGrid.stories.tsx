@@ -4,11 +4,13 @@
  * Demonstrates all states and layouts of the InterfaceGrid component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
+
 import { InterfaceGrid } from './InterfaceGrid';
 import { GET_INTERFACES } from './queries';
+
 import type { InterfaceGridData } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof InterfaceGrid> = {
   title: 'Dashboard/InterfaceGrid',

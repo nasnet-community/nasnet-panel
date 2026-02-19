@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@nasnet/ui/primitives';
 import { Textarea } from '@nasnet/ui/primitives';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { SafetyConfirmation } from '@nasnet/ui/patterns';
 import type { Bridge } from '@nasnet/api-client/generated';
 
@@ -49,7 +49,7 @@ export interface BridgeFormProps {
   isSubmitting?: boolean;
 }
 
-export function BridgeForm({
+export const BridgeForm = memo(function BridgeForm({
   bridge,
   onSubmit,
   onCancel,
@@ -221,6 +221,7 @@ export function BridgeForm({
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     disabled={isSubmitting}
+                    aria-label="Toggle VLAN filtering"
                   />
                 </FormControl>
               </FormItem>
@@ -318,4 +319,4 @@ export function BridgeForm({
       />
     </>
   );
-}
+});

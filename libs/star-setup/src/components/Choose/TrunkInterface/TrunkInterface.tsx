@@ -1,9 +1,11 @@
 import { $, component$, useContext, useSignal, useTask$, type PropFunction } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { InterfaceType } from "@nas-net/star-context";
+
 import { InterfaceSelector } from "./InterfaceSelector";
 import { WirelessBandSelector } from "./WirelessBandSelector";
 import { useInterfaceManagement } from "../../../hooks/useInterfaceManagement";
+
+import type { InterfaceType } from "@nas-net/star-context";
 
 interface TrunkInterfaceProps {
   isComplete?: boolean;

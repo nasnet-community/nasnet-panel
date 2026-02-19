@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import {
   DataTable,
   DataTableColumn,
@@ -23,7 +23,7 @@ export interface BridgeListDesktopProps extends UseBridgeListReturn {
   routerId: string;
 }
 
-export function BridgeListDesktop({
+export const BridgeListDesktop = memo(function BridgeListDesktop({
   bridges,
   loading,
   error,
@@ -162,6 +162,7 @@ export function BridgeListDesktop({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
+              aria-label="Search bridges"
             />
           </div>
 
@@ -172,7 +173,7 @@ export function BridgeListDesktop({
               setProtocolFilter(value === 'all' ? null : value)
             }
           >
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40" aria-label="Filter by STP protocol">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Protocol" />
             </SelectTrigger>
@@ -200,7 +201,7 @@ export function BridgeListDesktop({
               )
             }
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48" aria-label="Filter by VLAN filtering status">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="VLAN Filtering" />
             </SelectTrigger>
@@ -214,7 +215,7 @@ export function BridgeListDesktop({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button onClick={() => setSelectedBridgeId('new')} size="sm">
+          <Button onClick={() => setSelectedBridgeId('new')} size="sm" aria-label="Add new bridge">
             <Plus className="h-4 w-4 mr-2" />
             Add Bridge
           </Button>
@@ -253,4 +254,4 @@ export function BridgeListDesktop({
       )}
     </div>
   );
-}
+});

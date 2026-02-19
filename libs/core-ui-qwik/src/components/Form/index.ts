@@ -13,18 +13,19 @@ export * from "./Container";
 export * from "./Form";
 
 // Enhanced components (prioritized over legacy components)
-import { PasswordField } from "./PasswordField/PasswordField";
-import type { PasswordFieldProps } from "./PasswordField/PasswordField";
 export { PasswordField, type PasswordFieldProps };
 
 import { Checkbox } from "./Checkbox/Checkbox";
 import { CheckboxGroup } from "./Checkbox/CheckboxGroup";
+import { PasswordField } from "./PasswordField/PasswordField";
+
 import type {
   CheckboxProps,
   CheckboxGroupProps,
   CheckboxOption,
   CheckboxSize,
 } from "./Checkbox/Checkbox.types";
+import type { PasswordFieldProps } from "./PasswordField/PasswordField";
 export {
   Checkbox,
   CheckboxGroup,

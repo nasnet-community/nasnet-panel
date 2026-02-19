@@ -1,6 +1,6 @@
 import { component$ } from "@builder.io/qwik";
-import { HStepper } from "@nas-net/core-ui-qwik";
-import { useProvideGlobalHelpSettings } from "@nas-net/core-ui-qwik";
+import { HStepper , useProvideGlobalHelpSettings } from "@nas-net/core-ui-qwik";
+
 import { useStarContainer } from "./useStarContainer";
 
 export const StarContainer = component$(() => {

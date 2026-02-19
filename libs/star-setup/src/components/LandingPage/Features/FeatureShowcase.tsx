@@ -1,8 +1,9 @@
 import { component$ } from "@builder.io/qwik";
 import { Badge } from "@nas-net/core-ui-qwik";
 import { LuTrendingUp } from "@qwikest/icons/lucide";
-import { features } from "../data/featuresData";
+
 import { FeatureCard } from "./FeatureCard";
+import { features } from "../data/featuresData";
 
 export const FeatureShowcase = component$(() => {
   return (

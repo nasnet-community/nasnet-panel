@@ -1,11 +1,13 @@
 import { component$, Slot } from "@builder.io/qwik";
+
+import { useFlex } from "./hooks";
+
 import type {
   FlexProps,
   FlexItemProps,
   ResponsiveValue,
   FlexAlign,
 } from "./Flex.types";
-import { useFlex } from "./hooks";
 
 /**
  * Enhanced Flex component - an advanced layout component for creating flexible box layouts

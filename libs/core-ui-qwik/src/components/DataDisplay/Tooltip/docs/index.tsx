@@ -1,10 +1,10 @@
 import { routeLoader$ } from "@builder.io/qwik-city";
 
-import Overview from "./Overview";
-import Examples from "./Examples";
 import APIReference from "./APIReference";
-import Usage from "./Usage";
+import Examples from "./Examples";
+import Overview from "./Overview";
 import Playground from "./Playground";
+import Usage from "./Usage";
 
 export const useDocumentationLoader = routeLoader$(() => {
   return {

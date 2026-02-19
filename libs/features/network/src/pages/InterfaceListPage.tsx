@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { InterfaceList } from '../components/interface-list';
 
 /**
@@ -8,7 +9,7 @@ export interface InterfaceListPageProps {
   routerId?: string;
 }
 
-export function InterfaceListPage({ routerId = 'default-router' }: InterfaceListPageProps) {
+export const InterfaceListPage = memo(function InterfaceListPage({ routerId = 'default-router' }: InterfaceListPageProps) {
   // TODO: Get routerId from router context or auth state
   // For now, using a default or prop value
 
@@ -24,4 +25,4 @@ export function InterfaceListPage({ routerId = 'default-router' }: InterfaceList
       <InterfaceList routerId={routerId} />
     </div>
   );
-}
+});

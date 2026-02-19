@@ -83,7 +83,7 @@ function formatRelativeTime(timestamp: string): string {
  *
  * Desktop-optimized presenter with DataTable, sorting, and filtering.
  */
-export function PortRegistryViewDesktop({
+export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDesktop({
   routerId,
   className,
 }: PortRegistryViewDesktopProps) {
@@ -121,12 +121,12 @@ export function PortRegistryViewDesktop({
   // Render sort icon
   const renderSortIcon = (field: 'port' | 'serviceType' | 'allocatedAt') => {
     if (sort.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" aria-hidden="true" />;
     }
     return sort.direction === 'asc' ? (
-      <ArrowUp className="h-4 w-4 ml-1" />
+      <ArrowUp className="h-4 w-4 ml-1" aria-hidden="true" />
     ) : (
-      <ArrowDown className="h-4 w-4 ml-1" />
+      <ArrowDown className="h-4 w-4 ml-1" aria-hidden="true" />
     );
   };
 
@@ -138,7 +138,8 @@ export function PortRegistryViewDesktop({
         header: (
           <button
             onClick={() => handleSort('port')}
-            className="flex items-center hover:text-foreground transition-colors"
+            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            aria-label={`Sort by port ${sort.field === 'port' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
           >
             Port
             {renderSortIcon('port')}
@@ -168,7 +169,8 @@ export function PortRegistryViewDesktop({
         header: (
           <button
             onClick={() => handleSort('serviceType')}
-            className="flex items-center hover:text-foreground transition-colors"
+            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            aria-label={`Sort by service type ${sort.field === 'serviceType' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
           >
             Service Type
             {renderSortIcon('serviceType')}
@@ -204,7 +206,8 @@ export function PortRegistryViewDesktop({
         header: (
           <button
             onClick={() => handleSort('allocatedAt')}
-            className="flex items-center hover:text-foreground transition-colors"
+            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+            aria-label={`Sort by allocation date ${sort.field === 'allocatedAt' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
           >
             Allocated
             {renderSortIcon('allocatedAt')}
@@ -228,7 +231,7 @@ export function PortRegistryViewDesktop({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Network className="h-5 w-5" />
+                <Network className="h-5 w-5" aria-hidden="true" />
                 Port Registry
               </CardTitle>
               <CardDescription>
@@ -244,9 +247,11 @@ export function PortRegistryViewDesktop({
                 size="sm"
                 onClick={() => refetch()}
                 disabled={loading}
+                aria-label="Refresh port allocations"
               >
                 <RefreshCw
                   className={cn('h-4 w-4 mr-1', loading && 'animate-spin')}
+                  aria-hidden="true"
                 />
                 Refresh
               </Button>
@@ -346,7 +351,7 @@ export function PortRegistryViewDesktop({
       {/* Empty State */}
       {!loading && sortedAllocations.length === 0 && !error && (
         <div className="text-center py-12">
-          <Network className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <Network className="h-16 w-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
           <h3 className="text-lg font-semibold mb-2">No Port Allocations</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             No ports have been allocated for this router yet. Ports will appear here
@@ -356,6 +361,6 @@ export function PortRegistryViewDesktop({
       )}
     </div>
   );
-}
+});
 
 PortRegistryViewDesktop.displayName = 'PortRegistryViewDesktop';

@@ -1,5 +1,6 @@
 import { component$, type QRL } from "@builder.io/qwik";
 import { Input, Select } from "@nas-net/core-ui-qwik";
+
 import type { VPNClientConfig, VPNType } from "../../types/VPNClientAdvancedTypes";
 
 export interface VPNBoxContentProps {

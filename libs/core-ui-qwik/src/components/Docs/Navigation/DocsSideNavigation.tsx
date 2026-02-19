@@ -1,14 +1,16 @@
 import { component$, Slot, useVisibleTask$, $ } from "@builder.io/qwik";
-import {
-  useResponsiveDetection,
-  useCategoryExpansion,
-  useToggleCallback,
-} from "./hooks";
+
 import {
   DocsSidebarOverlay,
   DocsSidebarHeader,
   DocsSidebarContent,
 } from "./components";
+import {
+  useResponsiveDetection,
+  useCategoryExpansion,
+  useToggleCallback,
+} from "./hooks";
+
 import type { DocsSideNavigationProps } from "./types";
 
 export const DocsSideNavigation = component$<DocsSideNavigationProps>(

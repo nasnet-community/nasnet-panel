@@ -1,9 +1,11 @@
 import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
-import type { WANWizardState } from "../types";
+
 import { ConnectionTypeSelector } from "../components/fields/ConnectionTypeSelector";
 import { PPPoEFields } from "../components/fields/PPPoEFields";
 import { StaticIPFields } from "../components/fields/StaticIPFields";
+
 import type { UseWANAdvancedReturn } from "../hooks/useWANAdvanced";
+import type { WANWizardState } from "../types";
 
 export interface Step2Props {
   wizardState: WANWizardState;

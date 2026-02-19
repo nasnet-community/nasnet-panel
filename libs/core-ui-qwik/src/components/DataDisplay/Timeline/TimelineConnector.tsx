@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { TimelineConnectorProps } from "./Timeline.types";
 
 /**

@@ -1,9 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import type { AutocompleteProps } from "./Autocomplete.types";
-import { useAutocomplete } from "./hooks/useAutocomplete";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
+import { useAutocomplete } from "./hooks/useAutocomplete";
+
+import type { AutocompleteProps } from "./Autocomplete.types";
 
 export const Autocomplete = component$<AutocompleteProps>((props) => {
   const {

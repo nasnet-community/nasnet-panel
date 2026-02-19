@@ -9,6 +9,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { useNtfyChannelForm, type UseNtfyChannelFormOptions } from '../../hooks/useNtfyChannelForm';
 import { NtfyChannelFormDesktop } from './NtfyChannelFormDesktop';
@@ -47,7 +48,7 @@ export interface NtfyChannelFormProps extends UseNtfyChannelFormOptions {
  * />
  * ```
  */
-export function NtfyChannelForm(props: NtfyChannelFormProps) {
+function NtfyChannelFormComponent(props: NtfyChannelFormProps) {
   const { className, ...hookOptions } = props;
 
   // Platform detection (mobile: <640px)
@@ -67,3 +68,6 @@ export function NtfyChannelForm(props: NtfyChannelFormProps) {
     </div>
   );
 }
+
+export const NtfyChannelForm = memo(NtfyChannelFormComponent);
+NtfyChannelForm.displayName = 'NtfyChannelForm';

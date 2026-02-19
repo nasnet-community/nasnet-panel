@@ -5,8 +5,7 @@
  * Vertical list with bottom sheet filters and 44px touch targets.
  */
 
-import * as React from 'react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Filter, Plus } from 'lucide-react';
 
 import {
@@ -36,7 +35,7 @@ import type { TemplatesBrowserProps } from './types';
  * - 44px touch targets
  * - Pull-to-refresh (future)
  */
-export function TemplatesBrowserMobile({
+function TemplatesBrowserMobileComponent({
   routerId,
   onInstall,
   onViewDetails,
@@ -58,17 +57,17 @@ export function TemplatesBrowserMobile({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header with filter button */}
-      <div className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-background sticky top-0 z-10">
         <h1 className="text-lg font-semibold">Service Templates</h1>
         <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               size="default"
-              className="h-11"
+              className="min-h-[44px] min-w-[44px]"
               aria-label="Open filters"
             >
-              <Filter className="mr-2 h-4 w-4" />
+              <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
               Filters
               {hasActiveFilters && (
                 <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
@@ -96,14 +95,14 @@ export function TemplatesBrowserMobile({
       {/* Error State */}
       {error && (
         <div className="p-4">
-          <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
+          <div className="rounded-lg bg-destructive/10 p-4 text-destructive" role="alert">
             <p className="font-medium">Failed to load templates</p>
             <p className="text-sm mt-1">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              className="mt-3"
+              className="mt-3 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Retry
             </Button>
@@ -113,7 +112,7 @@ export function TemplatesBrowserMobile({
 
       {/* Loading State */}
       {loading && !error && (
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4" role="status" aria-label="Loading templates">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-48 w-full rounded-lg" />
           ))}
@@ -144,7 +143,7 @@ export function TemplatesBrowserMobile({
 
       {/* Template List */}
       {!loading && !error && templates.length > 0 && (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4" role="list" aria-label="Service templates list">
           {templates.map((template) => (
             <ServiceTemplateCard
               key={template.id}
@@ -187,3 +186,6 @@ export function TemplatesBrowserMobile({
     </div>
   );
 }
+
+export const TemplatesBrowserMobile = memo(TemplatesBrowserMobileComponent);
+TemplatesBrowserMobile.displayName = 'TemplatesBrowserMobile';

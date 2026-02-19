@@ -1,6 +1,8 @@
 import { useSignal, useTask$, $ } from "@builder.io/qwik";
-import type { SliderProps } from "../Slider.types";
+
 import { isRangeSlider } from "../Slider.types";
+
+import type { SliderProps } from "../Slider.types";
 
 export interface UseSliderStateProps {
   props: SliderProps;

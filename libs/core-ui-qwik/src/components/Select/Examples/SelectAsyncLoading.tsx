@@ -1,5 +1,7 @@
 import { component$, useSignal, useTask$, $ } from "@builder.io/qwik";
+
 import { Select, Spinner } from "../../index";
+
 import type { SelectOption } from "../index";
 
 // Simulated API responses

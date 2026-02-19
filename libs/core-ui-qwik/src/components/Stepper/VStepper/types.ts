@@ -1,6 +1,6 @@
-import type { QRL, Signal, ContextId, JSX } from "@builder.io/qwik";
-import type { StepHelpContent } from "../shared/types/base";
 import type { UseStepperHelpOptions } from "../shared/hooks/useStepperHelp";
+import type { StepHelpContent } from "../shared/types/base";
+import type { QRL, Signal, ContextId, JSX } from "@builder.io/qwik";
 
 export interface UseVStepperProps {
   initialStep?: number;

@@ -1,4 +1,5 @@
 import { component$, Slot, useStylesScoped$ } from "@builder.io/qwik";
+
 import type { StatProps } from "./Stat.types";
 
 export const Stat = component$<StatProps>((props) => {

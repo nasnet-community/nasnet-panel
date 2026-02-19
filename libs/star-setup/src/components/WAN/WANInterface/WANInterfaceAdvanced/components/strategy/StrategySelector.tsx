@@ -1,4 +1,5 @@
 import { component$, type QRL } from "@builder.io/qwik";
+
 import { getStrategyIcon } from "../../utils/iconMappings";
 
 export type StrategyType = "LoadBalance" | "Failover" | "RoundRobin" | "Both";

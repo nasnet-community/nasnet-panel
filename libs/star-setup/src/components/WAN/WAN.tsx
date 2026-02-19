@@ -1,11 +1,15 @@
 import { component$, useStore, useContext, $ } from "@builder.io/qwik";
-import { VPNClient } from "./VPNClient/VPNClient";
-// import { DNS } from "./DNS/DNS";
 import { VStepper } from "@nas-net/core-ui-qwik";
-import type { StepItem } from "@nas-net/core-ui-qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { WANInterface } from "./WANInterface/WANInterface";
 import { StarContext } from "@nas-net/star-context";
+
+import { VPNClient } from "./VPNClient/VPNClient";
+
+// import { DNS } from "./DNS/DNS";
+import { WANInterface } from "./WANInterface/WANInterface";
+
+import type { StepItem , StepProps } from "@nas-net/core-ui-qwik";
+
+
 
 // Define step components outside the main component to avoid serialization issues
 // Foreign step for both easy and advanced modes

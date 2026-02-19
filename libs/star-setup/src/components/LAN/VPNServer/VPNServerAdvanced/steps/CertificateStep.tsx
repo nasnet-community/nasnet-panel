@@ -1,7 +1,6 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
 // Removed unused QRL import
 import { useStepperContext } from "@nas-net/core-ui-qwik";
-import { VPNServerContextId } from "../VPNServerContext";
 import { Field } from "@nas-net/core-ui-qwik";
 import { Input } from "@nas-net/core-ui-qwik";
 import { 
@@ -9,6 +8,9 @@ import {
   HiEyeOutline, 
   HiEyeSlashOutline
 } from "@qwikest/icons/heroicons";
+
+import { VPNServerContextId } from "../VPNServerContext";
+
 import type { VPNType } from "@nas-net/star-context";
 
 interface CertificateStepProps {

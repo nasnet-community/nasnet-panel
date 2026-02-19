@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { OverviewTemplate, type OverviewTemplateProps } from "../templates/OverviewTemplate";
 
 export interface NavigationOverviewProps extends OverviewTemplateProps {

@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
-import type { DatePickerProps, DateTimePickerProps } from "./DatePicker.types";
+
 import { CalendarView } from "./CalendarView";
-import { TimeSelector } from "./TimeSelector";
 import { useDatePicker } from "./hooks/useDatePicker";
+import { TimeSelector } from "./TimeSelector";
+
+import type { DatePickerProps, DateTimePickerProps } from "./DatePicker.types";
 
 /**
  * DatePicker component for selecting dates with various modes and features.

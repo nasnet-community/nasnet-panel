@@ -1,5 +1,7 @@
 import { useContext } from "@builder.io/qwik";
+
 import { ToastServiceContext } from "./ToastContainer";
+
 import type { ToastService } from "./Toast.types";
 
 /**

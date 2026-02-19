@@ -1,4 +1,4 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import type { RouterConfig } from "../../../generator";
 import type { LTESettings, PPPoEConfig, StaticIPConfig } from "@nas-net/star-context";
 
 

@@ -1,11 +1,7 @@
-import {
-    type RouterConfig,
-    mergeMultipleConfigs,
-    ScriptAndScheduler,
-    OneTimeScript,
-    SchedulerGenerator,
-    mergeRouterConfigs,
-} from "@nas-net/ros-cmd-generator";
+import { mergeMultipleConfigs, mergeRouterConfigs } from "./ConfigGeneratorUtil";
+import { ScriptAndScheduler, OneTimeScript, SchedulerGenerator } from "./ScriptSchedule";
+
+import type { RouterConfig } from "../generator";
 export const CheckCGNAT = (
     wanInterfaceName: string = "ether1",
 ): RouterConfig => {

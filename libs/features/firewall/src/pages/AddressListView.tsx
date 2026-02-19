@@ -90,12 +90,12 @@ function EmptyState({ onAddEntry, onImport }: EmptyStateProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center gap-2">
-        <Button onClick={onAddEntry}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={onAddEntry} aria-label="Create new address list entry">
+          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.create')}
         </Button>
-        <Button variant="outline" onClick={onImport}>
-          <Upload className="h-4 w-4 mr-2" />
+        <Button variant="outline" onClick={onImport} aria-label="Import address list">
+          <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.import')}
         </Button>
       </CardContent>
@@ -111,9 +111,9 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-4">
       <div className="animate-pulse space-y-4">
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="h-16 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
+        <div className="h-16 bg-muted rounded" />
       </div>
     </div>
   );
@@ -212,12 +212,12 @@ export function AddressListView() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleImport}>
-              <Upload className="h-4 w-4 mr-2" />
+            <Button variant="outline" onClick={handleImport} aria-label="Import address list entries">
+              <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.import')}
             </Button>
-            <Button onClick={handleAddEntry} className="bg-category-firewall hover:bg-category-firewall/90">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={handleAddEntry} className="bg-category-firewall hover:bg-category-firewall/90" aria-label="Add new address list entry">
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               {t('addressLists.buttons.addEntry')}
             </Button>
           </div>
@@ -225,11 +225,11 @@ export function AddressListView() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4" role="main" aria-label="Address lists content">
         {/* Error State */}
         {error && (
           <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>
               {t('addressLists.notifications.error.load')}: {error.message}
             </AlertDescription>

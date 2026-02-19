@@ -1,7 +1,8 @@
 import { component$ } from "@builder.io/qwik";
+
+import { FooterBottom } from "./FooterBottom";
 import { FooterBrand } from "./FooterBrand";
 import { FooterSocial } from "./FooterSocial";
-import { FooterBottom } from "./FooterBottom";
 
 export const Footer = component$(() => {
   return (

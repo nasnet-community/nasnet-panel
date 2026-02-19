@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { games } from "./GameData";
+
 import type { GamePaginationProps } from "./type";
 
 export const GamePagination = component$<GamePaginationProps>(

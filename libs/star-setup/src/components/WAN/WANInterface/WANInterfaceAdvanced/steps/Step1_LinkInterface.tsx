@@ -1,17 +1,19 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
-import type { WANWizardState } from "../types";
-import { InterfaceSelector } from "../components/fields/InterfaceSelector";
-import { WirelessFields } from "../components/fields/WirelessFields";
-import { LTEFields } from "../components/fields/LTEFields";
-import { VLANMACFields } from "../components/fields/VLANMACFields";
-import type { UseWANAdvancedReturn } from "../hooks/useWANAdvanced";
 import { Input, Card } from "@nas-net/core-ui-qwik";
-import { SearchBar } from "../components/common/SearchBar";
+
+import { LinkCard } from "../components/cards/LinkCard";
 import { EmptyState } from "../components/common/EmptyState";
 import { LinkStatistics } from "../components/common/LinkStatistics";
-import { LinkCard } from "../components/cards/LinkCard";
+import { SearchBar } from "../components/common/SearchBar";
+import { InterfaceSelector } from "../components/fields/InterfaceSelector";
+import { LTEFields } from "../components/fields/LTEFields";
+import { VLANMACFields } from "../components/fields/VLANMACFields";
+import { WirelessFields } from "../components/fields/WirelessFields";
 import { getLinkStatus, filterLinks, getLinkStatistics } from "../utils/linkHelpers";
 import { getLinkErrors, getFieldErrors } from "../utils/validationUtils";
+
+import type { UseWANAdvancedReturn } from "../hooks/useWANAdvanced";
+import type { WANWizardState } from "../types";
 
 export interface Step1Props {
   wizardState: WANWizardState;

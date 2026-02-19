@@ -1,13 +1,14 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicSelect from "../Examples/BasicSelect";
+import SelectAdvancedFeatures from "../Examples/SelectAdvancedFeatures";
+import SelectAsyncLoading from "../Examples/SelectAsyncLoading";
+import SelectGrouped from "../Examples/SelectGrouped";
+import SelectModeComparison from "../Examples/SelectModeComparison";
+import SelectMultiple from "../Examples/SelectMultiple";
 import SelectSizes from "../Examples/SelectSizes";
 import SelectStates from "../Examples/SelectStates";
-import SelectGrouped from "../Examples/SelectGrouped";
-import SelectMultiple from "../Examples/SelectMultiple";
-import SelectAsyncLoading from "../Examples/SelectAsyncLoading";
-import SelectModeComparison from "../Examples/SelectModeComparison";
-import SelectAdvancedFeatures from "../Examples/SelectAdvancedFeatures";
 import SelectVirtualization from "../Examples/SelectVirtualization";
 
 /**

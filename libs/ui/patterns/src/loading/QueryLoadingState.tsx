@@ -125,6 +125,7 @@ export function QueryLoadingState<T>({
 
     return (
       <div
+        role="alert"
         className={cn(
           'flex flex-col items-center justify-center p-8 text-center',
           className
@@ -147,7 +148,7 @@ export function QueryLoadingState<T>({
     }
 
     return (
-      <div className={cn('flex items-center justify-center p-8', className)}>
+      <div aria-busy="true" aria-live="polite" className={cn('flex items-center justify-center p-8', className)}>
         <LoadingSpinner size="lg" showLabel label="Loading..." />
       </div>
     );

@@ -17,7 +17,12 @@ function getAbsolutePath(value: string): string {
 }
 
 const config: StorybookConfig = {
-  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
+  stories: [
+    '../src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../../../features/*/src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../../layouts/src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+    '../../../../apps/connect/src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
+  ],
 
   addons: [
     getAbsolutePath('@storybook/addon-a11y'),
@@ -50,6 +55,17 @@ const config: StorybookConfig = {
           '@nasnet/api-client/core': join(__dirname, '../../../api-client/core/src'),
           '@nasnet/api-client/queries': join(__dirname, '../../../api-client/queries/src'),
           '@nasnet/api-client/generated': join(__dirname, '../../../api-client/generated'),
+          '@nasnet/features/dashboard': join(__dirname, '../../../features/dashboard/src'),
+          '@nasnet/features/diagnostics': join(__dirname, '../../../features/diagnostics/src'),
+          '@nasnet/features/network': join(__dirname, '../../../features/network/src'),
+          '@nasnet/features/firewall': join(__dirname, '../../../features/firewall/src'),
+          '@nasnet/features/alerts': join(__dirname, '../../../features/alerts/src'),
+          '@nasnet/features/services': join(__dirname, '../../../features/services/src'),
+          '@nasnet/features/wireless': join(__dirname, '../../../features/wireless/src'),
+          '@nasnet/features/configuration-import': join(__dirname, '../../../features/configuration-import/src'),
+          '@nasnet/features/router-discovery': join(__dirname, '../../../features/router-discovery/src'),
+          '@nasnet/features/logs': join(__dirname, '../../../features/logs/src'),
+          '@/': join(__dirname, '../../../../apps/connect/src/'),
         },
       },
     };

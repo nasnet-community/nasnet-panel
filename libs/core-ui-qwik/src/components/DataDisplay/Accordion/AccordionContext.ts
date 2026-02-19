@@ -1,4 +1,5 @@
 import { createContextId } from "@builder.io/qwik";
+
 import type { QRL } from "@builder.io/qwik";
 
 // Context for sharing state between accordion components

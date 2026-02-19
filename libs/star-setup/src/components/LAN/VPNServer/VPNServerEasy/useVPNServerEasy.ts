@@ -1,7 +1,8 @@
 import { useContext, $, useSignal, useStore, useTask$ } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { VPNType, VSCredentials, VSNetwork } from "@nas-net/star-context";
+
 import type { QRL } from "@builder.io/qwik";
+import type { VPNType, VSCredentials, VSNetwork } from "@nas-net/star-context";
 
 export const useVPNServerEasy = () => {
   const starContext = useContext(StarContext);

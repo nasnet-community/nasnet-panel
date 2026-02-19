@@ -50,10 +50,10 @@ export function VPNPage() {
         {/* Page header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-50 mb-1">
+            <h1 className="text-2xl font-semibold text-foreground mb-1">
               VPN Configuration
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               View your VPN setup and monitor interface status{' '}
               <span className="text-xs opacity-70">(Auto-refreshes every 5s)</span>
             </p>
@@ -64,16 +64,17 @@ export function VPNPage() {
             size="sm"
             onClick={() => refetch()}
             disabled={isLoading || isFetching}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
+            aria-label="Refresh VPN interfaces"
           >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
             Refresh
           </Button>
         </div>
 
         {/* Loading state */}
         {isLoading && (
-          <div className="space-y-4">
+          <div className="space-y-4" role="status" aria-label="Loading VPN interfaces">
             <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
             <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
             <Skeleton className="h-48 w-full rounded-2xl md:rounded-3xl" />
@@ -82,7 +83,7 @@ export function VPNPage() {
 
         {/* Error state */}
         {isError && (
-          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl md:rounded-3xl p-6 shadow-sm">
+          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl md:rounded-3xl p-6 shadow-sm" role="alert">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <svg
@@ -101,10 +102,10 @@ export function VPNPage() {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   Failed to load VPN interfaces
                 </h3>
-                <p className="text-sm text-slate-700 dark:text-slate-300">
+                <p className="text-sm text-muted-foreground">
                   Unable to retrieve VPN configuration from the router. Please check your connection.
                 </p>
               </div>
@@ -114,10 +115,10 @@ export function VPNPage() {
 
         {/* Empty state */}
         {!isLoading && !isError && wireguardInterfaces && wireguardInterfaces.length === 0 && (
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl md:rounded-3xl p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center">
+          <div className="bg-card border border-border rounded-2xl md:rounded-3xl p-12 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-slate-500 dark:text-slate-400"
+                className="w-8 h-8 text-muted-foreground"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -131,10 +132,10 @@ export function VPNPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <h3 className="text-xl font-semibold text-foreground mb-2">
               No WireGuard interfaces configured
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Your router doesn't have any WireGuard VPN interfaces set up yet.
             </p>
           </div>
@@ -155,10 +156,10 @@ export function VPNPage() {
         {/* Other VPN Types Section (Story 0-4-4) */}
         {!isLoading && !isError && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
+            <h2 className="text-xl font-semibold text-foreground">
               Other VPN Types
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Additional VPN protocols configured on your router
             </p>
 

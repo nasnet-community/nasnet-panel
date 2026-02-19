@@ -1,10 +1,11 @@
 import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
+import AccessibleContainer from "../Examples/AccessibleContainer";
 import BasicContainer from "../Examples/BasicContainer";
 import ContainerVariants from "../Examples/ContainerVariants";
 import ContainerWithSlots from "../Examples/ContainerWithSlots";
 import NestedContainers from "../Examples/NestedContainers";
-import AccessibleContainer from "../Examples/AccessibleContainer";
 
 /**
  * Container component examples documentation using the standard template

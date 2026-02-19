@@ -171,6 +171,7 @@ export function SafetyConfirmationDesktop({
             }}
             disabled={isProcessing}
             className="w-full sm:w-auto"
+            aria-label="Cancel operation"
           >
             Cancel
           </Button>
@@ -180,10 +181,15 @@ export function SafetyConfirmationDesktop({
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
             className="w-full sm:w-auto"
+            aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
             {isProcessing ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2
+                  className="mr-2 h-4 w-4 animate-spin"
+                  role="status"
+                  aria-label="Processing"
+                />
                 Processing...
               </>
             ) : (

@@ -1,9 +1,8 @@
 import { component$ } from "@builder.io/qwik";
+import { Card , Field as FormField , Input } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
+
 import { useSSTPServer } from "./useSSTPServer";
-import { Card } from "@nas-net/core-ui-qwik";
-import { Field as FormField } from "@nas-net/core-ui-qwik";
-import { Input } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown } from "../../components/NetworkSelection";
 
 /**

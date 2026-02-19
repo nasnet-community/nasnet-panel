@@ -16,20 +16,20 @@ import { Wifi } from 'lucide-react';
  */
 function WirelessInterfaceSkeleton() {
   return (
-    <div className="rounded-2xl md:rounded-3xl border border-slate-200 dark:border-slate-800 p-4 space-y-3 animate-pulse">
+    <div className="rounded-2xl md:rounded-3xl border border-border p-4 space-y-3 animate-pulse" role="status" aria-label="Loading wireless interface">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800" />
+          <div className="h-9 w-9 rounded-lg bg-muted" />
           <div className="space-y-2">
-            <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
-            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="h-5 w-24 bg-muted rounded" />
+            <div className="h-4 w-32 bg-muted rounded" />
           </div>
         </div>
-        <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" />
+        <div className="h-6 w-16 bg-muted rounded-full" />
       </div>
       <div className="flex items-center gap-4">
-        <div className="h-5 w-16 bg-slate-200 dark:bg-slate-800 rounded-md" />
-        <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded-md" />
+        <div className="h-5 w-16 bg-muted rounded-md" />
+        <div className="h-5 w-20 bg-muted rounded-md" />
       </div>
     </div>
   );
@@ -41,14 +41,14 @@ function WirelessInterfaceSkeleton() {
  */
 function WirelessInterfacesEmpty() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="p-6 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-        <Wifi className="h-12 w-12 text-slate-400" />
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="status">
+      <div className="p-6 rounded-full bg-muted mb-4">
+        <Wifi className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
         No wireless interfaces found
       </h3>
-      <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
+      <p className="text-sm text-muted-foreground max-w-md">
         Your router doesn't appear to have any wireless interfaces configured.
         This is normal for routers without WiFi capabilities.
       </p>
@@ -61,19 +61,19 @@ function WirelessInterfacesEmpty() {
  */
 function WirelessInterfacesError({ error }: { error: Error }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="p-6 rounded-full bg-red-100 dark:bg-red-900 mb-4">
-        <Wifi className="h-12 w-12 text-red-600 dark:text-red-400" />
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="alert">
+      <div className="p-6 rounded-full bg-destructive/10 mb-4">
+        <Wifi className="h-12 w-12 text-destructive" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
         Failed to load wireless interfaces
       </h3>
-      <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mb-4">
+      <p className="text-sm text-muted-foreground max-w-md mb-4">
         {error.message || 'An error occurred while loading wireless interfaces'}
       </p>
       <button
         onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 rounded-lg text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+        className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         Retry
       </button>

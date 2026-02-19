@@ -1,11 +1,3 @@
-import type { 
-  WireGuardInterface, 
-  WireGuardPeer, 
-  L2TPServer, 
-  PPTPServer,
-  SSTPServer,
-  OpenVPNServer
-} from '@shared/routeros';
 import { 
   getVPNStatus,
   getWireGuardInterfaces,
@@ -17,7 +9,17 @@ import {
   getVPNUsers,
   getActiveVPNConnections
 } from '@/services/vpn';
+
 import { VPNConfigDialog } from './VPNConfigDialog';
+
+import type { 
+  WireGuardInterface, 
+  WireGuardPeer, 
+  L2TPServer, 
+  PPTPServer,
+  SSTPServer,
+  OpenVPNServer
+} from '@shared/routeros';
 
 /**
  * VPN Manager Component

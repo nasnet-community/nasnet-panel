@@ -1,7 +1,8 @@
 import { component$, $, useSignal, useStore, useVisibleTask$ } from "@builder.io/qwik";
-import type { VPNClientAdvancedState, MultiVPNStrategy } from "../types/VPNClientAdvancedTypes";
-import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
 import { Input } from "@nas-net/core-ui-qwik";
+
+import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+import type { VPNClientAdvancedState, MultiVPNStrategy } from "../types/VPNClientAdvancedTypes";
 
 export interface StepPrioritiesProps {
   wizardState: VPNClientAdvancedState;

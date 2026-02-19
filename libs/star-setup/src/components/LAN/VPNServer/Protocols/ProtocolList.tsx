@@ -1,8 +1,10 @@
 import { component$, type QRL, $ } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
-import { VPN_PROTOCOLS } from "./constants";
-import type { VPNType } from "@nas-net/star-context";
 import { HiCheckCircleOutline } from "@qwikest/icons/heroicons";
+import { track } from "@vercel/analytics";
+
+import { VPN_PROTOCOLS } from "./constants";
+
+import type { VPNType } from "@nas-net/star-context";
 
 interface ProtocolListProps {
   expandedSections: Record<string, boolean>;

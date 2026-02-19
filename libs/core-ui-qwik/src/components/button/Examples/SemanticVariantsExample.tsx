@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiCheckCircleOutline,
   HiXCircleOutline,
@@ -7,6 +6,8 @@ import {
   HiInformationCircleOutline,
   HiArrowRightOutline,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const SemanticVariantsBasicExample = component$(() => {
   return (

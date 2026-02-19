@@ -8,6 +8,7 @@ import {
   useOnWindow,
   useTask$,
 } from "@builder.io/qwik";
+
 import type { SelectProps, SelectOption } from "./UnifiedSelect.types";
 
 // Re-export the types for use in stories and other components

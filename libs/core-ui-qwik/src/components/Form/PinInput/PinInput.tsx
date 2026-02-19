@@ -1,9 +1,11 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { PinInputProps } from "./PinInput.types";
-import { usePinInput } from "./hooks/usePinInput";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
+import { usePinInput } from "./hooks/usePinInput";
+
+import type { PinInputProps } from "./PinInput.types";
 
 export const PinInput = component$<PinInputProps>((props) => {
   const {

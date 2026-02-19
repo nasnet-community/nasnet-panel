@@ -1,5 +1,5 @@
-import type { VPNType } from "@nas-net/star-context";
-import type { StarState } from "@nas-net/star-context";
+import type { VPNType , StarState } from "@nas-net/star-context";
+
 
 // Reserved system/service ports that cannot be used for VPN servers
 export const RESERVED_PORTS = [

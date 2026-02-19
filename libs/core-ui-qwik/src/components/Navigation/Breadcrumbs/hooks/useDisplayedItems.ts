@@ -1,5 +1,5 @@
-import type { Signal } from "@builder.io/qwik";
 import type { BreadcrumbItem } from "../Breadcrumbs.types";
+import type { Signal } from "@builder.io/qwik";
 
 export function useDisplayedItems(
   items: BreadcrumbItem[],

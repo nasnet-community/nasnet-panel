@@ -1,8 +1,9 @@
 import { component$, useContext, $ } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { Mode } from "@nas-net/star-context";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+
 import type { QwikJSX } from "@builder.io/qwik";
+import type { StepProps } from "@nas-net/core-ui-qwik";
+import type { Mode } from "@nas-net/star-context";
 
 interface ModeOption {
   id: number;

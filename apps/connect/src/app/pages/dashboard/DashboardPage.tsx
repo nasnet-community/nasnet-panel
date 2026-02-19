@@ -136,7 +136,7 @@ export function DashboardPage() {
 
       {/* Quick Actions Grid */}
       <div>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3">Quick Actions</p>
+        <p className="text-sm font-medium text-muted-foreground mb-3">Quick Actions</p>
         <div className="grid grid-cols-5 gap-4">
           <QuickActionButton
             icon={Wifi}
@@ -169,7 +169,7 @@ export function DashboardPage() {
       {/* Resource Monitoring Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Resource Monitor</h2>
+          <h2 className="text-lg font-semibold text-foreground">Resource Monitor</h2>
           <LastUpdated timestamp={dataUpdatedAt} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -211,7 +211,7 @@ export function DashboardPage() {
 
       {/* Hardware Details Section */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">Hardware</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Hardware</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <HardwareCard
             data={hardwareData}

@@ -359,27 +359,37 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
               />
             </FormField>
 
-            <div className="flex items-center justify-between h-11">
+            <label htmlFor="filter-disabled-switch" className="flex items-center justify-between h-11 cursor-pointer">
               <span className="text-sm font-medium">Disabled</span>
               <Controller
                 name="disabled"
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    id="filter-disabled-switch"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Disabled"
+                  />
                 )}
               />
-            </div>
+            </label>
 
-            <div className="flex items-center justify-between h-11">
+            <label htmlFor="filter-log-switch" className="flex items-center justify-between h-11 cursor-pointer">
               <span className="text-sm font-medium">Log Packets</span>
               <Controller
                 name="log"
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    id="filter-log-switch"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Log Packets"
+                  />
                 )}
               />
-            </div>
+            </label>
           </Card>
         </div>
 

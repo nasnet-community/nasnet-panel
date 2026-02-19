@@ -211,5 +211,9 @@ export {
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
 export type { AccordionProps, AccordionItemProps, AccordionTriggerProps, AccordionContentProps } from './accordion';
 
+// Icon
+export { Icon } from './icon';
+export type { IconProps } from './icon';
+
 // Hooks
 export { useReducedMotion, useMediaQuery } from './hooks';

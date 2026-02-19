@@ -104,7 +104,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                 disabled={isLoading}
               />
               {errors.hostname && (
-                <p className="text-sm text-error" role="alert">
+                <p className="text-sm text-destructive" role="alert">
                   {errors.hostname.message}
                 </p>
               )}
@@ -169,11 +169,11 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              <Button type="submit" disabled={!isValid || isLoading} className="flex-1">
+              <Button type="submit" disabled={!isValid || isLoading} className="flex-1" aria-label="Run DNS lookup">
                 {isLoading ? 'Looking up...' : 'Lookup'}
               </Button>
               {(isSuccess || isError) && (
-                <Button type="button" variant="outline" onClick={handleReset}>
+                <Button type="button" variant="outline" onClick={handleReset} aria-label="Clear results">
                   Clear
                 </Button>
               )}
@@ -187,7 +187,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
         <CardHeader>
           <h2 className="text-lg font-semibold">Results</h2>
         </CardHeader>
-        <CardContent>
+        <CardContent role="status" aria-label="DNS lookup results">
           {!result && !isLoading && (
             <div className="flex items-center justify-center h-64 text-muted-foreground">
               <p>Enter a hostname and click Lookup to see results</p>
@@ -195,7 +195,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
           )}
 
           {isLoading && (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-64" role="status" aria-label="Loading DNS results">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           )}

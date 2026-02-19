@@ -1,5 +1,5 @@
-import type { QRL } from "@builder.io/qwik";
 import type { FeedbackSize } from "../utils/theme";
+import type { QRL } from "@builder.io/qwik";
 
 export type NewsletterVariant = "vertical" | "horizontal" | "responsive" | "hero";
 export type NewsletterTheme = "light" | "dark" | "glass" | "branded";

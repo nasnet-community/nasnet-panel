@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { GraphNode } from "../types";
+
 import { networkNodeTypes, type NetworkNodeType } from "./NodeTypes";
+
+import type { GraphNode } from "../types";
 
 /**
  * Component that renders a node with the appropriate icon based on the node type

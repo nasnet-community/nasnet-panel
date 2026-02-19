@@ -97,9 +97,9 @@ function DetailContent({
   const [activeTab, setActiveTab] = React.useState<'details' | 'configure'>('details');
 
   const severityColors = {
-    CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-    WARNING: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-    INFO: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+    CRITICAL: 'bg-destructive/10 text-destructive',
+    WARNING: 'bg-warning/10 text-warning',
+    INFO: 'bg-info/10 text-info',
   };
 
   const operatorLabels: Record<string, string> = {
@@ -290,6 +290,7 @@ function DetailContent({
                 onClick={() => onApply(template, {})}
                 disabled={isSubmitting}
                 className="w-full min-h-[44px]"
+                aria-label={`Apply template ${template.name}`}
               >
                 {isSubmitting ? 'Applying...' : 'Apply Template'}
               </Button>
@@ -302,6 +303,7 @@ function DetailContent({
                   onClick={() => onExport(template)}
                   disabled={isSubmitting}
                   className="flex-1 min-h-[44px]"
+                  aria-label={`Export template ${template.name}`}
                 >
                   Export
                 </Button>
@@ -313,6 +315,7 @@ function DetailContent({
                   onClick={() => onDelete(template)}
                   disabled={isSubmitting}
                   className="flex-1 min-h-[44px]"
+                  aria-label={`Delete template ${template.name}`}
                 >
                   Delete
                 </Button>
@@ -331,7 +334,7 @@ function DetailContent({
 
   // With variables, show tabs
   return (
-    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} aria-label="Template detail tabs">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="configure">
@@ -354,6 +357,7 @@ function DetailContent({
               onClick={() => onExport(template)}
               disabled={isSubmitting}
               className="flex-1 min-h-[44px]"
+              aria-label={`Export template ${template.name}`}
             >
               Export
             </Button>
@@ -365,6 +369,7 @@ function DetailContent({
               onClick={() => onDelete(template)}
               disabled={isSubmitting}
               className="flex-1 min-h-[44px]"
+              aria-label={`Delete template ${template.name}`}
             >
               Delete
             </Button>

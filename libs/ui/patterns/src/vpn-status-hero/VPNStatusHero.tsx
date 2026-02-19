@@ -1,10 +1,24 @@
 /**
  * VPN Status Hero Component
- * Large status card showing overall VPN health
- * Based on UX Design - Direction 5: Status Hero
+ *
+ * Large status card showing overall VPN health.
+ * Based on UX Design - Direction 5: Status Hero.
+ *
+ * @example
+ * ```tsx
+ * <VPNStatusHero
+ *   status="healthy"
+ *   totalServers={3}
+ *   totalClients={5}
+ *   activeServerConnections={2}
+ *   activeClientConnections={4}
+ *   totalRx={1024000}
+ *   totalTx={512000}
+ * />
+ * ```
  */
 
-import * as React from 'react';
+import { memo } from 'react';
 
 import { 
   Shield, 
@@ -53,40 +67,40 @@ function getStatusConfig(status: VPNHealthStatus) {
         Icon: Shield,
         title: 'All Systems Protected',
         subtitle: 'Your VPN infrastructure is healthy',
-        bgGradient: 'from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700',
+        bgClass: 'bg-success',
         iconBg: 'bg-white/20',
-        textColor: 'text-white',
-        mutedColor: 'text-white/70',
+        textColor: 'text-success-foreground',
+        mutedColor: 'text-success-foreground/70',
       };
     case 'warning':
       return {
         Icon: ShieldAlert,
         title: 'Attention Required',
         subtitle: 'Some VPN connections need attention',
-        bgGradient: 'from-amber-500 to-orange-500 dark:from-amber-600 dark:to-orange-600',
+        bgClass: 'bg-warning',
         iconBg: 'bg-white/20',
-        textColor: 'text-white',
-        mutedColor: 'text-white/70',
+        textColor: 'text-warning-foreground',
+        mutedColor: 'text-warning-foreground/70',
       };
     case 'critical':
       return {
         Icon: ShieldX,
         title: 'Issues Detected',
         subtitle: 'VPN connections have errors',
-        bgGradient: 'from-red-500 to-rose-600 dark:from-red-600 dark:to-rose-700',
+        bgClass: 'bg-destructive',
         iconBg: 'bg-white/20',
-        textColor: 'text-white',
-        mutedColor: 'text-white/70',
+        textColor: 'text-destructive-foreground',
+        mutedColor: 'text-destructive-foreground/70',
       };
     case 'loading':
       return {
         Icon: Loader2,
         title: 'Loading...',
         subtitle: 'Fetching VPN status',
-        bgGradient: 'from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800',
-        iconBg: 'bg-white/20',
-        textColor: 'text-white',
-        mutedColor: 'text-white/70',
+        bgClass: 'bg-muted',
+        iconBg: 'bg-foreground/10',
+        textColor: 'text-foreground',
+        mutedColor: 'text-muted-foreground',
       };
   }
 }
@@ -95,7 +109,7 @@ function getStatusConfig(status: VPNHealthStatus) {
  * VPNStatusHero Component
  * Large hero card showing VPN infrastructure health
  */
-export function VPNStatusHero({
+function VPNStatusHeroComponent({
   status,
   totalServers,
   totalClients,
@@ -110,10 +124,10 @@ export function VPNStatusHero({
   const Icon = config.Icon;
 
   return (
-    <Card className={`overflow-hidden ${className}`}>
-      <CardContent 
+    <Card className={`overflow-hidden ${className}`} role="status" aria-label={`VPN health: ${config.title}`}>
+      <CardContent
         className={`
-          p-0 bg-gradient-to-br ${config.bgGradient}
+          p-0 ${config.bgClass}
         `}
       >
         {/* Hero Section */}
@@ -195,3 +209,5 @@ export function VPNStatusHero({
   );
 }
 
+export const VPNStatusHero = memo(VPNStatusHeroComponent);
+VPNStatusHero.displayName = 'VPNStatusHero';

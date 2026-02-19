@@ -1,4 +1,5 @@
 import { $ } from "@builder.io/qwik";
+
 import type { FormValidationRule } from "./Form.types";
 
 export const required = (

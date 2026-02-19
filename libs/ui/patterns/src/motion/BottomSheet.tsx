@@ -10,7 +10,6 @@ import {
   useCallback,
   useRef,
   useEffect,
-  forwardRef,
   useState,
 } from 'react';
 
@@ -23,7 +22,7 @@ import {
 
 import { cn } from '@nasnet/ui/primitives';
 
-import { useAnimation, useAnimationOptional } from './AnimationProvider';
+import { useAnimationOptional } from './AnimationProvider';
 import { bottomSheet, backdrop, reducedMotionFade } from './presets';
 
 // ============================================================================
@@ -226,6 +225,8 @@ export function BottomSheet({
             {swipeToDismiss && (
               <div className="flex justify-center p-2">
                 <div
+                  role="separator"
+                  aria-label="Drag handle. Swipe down to dismiss."
                   className="h-1.5 w-12 rounded-full bg-muted-foreground/30"
                   onPointerDown={(e) => dragControls.start(e)}
                 />

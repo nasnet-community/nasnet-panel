@@ -1,7 +1,8 @@
 import { component$, $, type QRL } from "@builder.io/qwik";
 import { Card, Alert } from "@nas-net/core-ui-qwik";
-import type { VPNClientAdvancedState } from "../types/VPNClientAdvancedTypes";
+
 import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+import type { VPNClientAdvancedState } from "../types/VPNClientAdvancedTypes";
 
 export interface Step3SummaryProps {
   wizardState: VPNClientAdvancedState;

@@ -1,7 +1,8 @@
 import { component$, type QRL, useContext } from "@builder.io/qwik";
-import type { BaseNetworksType } from "@nas-net/star-context";
 import { UnifiedSelect as Select } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
+
+import type { BaseNetworksType } from "@nas-net/star-context";
 
 export type ExtendedNetworks = BaseNetworksType | "Wireguard" | "OpenVPN" | "L2TP" | "PPTP" | "SSTP" | "IKev2";
 

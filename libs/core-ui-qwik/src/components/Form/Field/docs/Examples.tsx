@@ -1,10 +1,11 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicField from "../Examples/BasicField";
-import FieldTypes from "../Examples/FieldTypes";
 import FieldLayouts from "../Examples/FieldLayouts";
 import FieldSizes from "../Examples/FieldSizes";
 import FieldStates from "../Examples/FieldStates";
+import FieldTypes from "../Examples/FieldTypes";
 import FieldWithSlots from "../Examples/FieldWithSlots";
 
 /**

@@ -1,7 +1,7 @@
 import { $, component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { Badge , Graph, createNode } from "@nas-net/core-ui-qwik";
 import { LuTrendingUp, LuActivity, LuZap } from "@qwikest/icons/lucide";
-import { Badge } from "@nas-net/core-ui-qwik";
-import { Graph, createNode } from "@nas-net/core-ui-qwik";
+
 import type { GraphNode, GraphConnection } from "@nas-net/core-ui-qwik";
 
 export const LoadBalanceSection = component$(() => {

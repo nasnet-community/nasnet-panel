@@ -1,7 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
 import { CodeBlock, Button } from "@nas-net/core-ui-qwik";
 import { LuTerminal, LuDownload } from "@qwikest/icons/lucide";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 interface CodeProps {
   configPreview: string;

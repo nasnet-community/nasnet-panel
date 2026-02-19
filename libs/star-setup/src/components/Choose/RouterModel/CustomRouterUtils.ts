@@ -5,8 +5,8 @@ import type {
   CustomWirelessConfig,
   CustomSfpConfig,
 } from "./CustomRouterTypes";
-import type { Ethernet, Wireless, Sfp, LTE } from "@nas-net/star-context";
-import type { RouterInterfaces } from "@nas-net/star-context";
+import type { Ethernet, Wireless, Sfp, LTE , RouterInterfaces } from "@nas-net/star-context";
+
 
 /**
  * Generate interface names for ethernet interfaces

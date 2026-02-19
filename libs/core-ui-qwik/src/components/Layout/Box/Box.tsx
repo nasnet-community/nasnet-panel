@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { BoxProps } from "./Box.types";
+
 import { useBox } from "./hooks/useBox";
+
+import type { BoxProps } from "./Box.types";
 
 const Box = component$<BoxProps>((props) => {
   const {

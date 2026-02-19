@@ -1,9 +1,11 @@
 import { component$, $ } from "@builder.io/qwik";
 import { Link, useLocation } from "@builder.io/qwik-city";
-import { LuPlay, LuArrowRight, LuRouter, LuShield, LuZap } from "@qwikest/icons/lucide";
 import { Button, Newsletter } from "@nas-net/core-ui-qwik";
-import type { NewsletterSubscription } from "@nas-net/core-ui-qwik";
+import { LuPlay, LuArrowRight, LuRouter, LuShield, LuZap } from "@qwikest/icons/lucide";
 import { subscribeToNewsletterSendGrid } from "@utils/newsletterAPI";
+
+import type { NewsletterSubscription } from "@nas-net/core-ui-qwik";
+
 
 export const HeroSection = component$(() => {
   const location = useLocation();

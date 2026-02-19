@@ -4,9 +4,11 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { DnsSettingsForm } from './DnsSettingsForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
   title: 'Features/Network/DNS/DnsSettingsForm',

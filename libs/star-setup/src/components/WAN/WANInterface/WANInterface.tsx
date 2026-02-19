@@ -1,7 +1,9 @@
 import { component$, useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import { WANInterfaceEasy } from "./WANInterfaceEasy/WANInterfaceEasy";
+
 import { WANAdvanced } from "./WANInterfaceAdvanced/WANAdvanced";
+import { WANInterfaceEasy } from "./WANInterfaceEasy/WANInterfaceEasy";
+
 import type { StepProps } from "@nas-net/core-ui-qwik";
 
 export interface WANInterfaceProps extends StepProps {

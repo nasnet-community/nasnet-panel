@@ -6,11 +6,11 @@ import {
 
 // Import examples
 import { SpacerBasic } from "./examples/SpacerBasic";
-import { SpacerSizes } from "./examples/SpacerSizes";
-import { SpacerHorizontal } from "./examples/SpacerHorizontal";
 import { SpacerFlexible } from "./examples/SpacerFlexible";
-import { SpacerResponsive } from "./examples/SpacerResponsive";
 import { SpacerHideOnMobile } from "./examples/SpacerHideOnMobile";
+import { SpacerHorizontal } from "./examples/SpacerHorizontal";
+import { SpacerResponsive } from "./examples/SpacerResponsive";
+import { SpacerSizes } from "./examples/SpacerSizes";
 
 export const SpacerExamples = component$(() => {
   const examples: Example[] = [

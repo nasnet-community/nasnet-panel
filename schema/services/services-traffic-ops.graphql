@@ -76,6 +76,7 @@ extend type Query {
   """
   Get traffic statistics for a service instance.
   Includes current totals, historical data, and per-device breakdown.
+  Requires authentication.
   """
   serviceTrafficStats(
     """Router ID"""
@@ -86,11 +87,12 @@ extend type Query {
 
     """Time range for history (hours, default 24)"""
     historyHours: Int
-  ): ServiceTrafficStats!
+  ): ServiceTrafficStats! @auth
 
   """
   Get per-device traffic breakdown for a service instance.
   Shows which devices are using bandwidth through this service.
+  Requires authentication.
   """
   serviceDeviceBreakdown(
     """Router ID"""
@@ -98,19 +100,21 @@ extend type Query {
 
     """Instance ID"""
     instanceID: ID!
-  ): [DeviceTrafficBreakdown!]!
+  ): [DeviceTrafficBreakdown!]! @auth
 }
 
 extend type Mutation {
   """
   Set or update traffic quota for a service instance.
   Creates mangle rules to track traffic and enforces limits.
+  Requires operator role or higher.
   """
-  setTrafficQuota(input: SetTrafficQuotaInput!): TrafficQuotaPayload!
+  setTrafficQuota(input: SetTrafficQuotaInput!): TrafficQuotaPayload! @auth(requires: "operator")
 
   """
   Remove traffic quota from a service instance.
   Removes tracking mangle rules and quota configuration.
+  Requires operator role or higher.
   """
   resetTrafficQuota(
     """Router ID"""
@@ -118,13 +122,14 @@ extend type Mutation {
 
     """Instance ID"""
     instanceID: ID!
-  ): TrafficQuotaPayload!
+  ): TrafficQuotaPayload! @auth(requires: "operator")
 }
 
 extend type Subscription {
   """
   Subscribe to traffic statistics updates for a service instance.
   Emits updates every 10 seconds with current traffic totals and deltas.
+  Requires authentication.
   """
   serviceTrafficUpdated(
     """Router ID to subscribe to"""
@@ -132,5 +137,5 @@ extend type Subscription {
 
     """Instance ID to monitor"""
     instanceID: ID!
-  ): TrafficStatsEvent!
+  ): TrafficStatsEvent! @auth
 }

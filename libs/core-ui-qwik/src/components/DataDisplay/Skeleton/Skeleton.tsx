@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { SkeletonProps } from "./Skeleton.types";
+
 import { useSkeleton } from "./hooks/useSkeleton";
+
+import type { SkeletonProps } from "./Skeleton.types";
 
 /**
  * Skeleton component for displaying loading placeholders

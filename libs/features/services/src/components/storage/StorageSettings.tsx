@@ -11,6 +11,7 @@
  */
 
 import * as React from 'react';
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 
 import { StorageSettingsMobile } from './StorageSettingsMobile';
@@ -28,7 +29,7 @@ export interface StorageSettingsProps {
  * StorageSettings component
  * Auto-selects platform-specific presenter based on viewport
  */
-export function StorageSettings({ className }: StorageSettingsProps) {
+function StorageSettingsComponent({ className }: StorageSettingsProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -37,3 +38,6 @@ export function StorageSettings({ className }: StorageSettingsProps) {
     <StorageSettingsDesktop className={className} />
   );
 }
+
+export const StorageSettings = memo(StorageSettingsComponent);
+StorageSettings.displayName = 'StorageSettings';

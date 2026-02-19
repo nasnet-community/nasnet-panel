@@ -1,4 +1,5 @@
 import { component$, useStyles$, type QRL } from "@builder.io/qwik";
+
 import type { IconProps } from "./Icon.types";
 
 /**

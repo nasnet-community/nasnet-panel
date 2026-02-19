@@ -1,5 +1,5 @@
 import { component$, useVisibleTask$, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import {
   cn,
   getStatusColors,
@@ -7,6 +7,8 @@ import {
   getIconSizeClasses,
   getTouchTargetClasses,
 } from "../utils/theme";
+
+import type { QRL } from "@builder.io/qwik";
 
 export interface ErrorMessageProps {
   /** The error message to display */

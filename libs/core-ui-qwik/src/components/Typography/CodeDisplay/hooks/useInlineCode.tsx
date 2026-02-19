@@ -1,4 +1,5 @@
 import { useComputed$ } from "@builder.io/qwik";
+
 import { type InlineCodeProps } from "../CodeDisplay.types";
 
 export function useInlineCode({

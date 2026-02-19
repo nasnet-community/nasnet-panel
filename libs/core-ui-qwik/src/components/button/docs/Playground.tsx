@@ -1,7 +1,8 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
-import { Button } from "../Button";
 import { HiArrowRightOutline, HiCheckOutline } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export default component$(() => {
   // Wrapper component to handle dynamic props

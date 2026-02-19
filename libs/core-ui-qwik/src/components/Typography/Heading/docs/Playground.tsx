@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { Heading } from "../Heading";
+
 import type { HeadingLevel, HeadingWeight, HeadingAlignment, HeadingColor } from "../Heading.types";
 
 /**

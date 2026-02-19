@@ -1,6 +1,8 @@
 import { component$, Slot, useSignal, useTask$, $ } from "@builder.io/qwik";
-import { SegmentedControl } from "../../SegmentedControl";
 import { HiCheckCircleOutline, HiXCircleOutline } from "@qwikest/icons/heroicons";
+
+import { SegmentedControl } from "../../SegmentedControl";
+
 import type { GradientHeaderProps } from "./GradientHeader.types";
 
 /**

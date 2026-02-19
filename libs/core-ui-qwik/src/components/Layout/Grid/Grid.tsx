@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { GridProps, GridItemProps, ResponsiveGridTemplateColumns, GridTemplateColumns } from "./Grid.types";
 
 /**

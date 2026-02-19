@@ -1,6 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { TopNavigation } from "..";
-import type { TopNavigationItem } from "..";
 import { renderIcon } from "@nas-net/core-ui-qwik";
 import {
   HiHomeOutline,
@@ -9,6 +7,10 @@ import {
   HiInformationCircleOutline,
   HiEnvelopeOutline,
 } from "@qwikest/icons/heroicons";
+
+import { TopNavigation } from "..";
+
+import type { TopNavigationItem } from "..";
 
 export default component$(() => {
   const items: TopNavigationItem[] = [

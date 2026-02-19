@@ -1,5 +1,6 @@
 import { useSignal, useOnWindow, $ } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
+
 import { buildLocalePath, getPathWithoutLocale } from "../../i18n-utils";
 
 export const useHeader = () => {

@@ -1,4 +1,5 @@
 import { component$, Slot, type PropsOf } from "@builder.io/qwik";
+
 import { classNames } from "./utils";
 
 export interface VisuallyHiddenProps extends Omit<PropsOf<"span">, "class"> {

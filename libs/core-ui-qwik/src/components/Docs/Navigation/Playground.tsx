@@ -1,6 +1,7 @@
 import { component$, useSignal, useStore, $ } from "@builder.io/qwik";
-import { PlaygroundTemplate, type PlaygroundTemplateProps, type PropertyControl } from "../templates/PlaygroundTemplate";
+
 import { DocsSideNavigation } from "./DocsSideNavigation";
+import { PlaygroundTemplate, type PlaygroundTemplateProps, type PropertyControl } from "../templates/PlaygroundTemplate";
 
 export interface NavigationPlaygroundControl extends PropertyControl {
   key?: string;

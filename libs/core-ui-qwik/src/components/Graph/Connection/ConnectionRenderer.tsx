@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { GraphConnection, GraphNode } from "../types";
-import { PacketAnimation } from "./PacketAnimation";
+
 import { ConnectionMarkers } from "./ConnectionMarkers";
+import { PacketAnimation } from "./PacketAnimation";
+
+import type { GraphConnection, GraphNode } from "../types";
 
 /**
  * Component that renders connections between nodes

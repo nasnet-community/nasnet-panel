@@ -1,6 +1,6 @@
-import { CommandShortner, type RouterConfig } from "@nas-net/ros-cmd-generator";
 import { type ChooseState, type WirelessConfig, type Subnets } from "@nas-net/star-context";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
+
+import { CommandShortner, type RouterConfig, mergeMultipleConfigs } from "../../index";
 
 
 

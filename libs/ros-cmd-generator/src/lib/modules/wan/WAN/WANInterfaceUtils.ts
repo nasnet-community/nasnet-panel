@@ -1,15 +1,15 @@
 
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import { detectAvailableBands, type AvailableBands } from "../../lan/Wireless/WirelessUtil";
+import { StationMode } from "../../lan/Wireless/WirelessUtil";
+
+import type { RouterConfig } from "../../../generator";
 import type {
     WANLinkConfig,
     WANLink,
     WANLinks,
     LTE,
     RouterModels,
-} from "@nas-net/star-context";
-import type { Band } from "@nas-net/star-context";
-import { StationMode } from "@nas-net/ros-cmd-generator";
-import { detectAvailableBands, type AvailableBands } from "@nas-net/ros-cmd-generator/";
+ Band } from "@nas-net/star-context";
 
 
 

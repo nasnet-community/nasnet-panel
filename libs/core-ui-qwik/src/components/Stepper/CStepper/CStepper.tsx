@@ -1,15 +1,17 @@
 import { component$, useVisibleTask$, $, useTask$, useSignal } from "@builder.io/qwik";
-import type { CStepperProps } from "./types";
-import { useCStepper } from "./hooks/useCStepper";
-import { CStepperContextId } from "./hooks/useStepperContext";
-import { useProvideStepperContext } from "./hooks/useProvideStepperContext";
-import { CStepperErrors } from "./components/CStepperErrors";
+
 import { CStepperContent } from "./components/CStepperContent";
-import { CStepperProgress } from "./components/CStepperProgress";
-import { CStepperNavigation } from "./components/CStepperNavigation";
+import { CStepperErrors } from "./components/CStepperErrors";
 import { CStepperManagement } from "./components/CStepperManagement";
+import { CStepperNavigation } from "./components/CStepperNavigation";
+import { CStepperProgress } from "./components/CStepperProgress";
+import { useCStepper } from "./hooks/useCStepper";
+import { useProvideStepperContext } from "./hooks/useProvideStepperContext";
+import { CStepperContextId } from "./hooks/useStepperContext";
 import { StepperHelpModal } from "../shared/components/StepperHelpModal";
 import { useStepperHelp } from "../shared/hooks/useStepperHelp";
+
+import type { CStepperProps } from "./types";
 
 /**
  * Content-focused stepper component with top navigation

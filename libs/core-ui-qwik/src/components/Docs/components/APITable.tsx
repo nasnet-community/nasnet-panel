@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { PropDetail, EventDetail, MethodDetail } from "../templates";
 
 export interface APITableProps {

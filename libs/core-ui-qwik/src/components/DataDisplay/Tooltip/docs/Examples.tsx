@@ -2,11 +2,11 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
+import AccessibleTooltip from "../Examples/AccessibleTooltip";
 import { BasicTooltip } from "../Examples/BasicTooltip";
+import InteractiveTooltip from "../Examples/InteractiveTooltip";
 import { TooltipPlacements } from "../Examples/TooltipPlacements";
 import { TooltipVariations } from "../Examples/TooltipVariations";
-import AccessibleTooltip from "../Examples/AccessibleTooltip";
-import InteractiveTooltip from "../Examples/InteractiveTooltip";
 
 export default component$(() => {
   const examples = [

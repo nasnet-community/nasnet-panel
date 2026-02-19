@@ -1,6 +1,7 @@
 import { $, component$, type PropFunction } from "@builder.io/qwik";
 import { LuWifi, LuAlertCircle } from "@qwikest/icons/lucide";
 import { track } from "@vercel/analytics";
+
 import type { RouterModels } from "@nas-net/star-context";
 
 interface WirelessBandSelectorProps {

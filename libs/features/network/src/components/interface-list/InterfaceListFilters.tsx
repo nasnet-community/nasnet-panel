@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Button } from '@nasnet/ui/primitives';
 import { InterfaceType, InterfaceStatus } from '@nasnet/api-client/generated';
 import type { InterfaceFilters } from './InterfaceList';
@@ -11,7 +12,7 @@ export interface InterfaceListFiltersProps {
  * Interface List Filters Component
  * Provides filtering controls for interface type, status, and search
  */
-export function InterfaceListFilters({ filters, onChange }: InterfaceListFiltersProps) {
+export const InterfaceListFilters = memo(function InterfaceListFilters({ filters, onChange }: InterfaceListFiltersProps) {
   const hasActiveFilters = filters.type || filters.status || filters.search;
 
   const handleClearFilters = () => {
@@ -19,7 +20,7 @@ export function InterfaceListFilters({ filters, onChange }: InterfaceListFilters
   };
 
   return (
-    <div className="flex gap-2 items-center flex-wrap">
+    <div className="flex gap-2 items-center flex-wrap" role="search" aria-label="Filter interfaces">
       {/* Type filter */}
       <Select
         value={filters.type ?? 'all'}
@@ -30,7 +31,7 @@ export function InterfaceListFilters({ filters, onChange }: InterfaceListFilters
           })
         }
       >
-        <SelectTrigger className="w-40">
+        <SelectTrigger className="w-40 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface type">
           <SelectValue placeholder="All Types" />
         </SelectTrigger>
         <SelectContent>
@@ -55,7 +56,7 @@ export function InterfaceListFilters({ filters, onChange }: InterfaceListFilters
           })
         }
       >
-        <SelectTrigger className="w-40">
+        <SelectTrigger className="w-40 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface status">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
         <SelectContent>
@@ -72,15 +73,16 @@ export function InterfaceListFilters({ filters, onChange }: InterfaceListFilters
         placeholder="Search by name..."
         value={filters.search}
         onChange={(e) => onChange({ ...filters, search: e.target.value })}
-        className="w-64"
+        className="w-64 min-h-[44px]"
+        aria-label="Search interfaces by name"
       />
 
       {/* Clear filters */}
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+        <Button variant="ghost" size="sm" onClick={handleClearFilters} className="min-h-[44px]" aria-label="Clear all filters">
           Clear filters
         </Button>
       )}
     </div>
   );
-}
+});

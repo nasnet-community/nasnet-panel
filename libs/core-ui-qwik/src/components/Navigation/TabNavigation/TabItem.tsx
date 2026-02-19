@@ -1,6 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { Tab, TabSize, TabVariant } from "./TabNavigation.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface TabItemProps {
   tab: Tab;

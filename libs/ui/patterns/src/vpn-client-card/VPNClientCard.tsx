@@ -1,10 +1,23 @@
 /**
  * VPN Client Card Component
- * Displays a VPN client with status, server, connection stats, and actions
- * Supports all VPN protocols
+ *
+ * Displays a VPN client with status, server, connection stats, and actions.
+ * Supports all VPN protocols.
+ *
+ * @example
+ * ```tsx
+ * <VPNClientCard
+ *   id="1"
+ *   name="Office VPN"
+ *   protocol="wireguard"
+ *   disabled={false}
+ *   running={true}
+ *   connectTo="vpn.example.com"
+ * />
+ * ```
  */
 
-import * as React from 'react';
+import { memo } from 'react';
 
 import { 
   MoreVertical, 
@@ -83,7 +96,7 @@ export interface VPNClientCardProps {
 /**
  * VPNClientCard Component
  */
-export function VPNClientCard({
+function VPNClientCardComponent({
   id,
   name,
   protocol,
@@ -113,12 +126,13 @@ export function VPNClientCard({
   };
 
   return (
-    <Card 
+    <Card
       className={`
-        transition-all duration-200 hover:shadow-md 
-        ${running ? 'border-success/30 dark:border-success/20' : ''}
+        transition-all duration-200 hover:shadow-md
+        ${running ? 'border-success/30' : ''}
         ${className}
       `}
+      aria-label={`${name} VPN client - ${statusLabel}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
@@ -270,3 +284,5 @@ export function VPNClientCard({
   );
 }
 
+export const VPNClientCard = memo(VPNClientCardComponent);
+VPNClientCard.displayName = 'VPNClientCard';

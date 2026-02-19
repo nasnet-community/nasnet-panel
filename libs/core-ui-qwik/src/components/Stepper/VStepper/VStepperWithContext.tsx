@@ -1,7 +1,9 @@
 import { component$, $ } from "@builder.io/qwik";
-import { VStepper } from "./VStepper";
-import type { VStepperProps } from "./types";
+
 import { useProvideVStepperContext, VStepperContextId } from "./hooks/useVStepperContext";
+import { VStepper } from "./VStepper";
+
+import type { VStepperProps } from "./types";
 
 /**
  * VStepper wrapper component that properly handles context setup

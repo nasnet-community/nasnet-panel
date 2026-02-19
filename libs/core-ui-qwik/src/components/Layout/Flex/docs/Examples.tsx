@@ -1,12 +1,13 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
+
+import { FlexAlignment } from "./examples/FlexAlignment";
 import { FlexBasic } from "./examples/FlexBasic";
 import { FlexDirection } from "./examples/FlexDirection";
-import { FlexAlignment } from "./examples/FlexAlignment";
 import { FlexGap } from "./examples/FlexGap";
-import { FlexResponsive } from "./examples/FlexResponsive";
-import { FlexNested } from "./examples/FlexNested";
 import { FlexItems } from "./examples/FlexItems";
+import { FlexNested } from "./examples/FlexNested";
+import { FlexResponsive } from "./examples/FlexResponsive";
 
 export default component$(() => {
   const examples = [

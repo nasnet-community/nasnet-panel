@@ -6,6 +6,7 @@
  * 44px minimum touch targets, simplified UI.
  */
 
+import { memo } from 'react';
 import {
   Badge,
   Button,
@@ -35,7 +36,7 @@ export interface RouteFormMobileProps {
   mode: 'create' | 'edit';
 }
 
-export function RouteFormMobile({
+function RouteFormMobileComponent({
   form,
   reachabilityInfo,
   tableOptions,
@@ -134,9 +135,9 @@ export function RouteFormMobile({
                   <AlertTriangle className="mr-1 h-3 w-3" />
                   Gateway may not be reachable
                 </Badge>
-                <div className="mt-2 rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
+                <div role="alert" className="mt-2 rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
                   <div className="flex gap-2">
-                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
                     <div className="space-y-1">
                       <p className="font-medium">Warning</p>
                       <p className="text-muted-foreground">{reachabilityInfo.message}</p>
@@ -296,3 +297,5 @@ export function RouteFormMobile({
     </form>
   );
 }
+
+export const RouteFormMobile = memo(RouteFormMobileComponent);

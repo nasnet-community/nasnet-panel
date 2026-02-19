@@ -37,13 +37,13 @@ const STATUS_CONFIG: Record<
   up: {
     icon: CheckCircle2,
     label: 'Up',
-    bgClass: 'bg-success/10 dark:bg-success/20',
+    bgClass: 'bg-success/10',
     iconClass: 'text-success',
   },
   down: {
     icon: XCircle,
     label: 'Down',
-    bgClass: 'bg-destructive/10 dark:bg-destructive/20',
+    bgClass: 'bg-destructive/10',
     iconClass: 'text-destructive',
   },
   disabled: {
@@ -86,7 +86,7 @@ export function InterfaceStatusCardDesktop({
       className={cn(
         'cursor-pointer transition-all min-w-[200px]',
         'hover:shadow-md hover:border-primary/50',
-        'focus:outline-none focus:ring-3 focus:ring-primary focus:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         status.bgClass,
         !prefersReducedMotion && isStatusChanged && 'animate-pulse',
         className

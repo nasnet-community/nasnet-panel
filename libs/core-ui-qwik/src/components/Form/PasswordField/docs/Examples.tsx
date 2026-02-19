@@ -1,9 +1,10 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicPasswordField from "../Examples/BasicPasswordField";
+import PasswordFieldFeatures from "../Examples/PasswordFieldFeatures";
 import PasswordFieldSizes from "../Examples/PasswordFieldSizes";
 import PasswordFieldStates from "../Examples/PasswordFieldStates";
-import PasswordFieldFeatures from "../Examples/PasswordFieldFeatures";
 
 /**
  * PasswordField component examples documentation using the standard template

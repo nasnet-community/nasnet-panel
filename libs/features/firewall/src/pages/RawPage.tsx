@@ -15,7 +15,7 @@
  * @see NAS-7.X: Implement RAW Firewall Rules - Phase B - Task 11
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRawUIStore } from '@nasnet/state/stores';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -71,7 +71,7 @@ interface EmptyStateProps {
   onBogonFilter: () => void;
 }
 
-function EmptyState({ chain, onAddRule, onBogonFilter }: EmptyStateProps) {
+const EmptyState = memo(function EmptyState({ chain, onAddRule, onBogonFilter }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   return (
@@ -89,24 +89,24 @@ function EmptyState({ chain, onAddRule, onBogonFilter }: EmptyStateProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
-        <Button onClick={onAddRule}>
+        <Button onClick={onAddRule} aria-label={t('raw.buttons.addRule', 'Add RAW Rule')}>
           <Plus className="h-4 w-4 mr-2" />
           {t('raw.buttons.addRule', 'Add RAW Rule')}
         </Button>
-        <Button variant="outline" onClick={onBogonFilter}>
+        <Button variant="outline" onClick={onBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
           <Shield className="h-4 w-4 mr-2" />
           {t('raw.buttons.bogonFilter', 'Bogon Filter')}
         </Button>
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Performance Explanation Component
 // ============================================================================
 
-function PerformanceExplanation() {
+const PerformanceExplanation = memo(function PerformanceExplanation() {
   const { t } = useTranslation('firewall');
   const { performanceSectionExpanded, setPerformanceSectionExpanded } = useRawUIStore();
 
@@ -118,9 +118,13 @@ function PerformanceExplanation() {
       <Card className="mt-4">
         <CardHeader className="pb-3">
           <CollapsibleTrigger asChild>
-            <button className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity">
+            <button
+              className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity rounded focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label={t('raw.performance.title', 'Why use RAW table?')}
+              aria-expanded={performanceSectionExpanded}
+            >
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-amber-500" />
+                <Zap className="h-5 w-5 text-warning" />
                 <CardTitle className="text-lg">
                   {t('raw.performance.title', 'Why use RAW table?')}
                 </CardTitle>
@@ -137,7 +141,7 @@ function PerformanceExplanation() {
         <CollapsibleContent>
           <CardContent className="space-y-4">
             {/* Main Explanation */}
-            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-muted border border-border rounded-lg p-4">
               <p className="text-sm">
                 {t('raw.performance.explanation',
                   'The RAW table processes packets BEFORE connection tracking. This is critical for performance because connection tracking is expensive (CPU and memory). By dropping unwanted traffic in RAW, you prevent connection tracking overhead.'
@@ -148,12 +152,12 @@ function PerformanceExplanation() {
             {/* Benefits */}
             <div>
               <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                <Info className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <Info className="h-4 w-4 text-success" />
                 {t('raw.performance.benefits.title', 'Key Benefits')}
               </h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
+                  <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.tips.tip_drop',
                       'Packets dropped in RAW table bypass connection tracking, saving CPU and memory'
@@ -161,7 +165,7 @@ function PerformanceExplanation() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
+                  <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.benefits.items.0',
                       'Ideal for DDoS protection - drop attacks before they consume resources'
@@ -169,7 +173,7 @@ function PerformanceExplanation() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
+                  <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.tips.tip_notrack',
                       'Notrack action skips connection tracking for high-volume traffic'
@@ -177,7 +181,7 @@ function PerformanceExplanation() {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-600 dark:text-green-400">✓</span>
+                  <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.benefits.items.4',
                       'Reduces connection table size by preventing tracked connections for dropped packets'
@@ -192,7 +196,7 @@ function PerformanceExplanation() {
               <h4 className="font-semibold text-sm mb-2">
                 {t('raw.performance.useCases.title', 'Common Use Cases')}
               </h4>
-              <ul className="space-y-1 text-sm text-slate-600 dark:text-slate-400 list-disc list-inside">
+              <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <li key={i}>
                     {t(`raw.performance.useCases.items.${i}`, `Use case ${i + 1}`)}
@@ -202,12 +206,12 @@ function PerformanceExplanation() {
             </div>
 
             {/* Warnings */}
-            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <div className="bg-warning/10 border border-warning/30 rounded-lg p-4" role="alert">
+              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-warning-foreground">
                 <AlertTriangle className="h-4 w-4" />
                 {t('raw.performance.warnings.title', 'Important Warnings')}
               </h4>
-              <ul className="space-y-1 text-sm text-amber-800 dark:text-amber-200 list-disc list-inside">
+              <ul className="space-y-1 text-sm text-warning-foreground list-disc list-inside">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <li key={i}>
                     {t(`raw.performance.warnings.items.${i}`, `Warning ${i + 1}`)}
@@ -220,7 +224,7 @@ function PerformanceExplanation() {
       </Card>
     </Collapsible>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -287,11 +291,11 @@ export function RawPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={handleBogonFilter}>
+            <Button variant="outline" onClick={handleBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
               <Shield className="h-4 w-4 mr-2" />
               {t('raw.buttons.bogonFilter', 'Bogon Filter')}
             </Button>
-            <Button onClick={handleAddRule}>
+            <Button onClick={handleAddRule} aria-label={t('raw.buttons.addRule', 'Add Rule')}>
               <Plus className="h-4 w-4 mr-2" />
               {t('raw.buttons.addRule', 'Add Rule')}
             </Button>
@@ -334,10 +338,10 @@ export function RawPage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-4 m-0 space-y-4">
                 {isLoading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                      <div className="h-16 bg-muted rounded" />
+                      <div className="h-16 bg-muted rounded" />
                     </div>
                   </div>
                 ) : !rules || rules.length === 0 ? (

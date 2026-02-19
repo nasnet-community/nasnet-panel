@@ -111,7 +111,7 @@ export const LatencyGraph = memo(function LatencyGraph({
   const yMax = Math.max(250, Math.ceil(maxTime * 1.2 / 50) * 50); // Round up to nearest 50
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full', className)} role="img" aria-label="Latency over time chart showing ping response times">
       <h3 className="text-lg font-semibold mb-2">Latency Over Time</h3>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart

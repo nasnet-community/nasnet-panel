@@ -1,4 +1,5 @@
 import { component$, type QRL } from "@builder.io/qwik";
+
 import type { WANLinkConfig } from "../../types";
 
 export interface LinkBoxHeaderProps {

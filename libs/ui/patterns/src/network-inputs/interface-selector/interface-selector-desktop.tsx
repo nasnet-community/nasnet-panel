@@ -86,6 +86,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
     retry,
   } = mergedState;
 
+  const listboxId = id ? `${id}-listbox` : 'interface-listbox';
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +136,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
             role="combobox"
             aria-expanded={isOpen}
             aria-haspopup="listbox"
+            aria-controls={listboxId}
             aria-describedby={ariaDescribedBy}
             aria-invalid={!!displayError}
             disabled={disabled}
@@ -157,7 +159,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
           onKeyDown={handleKeyDown}
         >
           {/* Search and filter header */}
-          <div className="p-3 border-b space-y-3">
+          <div className="p-3 border-b border-border space-y-3">
             {/* Search input */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -196,6 +198,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
           <ScrollArea className="max-h-[300px]">
             <div
               ref={listRef}
+              id={listboxId}
               role="listbox"
               aria-label="Interface list"
               aria-multiselectable={multiple}
@@ -260,7 +263,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
 
           {/* Footer with result count */}
           {!isLoading && !subscriptionError && filteredInterfaces.length > 0 && (
-            <div className="px-3 py-2 border-t text-xs text-muted-foreground">
+            <div className="px-3 py-2 border-t border-border text-xs text-muted-foreground">
               {filteredInterfaces.length} interface{filteredInterfaces.length !== 1 ? 's' : ''}
               {selectedValues.length > 0 && (
                 <span> · {selectedValues.length} selected</span>

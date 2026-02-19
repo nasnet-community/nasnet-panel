@@ -1,5 +1,7 @@
 import { component$, Slot, useContext, $ } from "@builder.io/qwik";
+
 import { AccordionContext, AccordionItemContext } from "./AccordionContext";
+
 import type { AccordionTriggerProps } from "./Accordion.types";
 
 export const AccordionTrigger = component$<AccordionTriggerProps>((props) => {

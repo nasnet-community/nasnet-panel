@@ -1,5 +1,7 @@
 import { component$, useTask$, useSignal, type QRL } from "@builder.io/qwik";
+
 import { FilePreview } from "../FilePreview";
+
 // import { ProgressBar } from '../../../DataDisplay/Progress/ProgressBar/ProgressBar';
 import type { FileInfo } from "../FileUpload.types";
 

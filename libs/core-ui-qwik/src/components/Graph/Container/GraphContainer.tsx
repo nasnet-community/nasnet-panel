@@ -1,7 +1,9 @@
 import { $, component$, useSignal, useVisibleTask$, Slot } from "@builder.io/qwik";
-import type { CSSProperties, GraphConfig } from "../types";
-import { GraphLegend } from "./GraphLegend";
 import { LuX } from "@qwikest/icons/lucide";
+
+import { GraphLegend } from "./GraphLegend";
+
+import type { CSSProperties, GraphConfig } from "../types";
 
 // Default config values
 export const defaultConfig = {

@@ -1,6 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { TableColumn } from "../Table.types";
+import type { QRL } from "@builder.io/qwik";
 
 interface MobileTableCardProps {
   row: any;

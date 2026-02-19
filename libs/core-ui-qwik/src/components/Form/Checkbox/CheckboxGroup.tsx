@@ -1,7 +1,9 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { CheckboxGroupProps } from "./Checkbox.types";
+
 import { Checkbox } from "./Checkbox";
 import { useCheckboxGroup } from "./hooks/useCheckboxGroup";
+
+import type { CheckboxGroupProps } from "./Checkbox.types";
 
 /**
  * CheckboxGroup component for managing a group of related checkbox options.

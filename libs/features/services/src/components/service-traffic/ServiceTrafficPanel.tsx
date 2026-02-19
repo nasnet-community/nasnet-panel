@@ -11,6 +11,8 @@
  * NAS-8.8: Implement Traffic Statistics and Quota Management
  */
 
+import { memo } from 'react';
+
 import { usePlatform } from '@nasnet/ui/layouts';
 import { ServiceTrafficPanelDesktop } from './ServiceTrafficPanelDesktop';
 import { ServiceTrafficPanelMobile } from './ServiceTrafficPanelMobile';
@@ -37,7 +39,7 @@ import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
  * />
  * ```
  */
-export function ServiceTrafficPanel(props: ServiceTrafficPanelProps) {
+function ServiceTrafficPanelComponent(props: ServiceTrafficPanelProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -46,6 +48,9 @@ export function ServiceTrafficPanel(props: ServiceTrafficPanelProps) {
     <ServiceTrafficPanelDesktop {...props} />
   );
 }
+
+export const ServiceTrafficPanel = memo(ServiceTrafficPanelComponent);
+ServiceTrafficPanel.displayName = 'ServiceTrafficPanel';
 
 // Re-export presenters for direct usage
 export { ServiceTrafficPanelDesktop, ServiceTrafficPanelMobile };

@@ -1,6 +1,7 @@
 import { $, component$, type QRL } from "@builder.io/qwik";
-import { LuInfo, LuCheck } from "@qwikest/icons/lucide";
 import { Button, Badge } from "@nas-net/core-ui-qwik";
+import { LuInfo, LuCheck } from "@qwikest/icons/lucide";
+
 import { type RouterData } from "./Constants";
 
 interface SimpleRouterCardProps {

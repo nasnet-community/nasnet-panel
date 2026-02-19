@@ -1,9 +1,11 @@
 import { component$, type QRL, $ } from "@builder.io/qwik";
+
+import { getStatusColorClass } from "../../utils/displayFormatters";
+import { getInterfaceIcon, getConnectionIcon } from "../../utils/iconMappings";
+import { StatusIndicator } from "../common/StatusIndicator";
+
 import type { WANWizardState } from "../../types";
 import type { LinkStatus } from "../../utils/linkHelpers";
-import { getInterfaceIcon, getConnectionIcon } from "../../utils/iconMappings";
-import { getStatusColorClass } from "../../utils/displayFormatters";
-import { StatusIndicator } from "../common/StatusIndicator";
 
 export interface LinkCardHeaderProps {
   link: WANWizardState["links"][0];

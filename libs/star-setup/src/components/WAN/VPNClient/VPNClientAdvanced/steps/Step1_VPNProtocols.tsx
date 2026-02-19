@@ -1,10 +1,12 @@
 import { component$, $, useSignal, useVisibleTask$, type QRL } from "@builder.io/qwik";
 import { Alert, Input } from "@nas-net/core-ui-qwik";
-import type { VPNClientAdvancedState, VPNType } from "../types/VPNClientAdvancedTypes";
-import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+
+import { L2TPPromoBanner } from "../../Protocols/L2TP/L2TPPromoBanner";
 import { VPNProtocolSelector } from "../components/fields/VPNProtocolSelector";
 import { WANInterfaceSelector } from "../components/fields/WANInterfaceSelector";
-import { L2TPPromoBanner } from "../../Protocols/L2TP/L2TPPromoBanner";
+
+import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+import type { VPNClientAdvancedState, VPNType } from "../types/VPNClientAdvancedTypes";
 import type { L2TPCredentials } from "@utils/supabaseClient";
 
 export interface Step1VPNProtocolsProps {

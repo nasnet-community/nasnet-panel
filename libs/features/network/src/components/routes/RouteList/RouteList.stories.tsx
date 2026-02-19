@@ -5,13 +5,15 @@
  * Demonstrates the RouteList component in various states and platform configurations.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+
+import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
 
 import { RouteListDesktop } from './RouteListDesktop';
 import { RouteListMobile } from './RouteListMobile';
-import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
+
 import type { RouteFilters, RouteSortOptions } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Mock route data covering all route types and states

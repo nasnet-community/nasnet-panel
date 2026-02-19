@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
-import type { CheckboxProps } from "./Checkbox.types";
-import { useCheckbox } from "./hooks/useCheckbox";
+
 import { CheckboxInput } from "./CheckboxInput";
 import { CheckboxLabel } from "./CheckboxLabel";
+import { useCheckbox } from "./hooks/useCheckbox";
+
+import type { CheckboxProps } from "./Checkbox.types";
 
 /**
  * Checkbox component for selecting boolean options.

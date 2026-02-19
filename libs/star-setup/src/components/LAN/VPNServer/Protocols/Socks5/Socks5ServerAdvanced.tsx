@@ -1,10 +1,11 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+import { ServerCard , SectionTitle , Input } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
+
 import { useSocks5Server } from "./useSocks5Server";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { SectionTitle } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown } from "../../components/NetworkSelection";
-import { Input } from "@nas-net/core-ui-qwik";
+
+
 import type { BaseNetworksType } from "@nas-net/star-context";
 
 export const Socks5ServerAdvanced = component$(() => {

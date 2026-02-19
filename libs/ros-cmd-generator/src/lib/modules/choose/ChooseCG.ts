@@ -1,5 +1,6 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import { mergeRouterConfigs } from "@nas-net/ros-cmd-generator";
+import { mergeRouterConfigs } from "../../utils/ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../../generator";
 
 export const BaseConfig = (): RouterConfig => {
     const config: RouterConfig = {

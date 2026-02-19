@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { LinkStatus } from "../../utils/linkHelpers";
 
 export interface StatusIndicatorProps {

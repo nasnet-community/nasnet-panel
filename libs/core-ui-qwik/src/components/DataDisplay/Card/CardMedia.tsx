@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { CardMediaProps } from "./Card.types";
 
 export const CardMedia = component$<CardMediaProps>((props) => {

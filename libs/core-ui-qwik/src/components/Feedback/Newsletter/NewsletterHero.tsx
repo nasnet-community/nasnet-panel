@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { NewsletterProps } from "./Newsletter.types";
+
 import { Newsletter } from "./Newsletter";
+
+import type { NewsletterProps } from "./Newsletter.types";
 
 /**
  * Hero-optimized Newsletter component for landing page hero sections.

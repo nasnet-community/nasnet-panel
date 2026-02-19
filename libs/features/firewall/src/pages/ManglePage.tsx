@@ -14,7 +14,7 @@
  * @see NAS-7.5: Implement Mangle Rules - Task 8
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMangleUIStore } from '@nasnet/state/stores';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -76,7 +76,7 @@ interface EmptyStateProps {
   onAddRule: () => void;
 }
 
-function EmptyState({ chain, onAddRule }: EmptyStateProps) {
+const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   return (
@@ -94,7 +94,7 @@ function EmptyState({ chain, onAddRule }: EmptyStateProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
-        <Button onClick={onAddRule}>
+        <Button onClick={onAddRule} aria-label={chain ? t('mangle.emptyStates.noRulesInChain.action', { chain }) : t('mangle.emptyStates.noRules.actions.create')}>
           <Plus className="h-4 w-4 mr-2" />
           {chain
             ? t('mangle.emptyStates.noRulesInChain.action', { chain })
@@ -103,7 +103,7 @@ function EmptyState({ chain, onAddRule }: EmptyStateProps) {
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -157,11 +157,11 @@ export function ManglePage() {
             <p className="text-sm text-muted-foreground">{t('mangle.subtitle')}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleViewFlow}>
+            <Button variant="outline" onClick={handleViewFlow} aria-label={t('mangle.buttons.viewFlow')}>
               <Workflow className="h-4 w-4 mr-2" />
               {t('mangle.buttons.viewFlow')}
             </Button>
-            <Button onClick={handleAddRule}>
+            <Button onClick={handleAddRule} aria-label={t('mangle.buttons.addRule')}>
               <Plus className="h-4 w-4 mr-2" />
               {t('mangle.buttons.addRule')}
             </Button>
@@ -193,11 +193,11 @@ export function ManglePage() {
             {/* All Chains Tab */}
             <TabsContent value="all" className="p-4 m-0">
               {isLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                   <div className="animate-pulse space-y-4">
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-16 bg-muted rounded" />
+                    <div className="h-16 bg-muted rounded" />
+                    <div className="h-16 bg-muted rounded" />
                   </div>
                 </div>
               ) : !rules || rules.length === 0 ? (
@@ -213,10 +213,10 @@ export function ManglePage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-4 m-0">
                 {isLoading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                      <div className="h-16 bg-muted rounded" />
+                      <div className="h-16 bg-muted rounded" />
                     </div>
                   </div>
                 ) : !rules || rules.length === 0 ? (

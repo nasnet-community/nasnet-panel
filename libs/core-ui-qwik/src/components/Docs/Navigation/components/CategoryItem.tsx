@@ -1,7 +1,8 @@
 import { component$, useSignal, useVisibleTask$, $ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
-import type { PropFunction } from "@builder.io/qwik";
+
 import type { DocsSideNavigationCategory } from "../types";
+import type { PropFunction } from "@builder.io/qwik";
 
 export interface CategoryItemProps {
   category: DocsSideNavigationCategory;

@@ -1,5 +1,5 @@
 import { component$, useComputed$, $, useSignal } from "@builder.io/qwik";
-import type { ToastProps } from "./Toast.types";
+
 import {
   InfoIcon,
   SuccessIcon,
@@ -7,8 +7,8 @@ import {
   ErrorIcon,
   LoadingSpinner,
 } from "./icons";
-import { useToastItem } from "./useToastItem";
 import { useSwipeGesture } from "./useSwipeGesture";
+import { useToastItem } from "./useToastItem";
 import {
   getStatusColors,
   getResponsiveSizeClasses,
@@ -16,6 +16,8 @@ import {
   getTouchTargetClasses,
   cn,
 } from "../utils/theme";
+
+import type { ToastProps } from "./Toast.types";
 
 /**
  * Toast component for displaying temporary notifications

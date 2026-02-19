@@ -1,6 +1,8 @@
 import { component$, Slot, useContextProvider } from "@builder.io/qwik";
-import { useAccordion } from "./hooks/useAccordion";
+
 import { AccordionContext } from "./AccordionContext";
+import { useAccordion } from "./hooks/useAccordion";
+
 import type { AccordionProps } from "./Accordion.types";
 
 /**

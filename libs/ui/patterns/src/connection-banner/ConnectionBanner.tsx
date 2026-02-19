@@ -44,7 +44,7 @@ export function ConnectionBanner() {
         'shadow-sm'
       )}
       role="alert"
-      aria-live="polite"
+      aria-live="assertive"
       aria-atomic="true"
     >
       {isReconnecting ? (
@@ -52,7 +52,7 @@ export function ConnectionBanner() {
       ) : (
         <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
       )}
-      <p className="text-sm font-semibold text-warning dark:text-amber-400">
+      <p className="text-sm font-semibold text-warning">
         {isReconnecting
           ? 'Reconnecting to router...'
           : 'Connection lost. Attempting to reconnect...'}

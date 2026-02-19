@@ -5,20 +5,23 @@ import {
   useTask$,
   $,
 } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+import { Newsletter } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
-import { Header } from "./Header";
+import { track } from "@vercel/analytics";
+
 import { Code } from "./Code";
+import { DocumentSection } from "./DocumentSection/DocumentSection";
+import { EasyModeDownloadCard } from "./EasyModeDownloadCard";
+import { Header } from "./Header";
 // import { PythonGuide } from './PythonGuide';
 import { ScriptGuide } from "./ScriptGuide";
 // import { TutorialCard } from './TutorialCard';
-import { useConfigGenerator } from "./useShow";
 import { useEasyModeDefaults } from "./useEasyModeDefaults";
+import { useConfigGenerator } from "./useShow";
 // import { MikrotikApplyConfig } from "./MikrotikApplyConfig";
-import { Newsletter } from "@nas-net/core-ui-qwik";
-import { DocumentSection } from "./DocumentSection/DocumentSection";
-import { EasyModeDownloadCard } from "./EasyModeDownloadCard";
+
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 export const ShowConfig = component$<StepProps>(() => {
   // const activeTutorial = useSignal<'python' | 'mikrotik' | null>(null);

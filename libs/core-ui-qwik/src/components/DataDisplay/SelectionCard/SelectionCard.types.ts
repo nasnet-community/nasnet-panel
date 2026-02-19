@@ -1,5 +1,5 @@
-import type { JSXOutput, PropFunction } from "@builder.io/qwik";
 import type { CardProps } from "../Card/Card.types";
+import type { JSXOutput, PropFunction } from "@builder.io/qwik";
 
 export type SelectionBadgeVariant = "default" | "primary" | "success" | "warning" | "info";
 

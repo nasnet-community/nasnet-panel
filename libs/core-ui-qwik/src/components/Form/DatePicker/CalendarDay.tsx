@@ -1,5 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import { dateUtils } from "./utils/dateUtils";
+
 import type { DateRange } from "./DatePicker.types";
 import type { QRL } from "@builder.io/qwik";
 

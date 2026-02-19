@@ -7,12 +7,14 @@
  * 7 comprehensive stories covering all use cases and states.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
+
 import { TracerouteTool } from './TracerouteTool';
 import { TracerouteToolDesktop } from './TracerouteToolDesktop';
 import { TracerouteToolMobile } from './TracerouteToolMobile';
 import { RUN_TRACEROUTE, TRACEROUTE_PROGRESS_SUBSCRIPTION } from '../../graphql/traceroute.graphql';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof TracerouteTool> = {
   title: 'Features/Diagnostics/TracerouteTool',

@@ -1,6 +1,8 @@
 import { useSignal, useTask$, $ } from "@builder.io/qwik";
-import type { ImageProps, UseImageReturn, UseImageState } from "../Image.types";
+
 import { useIntersectionObserver } from "./useIntersectionObserver";
+
+import type { ImageProps, UseImageReturn, UseImageState } from "../Image.types";
 
 export function useImage(props: ImageProps): UseImageReturn {
   const {

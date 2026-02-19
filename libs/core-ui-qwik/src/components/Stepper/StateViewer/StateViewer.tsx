@@ -1,11 +1,12 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
+
 // TODO: This import is from star-setup library, need to be refactored
 import { StarContext } from "@nas-net/star-context";
+
+import { ConfigViewer } from "./ConfigViewer";
+import { ContextPaster } from "./ContextPaster";
 import { StateHeader } from "./StateHeader";
 import { StateHistory } from "./StateHistory";
-import { ContextPaster } from "./ContextPaster";
-import { ConfigViewer } from "./ConfigViewer";
 import { useStateViewer } from "./useStateViewer";
 
 export const StateViewer = component$(() => {

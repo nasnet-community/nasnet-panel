@@ -3,9 +3,9 @@ import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
 
 // Import examples
 import BasicContainer from "../Examples/BasicContainer";
-import ContainerSizes from "../Examples/ContainerSizes";
-import ContainerPadding from "../Examples/ContainerPadding";
 import ContainerAlignment from "../Examples/ContainerAlignment";
+import ContainerPadding from "../Examples/ContainerPadding";
+import ContainerSizes from "../Examples/ContainerSizes";
 
 /**
  * Container component examples documentation using the standard template

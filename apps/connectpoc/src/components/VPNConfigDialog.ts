@@ -1,4 +1,3 @@
-import type { WireGuardInterface, WireGuardPeer } from '@shared/routeros';
 import { 
   createWireGuardInterface,
   updateWireGuardInterface,
@@ -11,6 +10,8 @@ import {
   configureOpenVPNServer,
   setupRoadWarriorVPN
 } from '@/services/vpn';
+
+import type { WireGuardInterface, WireGuardPeer } from '@shared/routeros';
 
 /**
  * VPN Configuration Dialog Component

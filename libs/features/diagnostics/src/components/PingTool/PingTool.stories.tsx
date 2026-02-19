@@ -4,12 +4,14 @@
  * Demonstrates all states and variants of the Ping Diagnostic Tool.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
+
+import { RUN_PING } from './ping.graphql';
 import { PingTool } from './PingTool';
 import { PingToolDesktop } from './PingToolDesktop';
 import { PingToolMobile } from './PingToolMobile';
-import { RUN_PING } from './ping.graphql';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof PingTool> = {
   title: 'Features/Diagnostics/PingTool',

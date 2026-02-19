@@ -1,9 +1,11 @@
 import { component$, createContextId, Slot } from "@builder.io/qwik";
-import type { TooltipProps } from "./Tooltip.types";
+
 import { useTooltip } from "./hooks/useTooltip";
-import { TooltipTrigger } from "./TooltipTrigger";
-import { TooltipContent } from "./TooltipContent";
 import { TooltipArrow } from "./TooltipArrow";
+import { TooltipContent } from "./TooltipContent";
+import { TooltipTrigger } from "./TooltipTrigger";
+
+import type { TooltipProps } from "./Tooltip.types";
 
 // Create a context for sharing state between tooltip components
 export const TooltipContext = createContextId<{

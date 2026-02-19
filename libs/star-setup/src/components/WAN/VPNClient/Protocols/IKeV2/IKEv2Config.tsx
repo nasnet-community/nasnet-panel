@@ -1,7 +1,9 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import { useIKEv2Config } from "./useIKEv2Config";
 import { FormField, FormContainer, ErrorMessage } from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
 
 interface IKEv2ConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

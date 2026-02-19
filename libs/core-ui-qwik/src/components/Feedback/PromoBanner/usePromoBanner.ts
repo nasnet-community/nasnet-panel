@@ -1,6 +1,7 @@
 import { $, useSignal, useStore } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { VPNCredentials } from "./PromoBanner.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UsePromoBannerParams {
   /** Callback when credentials are received */

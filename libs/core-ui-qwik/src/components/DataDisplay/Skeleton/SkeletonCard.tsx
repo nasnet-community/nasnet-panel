@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { SkeletonCardProps } from "./Skeleton.types";
+
 import { Skeleton } from "./Skeleton";
 import { SkeletonText } from "./SkeletonText";
+
+import type { SkeletonCardProps } from "./Skeleton.types";
 
 /**
  * SkeletonCard component for displaying card loading placeholders

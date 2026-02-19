@@ -1,6 +1,6 @@
 import { component$ } from "@builder.io/qwik";
-import { HiServerOutline } from "@qwikest/icons/heroicons";
 import { ServerCard } from "@nas-net/core-ui-qwik";
+import { HiServerOutline } from "@qwikest/icons/heroicons";
 
 export const SSTPServerEasy = component$(() => {
   return (

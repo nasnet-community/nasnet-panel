@@ -1,4 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { Skeleton, SkeletonCard, SkeletonAvatar, SkeletonText } from "../index";
 
 export const SkeletonThemes = component$(() => {

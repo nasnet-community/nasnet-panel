@@ -1,8 +1,9 @@
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
+
+import { LanguageSelect } from "./LanguageSelect";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageSelect } from "./LanguageSelect";
 import { useHeader } from "./useHeader";
 
 export const Header = component$(() => {

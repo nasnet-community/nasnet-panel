@@ -1,9 +1,10 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { Badge } from "@nas-net/core-ui-qwik";
-import { routerModels, routerCategories, routerStats } from "../../data/routerModelsData";
+
+import { BottomStats } from "./BottomStats";
 import { CategoryFilter } from "./CategoryFilter";
 import { RouterCard } from "./RouterCard";
-import { BottomStats } from "./BottomStats";
+import { routerModels, routerCategories, routerStats } from "../../data/routerModelsData";
 
 export const RouterModelsSection = component$(() => {
   const selectedCategory = useSignal("all");

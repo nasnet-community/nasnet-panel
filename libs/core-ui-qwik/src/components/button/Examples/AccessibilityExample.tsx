@@ -1,5 +1,4 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiPlusMini,
   HiTrashMini,
@@ -9,6 +8,8 @@ import {
   HiCheckMini,
   HiXMarkMini,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const IconOnlyAccessibilityExample = component$(() => {
   return (

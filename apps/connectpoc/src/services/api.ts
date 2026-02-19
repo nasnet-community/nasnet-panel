@@ -1,3 +1,6 @@
+import { getAuthHeaderForRouter } from './auth';
+import { getRouterCredentials } from './auth-config';
+
 import type { 
   ApiResponse, 
   RouterInfo, 
@@ -12,8 +15,6 @@ import type {
   WirelessInterface,
   WirelessSecurityProfile
 } from '@shared/routeros';
-import { getAuthHeaderForRouter } from './auth';
-import { getRouterCredentials } from './auth-config';
 
 /**
  * RouterOS REST API service for communicating with MikroTik routers

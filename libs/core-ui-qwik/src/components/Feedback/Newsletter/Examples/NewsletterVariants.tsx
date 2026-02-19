@@ -1,5 +1,7 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
+
 import { Newsletter } from "../Newsletter";
+
 import type { NewsletterSubscription, NewsletterVariant, NewsletterTheme } from "../Newsletter.types";
 
 /**

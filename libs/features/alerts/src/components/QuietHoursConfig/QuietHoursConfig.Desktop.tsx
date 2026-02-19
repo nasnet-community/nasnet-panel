@@ -5,6 +5,7 @@
  * Features: 2-column grid, hover states, dense layout.
  */
 
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Card,
@@ -31,7 +32,7 @@ import type { QuietHoursConfigProps } from './types';
  *
  * Layout: 2-column grid with grouped controls
  */
-export function QuietHoursConfigDesktop({
+function QuietHoursConfigDesktopComponent({
   value,
   onChange,
   disabled = false,
@@ -58,7 +59,7 @@ export function QuietHoursConfigDesktop({
     <Card className={cn('w-full', className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Moon className="h-5 w-5" />
+          <Moon className="h-5 w-5" aria-hidden="true" />
           {t('quietHours.title')}
         </CardTitle>
         <CardDescription>{t('quietHours.description')}</CardDescription>
@@ -77,7 +78,7 @@ export function QuietHoursConfigDesktop({
 
             {/* Duration display */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-4 w-4" aria-hidden="true" />
               <span>
                 {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
               </span>
@@ -107,7 +108,7 @@ export function QuietHoursConfigDesktop({
             disabled={disabled}
           />
           {errors.daysOfWeek && (
-            <p className="text-sm text-error" role="alert">
+            <p className="text-sm text-destructive" role="alert">
               {errors.daysOfWeek}
             </p>
           )}
@@ -121,7 +122,7 @@ export function QuietHoursConfigDesktop({
                 htmlFor="bypass-critical"
                 className="text-base font-medium flex items-center gap-2 cursor-pointer"
               >
-                <Shield className="h-4 w-4" />
+                <Shield className="h-4 w-4" aria-hidden="true" />
                 {t('quietHours.bypassCritical')}
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -140,7 +141,7 @@ export function QuietHoursConfigDesktop({
 
         {/* Validation errors */}
         {!isValid && Object.keys(errors).length > 0 && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" role="alert">
             <AlertDescription>
               <ul className="list-disc list-inside space-y-1">
                 {Object.entries(errors).map(([field, message]) => (
@@ -154,3 +155,6 @@ export function QuietHoursConfigDesktop({
     </Card>
   );
 }
+
+export const QuietHoursConfigDesktop = memo(QuietHoursConfigDesktopComponent);
+QuietHoursConfigDesktop.displayName = 'QuietHoursConfigDesktop';

@@ -3,9 +3,10 @@
  * Visual documentation for the diagnostic step component (NAS-5.11)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { DiagnosticStep } from './DiagnosticStep';
+
 import type { DiagnosticStep as DiagnosticStepType } from '../../types/troubleshoot.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof DiagnosticStep> = {
   title: 'Features/Diagnostics/DiagnosticStep',

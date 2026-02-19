@@ -5,25 +5,26 @@ import {
   useContext,
   useTask$,
 } from "@builder.io/qwik";
+import { VStepper , Newsletter } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+import { subscribeToNewsletterSendGrid } from "@utils/newsletterAPI";
 import { track } from "@vercel/analytics";
+
 import { Frimware } from "./Frimware/Frimware";
+import { InterfaceType } from "./InterfaceType/InterfaceType";
+import { OWRTInstall } from "./OWRT/Install";
+import { OWRT } from "./OWRT/OWRT";
+import { OWRTPackage } from "./OWRT/Package";
 import { RouterMode } from "./RouterMode/RouterMode";
 import { RouterModel } from "./RouterModel/RouterModel";
 import { SlaveRouterModel } from "./RouterModel/SlaveRouterModel";
-import { WANLinkType } from "./WANLinkType/WANLinkType";
-import { OWRT } from "./OWRT/OWRT";
-import { OWRTInstall } from "./OWRT/Install";
-import { OWRTPackage } from "./OWRT/Package";
-import { TrunkInterface } from "./TrunkInterface/TrunkInterface";
-import { InterfaceType } from "./InterfaceType/InterfaceType";
 import { SetupMode } from "./SetupMode/SetupMode";
-import { VStepper } from "@nas-net/core-ui-qwik";
-import type { StepItem } from "@nas-net/core-ui-qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
-import { Newsletter } from "@nas-net/core-ui-qwik";
-import type { NewsletterSubscription } from "@nas-net/core-ui-qwik";
-import { subscribeToNewsletterSendGrid } from "@utils/newsletterAPI";
+import { TrunkInterface } from "./TrunkInterface/TrunkInterface";
+import { WANLinkType } from "./WANLinkType/WANLinkType";
+
+import type { StepItem , StepProps , NewsletterSubscription } from "@nas-net/core-ui-qwik";
+
+
 
 // Define step components outside the main component to avoid serialization issues
 const FirmwareStep = component$((props: StepProps) => (

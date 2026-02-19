@@ -3,8 +3,8 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
 import { BasicProgressBar } from "../Examples/BasicProgressBar";
-import { ProgressBarVariants } from "../Examples/ProgressBarVariants";
 import { BasicSpinner } from "../Examples/BasicSpinner";
+import { ProgressBarVariants } from "../Examples/ProgressBarVariants";
 import { SpinnerVariants } from "../Examples/SpinnerVariants";
 
 export default component$(() => {

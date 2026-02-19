@@ -1,8 +1,9 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import { BasicDialog } from "../Examples/BasicDialog";
-import { DialogSizes } from "../Examples/DialogSizes";
 import { DialogAdvancedFeatures } from "../Examples/DialogAdvancedFeatures";
+import { DialogSizes } from "../Examples/DialogSizes";
 import { MobileFullscreenDialog } from "../Examples/MobileFullscreenDialog";
 import { ResponsiveDialogSizes } from "../Examples/ResponsiveDialogSizes";
 

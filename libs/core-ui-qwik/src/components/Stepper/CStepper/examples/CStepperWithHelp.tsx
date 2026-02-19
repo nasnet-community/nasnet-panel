@@ -1,5 +1,7 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
+
 import { CStepper } from "../CStepper";
+
 import type { CStepMeta } from "../types";
 
 /**

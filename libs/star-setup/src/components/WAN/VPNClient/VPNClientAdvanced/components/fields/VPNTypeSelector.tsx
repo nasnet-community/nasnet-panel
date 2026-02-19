@@ -1,6 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { VPNClientType } from "../../types/AdvancedVPNState";
+import type { QRL } from "@builder.io/qwik";
 
 interface VPNTypeSelectorProps {
   selectedType: VPNClientType;

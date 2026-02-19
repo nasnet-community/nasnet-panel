@@ -1,7 +1,8 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { Card } from "../Card/Card";
-import { MobileOptimizedTable } from "../Table/MobileOptimizedTable";
 import { MobileOverlay } from "../MobileOverlay";
+import { MobileOptimizedTable } from "../Table/MobileOptimizedTable";
 
 /**
  * Example component showcasing mobile optimizations for DataDisplay components

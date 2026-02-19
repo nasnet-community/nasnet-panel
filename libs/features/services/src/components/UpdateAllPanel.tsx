@@ -101,7 +101,7 @@ const SEVERITY_PRIORITY: Record<UpdateSeverity, number> = {
  * />
  * ```
  */
-export function UpdateAllPanel(props: UpdateAllPanelProps) {
+export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAllPanelProps) {
   const {
     updates,
     onUpdateAll,
@@ -178,7 +178,7 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className="h-5 w-5" aria-hidden="true" />
                 Updates Available
               </CardTitle>
               <CardDescription>
@@ -190,6 +190,8 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
               onClick={handleUpdateAllClick}
               disabled={loading || updatingCount > 0}
               size="sm"
+              aria-label={`Update all ${totalUpdates} services`}
+              className="min-h-[44px]"
             >
               Update All ({totalUpdates})
             </Button>
@@ -205,25 +207,25 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
             <div className="flex flex-wrap gap-2">
               {updateCounts.SECURITY > 0 && (
                 <Badge className={SEVERITY_COLORS.SECURITY}>
-                  <ShieldAlert className="h-3 w-3 mr-1" />
+                  <ShieldAlert className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.SECURITY} Security
                 </Badge>
               )}
               {updateCounts.MAJOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MAJOR}>
-                  <AlertCircle className="h-3 w-3 mr-1" />
+                  <AlertCircle className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.MAJOR} Major
                 </Badge>
               )}
               {updateCounts.MINOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MINOR}>
-                  <ArrowUp className="h-3 w-3 mr-1" />
+                  <ArrowUp className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.MINOR} Minor
                 </Badge>
               )}
               {updateCounts.PATCH > 0 && (
                 <Badge className={SEVERITY_COLORS.PATCH}>
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <CheckCircle className="h-3 w-3 mr-1" aria-hidden="true" />
                   {updateCounts.PATCH} Patch
                 </Badge>
               )}
@@ -259,7 +261,7 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <SeverityIcon className="h-4 w-4 flex-shrink-0" />
+                      <SeverityIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                       <span className="font-medium text-sm truncate">
                         {update.instanceName}
                       </span>
@@ -268,7 +270,7 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
                       </span>
                     </div>
                     {isUpdating && (
-                      <Progress value={progress} className="h-1.5 mt-2" />
+                      <Progress value={progress} className="h-1.5 mt-2" aria-label={`Update progress for ${update.instanceName}`} />
                     )}
                   </div>
                   {!isUpdating && onUpdate && (
@@ -276,7 +278,8 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => onUpdate(update.instanceId)}
-                      className="ml-2"
+                      className="ml-2 min-h-[44px] min-w-[44px]"
+                      aria-label={`Update ${update.instanceName}`}
                     >
                       Update
                     </Button>
@@ -334,4 +337,6 @@ export function UpdateAllPanel(props: UpdateAllPanelProps) {
       </Dialog>
     </>
   );
-}
+});
+
+UpdateAllPanel.displayName = 'UpdateAllPanel';

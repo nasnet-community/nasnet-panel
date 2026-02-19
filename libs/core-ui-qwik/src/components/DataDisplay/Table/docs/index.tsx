@@ -1,11 +1,13 @@
 ﻿import { routeLoader$ } from "@builder.io/qwik-city";
-import type { DocumentationIndexProps } from "@nas-net/core-ui-qwik";
 
-import Overview from "./Overview";
-import Examples from "./Examples";
+
 import APIReference from "./APIReference";
-import Usage from "./Usage";
+import Examples from "./Examples";
+import Overview from "./Overview";
 import Playground from "./Playground";
+import Usage from "./Usage";
+
+import type { DocumentationIndexProps } from "@nas-net/core-ui-qwik";
 
 export const useDocumentationLoader = routeLoader$<DocumentationIndexProps>(
   () => {

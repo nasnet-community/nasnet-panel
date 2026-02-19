@@ -5,14 +5,16 @@ import {
   useId,
   useComputed$,
 } from "@builder.io/qwik";
-import { Input } from "../../Input/Input";
-import type { NetworkInputProps } from "./NetworkInput.types";
+
 import { 
   getNetworkPreset,
   buildNetworkString,
   validateNetworkInput,
   getSubnetMask
 } from "./NetworkInput.utils";
+import { Input } from "../../Input/Input";
+
+import type { NetworkInputProps } from "./NetworkInput.types";
 
 /**
  * NetworkInput - Flexible network address input component

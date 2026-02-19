@@ -4,13 +4,17 @@
  * Story 5.2: Real-Time Resource Utilization Display
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
+
 import { MockedProvider } from '@apollo/client/testing';
-import { ResourceGauges } from './ResourceGauges';
+
 import { CircularGauge } from './CircularGauge';
 import { CPUBreakdownModal } from './CPUBreakdownModal';
+import { ResourceGauges } from './ResourceGauges';
 import { GET_RESOURCE_METRICS } from './useResourceMetrics';
-import { useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 // Mock data for various states
 const healthyMetrics = {

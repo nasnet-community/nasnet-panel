@@ -1,14 +1,17 @@
 import { $, component$, type QRL, useContext } from "@builder.io/qwik";
-import { HiPlusOutline } from "@qwikest/icons/heroicons";
-import { CompactNetworkCard } from "./CompactNetworkCard";
-import { CompactHeader } from "./CompactHeader";
-import { ExtraWirelessCard } from "./ExtraWirelessCard";
-import type { NetworkKey, Networks, ExtraWirelessInterface } from "./type";
-import { NETWORK_KEYS } from "./constants";
-import { StarContext } from "@nas-net/star-context";
 import { Grid, Button } from "@nas-net/core-ui-qwik";
-import type { Mode } from "@nas-net/star-context";
+import { StarContext } from "@nas-net/star-context";
+import { HiPlusOutline } from "@qwikest/icons/heroicons";
+
+import { CompactHeader } from "./CompactHeader";
+import { CompactNetworkCard } from "./CompactNetworkCard";
+import { NETWORK_KEYS } from "./constants";
+import { ExtraWirelessCard } from "./ExtraWirelessCard";
 import { getExtraNetworks, getAvailableNetworks } from "./networkUtils";
+
+import type { NetworkKey, Networks, ExtraWirelessInterface } from "./type";
+import type { Mode } from "@nas-net/star-context";
+
 
 interface MultiSSIDFormProps {
   networks: Networks;

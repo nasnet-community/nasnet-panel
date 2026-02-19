@@ -5,9 +5,11 @@ import {
   useStore,
   useTask$,
 } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
 import { Toggle } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
+
 
 interface ServiceState {
   [key: string]: boolean;

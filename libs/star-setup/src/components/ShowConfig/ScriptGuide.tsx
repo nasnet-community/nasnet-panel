@@ -1,4 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import GifScriptguide from "../../public/gifs/ScriptGuide.gif";
 
 export const ScriptGuide = component$(() => {

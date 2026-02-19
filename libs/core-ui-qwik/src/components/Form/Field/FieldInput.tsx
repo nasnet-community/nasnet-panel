@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { FieldType } from "./Field.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface FieldInputProps {
   id: string;

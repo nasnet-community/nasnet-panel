@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Skeleton, SkeletonAvatar, SkeletonText } from "../index";
 
 export const SkeletonSizes = component$(() => {

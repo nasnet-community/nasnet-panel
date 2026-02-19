@@ -1,10 +1,11 @@
-import type { WirelessInterface, WirelessSecurityProfile } from '@shared/routeros';
 import { 
   updateWirelessInterface,
   configureSSID,
   setWirelessChannel,
   configureWPA2Security
 } from '@/services/wireless';
+
+import type { WirelessInterface, WirelessSecurityProfile } from '@shared/routeros';
 
 /**
  * WiFi Configuration Dialog Component

@@ -1,13 +1,14 @@
 import { component$, useStore, $, useContext, useTask$ } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { Services } from "./Services/Services";
+import { VStepper } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+
 import { Game } from "./Game/Game";
 import { Identity } from "./Identity/Identity";
 import { RebootUpdate } from "./RebootUpdate/RebootUpdate";
+import { Services } from "./Services/Services";
 import { UsefulServices } from "./UsefulServices/UsefulServices";
-import { VStepper } from "@nas-net/core-ui-qwik";
-import type { VStepItem as StepItem } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
+
+import type { StepProps , VStepItem as StepItem } from "@nas-net/core-ui-qwik";
 import type { ServiceType } from "@nas-net/star-context";
 
 export const ExtraConfig = component$<StepProps>((props) => {

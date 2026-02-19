@@ -1,4 +1,5 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Modal, type ModalSize, type BackdropVariant, type AnimationVariant, type Elevation } from "../Modal";
 
 export const Playground = component$(() => {

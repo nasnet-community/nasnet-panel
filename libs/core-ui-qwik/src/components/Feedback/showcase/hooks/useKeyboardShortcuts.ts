@@ -1,4 +1,5 @@
 import { useVisibleTask$, $ } from "@builder.io/qwik";
+
 import type { KeyboardShortcut } from "../types";
 
 export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {

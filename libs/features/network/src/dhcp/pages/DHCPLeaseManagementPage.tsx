@@ -35,7 +35,7 @@ export interface DHCPLeaseManagementPageProps {
  * - Real-time updates via 30-second polling
  * - "New" badge for recently appeared leases (5s auto-fade)
  */
-export function DHCPLeaseManagementPage({ routerId }: DHCPLeaseManagementPageProps) {
+export const DHCPLeaseManagementPage = React.memo(function DHCPLeaseManagementPage({ routerId }: DHCPLeaseManagementPageProps) {
   const platform = usePlatform();
 
   // Main orchestration hook - handles all data fetching, filtering, and operations
@@ -61,6 +61,6 @@ export function DHCPLeaseManagementPage({ routerId }: DHCPLeaseManagementPagePro
   ) : (
     <DHCPLeaseManagementDesktop {...presenterProps as any} />
   );
-}
+});
 
 DHCPLeaseManagementPage.displayName = 'DHCPLeaseManagementPage';

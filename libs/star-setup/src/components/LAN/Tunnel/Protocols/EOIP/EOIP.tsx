@@ -4,9 +4,11 @@ import {
   HiChevronDownOutline,
   HiChevronUpOutline,
 } from "@qwikest/icons/heroicons";
+
 import { useEOIP } from "./useEOIP";
-import type { EoipTunnelConfig } from "@nas-net/star-context";
-import type { ARPState } from "@nas-net/star-context";
+
+import type { EoipTunnelConfig , ARPState } from "@nas-net/star-context";
+
 
 export const EOIPProtocol = component$(() => {
   const { eoipTunnels, expandedSections, toggleSection, updateTunnelField } =

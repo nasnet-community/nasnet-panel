@@ -1,5 +1,6 @@
 import { component$, $, type QRL } from "@builder.io/qwik";
 import { track } from "@vercel/analytics";
+
 import type { VPNType } from "@nas-net/star-context";
 
 interface PromoL2TPBannerProps {

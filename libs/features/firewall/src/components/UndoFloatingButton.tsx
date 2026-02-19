@@ -11,7 +11,7 @@
  * @module @nasnet/features/firewall/components
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { Undo2, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives/button';
 import {
@@ -82,7 +82,7 @@ function getUrgencyLevel(seconds: number): 'normal' | 'warning' | 'critical' {
 // COMPONENT
 // ============================================
 
-export function UndoFloatingButton({
+export const UndoFloatingButton = memo(function UndoFloatingButton({
   onRollback,
   onExpire,
   isRollingBack = false,
@@ -146,6 +146,9 @@ export function UndoFloatingButton({
         <div className="flex flex-col items-end gap-2">
           {/* Countdown Display */}
           <div
+            role="status"
+            aria-live="polite"
+            aria-label={`Rollback countdown: ${formatTime(secondsRemaining)} remaining`}
             className={`rounded-lg px-4 py-2 shadow-lg transition-colors ${
               urgencyLevel === 'critical'
                 ? 'bg-destructive text-destructive-foreground'
@@ -176,9 +179,10 @@ export function UndoFloatingButton({
           <Button
             size="lg"
             variant={urgencyLevel === 'critical' ? 'destructive' : 'default'}
-            className="h-14 shadow-lg"
+            className="min-h-[44px] h-14 shadow-lg"
             onClick={handleOpenConfirmDialog}
             disabled={isRollingBack}
+            aria-label={isRollingBack ? 'Rolling back changes' : 'Undo recent template changes'}
           >
             <Undo2 className="mr-2 h-5 w-5" />
             {isRollingBack ? 'Rolling back...' : 'Undo Changes'}
@@ -236,6 +240,8 @@ export function UndoFloatingButton({
               variant="outline"
               onClick={handleCloseConfirmDialog}
               disabled={isRollingBack}
+              aria-label="Keep changes and dismiss rollback"
+              className="min-h-[44px]"
             >
               Keep Changes
             </Button>
@@ -243,6 +249,8 @@ export function UndoFloatingButton({
               variant="destructive"
               onClick={handleRollback}
               disabled={isRollingBack}
+              aria-label="Confirm rollback of all template changes"
+              className="min-h-[44px]"
             >
               {isRollingBack ? (
                 <>
@@ -261,4 +269,6 @@ export function UndoFloatingButton({
       </Dialog>
     </>
   );
-}
+});
+
+UndoFloatingButton.displayName = 'UndoFloatingButton';

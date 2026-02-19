@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { CodeBlock, InlineCode } from "../index";
+
 import type { CodeLanguage, CodeTheme } from "../CodeDisplay.types";
 
 /**

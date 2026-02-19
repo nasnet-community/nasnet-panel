@@ -1,19 +1,14 @@
+import { IKeV2ClientWrapper } from "./Protocols/IKEv2";
+import { L2TPClientWrapper } from "./Protocols/L2TP";
+import { OpenVPNClientWrapper } from "./Protocols/OpenVPN";
+import { PPTPClientWrapper } from "./Protocols/PPTP";
+import { SSTPClientWrapper } from "./Protocols/SSTP";
+import { WireguardClientWrapper } from "./Protocols/Wireguard";
+import { convertVPNClientToMultiWAN, FailoverRecursive, LoadBalanceRoute, VPNEndpointMangle, VPNEScript } from "./VPNClientUtils";
+import { mergeMultipleConfigs } from "../../../utils/ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../../../generator";
 import type { VPNClient, WANLinks } from "@nas-net/star-context";
-import {
-    type RouterConfig,
-    mergeMultipleConfigs,
-    WireguardClientWrapper,
-    OpenVPNClientWrapper,
-    PPTPClientWrapper,
-    L2TPClientWrapper,
-    SSTPClientWrapper,
-    IKeV2ClientWrapper,
-    convertVPNClientToMultiWAN,
-    FailoverRecursive,
-    LoadBalanceRoute,
-    VPNEndpointMangle,
-    VPNEScript,
-} from "@nas-net/ros-cmd-generator";
 
 
 

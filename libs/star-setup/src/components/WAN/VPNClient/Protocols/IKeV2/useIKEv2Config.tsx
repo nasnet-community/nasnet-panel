@@ -1,16 +1,17 @@
 import { $, useSignal, useContext } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { Ike2ClientConfig } from "@nas-net/star-context";
-import type {
+import { useNetworks } from "@utils/useNetworks";
+import { useSubnets } from "@utils/useSubnets";
+
+import type { QRL } from "@builder.io/qwik";
+import type { Ike2ClientConfig ,
   IkeV2AuthMethod,
   IkeV2EncAlgorithm,
   IkeV2HashAlgorithm,
   IkeV2DhGroup,
   IkeV2PfsGroup,
 } from "@nas-net/star-context";
-import { useNetworks } from "@utils/useNetworks";
-import { useSubnets } from "@utils/useSubnets";
+
 
 export interface UseIKEv2ConfigResult {
   serverAddress: { value: string };

@@ -1,6 +1,8 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
+
 import { Graph } from "../Graph";
 import { createNode } from "../Node/NodeTypes";
+
 import type { GraphConnection, GraphNode, GraphTrafficType } from "../types";
 
 /**

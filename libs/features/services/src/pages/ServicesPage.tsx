@@ -57,7 +57,7 @@ export interface ServicesPageProps {
  * - Install new service dialog
  * - Real-time status updates via subscriptions
  */
-export function ServicesPage({ routerId }: ServicesPageProps) {
+export const ServicesPage = React.memo(function ServicesPage({ routerId }: ServicesPageProps) {
   const { t } = useTranslation();
 
   // Fetch service instances
@@ -312,14 +312,16 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
                 variant="outline"
                 size="lg"
                 onClick={() => setImportDialogOpen(true)}
+                aria-label={t('services.sharing.import.button')}
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-4 h-4 mr-2" aria-hidden="true" />
                 {t('services.sharing.import.button')}
               </Button>
               <Button
                 variant="default"
                 size="lg"
                 onClick={() => setInstallDialogOpen(true)}
+                aria-label="Install Service"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -330,6 +332,7 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
                   stroke="currentColor"
                   strokeWidth="2"
                   className="mr-2"
+                  aria-hidden="true"
                 >
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
@@ -348,10 +351,10 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
       >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label="Toggle resource overview section">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Cpu className="h-5 w-5 text-muted-foreground" />
+                  <Cpu className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <CardTitle>Resource Overview</CardTitle>
                   {resourcesData && (
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
@@ -360,9 +363,9 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
                   )}
                 </div>
                 {resourcesOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 )}
               </div>
             </CardHeader>
@@ -403,10 +406,10 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
       <Collapsible.Root open={storageOpen} onOpenChange={setStorageOpen}>
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px]" role="button" aria-label="Toggle storage management section">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <HardDrive className="h-5 w-5 text-muted-foreground" />
+                  <HardDrive className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                   <CardTitle>Storage Management</CardTitle>
                   {storageConfig?.enabled && (
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
@@ -415,9 +418,9 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
                   )}
                 </div>
                 {storageOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 )}
               </div>
             </CardHeader>
@@ -486,7 +489,9 @@ export function ServicesPage({ routerId }: ServicesPageProps) {
       />
     </div>
   );
-}
+});
+
+ServicesPage.displayName = 'ServicesPage';
 
 /**
  * Get category from feature ID

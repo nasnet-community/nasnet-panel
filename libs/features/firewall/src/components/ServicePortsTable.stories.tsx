@@ -13,11 +13,13 @@
  * @see NAS-7.8: Implement Service Ports Management - Task 5
  */
 
+import { fn, within, userEvent } from '@storybook/test';
+
+import type { ServicePortDefinition } from '@nasnet/core/types';
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { ServicePortsTable } from './ServicePortsTable';
 import { useCustomServices } from '../hooks/useCustomServices';
-import type { ServicePortDefinition } from '@nasnet/core/types';
-import { fn } from '@storybook/test';
 
 // Mock the hook
 const mockUseCustomServices = useCustomServices as ReturnType<typeof fn>;
@@ -348,5 +350,3 @@ export const DesktopWithFilters: Story = {
   },
 };
 
-// Required imports for play functions
-import { within, userEvent } from '@storybook/test';

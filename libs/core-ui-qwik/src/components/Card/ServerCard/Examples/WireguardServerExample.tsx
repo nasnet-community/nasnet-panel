@@ -1,4 +1,5 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { ServerCard } from "../../ServerCard";
 import { WireguardIcon } from "../icons";
 

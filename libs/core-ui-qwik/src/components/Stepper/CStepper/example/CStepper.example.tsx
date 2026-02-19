@@ -1,7 +1,9 @@
 import { component$, useStore, useSignal, $ } from "@builder.io/qwik";
+
 import { CStepper } from "../CStepper";
-import type { CStepMeta } from "../types";
 import { useStepperContext, createStepperContext } from "../hooks/useStepperContext";
+
+import type { CStepMeta } from "../types";
 
 // Create a custom context ID for this example
 const ExampleStepperContextId = createStepperContext<{ userData: { name: string, email: string } }>("example-stepper");

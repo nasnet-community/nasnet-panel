@@ -1,9 +1,10 @@
 import { component$, type QRL, $ } from "@builder.io/qwik";
+import { Input, Toggle, FormField } from "@nas-net/core-ui-qwik";
+
 import type {
   VLANConfig,
   MACAddressConfig,
 } from "../../types";
-import { Input, Toggle, FormField } from "@nas-net/core-ui-qwik";
 
 export interface VLANMACFieldsProps {
   vlanConfig?: VLANConfig;

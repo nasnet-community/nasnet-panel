@@ -1,9 +1,10 @@
 import { component$, useSignal, $, useVisibleTask$, useContext } from "@builder.io/qwik";
-import { LuCable, LuWifi, LuRouter, LuLink, LuHome, LuGlobe, LuShield } from "@qwikest/icons/lucide";
-import { useStepperContext } from "@nas-net/core-ui-qwik";
-import { Card, CardHeader, Toggle, Alert } from "@nas-net/core-ui-qwik";
-import { UsefulServicesStepperContextId } from "../UsefulServicesAdvanced";
+import { useStepperContext , Card, CardHeader, Toggle, Alert } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
+import { LuCable, LuWifi, LuRouter, LuLink, LuHome, LuGlobe, LuShield } from "@qwikest/icons/lucide";
+
+import { UsefulServicesStepperContextId } from "../UsefulServicesAdvanced";
+
 import type { NATPMPConfig } from "@nas-net/star-context";
 
 // Define InterfaceOption locally since it doesn't exist in StarContext

@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { VPNClientEasy } from "./VPNClientEasy/VPNClientEasy";
-import { VPNClientAdvanced } from "./VPNClientAdvanced/AdvancedVPNClient";
+
 import { useVPNClientMode } from "./useVPNClientMode";
+import { VPNClientAdvanced } from "./VPNClientAdvanced/AdvancedVPNClient";
+import { VPNClientEasy } from "./VPNClientEasy/VPNClientEasy";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 export const VPNClient = component$<StepProps>(
   ({ isComplete, onComplete$ }) => {

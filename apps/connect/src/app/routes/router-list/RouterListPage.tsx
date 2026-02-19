@@ -41,7 +41,7 @@ export function RouterListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 md:p-6">
+    <div className="min-h-screen bg-muted p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
@@ -50,8 +50,8 @@ export function RouterListPage() {
               Manage and connect to your MikroTik routers
             </p>
           </div>
-          <Button onClick={handleAddRouter} className="gap-2">
-            <Plus className="h-4 w-4" />
+          <Button onClick={handleAddRouter} className="gap-2" aria-label="Add router">
+            <Plus className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Add Router</span>
           </Button>
         </div>
@@ -59,9 +59,10 @@ export function RouterListPage() {
         {routers.length === 0 ? (
           // Empty state
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <img 
-              src="/favicon.png" 
-              alt="NasNet" 
+            <img
+              src="/favicon.png"
+              alt=""
+              aria-hidden="true"
               className="w-20 h-20 rounded-2xl shadow-md mb-6"
             />
             <h2 className="text-xl md:text-2xl font-semibold mb-2">No routers yet</h2>
@@ -70,7 +71,7 @@ export function RouterListPage() {
               network automatically or add one manually.
             </p>
             <Button onClick={handleAddRouter} size="lg" className="gap-2">
-              <Plus className="h-5 w-5" />
+              <Plus className="h-5 w-5" aria-hidden="true" />
               Add Your First Router
             </Button>
             <p className="text-xs text-muted-foreground mt-6 opacity-70">

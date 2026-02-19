@@ -1,5 +1,7 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
+
 import { Autocomplete } from "../Autocomplete";
+
 import type { AutocompleteOption } from "../Autocomplete.types";
 
 /**

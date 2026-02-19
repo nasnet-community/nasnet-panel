@@ -5,8 +5,9 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 7: LTE Support)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { LteModemForm } from './LteModemForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof LteModemForm> = {
   title: 'Features/Network/WAN/LteModemForm',

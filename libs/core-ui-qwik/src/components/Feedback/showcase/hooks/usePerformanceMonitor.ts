@@ -1,6 +1,8 @@
 import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { PerformanceMetrics } from "../types";
+
 import { PERFORMANCE_THRESHOLDS } from "../constants";
+
+import type { PerformanceMetrics } from "../types";
 
 export const usePerformanceMonitor = () => {
   const metrics = useSignal<PerformanceMetrics>({

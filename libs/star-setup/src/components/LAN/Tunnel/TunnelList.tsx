@@ -4,8 +4,9 @@ import {
   HiChevronDownOutline,
   HiChevronUpOutline,
 } from "@qwikest/icons/heroicons";
-import type { BaseTunnelConfig } from "@nas-net/star-context";
+
 import type { QRL } from "@builder.io/qwik";
+import type { BaseTunnelConfig } from "@nas-net/star-context";
 
 interface TunnelListProps {
   tunnels: BaseTunnelConfig[];

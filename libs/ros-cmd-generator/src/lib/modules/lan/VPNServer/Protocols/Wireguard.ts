@@ -1,4 +1,3 @@
-import type { WireguardInterfaceConfig, VSCredentials, WireguardServerConfig, SubnetConfig } from "@nas-net/star-context";
 import {
     CommandShortner,
     mergeRouterConfigs,
@@ -7,7 +6,9 @@ import {
     type RouterConfig,
     VSInterfaceList,
     VSAddressList,
-} from "@nas-net/ros-cmd-generator";
+} from "../../../index";
+
+import type { WireguardInterfaceConfig, VSCredentials, WireguardServerConfig, SubnetConfig } from "@nas-net/star-context";
 
 
 export const ExportWireGuard = (): RouterConfig => {

@@ -1,4 +1,5 @@
 import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
+
 import type { QRL, Signal } from "@builder.io/qwik";
 
 export interface UseSwipeGestureOptions {

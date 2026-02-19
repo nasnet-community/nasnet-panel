@@ -28,7 +28,7 @@ export interface DataTableProps<T> {
   onRowClick?: (item: T, index: number) => void;
 }
 
-function DataTable<T extends Record<string, unknown>>({
+function DataTableInner<T extends Record<string, unknown>>({
   columns,
   data,
   keyExtractor,
@@ -60,14 +60,15 @@ function DataTable<T extends Record<string, unknown>>({
   };
 
   return (
-    <div className={cn('rounded-card-sm md:rounded-card-lg border border-slate-200 dark:border-slate-700 overflow-hidden', className)}>
-      <Table>
+    <div className={cn('rounded-card-sm md:rounded-card-lg border border-border overflow-hidden', className)}>
+      <Table aria-label="Data table">
         <TableHeader>
-          <TableRow className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+          <TableRow className="bg-muted border-b border-border hover:bg-muted">
             {columns.map((column, index) => (
               <TableHead
                 key={String(column.key) + index}
-                className={cn('text-slate-700 dark:text-slate-300 font-semibold', column.headerClassName)}
+                scope="col"
+                className={cn('text-muted-foreground font-semibold', column.headerClassName)}
               >
                 {column.header}
               </TableHead>
@@ -116,5 +117,10 @@ function DataTable<T extends Record<string, unknown>>({
     </div>
   );
 }
+
+const DataTable = React.memo(DataTableInner) as typeof DataTableInner & {
+  displayName?: string;
+};
+DataTable.displayName = 'DataTable';
 
 export { DataTable };

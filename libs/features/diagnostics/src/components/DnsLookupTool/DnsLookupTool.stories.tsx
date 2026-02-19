@@ -12,10 +12,12 @@
  * @see Story NAS-5.9 - Implement DNS Lookup Tool - Task 5.9.12
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { DnsLookupTool } from './DnsLookupTool';
+
 import { GET_DNS_SERVERS, RUN_DNS_LOOKUP } from './dnsLookup.graphql';
+import { DnsLookupTool } from './DnsLookupTool';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof DnsLookupTool> = {
   title: 'Features/Diagnostics/DnsLookupTool',

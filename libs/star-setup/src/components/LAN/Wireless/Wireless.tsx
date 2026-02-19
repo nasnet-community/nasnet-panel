@@ -1,13 +1,17 @@
 import { $, component$, useContext } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import { ActionButtons } from "./ActionButtons";
+import { MultiSSIDForm } from "./MultiSSIDForm";
+import { determineWifiTarget } from "./networkUtils";
+import { SingleSSIDForm } from "./SingleSSIDForm";
+import { SSIDModeSelector } from "./SSIDModeSelector";
 import { useWirelessForm, determineWirelessNetwork } from "./useWireless";
 import { WirelessHeader } from "./WirelessHeader";
-import { SSIDModeSelector } from "./SSIDModeSelector";
-import { SingleSSIDForm } from "./SingleSSIDForm";
-import { MultiSSIDForm } from "./MultiSSIDForm";
-import { ActionButtons } from "./ActionButtons";
-import { StarContext } from "@nas-net/star-context";
+
+
 import type { StepProps } from "@nas-net/core-ui-qwik";
-import { determineWifiTarget } from "./networkUtils";
+
 
 export const Wireless = component$<StepProps>(
   ({ onComplete$, onDisabled$ }) => {

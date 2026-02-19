@@ -1,5 +1,6 @@
-import type { StorageKey, RouterInfo, RouterCredentials, ScanConfig, AppSettings } from '@shared/routeros';
 import type { ManualRouterEntry } from '@/services/manual-router';
+
+import type { StorageKey, RouterInfo, RouterCredentials, ScanConfig, AppSettings } from '@shared/routeros';
 
 /**
  * Type-safe localStorage wrapper with JSON serialization

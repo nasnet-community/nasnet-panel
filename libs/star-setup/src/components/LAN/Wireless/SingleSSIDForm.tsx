@@ -1,7 +1,8 @@
 import { component$, $ } from "@builder.io/qwik";
-import { HiSparklesOutline } from "@qwikest/icons/heroicons";
-import type { QRL, Signal } from "@builder.io/qwik";
 import { Input, Toggle, Button } from "@nas-net/core-ui-qwik";
+import { HiSparklesOutline } from "@qwikest/icons/heroicons";
+
+import type { QRL, Signal } from "@builder.io/qwik";
 import type { Mode } from "@nas-net/star-context";
 
 interface SingleSSIDFormProps {

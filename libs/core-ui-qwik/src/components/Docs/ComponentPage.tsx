@@ -1,5 +1,6 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { Link, useLocation } from "@builder.io/qwik-city";
+import { Card } from "@nas-net/core-ui-qwik";
 import {
   HiChevronLeftOutline,
   HiCubeOutline,
@@ -8,7 +9,6 @@ import {
   HiBeakerOutline,
   HiWrenchOutline,
 } from "@qwikest/icons/heroicons";
-import { Card } from "@nas-net/core-ui-qwik";
 
 export interface ComponentPageProps {
   name: string;

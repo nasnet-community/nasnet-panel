@@ -90,9 +90,10 @@ export function VPNDashboard() {
               size="sm"
               onClick={() => refetch()}
               disabled={isLoading || isFetching}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-h-[44px] min-w-[44px]"
+              aria-label="Refresh VPN dashboard"
             >
-              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
@@ -100,7 +101,7 @@ export function VPNDashboard() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="space-y-6">
+          <div className="space-y-6" role="status" aria-label="Loading VPN dashboard">
             <Skeleton className="h-48 w-full rounded-2xl" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Skeleton className="h-36 rounded-xl" />
@@ -116,7 +117,7 @@ export function VPNDashboard() {
 
         {/* Error State */}
         {isError && (
-          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6">
+          <div className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6" role="alert">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <svg
@@ -124,6 +125,7 @@ export function VPNDashboard() {
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -222,18 +224,18 @@ export function VPNDashboard() {
                 variant="outline"
                 size="sm"
                 onClick={handleNavigateServers}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 min-h-[44px]"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4" aria-hidden="true" />
                 Configure Servers
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNavigateClients}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 min-h-[44px]"
               >
-                <Settings className="h-4 w-4" />
+                <Settings className="h-4 w-4" aria-hidden="true" />
                 Configure Clients
               </Button>
             </div>

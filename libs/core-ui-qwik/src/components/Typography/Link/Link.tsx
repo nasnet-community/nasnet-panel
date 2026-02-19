@@ -1,5 +1,6 @@
 import { component$, useComputed$ } from "@builder.io/qwik";
 import { Link as QwikLink } from "@builder.io/qwik-city";
+
 import { type LinkProps, type LinkColor } from "./Link.types";
 
 /**

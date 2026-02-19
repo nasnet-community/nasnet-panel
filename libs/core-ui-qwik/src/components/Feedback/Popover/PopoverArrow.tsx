@@ -1,6 +1,8 @@
 import { component$, useContext } from "@builder.io/qwik";
-import type { PopoverArrowProps } from "./Popover.types";
+
 import { PopoverContext } from "./usePopover";
+
+import type { PopoverArrowProps } from "./Popover.types";
 
 /**
  * PopoverArrow - Component for customizing the arrow

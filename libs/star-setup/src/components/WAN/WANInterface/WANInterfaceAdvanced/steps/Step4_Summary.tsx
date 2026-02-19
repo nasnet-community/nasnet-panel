@@ -1,6 +1,7 @@
 import { component$, type QRL, useComputed$, $ } from "@builder.io/qwik";
-import type { WANWizardState } from "../types";
 import { Alert, Card } from "@nas-net/core-ui-qwik";
+
+import type { WANWizardState } from "../types";
 
 export interface Step4Props {
   wizardState: WANWizardState;

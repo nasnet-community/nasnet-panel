@@ -1,7 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import { CodeBlock, InlineCode } from "../index";
-import { Text } from "../../Text";
+
 import { Heading } from "../../Heading";
+import { Text } from "../../Text";
+import { CodeBlock, InlineCode } from "../index";
 
 /**
  * Advanced Example - Demonstrates enhanced CodeDisplay features

@@ -237,11 +237,11 @@ export const PortInputDesktop = memo(function PortInputDesktop(
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-invalid={hasError}
-              aria-describedby={cn(
-                hasError && errorId,
-                helpText && helpId,
-                ariaDescribedBy
-              )}
+              aria-describedby={
+                [hasError && errorId, helpText && helpId, ariaDescribedBy]
+                  .filter(Boolean)
+                  .join(' ') || undefined
+              }
               aria-label={!label ? 'Port number' : undefined}
               aria-autocomplete={showSuggestions ? 'list' : undefined}
               aria-controls={showSuggestions ? suggestionsId : undefined}
@@ -431,11 +431,11 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             className="flex-1 min-w-20 border-0 p-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
             aria-label="Add port"
             aria-invalid={hasError}
-            aria-describedby={cn(
-              hasError && errorId,
-              helpText && helpId,
-              ariaDescribedBy
-            )}
+            aria-describedby={
+              [hasError && errorId, helpText && helpId, ariaDescribedBy]
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
             aria-autocomplete={showSuggestions ? 'list' : undefined}
             aria-controls={showSuggestions ? suggestionsId : undefined}
             aria-activedescendant={

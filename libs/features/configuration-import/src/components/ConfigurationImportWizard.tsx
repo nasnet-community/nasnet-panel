@@ -4,7 +4,7 @@
  * Follows Direction 6 (Guided Flow) from design spec
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Dialog,
@@ -79,10 +79,12 @@ function StepIndicator({
   currentIndex: number;
 }) {
   return (
-    <div className="flex items-center justify-center gap-2 mb-6">
+    <div className="flex items-center justify-center gap-2 mb-6" role="navigation" aria-label="Wizard steps">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center">
           <div
+            aria-label={`Step ${index + 1}: ${step.label}${index < currentIndex ? ' (completed)' : index === currentIndex ? ' (current)' : ''}`}
+            aria-current={index === currentIndex ? 'step' : undefined}
             className={`
               w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
               transition-colors duration-200
@@ -90,23 +92,24 @@ function StepIndicator({
                 index < currentIndex
                   ? 'bg-success text-white'
                   : index === currentIndex
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
               }
             `}
           >
             {index < currentIndex ? (
-              <CheckCircle className="w-4 h-4" />
+              <CheckCircle className="w-4 h-4" aria-hidden="true" />
             ) : (
               index + 1
             )}
           </div>
           {index < steps.length - 1 && (
             <div
+              aria-hidden="true"
               className={`w-12 h-0.5 mx-1 transition-colors duration-200 ${
                 index < currentIndex
                   ? 'bg-success'
-                  : 'bg-slate-200 dark:bg-slate-700'
+                  : 'bg-muted'
               }`}
             />
           )}
@@ -142,7 +145,7 @@ const WIZARD_STEPS: { id: WizardStep; label: string }[] = [
  * />
  * ```
  */
-export function ConfigurationImportWizard({
+export const ConfigurationImportWizard = memo(function ConfigurationImportWizard({
   isOpen,
   onClose,
   routerIp,
@@ -287,8 +290,8 @@ export function ConfigurationImportWizard({
       <DialogContent className="sm:max-w-[540px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-primary" aria-hidden="true" />
             </div>
             <div>
               <DialogTitle>Router Configuration</DialogTitle>
@@ -368,13 +371,14 @@ export function ConfigurationImportWizard({
         </AnimatePresence>
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-border">
           {/* Left side */}
           <div>
             {step === 'input' && (
               <button
                 onClick={handleSkip}
-                className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                aria-label="Skip configuration import"
+                className="min-h-[44px] min-w-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-2"
               >
                 Skip for now
               </button>
@@ -382,9 +386,10 @@ export function ConfigurationImportWizard({
             {step === 'protocol' && (
               <button
                 onClick={handleBack}
-                className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                aria-label="Go back to configuration input"
+                className="min-h-[44px] min-w-[44px] flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-2"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 Back
               </button>
             )}
@@ -395,7 +400,8 @@ export function ConfigurationImportWizard({
             {step !== 'execute' && (
               <button
                 onClick={handleClose}
-                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                aria-label="Cancel configuration import"
+                className="min-h-[44px] px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
               >
                 Cancel
               </button>
@@ -405,10 +411,11 @@ export function ConfigurationImportWizard({
               <button
                 onClick={handleNext}
                 disabled={!canProceed}
-                className="btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Continue to protocol selection"
+                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 Continue
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
 
@@ -416,17 +423,18 @@ export function ConfigurationImportWizard({
               <button
                 onClick={handleNext}
                 disabled={!canProceed || createJob.isPending}
-                className="btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={createJob.isPending ? 'Starting batch job' : 'Apply configuration'}
+                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {createJob.isPending ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" role="status" aria-label="Starting batch job" />
                     Starting...
                   </>
                 ) : (
                   <>
                     Apply Configuration
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
                   </>
                 )}
               </button>
@@ -435,9 +443,10 @@ export function ConfigurationImportWizard({
             {step === 'execute' && isJobComplete && (
               <button
                 onClick={handleComplete}
-                className="btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+                aria-label="Close wizard after successful configuration"
+                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <CheckCircle className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4" aria-hidden="true" />
                 Done
               </button>
             )}
@@ -445,9 +454,10 @@ export function ConfigurationImportWizard({
             {step === 'execute' && isJobFailed && (
               <button
                 onClick={handleClose}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-2"
+                aria-label="Close wizard after failed configuration"
+                className="min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
                 Close
               </button>
             )}
@@ -456,5 +466,5 @@ export function ConfigurationImportWizard({
       </DialogContent>
     </Dialog>
   );
-}
+});
 

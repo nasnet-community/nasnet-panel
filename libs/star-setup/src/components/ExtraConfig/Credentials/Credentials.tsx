@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
 import { Input } from "@nas-net/core-ui-qwik";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 export const Credentials = component$<StepProps>(({ onComplete$ }) => {
   return (

@@ -1,4 +1,5 @@
 import { useSignal, $, useOnDocument } from "@builder.io/qwik";
+
 import type { QRL } from "@builder.io/qwik";
 
 export interface UseSideNavigationStateProps {

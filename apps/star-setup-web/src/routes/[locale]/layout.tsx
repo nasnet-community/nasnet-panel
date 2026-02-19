@@ -1,7 +1,9 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
 import { Header, Footer, MobileWarning } from "@nas-net/core-ui-qwik";
+
 import { extractLang, useI18n } from "../i18n-utils";
+
+import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
 
 export const onRequest: RequestHandler = ({ locale, params }) => {
   locale(extractLang(params.locale));

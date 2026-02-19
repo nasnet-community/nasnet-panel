@@ -110,7 +110,7 @@ export function FormSection({
   return (
     <Wrapper
       className={cn(
-        'border border-slate-200 dark:border-slate-700',
+        'border border-border',
         'rounded-card-sm md:rounded-card-lg',
         'overflow-hidden',
         className
@@ -148,7 +148,7 @@ export function FormSection({
               exit="exit"
               className="overflow-hidden"
             >
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="p-4 border-t border-border">
                 {content}
               </div>
             </motion.div>
@@ -157,7 +157,7 @@ export function FormSection({
       ) : (
         <div
           id={contentId}
-          className="p-4 border-t border-slate-200 dark:border-slate-700"
+          className="p-4 border-t border-border"
         >
           {content}
         </div>

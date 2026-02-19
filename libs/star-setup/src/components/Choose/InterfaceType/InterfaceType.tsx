@@ -1,9 +1,12 @@
 import { $, component$, useContext, type PropFunction } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
 import { LuCable, LuWifi, LuAlertCircle } from "@qwikest/icons/lucide";
 import { track } from "@vercel/analytics";
-import { StarContext } from "@nas-net/star-context";
-import type { TrunkInterfaceType } from "@nas-net/star-context";
+
 import { routers } from "../RouterModel/Constants";
+
+import type { TrunkInterfaceType } from "@nas-net/star-context";
+
 
 interface InterfaceTypeProps {
   isComplete?: boolean;

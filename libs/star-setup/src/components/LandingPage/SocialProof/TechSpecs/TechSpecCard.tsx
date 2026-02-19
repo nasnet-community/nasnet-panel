@@ -1,4 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { getIcon, type IconName } from "../../utils/iconMapper";
 
 interface Spec {

@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+import { ServerCard } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
 // import { usePPTPServer } from "./usePPTPServer";
-import { ServerCard } from "@nas-net/core-ui-qwik";
 // import { ServerFormField } from "@nas-net/core-ui-qwik";
 
 export const PPTPServerEasy = component$(() => {

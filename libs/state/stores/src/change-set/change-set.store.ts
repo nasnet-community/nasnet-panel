@@ -21,12 +21,10 @@ import type {
   ChangeSetItem,
   ChangeSetStatus,
   ChangeSetSummary,
-  ChangeOperation,
   ChangeSetItemStatus,
 } from '@nasnet/core/types';
 import { ChangeSetStatus as CS } from '@nasnet/core/types';
 import {
-  topologicalSort,
   buildDependencyGraph,
   computeApplyOrder,
 } from '@nasnet/core/utils';

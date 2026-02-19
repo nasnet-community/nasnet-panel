@@ -1,9 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import type { TextAreaProps } from "./TextArea.types";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
 import { useTextArea } from "./hooks/useTextArea";
+
+import type { TextAreaProps } from "./TextArea.types";
 
 /**
  * TextArea component for multi-line text input with auto-resize, character counting,

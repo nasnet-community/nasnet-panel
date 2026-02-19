@@ -2,14 +2,14 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
-import { BasicList } from "../Examples/BasicList";
-import { ListVariants } from "../Examples/ListVariants";
-import { DefinitionListExample } from "../Examples/DefinitionList";
-import { MarkerStyles } from "../Examples/MarkerStyles";
-import { SizesAndSpacing } from "../Examples/SizesAndSpacing";
-import { NestedLists } from "../Examples/NestedLists";
-import { InteractiveLists } from "../Examples/InteractiveLists";
 import { AccessibleLists } from "../Examples/AccessibleLists";
+import { BasicList } from "../Examples/BasicList";
+import { DefinitionListExample } from "../Examples/DefinitionList";
+import { InteractiveLists } from "../Examples/InteractiveLists";
+import { ListVariants } from "../Examples/ListVariants";
+import { MarkerStyles } from "../Examples/MarkerStyles";
+import { NestedLists } from "../Examples/NestedLists";
+import { SizesAndSpacing } from "../Examples/SizesAndSpacing";
 
 export default component$(() => {
   const examples = [

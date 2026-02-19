@@ -1,7 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { BridgeStpStatus } from './BridgeStpStatus';
-import * as queries from '@nasnet/api-client/queries';
 import { fn } from '@storybook/test';
+
+import * as queries from '@nasnet/api-client/queries';
+
+import { BridgeStpStatus } from './BridgeStpStatus';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 /**
  * Bridge STP Status Component Stories

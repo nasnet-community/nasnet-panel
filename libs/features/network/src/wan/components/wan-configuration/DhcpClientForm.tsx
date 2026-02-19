@@ -10,7 +10,7 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 2: DHCP)
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -78,7 +78,7 @@ export interface DhcpClientFormProps {
  * />
  * ```
  */
-export function DhcpClientForm({
+export const DhcpClientForm = memo(function DhcpClientForm({
   routerId,
   initialValues,
   onSubmit,
@@ -322,6 +322,8 @@ export function DhcpClientForm({
               variant="outline"
               onClick={onCancel}
               disabled={loading}
+              aria-label="Cancel DHCP configuration"
+              className="min-h-[44px]"
             >
               Cancel
             </Button>
@@ -329,7 +331,7 @@ export function DhcpClientForm({
           <Button
             type="submit"
             disabled={loading || !form.formState.isValid || !form.formState.isDirty}
-            className="min-w-[120px]"
+            className="min-w-[120px] min-h-[44px]"
           >
             {loading ? 'Configuring...' : 'Configure DHCP'}
           </Button>
@@ -382,4 +384,4 @@ export function DhcpClientForm({
       </Dialog>
     </>
   );
-}
+});

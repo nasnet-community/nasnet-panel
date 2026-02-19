@@ -1,8 +1,8 @@
 ﻿import { component$ } from "@builder.io/qwik";
-import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
-import { NetworkGraphExample } from "@nas-net/core-ui-qwik";
-import { NetworkTrafficExample } from "@nas-net/core-ui-qwik";
-import { ConnectionTypeExample } from "@nas-net/core-ui-qwik";
+import { ExamplesTemplate , NetworkGraphExample , NetworkTrafficExample , ConnectionTypeExample } from "@nas-net/core-ui-qwik";
+
+
+
 
 export const GraphExamples = component$(() => {
   const examples = [

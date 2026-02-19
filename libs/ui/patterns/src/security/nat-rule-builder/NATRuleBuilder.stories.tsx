@@ -8,7 +8,9 @@
 
 import { useState } from 'react';
 
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
+
+const action = (name: string) => fn().mockName(name);
 
 import type { NATRuleInput } from '@nasnet/core/types/firewall';
 

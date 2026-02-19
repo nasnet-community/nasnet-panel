@@ -1,4 +1,3 @@
-import type { AuthResult, RouterCredentials } from '@shared/routeros';
 import { 
   createBasicAuthHeader, 
   validateCredentials, 
@@ -6,6 +5,8 @@ import {
   getStoredCredentials,
   removeStoredCredentials
 } from '@/utils/basic-auth';
+
+import type { AuthResult, RouterCredentials } from '@shared/routeros';
 
 /**
  * Authentication service for MikroTik RouterOS REST API

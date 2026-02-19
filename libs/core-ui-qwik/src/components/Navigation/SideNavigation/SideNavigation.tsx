@@ -1,11 +1,13 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { SideNavigationProps } from "./SideNavigation.types";
-import { SideNavigationItemComponent } from "./SideNavigationItem";
+
+import { useSideNavigationClasses } from "./hooks/useSideNavigationClasses";
 import { useSideNavigationState } from "./hooks/useSideNavigationState";
 import { useSideNavigationStyles } from "./hooks/useSideNavigationStyles";
-import { useSideNavigationClasses } from "./hooks/useSideNavigationClasses";
-import { SideNavigationHeader } from "./SideNavigationHeader";
 import { SideNavigationBackdrop } from "./SideNavigationBackdrop";
+import { SideNavigationHeader } from "./SideNavigationHeader";
+import { SideNavigationItemComponent } from "./SideNavigationItem";
+
+import type { SideNavigationProps } from "./SideNavigation.types";
 
 /**
  * SideNavigation component provides vertical navigation with support for nested items,

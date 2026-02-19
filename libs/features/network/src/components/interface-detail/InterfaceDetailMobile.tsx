@@ -56,7 +56,8 @@ export function InterfaceDetailMobile({
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="p-0 h-8 w-8"
+              className="p-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Go back to interface list"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -79,7 +80,7 @@ export function InterfaceDetailMobile({
           )}
 
           {error && (
-            <div className="p-8 text-center">
+            <div className="p-8 text-center" role="alert">
               <p className="text-destructive font-medium">Failed to load interface</p>
               <p className="text-sm text-muted-foreground mt-2">
                 {error.message || 'Unknown error'}
@@ -208,8 +209,9 @@ export function InterfaceDetailMobile({
         {!loading && !error && iface && !editMode && (
           <div className="border-t p-4 flex-shrink-0">
             <Button
-              className="w-full"
+              className="w-full min-h-[44px]"
               onClick={() => setEditMode(true)}
+              aria-label="Edit interface settings"
             >
               Edit Interface Settings
             </Button>

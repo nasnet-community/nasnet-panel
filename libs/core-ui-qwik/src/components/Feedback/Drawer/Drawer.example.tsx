@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Drawer } from "./Drawer";
+
 import type { DrawerPlacement, DrawerSize } from "./Drawer.types";
 
 export default component$(() => {

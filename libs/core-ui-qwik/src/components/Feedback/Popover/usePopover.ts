@@ -10,6 +10,7 @@ import {
   type Signal,
   type QRL,
 } from "@builder.io/qwik";
+
 import type { PopoverProps, PopoverPlacement } from "./Popover.types";
 
 // Create context for sharing popover state across components

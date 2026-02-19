@@ -1,8 +1,8 @@
 import {
   Chart,
-  ChartConfiguration,
+  type ChartConfiguration,
   registerables,
-  ChartOptions,
+  type ChartOptions,
 } from 'chart.js';
 
 // Register all components

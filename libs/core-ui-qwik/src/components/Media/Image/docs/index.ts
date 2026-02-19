@@ -6,11 +6,11 @@ export { default as ImageUsage } from "./Usage";
 export { default as ImagePlayground } from "./Playground";
 
 // Re-export all as named exports for easier importing
-import ImageOverview from "./Overview";
 import ImageAPIReference from "./APIReference";
 import ImageExamples from "./Examples";
-import ImageUsage from "./Usage";
+import ImageOverview from "./Overview";
 import ImagePlayground from "./Playground";
+import ImageUsage from "./Usage";
 
 export {
   ImageOverview as Overview,

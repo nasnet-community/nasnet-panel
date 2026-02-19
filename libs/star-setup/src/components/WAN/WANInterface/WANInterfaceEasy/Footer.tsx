@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { FooterProps } from "./types";
 
 export const Footer = component$<FooterProps>(

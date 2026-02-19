@@ -1,4 +1,10 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import { DHCPClient, PPPOEClient, StaticIP, LTE } from "./WANConnectionUtils";
+import { WirelessWAN, MACVLANOnVLAN, MACVLAN, VLAN, GetWANInterface, requiresAutoMACVLAN, getUnderlyingInterface, InterfaceComment, CheckLTEInterface } from "./WANInterfaceUtils";
+import { WANIfaceList, Route } from "./WANUtils";
+import { mergeRouterConfigs, mergeMultipleConfigs } from "../../../utils/ConfigGeneratorUtil";
+import { convertWANLinkToMultiWAN, FailoverRecursive, LoadBalanceRoute, PCCMangle, NTHMangle } from "../MultiLink/MultiLinkUtil";
+
+import type { RouterConfig } from "../../../generator";
 import type {
     WANLinkConfig,
     WANLinks,
@@ -6,18 +12,6 @@ import type {
     LTE as LTEType,
     RouterModels,
 } from "@nas-net/star-context";
-import { mergeRouterConfigs, mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
-import { DHCPClient, PPPOEClient, StaticIP, LTE } from "@nas-net/ros-cmd-generator";
-import { WirelessWAN, MACVLANOnVLAN, MACVLAN, VLAN } from "@nas-net/ros-cmd-generator";
-import { GetWANInterface, requiresAutoMACVLAN, getUnderlyingInterface, InterfaceComment, CheckLTEInterface } from "@nas-net/ros-cmd-generator";
-import { WANIfaceList, Route } from "@nas-net/ros-cmd-generator";
-import {
-    convertWANLinkToMultiWAN,
-    FailoverRecursive,
-    LoadBalanceRoute,
-    PCCMangle,
-    NTHMangle,
-} from "@nas-net/ros-cmd-generator";
 
 type Network = "Foreign" | "Domestic";
 
@@ -160,13 +154,13 @@ export const DFSingleLink = ( wanLink: WANLink, networkType: "Foreign" | "Domest
     const wanLinkConfig = wanLink.WANConfigs[0];
     const linkName = wanLinkConfig.name;
     const { ConnectionConfig } = wanLinkConfig;
-    
+
     // Get the final interface name after transformations
     const finalInterfaceName = GetWANInterface(wanLinkConfig);
-    
+
     // Determine the gateway based on connection type
     let gateway: string;
-    
+
     if (ConnectionConfig?.pppoe) {
         // PPPoE: Use interface name only as gateway
         gateway = finalInterfaceName;
@@ -184,14 +178,14 @@ export const DFSingleLink = ( wanLink: WANLink, networkType: "Foreign" | "Domest
 
     // Use full network name for routing table to match Networks.ts
     const routingTable = `to-${networkType}`;
-    
+
     // Convert to MultiWANInterface format to get checkIP
     const interfaces = convertWANLinkToMultiWAN(
         wanLink.WANConfigs,
         networkType === "Domestic",
         networkType
     );
-    
+
     const config: RouterConfig = {
         "/ip route": [
             `add dst-address="0.0.0.0/0" gateway="${gateway}" routing-table="${routingTable}" comment="Route-to-${networkType}-${linkName}"`,
@@ -202,7 +196,7 @@ export const DFSingleLink = ( wanLink: WANLink, networkType: "Foreign" | "Domest
     if (interfaces.length > 0 && interfaces[0].checkIP) {
         const checkIP = interfaces[0].checkIP;
         const checkIPDistance = 1; // Distance 1 for single link in aggregated table
-        
+
         config["/ip route"].push(
             `add check-gateway=ping dst-address="${checkIP}" gateway="${gateway}" routing-table="${routingTable}" \\
             distance=${checkIPDistance} target-scope="11" comment="Route-to-${networkType}-${linkName}"`
@@ -214,7 +208,7 @@ export const DFSingleLink = ( wanLink: WANLink, networkType: "Foreign" | "Domest
 
 export const DFMultiLink = ( wanLink: WANLink, networkType: "Foreign" | "Domestic" ): RouterConfig => {
     const configs: RouterConfig[] = [];
-    
+
     // Check if there are multiple WAN links configured
     if (wanLink.WANConfigs.length === 0) {
         return {};
@@ -238,11 +232,11 @@ export const DFMultiLink = ( wanLink: WANLink, networkType: "Foreign" | "Domesti
 
     // Use full network name for routing table to match Networks.ts
     const routingTable = `to-${networkType}`;
-    
+
     // Get actual WAN interface names for mangle rules
     const wanInterfaceNames = wanLink.WANConfigs.map(config => GetWANInterface(config));
     const linkCount = wanInterfaceNames.length;
-    
+
     // Address list and routing mark for mangle rules
     const addressList = `${networkType}-LAN`;
     const routingMark = routingTable;
@@ -326,7 +320,7 @@ export const generateWANLinksConfig = (wanLinks: WANLinks, availableLTEInterface
         false,  // isDomestic
         "Foreign"
     ) : [];
-    
+
     const domesticInterfaces = Domestic ? convertWANLinkToMultiWAN(
         Domestic.WANConfigs,
         true,  // isDomestic
@@ -340,7 +334,7 @@ export const generateWANLinksConfig = (wanLinks: WANLinks, availableLTEInterface
             foreignCheckIPMap.set(iface.name, iface.checkIP);
         }
     });
-    
+
     const domesticCheckIPMap = new Map<string, string>();
     domesticInterfaces.forEach((iface) => {
         if (iface.checkIP) {

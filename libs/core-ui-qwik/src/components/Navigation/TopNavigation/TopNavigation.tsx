@@ -1,9 +1,11 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { TopNavigationProps } from "./TopNavigation.types";
+
 import { useMobileMenuState } from "./hooks/useMobileMenuState";
 import { useTopNavigationContainerStyles } from "./hooks/useTopNavigationContainerStyles";
 import { TopNavigationHeader } from "./TopNavigationHeader";
 import { TopNavigationMobileMenu } from "./TopNavigationMobileMenu";
+
+import type { TopNavigationProps } from "./TopNavigation.types";
 
 /**
  * TopNavigation component provides a horizontal navigation bar with support for

@@ -2,11 +2,9 @@ import type {
   NetworkProtocol,
   LayerMode,
   TLSVersion,
-} from "@nas-net/star-context";
-import type {
+
   OvpnAuthMethod,
-  OvpnCipher,
-} from "@nas-net/star-context";
+  OvpnCipher} from "@nas-net/star-context";
 
 export const protocols: { value: NetworkProtocol; label: string }[] = [
   { value: "tcp", label: "TCP" },

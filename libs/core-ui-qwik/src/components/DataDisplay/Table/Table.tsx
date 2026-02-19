@@ -1,11 +1,13 @@
-import { component$ } from "@builder.io/qwik";
-import type { TableProps, SimpleTableProps, TableColumn } from "./Table.types";
-import { useTable } from "./hooks/useTable";
-import { TableHead } from "./components/TableHead";
+import { component$ , Slot } from "@builder.io/qwik";
+
 import { TableBody } from "./components/TableBody";
 import { TableCell } from "./components/TableCell";
+import { TableHead } from "./components/TableHead";
 import { TableRow } from "./components/TableRow";
-import { Slot } from "@builder.io/qwik";
+import { useTable } from "./hooks/useTable";
+
+import type { TableProps, SimpleTableProps, TableColumn } from "./Table.types";
+
 
 /**
  * Helper function to get the value from a row using a column definition

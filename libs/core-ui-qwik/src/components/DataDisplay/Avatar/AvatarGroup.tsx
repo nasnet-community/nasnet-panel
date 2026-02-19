@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { AvatarGroupProps } from "./Avatar.types";
+
 import { useAvatarGroup } from "./hooks/useAvatarGroup";
+
+import type { AvatarGroupProps } from "./Avatar.types";
 
 /**
  * AvatarGroup component for displaying multiple avatars

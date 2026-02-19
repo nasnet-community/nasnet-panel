@@ -1,11 +1,13 @@
 import { component$ } from "@builder.io/qwik";
-import type { PaginationProps } from "./Pagination.types";
+
+import { useItemRange } from "./hooks/useItemRange";
 import { usePaginationState } from "./hooks/usePaginationState";
 import { useVisiblePages } from "./hooks/useVisiblePages";
-import { useItemRange } from "./hooks/useItemRange";
 import { NavigationButton } from "./NavigationButton";
-import { PageNumbers } from "./PageNumbers";
 import { PageInputForm } from "./PageInputForm";
+import { PageNumbers } from "./PageNumbers";
+
+import type { PaginationProps } from "./Pagination.types";
 
 export const Pagination = component$<PaginationProps>((props) => {
   // Set default values for props

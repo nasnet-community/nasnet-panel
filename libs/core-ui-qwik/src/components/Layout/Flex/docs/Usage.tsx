@@ -1,6 +1,6 @@
 ﻿import { component$ } from "@builder.io/qwik";
-import { UsageTemplate } from "@nas-net/core-ui-qwik";
-import { CodeBlock } from "@nas-net/core-ui-qwik";
+import { UsageTemplate , CodeBlock } from "@nas-net/core-ui-qwik";
+
 
 export default component$(() => {
   return (

@@ -10,7 +10,7 @@
 
 import { Controller } from 'react-hook-form';
 import { X, AlertCircle, CheckCircle2, Bell, Server, Shield, Eye, EyeOff, ChevronDown, Tag as TagIcon } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
 import {
   Select,
@@ -35,7 +35,7 @@ export interface NtfyChannelFormMobileProps {
 // Component
 // ============================================================================
 
-export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) {
+function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps) {
   const {
     form,
     tags,
@@ -88,7 +88,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" />
+          <Bell className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">Send push notifications</p>
@@ -102,7 +102,8 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-6 w-6 rounded border-gray-300"
+              className="h-6 w-6 rounded border-border"
+              aria-label="Enable ntfy.sh notifications"
             />
           )}
         />
@@ -114,13 +115,16 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
           type="button"
           onClick={() => setShowServer(!showServer)}
           className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          aria-expanded={showServer}
+          aria-label="Server Configuration"
         >
           <div className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
+            <Server className="h-5 w-5" aria-hidden="true" />
             <span className="font-semibold">Server Configuration</span>
           </div>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${showServer ? 'rotate-180' : ''}`}
+            aria-hidden="true"
           />
         </button>
 
@@ -139,7 +143,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 error={!!errors.serverUrl}
               />
               {errors.serverUrl && (
-                <p className="text-sm text-destructive">{errors.serverUrl.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.serverUrl.message}</p>
               )}
               <p className="text-xs text-muted-foreground">
                 Use https://ntfy.sh or your self-hosted server
@@ -158,7 +162,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 error={!!errors.topic}
               />
               {errors.topic && (
-                <p className="text-sm text-destructive">{errors.topic.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.topic.message}</p>
               )}
               <p className="text-xs text-muted-foreground">
                 Only letters, numbers, hyphens, underscores
@@ -205,7 +209,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 )}
               />
               {errors.priority && (
-                <p className="text-sm text-destructive">{errors.priority.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.priority.message}</p>
               )}
             </div>
           </div>
@@ -218,14 +222,17 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
           type="button"
           onClick={() => setShowAuth(!showAuth)}
           className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          aria-expanded={showAuth}
+          aria-label="Authentication"
         >
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <Shield className="h-5 w-5" aria-hidden="true" />
             <span className="font-semibold">Authentication</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
           </div>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${showAuth ? 'rotate-180' : ''}`}
+            aria-hidden="true"
           />
         </button>
 
@@ -245,7 +252,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 error={!!errors.username}
               />
               {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.username.message}</p>
               )}
             </div>
 
@@ -263,14 +270,14 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.password.message}</p>
               )}
             </div>
           </div>
@@ -283,9 +290,11 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
           type="button"
           onClick={() => setShowTags(!showTags)}
           className="flex w-full items-center justify-between rounded-lg border border-border bg-card p-4 min-h-[56px]"
+          aria-expanded={showTags}
+          aria-label="Tags"
         >
           <div className="flex items-center gap-2">
-            <TagIcon className="h-5 w-5" />
+            <TagIcon className="h-5 w-5" aria-hidden="true" />
             <span className="font-semibold">Tags</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
             {tags.length > 0 && (
@@ -294,6 +303,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
           </div>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${showTags ? 'rotate-180' : ''}`}
+            aria-hidden="true"
           />
         </button>
 
@@ -310,6 +320,7 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 placeholder="Enter tag"
+                aria-label="Tag name"
                 disabled={tags.length >= 10}
                 className="flex-1"
               />
@@ -333,10 +344,10 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
                     <button
                       type="button"
                       onClick={() => removeTag(index)}
-                      className="ml-1 min-h-[24px] min-w-[24px] flex items-center justify-center hover:text-destructive"
+                      className="ml-1 min-h-[24px] min-w-[24px] flex items-center justify-center hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                       aria-label={`Remove ${tag}`}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </Badge>
                 ))}
@@ -352,11 +363,11 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
 
       {/* Test Result */}
       {testResult && (
-        <Alert variant={testResult.success ? 'default' : 'destructive'}>
+        <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
           {testResult.success ? (
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
           )}
           <AlertDescription>{testResult.message}</AlertDescription>
         </Alert>
@@ -380,3 +391,6 @@ export function NtfyChannelFormMobile({ ntfyForm }: NtfyChannelFormMobileProps) 
     </form>
   );
 }
+
+export const NtfyChannelFormMobile = memo(NtfyChannelFormMobileComponent);
+NtfyChannelFormMobile.displayName = 'NtfyChannelFormMobile';

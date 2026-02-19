@@ -1,5 +1,7 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
+
 import { FileUpload } from "../index";
+
 import type { FileInfo } from "../FileUpload.types";
 
 export default component$(() => {

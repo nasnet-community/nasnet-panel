@@ -1,6 +1,7 @@
 import { useSignal, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { SideNavigationItem } from "../SideNavigation.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseSideNavigationItemStateProps {
   item: SideNavigationItem;

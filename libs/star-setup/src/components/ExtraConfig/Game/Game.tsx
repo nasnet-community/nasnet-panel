@@ -1,11 +1,13 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+
 import { GameHeader } from "./GameHeader";
-import { GameSearch } from "./GameSearch";
-import { GameTable } from "./GameTable";
-import { GameSelected } from "./GameSelected";
 import { GamePagination } from "./GamePagination";
+import { GameSearch } from "./GameSearch";
+import { GameSelected } from "./GameSelected";
+import { GameTable } from "./GameTable";
 import { useGameLogic } from "./useGame";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 // import { GameForm } from "./GameForm";
 
 export const Game = component$<StepProps>(({ onComplete$ }) => {

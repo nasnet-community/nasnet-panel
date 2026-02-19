@@ -1,6 +1,7 @@
 import { component$, type QRL } from "@builder.io/qwik";
-import type { PPPoEConfig } from "../../types";
 import { Input, FormField, PasswordField } from "@nas-net/core-ui-qwik";
+
+import type { PPPoEConfig } from "../../types";
 
 export interface PPPoEFieldsProps {
   config?: PPPoEConfig;

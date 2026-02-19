@@ -77,7 +77,11 @@ export function HelpModeToggle({
   }
 
   return (
-    <div className={cn('flex items-center gap-3', className)}>
+    <div
+      className={cn('flex items-center gap-3', className)}
+      role="group"
+      aria-label="Help mode"
+    >
       <Label
         htmlFor={switchId}
         className={cn(

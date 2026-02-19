@@ -5,9 +5,11 @@
  * Comprehensive stories showcasing all states and variants of the AlertTemplateBrowser component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { within, userEvent, expect } from '@storybook/test';
 import { MockedProvider } from '@apollo/client/testing';
+import { within, userEvent, expect } from '@storybook/test';
+
+import { GET_ALERT_RULE_TEMPLATES, APPLY_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
+
 import { AlertTemplateBrowser } from './AlertTemplateBrowser';
 import {
   allTemplates,
@@ -15,7 +17,9 @@ import {
   customTemplate,
   templatesByCategory,
 } from '../../__test-utils__/alert-rule-template-fixtures';
-import { GET_ALERT_RULE_TEMPLATES, APPLY_ALERT_RULE_TEMPLATE } from '@nasnet/api-client/queries';
+
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta

@@ -4,8 +4,8 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
-} from "@nas-net/core-ui-qwik";
-import { Button } from "@nas-net/core-ui-qwik";
+ Button } from "@nas-net/core-ui-qwik";
+
 import type { DialogSize } from "@nas-net/core-ui-qwik";
 
 export const DialogSizes = component$(() => {

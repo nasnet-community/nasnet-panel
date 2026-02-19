@@ -2,8 +2,9 @@ import { component$, $ } from "@builder.io/qwik";
 // Removed unused icon imports
 import { TimePicker } from "@nas-net/core-ui-qwik";
 import { FrequencySelector, type FrequencyValue } from "@nas-net/core-ui-qwik";
-import type { Signal } from "@builder.io/qwik";
+
 import type { TimeConfig } from "./type";
+import type { Signal } from "@builder.io/qwik";
 
 interface IPAddressUpdateCardProps {
   ipAddressUpdateEnabled: Signal<boolean>;

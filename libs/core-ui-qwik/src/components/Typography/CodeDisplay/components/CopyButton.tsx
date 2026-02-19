@@ -1,7 +1,8 @@
 import { component$, type QRL } from "@builder.io/qwik";
+
 import { type CodeTheme } from "../CodeDisplay.types";
-import { CopyIcon } from "../icons/CopyIcon";
 import { CheckIcon } from "../icons/CheckIcon";
+import { CopyIcon } from "../icons/CopyIcon";
 
 export interface CopyButtonProps {
   copySuccess: boolean;

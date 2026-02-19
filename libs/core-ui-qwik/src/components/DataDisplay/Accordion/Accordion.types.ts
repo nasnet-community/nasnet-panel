@@ -1,5 +1,5 @@
-import type { QRL, Signal } from "@builder.io/qwik";
-import type { JSXOutput } from "@builder.io/qwik";
+import type { QRL, Signal , JSXOutput } from "@builder.io/qwik";
+
 
 export type AccordionVariant = "default" | "bordered" | "separated";
 export type AccordionSize = "sm" | "md" | "lg";

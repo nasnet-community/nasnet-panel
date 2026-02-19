@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { type InlineCodeProps } from "./CodeDisplay.types";
 import { useInlineCode } from "./hooks/useInlineCode";
 

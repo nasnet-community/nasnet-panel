@@ -1,5 +1,6 @@
-import type { WANWizardState } from "../types";
 import { getLinkErrors, isInterfaceConfigurationComplete, isLinkConfigurationComplete } from "./validationUtils";
+
+import type { WANWizardState } from "../types";
 
 export type LinkStatus = "complete" | "partial" | "error" | "incomplete";
 

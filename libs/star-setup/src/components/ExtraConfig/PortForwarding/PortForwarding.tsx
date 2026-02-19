@@ -1,6 +1,7 @@
 import { component$, useStore } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
 import { Input, Select } from "@nas-net/core-ui-qwik";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 interface PortForwardingRule {
   protocol: string;

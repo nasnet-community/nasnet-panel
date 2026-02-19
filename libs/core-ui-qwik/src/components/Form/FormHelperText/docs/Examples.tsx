@@ -1,10 +1,11 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicHelperText from "../Examples/BasicHelperText";
+import HelperTextAccessibility from "../Examples/HelperTextAccessibility";
 import HelperTextSizes from "../Examples/HelperTextSizes";
 import HelperTextStates from "../Examples/HelperTextStates";
 import HelperTextWithIcons from "../Examples/HelperTextWithIcons";
-import HelperTextAccessibility from "../Examples/HelperTextAccessibility";
 
 /**
  * FormHelperText component examples documentation using the standard template

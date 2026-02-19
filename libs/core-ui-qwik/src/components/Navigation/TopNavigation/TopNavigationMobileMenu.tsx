@@ -1,4 +1,5 @@
 import { component$, $, type QRL } from "@builder.io/qwik";
+
 import type { TopNavigationItem } from "./TopNavigation.types";
 
 export interface TopNavigationMobileMenuProps {

@@ -1,12 +1,13 @@
 import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { Badge } from "@nas-net/core-ui-qwik";
-import { techSpecs, stats, testimonials, trustIndicators } from "../../data/techSpecsData";
-import { TechSpecCard } from "./TechSpecCard";
+
+import { ComparisonMatrix } from "./ComparisonMatrix";
 import { StatsDisplay } from "./StatsDisplay";
+import { TechRadarChart } from "./TechRadarChart";
+import { TechSpecCard } from "./TechSpecCard";
 import { TestimonialCard } from "./TestimonialCard";
 import { TrustIndicators } from "./TrustIndicators";
-import { TechRadarChart } from "./TechRadarChart";
-import { ComparisonMatrix } from "./ComparisonMatrix";
+import { techSpecs, stats, testimonials, trustIndicators } from "../../data/techSpecsData";
 
 export const TechSpecsSection = component$(() => {
   const activeCategory = useSignal(0);

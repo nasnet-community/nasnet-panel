@@ -124,7 +124,7 @@ const sizeClasses = {
  * />
  * ```
  */
-export function StaleIndicator({
+function StaleIndicatorBase({
   isStale,
   lastUpdated,
   onRefresh,
@@ -151,13 +151,14 @@ export function StaleIndicator({
     <div
       role="status"
       aria-live="polite"
+      aria-label={isOffline ? 'Offline - showing cached data' : 'Data may be outdated'}
       className={cn(
         // Base styles
         'inline-flex items-center rounded-full',
-        // Colors - warning style for stale data
-        'bg-amber-50 dark:bg-amber-950/30',
-        'text-amber-700 dark:text-amber-400',
-        'border border-amber-200 dark:border-amber-800',
+        // Colors - warning semantic tokens
+        'bg-warning/10',
+        'text-warning',
+        'border border-warning/30',
         // Size-specific
         classes.container,
         className
@@ -168,7 +169,7 @@ export function StaleIndicator({
         className={cn(
           classes.icon,
           'flex-shrink-0',
-          isOffline && 'text-amber-600 dark:text-amber-500'
+          isOffline && 'text-warning-dark'
         )}
         aria-hidden="true"
       />
@@ -191,8 +192,8 @@ export function StaleIndicator({
           disabled={isRefreshing}
           className={cn(
             'rounded-full',
-            'hover:bg-amber-100 dark:hover:bg-amber-900/50',
-            'focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1',
+            'hover:bg-warning/20',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
             'disabled:opacity-50 disabled:cursor-not-allowed',
             'transition-colors',
             classes.button
@@ -212,4 +213,6 @@ export function StaleIndicator({
   );
 }
 
-StaleIndicator.displayName = 'StaleIndicator';
+StaleIndicatorBase.displayName = 'StaleIndicator';
+
+export const StaleIndicator = React.memo(StaleIndicatorBase);

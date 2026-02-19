@@ -83,16 +83,16 @@ export function BottomNavigation({
     <nav
       className={cn(
         'fixed bottom-0 left-0 right-0 z-50',
-        'bg-white dark:bg-slate-800',
-        'border-t border-slate-200 dark:border-slate-700',
+        'bg-card',
+        'border-t border-border',
         'shadow-lg',
         'md:hidden', // Hide on larger screens
         'safe-bottom', // Account for device notches
         className
       )}
-      aria-label="Bottom navigation"
+      aria-label="Main navigation"
     >
-      <div className="flex items-center justify-around h-16">
+      <div className="flex items-center justify-around h-16 min-h-[44px]">
         {items.map((item) => {
           const isActive = item.id === activeId;
           const Icon = item.icon;
@@ -110,7 +110,7 @@ export function BottomNavigation({
               <Icon
                 className={cn(
                   'w-6 h-6 transition-colors duration-200',
-                  isActive ? 'text-primary-500' : 'text-slate-400 dark:text-slate-500'
+                  isActive ? 'text-primary' : 'text-muted-foreground'
                 )}
                 aria-hidden="true"
               />
@@ -119,7 +119,7 @@ export function BottomNavigation({
               <span
                 className={cn(
                   'text-xs font-medium transition-colors duration-200',
-                  isActive ? 'text-primary-500' : 'text-slate-400 dark:text-slate-500'
+                  isActive ? 'text-primary' : 'text-muted-foreground'
                 )}
               >
                 {item.label}
@@ -128,7 +128,7 @@ export function BottomNavigation({
               {/* Active indicator - bottom border style matching design */}
               {isActive && (
                 <div
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary-500 rounded-t-full"
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-t-full"
                   aria-hidden="true"
                 />
               )}
@@ -137,10 +137,11 @@ export function BottomNavigation({
 
           const commonClasses = cn(
             'relative flex flex-col items-center justify-center gap-1',
-            'flex-1 h-full',
+            'flex-1 h-full min-h-[44px] min-w-[44px]',
             'transition-all duration-200',
             'active:scale-95',
-            !isActive && 'hover:text-slate-600 dark:hover:text-slate-300'
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            !isActive && 'hover:text-foreground'
           );
 
           // Render as button or link depending on props

@@ -268,6 +268,8 @@ export const apolloClient: ApolloClient<NormalizedCacheObject> =
       watchQuery: {
         // Return cached data immediately, then update with network
         fetchPolicy: 'cache-and-network',
+        // After initial fetch, use cache to avoid redundant network requests on re-render
+        nextFetchPolicy: 'cache-first',
         // Return partial data even if some fields errored
         errorPolicy: 'all',
       },

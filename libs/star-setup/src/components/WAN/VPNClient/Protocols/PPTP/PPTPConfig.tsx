@@ -1,7 +1,9 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import { usePPTPConfig } from "./usePPTPConfig";
 import { FormField, FormContainer, ErrorMessage } from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
 
 interface PPTPConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

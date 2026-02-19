@@ -6,9 +6,8 @@ import {
   $,
   useTask$,
 } from "@builder.io/qwik";
-import { StarContext } from "@nas-net/star-context";
 import { Card, CardFooter, Button, GradientHeader, Alert } from "@nas-net/core-ui-qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
 import {
   LuShield,
   LuNetwork,
@@ -20,8 +19,11 @@ import {
   LuLock,
   LuInfo
 } from "@qwikest/icons/lucide";
+
 import { TabContent } from "./TabContent";
 import { useSubnets } from "./useSubnets";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 export const Subnets = component$<StepProps>(({ onComplete$, onDisabled$ }) => {
   const starContext = useContext(StarContext);

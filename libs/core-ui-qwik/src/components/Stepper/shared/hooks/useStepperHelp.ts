@@ -1,6 +1,8 @@
 import { useSignal, useVisibleTask$, useComputed$, $, type QRL, type Signal } from "@builder.io/qwik";
-import type { BaseStepMeta } from "../types/base";
+
 import { useGlobalHelpSettings } from "./useGlobalHelpSettings";
+
+import type { BaseStepMeta } from "../types/base";
 
 /**
  * Check if a step has help content

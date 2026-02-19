@@ -1,6 +1,7 @@
 import { component$, type QRL, $ } from "@builder.io/qwik";
-import type { StaticIPConfig } from "../../types";
 import { Input, FormField } from "@nas-net/core-ui-qwik";
+
+import type { StaticIPConfig } from "../../types";
 
 export interface StaticIPFieldsProps {
   config?: StaticIPConfig;

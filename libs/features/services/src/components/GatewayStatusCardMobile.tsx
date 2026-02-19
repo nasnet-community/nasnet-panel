@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Badge, Button, Card, CardContent, CardHeader } from '@nasnet/ui/primitives';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { GatewayState, formatUptime, type GatewayInfo } from '@nasnet/api-client/queries';
@@ -8,7 +8,7 @@ import type { GatewayStatusCardProps } from './GatewayStatusCard';
  * Mobile gateway status card with collapsible details.
  * Optimized for touch with 44px touch targets and progressive disclosure.
  */
-export function GatewayStatusCardMobile({
+export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
   gateway,
   instanceId,
   serviceName,
@@ -66,8 +66,8 @@ export function GatewayStatusCardMobile({
           {/* TUN interface name */}
           {gateway.tunName && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-text-muted">TUN Interface</span>
-              <code className="rounded bg-surface-muted px-3 py-2 font-mono text-sm text-text">
+              <span className="text-xs text-muted-foreground">TUN Interface</span>
+              <code className="rounded bg-muted px-3 py-2 font-mono text-sm text-foreground">
                 {gateway.tunName}
               </code>
             </div>
@@ -76,16 +76,16 @@ export function GatewayStatusCardMobile({
           {/* Process ID */}
           {gateway.pid != null && gateway.pid > 0 && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-text-muted">Process ID</span>
-              <code className="font-mono text-sm text-text">{gateway.pid}</code>
+              <span className="text-xs text-muted-foreground">Process ID</span>
+              <code className="font-mono text-sm text-foreground">{gateway.pid}</code>
             </div>
           )}
 
           {/* Uptime */}
           {gateway.uptime != null && gateway.uptime > 0 && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-text-muted">Uptime</span>
-              <span className="font-mono text-sm text-text">
+              <span className="text-xs text-muted-foreground">Uptime</span>
+              <span className="font-mono text-sm text-foreground">
                 {formatUptime(gateway.uptime)}
               </span>
             </div>
@@ -94,8 +94,8 @@ export function GatewayStatusCardMobile({
           {/* Last health check */}
           {gateway.lastHealthCheck && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-text-muted">Last Health Check</span>
-              <span className="text-sm text-text">
+              <span className="text-xs text-muted-foreground">Last Health Check</span>
+              <span className="text-sm text-foreground">
                 {new Date(gateway.lastHealthCheck).toLocaleString()}
               </span>
             </div>
@@ -111,12 +111,14 @@ export function GatewayStatusCardMobile({
 
           {/* Service info */}
           <div className="mt-4 flex flex-col gap-1 border-t border-border pt-3">
-            <span className="text-xs text-text-muted">Service Instance</span>
-            <span className="text-sm text-text">{serviceName}</span>
-            <code className="mt-1 font-mono text-xs text-text-muted">{instanceId}</code>
+            <span className="text-xs text-muted-foreground">Service Instance</span>
+            <span className="text-sm text-foreground">{serviceName}</span>
+            <code className="mt-1 font-mono text-xs text-muted-foreground">{instanceId}</code>
           </div>
         </CardContent>
       )}
     </Card>
   );
-}
+});
+
+GatewayStatusCardMobile.displayName = 'GatewayStatusCardMobile';

@@ -6,31 +6,11 @@
  * Follows Headless + Platform Presenters pattern (ADR-018).
  */
 
+import { memo } from 'react';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { DnsBenchmarkDesktop } from './DnsBenchmark.Desktop';
 import { DnsBenchmarkMobile } from './DnsBenchmark.Mobile';
 import type { DnsBenchmarkProps } from './types';
-
-// Hook to detect viewport width
-function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 639px)');
-
-    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches);
-    };
-
-    // Set initial value
-    handleChange(mediaQuery);
-
-    // Listen for changes
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  return isMobile;
-}
 
 /**
  * DNS Benchmark Component
@@ -47,15 +27,12 @@ function useIsMobile() {
  * />
  * ```
  */
-export function DnsBenchmark(props: DnsBenchmarkProps) {
-  const isMobile = useIsMobile();
+export const DnsBenchmark = memo(function DnsBenchmark(props: DnsBenchmarkProps) {
+  const platform = usePlatform();
 
-  return isMobile ? (
+  return platform === 'mobile' ? (
     <DnsBenchmarkMobile {...props} />
   ) : (
     <DnsBenchmarkDesktop {...props} />
   );
-}
-
-// Add React import
-import * as React from 'react';
+});

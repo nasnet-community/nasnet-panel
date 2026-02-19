@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import type { PaginationSize, PaginationVariant } from "./Pagination.types";
+
 import { PaginationButton } from "./PaginationButton";
+
+import type { PaginationSize, PaginationVariant } from "./Pagination.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface PageNumbersProps {
   visiblePages: (number | string)[];

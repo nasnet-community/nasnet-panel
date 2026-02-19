@@ -1,7 +1,9 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
 import { useStepperContext } from "@nas-net/core-ui-qwik";
+
 import { TunnelContextId } from "./Tunnel";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 interface ActionFooterProps {
   /**

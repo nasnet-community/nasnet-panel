@@ -14,8 +14,9 @@
  * when working with browser File objects in Qwik.
  */
 import { $, useSignal } from "@builder.io/qwik";
-import type { QRL, Signal } from "@builder.io/qwik";
+
 import type { FileInfo } from "../FileUpload.types";
+import type { QRL, Signal } from "@builder.io/qwik";
 
 /**
  * Options for the useFileUploader hook

@@ -1,5 +1,6 @@
-import type { RouterConfig } from "../generator";
 import { mergeRouterConfigs } from "./ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../generator";
 
 export interface SchedulerGenerator {
     Name: string;

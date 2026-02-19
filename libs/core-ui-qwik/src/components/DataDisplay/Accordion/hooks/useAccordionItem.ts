@@ -1,4 +1,5 @@
 import { useId, useComputed$ } from "@builder.io/qwik";
+
 import type { AccordionItemProps } from "../Accordion.types";
 
 export interface UseAccordionItemReturn {

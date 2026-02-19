@@ -1,11 +1,12 @@
 import { $, component$, useContext, useSignal, useTask$ } from "@builder.io/qwik";
+import { Input } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
 import {
   HiCheckCircleOutline,
   HiXCircleOutline,
 } from "@qwikest/icons/heroicons";
+
 import type { StepProps } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
-import { Input } from "@nas-net/core-ui-qwik";
 
 export const Identity = component$<StepProps>(({ onComplete$ }) => {
   const ctx = useContext(StarContext);

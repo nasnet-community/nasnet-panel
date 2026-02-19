@@ -16,6 +16,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { RawRulesTableDesktop } from './RawRulesTableDesktop';
 import { RawRulesTableMobile } from './RawRulesTableMobile';
@@ -35,7 +36,7 @@ export interface RawRulesTableProps {
  * @param props - Component props
  * @returns Platform-appropriate RAW rules table
  */
-export function RawRulesTable({ className, chain }: RawRulesTableProps) {
+export const RawRulesTable = memo(function RawRulesTable({ className, chain }: RawRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -44,4 +45,4 @@ export function RawRulesTable({ className, chain }: RawRulesTableProps) {
   ) : (
     <RawRulesTableDesktop className={className} chain={chain} />
   );
-}
+});

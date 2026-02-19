@@ -1,9 +1,9 @@
 import { component$, type QRL } from "@builder.io/qwik";
+import { Button } from "@nas-net/core-ui-qwik";
 import { 
   HiExclamationTriangleOutline, 
   HiSparklesOutline
 } from "@qwikest/icons/heroicons";
-import { Button } from "@nas-net/core-ui-qwik";
 
 interface CompactHeaderProps {
   generateAllPasswords: QRL<() => Promise<void>>;

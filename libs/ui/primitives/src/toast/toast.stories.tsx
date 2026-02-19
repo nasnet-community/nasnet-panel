@@ -183,28 +183,28 @@ export const InteractiveDemo: Story = {
           </Button>
           <Button
             variant="outline"
-            className="text-green-600"
+            className="text-success"
             onClick={() => addToast('success')}
           >
             Success
           </Button>
           <Button
             variant="outline"
-            className="text-yellow-600"
+            className="text-warning"
             onClick={() => addToast('warning')}
           >
             Warning
           </Button>
           <Button
             variant="outline"
-            className="text-red-600"
+            className="text-error"
             onClick={() => addToast('error')}
           >
             Error
           </Button>
           <Button
             variant="outline"
-            className="text-blue-600"
+            className="text-info"
             onClick={() => addToast('info')}
           >
             Info

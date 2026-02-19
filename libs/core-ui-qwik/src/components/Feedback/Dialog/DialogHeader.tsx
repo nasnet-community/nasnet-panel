@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { DialogHeaderProps } from "./Dialog.types";
+
 import { cn, getTouchTargetClasses } from "../utils/theme";
+
+import type { DialogHeaderProps } from "./Dialog.types";
 
 /**
  * DialogHeader Component

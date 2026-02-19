@@ -1,4 +1,5 @@
 import { useSignal, useTask$, $ } from "@builder.io/qwik";
+
 import type { UseRatingProps } from "../Rating.types";
 
 export const useRating = (props: UseRatingProps) => {

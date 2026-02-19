@@ -1,7 +1,9 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
+
 import { NetworkGraphExample } from "./Example";
-import type { GraphNode, GraphConnection } from "../types";
 import { createNode } from "../Node/NodeTypes";
+
+import type { GraphNode, GraphConnection } from "../types";
 
 export const GraphPlayground = component$(() => {
   // Node configuration

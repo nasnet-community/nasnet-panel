@@ -11,6 +11,7 @@
  * @module features/network/dhcp/components/lease-filters
  */
 
+import * as React from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives';
 import {
@@ -58,7 +59,7 @@ export interface LeaseFiltersProps {
  * <LeaseFilters servers={dhcpServers} />
  * ```
  */
-export function LeaseFilters({ servers, className }: LeaseFiltersProps) {
+export const LeaseFilters = React.memo(function LeaseFilters({ servers, className }: LeaseFiltersProps) {
   const {
     leaseStatusFilter,
     leaseServerFilter,
@@ -176,7 +177,7 @@ export function LeaseFilters({ servers, className }: LeaseFiltersProps) {
               </span>
               <button
                 onClick={() => setLeaseStatusFilter('all')}
-                className="rounded-sm text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="rounded-sm text-primary hover:bg-primary/20 min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Remove status filter"
               >
                 <X className="h-3 w-3" />
@@ -192,7 +193,7 @@ export function LeaseFilters({ servers, className }: LeaseFiltersProps) {
               </span>
               <button
                 onClick={() => setLeaseServerFilter('all')}
-                className="rounded-sm text-primary hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="rounded-sm text-primary hover:bg-primary/20 min-h-[44px] min-w-[44px] inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="Remove server filter"
               >
                 <X className="h-3 w-3" />
@@ -203,4 +204,6 @@ export function LeaseFilters({ servers, className }: LeaseFiltersProps) {
       )}
     </div>
   );
-}
+});
+
+LeaseFilters.displayName = 'LeaseFilters';

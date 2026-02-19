@@ -1,7 +1,8 @@
-import type { JSXChildren } from "@builder.io/qwik";
 import { component$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
+
 import type { BreadcrumbItem as BreadcrumbItemType } from "./Breadcrumbs.types";
+import type { JSXChildren } from "@builder.io/qwik";
 
 export interface BreadcrumbItemProps {
   item: BreadcrumbItemType;

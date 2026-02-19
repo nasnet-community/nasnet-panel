@@ -1,6 +1,7 @@
 import { component$, useSignal, useStore, $ } from "@builder.io/qwik";
-import { Drawer } from "../Drawer";
 import { Button } from "@nas-net/core-ui-qwik";
+
+import { Drawer } from "../Drawer";
 
 /**
  * Comprehensive example showcasing all enhanced Drawer features:

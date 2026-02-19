@@ -3,9 +3,10 @@
  * Visual documentation for the fix suggestion component (NAS-5.11)
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { FixSuggestion } from './FixSuggestion';
+
 import type { FixSuggestion as FixSuggestionType } from '../../types/troubleshoot.types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof FixSuggestion> = {
   title: 'Features/Diagnostics/FixSuggestion',

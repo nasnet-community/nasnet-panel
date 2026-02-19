@@ -5,11 +5,10 @@ import {
   useSignal,
   type PropFunction,
 } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
-import { LuGlobe, LuGlobe2, LuSettings } from "@qwikest/icons/lucide";
 import { StarContext } from "@nas-net/star-context";
-import { OptionCard } from "./OptionCard";
-import { NetworkTopologyGraph } from "./NetworkTopologyGraph";
+import { LuGlobe, LuGlobe2, LuSettings } from "@qwikest/icons/lucide";
+import { track } from "@vercel/analytics";
+
 import {
   domesticOnlyNetworkNodes,
   domesticOnlyNetworkConnections,
@@ -18,6 +17,9 @@ import {
   bothLinksNetworkNodes,
   bothLinksNetworkConnections,
 } from "./networkData";
+import { NetworkTopologyGraph } from "./NetworkTopologyGraph";
+import { OptionCard } from "./OptionCard";
+
 import type { WANLinkType as WANLinkTypeEnum } from "@nas-net/star-context";
 
 interface WANLinkTypeProps {

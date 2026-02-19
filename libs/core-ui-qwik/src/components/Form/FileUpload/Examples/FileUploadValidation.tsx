@@ -1,4 +1,5 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import { FileUpload } from "../index";
 
 export default component$(() => {

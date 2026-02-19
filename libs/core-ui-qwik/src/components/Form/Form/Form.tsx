@@ -1,7 +1,9 @@
 import { Slot, component$, useSignal, $ } from "@builder.io/qwik";
 import { Form as QwikForm } from "@builder.io/qwik-city";
-import type { FormProps } from "./Form.types";
+
 import { FormProvider } from "./FormContext";
+
+import type { FormProps } from "./Form.types";
 import "./Form.css";
 
 /**

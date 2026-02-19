@@ -141,7 +141,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 onClick={() => setFilter({ category: 'all' })}
                 className={cn(
                   'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted',
+                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                   filter.category === 'all' &&
                     'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
@@ -166,7 +166,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     onClick={() => setFilter({ category: cat.id })}
                     className={cn(
                       'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                      'border hover:bg-muted',
+                      'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                     aria-label={`Filter by ${cat.label} category`}
@@ -192,7 +192,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 onClick={() => setFilter({ severity: 'all' })}
                 className={cn(
                   'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted',
+                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                   filter.severity === 'all' &&
                     'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
@@ -217,7 +217,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     onClick={() => setFilter({ severity: sev })}
                     className={cn(
                       'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                      'border hover:bg-muted',
+                      'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                     aria-label={`Filter by ${severityLabels[sev]} severity`}
@@ -247,7 +247,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 }
                 className={cn(
                   'min-h-[44px] px-4 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted',
+                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                   filter.builtInOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show only built-in templates"
@@ -263,7 +263,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 }
                 className={cn(
                   'min-h-[44px] px-4 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted',
+                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                   filter.customOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show only custom templates"
@@ -289,7 +289,7 @@ interface TemplateCardProps {
   onViewDetail?: () => void;
 }
 
-function TemplateCardComponent({
+const TemplateCardComponent = React.memo(function TemplateCardComponent({
   template,
   isSelected,
   onClick,
@@ -299,18 +299,28 @@ function TemplateCardComponent({
   const categoryMeta = getCategoryMeta(template.category);
 
   const severityColors = {
-    CRITICAL: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-    WARNING: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-    INFO: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+    CRITICAL: 'bg-destructive/10 text-destructive',
+    WARNING: 'bg-warning/10 text-warning',
+    INFO: 'bg-info/10 text-info',
   };
 
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all',
+        'cursor-pointer transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         isSelected && 'ring-2 ring-primary'
       )}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`${template.name} - ${template.severity} severity, ${categoryMeta.label} category`}
+      aria-selected={isSelected}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-2">
@@ -354,6 +364,7 @@ function TemplateCardComponent({
             onApply();
           }}
           className="flex-1 min-h-[44px]"
+          aria-label={`Apply template ${template.name}`}
         >
           Apply
         </Button>
@@ -366,6 +377,7 @@ function TemplateCardComponent({
               onViewDetail();
             }}
             className="min-h-[44px]"
+            aria-label={`View details for ${template.name}`}
           >
             Details
           </Button>
@@ -373,7 +385,7 @@ function TemplateCardComponent({
       </CardFooter>
     </Card>
   );
-}
+});
 
 // =============================================================================
 // Main Component

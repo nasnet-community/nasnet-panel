@@ -1,14 +1,4 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import { useOpenVPNConfig } from "./useOpenVPNConfig";
-import {
-  FormField,
-  FormContainer,
-  ErrorMessage,
-  RadioGroup,
-  ConfigMethodToggle,
-  VPNConfigFileSection,
-} from "../../components";
 import {
   HiInformationCircleSolid,
   HiExclamationTriangleSolid,
@@ -20,6 +10,19 @@ import {
   HiShieldCheckOutline,
   HiQuestionMarkCircleOutline,
 } from "@qwikest/icons/heroicons";
+
+import { useOpenVPNConfig } from "./useOpenVPNConfig";
+import {
+  FormField,
+  FormContainer,
+  ErrorMessage,
+  RadioGroup,
+  ConfigMethodToggle,
+  VPNConfigFileSection,
+} from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
+
 
 interface OpenVPNConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

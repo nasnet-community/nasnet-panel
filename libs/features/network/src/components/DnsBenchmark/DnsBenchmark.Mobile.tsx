@@ -70,21 +70,22 @@ export function DnsBenchmarkMobile({ deviceId, autoRun = false, onSuccess, onErr
             disabled={isLoading}
             className="w-full gap-2 h-11"
             size="lg"
+            aria-label="Run DNS server benchmark"
           >
             <PlayCircle className="h-5 w-5" />
             {isLoading ? 'Running...' : 'Run Benchmark'}
           </Button>
           {result && !isLoading && (
-            <Button variant="outline" onClick={reset} className="w-full h-11" size="lg">
+            <Button variant="outline" onClick={reset} className="w-full h-11" size="lg" aria-label="Clear benchmark results">
               Clear Results
             </Button>
           )}
         </div>
 
         {isLoading && (
-          <div className="space-y-3">
-            <Progress value={progress} className="w-full h-2" />
-            <p className="text-sm text-semantic-info text-center">Testing DNS servers...</p>
+          <div className="space-y-3" role="status" aria-live="polite">
+            <Progress value={progress} className="w-full h-2" aria-label={`Benchmark progress: ${progress}%`} />
+            <p className="text-sm text-info text-center">Testing DNS servers...</p>
           </div>
         )}
 
@@ -122,13 +123,13 @@ export function DnsBenchmarkMobile({ deviceId, autoRun = false, onSuccess, onErr
 
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-muted-foreground">Response Time</span>
-                      <span className={`text-lg font-semibold ${server.success ? 'text-semantic-success' : 'text-muted-foreground'}`}>
+                      <span className={`text-lg font-semibold ${server.success ? 'text-success' : 'text-muted-foreground'}`}>
                         {formatTime(server.responseTimeMs)}
                       </span>
                     </div>
 
                     {server.error && (
-                      <div className="text-xs text-semantic-error bg-semantic-error/10 p-2 rounded">
+                      <div className="text-xs text-error bg-error/10 p-2 rounded">
                         {server.error}
                       </div>
                     )}

@@ -14,7 +14,7 @@
  * @see Docs/design/ux-design/2-core-user-experience.md#Adaptive Layouts
  */
 
-import { type ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
@@ -48,7 +48,7 @@ export interface DashboardLayoutProps {
  * </DashboardLayout>
  * ```
  */
-export function DashboardLayout({
+export const DashboardLayout = memo(function DashboardLayout({
   children,
   onRefresh,
   showRefresh = true,
@@ -94,7 +94,7 @@ export function DashboardLayout({
             // Ensure proper grid layout
             'auto-rows-max'
           )}
-          role="main"
+          role="region"
           aria-label="Dashboard widgets"
         >
           {children}
@@ -102,7 +102,9 @@ export function DashboardLayout({
       </main>
     </div>
   );
-}
+});
+
+DashboardLayout.displayName = 'DashboardLayout';
 
 /**
  * Calculate grid column classes based on platform

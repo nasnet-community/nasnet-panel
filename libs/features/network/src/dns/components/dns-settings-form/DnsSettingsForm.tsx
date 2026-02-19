@@ -9,7 +9,7 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -73,7 +73,7 @@ export interface DnsSettingsFormProps {
  * />
  * ```
  */
-export function DnsSettingsForm({
+export const DnsSettingsForm = memo(function DnsSettingsForm({
   initialValues,
   cacheUsed,
   cacheUsedPercent,
@@ -253,6 +253,7 @@ export function DnsSettingsForm({
             <Button
               onClick={handleConfirmSecurityWarning}
               className="bg-warning hover:bg-warning/90"
+              aria-label="Confirm enabling remote DNS requests"
             >
               I Understand, Enable
             </Button>
@@ -261,4 +262,4 @@ export function DnsSettingsForm({
       </Dialog>
     </>
   );
-}
+});

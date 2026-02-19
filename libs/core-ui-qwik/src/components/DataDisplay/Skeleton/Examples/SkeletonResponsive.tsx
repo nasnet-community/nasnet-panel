@@ -1,4 +1,5 @@
 import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+
 import { Skeleton, SkeletonCard, SkeletonAvatar, SkeletonText } from "../index";
 
 export const SkeletonResponsive = component$(() => {

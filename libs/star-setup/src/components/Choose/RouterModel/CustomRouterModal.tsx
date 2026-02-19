@@ -5,6 +5,7 @@ import {
   $,
   type QRL,
 } from "@builder.io/qwik";
+import { Button, Input, Select } from "@nas-net/core-ui-qwik";
 import {
   LuPlus,
   LuTrash2,
@@ -15,18 +16,20 @@ import {
   LuSmartphone,
   LuX,
 } from "@qwikest/icons/lucide";
-import { Button, Input, Select } from "@nas-net/core-ui-qwik";
+
+
+import {
+  validateCustomRouterForm,
+  convertFormToRouterData,
+} from "./CustomRouterUtils";
+
+import type { RouterData } from "./Constants";
 import type {
   CustomRouterForm,
   EthernetSpeed,
   WifiBand,
   SfpType,
 } from "./CustomRouterTypes";
-import {
-  validateCustomRouterForm,
-  convertFormToRouterData,
-} from "./CustomRouterUtils";
-import type { RouterData } from "./Constants";
 
 interface CustomRouterModalProps {
   isOpen: boolean;

@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { CardProps } from "./Card.types";
+
 import { useCard } from "./hooks/useCard";
+
+import type { CardProps } from "./Card.types";
 
 /**
  * Card component for displaying content in a contained, styled box.

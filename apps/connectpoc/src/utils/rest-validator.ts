@@ -3,8 +3,9 @@
  * Based on official REST API documentation for RouterOS v7.1beta4+
  */
 
-import type { RouterCredentials } from '@shared/routeros';
 import { getAuthHeaderForRouter, createAuthenticatedProxyRequest } from '@/services/auth';
+
+import type { RouterCredentials } from '@shared/routeros';
 
 /**
  * REST API response structure from RouterOS

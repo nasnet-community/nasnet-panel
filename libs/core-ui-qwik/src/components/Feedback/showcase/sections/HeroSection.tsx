@@ -7,10 +7,11 @@ import {
   HiPaintBrushOutline,
   HiCodeBracketOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
 import { Alert } from "../../Alert/Alert";
-import { Toast } from "../../Toast/Toast";
 import { ErrorMessage } from "../../ErrorMessage/ErrorMessage";
+import { Toast } from "../../Toast/Toast";
 interface HeroSectionProps {}
 
 export const HeroSection = component$<HeroSectionProps>(() => {

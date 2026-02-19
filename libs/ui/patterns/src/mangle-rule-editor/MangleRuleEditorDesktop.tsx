@@ -311,6 +311,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        aria-label="Passthrough"
                       />
                       <span className="text-sm text-muted-foreground">
                         {field.value ? 'Continue processing' : 'Terminal action'}
@@ -462,7 +463,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     name="disabled"
                     control={control}
                     render={({ field }) => (
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        aria-label="Disabled"
+                      />
                     )}
                   />
                 </FormField>
@@ -472,7 +477,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                     name="log"
                     control={control}
                     render={({ field }) => (
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        aria-label="Log Packets"
+                      />
                     )}
                   />
                 </FormField>

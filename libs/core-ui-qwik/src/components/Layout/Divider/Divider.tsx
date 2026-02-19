@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { DividerProps } from "./Divider.types";
+
 import { useDivider } from "./hooks";
+
+import type { DividerProps } from "./Divider.types";
 
 const Divider = component$<DividerProps>((props) => {
   const { role = "separator", label, ...rest } = props;

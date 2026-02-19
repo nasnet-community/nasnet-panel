@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { DocsSideNavigation, type DocsSideNavigationCategory } from "../";
 
 export interface BasicNavigationProps {

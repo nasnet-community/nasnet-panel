@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { ProgressBarProps } from "./ProgressBar.types";
+
 import { useProgressBar } from "./useProgressBar";
+
+import type { ProgressBarProps } from "./ProgressBar.types";
 
 /**
  * ProgressBar component for displaying progress of a task or process

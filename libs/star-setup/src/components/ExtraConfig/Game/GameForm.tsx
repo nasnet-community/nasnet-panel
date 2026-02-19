@@ -1,7 +1,9 @@
 import { component$, useSignal, useComputed$ } from "@builder.io/qwik";
-import type { StarContextType } from "@nas-net/star-context";
 import { Input, Select } from "@nas-net/core-ui-qwik";
+
 import { buildNetworkOptions } from "./NetworkOptionsHelper";
+
+import type { StarContextType } from "@nas-net/star-context";
 
 export const GameForm = component$<{ context: StarContextType }>(
   ({ context }) => {

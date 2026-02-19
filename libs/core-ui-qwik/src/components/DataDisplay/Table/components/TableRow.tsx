@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { TableRowProps } from "../Table.types";
 
 export const TableRow = component$<TableRowProps>((props) => {

@@ -1,8 +1,8 @@
 import { component$, type Signal, type QRL, $, useSignal, useTask$ } from "@builder.io/qwik";
+import { SegmentedControl } from "@nas-net/core-ui-qwik";
 import {
   HiServerOutline,
 } from "@qwikest/icons/heroicons";
-import { SegmentedControl } from "@nas-net/core-ui-qwik";
 
 interface VPNServerHeaderProps {
   vpnServerEnabled: Signal<boolean>;

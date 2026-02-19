@@ -1,5 +1,6 @@
-import type { SystemResource, ApiResponse, RouterInfo } from '@shared/routeros';
 import { makeRouterOSRequest } from './api';
+
+import type { SystemResource, ApiResponse, RouterInfo } from '@shared/routeros';
 
 /**
  * System Information Service

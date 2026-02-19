@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { ImageProps } from "./Image.types";
+
 import { useImage } from "./hooks/useImage";
 import { Spinner } from "../../DataDisplay/Progress/Spinner/Spinner";
+
+import type { ImageProps } from "./Image.types";
 
 /**
  * Enhanced Image component with lazy loading, responsive sizing, and placeholder support

@@ -1,11 +1,13 @@
 import { component$, type QRL, $ } from "@builder.io/qwik";
+import { Toggle, Button } from "@nas-net/core-ui-qwik";
 import {
   HiSparklesOutline,
   HiWifiOutline,
 } from "@qwikest/icons/heroicons";
-import type { NetworkKey } from "./type";
+
 import { NETWORK_DESCRIPTIONS } from "./constants";
-import { Toggle, Button } from "@nas-net/core-ui-qwik";
+
+import type { NetworkKey } from "./type";
 import type { Mode } from "@nas-net/star-context";
 
 interface NetworkCardProps {

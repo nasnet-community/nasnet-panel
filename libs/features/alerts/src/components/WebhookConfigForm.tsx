@@ -9,6 +9,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import {
   useWebhookConfigForm,
@@ -59,7 +60,7 @@ export interface WebhookConfigFormProps extends UseWebhookConfigFormOptions {
  * />
  * ```
  */
-export function WebhookConfigForm(props: WebhookConfigFormProps) {
+export const WebhookConfigForm = memo(function WebhookConfigForm(props: WebhookConfigFormProps) {
   const { className, ...hookOptions } = props;
 
   // Platform detection (mobile: <640px)
@@ -78,4 +79,4 @@ export function WebhookConfigForm(props: WebhookConfigFormProps) {
       )}
     </div>
   );
-}
+});

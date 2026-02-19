@@ -1,7 +1,8 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
+import { ConfigMethodToggle, VPNConfigFileSection, Input, ErrorMessage } from "@nas-net/core-ui-qwik";
+
 import type { QRL } from "@builder.io/qwik";
 import type { WireguardClientConfig } from "@nas-net/star-context";
-import { ConfigMethodToggle, VPNConfigFileSection, Input, ErrorMessage } from "@nas-net/core-ui-qwik";
 
 interface WireguardFieldsProps {
   config: Partial<WireguardClientConfig>;

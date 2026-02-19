@@ -5,8 +5,10 @@ import {
   $,
   useComputed$,
 } from "@builder.io/qwik";
-import type { TextAreaProps } from "../TextArea.types";
+
 import { useForm } from "../../Form/hooks/useForm";
+
+import type { TextAreaProps } from "../TextArea.types";
 
 export function useTextArea(props: TextAreaProps) {
   const {

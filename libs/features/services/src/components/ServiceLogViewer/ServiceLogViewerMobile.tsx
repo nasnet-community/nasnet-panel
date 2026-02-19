@@ -47,7 +47,7 @@ import type { LogLevel, LogEntry } from '@nasnet/api-client/queries';
  * - Auto-scroll support
  * - JetBrains Mono font for logs
  */
-export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
+function ServiceLogViewerMobileComponent(props: ServiceLogViewerProps) {
   const { className, onEntryClick } = props;
 
   const {
@@ -104,7 +104,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
 
         {/* Search bar */}
         <div className="relative mt-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <Input
             type="text"
             placeholder="Search logs..."
@@ -116,10 +116,10 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
           {hasSearch && (
             <button
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
               aria-label="Clear search"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -130,7 +130,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
           <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" className="flex-1 h-11" size="default">
-                <Filter className="mr-2 h-5 w-5" />
+                <Filter className="mr-2 h-5 w-5" aria-hidden="true" />
                 {levelFilter || 'All Levels'}
               </Button>
             </SheetTrigger>
@@ -184,6 +184,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
                     id="auto-scroll-mobile"
                     checked={autoScroll}
                     onCheckedChange={setAutoScroll}
+                    aria-label="Auto-scroll to bottom"
                   />
                 </div>
 
@@ -193,7 +194,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
                   className="w-full h-11 justify-start"
                   onClick={handleCopy}
                 >
-                  <Copy className="mr-2 h-5 w-5" />
+                  <Copy className="mr-2 h-5 w-5" aria-hidden="true" />
                   {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
                 </Button>
                 <Button
@@ -204,7 +205,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
                     setActionsSheetOpen(false);
                   }}
                 >
-                  <RefreshCw className="mr-2 h-5 w-5" />
+                  <RefreshCw className="mr-2 h-5 w-5" aria-hidden="true" />
                   Refresh Logs
                 </Button>
                 <Button
@@ -215,7 +216,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
                     setActionsSheetOpen(false);
                   }}
                 >
-                  <Trash2 className="mr-2 h-5 w-5" />
+                  <Trash2 className="mr-2 h-5 w-5" aria-hidden="true" />
                   Clear Logs
                 </Button>
               </div>
@@ -234,7 +235,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground">Loading logs...</div>
+          <div className="p-4 text-sm text-muted-foreground" role="status">Loading logs...</div>
         )}
 
         {/* Empty state */}
@@ -248,7 +249,7 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
 
         {/* Log entries list */}
         {searchResults.length > 0 && (
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="max-h-[500px] overflow-y-auto" role="log" aria-label="Service log entries">
             {searchResults.map((entry, index) => {
               const bgColor = getLogLevelBgColor(entry.level);
               const textColor = getLogLevelColor(entry.level);
@@ -294,3 +295,6 @@ export function ServiceLogViewerMobile(props: ServiceLogViewerProps) {
     </Card>
   );
 }
+
+export const ServiceLogViewerMobile = React.memo(ServiceLogViewerMobileComponent);
+ServiceLogViewerMobile.displayName = 'ServiceLogViewerMobile';

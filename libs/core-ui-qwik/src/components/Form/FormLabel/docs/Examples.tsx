@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicLabel from "../Examples/BasicLabel";
+import FluidTypographyLabel from "../Examples/FluidTypographyLabel";
+import LabelAccessibility from "../Examples/LabelAccessibility";
 import LabelSizes from "../Examples/LabelSizes";
 import LabelStates from "../Examples/LabelStates";
-import LabelAccessibility from "../Examples/LabelAccessibility";
 import ResponsiveLabel from "../Examples/ResponsiveLabel";
-import FluidTypographyLabel from "../Examples/FluidTypographyLabel";
 import ThemeIntegrationLabel from "../Examples/ThemeIntegrationLabel";
 import TouchFriendlyLabel from "../Examples/TouchFriendlyLabel";
 

@@ -64,7 +64,7 @@ export interface LeaseCardProps {
  *
  * @param props - Component props
  */
-export function LeaseCard({
+export const LeaseCard = React.memo(function LeaseCard({
   lease,
   isNew = false,
   onMakeStatic,
@@ -144,7 +144,7 @@ export function LeaseCard({
           <div
             className={cn(
               'absolute left-0 top-0 bottom-0 flex items-center justify-start px-4',
-              'bg-purple-500/20 text-purple-600 dark:text-purple-400',
+              'bg-accent text-accent-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
             )}
@@ -193,7 +193,7 @@ export function LeaseCard({
               'w-full px-4 py-3 text-left',
               'flex items-start gap-3',
               'min-h-[44px]', // WCAG AAA touch target
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
             )}
           >
             {/* Icon/Avatar */}
@@ -352,4 +352,6 @@ export function LeaseCard({
       </Sheet>
     </>
   );
-}
+});
+
+LeaseCard.displayName = 'LeaseCard';

@@ -1,8 +1,9 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import { SSHServerAdvanced } from "./SSHServerAdvanced";
 import { SSHServerEasy } from "./SSHServerEasy";
+
 import type { Mode } from "@nas-net/star-context";
 
 export const SSHServerWrapper = component$(() => {

@@ -23,7 +23,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Slider,
   Switch,
 } from '@nasnet/ui/primitives';
 import { Bell, BellOff, Volume2, VolumeX } from 'lucide-react';
@@ -80,7 +79,7 @@ export interface InAppNotificationPreferencesProps {
  * <InAppNotificationPreferences />
  * ```
  */
-export function InAppNotificationPreferences({
+function InAppNotificationPreferencesComponent({
   className,
   onSettingsChange,
 }: InAppNotificationPreferencesProps) {
@@ -142,9 +141,9 @@ export function InAppNotificationPreferences({
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               {settings.enabled ? (
-                <Bell className="h-4 w-4 text-primary" />
+                <Bell className="h-4 w-4 text-primary" aria-hidden="true" />
               ) : (
-                <BellOff className="h-4 w-4 text-muted-foreground" />
+                <BellOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               )}
               <Label htmlFor="notifications-enabled" className="font-medium">
                 Enable Notifications
@@ -226,9 +225,9 @@ export function InAppNotificationPreferences({
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   {settings.soundEnabled ? (
-                    <Volume2 className="h-4 w-4 text-primary" />
+                    <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" />
                   ) : (
-                    <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    <VolumeX className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   )}
                   <Label htmlFor="sound-enabled" className="font-medium">
                     Notification Sound
@@ -261,3 +260,6 @@ export function InAppNotificationPreferences({
     </Card>
   );
 }
+
+export const InAppNotificationPreferences = React.memo(InAppNotificationPreferencesComponent);
+InAppNotificationPreferences.displayName = 'InAppNotificationPreferences';

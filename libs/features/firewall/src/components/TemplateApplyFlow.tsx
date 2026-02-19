@@ -179,8 +179,8 @@ export function TemplateApplyFlow({
   // PREVIEWING STATE
   if (state.matches('previewing')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Generating template preview">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
         <p className="text-lg font-medium">Generating preview...</p>
         <p className="text-sm text-muted-foreground">
           Analyzing template and detecting conflicts
@@ -224,7 +224,7 @@ export function TemplateApplyFlow({
             {/* Conflicts */}
             {previewResult.conflicts.length > 0 && (
               <Alert variant="default">
-                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertTriangle className="h-4 w-4 text-warning" aria-hidden="true" />
                 <AlertTitle>Conflicts Detected</AlertTitle>
                 <AlertDescription>
                   <ul className="mt-2 list-inside list-disc space-y-1">
@@ -241,7 +241,7 @@ export function TemplateApplyFlow({
             {/* Warnings */}
             {previewResult.impactAnalysis.warnings.length > 0 && (
               <Alert variant="default">
-                <AlertCircle className="h-4 w-4 text-warning" />
+                <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
                 <AlertTitle>Warnings</AlertTitle>
                 <AlertDescription>
                   <ul className="mt-2 list-inside list-disc space-y-1">
@@ -259,10 +259,10 @@ export function TemplateApplyFlow({
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={handleCancel} aria-label="Cancel template application">
             Cancel
           </Button>
-          <Button onClick={handleConfirm}>
+          <Button onClick={handleConfirm} aria-label="Apply template to firewall">
             {state.context.previewResult?.conflicts.length ?? 0 > 0
               ? 'Apply Anyway'
               : 'Apply Template'}
@@ -285,7 +285,7 @@ export function TemplateApplyFlow({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-warning">
-              <ShieldAlert className="h-6 w-6" />
+              <ShieldAlert className="h-6 w-6" aria-hidden="true" />
               High-Risk Operation
             </DialogTitle>
             <DialogDescription>
@@ -329,7 +329,7 @@ export function TemplateApplyFlow({
               {/* Warnings */}
               {(previewResult?.impactAnalysis.warnings.length ?? 0) > 0 && (
                 <Alert variant="default">
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   <AlertDescription>
                     <ul className="list-inside list-disc space-y-1 text-sm">
                       {(previewResult?.impactAnalysis.warnings as string[])?.map((warning: string, i: number) => (
@@ -363,15 +363,16 @@ export function TemplateApplyFlow({
           </ScrollArea>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => send({ type: 'CANCEL' })}>
+            <Button variant="outline" onClick={() => send({ type: 'CANCEL' })} aria-label="Cancel template application">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleAcknowledge}
               disabled={!acknowledged}
+              aria-label="Acknowledge risks and apply template"
             >
-              <ShieldAlert className="mr-2 h-4 w-4" />
+              <ShieldAlert className="mr-2 h-4 w-4" aria-hidden="true" />
               I Understand - Apply Template
             </Button>
           </DialogFooter>
@@ -383,8 +384,8 @@ export function TemplateApplyFlow({
   // APPLYING STATE
   if (state.matches('applying')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Applying template">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
         <p className="text-lg font-medium">Applying template...</p>
         <p className="text-sm text-muted-foreground">
           Creating {state.context.previewResult?.impactAnalysis.newRulesCount} firewall rules
@@ -400,7 +401,7 @@ export function TemplateApplyFlow({
     return (
       <div className="space-y-6">
         <div className="flex flex-col items-center justify-center gap-4 py-8">
-          <CheckCircle2 className="h-16 w-16 text-success" />
+          <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
           <h2 className="text-2xl font-bold">Template Applied Successfully!</h2>
           <p className="text-muted-foreground">
             {applyResult?.appliedRulesCount} firewall rules have been created
@@ -420,7 +421,7 @@ export function TemplateApplyFlow({
         )}
 
         <div className="flex justify-center">
-          <Button onClick={handleReset}>Done</Button>
+          <Button onClick={handleReset} aria-label="Finish and return">Done</Button>
         </div>
       </div>
     );
@@ -429,8 +430,8 @@ export function TemplateApplyFlow({
   // ROLLING_BACK STATE
   if (state.matches('rollingBack')) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12">
-        <Loader2 className="h-12 w-12 animate-spin text-warning" />
+      <div className="flex flex-col items-center justify-center gap-4 py-12" role="status" aria-label="Rolling back changes">
+        <Loader2 className="h-12 w-12 animate-spin text-warning" aria-hidden="true" />
         <p className="text-lg font-medium">Rolling back changes...</p>
         <p className="text-sm text-muted-foreground">
           Restoring firewall configuration to previous state
@@ -444,7 +445,7 @@ export function TemplateApplyFlow({
     return (
       <div className="space-y-6">
         <div className="flex flex-col items-center justify-center gap-4 py-8">
-          <CheckCircle2 className="h-16 w-16 text-success" />
+          <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
           <h2 className="text-2xl font-bold">Changes Rolled Back</h2>
           <p className="text-muted-foreground">
             Firewall configuration restored to previous state
@@ -452,7 +453,7 @@ export function TemplateApplyFlow({
         </div>
 
         <div className="flex justify-center">
-          <Button onClick={handleReset}>Done</Button>
+          <Button onClick={handleReset} aria-label="Finish and return after rollback">Done</Button>
         </div>
       </div>
     );
@@ -463,7 +464,7 @@ export function TemplateApplyFlow({
     return (
       <div className="space-y-6">
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
             {state.context.errorMessage || 'An unknown error occurred'}
@@ -471,15 +472,15 @@ export function TemplateApplyFlow({
         </Alert>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={handleReset}>
+          <Button variant="outline" onClick={handleReset} aria-label="Cancel and reset">
             Cancel
           </Button>
           {state.context.applyResult?.rollbackId && (
-            <Button variant="destructive" onClick={handleRollbackClick}>
+            <Button variant="destructive" onClick={handleRollbackClick} aria-label="Rollback firewall changes">
               Rollback Changes
             </Button>
           )}
-          <Button onClick={handleRetry}>Retry</Button>
+          <Button onClick={handleRetry} aria-label="Retry template application">Retry</Button>
         </div>
       </div>
     );

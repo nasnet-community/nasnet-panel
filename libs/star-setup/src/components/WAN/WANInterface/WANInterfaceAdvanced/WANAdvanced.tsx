@@ -9,13 +9,15 @@ import {
 } from "@builder.io/qwik";
 import { CStepper, type CStepMeta } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { StarContextType } from "@nas-net/star-context";
+
+import { useWANAdvanced } from "./hooks/useWANAdvanced";
+import { useWANValidation } from "./hooks/useWANValidation";
 import { Step1_LinkInterface } from "./steps/Step1_LinkInterface";
 import { Step2_Connection } from "./steps/Step2_Connection";
 import { Step3_MultiLink } from "./steps/Step3_MultiLink";
 import { Step4_Summary } from "./steps/Step4_Summary";
-import { useWANAdvanced } from "./hooks/useWANAdvanced";
-import { useWANValidation } from "./hooks/useWANValidation";
+
+import type { StarContextType } from "@nas-net/star-context";
 // import type { WANLink } from "./types";
 
 export interface WANAdvancedProps {

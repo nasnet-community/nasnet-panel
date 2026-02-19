@@ -41,7 +41,7 @@ const CardLayout = React.forwardRef<HTMLDivElement, CardLayoutProps>(
                 variant === 'flat' && 'rounded-card-sm md:rounded-card-lg',
                 child.props.className
               ),
-            } as any);
+            } as { className?: string });
           }
           return child;
         })

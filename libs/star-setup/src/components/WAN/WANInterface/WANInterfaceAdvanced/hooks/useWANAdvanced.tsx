@@ -1,15 +1,17 @@
 import { $, useSignal, useStore, useContext, type QRL } from "@builder.io/qwik";
+import { generateUniqueId } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+import { useNetworks } from "@utils/useNetworks";
+import { useSubnets } from "@utils/useSubnets";
+
+import { useInterfaceManagement } from "../../../../../hooks/useInterfaceManagement";
+
 import type {
   WANLinkConfig,
   WANWizardState,
   MultiLinkUIConfig,
 } from "../types";
-import { generateUniqueId } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
 import type { InterfaceType } from "@nas-net/star-context";
-import { useInterfaceManagement } from "../../../../../hooks/useInterfaceManagement";
-import { useNetworks } from "@utils/useNetworks";
-import { useSubnets } from "@utils/useSubnets";
 
 export interface UseWANAdvancedReturn {
   state: WANWizardState;

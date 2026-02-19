@@ -1,7 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { Dialog } from "@nas-net/core-ui-qwik";
-import { DialogBody } from "@nas-net/core-ui-qwik";
-import { DialogFooter } from "@nas-net/core-ui-qwik";
+import { Dialog , DialogBody , DialogFooter } from "@nas-net/core-ui-qwik";
+
+
 
 /**
  * Responsive Fullscreen Dialog examples showcasing mobile-optimized behavior.

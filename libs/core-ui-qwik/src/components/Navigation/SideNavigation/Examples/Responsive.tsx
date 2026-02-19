@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { SideNavigation } from "..";
+
 import type { SideNavigationItem } from "../SideNavigation.types";
 
 export default component$(() => {

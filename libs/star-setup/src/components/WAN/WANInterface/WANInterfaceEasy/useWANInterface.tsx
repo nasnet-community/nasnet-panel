@@ -1,8 +1,9 @@
 import { $, useContext, useSignal, useTask$ } from "@builder.io/qwik";
 import { StarContext, type InterfaceConfig, type LTE, type Sfp, type Wireless, type Ethernet, type InterfaceType } from "@nas-net/star-context";
-import { useInterfaceManagement } from "../../../../hooks/useInterfaceManagement";
 import { useNetworks } from "@utils/useNetworks";
 import { useSubnets } from "@utils/useSubnets";
+
+import { useInterfaceManagement } from "../../../../hooks/useInterfaceManagement";
 
 export const useWANInterface = (mode: "Foreign" | "Domestic") => {
   const starContext = useContext(StarContext);

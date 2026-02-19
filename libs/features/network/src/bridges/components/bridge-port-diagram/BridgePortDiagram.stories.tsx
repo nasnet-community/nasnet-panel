@@ -1,7 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { BridgePortDiagram } from './BridgePortDiagram';
-import * as queries from '@nasnet/api-client/queries';
 import { fn } from '@storybook/test';
+
+import * as queries from '@nasnet/api-client/queries';
+
+import { BridgePortDiagram } from './BridgePortDiagram';
+
+import type { Meta, StoryObj } from '@storybook/react';
+
 
 /**
  * Bridge Port Diagram Component Stories

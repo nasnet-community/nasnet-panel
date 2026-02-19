@@ -128,15 +128,16 @@ export const PingToolMobile = memo(function PingToolMobile({
                 disabled={!isValid || ping.isStarting}
                 className="w-full"
                 size="lg"
+                aria-label="Start ping"
               >
                 {ping.isStarting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
                     Starting...
                   </>
                 ) : (
                   <>
-                    <Play className="w-4 h-4 mr-2" />
+                    <Play className="w-4 h-4 mr-2" aria-hidden="true" />
                     Start Ping
                   </>
                 )}
@@ -149,15 +150,16 @@ export const PingToolMobile = memo(function PingToolMobile({
                 disabled={ping.isStopping}
                 className="w-full"
                 size="lg"
+                aria-label="Stop ping"
               >
                 {ping.isStopping ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
                     Stopping...
                   </>
                 ) : (
                   <>
-                    <Square className="w-4 h-4 mr-2" />
+                    <Square className="w-4 h-4 mr-2" aria-hidden="true" />
                     Stop Ping
                   </>
                 )}
@@ -183,14 +185,14 @@ export const PingToolMobile = memo(function PingToolMobile({
           <SheetTrigger asChild>
             <Button variant="outline" className="w-full" size="lg">
               View Results ({ping.results.length}/{ping.count})
-              <ChevronRight className="w-4 h-4 ml-2" />
+              <ChevronRight className="w-4 h-4 ml-2" aria-hidden="true" />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
             <SheetHeader>
               <SheetTitle>Ping Results</SheetTitle>
             </SheetHeader>
-            <div className="space-y-6 mt-4">
+            <div className="space-y-6 mt-4" role="log" aria-label="Ping results">
               <PingResults results={ping.results} />
               <LatencyGraph results={ping.results} />
               <PingStatistics statistics={ping.statistics} />

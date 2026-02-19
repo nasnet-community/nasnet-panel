@@ -16,6 +16,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { FilterRulesTableDesktop } from './FilterRulesTableDesktop';
 import { FilterRulesTableMobile } from './FilterRulesTableMobile';
@@ -35,7 +36,7 @@ export interface FilterRulesTableProps {
  * @param props - Component props
  * @returns Platform-appropriate filter rules table
  */
-export function FilterRulesTable({ className, chain }: FilterRulesTableProps) {
+export const FilterRulesTable = memo(function FilterRulesTable({ className, chain }: FilterRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -44,4 +45,6 @@ export function FilterRulesTable({ className, chain }: FilterRulesTableProps) {
   ) : (
     <FilterRulesTableDesktop className={className} chain={chain as 'input' | 'output' | 'forward' | undefined} />
   );
-}
+});
+
+FilterRulesTable.displayName = 'FilterRulesTable';

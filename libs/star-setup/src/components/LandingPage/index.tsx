@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import { HeroSection } from "./Hero/HeroSection";
+
 import { EnhancedFeatureShowcase } from "./Features/EnhancedFeatureShowcase";
+import { HeroSection } from "./Hero/HeroSection";
 import { RouterModelsSection } from "./Interactive/RouterModels/RouterModelsSection";
 // import { TechSpecsSection } from "./SocialProof/TechSpecs/TechSpecsSection";
 

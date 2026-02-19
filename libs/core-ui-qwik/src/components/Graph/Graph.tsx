@@ -1,10 +1,12 @@
 import { $, component$ } from "@builder.io/qwik";
-import type { GraphNode, GraphProps } from "./types";
+
+import { processConnectionTypes } from "./Connection/ConnectionUtils";
+import { SingleConnectionRenderer } from "./Connection/SingleConnectionRenderer";
+import { GraphContainer, defaultConfig } from "./Container/GraphContainer";
 import { NodeRenderer } from "./Node/NodeRenderer";
 import { processConnections } from "./Traffic/TrafficUtils";
-import { processConnectionTypes } from "./Connection/ConnectionUtils";
-import { GraphContainer, defaultConfig } from "./Container/GraphContainer";
-import { SingleConnectionRenderer } from "./Connection/SingleConnectionRenderer";
+
+import type { GraphNode, GraphProps } from "./types";
 
 /**
  * Graph component for visualizing nodes and connections

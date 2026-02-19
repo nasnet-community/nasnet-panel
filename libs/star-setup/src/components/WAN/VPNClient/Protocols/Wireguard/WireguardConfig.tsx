@@ -1,10 +1,12 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import { useWireguardConfig } from "./useWireguardConfig";
 import {
   ErrorMessage,
   VPNConfigFileSection,
 } from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
 
 interface WireguardConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

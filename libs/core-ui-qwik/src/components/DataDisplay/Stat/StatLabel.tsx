@@ -1,4 +1,5 @@
 import { component$, Slot, useStylesScoped$ } from "@builder.io/qwik";
+
 import type { StatLabelProps } from "./Stat.types";
 
 export const StatLabel = component$<StatLabelProps>((props) => {

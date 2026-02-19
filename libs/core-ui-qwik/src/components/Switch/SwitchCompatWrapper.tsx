@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Toggle } from "../Toggle";
+
 import type { SwitchProps } from "./Switch";
 
 /**

@@ -1,6 +1,7 @@
 ﻿import { component$ } from "@builder.io/qwik";
-import Box from "../Box";
 import { OverviewTemplate } from "@nas-net/core-ui-qwik";
+
+import Box from "../Box";
 
 export default component$(() => {
   return (

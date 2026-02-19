@@ -4,8 +4,10 @@ import {
   useContextProvider,
   createContextId,
 } from "@builder.io/qwik";
-import type { TimelineProps } from "./Timeline.types";
+
 import { useTimeline } from "./hooks/useTimeline";
+
+import type { TimelineProps } from "./Timeline.types";
 
 export interface TimelineContextValue {
   position: "left" | "right" | "alternate";

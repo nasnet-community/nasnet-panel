@@ -1,11 +1,12 @@
 import { component$ } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
-import { getFooterSections, socialLinks } from "../../data/footerData";
+
+import { BackToTopButton } from "./BackToTopButton";
+import { BottomBar } from "./BottomBar";
 import { CompanyInfo } from "./CompanyInfo";
 import { FooterLinks } from "./FooterLinks";
 import { NewsletterSignup } from "./NewsletterSignup";
-import { BottomBar } from "./BottomBar";
-import { BackToTopButton } from "./BackToTopButton";
+import { getFooterSections, socialLinks } from "../../data/footerData";
 
 export const FooterSection = component$(() => {
   const location = useLocation();

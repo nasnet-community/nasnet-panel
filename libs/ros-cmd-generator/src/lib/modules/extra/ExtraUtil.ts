@@ -1,17 +1,12 @@
-import {
-    type RouterConfig,
-    generateDomesticIPScript,
-    LetsEncrypt,
-    PrivateCert,
-    ExportCert,
-    GetWANInterfaces,
-    GetAllVPNInterfaceNames,
-    GetWANInterface,
-    GenerateVCInterfaceName,
-    extractBridgeNames,
-    DNSForeward,
-    mergeMultipleConfigs,
-} from "@nas-net/ros-cmd-generator";
+import { generateDomesticIPScript } from "./DomesticIPS";
+import { LetsEncrypt, PrivateCert, ExportCert, PublicCert } from "../../utils/Certificate";
+import { mergeMultipleConfigs } from "../../utils/ConfigGeneratorUtil";
+import { extractBridgeNames, mapNetworkToRoutingTable } from "../lan/Networks/NetworksUtil";
+import { DNSForeward } from "../wan/DNS/DNS";
+import { GetAllVPNInterfaceNames, GenerateVCInterfaceName } from "../wan/VPNClient/VPNClientUtils";
+import { GetWANInterfaces, GetWANInterface } from "../wan/WAN/WANInterfaceUtils";
+
+import type { RouterConfig } from "../../generator";
 import type {
     IntervalConfig,
     CertificateConfig,

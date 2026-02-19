@@ -1,8 +1,10 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
-import type { ConfigFileInputProps, FileUploadError } from "../types";
+
 import { FileInputError } from "../FileInputError";
 import { FileInputSkeleton } from "../FileInputSkeleton";
 import { FileTypeIcon } from "../FileTypeIcon";
+
+import type { ConfigFileInputProps, FileUploadError } from "../types";
 
 /**
  * ConfigFileInput Component

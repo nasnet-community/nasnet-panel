@@ -1,6 +1,8 @@
 import { $ } from "@builder.io/qwik";
-import type { ShowcaseTheme } from "../types";
+
 import { DEFAULT_THEME, DARK_THEME } from "../constants";
+
+import type { ShowcaseTheme } from "../types";
 
 export const useShowcaseTheme = (themeStore: ShowcaseTheme) => {
   const updateTheme = $((updates: Partial<ShowcaseTheme>) => {

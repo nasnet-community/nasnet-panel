@@ -13,57 +13,19 @@ import {
   type ReactNode,
   useMemo,
   useCallback,
-  useEffect,
-  useState,
 } from 'react';
 
 import { useUIStore } from '@nasnet/state/stores';
+import { usePlatform, type Platform } from '@nasnet/ui/layouts';
 import {
   getAnimationTokens,
   transitions,
-  type Platform,
   type AnimationTokens,
 } from '@nasnet/ui/tokens';
 
 import { reducedMotionFade } from './presets';
 
 import type { Variants, Transition } from 'framer-motion';
-
-// ============================================================================
-// Platform Detection Hook
-// ============================================================================
-
-/**
- * Detect current platform based on viewport width
- * - mobile: < 640px
- * - tablet: 640-1024px
- * - desktop: > 1024px
- */
-function usePlatform(): Platform {
-  const [platform, setPlatform] = useState<Platform>(() => {
-    if (typeof window === 'undefined') return 'desktop';
-    const width = window.innerWidth;
-    if (width < 640) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 640) setPlatform('mobile');
-      else if (width < 1024) setPlatform('tablet');
-      else setPlatform('desktop');
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return platform;
-}
 
 // ============================================================================
 // Context Types

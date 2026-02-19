@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import { Spinner } from "../Spinner";
+
 import { Button } from "../../../../button";
+import { Spinner } from "../Spinner";
 
 export const SpinnerInlineExample = component$(() => {
   return (

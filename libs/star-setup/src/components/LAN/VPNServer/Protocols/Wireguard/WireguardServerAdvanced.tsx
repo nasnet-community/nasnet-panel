@@ -1,4 +1,5 @@
 import { component$, $, useComputed$ } from "@builder.io/qwik";
+import { ServerCard , ServerFormField, ServerButton, SectionTitle , InterfaceNameInput , Input , TabNavigation } from "@nas-net/core-ui-qwik";
 import {
   HiServerOutline,
   HiPlusCircleOutline,
@@ -6,13 +7,9 @@ import {
   // HiEyeOutline,
   // HiEyeSlashOutline,
 } from "@qwikest/icons/heroicons";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { ServerFormField, ServerButton, SectionTitle } from "@nas-net/core-ui-qwik";
-import { InterfaceNameInput } from "@nas-net/core-ui-qwik";
-import { Input } from "@nas-net/core-ui-qwik";
-import { TabNavigation } from "@nas-net/core-ui-qwik";
+
+import { type useWireguardServer } from "./useWireguardServer";
 import { NetworkDropdown, type ExtendedNetworks } from "../../components/NetworkSelection";
-import { useWireguardServer } from "./useWireguardServer";
 
 interface WireguardServerAdvancedProps {
   hook: ReturnType<typeof useWireguardServer>;

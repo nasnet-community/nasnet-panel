@@ -1,6 +1,7 @@
 import { useSignal, $ } from "@builder.io/qwik";
-import type { Signal, QRL } from "@builder.io/qwik";
+
 import type { CardProps } from "../Card.types";
+import type { Signal, QRL } from "@builder.io/qwik";
 
 // Define size type to match the object keys
 export type CardSize = "sm" | "md" | "lg" | "xl";

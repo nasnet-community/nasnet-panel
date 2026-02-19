@@ -52,7 +52,12 @@ export interface ThemeState {
    * Otherwise, it matches the theme value
    */
   resolvedTheme: 'light' | 'dark';
+}
 
+/**
+ * Theme store actions interface
+ */
+export interface ThemeActions {
   /**
    * Set the theme mode
    * @param theme - The theme mode to set
@@ -77,6 +82,11 @@ export interface ThemeState {
    */
   _setResolvedTheme: (theme: 'light' | 'dark') => void;
 }
+
+/**
+ * Combined theme store type (state + actions)
+ */
+export type ThemeStore = ThemeState & ThemeActions;
 
 /**
  * Zustand store for theme management with localStorage persistence
@@ -107,7 +117,7 @@ export interface ThemeState {
  * - Integrated with Redux DevTools for debugging (development only)
  * - Store name: 'theme-store'
  */
-export const useThemeStore = create<ThemeState>()(
+export const useThemeStore = create<ThemeState & ThemeActions>()(
   devtools(
     persist(
       (set, get) => ({
@@ -117,24 +127,39 @@ export const useThemeStore = create<ThemeState>()(
         setTheme: (theme) => {
           // Update theme and resolve it
           if (theme === 'system') {
-            set({ theme, resolvedTheme: getSystemTheme() });
+            set(
+              { theme, resolvedTheme: getSystemTheme() },
+              false,
+              `setTheme/${theme}`
+            );
           } else {
-            set({ theme, resolvedTheme: theme });
+            set(
+              { theme, resolvedTheme: theme },
+              false,
+              `setTheme/${theme}`
+            );
           }
         },
 
         toggleTheme: () => {
           const current = get().resolvedTheme;
           const newTheme = current === 'dark' ? 'light' : 'dark';
-          set({
-            theme: newTheme,
-            resolvedTheme: newTheme,
-          });
+          set(
+            { theme: newTheme, resolvedTheme: newTheme },
+            false,
+            `toggleTheme/${newTheme}`
+          );
         },
 
-        resetTheme: () => set({ theme: 'system', resolvedTheme: getSystemTheme() }),
+        resetTheme: () =>
+          set(
+            { theme: 'system', resolvedTheme: getSystemTheme() },
+            false,
+            'resetTheme'
+          ),
 
-        _setResolvedTheme: (resolvedTheme) => set({ resolvedTheme }),
+        _setResolvedTheme: (resolvedTheme) =>
+          set({ resolvedTheme }, false, `_setResolvedTheme/${resolvedTheme}`),
       }),
       {
         name: 'nasnet-theme', // localStorage key

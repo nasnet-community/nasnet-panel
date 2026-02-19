@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "..";
+
 import type { DialogSize } from "../Dialog.types";
 
 export default component$(() => {

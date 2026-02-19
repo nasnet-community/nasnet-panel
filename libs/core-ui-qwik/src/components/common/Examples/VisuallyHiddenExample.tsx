@@ -1,6 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { VisuallyHidden } from "../VisuallyHidden";
 import { HiArrowRightOutline, HiInformationCircleOutline } from "@qwikest/icons/heroicons";
+
+import { VisuallyHidden } from "../VisuallyHidden";
 
 export const BasicVisuallyHiddenExample = component$(() => {
   return (

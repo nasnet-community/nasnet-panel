@@ -6,7 +6,7 @@
  * Story: NAS-6.4 - Implement DNS Configuration
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import {
   Card,
@@ -53,7 +53,7 @@ import type { DNSSettingsFormValues, DNSStaticEntryFormValues } from '../schemas
  * - Duplicate detection
  * - Security warnings
  */
-export function DnsPage() {
+export const DnsPage = memo(function DnsPage() {
   // Get router ID from URL params
   const { id: deviceId } = useParams({ from: '/router/$id' });
 
@@ -235,7 +235,7 @@ export function DnsPage() {
             {error?.message || 'Unable to fetch DNS settings'}
           </AlertDescription>
         </Alert>
-        <Button onClick={refetch} className="mt-4">
+        <Button onClick={refetch} className="mt-4" aria-label="Retry loading DNS configuration">
           Retry
         </Button>
       </div>
@@ -272,7 +272,7 @@ export function DnsPage() {
           />
 
           {/* DNS Settings Form */}
-          <div className="pt-6 border-t">
+          <div className="pt-6 border-t border-border">
             <DnsSettingsForm
               initialValues={{
                 servers: settings.staticServers,
@@ -329,4 +329,4 @@ export function DnsPage() {
       </Dialog>
     </div>
   );
-}
+});

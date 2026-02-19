@@ -4,6 +4,7 @@
  * Shows progress bar, command list, and status indicators
  */
 
+import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle,
@@ -61,38 +62,38 @@ const STATUS_CONFIG: Record<
 > = {
   pending: {
     icon: Circle,
-    color: 'text-slate-400',
-    bgColor: 'bg-slate-100 dark:bg-slate-700',
+    color: 'text-muted-foreground',
+    bgColor: 'bg-muted',
     label: 'Waiting to start...',
   },
   running: {
     icon: Loader2,
-    color: 'text-primary-500',
-    bgColor: 'bg-primary-50 dark:bg-primary-900/20',
+    color: 'text-primary',
+    bgColor: 'bg-primary/5',
     label: 'Applying configuration...',
   },
   completed: {
     icon: CheckCircle,
     color: 'text-success',
-    bgColor: 'bg-success-light dark:bg-success/20',
+    bgColor: 'bg-success/10',
     label: 'Configuration applied successfully!',
   },
   failed: {
     icon: XCircle,
-    color: 'text-error',
-    bgColor: 'bg-error-light dark:bg-error/20',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
     label: 'Configuration failed',
   },
   cancelled: {
     icon: XCircle,
-    color: 'text-slate-500',
-    bgColor: 'bg-slate-100 dark:bg-slate-700',
+    color: 'text-muted-foreground',
+    bgColor: 'bg-muted',
     label: 'Cancelled',
   },
   rolled_back: {
     icon: RotateCcw,
     color: 'text-warning',
-    bgColor: 'bg-warning-light dark:bg-warning/20',
+    bgColor: 'bg-warning/10',
     label: 'Rolled back due to errors',
   },
 };
@@ -116,7 +117,7 @@ const STATUS_CONFIG: Record<
  * />
  * ```
  */
-export function ExecutionProgress({
+export const ExecutionProgress = memo(function ExecutionProgress({
   job,
   isLoading = false,
   error,
@@ -127,9 +128,9 @@ export function ExecutionProgress({
   // If still loading initial data
   if (isLoading && !job) {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin mb-4" />
-        <p className="text-slate-600 dark:text-slate-400">Starting job...</p>
+      <div className="flex flex-col items-center justify-center py-12" role="status" aria-label="Starting job">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" aria-hidden="true" />
+        <p className="text-muted-foreground">Starting job...</p>
       </div>
     );
   }
@@ -137,20 +138,21 @@ export function ExecutionProgress({
   // If there's an error fetching job
   if (error && !job) {
     return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <div className="w-12 h-12 rounded-full bg-error-light dark:bg-error/20 flex items-center justify-center mb-4">
-          <XCircle className="w-6 h-6 text-error" />
+      <div className="flex flex-col items-center justify-center py-8" role="alert">
+        <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+          <XCircle className="w-6 h-6 text-destructive" aria-hidden="true" />
         </div>
-        <p className="text-slate-900 dark:text-slate-100 font-medium mb-1">
+        <p className="text-foreground font-medium mb-1">
           Failed to track job
         </p>
-        <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-4">
+        <p className="text-sm text-muted-foreground text-center mb-4">
           {error.message}
         </p>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="btn-action px-4 py-2 rounded-lg text-sm"
+            aria-label="Retry tracking the batch job"
+            className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Try Again
           </button>
@@ -189,7 +191,7 @@ export function ExecutionProgress({
               {statusConfig.label}
             </p>
             {job.currentCommand && isRunning && (
-              <p className="text-xs text-slate-600 dark:text-slate-400 font-mono mt-1 truncate">
+              <p className="text-xs text-muted-foreground font-mono mt-1 truncate">
                 {job.currentCommand}
               </p>
             )}
@@ -198,38 +200,38 @@ export function ExecutionProgress({
       </motion.div>
 
       {/* Progress Bar */}
-      <div className="space-y-2">
+      <div className="space-y-2" role="status" aria-label={`Progress: ${Math.round(job.progress.percent)}% complete`}>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-600 dark:text-slate-400">Progress</span>
-          <span className="font-medium text-slate-900 dark:text-slate-100">
+          <span className="text-muted-foreground">Progress</span>
+          <span className="font-medium text-foreground">
             {job.progress.current} / {job.progress.total} commands
           </span>
         </div>
-        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+        <div className="h-3 bg-muted rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(job.progress.percent)} aria-valuemin={0} aria-valuemax={100}>
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${job.progress.percent}%` }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className={`h-full rounded-full ${
               job.status === 'failed' || job.status === 'rolled_back'
-                ? 'bg-error'
+                ? 'bg-destructive'
                 : job.status === 'completed'
                 ? 'bg-success'
-                : 'bg-primary-500'
+                : 'bg-primary'
             }`}
           />
         </div>
-        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>{Math.round(job.progress.percent)}% complete</span>
           <div className="flex gap-3">
             <span className="text-success">
               {job.progress.succeeded} succeeded
             </span>
             {job.progress.failed > 0 && (
-              <span className="text-error">{job.progress.failed} failed</span>
+              <span className="text-destructive">{job.progress.failed} failed</span>
             )}
             {job.progress.skipped > 0 && (
-              <span className="text-slate-400">{job.progress.skipped} skipped</span>
+              <span className="text-muted-foreground">{job.progress.skipped} skipped</span>
             )}
           </div>
         </div>
@@ -243,22 +245,23 @@ export function ExecutionProgress({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="space-y-2"
+            role="alert"
           >
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-error" />
-              <h4 className="text-sm font-medium text-error">
+              <AlertTriangle className="w-4 h-4 text-destructive" aria-hidden="true" />
+              <h4 className="text-sm font-medium text-destructive">
                 {job.errors.length} error{job.errors.length > 1 ? 's' : ''}
               </h4>
             </div>
-            <div className="max-h-32 overflow-y-auto space-y-1 p-3 bg-error-light/30 dark:bg-error/10 rounded-lg border border-error/20">
+            <div className="max-h-32 overflow-y-auto space-y-1 p-3 bg-destructive/10 rounded-lg border border-destructive/20">
               {job.errors.map((err, index) => (
                 <div
                   key={index}
-                  className="text-xs font-mono text-error-dark dark:text-error-light"
+                  className="text-xs font-mono text-destructive"
                 >
-                  <span className="text-slate-500">Line {err.lineNumber}:</span>{' '}
+                  <span className="text-muted-foreground">Line {err.lineNumber}:</span>{' '}
                   {err.error}
-                  <p className="text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-muted-foreground truncate">
                     {err.command}
                   </p>
                 </div>
@@ -270,13 +273,13 @@ export function ExecutionProgress({
 
       {/* Rollback info */}
       {job.status === 'rolled_back' && job.rollbackCount !== undefined && (
-        <div className="flex items-start gap-3 p-3 bg-warning-light/50 dark:bg-warning/10 border border-warning/30 rounded-lg">
-          <RotateCcw className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/30 rounded-lg" role="alert">
+          <RotateCcw className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
-            <p className="text-sm font-medium text-warning-dark dark:text-warning">
+            <p className="text-sm font-medium text-warning">
               Configuration rolled back
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {job.rollbackCount} change{job.rollbackCount > 1 ? 's' : ''} were
               reverted to restore previous state.
             </p>
@@ -290,11 +293,12 @@ export function ExecutionProgress({
           <button
             onClick={onCancel}
             disabled={isCancelling}
-            className="btn-destructive px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+            aria-label={isCancelling ? 'Cancelling job' : 'Cancel running job'}
+            className="min-h-[44px] btn-destructive px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {isCancelling ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 Cancelling...
               </>
             ) : (
@@ -306,14 +310,15 @@ export function ExecutionProgress({
         {isTerminal && job.status === 'failed' && onRetry && (
           <button
             onClick={onRetry}
-            className="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+            aria-label="Retry applying configuration"
+            className="min-h-[44px] btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4" aria-hidden="true" />
             Try Again
           </button>
         )}
       </div>
     </div>
   );
-}
+});
 

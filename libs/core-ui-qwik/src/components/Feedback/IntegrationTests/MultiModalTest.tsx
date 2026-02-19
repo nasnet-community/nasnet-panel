@@ -1,8 +1,9 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Dialog, DialogHeader, DialogBody, DialogFooter } from "../Dialog";
-import { Alert } from "../Alert";
-import { useToast } from "../Toast";
+
 import { Button } from "../../button";
+import { Alert } from "../Alert";
+import { Dialog, DialogHeader, DialogBody, DialogFooter } from "../Dialog";
+import { useToast } from "../Toast";
 
 /**
  * MultiModalTest - Tests Dialog with Toast notifications and Alert messages

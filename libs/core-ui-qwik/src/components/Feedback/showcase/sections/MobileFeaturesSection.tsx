@@ -7,11 +7,12 @@ import {
   HiEyeSlashOutline,
   HiBoltOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
 import { Alert } from "../../Alert/Alert";
-import { Toast } from "../../Toast/Toast";
-import { Drawer } from "../../Drawer/Drawer";
 import { Dialog } from "../../Dialog/Dialog";
+import { Drawer } from "../../Drawer/Drawer";
+import { Toast } from "../../Toast/Toast";
 interface MobileFeaturesSectionProps {}
 
 export const MobileFeaturesSection = component$<MobileFeaturesSectionProps>(

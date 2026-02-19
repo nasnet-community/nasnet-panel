@@ -1,12 +1,13 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
+
 import { DividerBasic } from "./examples/DividerBasic";
+import { DividerColors } from "./examples/DividerColors";
 import { DividerOrientation } from "./examples/DividerOrientation";
+import { DividerSpacing } from "./examples/DividerSpacing";
 import { DividerThickness } from "./examples/DividerThickness";
 import { DividerVariants } from "./examples/DividerVariants";
-import { DividerColors } from "./examples/DividerColors";
 import { DividerWithLabel } from "./examples/DividerWithLabel";
-import { DividerSpacing } from "./examples/DividerSpacing";
 
 export default component$(() => {
   const examples = [

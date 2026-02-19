@@ -15,7 +15,7 @@ import {
   operatorConfig,
 } from '../schemas/alert-rule.schema';
 import { useCreateAlertRule, useUpdateAlertRule } from '../hooks/useAlertRules';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 interface AlertRuleFormProps {
   initialData?: Partial<AlertRuleFormData>;
@@ -28,7 +28,7 @@ interface AlertRuleFormProps {
  * Desktop/Mobile agnostic AlertRuleForm
  * Per Task 4.10: Mobile presenter would wrap this with full-screen modal pattern
  */
-export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: AlertRuleFormProps) {
+export const AlertRuleForm = memo(function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: AlertRuleFormProps) {
   const isEditing = Boolean(ruleId);
   const { createRule, loading: creating } = useCreateAlertRule();
   const { updateRule, loading: updating } = useUpdateAlertRule();
@@ -99,7 +99,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
       </div>
 
       {error && (
-        <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm">
+        <div className="p-4 bg-destructive/10 text-destructive rounded-md text-sm" role="alert">
           {error}
         </div>
       )}
@@ -114,11 +114,13 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
             {...register('name')}
             id="name"
             type="text"
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             placeholder="e.g., High CPU Alert"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? 'name-error' : undefined}
           />
           {errors.name && (
-            <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+            <p id="name-error" className="text-sm text-destructive mt-1" role="alert">{errors.name.message}</p>
           )}
         </div>
 
@@ -129,7 +131,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
           <textarea
             {...register('description')}
             id="description"
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             rows={2}
             placeholder="Optional description of this alert rule"
           />
@@ -143,23 +145,25 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
             {...register('eventType')}
             id="eventType"
             type="text"
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             placeholder="e.g., device.cpu.high"
+            aria-invalid={!!errors.eventType}
+            aria-describedby={errors.eventType ? 'eventType-error' : undefined}
           />
           {errors.eventType && (
-            <p className="text-sm text-destructive mt-1">{errors.eventType.message}</p>
+            <p id="eventType-error" className="text-sm text-destructive mt-1" role="alert">{errors.eventType.message}</p>
           )}
         </div>
       </div>
 
       {/* Severity */}
       <div>
-        <label className="block text-sm font-medium mb-2">Severity *</label>
-        <div className="flex gap-3">
+        <label className="block text-sm font-medium mb-2" id="severity-group-label">Severity *</label>
+        <div className="flex gap-3" role="radiogroup" aria-labelledby="severity-group-label">
           {Object.entries(severityConfig).map(([key, config]) => (
             <label
               key={key}
-              className={`flex-1 p-3 border-2 rounded-md cursor-pointer transition-colors ${
+              className={`flex-1 p-3 border-2 rounded-md cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
                 severity === key
                   ? 'border-primary bg-primary/5'
                   : 'border-border hover:border-primary/50'
@@ -179,7 +183,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
           ))}
         </div>
         {errors.severity && (
-          <p className="text-sm text-destructive mt-1">{errors.severity.message}</p>
+          <p className="text-sm text-destructive mt-1" role="alert">{errors.severity.message}</p>
         )}
       </div>
 
@@ -192,11 +196,13 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
               <input
                 {...register(`conditions.${index}.field`)}
                 placeholder="Field"
-                className="flex-1 px-3 py-2 border rounded-md"
+                aria-label={`Condition ${index + 1} field`}
+                className="flex-1 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               />
               <select
                 {...register(`conditions.${index}.operator`)}
-                className="w-32 px-3 py-2 border rounded-md"
+                aria-label={`Condition ${index + 1} operator`}
+                className="w-32 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 {Object.entries(operatorConfig).map(([key, config]) => (
                   <option key={key} value={key}>
@@ -207,13 +213,15 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
               <input
                 {...register(`conditions.${index}.value`)}
                 placeholder="Value"
-                className="flex-1 px-3 py-2 border rounded-md"
+                aria-label={`Condition ${index + 1} value`}
+                className="flex-1 px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               />
               {conditions.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeCondition(index)}
-                  className="px-3 py-2 text-destructive hover:bg-destructive/10 rounded-md"
+                  aria-label={`Remove condition ${index + 1}`}
+                  className="px-3 py-2 text-destructive hover:bg-destructive/10 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Remove
                 </button>
@@ -224,12 +232,13 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
         <button
           type="button"
           onClick={addCondition}
-          className="mt-2 text-sm text-primary hover:underline"
+          aria-label="Add new condition"
+          className="mt-2 text-sm text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none rounded"
         >
           + Add Condition
         </button>
         {errors.conditions && (
-          <p className="text-sm text-destructive mt-1">{errors.conditions.message}</p>
+          <p className="text-sm text-destructive mt-1" role="alert">{errors.conditions.message}</p>
         )}
       </div>
 
@@ -242,7 +251,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
           {notificationChannels.map((channel) => (
             <label
               key={channel.value}
-              className={`flex items-center gap-2 p-3 border-2 rounded-md cursor-pointer transition-colors ${
+              className={`flex items-center gap-2 p-3 border-2 rounded-md cursor-pointer transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
                 selectedChannels.includes(channel.value)
                   ? 'border-primary bg-primary/5'
                   : 'border-border hover:border-primary/50'
@@ -252,6 +261,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
                 type="checkbox"
                 checked={selectedChannels.includes(channel.value)}
                 onChange={() => toggleChannel(channel.value)}
+                aria-label={`Enable ${channel.label} notifications`}
                 className="rounded"
               />
               <span className="text-sm font-medium">{channel.label}</span>
@@ -259,7 +269,7 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
           ))}
         </div>
         {errors.channels && (
-          <p className="text-sm text-destructive mt-1">{errors.channels.message}</p>
+          <p className="text-sm text-destructive mt-1" role="alert">{errors.channels.message}</p>
         )}
       </div>
 
@@ -277,20 +287,22 @@ export function AlertRuleForm({ initialData, ruleId, onSuccess, onCancel }: Aler
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border rounded-md hover:bg-muted"
+            className="px-4 py-2 border border-border rounded-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
             disabled={loading}
+            aria-label="Cancel alert rule editing"
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           disabled={loading || !isDirty}
+          aria-label={loading ? 'Saving alert rule' : isEditing ? 'Update alert rule' : 'Create alert rule'}
         >
           {loading ? 'Saving...' : isEditing ? 'Update Rule' : 'Create Rule'}
         </button>
       </div>
     </form>
   );
-}
+});

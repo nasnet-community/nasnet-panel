@@ -1,6 +1,6 @@
 import { $, useContext, type QRL } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { InterfaceType, OccupiedInterface } from "@nas-net/star-context";
+
 import {
   addOccupiedInterface,
   removeOccupiedInterface,
@@ -8,6 +8,8 @@ import {
   isInterfaceOccupied,
   getInterfaceUsage,
 } from "../utils/InterfaceManagementUtils";
+
+import type { InterfaceType, OccupiedInterface } from "@nas-net/star-context";
 
 export interface UseInterfaceManagementReturn {
   markInterfaceAsOccupied$: QRL<(

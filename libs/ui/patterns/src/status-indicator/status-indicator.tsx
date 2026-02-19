@@ -9,11 +9,11 @@ const statusIndicatorVariants = cva(
   {
     variants: {
       status: {
-        online: 'text-success dark:text-green-400',
-        offline: 'text-error dark:text-red-400',
-        warning: 'text-warning dark:text-amber-400',
-        info: 'text-info dark:text-sky-400',
-        pending: 'text-slate-600 dark:text-slate-400',
+        online: 'text-success',
+        offline: 'text-error',
+        warning: 'text-warning',
+        info: 'text-info',
+        pending: 'text-muted-foreground',
       },
       size: {
         sm: 'text-xs',
@@ -35,7 +35,7 @@ const dotVariants = cva('rounded-full transition-all', {
       offline: 'bg-error',
       warning: 'bg-warning',
       info: 'bg-info',
-      pending: 'bg-slate-500',
+      pending: 'bg-muted-foreground',
     },
     size: {
       sm: 'h-1.5 w-1.5',
@@ -67,6 +67,7 @@ const StatusIndicator = React.forwardRef<HTMLDivElement, StatusIndicatorProps>(
     return (
       <div
         ref={ref}
+        role="status"
         className={cn(statusIndicatorVariants({ status, size }), className)}
         {...props}
       >

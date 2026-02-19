@@ -1,8 +1,10 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
-import type { VPNClientAdvancedState, VPNClientConfig } from "../types/VPNClientAdvancedTypes";
-import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+
 import { VPNBox } from "../components/VPNBox/VPNBox";
 import { VPNBoxContent } from "../components/VPNBox/VPNBoxContent";
+
+import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+import type { VPNClientAdvancedState, VPNClientConfig } from "../types/VPNClientAdvancedTypes";
 
 export interface StepSummaryProps {
   wizardState: VPNClientAdvancedState;

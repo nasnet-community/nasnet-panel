@@ -1,6 +1,7 @@
 import { $, useSignal, useTask$, noSerialize } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { FileInfo, FileUploadState } from "../FileUpload.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseFileStateOptions {
   value?: FileInfo[];

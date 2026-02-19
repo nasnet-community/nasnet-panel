@@ -12,7 +12,7 @@ import { WizardSummary } from './WizardSummary';
 import { StepAnnouncer } from './StepAnnouncer';
 import { TroubleshootWizardSkeletonMobile } from './TroubleshootWizardSkeleton';
 import type { ISPInfo } from '../../types/troubleshoot.types';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 interface TroubleshootWizardMobileProps {
   routerId: string;
@@ -21,7 +21,7 @@ interface TroubleshootWizardMobileProps {
   ispInfo?: ISPInfo;
 }
 
-export function TroubleshootWizardMobile({
+export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
   routerId,
   autoStart = false,
   onClose,
@@ -94,9 +94,9 @@ export function TroubleshootWizardMobile({
             size="icon"
             onClick={onClose}
             aria-label="Go back"
-            className="h-10 w-10"
+            className="min-h-[44px] min-w-[44px]"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
         <h1 className="text-lg font-semibold text-foreground">No Internet Help</h1>
@@ -104,7 +104,7 @@ export function TroubleshootWizardMobile({
 
       {/* Progress Bar */}
       {!wizard.isIdle && (
-        <div className="p-4 border-b bg-background">
+        <div className="p-4 border-b bg-background" role="progressbar" aria-valuenow={Math.round(wizard.progress.percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}>
           <div className="flex justify-between items-center mb-2 text-sm">
             <span className="text-muted-foreground">
               Step {wizard.progress.current} of {wizard.progress.total}
@@ -125,7 +125,7 @@ export function TroubleshootWizardMobile({
             <p className="text-sm text-muted-foreground mb-6">
               We'll run automated tests to find and fix internet issues.
             </p>
-            <Button onClick={wizard.start} className="w-full min-h-[44px]">
+            <Button onClick={wizard.start} className="w-full min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Start diagnostic troubleshooting">
               Start Diagnostic
             </Button>
           </Card>
@@ -134,7 +134,7 @@ export function TroubleshootWizardMobile({
         {(wizard.isRunning || wizard.isAwaitingFixDecision || wizard.isApplyingFix || wizard.isVerifying) && (
           <>
             {/* Vertical Stepper with all steps */}
-            <div className="space-y-3">
+            <div className="space-y-3" role="list" aria-label="Diagnostic steps">
               {wizard.steps.map((step, index) => (
                 <DiagnosticStep
                   key={step.id}
@@ -172,7 +172,8 @@ export function TroubleshootWizardMobile({
             <Button
               variant="outline"
               onClick={wizard.skipFix}
-              className="flex-1 min-h-[44px]"
+              className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="Skip this fix"
             >
               Skip
             </Button>
@@ -180,14 +181,16 @@ export function TroubleshootWizardMobile({
               <Button
                 onClick={() => setShowFixSheet(true)}
                 variant="secondary"
-                className="flex-1 min-h-[44px]"
+                className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="View manual fix steps"
               >
                 View Steps
               </Button>
             ) : (
               <Button
                 onClick={() => setShowFixSheet(true)}
-                className="flex-1 min-h-[44px]"
+                className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="View automatic fix details"
               >
                 View Fix
               </Button>
@@ -234,4 +237,4 @@ export function TroubleshootWizardMobile({
       />
     </div>
   );
-}
+});

@@ -130,8 +130,8 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               aria-describedby={index === 0 ? inputAriaDescribedBy : undefined}
               className={cn(
                 'w-12 text-center px-1 font-mono',
-                'focus:ring-2 focus:ring-primary focus:ring-offset-0',
-                hasError && 'border-destructive focus:ring-destructive'
+                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                hasError && 'border-destructive focus-visible:ring-destructive'
               )}
               id={index === 0 ? id : undefined}
             />
@@ -172,8 +172,8 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               aria-invalid={hasError ? 'true' : undefined}
               className={cn(
                 'w-10 text-center px-1 font-mono',
-                'focus:ring-2 focus:ring-primary focus:ring-offset-0',
-                hasError && 'border-destructive focus:ring-destructive'
+                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                hasError && 'border-destructive focus-visible:ring-destructive'
               )}
             />
           </>

@@ -1,12 +1,13 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
+
+import StackAlignment from "./examples/StackAlignment";
 import StackBasic from "./examples/StackBasic";
 import StackDirection from "./examples/StackDirection";
-import StackSpacing from "./examples/StackSpacing";
-import StackAlignment from "./examples/StackAlignment";
-import StackJustify from "./examples/StackJustify";
 import StackDividers from "./examples/StackDividers";
+import StackJustify from "./examples/StackJustify";
 import StackResponsive from "./examples/StackResponsive";
+import StackSpacing from "./examples/StackSpacing";
 import { MobileFirstStack } from "../Examples/MobileFirstStack";
 import { RTLStack } from "../Examples/RTLStack";
 

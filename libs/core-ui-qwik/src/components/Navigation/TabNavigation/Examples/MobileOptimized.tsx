@@ -1,4 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { TabNavigation } from "../index";
 
 export default component$(() => {

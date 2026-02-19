@@ -1,10 +1,11 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
-import { BasicAlert } from "../Examples/BasicAlert";
-import { AlertVariants } from "../Examples/AlertVariants";
+
 import { AlertSizesAndDismissible } from "../Examples/AlertSizesAndDismissible";
-import { ResponsiveAlert } from "../Examples/ResponsiveAlert";
+import { AlertVariants } from "../Examples/AlertVariants";
+import { BasicAlert } from "../Examples/BasicAlert";
 import { ComplexAlert } from "../Examples/ComplexAlert";
+import { ResponsiveAlert } from "../Examples/ResponsiveAlert";
 
 /**
  * Alert component examples documentation using the standard template

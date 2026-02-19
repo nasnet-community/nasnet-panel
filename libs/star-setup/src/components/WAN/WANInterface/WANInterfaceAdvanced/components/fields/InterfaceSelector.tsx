@@ -1,9 +1,10 @@
 import { component$, useContext, type QRL } from "@builder.io/qwik";
-import { StarContext } from "@nas-net/star-context";
-import type { InterfaceType } from "@nas-net/star-context";
-import { addOccupiedInterface, removeOccupiedInterface, getOccupiedInterfacesForRouter, getInterfaceUsage, getUsedLTEInterfaces } from "@utils/InterfaceManagementUtils";
-import type { WANLinkConfig } from "../../types";
 import { Select, FormField } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+import { addOccupiedInterface, removeOccupiedInterface, getOccupiedInterfacesForRouter, getInterfaceUsage, getUsedLTEInterfaces } from "@utils/InterfaceManagementUtils";
+
+import type { WANLinkConfig } from "../../types";
+import type { InterfaceType } from "@nas-net/star-context";
 
 export interface InterfaceSelectorProps {
   link: WANLinkConfig;

@@ -1,5 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import { Newsletter } from "../Newsletter";
+
 // import { subscribeToNewsletterSendGrid } from "~/utils/newsletterAPI";
 import type { NewsletterSubscription } from "../Newsletter.types";
 

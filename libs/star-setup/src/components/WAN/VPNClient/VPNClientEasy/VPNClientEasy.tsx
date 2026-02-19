@@ -1,20 +1,21 @@
 import { $, component$, useSignal, type QRL } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
-import type { VPNType } from "@nas-net/star-context";
-import { useVPNConfig } from "../useVPNConfig";
-import { VPNSelector } from "../VPNSelector";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { ActionFooter } from "../ActionFooter";
-import { PromoL2TPBanner } from "../PromoL2TPBanner";
 import { SegmentedControl } from "@nas-net/core-ui-qwik";
-import { useVPNClientEnabled } from "../useVPNClientEnabled";
+import { track } from "@vercel/analytics";
 
-import { WireguardConfig } from "../Protocols/Wireguard/WireguardConfig";
-import { OpenVPNConfig } from "../Protocols/OpenVPN/OpenVPNConfig";
-import { L2TPConfig } from "../Protocols/L2TP/L2TPConfig";
+import { ActionFooter } from "../ActionFooter";
+import { ErrorMessage } from "../components/ErrorMessage";
+import { PromoL2TPBanner } from "../PromoL2TPBanner";
 import { IKEv2Config } from "../Protocols/IKeV2/IKEv2Config";
+import { L2TPConfig } from "../Protocols/L2TP/L2TPConfig";
+import { OpenVPNConfig } from "../Protocols/OpenVPN/OpenVPNConfig";
 import { PPTPConfig } from "../Protocols/PPTP/PPTPConfig";
 import { SSTPConfig } from "../Protocols/SSTP/SSTPConfig";
+import { WireguardConfig } from "../Protocols/Wireguard/WireguardConfig";
+import { useVPNClientEnabled } from "../useVPNClientEnabled";
+import { useVPNConfig } from "../useVPNConfig";
+import { VPNSelector } from "../VPNSelector";
+
+import type { VPNType } from "@nas-net/star-context";
 
 interface VPNClientEasyProps {
   isComplete?: boolean;

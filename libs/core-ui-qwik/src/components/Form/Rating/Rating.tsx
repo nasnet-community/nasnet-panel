@@ -1,9 +1,11 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import type { RatingProps } from "./Rating.types";
-import { useRating } from "./hooks/useRating";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
+import { useRating } from "./hooks/useRating";
+
+import type { RatingProps } from "./Rating.types";
 
 /**
  * Rating component for selecting numeric values using stars or custom icons.

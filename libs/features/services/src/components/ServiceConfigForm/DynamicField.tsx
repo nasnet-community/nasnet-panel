@@ -1,3 +1,4 @@
+import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import type { ConfigSchemaField } from '@nasnet/api-client/generated';
 import {
@@ -51,29 +52,30 @@ export interface DynamicFieldProps {
  * ))}
  * ```
  */
-export function DynamicField({ field, form, disabled }: DynamicFieldProps) {
+export const DynamicField = React.memo(function DynamicField({ field, form, disabled }: DynamicFieldProps) {
   return (
     <FormField
       control={form.control}
       name={field.name}
-      render={({ field: formField }) => (
+      render={({ field: formField, fieldState }) => (
         <FormItem>
           <FormLabel>
             {field.label}
-            {field.required && <span className="text-destructive ml-1">*</span>}
+            {field.required && <span className="text-destructive ml-1" aria-hidden="true">*</span>}
+            {field.required && <span className="sr-only">(required)</span>}
           </FormLabel>
           <FormControl>
-            {renderFieldInput(field, formField, disabled)}
+            {renderFieldInput(field, formField, disabled, !!fieldState.error)}
           </FormControl>
           {field.description && (
             <FormDescription>{field.description}</FormDescription>
           )}
-          <FormMessage />
+          <FormMessage role="alert" />
         </FormItem>
       )}
     />
   );
-}
+});
 
 /**
  * Renders the appropriate input component based on field type
@@ -81,12 +83,14 @@ export function DynamicField({ field, form, disabled }: DynamicFieldProps) {
 function renderFieldInput(
   field: ConfigSchemaField,
   formField: any,
-  disabled?: boolean
+  disabled?: boolean,
+  hasError?: boolean
 ) {
   const commonProps = {
     ...formField,
     disabled,
     placeholder: field.placeholder || undefined,
+    'aria-invalid': hasError || undefined,
   };
 
   switch (field.type as string) {

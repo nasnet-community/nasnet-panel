@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { DesktopProps } from "./types";
 
 export const Desktop = component$((props: DesktopProps) => {

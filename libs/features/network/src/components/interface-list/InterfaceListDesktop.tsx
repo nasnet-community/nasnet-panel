@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { DataTable } from '@nasnet/ui/patterns';
 import { Badge, Button } from '@nasnet/ui/primitives';
 import { InterfaceListFilters } from './InterfaceListFilters';
@@ -22,7 +23,7 @@ export interface InterfaceListDesktopProps {
  * Interface List Desktop Presenter
  * Displays interfaces in a table format optimized for desktop
  */
-export function InterfaceListDesktop({
+export const InterfaceListDesktop = memo(function InterfaceListDesktop({
   interfaces,
   allInterfaces,
   loading,
@@ -111,12 +112,12 @@ export function InterfaceListDesktop({
         <div className="flex items-center justify-between">
           <InterfaceListFilters filters={filters} onChange={onFilterChange} />
         </div>
-        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10">
+        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10" role="alert">
           <p className="text-destructive font-medium">Failed to load interfaces</p>
           <p className="text-sm text-muted-foreground mt-2">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-4">
+          <Button onClick={onRefresh} className="mt-4" aria-label="Retry loading interfaces">
             Retry
           </Button>
         </div>
@@ -153,4 +154,4 @@ export function InterfaceListDesktop({
       />
     </div>
   );
-}
+});

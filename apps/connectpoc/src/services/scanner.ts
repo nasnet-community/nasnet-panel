@@ -1,13 +1,22 @@
-import type { 
-  ScanConfig, 
-  ScanResult, 
-  DetectedService,
-  ScanProgress,
-  RouterCredentials
-} from '@shared/routeros';
 import { getAuthHeaderForRouter, createAuthenticatedProxyRequest } from '@/services/auth';
 import { getSubnetIps, isValidSubnet } from '@/utils/network';
+import {
+  startPerformanceMonitoring,
+  getGlobalPerformance,
+  getPerformanceAlerts,
+  resetPerformanceMonitoring,
+  type GlobalPerformanceMetrics,
+  type PerformanceAlert
+} from '@/utils/performance-monitor';
 import { getScanConfig, saveLastScanTime } from '@/utils/storage';
+import {
+  detectActiveSubnets,
+  getFastestScanSubnets,
+  clearSubnetCache,
+  type DetectedSubnet,
+  type SubnetDetectionResult 
+} from '@/utils/subnet-detector';
+
 import { 
   scanEntireRange as fastScanEntireRange,
   scanSubnets as fastScanSubnets,
@@ -21,13 +30,6 @@ import {
   getFastScanProgress
 } from './fast-scanner';
 import {
-  detectActiveSubnets,
-  getFastestScanSubnets,
-  clearSubnetCache,
-  type DetectedSubnet,
-  type SubnetDetectionResult 
-} from '@/utils/subnet-detector';
-import {
   startProgressiveScan,
   stopProgressiveScan,
   getProgressiveScanState,
@@ -38,14 +40,14 @@ import {
   type ProgressiveScanState,
   type ProgressiveScanCallbacks
 } from './progressive-scanner';
-import {
-  startPerformanceMonitoring,
-  getGlobalPerformance,
-  getPerformanceAlerts,
-  resetPerformanceMonitoring,
-  type GlobalPerformanceMetrics,
-  type PerformanceAlert
-} from '@/utils/performance-monitor';
+
+import type { 
+  ScanConfig, 
+  ScanResult, 
+  DetectedService,
+  ScanProgress,
+  RouterCredentials
+} from '@shared/routeros';
 
 /**
  * Proxy helper for making requests through the backend proxy

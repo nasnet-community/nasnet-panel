@@ -1,6 +1,5 @@
 import { component$, type QRL, useSignal, $ } from "@builder.io/qwik";
 import { FormField, Input, ErrorMessage, Select, Button } from "@nas-net/core-ui-qwik";
-import type { SelectOption } from "@nas-net/core-ui-qwik";
 import { 
   LuGlobe, 
   LuShield, 
@@ -10,7 +9,9 @@ import {
   LuCheck,
   LuServer
 } from "@qwikest/icons/lucide";
+
 import type { NetworkDNSConfig, NetworkType, DNSPreset } from "./types";
+import type { SelectOption } from "@nas-net/core-ui-qwik";
 
 interface NetworkDNSCardProps {
   config: NetworkDNSConfig;

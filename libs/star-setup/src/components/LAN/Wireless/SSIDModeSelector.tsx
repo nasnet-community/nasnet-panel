@@ -1,5 +1,6 @@
 import { component$, $ } from "@builder.io/qwik";
 import { HiWifiOutline } from "@qwikest/icons/heroicons";
+
 import type { Signal } from "@builder.io/qwik";
 
 interface SSIDModeSelectorProps {

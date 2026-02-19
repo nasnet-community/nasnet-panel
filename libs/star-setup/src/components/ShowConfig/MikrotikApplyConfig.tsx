@@ -1,6 +1,6 @@
 import { component$, useSignal, useContext, $ } from "@builder.io/qwik";
-import { StarContext } from "@nas-net/star-context";
 import { ConfigGenerator } from "@nas-net/ros-cmd-generator";
+import { StarContext } from "@nas-net/star-context";
 
 export const MikrotikApplyConfig = component$(() => {
   const ctx = useContext(StarContext);

@@ -141,7 +141,7 @@ function ServiceGroup({
         {/* Collapsible Trigger - 44px minimum height */}
         <Collapsible.Trigger asChild>
           <button
-            className="w-full p-4 flex items-center justify-between min-h-[44px] touch-manipulation hover:bg-muted/50 transition-colors"
+            className="w-full p-4 flex items-center justify-between min-h-[44px] touch-manipulation hover:bg-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg"
             aria-label={`Toggle ${serviceType} ports`}
           >
             <div className="flex items-center gap-3">
@@ -153,9 +153,9 @@ function ServiceGroup({
               </span>
             </div>
             {isOpen ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
             )}
           </button>
         </Collapsible.Trigger>
@@ -178,7 +178,7 @@ function ServiceGroup({
  *
  * Mobile-optimized presenter with touch-friendly cards and collapsible groups.
  */
-export function PortRegistryViewMobile({
+export const PortRegistryViewMobile = React.memo(function PortRegistryViewMobile({
   routerId,
   className,
 }: PortRegistryViewMobileProps) {
@@ -198,7 +198,7 @@ export function PortRegistryViewMobile({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Network className="h-5 w-5" />
+              <Network className="h-5 w-5" aria-hidden="true" />
               <CardTitle className="text-lg">Port Registry</CardTitle>
             </div>
             <Badge variant="outline" className="text-sm px-2 py-1">
@@ -218,9 +218,11 @@ export function PortRegistryViewMobile({
             className="w-full min-h-[44px]"
             onClick={() => refetch()}
             disabled={loading}
+            aria-label="Refresh port allocations"
           >
             <RefreshCw
               className={cn('h-4 w-4 mr-2', loading && 'animate-spin')}
+              aria-hidden="true"
             />
             Refresh
           </Button>
@@ -260,7 +262,7 @@ export function PortRegistryViewMobile({
       {!loading && sortedAllocations.length === 0 && !error && (
         <Card>
           <CardContent className="p-8 text-center">
-            <Network className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <Network className="h-12 w-12 text-muted-foreground mx-auto mb-3" aria-hidden="true" />
             <h3 className="font-semibold mb-1">No Port Allocations</h3>
             <p className="text-sm text-muted-foreground">
               Ports will appear here when service instances are created.
@@ -283,6 +285,6 @@ export function PortRegistryViewMobile({
       )}
     </div>
   );
-}
+});
 
 PortRegistryViewMobile.displayName = 'PortRegistryViewMobile';

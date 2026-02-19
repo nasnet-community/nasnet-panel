@@ -1,10 +1,11 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicErrorMessage from "../Examples/BasicErrorMessage";
+import ErrorMessageAccessibility from "../Examples/ErrorMessageAccessibility";
+import ErrorMessageAnimation from "../Examples/ErrorMessageAnimation";
 import ErrorMessageSizes from "../Examples/ErrorMessageSizes";
 import ErrorMessageWithIcons from "../Examples/ErrorMessageWithIcons";
-import ErrorMessageAnimation from "../Examples/ErrorMessageAnimation";
-import ErrorMessageAccessibility from "../Examples/ErrorMessageAccessibility";
 
 /**
  * FormErrorMessage component examples documentation using the standard template

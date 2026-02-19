@@ -1,4 +1,5 @@
 import { $, type QRL } from "@builder.io/qwik";
+
 import type { UseStatOptions } from "../Stat.types";
 
 export const useStat = (options: UseStatOptions = {}) => {

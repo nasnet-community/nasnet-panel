@@ -7,7 +7,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore, usePortKnockStore } from '@nasnet/state/stores';
@@ -50,7 +50,7 @@ export interface PortKnockingPageProps {
 // Main Component
 // ============================================================================
 
-export function PortKnockingPage({ className }: PortKnockingPageProps) {
+export const PortKnockingPage = memo(function PortKnockingPage({ className }: PortKnockingPageProps) {
   const { t } = useTranslation('firewall');
   const { activeRouterId } = useConnectionStore();
   const {
@@ -143,7 +143,7 @@ export function PortKnockingPage({ className }: PortKnockingPageProps) {
             Protect sensitive services behind secret knock sequences
           </p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} aria-label="Create new port knock sequence" className="min-h-[44px]">
           <Plus className="h-4 w-4 mr-2" />
           Create Sequence
         </Button>
@@ -211,6 +211,6 @@ export function PortKnockingPage({ className }: PortKnockingPageProps) {
       </Sheet>
     </div>
   );
-}
+});
 
 PortKnockingPage.displayName = 'PortKnockingPage';

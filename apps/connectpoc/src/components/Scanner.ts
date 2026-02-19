@@ -1,4 +1,5 @@
-import type { ScanResult, RouterInfo } from '@shared/routeros';
+import { scanEntireRange, type FastScanResult, type FastScanProgress } from '@/services/fast-scanner';
+import { manualRouterToScanResult } from '@/services/manual-router';
 import { 
   smartScan, 
   isBackendAvailable, 
@@ -7,9 +8,11 @@ import {
   getAutoScanConfig,
   startAutoScanWithRealTimeResults 
 } from '@/services/scanner';
-import { scanEntireRange, type FastScanResult, type FastScanProgress } from '@/services/fast-scanner';
+
 import { ManualEntry } from './ManualEntry';
-import { manualRouterToScanResult } from '@/services/manual-router';
+
+
+import type { ScanResult, RouterInfo } from '@shared/routeros';
 
 /**
  * Enhanced Network Scanner Component with Auto-Scan Support - Updated with Tailwind

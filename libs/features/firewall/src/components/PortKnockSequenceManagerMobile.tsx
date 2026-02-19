@@ -6,7 +6,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -62,7 +62,7 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-base">{sequence.name}</h3>
               {sequence.protectedPort === 22 && (
-                <ShieldAlert className="h-4 w-4 text-amber-500" aria-label="SSH Protected" />
+                <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH Protected" />
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -118,7 +118,8 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
             variant="outline"
             size="sm"
             onClick={() => onEdit?.(sequence.id!)}
-            className="flex-1 h-11"
+            aria-label={`Edit ${sequence.name} sequence`}
+            className="flex-1 min-h-[44px]"
           >
             <Pencil className="h-4 w-4 mr-2" />
             Edit
@@ -127,7 +128,8 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
             variant="outline"
             size="sm"
             onClick={() => onDelete(sequence)}
-            className="h-11"
+            aria-label={`Delete ${sequence.name} sequence`}
+            className="min-h-[44px]"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
@@ -141,7 +143,7 @@ function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProp
 // Main Component
 // ============================================================================
 
-export function PortKnockSequenceManagerMobile({
+export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceManagerMobile({
   className,
   onEdit,
   onCreate,
@@ -220,7 +222,7 @@ export function PortKnockSequenceManagerMobile({
             Create a knock sequence to protect sensitive services.
           </p>
           {onCreate && (
-            <Button onClick={onCreate} className="w-full h-11">Create First Sequence</Button>
+            <Button onClick={onCreate} aria-label="Create first port knock sequence" className="w-full min-h-[44px]">Create First Sequence</Button>
           )}
         </div>
       </div>
@@ -250,7 +252,7 @@ export function PortKnockSequenceManagerMobile({
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded text-sm">
+                <div className="mt-2 p-2 bg-warning/10 border border-warning/30 rounded text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>
@@ -269,6 +271,6 @@ export function PortKnockSequenceManagerMobile({
       </Dialog>
     </>
   );
-}
+});
 
 PortKnockSequenceManagerMobile.displayName = 'PortKnockSequenceManagerMobile';

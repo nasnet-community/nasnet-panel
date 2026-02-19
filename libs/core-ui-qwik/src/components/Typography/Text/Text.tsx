@@ -1,4 +1,5 @@
 import { component$, useComputed$ } from "@builder.io/qwik";
+
 import { type TextProps } from "./Text.types";
 
 /**

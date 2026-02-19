@@ -13,6 +13,7 @@
  * - WCAG AAA accessible
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { InterfaceGridDesktop } from './InterfaceGrid.Desktop';
 import { InterfaceGridTablet } from './InterfaceGrid.Tablet';
@@ -26,7 +27,7 @@ import type { InterfaceGridProps } from './types';
  * @example
  * <InterfaceGrid deviceId="router-123" />
  */
-export function InterfaceGrid(props: InterfaceGridProps) {
+export const InterfaceGrid = memo(function InterfaceGrid(props: InterfaceGridProps) {
   const platform = usePlatform();
 
   switch (platform) {
@@ -37,6 +38,8 @@ export function InterfaceGrid(props: InterfaceGridProps) {
     default:
       return <InterfaceGridDesktop {...props} />;
   }
-}
+});
+
+InterfaceGrid.displayName = 'InterfaceGrid';
 
 export default InterfaceGrid;

@@ -1,10 +1,11 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicCheckbox from "../Examples/BasicCheckbox";
+import CheckboxGroup from "../Examples/CheckboxGroup";
+import CheckboxHelperText from "../Examples/CheckboxHelperText";
 import CheckboxSizes from "../Examples/CheckboxSizes";
 import CheckboxStates from "../Examples/CheckboxStates";
-import CheckboxHelperText from "../Examples/CheckboxHelperText";
-import CheckboxGroup from "../Examples/CheckboxGroup";
 
 /**
  * Checkbox component examples documentation using the standard template

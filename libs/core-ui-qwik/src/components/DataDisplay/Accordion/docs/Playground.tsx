@@ -1,9 +1,10 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
+
 import { Accordion } from "../Accordion";
+import { AccordionContent } from "../AccordionContent";
 import { AccordionItem } from "../AccordionItem";
 import { AccordionTrigger } from "../AccordionTrigger";
-import { AccordionContent } from "../AccordionContent";
 
 // Define the wrapper component outside to avoid type issues
 const AccordionWrapper = component$<any>((props) => {

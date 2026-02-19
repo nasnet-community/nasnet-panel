@@ -1,8 +1,5 @@
 ﻿import { component$ } from "@builder.io/qwik";
-import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
-import { CodeExample } from "@nas-net/core-ui-qwik";
-import { Card } from "@nas-net/core-ui-qwik";
-import { Badge, BadgeGroup } from "@nas-net/core-ui-qwik";
+import { ExamplesTemplate , CodeExample , Card , Badge, BadgeGroup } from "@nas-net/core-ui-qwik";
 import { HiCheckCircleSolid, HiXMarkSolid } from "@qwikest/icons/heroicons";
 
 export default component$(() => {

@@ -1,6 +1,7 @@
 import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { DatePickerPlacement } from "../DatePicker.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseCalendarPopupResult {
   calendarRef: { value: HTMLDivElement | undefined };

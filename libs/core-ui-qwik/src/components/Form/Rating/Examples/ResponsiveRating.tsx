@@ -1,4 +1,5 @@
 import { component$, useSignal, useStore, useVisibleTask$ } from "@builder.io/qwik";
+
 import { Rating } from "../Rating";
 
 /**

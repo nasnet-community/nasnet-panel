@@ -1,5 +1,6 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
+
 import { Pagination } from "../Pagination";
 
 export default component$(() => {

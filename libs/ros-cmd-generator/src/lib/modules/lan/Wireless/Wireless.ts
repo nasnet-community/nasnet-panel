@@ -1,9 +1,3 @@
-import type {
-    WirelessConfig,
-    RouterModels,
-    Band,
-    WANLinks,
-} from "@nas-net/star-context";
 import {
     type RouterConfig,
     CommandShortner,
@@ -18,7 +12,14 @@ import {
     WirelessSteeringAssignment,
     CheckWireless,
     detectAvailableBands,
-} from "@nas-net/ros-cmd-generator";
+} from "../../index";
+
+import type {
+    WirelessConfig,
+    RouterModels,
+    Band,
+    WANLinks,
+} from "@nas-net/star-context";
 
 
 export function WirelessConfig( wirelessConfigs: WirelessConfig[], wanLinks: WANLinks, routerModels: RouterModels[] ): RouterConfig {

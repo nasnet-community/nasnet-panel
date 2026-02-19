@@ -1,5 +1,7 @@
 import { expect } from "vitest";
+
 import { SConfigGenerator } from "../lib/utils/ConfigGeneratorUtil";
+
 import type { RouterConfig } from "../lib/generator";
 
 // Helper function to format input parameters with proper indentation and structure

@@ -114,12 +114,12 @@ export function ReconnectingOverlay({
     <Card
       className={cn(
         'p-6 max-w-sm mx-auto',
-        'bg-white dark:bg-gray-900',
+        'bg-card',
         'border-2 border-semantic-warning',
         !fullScreen && className
       )}
     >
-      <div className="flex flex-col items-center text-center space-y-4">
+      <div className="flex flex-col items-center text-center space-y-4" aria-live="polite">
         {/* Icon */}
         <div
           className={cn(
@@ -128,25 +128,27 @@ export function ReconnectingOverlay({
               ? 'bg-semantic-warning/10'
               : showManualRetry
                 ? 'bg-semantic-error/10'
-                : 'bg-gray-100 dark:bg-gray-800'
+                : 'bg-muted'
           )}
+          {...(isReconnecting ? { role: 'status', 'aria-label': 'Reconnecting to server' } : {})}
         >
           <StatusIcon
             className={cn(
               'h-8 w-8',
               isReconnecting && 'animate-spin text-semantic-warning',
               showManualRetry && 'text-semantic-error',
-              !isReconnecting && !showManualRetry && 'text-gray-500'
+              !isReconnecting && !showManualRetry && 'text-muted-foreground'
             )}
+            aria-hidden="true"
           />
         </div>
 
         {/* Message */}
         <div className="space-y-1">
-          <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+          <h3 className="font-semibold text-lg text-foreground">
             {isReconnecting ? 'Reconnecting' : 'Disconnected'}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {statusMessage}
           </p>
         </div>
@@ -155,7 +157,7 @@ export function ReconnectingOverlay({
         {isReconnecting && (
           <div className="w-full space-y-2">
             <Progress value={progress} className="h-2" />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-muted-foreground" aria-live="polite">
               Attempt {reconnectAttempts} of {maxReconnectAttempts}
             </p>
           </div>
@@ -168,6 +170,7 @@ export function ReconnectingOverlay({
               variant="default"
               onClick={onRetry}
               className="min-w-[120px]"
+              aria-label="Retry connection now"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Retry Now
@@ -186,7 +189,7 @@ export function ReconnectingOverlay({
 
         {/* Help text */}
         {showManualRetry && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Check your network connection and ensure the router is accessible.
           </p>
         )}

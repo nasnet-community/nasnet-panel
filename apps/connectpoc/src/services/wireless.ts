@@ -1,9 +1,10 @@
+import { makeRouterOSRequest } from './api';
+
 import type { 
   ApiResponse,
   WirelessInterface,
   WirelessSecurityProfile
 } from '@shared/routeros';
-import { makeRouterOSRequest } from './api';
 
 /**
  * Wireless management service for MikroTik RouterOS

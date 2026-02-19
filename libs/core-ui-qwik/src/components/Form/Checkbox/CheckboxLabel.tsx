@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { CheckboxSize } from "./Checkbox.types";
 
 export interface CheckboxLabelProps {

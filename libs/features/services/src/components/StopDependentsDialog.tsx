@@ -70,7 +70,7 @@ export interface StopDependentsDialogProps {
  * />
  * ```
  */
-export function StopDependentsDialog({
+export const StopDependentsDialog = React.memo(function StopDependentsDialog({
   open,
   onOpenChange,
   instanceName,
@@ -104,7 +104,7 @@ export function StopDependentsDialog({
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/10">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
             </div>
             <div className="flex-1">
               <DialogTitle className="text-lg font-semibold">
@@ -225,15 +225,16 @@ export function StopDependentsDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
+          <Button variant="outline" onClick={handleCancel} disabled={isLoading} className="min-h-[44px]">
             Cancel
           </Button>
           <Button
             variant={stopMode === 'force-stop' ? 'destructive' : 'default'}
             onClick={handleConfirm}
             disabled={isLoading}
+            aria-label={isLoading ? 'Stopping service' : 'Stop service'}
             className={cn(
-              'min-w-[100px]',
+              'min-w-[100px] min-h-[44px]',
               stopMode === 'force-stop' && 'focus-visible:ring-destructive'
             )}
           >
@@ -243,4 +244,6 @@ export function StopDependentsDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+StopDependentsDialog.displayName = 'StopDependentsDialog';

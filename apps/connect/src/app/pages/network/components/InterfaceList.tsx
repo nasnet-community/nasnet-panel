@@ -3,7 +3,7 @@
  * Dashboard Pro style grid layout with section header
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import { Network } from 'lucide-react';
 
@@ -17,7 +17,7 @@ interface InterfaceListProps {
   defaultCollapsed?: boolean;
 }
 
-export function InterfaceList({ interfaces, defaultCollapsed = false }: InterfaceListProps) {
+export const InterfaceList = React.memo(function InterfaceList({ interfaces, defaultCollapsed = false }: InterfaceListProps) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [showAll, setShowAll] = useState(false);
 
@@ -29,10 +29,10 @@ export function InterfaceList({ interfaces, defaultCollapsed = false }: Interfac
   if (interfaces.length === 0) {
     return (
       <div className="text-center py-8">
-        <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-          <Network className="w-6 h-6 text-slate-400" />
+        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+          <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
         </div>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           No network interfaces found
         </p>
       </div>
@@ -66,4 +66,6 @@ export function InterfaceList({ interfaces, defaultCollapsed = false }: Interfac
       )}
     </div>
   );
-}
+});
+
+InterfaceList.displayName = 'InterfaceList';

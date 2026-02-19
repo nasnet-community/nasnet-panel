@@ -125,8 +125,8 @@ export function SkipLinks({ links = defaultLinks, className }: SkipLinksProps) {
             'text-sm font-semibold text-primary-foreground',
             'shadow-lg',
             // Focus ring
-            'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-            'focus:ring-offset-background',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'focus-visible:ring-offset-background',
             // Hover state (when visible)
             'hover:bg-primary/90',
             // Touch target
@@ -184,8 +184,8 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
         'focus:text-sm focus:font-semibold focus:text-primary-foreground',
         'focus:shadow-lg',
         // Focus ring
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-        'focus:ring-offset-background',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:ring-offset-background',
         // Touch target
         'focus:min-h-[44px] focus:min-w-[44px]',
         'focus:flex focus:items-center focus:justify-center',

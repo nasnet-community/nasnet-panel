@@ -1,8 +1,10 @@
 import { component$, useContext } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
+
 import { VPNServerAdvanced } from "./VPNServerAdvanced/VPNServerAdvanced";
 import { VPNServerEasy } from "./VPNServerEasy/VPNServerEasy";
+
 import type { StepProps } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
 
 export const VPNServer = component$<StepProps>((props) => {
   const starContext = useContext(StarContext);

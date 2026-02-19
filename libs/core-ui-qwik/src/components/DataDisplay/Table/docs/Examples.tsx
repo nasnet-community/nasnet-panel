@@ -2,12 +2,12 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
+import AccessibleTable from "../Examples/AccessibleTable";
 import { BasicTable } from "../Examples/BasicTable";
-import { TableVariants } from "../Examples/TableVariants";
-import { TableSizesAndSorting } from "../Examples/TableSizesAndSorting";
 import DataDrivenTable from "../Examples/DataDrivenTable";
 import ResponsiveAndStickyTable from "../Examples/ResponsiveAndStickyTable";
-import AccessibleTable from "../Examples/AccessibleTable";
+import { TableSizesAndSorting } from "../Examples/TableSizesAndSorting";
+import { TableVariants } from "../Examples/TableVariants";
 
 export default component$(() => {
   const examples = [

@@ -111,6 +111,11 @@ export interface NetworkActions {
 export type NetworkStore = NetworkState & NetworkActions;
 
 /**
+ * Module-scoped storage for network event handlers (avoids polluting window)
+ */
+let networkHandlers: { online: () => void; offline: () => void } | null = null;
+
+/**
  * Determine network quality based on latency
  */
 function getQualityFromLatency(latencyMs: number | null, isOnline: boolean): NetworkQuality {
@@ -183,57 +188,88 @@ export const useNetworkStore = create<NetworkStore>()(
 
       // Actions
       setOnline: (online) =>
-        set((state) => ({
-          isOnline: online,
-          quality: online ? getQualityFromLatency(state.latencyMs, online) : 'offline',
-          // Track if we were offline when coming back online
-          wasOffline: !state.isOnline && online ? true : state.wasOffline,
-        })),
+        set(
+          (state) => ({
+            isOnline: online,
+            quality: online ? getQualityFromLatency(state.latencyMs, online) : 'offline',
+            // Track if we were offline when coming back online
+            wasOffline: !state.isOnline && online ? true : state.wasOffline,
+          }),
+          false,
+          `setOnline/${online}`
+        ),
 
       setRouterReachable: (reachable) =>
-        set((state) => ({
-          isRouterReachable: reachable,
-          // Reset reconnect attempts on success
-          reconnectAttempts: reachable ? 0 : state.reconnectAttempts,
-        })),
+        set(
+          (state) => ({
+            isRouterReachable: reachable,
+            // Reset reconnect attempts on success
+            reconnectAttempts: reachable ? 0 : state.reconnectAttempts,
+          }),
+          false,
+          `setRouterReachable/${reachable}`
+        ),
 
       setRouterConnected: (connected) =>
-        set((state) => ({
-          isRouterConnected: connected,
-          // Reset reconnect attempts on success
-          reconnectAttempts: connected ? 0 : state.reconnectAttempts,
-        })),
+        set(
+          (state) => ({
+            isRouterConnected: connected,
+            // Reset reconnect attempts on success
+            reconnectAttempts: connected ? 0 : state.reconnectAttempts,
+          }),
+          false,
+          `setRouterConnected/${connected}`
+        ),
 
       recordSuccessfulRequest: () =>
-        set({
-          lastSuccessfulRequest: new Date(),
-          reconnectAttempts: 0,
-          lastError: null,
-        }),
+        set(
+          {
+            lastSuccessfulRequest: new Date(),
+            reconnectAttempts: 0,
+            lastError: null,
+          },
+          false,
+          'recordSuccessfulRequest'
+        ),
 
       incrementReconnectAttempts: () =>
-        set((state) => ({
-          reconnectAttempts: state.reconnectAttempts + 1,
-        })),
+        set(
+          (state) => ({
+            reconnectAttempts: state.reconnectAttempts + 1,
+          }),
+          false,
+          'incrementReconnectAttempts'
+        ),
 
-      resetReconnectAttempts: () => set({ reconnectAttempts: 0 }),
+      resetReconnectAttempts: () =>
+        set({ reconnectAttempts: 0 }, false, 'resetReconnectAttempts'),
 
       // NAS-4.15 actions
-      setQuality: (quality) => set({ quality }),
+      setQuality: (quality) =>
+        set({ quality }, false, `setQuality/${quality}`),
 
       updateLatency: (latencyMs) =>
-        set((state) => ({
-          latencyMs,
-          quality: getQualityFromLatency(latencyMs, state.isOnline),
-        })),
+        set(
+          (state) => ({
+            latencyMs,
+            quality: getQualityFromLatency(latencyMs, state.isOnline),
+          }),
+          false,
+          'updateLatency'
+        ),
 
       recordNetworkError: (error) =>
-        set({
-          lastError: error,
-          lastErrorTime: new Date(),
-        }),
+        set(
+          {
+            lastError: error,
+            lastErrorTime: new Date(),
+          },
+          false,
+          'recordNetworkError'
+        ),
 
-      clearWasOffline: () => set({ wasOffline: false }),
+      clearWasOffline: () =>
+        set({ wasOffline: false }, false, 'clearWasOffline'),
 
       initializeListeners: () => {
         if (typeof window === 'undefined') return;
@@ -250,26 +286,22 @@ export const useNetworkStore = create<NetworkStore>()(
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
-        // Store handlers for cleanup (using window property for simplicity)
-        (window as { __networkStoreHandlers?: { online: () => void; offline: () => void } }).__networkStoreHandlers = {
-          online: handleOnline,
-          offline: handleOffline,
-        };
+        // Store handlers in module scope for cleanup
+        networkHandlers = { online: handleOnline, offline: handleOffline };
 
-        set({ listenersInitialized: true });
+        set({ listenersInitialized: true }, false, 'initializeListeners');
       },
 
       cleanupListeners: () => {
         if (typeof window === 'undefined') return;
 
-        const handlers = (window as { __networkStoreHandlers?: { online: () => void; offline: () => void } }).__networkStoreHandlers;
-        if (handlers) {
-          window.removeEventListener('online', handlers.online);
-          window.removeEventListener('offline', handlers.offline);
-          delete (window as { __networkStoreHandlers?: { online: () => void; offline: () => void } }).__networkStoreHandlers;
+        if (networkHandlers) {
+          window.removeEventListener('online', networkHandlers.online);
+          window.removeEventListener('offline', networkHandlers.offline);
+          networkHandlers = null;
         }
 
-        set({ listenersInitialized: false });
+        set({ listenersInitialized: false }, false, 'cleanupListeners');
       },
     }),
     {

@@ -1,7 +1,9 @@
 import { useSignal, useVisibleTask$, useTask$, $ } from "@builder.io/qwik";
-import type { Signal, QRL } from "@builder.io/qwik";
-import type { TooltipProps } from "../Tooltip.types";
+
 import { getTooltipPosition } from "../tooltip-utils";
+
+import type { TooltipProps } from "../Tooltip.types";
+import type { Signal, QRL } from "@builder.io/qwik";
 
 export interface UseTooltipReturn {
   isVisible: Signal<boolean>;

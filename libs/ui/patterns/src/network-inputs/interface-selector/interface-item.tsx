@@ -35,9 +35,9 @@ import type { InterfaceItemProps, InterfaceStatus } from './interface-selector.t
  */
 function StatusIndicator({ status }: { status: InterfaceStatus }) {
   const statusColors: Record<InterfaceStatus, string> = {
-    up: 'bg-green-500',
+    up: 'bg-success',
     down: 'bg-muted-foreground/50',
-    disabled: 'bg-amber-500',
+    disabled: 'bg-warning',
   };
 
   const statusLabels: Record<InterfaceStatus, string> = {
@@ -139,7 +139,7 @@ export const InterfaceItem = memo(function InterfaceItem({
             <TooltipTrigger asChild>
               <Badge
                 variant="secondary"
-                className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 shrink-0"
+                className="text-xs bg-warning/10 text-warning shrink-0"
               >
                 In Use
               </Badge>

@@ -6,6 +6,7 @@ import {
   LuCpu, 
   LuZap 
 } from "@qwikest/icons/lucide";
+
 import { type RouterCategory } from "./RouterCategories";
 
 interface ModernTabsProps {

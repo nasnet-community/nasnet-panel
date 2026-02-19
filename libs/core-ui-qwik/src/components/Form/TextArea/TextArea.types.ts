@@ -1,5 +1,5 @@
-import type { QRL, QwikIntrinsicElements } from "@builder.io/qwik";
 import type { FormValidationRule } from "../Form/Form.types";
+import type { QRL, QwikIntrinsicElements } from "@builder.io/qwik";
 
 export type TextAreaSize = "sm" | "md" | "lg";
 export type TextAreaResize =

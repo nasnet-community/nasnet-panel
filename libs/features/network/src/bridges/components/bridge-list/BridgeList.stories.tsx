@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { BridgeListDesktop } from './BridgeListDesktop';
 import { BridgeListMobile } from './BridgeListMobile';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * Bridge List Component Stories

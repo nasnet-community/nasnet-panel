@@ -241,8 +241,8 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
         <div className="flex gap-2">
           {/* Export All Custom Templates */}
           {customTemplates.length > 0 && (
-            <Button variant="outline" onClick={handleExportAllCustom}>
-              <Download className="mr-2 h-4 w-4" />
+            <Button variant="outline" onClick={handleExportAllCustom} aria-label="Export all custom templates">
+              <Download className="mr-2 h-4 w-4" aria-hidden="true" />
               Export Custom ({customTemplates.length})
             </Button>
           )}
@@ -252,8 +252,8 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
             existingNames={existingTemplateNames}
             onImport={handleImportTemplate}
             trigger={
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
+              <Button variant="outline" aria-label="Import template file">
+                <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
                 Import
               </Button>
             }
@@ -266,8 +266,8 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
               existingNames={existingTemplateNames}
               onSave={handleSaveCustomTemplate}
               trigger={
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button aria-label="Create template from current rules">
+                  <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
                   Create Template
                 </Button>
               }
@@ -305,7 +305,7 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
           {/* Empty State */}
           {!isLoading && allTemplates.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center">
-              <Settings className="h-12 w-12 text-muted-foreground" />
+              <Settings className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
               <div>
                 <h3 className="text-lg font-semibold">No Templates Available</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -320,8 +320,8 @@ export function TemplatesPage({ routerId, currentRules = [] }: TemplatesPageProp
                   existingNames={existingTemplateNames}
                   onSave={handleSaveCustomTemplate}
                   trigger={
-                    <Button>
-                      <Plus className="mr-2 h-4 w-4" />
+                    <Button aria-label="Create your first firewall template">
+                      <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
                       Create Your First Template
                     </Button>
                   }

@@ -3,15 +3,15 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
 import BasicToggle from "../Examples/BasicToggle";
-import ToggleSizes from "../Examples/ToggleSizes";
-import ToggleLabels from "../Examples/ToggleLabels";
-import ToggleStates from "../Examples/ToggleStates";
-import ToggleInForm from "../Examples/ToggleInForm";
 import ToggleColors from "../Examples/ToggleColors";
-import ToggleLoading from "../Examples/ToggleLoading";
-import ToggleWithIcons from "../Examples/ToggleWithIcons";
-import ToggleResponsive from "../Examples/ToggleResponsive";
 import ToggleGroups from "../Examples/ToggleGroups";
+import ToggleInForm from "../Examples/ToggleInForm";
+import ToggleLabels from "../Examples/ToggleLabels";
+import ToggleLoading from "../Examples/ToggleLoading";
+import ToggleResponsive from "../Examples/ToggleResponsive";
+import ToggleSizes from "../Examples/ToggleSizes";
+import ToggleStates from "../Examples/ToggleStates";
+import ToggleWithIcons from "../Examples/ToggleWithIcons";
 
 export default component$(() => {
   const examples = [

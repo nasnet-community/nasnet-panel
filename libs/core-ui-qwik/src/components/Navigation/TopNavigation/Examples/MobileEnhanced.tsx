@@ -1,6 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { TopNavigation } from "../TopNavigation";
 import { Button } from "@nas-net/core-ui-qwik";
+
+import { TopNavigation } from "../TopNavigation";
 
 export default component$(() => {
   const isMobileMenuOpen = useSignal(false);

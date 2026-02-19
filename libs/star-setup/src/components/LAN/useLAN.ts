@@ -1,8 +1,9 @@
 import { useContext, useStore, $, useTask$ } from "@builder.io/qwik";
 import { StarContext, type EthernetInterfaceConfig, type Subnets } from "@nas-net/star-context";
-import type { StepItem } from "@nas-net/core-ui-qwik";
+
 import type { PropFunction, Component } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+import type { StepItem , StepProps } from "@nas-net/core-ui-qwik";
+
 
 interface UseLANParams {
   onComplete$: PropFunction<() => void>;

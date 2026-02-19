@@ -1,8 +1,3 @@
-import type { 
-    StarState,
-    LTE,
-    Subnets,
-} from "@nas-net/star-context";
 import { 
     ChooseCG,
     WANCG,
@@ -16,6 +11,12 @@ import {
     sortRouterConfig,
     MasterCG,
 } from "./modules";
+
+import type { 
+    StarState,
+    LTE,
+    Subnets,
+} from "@nas-net/star-context";
 
 
 export interface RouterConfig {

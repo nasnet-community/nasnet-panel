@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { AvatarProps } from "./Avatar.types";
-import { useAvatar } from "./hooks/useAvatar";
+
 import { AvatarContent } from "./AvatarContent";
+import { useAvatar } from "./hooks/useAvatar";
+
+import type { AvatarProps } from "./Avatar.types";
 
 /**
  * Avatar component for user representation

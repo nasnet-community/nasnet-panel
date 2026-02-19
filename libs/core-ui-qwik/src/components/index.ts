@@ -134,11 +134,11 @@ export * from "./DataDisplay";
 // Re-export commonly used DataDisplay components for convenience
 // IMPORTANT: Use these components instead of creating custom implementations
 // Note: These are exported in the main export object below
-import { Spinner } from "./DataDisplay/Progress/Spinner";
-import { ProgressBar } from "./DataDisplay/Progress/ProgressBar";
 import { FeatureList } from "./DataDisplay/FeatureList/FeatureList";
-import { SelectionCard } from "./DataDisplay/SelectionCard/SelectionCard";
 import { FrequencySelector } from "./DataDisplay/FrequencySelector/FrequencySelector";
+import { ProgressBar } from "./DataDisplay/Progress/ProgressBar";
+import { Spinner } from "./DataDisplay/Progress/Spinner";
+import { SelectionCard } from "./DataDisplay/SelectionCard/SelectionCard";
 import { SegmentedControl } from "./SegmentedControl/SegmentedControl";
 
 //-------------------------------
@@ -154,14 +154,14 @@ export * from "./Feedback";
 
 // Import specific components for the main export object below
 import { Alert } from "./Feedback/Alert/Alert";
-import { ErrorMessage } from "./Feedback/ErrorMessage/ErrorMessage";
-import { PromoBanner } from "./Feedback/PromoBanner/PromoBanner";
 import { Dialog } from "./Feedback/Dialog/Dialog";
-import { DialogHeader } from "./Feedback/Dialog/DialogHeader";
 import { DialogBody } from "./Feedback/Dialog/DialogBody";
 import { DialogFooter } from "./Feedback/Dialog/DialogFooter";
+import { DialogHeader } from "./Feedback/Dialog/DialogHeader";
 import { Drawer } from "./Feedback/Drawer/Drawer";
+import { ErrorMessage } from "./Feedback/ErrorMessage/ErrorMessage";
 import { Newsletter } from "./Feedback/Newsletter/Newsletter";
+import { PromoBanner } from "./Feedback/PromoBanner/PromoBanner";
 
 //-------------------------------
 // Layout Components

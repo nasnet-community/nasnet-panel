@@ -3,6 +3,7 @@
 // =============================================================================
 // Main component that detects platform and delegates to appropriate presenter
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { DeviceScanDesktop } from './DeviceScanDesktop';
@@ -33,7 +34,7 @@ export interface DeviceScanToolProps {
  * <DeviceScanTool />
  * ```
  */
-export function DeviceScanTool({ className }: DeviceScanToolProps) {
+export const DeviceScanTool = memo(function DeviceScanTool({ className }: DeviceScanToolProps) {
   const platform = usePlatform();
 
   // Get active router ID from connection store
@@ -61,4 +62,6 @@ export function DeviceScanTool({ className }: DeviceScanToolProps) {
       className={className}
     />
   );
-}
+});
+
+DeviceScanTool.displayName = 'DeviceScanTool';

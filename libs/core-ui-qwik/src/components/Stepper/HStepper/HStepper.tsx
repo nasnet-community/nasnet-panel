@@ -1,9 +1,8 @@
 import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
+
+import { HStepperNavigation } from "./HStepperNavigation";
 import { StepperProgress } from "./HStepperProgress";
 import { useStepper } from "./useHStepper";
-import type { HStepperProps } from "./HSteppertypes";
-import { HStepperNavigation } from "./HStepperNavigation";
-import { StateViewer } from "../StateViewer/StateViewer";
 import { 
   StepperManagement, 
   StepperErrors,
@@ -11,6 +10,9 @@ import {
 } from "../shared/components";
 import { StepperHelpModal } from "../shared/components/StepperHelpModal";
 import { useStepperHelp } from "../shared/hooks/useStepperHelp";
+import { StateViewer } from "../StateViewer/StateViewer";
+
+import type { HStepperProps } from "./HSteppertypes";
 
 export const HStepper = component$((props: HStepperProps) => {
   const stepperData = useStepper(props);

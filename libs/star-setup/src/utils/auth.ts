@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
 import type { RequestEvent } from "@builder.io/qwik-city";
 
 // Check if we're on the server side

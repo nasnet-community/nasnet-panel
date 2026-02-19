@@ -4,7 +4,7 @@
  * Epic 0.6, Story 0.6.2
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useNATRules, useDeleteNATRule, useToggleNATRule } from '@nasnet/api-client/queries';
 import { useConnectionStore, useNATUIStore } from '@nasnet/state/stores';
 import {
@@ -12,6 +12,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Badge,
   Button,
   toast,
   DropdownMenu,
@@ -28,37 +29,34 @@ import type { NATRule } from '@nasnet/core/types';
 // Action Badge Component
 // ============================================================================
 
-function NATActionBadge({ action }: { action: string }) {
-  const colors: Record<string, string> = {
-    masquerade: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    'dst-nat': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    'src-nat': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
-    redirect: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+const NATActionBadge = memo(function NATActionBadge({ action }: { action: string }) {
+  const variantMap: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
+    masquerade: 'info',
+    'dst-nat': 'secondary',
+    'src-nat': 'default',
+    redirect: 'warning',
   };
 
-  const colorClass =
-    colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const variant = variantMap[action] || 'outline';
 
   return (
-    <span
-      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${colorClass}`}
-    >
+    <Badge variant={variant} className="text-xs">
       {action}
-    </span>
+    </Badge>
   );
-}
+});
 
 // ============================================================================
 // Chain Badge Component
 // ============================================================================
 
-function ChainBadge({ chain }: { chain: string }) {
+const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
-    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+    <Badge variant="secondary" className="font-mono text-xs">
       {chain}
-    </span>
+    </Badge>
   );
-}
+});
 
 // ============================================================================
 // Rule Card Component
@@ -71,9 +69,9 @@ interface RuleCardProps {
   onToggle: (ruleId: string, disabled: boolean) => void;
 }
 
-function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
+const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
   return (
-    <Card className={rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''}>
+    <Card className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 space-y-2">
@@ -90,31 +88,36 @@ function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
           {/* Actions Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label={`Actions for rule ${rule.order}`}
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(rule)}>
-                <Edit className="h-4 w-4 mr-2" />
+                <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggle(rule.id, !rule.disabled)}>
                 {rule.disabled ? (
                   <>
-                    <Eye className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
                     Enable
                   </>
                 ) : (
                   <>
-                    <EyeOff className="h-4 w-4 mr-2" />
+                    <EyeOff className="h-4 w-4 mr-2" aria-hidden="true" />
                     Disable
                   </>
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onDelete(rule.id)} className="text-destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -207,7 +210,7 @@ function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -218,20 +221,7 @@ export interface NATRulesTableMobileProps {
   onEditRule?: (rule: NATRule) => void;
 }
 
-/**
- * NATRulesTableMobile Component
- *
- * Features:
- * - Card-based layout optimized for mobile
- * - 44px touch targets for actions
- * - Dropdown menu for rule actions
- * - Safety confirmation for deletes
- * - Shows all rule details in collapsed format
- *
- * @param props - Component props
- * @returns NAT rules mobile table component
- */
-export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobileProps) {
+export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobileProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: allRules, isLoading, error } = useNATRules(routerIp);
   const { showDisabledRules } = useNATUIStore();
@@ -305,7 +295,7 @@ export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobilePr
       <div className="space-y-3 p-4">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+            <div className="h-32 bg-muted rounded-lg" />
           </div>
         ))}
       </div>
@@ -314,7 +304,7 @@ export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobilePr
 
   if (error) {
     return (
-      <div className="p-4 text-red-600 dark:text-red-400">
+      <div className="p-4 text-destructive" role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -322,7 +312,7 @@ export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobilePr
 
   if (!filteredRules || filteredRules.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+      <div className="p-8 text-center text-muted-foreground">
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -330,15 +320,16 @@ export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobilePr
 
   return (
     <>
-      <div className="space-y-3 p-4">
+      <div className="space-y-3 p-4" role="list" aria-label="NAT rules">
         {filteredRules.map((rule) => (
-          <RuleCard
-            key={rule.id}
-            rule={rule}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggle={handleToggle}
-          />
+          <div key={rule.id} role="listitem">
+            <RuleCard
+              rule={rule}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+            />
+          </div>
         ))}
       </div>
 
@@ -361,4 +352,6 @@ export function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobilePr
       />
     </>
   );
-}
+});
+
+NATRulesTableMobile.displayName = 'NATRulesTableMobile';

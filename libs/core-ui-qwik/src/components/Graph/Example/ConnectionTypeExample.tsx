@@ -1,11 +1,13 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
-import { Graph } from "../Graph";
-import { createNode } from "../Node/NodeTypes";
-import type { GraphConnection, ConnectionType } from "../types";
+
 import {
   connectionColors,
   connectionStyles,
 } from "../Connection/ConnectionUtils";
+import { Graph } from "../Graph";
+import { createNode } from "../Node/NodeTypes";
+
+import type { GraphConnection, ConnectionType } from "../types";
 
 /**
  * Example showcasing the different physical connection types available in the Graph component

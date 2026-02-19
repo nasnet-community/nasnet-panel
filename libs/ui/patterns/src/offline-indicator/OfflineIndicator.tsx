@@ -7,7 +7,7 @@
  * @see NAS-4.9: Implement Connection & Auth Stores
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 
 import { WifiOff, Wifi, X } from 'lucide-react';
 
@@ -107,7 +107,7 @@ export function useNetworkStatus() {
  * />
  * ```
  */
-export function OfflineIndicator({
+export const OfflineIndicator = memo(function OfflineIndicator({
   position = 'top',
   dismissible = false,
   offlineMessage = "You're offline. Some features may be unavailable.",
@@ -205,7 +205,7 @@ export function OfflineIndicator({
       </Alert>
     </div>
   );
-}
+});
 
 // ===== Compact Variant =====
 
@@ -221,7 +221,7 @@ export interface OfflineIndicatorCompactProps {
  *
  * Shows a small icon when offline, suitable for headers/nav bars.
  */
-export function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactProps) {
+export const OfflineIndicatorCompact = memo(function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactProps) {
   const { isOnline } = useNetworkStatus();
 
   if (isOnline) {
@@ -243,5 +243,5 @@ export function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactPr
       <span className="hidden sm:inline">Offline</span>
     </div>
   );
-}
+});
 

@@ -1,7 +1,8 @@
 ﻿import { component$ } from "@builder.io/qwik";
-import { OverviewTemplate } from "@nas-net/core-ui-qwik";
+import { OverviewTemplate , Button } from "@nas-net/core-ui-qwik";
+
 import { Tooltip } from "../index";
-import { Button } from "@nas-net/core-ui-qwik";
+
 
 export default component$(() => {
   return (

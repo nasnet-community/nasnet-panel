@@ -1,8 +1,9 @@
 import { component$, useSignal, $, type QRL } from "@builder.io/qwik";
 import { HiEyeOutline, HiEyeSlashOutline } from "@qwikest/icons/heroicons";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
 
 export interface PasswordFieldProps {
   value: string;

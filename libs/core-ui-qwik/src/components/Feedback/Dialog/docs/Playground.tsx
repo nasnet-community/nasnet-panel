@@ -3,9 +3,9 @@ import {
   PlaygroundTemplate,
   type PropertyControl,
 } from "@nas-net/core-ui-qwik";
+import { Button , Card } from "@nas-net/core-ui-qwik";
+
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "..";
-import { Button } from "@nas-net/core-ui-qwik";
-import { Card } from "@nas-net/core-ui-qwik";
 
 /**
  * Dialog component playground using the standard template

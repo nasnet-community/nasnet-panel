@@ -1,14 +1,17 @@
 import { component$, useTask$, $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import { useL2TPConfig } from "./useL2TPConfig";
+
 import { L2TPPromoBanner } from "./L2TPPromoBanner";
-import type { L2TPCredentials } from "@utils/supabaseClient";
+import { useL2TPConfig } from "./useL2TPConfig";
 import {
   FormField,
   FormContainer,
   Switch,
   ErrorMessage,
 } from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
+import type { L2TPCredentials } from "@utils/supabaseClient";
+
 
 interface L2TPConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

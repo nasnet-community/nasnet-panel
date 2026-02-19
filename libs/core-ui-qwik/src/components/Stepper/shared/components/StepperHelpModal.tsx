@@ -1,6 +1,7 @@
 import { component$, useSignal, $, type QRL, useVisibleTask$, type Signal } from "@builder.io/qwik";
-import type { BaseStepMeta, HelpSection, StepHelpContent } from "../types/base";
 import { Dialog } from "@nas-net/core-ui-qwik";
+
+import type { BaseStepMeta, HelpSection, StepHelpContent } from "../types/base";
 
 export interface StepperHelpModalProps {
   isOpen: Signal<boolean>;

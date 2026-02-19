@@ -322,11 +322,11 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
         {statusMessage && (
           <Alert variant={traceroute.error ? 'destructive' : 'default'}>
             {traceroute.error ? (
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
             ) : traceroute.result?.reachedDestination ? (
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             )}
             <AlertTitle>{traceroute.error ? 'Error' : 'Status'}</AlertTitle>
             <AlertDescription>{statusMessage}</AlertDescription>
@@ -358,9 +358,9 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                   aria-label="Copy results to clipboard"
                 >
                   {copied ? (
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <CheckCircle2 className="h-4 w-4 mr-2" aria-hidden="true" />
                   ) : (
-                    <Copy className="h-4 w-4 mr-2" />
+                    <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
                   )}
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>
@@ -371,7 +371,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                     onClick={handleDownloadJSON}
                     aria-label="Download results as JSON"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-2" aria-hidden="true" />
                     JSON
                   </Button>
                 )}

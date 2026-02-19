@@ -5,7 +5,7 @@
  * Per Task #7: Integrated QuietHoursConfig component for global quiet hours
  * Per NAS-18.3: Email form refactored to Platform Presenter pattern
  */
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useNotificationChannels, type ChannelConfig } from '../hooks/useNotificationChannels';
 import { usePushoverUsage } from '../hooks/usePushoverUsage';
 import { notificationChannels } from '../schemas/alert-rule.schema';
@@ -64,27 +64,31 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Bot Token *</label>
+        <label htmlFor="telegram-bot-token" className="block text-sm font-medium mb-2">Bot Token *</label>
         <input
+          id="telegram-bot-token"
           type="text"
           value={botToken}
           onChange={(e) => setBotToken(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md font-mono text-sm"
+          className="w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+          aria-label="Telegram bot token"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="telegram-chat-ids" className="block text-sm font-medium mb-2">
           Chat IDs * (one per line)
         </label>
         <textarea
+          id="telegram-chat-ids"
           value={chatIdsText}
           onChange={(e) => setChatIdsText(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md font-mono text-sm"
+          className="w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
           placeholder="123456789&#10;-987654321&#10;@mychannel"
           rows={4}
+          aria-label="Telegram chat IDs, one per line"
           required
         />
         <p className="text-xs text-muted-foreground mt-1">
@@ -174,22 +178,26 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="pushover-user-key" className="block text-sm font-medium mb-2">
           {t('notifications.pushover.user_key')} *
         </label>
         <input
+          id="pushover-user-key"
           type="text"
           value={config.userKey}
           onChange={(e) => handleChange('userKey', e.target.value)}
-          className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
-            errors.userKey ? 'border-red-500' : ''
+          className={`w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+            errors.userKey ? 'border-destructive' : ''
           }`}
           placeholder={t('notifications.pushover.user_key_placeholder')}
+          aria-label="Pushover user key"
+          aria-invalid={!!errors.userKey}
+          aria-describedby={errors.userKey ? 'pushover-user-key-error' : undefined}
           required
           maxLength={30}
         />
         {errors.userKey && (
-          <p className="text-red-500 text-sm mt-1">{errors.userKey}</p>
+          <p id="pushover-user-key-error" className="text-destructive text-sm mt-1" role="alert">{errors.userKey}</p>
         )}
         <p className="text-muted-foreground text-xs mt-1">
           {t('notifications.pushover.user_key_help')}
@@ -197,22 +205,26 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="pushover-api-token" className="block text-sm font-medium mb-2">
           {t('notifications.pushover.api_token')} *
         </label>
         <input
+          id="pushover-api-token"
           type="text"
           value={config.apiToken}
           onChange={(e) => handleChange('apiToken', e.target.value)}
-          className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
-            errors.apiToken ? 'border-red-500' : ''
+          className={`w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+            errors.apiToken ? 'border-destructive' : ''
           }`}
           placeholder={t('notifications.pushover.api_token_placeholder')}
+          aria-label="Pushover API token"
+          aria-invalid={!!errors.apiToken}
+          aria-describedby={errors.apiToken ? 'pushover-api-token-error' : undefined}
           required
           maxLength={30}
         />
         {errors.apiToken && (
-          <p className="text-red-500 text-sm mt-1">{errors.apiToken}</p>
+          <p id="pushover-api-token-error" className="text-destructive text-sm mt-1" role="alert">{errors.apiToken}</p>
         )}
         <p className="text-muted-foreground text-xs mt-1">
           {t('notifications.pushover.api_token_help')}
@@ -220,21 +232,25 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="pushover-device" className="block text-sm font-medium mb-2">
           {t('notifications.pushover.device')}
         </label>
         <input
+          id="pushover-device"
           type="text"
           value={config.device || ''}
           onChange={(e) => handleChange('device', e.target.value)}
-          className={`w-full px-3 py-2 border rounded-md ${
-            errors.device ? 'border-red-500' : ''
+          className={`w-full px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
+            errors.device ? 'border-destructive' : ''
           }`}
           placeholder={t('notifications.pushover.device_placeholder')}
+          aria-label="Pushover device name"
+          aria-invalid={!!errors.device}
+          aria-describedby={errors.device ? 'pushover-device-error' : undefined}
           maxLength={25}
         />
         {errors.device && (
-          <p className="text-red-500 text-sm mt-1">{errors.device}</p>
+          <p id="pushover-device-error" className="text-destructive text-sm mt-1" role="alert">{errors.device}</p>
         )}
         <p className="text-muted-foreground text-xs mt-1">
           {t('notifications.pushover.device_help')}
@@ -247,16 +263,21 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           <h4 className="text-sm font-medium">{t('notifications.pushover.usage_title')}</h4>
 
           {/* Progress Bar */}
-          <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
             <div
               className={`h-full transition-all duration-300 ${
                 isExceeded
-                  ? 'bg-red-500'
+                  ? 'bg-destructive'
                   : isNearLimit
-                  ? 'bg-amber-500'
-                  : 'bg-green-500'
+                  ? 'bg-warning'
+                  : 'bg-success'
               }`}
               style={{ width: `${percentUsed}%` }}
+              role="progressbar"
+              aria-valuenow={percentUsed}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Pushover usage: ${percentUsed}%`}
             />
           </div>
 
@@ -279,8 +300,8 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
 
           {/* Warning Alerts */}
           {isExceeded && (
-            <div className="p-3 rounded-md bg-red-50 text-red-800 border border-red-200 text-sm">
-              <p className="font-medium">⚠️ Limit Exceeded</p>
+            <div className="p-3 rounded-md bg-destructive/10 text-destructive border border-destructive/20 text-sm" role="alert">
+              <p className="font-medium"><span aria-hidden="true">⚠️</span> Limit Exceeded</p>
               <p className="mt-1">
                 {t('notifications.pushover.usage_exceeded', {
                   date: format(new Date(usage.resetAt), 'PPP'),
@@ -290,8 +311,8 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           )}
 
           {isNearLimit && !isExceeded && (
-            <div className="p-3 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-sm">
-              <p className="font-medium">⚠️ {t('notifications.pushover.usage_warning', { percent: percentUsed })}</p>
+            <div className="p-3 rounded-md bg-warning/10 text-warning-foreground border border-warning/20 text-sm" role="alert">
+              <p className="font-medium"><span aria-hidden="true">⚠️</span> {t('notifications.pushover.usage_warning', { percent: percentUsed })}</p>
             </div>
           )}
         </div>
@@ -317,7 +338,7 @@ function WebhookChannelCard() {
   return (
     <div className="space-y-4">
       <div className="p-4 bg-muted rounded-md text-sm space-y-2">
-        <p className="font-medium">✨ Enhanced Webhook Configuration</p>
+        <p className="font-medium"><span aria-hidden="true">✨</span> Enhanced Webhook Configuration</p>
         <p className="text-muted-foreground">
           Webhook notifications have been upgraded with advanced features:
         </p>
@@ -333,7 +354,8 @@ function WebhookChannelCard() {
 
       <a
         href="/settings/notifications/webhooks"
-        className="block w-full px-4 py-3 bg-primary text-primary-foreground text-center rounded-md hover:bg-primary/90 transition-colors font-medium"
+        className="block w-full px-4 py-3 bg-primary text-primary-foreground text-center rounded-md hover:bg-primary/90 transition-colors font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+        aria-label="Configure webhook notification channel"
       >
         Configure Webhook →
       </a>
@@ -349,7 +371,7 @@ function WebhookChannelCard() {
  * Test Button Component
  * Per Task 6.7: Add "Test Notification" button with loading/success/error states
  */
-function TestButton({
+const TestButton = memo(function TestButton({
   testing,
   testResult,
 }: {
@@ -361,17 +383,19 @@ function TestButton({
       <button
         type="submit"
         disabled={testing}
-        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors"
+        aria-label={testing ? 'Testing notification' : 'Test notification'}
+        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {testing ? 'Testing...' : 'Test Notification'}
       </button>
 
       {testResult && (
         <div
+          role="alert"
           className={`p-3 rounded-md text-sm ${
             testResult.success
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-success/10 text-success-foreground border border-success/20'
+              : 'bg-destructive/10 text-destructive border border-destructive/20'
           }`}
         >
           <p className="font-medium">{testResult.success ? '✓ Success' : '✗ Failed'}</p>
@@ -380,7 +404,7 @@ function TestButton({
       )}
     </div>
   );
-}
+});
 
 /**
  * Main Notification Settings Page
@@ -437,25 +461,28 @@ export function NotificationSettingsPage() {
       </div>
 
       {/* Channel Tabs */}
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-2 border-b border-border" role="tablist" aria-label="Notification channels">
         {channels.map((channel) => (
           <button
             key={channel.type}
+            role="tab"
+            aria-selected={activeChannel === channel.type}
+            aria-controls={`panel-${channel.type}`}
             onClick={() => setActiveChannel(channel.type)}
-            className={`px-4 py-3 font-medium transition-colors border-b-2 ${
+            className={`px-4 py-3 font-medium transition-colors border-b-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
               activeChannel === channel.type
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
-            <span className="mr-2">{channel.icon}</span>
+            <span className="mr-2" aria-hidden="true">{channel.icon}</span>
             {channel.label}
           </button>
         ))}
       </div>
 
       {/* Channel Forms */}
-      <div className="bg-card border rounded-lg p-6">
+      <div className="bg-card border border-border rounded-lg p-6" role="tabpanel" id={`panel-${activeChannel}`}>
         {activeChannel === 'email' && (
           <EmailChannelForm
             onSubmit={async (config: EmailConfig) => {
@@ -494,7 +521,7 @@ export function NotificationSettingsPage() {
       </div>
 
       <div className="p-4 bg-muted rounded-md text-sm">
-        <p className="font-medium mb-2">💡 Pro Tip:</p>
+        <p className="font-medium mb-2"><span aria-hidden="true">💡</span> Pro Tip:</p>
         <p className="text-muted-foreground">
           In-app notifications are always enabled and don't require configuration. Additional
           channels can be configured here and selected when creating alert rules.

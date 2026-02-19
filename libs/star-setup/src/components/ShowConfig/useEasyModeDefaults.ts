@@ -1,6 +1,7 @@
 import { $ } from "@builder.io/qwik";
-import type { StarContextType } from "@nas-net/star-context";
-import type { ServiceType } from "@nas-net/star-context";
+
+import type { StarContextType , ServiceType } from "@nas-net/star-context";
+
 
 /**
  * Hook to apply sensible defaults for easy mode configuration.

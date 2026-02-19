@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { BadgeGroupProps } from "./Badge.types";
+
 import { useBadgeGroup } from "./hooks/useBadgeGroup";
+
+import type { BadgeGroupProps } from "./Badge.types";
 
 /**
  * BadgeGroup component for grouping multiple badges

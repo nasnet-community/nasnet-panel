@@ -1,4 +1,5 @@
 import { useComputed$ } from "@builder.io/qwik";
+
 import type { UseKbdOptions, UseKbdReturn } from "../Kbd.types";
 
 // Key mappings for different operating systems

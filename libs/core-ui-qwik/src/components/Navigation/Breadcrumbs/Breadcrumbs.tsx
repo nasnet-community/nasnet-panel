@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
-import type { BreadcrumbsProps } from "./Breadcrumbs.types";
+
+import { BreadcrumbItem } from "./BreadcrumbItem";
 import { useBreadcrumbsResponsive } from "./hooks/useBreadcrumbsResponsive";
 import { useDisplayedItems } from "./hooks/useDisplayedItems";
-import { BreadcrumbItem } from "./BreadcrumbItem";
+
+import type { BreadcrumbsProps } from "./Breadcrumbs.types";
 
 /**
  * Breadcrumbs component for providing hierarchical navigation.

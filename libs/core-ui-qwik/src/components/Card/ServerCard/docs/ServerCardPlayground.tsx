@@ -1,6 +1,6 @@
 ﻿import { component$, useSignal, $ } from "@builder.io/qwik";
-import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
-import { ServerCard } from "@nas-net/core-ui-qwik";
+import { PlaygroundTemplate , ServerCard } from "@nas-net/core-ui-qwik";
+
 import {
   ServerIcon,
   WireguardIcon,

@@ -7,7 +7,9 @@ import {
   HiArrowDownTrayMini,
   HiCogOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
+
 import type { ShowcaseTheme, DeviceSize, CodeGeneratorConfig } from "../types";
 
 interface CodeGeneratorProps {

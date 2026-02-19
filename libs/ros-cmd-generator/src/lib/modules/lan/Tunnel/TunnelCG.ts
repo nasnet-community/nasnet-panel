@@ -1,17 +1,3 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type {
-    IpipTunnelConfig,
-    EoipTunnelConfig,
-    GreTunnelConfig,
-    VxlanInterfaceConfig,
-    Tunnel,
-    SubnetConfig,
-    TunnelSubnets,
-} from "@nas-net/star-context";
-import {
-    CommandShortner,
-    mergeRouterConfigs,
-} from "@nas-net/ros-cmd-generator";
 import {
     TunnelInboundTraffic,
     findSubnetByName,
@@ -24,6 +10,22 @@ import {
     GreInterface,
     VxlanInterface,
 } from "./TunnelUtils";
+import {
+    CommandShortner,
+    mergeRouterConfigs,
+} from "../../index";
+
+
+import type { RouterConfig } from "../../index";
+import type {
+    IpipTunnelConfig,
+    EoipTunnelConfig,
+    GreTunnelConfig,
+    VxlanInterfaceConfig,
+    Tunnel,
+    SubnetConfig,
+    TunnelSubnets,
+} from "@nas-net/star-context";
 
 
 

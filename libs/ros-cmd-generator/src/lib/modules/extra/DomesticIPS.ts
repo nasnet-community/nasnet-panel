@@ -1,5 +1,6 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import { ScriptAndScheduler, OneTimeScript } from "@nas-net/ros-cmd-generator";
+import { ScriptAndScheduler, OneTimeScript } from "../../utils/ScriptSchedule";
+
+import type { RouterConfig } from "../../generator";
 import type { FrequencyValue } from "@nas-net/star-context";
 
 

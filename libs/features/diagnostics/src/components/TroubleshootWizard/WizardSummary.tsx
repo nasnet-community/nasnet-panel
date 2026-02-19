@@ -1,4 +1,5 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/WizardSummary.tsx
+import { memo } from 'react';
 import { CheckCircle2, XCircle, AlertTriangle, RefreshCw, X } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives';
 import { Card } from '@nasnet/ui/primitives';
@@ -17,7 +18,7 @@ interface WizardSummaryProps {
   onClose: () => void;
 }
 
-export function WizardSummary({ summary, steps, onRestart, onClose }: WizardSummaryProps) {
+export const WizardSummary = memo(function WizardSummary({ summary, steps, onRestart, onClose }: WizardSummaryProps) {
   const getSummaryIcon = () => {
     switch (summary.finalStatus) {
       case 'all_passed':
@@ -87,10 +88,12 @@ export function WizardSummary({ summary, steps, onRestart, onClose }: WizardSumm
       {/* Detailed Results */}
       <Card className="p-4">
         <h3 className="font-semibold text-foreground mb-3">Detailed Results</h3>
-        <div className="space-y-2">
+        <div className="space-y-2" role="list" aria-label="Diagnostic step results">
           {steps.map((step, index) => (
             <div
               key={step.id}
+              role="listitem"
+              aria-label={`${step.name}: ${step.status}`}
               className={cn(
                 'flex items-center gap-3 p-3 rounded-md',
                 step.status === 'passed' && 'bg-success/10',
@@ -141,7 +144,7 @@ export function WizardSummary({ summary, steps, onRestart, onClose }: WizardSumm
       {summary.appliedFixes.length > 0 && (
         <Card className="p-4">
           <h3 className="font-semibold text-foreground mb-3">Applied Fixes</h3>
-          <ul className="space-y-2">
+          <ul className="space-y-2" aria-label="List of applied fixes">
             {summary.appliedFixes.map((fixCode, index) => (
               <li key={index} className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
@@ -154,15 +157,15 @@ export function WizardSummary({ summary, steps, onRestart, onClose }: WizardSumm
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onRestart} className="flex-1 min-h-[44px]">
+        <Button variant="outline" onClick={onRestart} className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Run diagnostics again">
           <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
           Run Again
         </Button>
-        <Button onClick={onClose} className="flex-1 min-h-[44px]">
+        <Button onClick={onClose} className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Close troubleshooting wizard">
           <X className="mr-2 h-4 w-4" aria-hidden="true" />
           Close
         </Button>
       </div>
     </div>
   );
-}
+});

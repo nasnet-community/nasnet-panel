@@ -1,9 +1,10 @@
 import { createContextId, type QRL } from "@builder.io/qwik";
+
 import type { ChooseState } from "./types/choose";
-import type { WANState } from "./types/wan";
-import type { LANState } from "./types/lan";
-import type { ExtraConfigState } from "./types/extra";
 import type { VPNType } from "./types/common";
+import type { ExtraConfigState } from "./types/extra";
+import type { LANState } from "./types/lan";
+import type { WANState } from "./types/wan";
 
 export interface StarState {
   Choose: ChooseState;

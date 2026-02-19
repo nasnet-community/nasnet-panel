@@ -4,11 +4,14 @@
  * Demonstrates trunk and access port configuration.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { VlanPortConfig } from './VlanPortConfig';
 import { MockedProvider } from '@apollo/client/testing';
-import { CONFIGURE_VLAN_PORT } from '@nasnet/api-client/queries';
 import { fn } from '@storybook/test';
+
+import { CONFIGURE_VLAN_PORT } from '@nasnet/api-client/queries';
+
+import { VlanPortConfig } from './VlanPortConfig';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof VlanPortConfig> = {
   title: 'Features/Network/VlanPortConfig',

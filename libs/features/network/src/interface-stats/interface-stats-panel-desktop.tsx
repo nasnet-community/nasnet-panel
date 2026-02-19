@@ -6,6 +6,7 @@
  * ADR-018: Headless + Platform Presenters
  */
 
+import { memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives';
@@ -49,7 +50,7 @@ function formatBitsPerSecBigInt(bytesPerSec: bigint): string {
  * - Bandwidth rates with directional indicators
  * - Error rate with threshold warnings
  */
-export function InterfaceStatsPanelDesktop({
+export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDesktop({
   routerId,
   interfaceId,
   interfaceName,
@@ -107,12 +108,12 @@ export function InterfaceStatsPanelDesktop({
   }
 
   return (
-    <Card className={className}>
+    <Card className={className} role="region" aria-label={`${interfaceName} statistics`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
+              <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
               {interfaceName} Statistics
             </CardTitle>
             <CardDescription>
@@ -218,4 +219,4 @@ export function InterfaceStatsPanelDesktop({
       </CardContent>
     </Card>
   );
-}
+});

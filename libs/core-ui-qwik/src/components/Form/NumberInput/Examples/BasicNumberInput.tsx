@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { useSignal } from "@builder.io/qwik";
+import { component$ , useSignal } from "@builder.io/qwik";
+
 import { NumberInput } from "../NumberInput";
 
 export const BasicNumberInput = component$(() => {

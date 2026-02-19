@@ -1,7 +1,9 @@
 import { component$, $, useId, useSignal } from "@builder.io/qwik";
-import type { ToggleProps, ToggleSize, ToggleColor } from "./Toggle.types";
+
 import { VisuallyHidden } from "../common";
 import { Spinner } from "../DataDisplay/Progress/Spinner";
+
+import type { ToggleProps, ToggleSize, ToggleColor } from "./Toggle.types";
 
 /**
  * Modern Toggle component for binary on/off states.

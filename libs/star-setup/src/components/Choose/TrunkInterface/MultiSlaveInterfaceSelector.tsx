@@ -1,9 +1,11 @@
 import { $, component$, useContext, useSignal, type PropFunction } from "@builder.io/qwik";
-import { LuCable, LuWifi, LuRouter, LuLink } from "@qwikest/icons/lucide";
-import { track } from "@vercel/analytics";
 import { StarContext } from "@nas-net/star-context";
-import type { TrunkInterfaceType, OccupiedInterface, RouterModels, InterfaceType } from "@nas-net/star-context";
+import { LuCable, LuWifi, LuRouter, LuLink } from "@qwikest/icons/lucide";
 import { addOccupiedInterface } from "@utils/InterfaceManagementUtils";
+import { track } from "@vercel/analytics";
+
+import type { TrunkInterfaceType, OccupiedInterface, RouterModels, InterfaceType } from "@nas-net/star-context";
+
 
 // Define SlaveInterfaceMapping locally since it doesn't exist in StarContext
 interface SlaveInterfaceMapping {

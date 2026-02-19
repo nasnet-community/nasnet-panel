@@ -1,4 +1,5 @@
 import { useComputed$ } from "@builder.io/qwik";
+
 import type { TopNavigationProps } from "../TopNavigation.types";
 
 export interface UseTopNavigationContainerStylesProps {

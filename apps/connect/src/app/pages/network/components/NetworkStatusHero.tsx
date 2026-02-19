@@ -3,6 +3,8 @@
  * Dashboard Pro style stats grid showing overall network health
  */
 
+import { memo } from 'react';
+
 import { Activity, ArrowDown, ArrowUp } from 'lucide-react';
 
 import { type NetworkInterface } from '@nasnet/core/types';
@@ -19,7 +21,7 @@ interface NetworkStatusHeroProps {
   isLoading?: boolean;
 }
 
-export function NetworkStatusHero({
+export const NetworkStatusHero = memo(function NetworkStatusHero({
   interfaces,
   totalTraffic,
   isLoading,
@@ -32,15 +34,15 @@ export function NetworkStatusHero({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-2 md:gap-3 animate-pulse">
+      <div className="grid grid-cols-3 gap-2 md:gap-3 animate-pulse" role="status" aria-label="Loading network statistics">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 md:p-4"
+            className="bg-muted rounded-xl p-3 md:p-4"
           >
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-12 mb-2" />
-            <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-8 mb-1" />
-            <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2" />
+            <div className="h-4 bg-muted-foreground/20 rounded w-12 mb-2" />
+            <div className="h-6 bg-muted-foreground/20 rounded w-8 mb-1" />
+            <div className="h-1.5 bg-muted-foreground/20 rounded-full mt-2" />
           </div>
         ))}
       </div>
@@ -49,20 +51,20 @@ export function NetworkStatusHero({
 
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-3">
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Activity className="w-3.5 h-3.5 text-cyan-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+          <Activity className="w-3.5 h-3.5 text-cyan-500" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
             Active
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+        <p className="text-xl md:text-2xl font-bold text-foreground">
           {activeInterfaces.length}
-          <span className="text-slate-400 dark:text-slate-500 text-sm font-normal ml-1">
+          <span className="text-muted-foreground text-sm font-normal ml-1">
             /{interfaces.length}
           </span>
         </p>
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-2">
+        <div className="w-full bg-muted rounded-full h-1.5 mt-2" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
             className="bg-cyan-500 h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${activePercent}%` }}
@@ -70,14 +72,14 @@ export function NetworkStatusHero({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <ArrowDown className="w-3.5 h-3.5 text-emerald-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+          <ArrowDown className="w-3.5 h-3.5 text-emerald-500" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
             Download
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white font-mono">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {totalTraffic ? formatBytes(totalTraffic.rxBytes) : '0 B'}
         </p>
         {totalTraffic?.rxRate !== undefined && (
@@ -87,14 +89,14 @@ export function NetworkStatusHero({
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 md:p-4 border border-slate-200 dark:border-slate-800">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <ArrowUp className="w-3.5 h-3.5 text-purple-500" />
-          <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+          <ArrowUp className="w-3.5 h-3.5 text-purple-500" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">
             Upload
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white font-mono">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {totalTraffic ? formatBytes(totalTraffic.txBytes) : '0 B'}
         </p>
         {totalTraffic?.txRate !== undefined && (
@@ -105,9 +107,9 @@ export function NetworkStatusHero({
       </div>
     </div>
   );
-}
+});
 
-
+NetworkStatusHero.displayName = 'NetworkStatusHero';
 
 
 

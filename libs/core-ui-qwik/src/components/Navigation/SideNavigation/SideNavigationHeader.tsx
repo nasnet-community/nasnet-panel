@@ -1,6 +1,7 @@
-import type { QRL } from "@builder.io/qwik";
 import { component$ } from "@builder.io/qwik";
-import type { JSXChildren } from "@builder.io/qwik";
+
+import type { QRL , JSXChildren } from "@builder.io/qwik";
+
 
 export interface SideNavigationHeaderProps {
   title?: string;

@@ -1,5 +1,6 @@
-import type { RequestHandler } from "@builder.io/qwik-city";
 import { isDev } from "@builder.io/qwik";
+
+import type { RequestHandler } from "@builder.io/qwik-city";
 
 export const onRequest: RequestHandler = (event) => {
   if (isDev) return;

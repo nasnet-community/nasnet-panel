@@ -1,12 +1,14 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
 import { Alert } from "@nas-net/core-ui-qwik";
+
+import { IPAddressUpdateCard } from "./IPAddressUpdateCard";
+import { RebootCard } from "./RebootCard";
 import { RebootHeader } from "./RebootHeader";
 import { TimezoneCard } from "./TimezoneCard";
-import { RebootCard } from "./RebootCard";
 import { UpdateCard } from "./UpdateCard";
-import { IPAddressUpdateCard } from "./IPAddressUpdateCard";
 import { useRebootUpdate } from "./useRebootUpdate";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 import type { Interval, RUIConfig } from "@nas-net/star-context";
 
 export const RebootUpdate = component$<StepProps>(({ onComplete$ }) => {

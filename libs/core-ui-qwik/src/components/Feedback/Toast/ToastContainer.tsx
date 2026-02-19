@@ -6,6 +6,9 @@ import {
   useContextProvider,
   createContextId,
 } from "@builder.io/qwik";
+
+import { Toast } from "./Toast";
+
 import type {
   ToastContainerProps,
   ToastProps,
@@ -13,7 +16,6 @@ import type {
   ToastOptions,
   ToastPosition,
 } from "./Toast.types";
-import { Toast } from "./Toast";
 
 /**
  * Context for the toast service

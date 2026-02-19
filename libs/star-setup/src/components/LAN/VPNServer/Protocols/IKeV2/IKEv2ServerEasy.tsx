@@ -1,8 +1,8 @@
 import { component$ } from "@builder.io/qwik";
+import { ServerCard , ServerFormField } from "@nas-net/core-ui-qwik";
 import { HiServerOutline, HiLockClosedOutline } from "@qwikest/icons/heroicons";
+
 import { useIKEv2Server } from "./useIKEv2Server";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { ServerFormField } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown } from "../../components/NetworkSelection";
 
 export const IKEv2ServerEasy = component$(() => {

@@ -5,8 +5,9 @@
  * character counting, and validation states.
  */
 
-import { TextArea } from "./TextArea";
 import { useTextArea } from "./hooks/useTextArea";
+import { TextArea } from "./TextArea";
+
 import type {
   TextAreaProps,
   TextAreaSize,

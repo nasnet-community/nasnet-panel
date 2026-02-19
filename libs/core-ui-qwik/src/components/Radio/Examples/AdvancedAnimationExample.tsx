@@ -1,5 +1,7 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
+
 import { RadioGroup } from "../index";
+
 import type { AnimationConfig } from "../Radio.types";
 
 /**

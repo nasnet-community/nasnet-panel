@@ -1,6 +1,7 @@
 import { useSignal, $ } from "@builder.io/qwik";
-import type { Signal, QRL } from "@builder.io/qwik";
+
 import type { BadgeProps } from "../Badge.types";
+import type { Signal, QRL } from "@builder.io/qwik";
 
 export interface UseBadgeReturn {
   visible: Signal<boolean>;

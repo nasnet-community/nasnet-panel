@@ -1,8 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { BatchConfirmDialog } from './BatchConfirmDialog';
+
 import { BatchInterfaceAction } from '@nasnet/api-client/generated';
 import { Button } from '@nasnet/ui/primitives';
+
+import { BatchConfirmDialog } from './BatchConfirmDialog';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const mockInterfaces = [
   {

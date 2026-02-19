@@ -7,6 +7,7 @@
  * @module @nasnet/api-client/core/apollo
  */
 
+import { useEffect } from 'react';
 import { useNetworkStore } from '@nasnet/state/stores';
 
 /**
@@ -180,6 +181,10 @@ export function setupOfflineDetector(
 /**
  * React hook for setting up offline detection.
  *
+ * Sets up browser online/offline listeners, Apollo network error handling,
+ * WebSocket connection tracking, and periodic health checks.
+ * Automatically cleans up on unmount.
+ *
  * @param config - Optional configuration
  *
  * @example
@@ -192,8 +197,12 @@ export function setupOfflineDetector(
  * ```
  */
 export function useOfflineDetector(config?: OfflineDetectorConfig): void {
-  // This would need React import to work
-  // For now, call setupOfflineDetector in a useEffect in your app
+  useEffect(() => {
+    const cleanup = setupOfflineDetector(config);
+    return cleanup;
+    // Config is typically a static object; stringify for stable dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(config)]);
 }
 
 /**

@@ -42,7 +42,7 @@ export interface ServiceDetailPageProps {
  * - Service logs with filtering and search
  * - Diagnostic tests with history
  */
-export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPageProps) {
+export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPageProps) {
   const { t } = useTranslation();
 
   // Default to Diagnostics tab when status is 'failed'
@@ -96,9 +96,9 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px]" role="status">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">Loading service instance...</p>
         </div>
       </div>
@@ -184,8 +184,9 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
             variant="outline"
             size="sm"
             onClick={() => setExportDialogOpen(true)}
+            aria-label={t('services.sharing.export.button')}
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-2" aria-hidden="true" />
             {t('services.sharing.export.button')}
           </Button>
         )}
@@ -328,7 +329,9 @@ export function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPagePro
       />
     </div>
   );
-}
+});
+
+ServiceDetailPage.displayName = 'ServiceDetailPage';
 
 /**
  * Get category from feature ID

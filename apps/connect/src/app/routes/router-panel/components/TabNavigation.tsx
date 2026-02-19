@@ -219,11 +219,11 @@ export function TabNavigation() {
                 aria-label={tab.ariaLabel}
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200',
-                  'border-b-2 border-transparent focus-ring',
-                  'hover:text-primary-600 dark:hover:text-primary-400',
+                  'border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'hover:text-primary',
                   isActive
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'border-primary text-primary'
+                    : 'text-muted-foreground'
                 )}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
@@ -240,7 +240,7 @@ export function TabNavigation() {
         role="navigation"
         aria-label="Router panel sections"
       >
-        <div className="grid grid-cols-9 h-16">
+        <div className="grid grid-cols-10 h-16">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
@@ -257,11 +257,11 @@ export function TabNavigation() {
                 aria-label={tab.ariaLabel}
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 transition-all duration-200',
-                  'focus-ring min-h-[44px]',
+                  'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
                   'active:scale-95',
                   isActive
-                    ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
                 )}
               >
                 <Icon

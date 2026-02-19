@@ -3,10 +3,11 @@
 // =============================================================================
 // Comprehensive stories covering all states and scenarios
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { DeviceScanDesktop } from './DeviceScanDesktop';
 import { DeviceScanMobile } from './DeviceScanMobile';
+
 import type { DiscoveredDevice } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // -----------------------------------------------------------------------------
 // Mock Data

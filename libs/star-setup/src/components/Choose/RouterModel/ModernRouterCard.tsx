@@ -1,6 +1,7 @@
 import { $, component$, type QRL, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import { LuInfo, LuCheck, LuWifi, LuZap, LuCpu, LuMemoryStick, LuRouter } from "@qwikest/icons/lucide";
 import { Button, Badge } from "@nas-net/core-ui-qwik";
+import { LuInfo, LuCheck, LuWifi, LuZap, LuCpu, LuMemoryStick, LuRouter } from "@qwikest/icons/lucide";
+
 import { type RouterData } from "./Constants";
 
 interface ModernRouterCardProps {

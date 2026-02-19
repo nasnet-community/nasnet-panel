@@ -1,7 +1,9 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
-import { Select } from "./index";
-import { VPNSelect } from "./VPNSelect/VPNSelect";
+
 import { UnifiedSelect } from "./UnifiedSelect";
+import { VPNSelect } from "./VPNSelect/VPNSelect";
+
+import { Select } from "./index";
 
 /**
  * A component to compare the performance of the original Select, VPNSelect, and the new UnifiedSelect components

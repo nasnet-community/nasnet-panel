@@ -1,15 +1,15 @@
 import { component$ } from "@builder.io/qwik";
 
 // Import all feature sections
-import { MultiWANSection } from "./sections/MultiWANSection";
-import { RouterChainingSection } from "./sections/RouterChainingSection";
+import { GamingOptimizationSection } from "./sections/GamingOptimizationSection";
 import { LoadBalanceSection } from "./sections/LoadBalanceSection";
+import { MultiWANSection } from "./sections/MultiWANSection";
+import { NetworkTunnelsSection } from "./sections/NetworkTunnelsSection";
+import { PortForwardingSection } from "./sections/PortForwardingSection";
+import { RouterChainingSection } from "./sections/RouterChainingSection";
 import { VPNClientSection } from "./sections/VPNClientSection";
 import { VPNServerSection } from "./sections/VPNServerSection";
 import { WirelessNetworksSection } from "./sections/WirelessNetworksSection";
-import { NetworkTunnelsSection } from "./sections/NetworkTunnelsSection";
-import { GamingOptimizationSection } from "./sections/GamingOptimizationSection";
-import { PortForwardingSection } from "./sections/PortForwardingSection";
 
 export const EnhancedFeatureShowcase = component$(() => {
   return (

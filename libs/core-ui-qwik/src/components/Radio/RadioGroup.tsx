@@ -1,6 +1,8 @@
 import { component$, $, useId, useComputed$ } from "@builder.io/qwik";
-import type { RadioGroupProps } from "./Radio.types";
+
 import { Radio } from "./Radio";
+
+import type { RadioGroupProps } from "./Radio.types";
 
 /**
  * Enhanced RadioGroup component for managing a group of related radio options.

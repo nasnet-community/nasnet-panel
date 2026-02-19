@@ -1,7 +1,9 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { SelectionCardProps } from "./SelectionCard.types";
+
 import { Card } from "../Card/Card";
 import { CardBody } from "../Card/CardBody";
+
+import type { SelectionCardProps } from "./SelectionCard.types";
 
 /**
  * SelectionCard component for interactive selection options.

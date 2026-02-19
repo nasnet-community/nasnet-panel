@@ -1,6 +1,7 @@
 import { $, useSignal } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { DatePickerProps } from "../DatePicker.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseInputStateResult {
   inputValue: { value: string };

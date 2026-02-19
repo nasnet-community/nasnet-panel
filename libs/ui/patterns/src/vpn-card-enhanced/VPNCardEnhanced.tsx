@@ -1,10 +1,20 @@
 /**
  * VPN Card Enhanced Component
- * Quick VPN toggle with status display for dashboard
- * Based on UX Design Specification - Direction 1: Clean Minimal
+ *
+ * Quick VPN toggle with status display for dashboard.
+ * Based on UX Design Specification - Direction 1: Clean Minimal.
+ *
+ * @example
+ * ```tsx
+ * <VPNCardEnhanced
+ *   status="connected"
+ *   profile={{ name: 'Office VPN', location: 'Frankfurt' }}
+ *   onToggle={(enabled) => handleToggle(enabled)}
+ * />
+ * ```
  */
 
-import * as React from 'react';
+import { memo } from 'react';
 
 import { Shield, Loader2 } from 'lucide-react';
 
@@ -84,7 +94,7 @@ function getStatusConfig(status: VPNStatus) {
  * Displays VPN status with toggle switch
  * Shows connection status, profile info, and allows quick connect/disconnect
  */
-export function VPNCardEnhanced({
+function VPNCardEnhancedComponent({
   status,
   profile,
   onToggle,
@@ -101,7 +111,7 @@ export function VPNCardEnhanced({
   };
 
   return (
-    <Card className={className}>
+    <Card className={className} aria-label={`VPN status: ${config.label}`}>
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           {/* Left: Icon and Info */}
@@ -153,13 +163,8 @@ export function VPNCardEnhanced({
   );
 }
 
-
-
-
-
-
-
-
+export const VPNCardEnhanced = memo(VPNCardEnhancedComponent);
+VPNCardEnhanced.displayName = 'VPNCardEnhanced';
 
 
 

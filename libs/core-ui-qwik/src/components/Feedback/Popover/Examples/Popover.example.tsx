@@ -1,7 +1,9 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Popover } from "../Popover";
 import { PopoverContent } from "../PopoverContent";
 import { PopoverTrigger } from "../PopoverTrigger";
+
 import type {
   PopoverPlacement,
   PopoverSize,

@@ -14,19 +14,21 @@ import {
   type IpGeneratorConfig 
 } from '@/utils/ip-generator';
 import {
+  type IpPriorityConfig
+} from '@/utils/ip-priority';
+import {
   detectActiveSubnets,
   type SubnetDetectionResult
 } from '@/utils/subnet-detector';
-import {
-  type IpPriorityConfig
-} from '@/utils/ip-priority';
 import type { 
   WorkerScanRequest, 
   WorkerScanResponse, 
   ScanResult as WorkerScanResult 
 } from '@/workers/scanner.worker';
-import type { ScanResult, ScanProgress } from '@shared/routeros';
+
 import { getDefaultCredentials } from './auth-config';
+
+import type { ScanResult, ScanProgress } from '@shared/routeros';
 
 export interface FastScanConfig {
   readonly maxConcurrentWorkers: number;

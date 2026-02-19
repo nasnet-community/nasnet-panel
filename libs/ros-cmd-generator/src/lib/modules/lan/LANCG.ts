@@ -1,8 +1,3 @@
-import type {
-    StarState,
-    Networks as NetworksInterface,
-    EthernetInterfaceConfig,
-} from "@nas-net/star-context";
 import {
     type RouterConfig,
     WirelessConfig,
@@ -13,7 +8,13 @@ import {
     hasWirelessInterfaces,
     Networks,
     mapNetworkToBridgeName,
-} from "@nas-net/ros-cmd-generator";
+} from "../index";
+
+import type {
+    StarState,
+    Networks as NetworksInterface,
+    EthernetInterfaceConfig,
+} from "@nas-net/star-context";
 
 
 export const IPv6 = (): RouterConfig => {

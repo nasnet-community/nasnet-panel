@@ -1,6 +1,6 @@
 ﻿import { component$, useSignal } from "@builder.io/qwik";
-import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
-import { Flex } from "@nas-net/core-ui-qwik";
+import { PlaygroundTemplate , Flex } from "@nas-net/core-ui-qwik";
+
 
 export default component$(() => {
   const direction = useSignal<

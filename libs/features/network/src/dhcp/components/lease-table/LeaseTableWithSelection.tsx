@@ -311,27 +311,43 @@ export const LeaseTableWithSelection = React.forwardRef<
                 </TableHead>
 
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('ipAddress')}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('ipAddress'); } }}
+                  tabIndex={0}
+                  role="columnheader"
+                  aria-sort={sortConfig.column === 'ipAddress' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   IP Address{getSortIndicator('ipAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('macAddress')}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('macAddress'); } }}
+                  tabIndex={0}
+                  role="columnheader"
+                  aria-sort={sortConfig.column === 'macAddress' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   MAC Address{getSortIndicator('macAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('hostname')}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('hostname'); } }}
+                  tabIndex={0}
+                  role="columnheader"
+                  aria-sort={sortConfig.column === 'hostname' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   Hostname{getSortIndicator('hostname')}
                 </TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="cursor-pointer select-none hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                   onClick={() => handleSort('expiration')}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSort('expiration'); } }}
+                  tabIndex={0}
+                  role="columnheader"
+                  aria-sort={sortConfig.column === 'expiration' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
                 >
                   Expires{getSortIndicator('expiration')}
                 </TableHead>
@@ -364,7 +380,7 @@ export const LeaseTableWithSelection = React.forwardRef<
                         {/* Expand button */}
                         <TableCell className="w-[50px]" onClick={(e) => e.stopPropagation()}>
                           <button
-                            className="flex items-center justify-center p-1 hover:bg-muted rounded"
+                            className="flex items-center justify-center p-1 hover:bg-muted rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             onClick={() => handleRowClick(lease.id)}
                             aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
                             aria-expanded={isExpanded}

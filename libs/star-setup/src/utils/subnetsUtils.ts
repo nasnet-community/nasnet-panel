@@ -5,8 +5,8 @@ import type {
   VPNClientSubnets,
   VPNServerSubnets,
   TunnelSubnets,
-} from "@nas-net/star-context";
-import type { Networks, VPNClientNetworks } from "@nas-net/star-context";
+ Networks, VPNClientNetworks } from "@nas-net/star-context";
+
 
 /**
  * Generates default Subnets configuration based on Networks

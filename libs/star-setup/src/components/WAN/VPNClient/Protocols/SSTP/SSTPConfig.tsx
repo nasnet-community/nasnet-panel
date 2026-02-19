@@ -1,5 +1,5 @@
 import { component$, useTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import { useSSTPConfig } from "./useSSTPConfig";
 import {
   FormField,
@@ -7,6 +7,8 @@ import {
   Switch,
   ErrorMessage,
 } from "../../components";
+
+import type { QRL } from "@builder.io/qwik";
 
 interface SSTPConfigProps {
   onIsValidChange$: QRL<(isValid: boolean) => void>;

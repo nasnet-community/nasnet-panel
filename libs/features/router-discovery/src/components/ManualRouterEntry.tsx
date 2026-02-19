@@ -3,7 +3,7 @@
  * Allows users to manually add routers by IP address (Story 0-1-2)
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 
 export interface ManualRouterEntryProps {
@@ -38,7 +38,7 @@ export interface ManualRouterEntryProps {
  * />
  * ```
  */
-export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps) {
+export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps) {
   const [ipAddress, setIpAddress] = useState('');
   const [routerName, setRouterName] = useState('');
   const [errors, setErrors] = useState<{
@@ -112,26 +112,26 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
+      className="bg-card border border-border rounded-lg shadow-sm"
     >
       <div className="p-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Add Router Manually
           </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-muted-foreground">
             Enter the IP address of your MikroTik router
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" aria-label="Add router manually">
           {/* IP Address Input */}
           <div>
             <label
               htmlFor="ipAddress"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
-              IP Address <span className="text-red-500">*</span>
+              IP Address <span className="text-destructive">*</span>
             </label>
             <input
               id="ipAddress"
@@ -139,23 +139,28 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
               value={ipAddress}
               onChange={(e) => handleIpChange(e.target.value)}
               placeholder="192.168.88.1"
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-white ${
+              aria-required="true"
+              aria-invalid={!!errors.ipAddress}
+              aria-describedby={errors.ipAddress ? 'ipAddress-error' : 'ipAddress-hint'}
+              className={`w-full min-h-[44px] px-3 py-2 border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                 errors.ipAddress
-                  ? 'border-red-300 dark:border-red-700'
-                  : 'border-gray-300 dark:border-gray-600'
+                  ? 'border-destructive'
+                  : 'border-border'
               }`}
               autoFocus
             />
             {errors.ipAddress && (
               <motion.p
+                id="ipAddress-error"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-1 text-sm text-red-600 dark:text-red-400"
+                className="mt-1 text-sm text-destructive"
+                role="alert"
               >
                 {errors.ipAddress}
               </motion.p>
             )}
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p id="ipAddress-hint" className="mt-1 text-xs text-muted-foreground">
               Enter IPv4 address (e.g., 192.168.88.1)
             </p>
           </div>
@@ -164,10 +169,10 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
           <div>
             <label
               htmlFor="routerName"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
               Router Name{' '}
-              <span className="text-gray-400 dark:text-gray-500">(optional)</span>
+              <span className="text-muted-foreground">(optional)</span>
             </label>
             <input
               id="routerName"
@@ -175,9 +180,10 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
               value={routerName}
               onChange={(e) => setRouterName(e.target.value)}
               placeholder="My Router"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-900 dark:text-white"
+              aria-describedby="routerName-hint"
+              className="w-full min-h-[44px] px-3 py-2 border border-border rounded-md shadow-sm bg-background text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p id="routerName-hint" className="mt-1 text-xs text-muted-foreground">
               Give your router a friendly name for easy identification
             </p>
           </div>
@@ -186,7 +192,8 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
+              aria-label="Add router"
+              className="flex-1 min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium"
             >
               Add Router
             </button>
@@ -194,7 +201,8 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium"
+                aria-label="Cancel adding router"
+                className="min-h-[44px] px-4 py-2 bg-muted text-foreground rounded-md hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium"
               >
                 Cancel
               </button>
@@ -204,8 +212,8 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
       </div>
 
       {/* Common IP Presets */}
-      <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
-        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+      <div className="px-6 py-4 bg-muted/50 border-t border-border rounded-b-lg">
+        <p className="text-xs font-medium text-muted-foreground mb-2">
           Common MikroTik IPs:
         </p>
         <div className="flex flex-wrap gap-2">
@@ -214,7 +222,8 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
               key={preset}
               type="button"
               onClick={() => setIpAddress(preset)}
-              className="px-3 py-1 text-xs font-mono bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              aria-label={`Use IP address ${preset}`}
+              className="min-h-[44px] px-3 py-1 text-xs font-mono bg-card border border-border rounded-md hover:border-primary hover:bg-primary/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {preset}
             </button>
@@ -223,4 +232,4 @@ export function ManualRouterEntry({ onSubmit, onCancel }: ManualRouterEntryProps
       </div>
     </motion.div>
   );
-}
+});

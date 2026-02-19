@@ -7,6 +7,8 @@
  */
 
 
+import * as React from 'react';
+
 import { motion } from 'framer-motion';
 import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react';
 
@@ -148,12 +150,20 @@ export function ValidationProgress({
 
   return (
     <div className={cn('space-y-1', className)}>
+      {/* Screen reader announcements */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {isComplete && isValid && `Validation passed. ${summary.passed} of ${stages.length} stages passed.`}
+        {isComplete && !isValid && `Validation failed. ${summary.failed} error${summary.failed !== 1 ? 's' : ''} found.`}
+        {!isComplete && summary.running > 0 && `Validating stage ${summary.passed + summary.running} of ${stages.length}.`}
+      </div>
+
       {/* Header */}
       <div
         className={cn(
           'flex items-center justify-between',
           compact ? 'px-2 py-1.5' : 'px-3 py-2'
         )}
+        aria-live="polite"
       >
         <div className="flex items-center gap-2">
           {isComplete ? (
@@ -210,7 +220,14 @@ export function ValidationProgress({
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 bg-muted rounded-full overflow-hidden mx-3">
+      <div
+        className="h-1.5 bg-muted rounded-full overflow-hidden mx-3"
+        role="progressbar"
+        aria-label="Validation progress"
+        aria-valuemin={0}
+        aria-valuemax={stages.length}
+        aria-valuenow={summary.passed + summary.failed + summary.skipped}
+      >
         <motion.div
           className={cn(
             'h-full rounded-full',

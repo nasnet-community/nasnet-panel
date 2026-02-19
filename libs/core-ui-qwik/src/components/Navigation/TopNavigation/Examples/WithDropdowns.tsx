@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { TopNavigation } from "..";
+
 import type { TopNavigationItem } from "..";
 
 export default component$(() => {

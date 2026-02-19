@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { LuRouter, LuMail, LuPhone, LuMapPin } from "@qwikest/icons/lucide";
+
 import { getIcon, type IconName } from "../../utils/iconMapper";
 
 interface SocialLink {

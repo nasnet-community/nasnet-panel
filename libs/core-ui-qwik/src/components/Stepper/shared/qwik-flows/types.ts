@@ -1,5 +1,5 @@
-import type { QRL, Signal } from "@builder.io/qwik";
 import type { BaseStepMeta } from "../types";
+import type { QRL, Signal } from "@builder.io/qwik";
 
 /**
  * Serializable condition operators for step visibility rules

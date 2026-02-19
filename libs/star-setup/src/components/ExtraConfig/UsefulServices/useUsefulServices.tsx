@@ -1,6 +1,7 @@
 import { $, useContext, useSignal } from "@builder.io/qwik";
-import type { Signal } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
+import type { Signal } from "@builder.io/qwik";
 import type {
   CertificateConfig,
   NTPConfig,

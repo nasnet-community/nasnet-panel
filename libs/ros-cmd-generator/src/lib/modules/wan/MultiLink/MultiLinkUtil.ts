@@ -1,6 +1,8 @@
+import { GenerateVCInterfaceName } from "../VPNClient/VPNClientUtils";
+import { GetWANInterface } from "../WAN/WANInterfaceUtils";
+
+import type { RouterConfig } from "../../../generator";
 import type { BondingConfig, WANLinkConfig, WANLinks, VPNClient } from "@nas-net/star-context";
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import { GetWANInterface, GenerateVCInterfaceName } from "@nas-net/ros-cmd-generator";
 
 // Common interface for Multi-WAN and Failover functions
 // Used by both WAN links and VPN clients

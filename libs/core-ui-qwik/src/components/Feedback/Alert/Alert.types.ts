@@ -1,9 +1,9 @@
-import type { QRL, JSXChildren, JSXOutput } from "@builder.io/qwik";
 import type {
   FeedbackStatus,
   FeedbackSize,
   FeedbackVariant,
 } from "../utils/theme";
+import type { QRL, JSXChildren, JSXOutput } from "@builder.io/qwik";
 
 export type AlertStatus = FeedbackStatus;
 export type AlertSize = FeedbackSize;

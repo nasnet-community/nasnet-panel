@@ -1,5 +1,5 @@
 import { component$, Slot, useComputed$ } from "@builder.io/qwik";
-import type { DialogProps } from "./Dialog.types";
+
 import { useDialog } from "./useDialog";
 import {
   getResponsiveSizeClasses,
@@ -10,6 +10,8 @@ import {
   getAnimationClasses,
   cn,
 } from "../utils/theme";
+
+import type { DialogProps } from "./Dialog.types";
 
 /**
  * Dialog Component

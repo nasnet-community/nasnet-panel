@@ -2,13 +2,13 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
+import { GridAlignment } from "./examples/GridAlignment";
+import { GridAutoFlow } from "./examples/GridAutoFlow";
 import { GridBasic } from "./examples/GridBasic";
 import { GridColumns } from "./examples/GridColumns";
-import { GridResponsive } from "./examples/GridResponsive";
 import { GridGap } from "./examples/GridGap";
-import { GridAutoFlow } from "./examples/GridAutoFlow";
-import { GridAlignment } from "./examples/GridAlignment";
 import { GridItems } from "./examples/GridItems";
+import { GridResponsive } from "./examples/GridResponsive";
 import { GridTemplates } from "./examples/GridTemplates";
 
 export default component$(() => {

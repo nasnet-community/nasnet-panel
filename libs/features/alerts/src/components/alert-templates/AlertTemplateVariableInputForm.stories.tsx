@@ -3,10 +3,12 @@
  * NAS-18.12: Alert Rule Templates Feature
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+
 import { AlertTemplateVariableInputForm } from './AlertTemplateVariableInputForm';
+
 import type { AlertRuleTemplate } from '../../schemas/alert-rule-template.schema';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta Configuration

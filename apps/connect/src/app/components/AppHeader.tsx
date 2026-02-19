@@ -96,7 +96,7 @@ export function AppHeader() {
 
         {/* App/Router Info */}
         <div>
-          <p className="text-sm font-medium text-slate-900 dark:text-white">
+          <p className="text-sm font-medium text-foreground">
             {displayName}
           </p>
           <p className={`text-xs flex items-center gap-1.5 ${statusConfig.textClass}`}>
@@ -122,10 +122,10 @@ export function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="rounded-full min-h-[44px] min-w-[44px]"
           aria-label="More options"
         >
-          <MoreVertical className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          <MoreVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         </Button>
       </div>
     </div>

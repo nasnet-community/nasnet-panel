@@ -1,6 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { AlertProps } from "./Alert.types";
-import { useAlert } from "./useAlert";
+
 import {
   InfoIcon,
   SuccessIcon,
@@ -8,6 +7,7 @@ import {
   ErrorIcon,
   LoadingSpinner,
 } from "./icons";
+import { useAlert } from "./useAlert";
 import {
   getStatusColors,
   getResponsiveSizeClasses,
@@ -16,6 +16,8 @@ import {
   getIconSizeClasses,
   cn,
 } from "../utils/theme";
+
+import type { AlertProps } from "./Alert.types";
 
 /**
  * Alert component for displaying various types of messages (info, success, warning, error)

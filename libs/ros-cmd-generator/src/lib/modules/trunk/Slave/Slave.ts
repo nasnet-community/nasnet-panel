@@ -1,10 +1,3 @@
-import type { 
-    RouterModels, 
-    WirelessConfig, 
-    Subnets, 
-    ExtraConfigState, 
-    StarState,
-} from "@nas-net/star-context";
 import {
     type RouterConfig,
     mergeMultipleConfigs,
@@ -22,7 +15,15 @@ import {
     BaseDNSSettins,
     SlaveMDNS,
     // sortRouterConfig,
-} from "@nas-net/ros-cmd-generator";
+} from "../../index";
+
+import type { 
+    RouterModels, 
+    WirelessConfig, 
+    Subnets, 
+    ExtraConfigState, 
+    StarState,
+} from "@nas-net/star-context";
 
 
 

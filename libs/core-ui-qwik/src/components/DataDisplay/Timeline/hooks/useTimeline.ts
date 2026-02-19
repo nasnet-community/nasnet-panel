@@ -1,4 +1,5 @@
 import { useStore } from "@builder.io/qwik";
+
 import type { TimelineProps, TimelinePosition } from "../Timeline.types";
 
 export interface TimelineState {

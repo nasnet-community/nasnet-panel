@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import logo from "../../../public/images/logo.jpg";
 
 /**

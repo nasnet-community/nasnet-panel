@@ -6,11 +6,13 @@
  * alert rule templates from JSON files.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { fn } from '@storybook/test';
+
 import { ImportTemplateDialog } from './ImportTemplateDialog';
 import { IMPORT_ALERT_RULE_TEMPLATE } from '../../hooks/useAlertRuleTemplates';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta Configuration

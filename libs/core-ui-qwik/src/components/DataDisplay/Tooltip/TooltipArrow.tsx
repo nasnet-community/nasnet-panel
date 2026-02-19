@@ -1,4 +1,5 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
+
 import type { TooltipArrowProps } from "./Tooltip.types";
 
 export const TooltipArrow = component$<TooltipArrowProps>((props) => {

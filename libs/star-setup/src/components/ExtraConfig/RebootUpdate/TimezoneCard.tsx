@@ -1,6 +1,7 @@
 import { component$, $, useComputed$ } from "@builder.io/qwik";
-import type { Signal } from "@builder.io/qwik";
 import { Select, type SelectOption } from "@nas-net/core-ui-qwik";
+
+import type { Signal } from "@builder.io/qwik";
 
 // Organize timezones by continent
 export const TIMEZONES = {

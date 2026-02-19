@@ -1,6 +1,7 @@
-import type { QRL } from "@builder.io/qwik";
 import { component$, $ } from "@builder.io/qwik";
+
 import type { TopNavigationItem } from "./TopNavigation.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface TopNavigationDropdownProps {
   items: TopNavigationItem[];

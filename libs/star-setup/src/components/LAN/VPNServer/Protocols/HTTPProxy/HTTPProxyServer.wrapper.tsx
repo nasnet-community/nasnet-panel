@@ -1,8 +1,9 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import { HTTPProxyServerAdvanced } from "./HTTPProxyServerAdvanced";
 import { HTTPProxyServerEasy } from "./HTTPProxyServerEasy";
+
 import type { Mode } from "@nas-net/star-context";
 
 export const HTTPProxyServerWrapper = component$(() => {

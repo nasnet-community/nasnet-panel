@@ -1,7 +1,9 @@
-import type { RouterInfo, ScanResult, RouterCredentials } from '@shared/routeros';
-import { isMikroTikRouter } from '@/services/scanner';
 import { getManualRouter, removeManualRouter, type ManualRouterEntry } from '@/services/manual-router';
+import { isMikroTikRouter } from '@/services/scanner';
+
 import { CredentialDialog } from './CredentialDialog';
+
+import type { RouterInfo, ScanResult, RouterCredentials } from '@shared/routeros';
 
 /**
  * Simple Router List Component

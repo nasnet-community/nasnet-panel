@@ -176,15 +176,16 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                   type="submit"
                   disabled={!isValid || ping.isStarting}
                   className="flex-1"
+                  aria-label="Start ping"
                 >
                   {ping.isStarting ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
                       Starting...
                     </>
                   ) : (
                     <>
-                      <Play className="w-4 h-4 mr-2" />
+                      <Play className="w-4 h-4 mr-2" aria-hidden="true" />
                       Start Ping
                     </>
                   )}
@@ -196,15 +197,16 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                   onClick={ping.stop}
                   disabled={ping.isStopping}
                   className="flex-1"
+                  aria-label="Stop ping"
                 >
                   {ping.isStopping ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
                       Stopping...
                     </>
                   ) : (
                     <>
-                      <Square className="w-4 h-4 mr-2" />
+                      <Square className="w-4 h-4 mr-2" aria-hidden="true" />
                       Stop Ping
                     </>
                   )}
@@ -234,7 +236,7 @@ export const PingToolDesktop = memo(function PingToolDesktop({
               Results {ping.results.length > 0 && `(${ping.results.length}/${ping.count})`}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent role="log" aria-label="Ping results">
             <PingResults results={ping.results} />
           </CardContent>
         </Card>

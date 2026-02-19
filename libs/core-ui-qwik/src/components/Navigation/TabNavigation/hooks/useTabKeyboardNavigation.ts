@@ -1,6 +1,7 @@
-import type { QRL } from "@builder.io/qwik";
 import { $ } from "@builder.io/qwik";
+
 import type { Tab } from "../TabNavigation.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseTabKeyboardNavigationProps {
   tabs: Tab[];

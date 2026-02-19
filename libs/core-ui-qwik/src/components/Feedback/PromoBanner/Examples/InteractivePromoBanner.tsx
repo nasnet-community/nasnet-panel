@@ -1,5 +1,6 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
 import { PromoBanner } from "@nas-net/core-ui-qwik";
+
 import type { VPNCredentials } from "@nas-net/core-ui-qwik";
 
 export const InteractivePromoBanner = component$(() => {

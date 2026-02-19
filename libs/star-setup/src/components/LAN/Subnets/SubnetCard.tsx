@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
 import { Card, CardHeader, CardBody, Alert } from "@nas-net/core-ui-qwik";
-import { SubnetInput } from "./SubnetInput";
-import type { SubnetCardProps } from "./types";
 import { LuAlertTriangle } from "@qwikest/icons/lucide";
+
+import { SubnetInput } from "./SubnetInput";
+
+import type { SubnetCardProps } from "./types";
 
 /**
  * Modern card component for grouping subnet configurations

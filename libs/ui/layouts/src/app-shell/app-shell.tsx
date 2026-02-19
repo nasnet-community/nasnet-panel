@@ -31,10 +31,10 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
     return (
       <div
         ref={ref}
-        className={cn('flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900', className)}
+        className={cn('flex min-h-screen flex-col bg-background', className)}
       >
         {header && (
-          <header className="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm" style={{ height: 'var(--nav-height, 4rem)' }}>
+          <header className="sticky top-0 z-40 bg-card border-b border-border shadow-sm" style={{ height: 'var(--nav-height, 4rem)' }}>
             {header}
           </header>
         )}
@@ -43,18 +43,18 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
           {sidebar && sidebarPosition === 'left' && (
             <aside
               className={cn(
-                'border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 transition-all duration-200 ease-in-out hidden md:block',
+                'border-r border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
                 sidebarCollapsed ? 'w-16' : 'w-64'
               )}
             >
               {sidebar}
             </aside>
           )}
-          <main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">{children}</main>
+          <main id="main-content" className="flex-1 overflow-auto bg-background">{children}</main>
           {sidebar && sidebarPosition === 'right' && (
             <aside
               className={cn(
-                'border-l border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 transition-all duration-200 ease-in-out hidden md:block',
+                'border-l border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
                 sidebarCollapsed ? 'w-16' : 'w-64'
               )}
             >
@@ -63,7 +63,7 @@ const AppShell = React.forwardRef<HTMLDivElement, AppShellProps>(
           )}
         </div>
         {footer && (
-          <footer className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">{footer}</footer>
+          <footer className="border-t border-border bg-card">{footer}</footer>
         )}
       </div>
     );

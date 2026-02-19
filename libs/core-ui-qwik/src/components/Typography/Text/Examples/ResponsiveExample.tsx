@@ -1,8 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import { Text } from "../Text";
+
+import { InlineCode } from "../../CodeDisplay";
 import { Heading } from "../../Heading";
 import { Link } from "../../Link";
-import { InlineCode } from "../../CodeDisplay";
+import { Text } from "../Text";
 
 /**
  * Enhanced Responsive Example - Demonstrates all new Typography features

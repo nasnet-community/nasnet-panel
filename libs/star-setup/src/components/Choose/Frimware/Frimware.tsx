@@ -5,8 +5,8 @@ import {
   type PropFunction,
   type QwikJSX,
 } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
 import { StarContext } from "@nas-net/star-context";
+import { track } from "@vercel/analytics";
 
 export type FrimwareType = "MikroTik" | "OpenWRT";
 

@@ -39,13 +39,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          inputVariants({ 
-            variant: error ? 'error' : variant, 
-            inputSize 
-          }), 
+          inputVariants({
+            variant: error ? 'error' : variant,
+            inputSize
+          }),
           className
         )}
         ref={ref}
+        aria-invalid={error || undefined}
         {...props}
       />
     );

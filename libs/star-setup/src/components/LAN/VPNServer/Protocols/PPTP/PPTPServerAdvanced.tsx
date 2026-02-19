@@ -1,8 +1,8 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+import { ServerCard , SectionTitle } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
+
 import { usePPTPServer } from "./usePPTPServer";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { SectionTitle } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown, type ExtendedNetworks } from "../../components/NetworkSelection";
 
 export const PPTPServerAdvanced = component$(() => {

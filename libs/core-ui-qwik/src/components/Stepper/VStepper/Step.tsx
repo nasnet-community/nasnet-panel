@@ -1,4 +1,5 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import type { StepProps } from "./types";
 
 export const Step = component$((props: StepProps) => {

@@ -1,13 +1,15 @@
 import { component$ } from "@builder.io/qwik";
-import type { FileUploadProps } from "./FileUpload.types";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
-import { useFileUpload } from "./hooks/useFileUpload";
-import { useDropArea } from "./hooks/useDropArea";
-import { useFileInput } from "./hooks/useFileInput";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
 import { DropArea } from "./components/DropArea";
 import { FileList } from "./components/FileList";
+import { useDropArea } from "./hooks/useDropArea";
+import { useFileInput } from "./hooks/useFileInput";
+import { useFileUpload } from "./hooks/useFileUpload";
+
+import type { FileUploadProps } from "./FileUpload.types";
 
 export const FileUpload = component$<FileUploadProps>((props) => {
   const {

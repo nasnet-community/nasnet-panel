@@ -3,6 +3,8 @@
  * Dashboard Pro style - 3-column CPU/RAM/Uptime metrics
  */
 
+import React from 'react';
+
 import { Cpu, HardDrive, Clock } from 'lucide-react';
 
 import { type SystemResource } from '@nasnet/core/types';
@@ -15,7 +17,7 @@ interface NetworkStatsGridProps {
   isLoading?: boolean;
 }
 
-export function NetworkStatsGrid({ resourceData, isLoading }: NetworkStatsGridProps) {
+export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceData, isLoading }: NetworkStatsGridProps) {
   const memoryUsed = resourceData
     ? resourceData.totalMemory - resourceData.freeMemory
     : 0;
@@ -29,87 +31,64 @@ export function NetworkStatsGrid({ resourceData, isLoading }: NetworkStatsGridPr
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-2 p-4 animate-pulse">
+      <div className="grid grid-cols-3 gap-2 p-4 animate-pulse" role="status" aria-label="Loading network stats">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-slate-900 rounded-xl p-3 text-center">
-            <div className="h-5 bg-slate-700 rounded w-12 mx-auto mb-1" />
-            <div className="h-3 bg-slate-800 rounded w-8 mx-auto" />
+          <div key={i} className="bg-card rounded-xl p-3 text-center">
+            <div className="h-5 bg-muted rounded w-12 mx-auto mb-1" />
+            <div className="h-3 bg-muted rounded w-8 mx-auto" />
           </div>
         ))}
+        <span className="sr-only">Loading network statistics...</span>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-3 gap-2 p-4">
+    <div className="grid grid-cols-3 gap-2 p-4" role="group" aria-label="Network statistics">
       {/* CPU */}
-      <div className="bg-slate-900 rounded-xl p-3 text-center">
+      <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+          <Cpu className="w-3.5 h-3.5 text-cyan-400" aria-hidden="true" />
         </div>
         <p className={cn(
           'text-lg font-bold',
           resourceData?.cpuLoad !== undefined
             ? calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-cyan-400' :
               calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-amber-400' : 'text-red-400'
-            : 'text-white'
+            : 'text-foreground'
         )}>
           {resourceData?.cpuLoad ?? '--'}%
         </p>
-        <p className="text-slate-500 text-xs">CPU</p>
+        <p className="text-muted-foreground text-xs">CPU</p>
       </div>
 
       {/* Memory */}
-      <div className="bg-slate-900 rounded-xl p-3 text-center">
+      <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <HardDrive className="w-3.5 h-3.5 text-purple-400" />
+          <HardDrive className="w-3.5 h-3.5 text-purple-400" aria-hidden="true" />
         </div>
         <p className={cn(
           'text-lg font-bold',
           resourceData
             ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-purple-400' :
               calculateStatus(memoryPercentage) === 'warning' ? 'text-amber-400' : 'text-red-400'
-            : 'text-white'
+            : 'text-foreground'
         )}>
           {memoryPercentage}%
         </p>
-        <p className="text-slate-500 text-xs">RAM</p>
+        <p className="text-muted-foreground text-xs">RAM</p>
       </div>
 
       {/* Uptime */}
-      <div className="bg-slate-900 rounded-xl p-3 text-center">
+      <div className="bg-card rounded-xl p-3 text-center">
         <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Clock className="w-3.5 h-3.5 text-emerald-400" />
+          <Clock className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
         </div>
         <p className="text-lg font-bold text-emerald-400">{uptimeFormatted}</p>
-        <p className="text-slate-500 text-xs">Uptime</p>
+        <p className="text-muted-foreground text-xs">Uptime</p>
       </div>
     </div>
   );
-}
+});
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+NetworkStatsGrid.displayName = 'NetworkStatsGrid';

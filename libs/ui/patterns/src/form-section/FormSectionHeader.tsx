@@ -66,7 +66,7 @@ export function FormSectionHeader({
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 flex-wrap">
         {/* Title */}
-        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
+        <h3 className="text-base font-semibold text-foreground">
           {title}
         </h3>
 
@@ -83,7 +83,7 @@ export function FormSectionHeader({
 
       {/* Description */}
       {description && (
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-muted-foreground">
           {description}
         </p>
       )}
@@ -100,11 +100,10 @@ export function FormSectionHeader({
             className={cn(
               'inline-flex items-center justify-center',
               'h-8 w-8 rounded-full',
-              'text-slate-400 hover:text-slate-600',
-              'dark:text-slate-500 dark:hover:text-slate-300',
-              'hover:bg-slate-100 dark:hover:bg-slate-800',
-              'focus-visible:outline-none focus-visible:ring-[3px]',
-              'focus-visible:ring-primary/30 focus-visible:ring-offset-2',
+              'text-muted-foreground hover:text-foreground',
+              'hover:bg-muted',
+              'focus-visible:outline-none focus-visible:ring-2',
+              'focus-visible:ring-ring focus-visible:ring-offset-2',
               'transition-colors duration-200'
             )}
             aria-label={`Help for ${title}`}
@@ -132,14 +131,13 @@ export function FormSectionHeader({
           'w-full flex items-center justify-between gap-3',
           'py-3 px-4',
           'text-left',
-          'bg-slate-50 dark:bg-slate-800/50',
-          'hover:bg-slate-100 dark:hover:bg-slate-800',
+          'bg-muted',
+          'hover:bg-muted/80',
           'cursor-pointer',
           'transition-colors duration-200',
           // Focus ring
-          'focus-visible:outline-none focus-visible:ring-[3px]',
-          'focus-visible:ring-primary/30 focus-visible:ring-offset-2',
-          'focus-visible:ring-inset',
+          'focus-visible:outline-none focus-visible:ring-2',
+          'focus-visible:ring-ring focus-visible:ring-offset-2',
           // Mobile tap target (minimum 44px)
           'min-h-[44px]'
         )}
@@ -148,7 +146,7 @@ export function FormSectionHeader({
         <ChevronDown
           className={cn(
             'h-5 w-5 flex-shrink-0',
-            'text-slate-600 dark:text-slate-400',
+            'text-muted-foreground',
             // Only apply transition if reduced motion is not preferred
             !reducedMotion && 'transition-transform duration-300',
             isExpanded && 'rotate-180'
@@ -182,7 +180,7 @@ export function FormSectionHeader({
       className={cn(
         'flex items-center justify-between gap-3',
         'py-3 px-4',
-        'bg-slate-50 dark:bg-slate-800/50'
+        'bg-muted'
       )}
     >
       {headerContent}

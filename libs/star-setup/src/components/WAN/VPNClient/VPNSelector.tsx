@@ -1,6 +1,7 @@
 import { component$, type QRL } from "@builder.io/qwik";
-import type { VPNType } from "@nas-net/star-context";
 import { SelectionCard } from "@nas-net/core-ui-qwik";
+
+import type { VPNType } from "@nas-net/star-context";
 
 interface VPNSelectorProps {
   selectedType: string;

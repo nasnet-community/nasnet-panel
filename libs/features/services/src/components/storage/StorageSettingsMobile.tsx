@@ -74,7 +74,7 @@ function formatBytes(bytes: string): string {
  * StorageSettingsMobile component
  * Mobile-optimized storage settings UI
  */
-export function StorageSettingsMobile({ className }: StorageSettingsMobileProps) {
+export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({ className }: StorageSettingsMobileProps) {
   const {
     externalMounts,
     flashStorage,
@@ -119,7 +119,7 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <HardDrive className="h-5 w-5" />
+            <HardDrive className="h-5 w-5" aria-hidden="true" />
             <CardTitle>External Storage</CardTitle>
           </div>
           <CardDescription>
@@ -151,7 +151,7 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
           {/* Detection Status */}
           {!isStorageDetected && (
             <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
               <p className="text-sm text-muted-foreground">
                 No external storage detected. Connect a USB drive or disk.
               </p>
@@ -165,6 +165,7 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
               id="storage-enabled"
               checked={isStorageConfigured}
               disabled={!isStorageDetected || configuring}
+              aria-label="Enable external storage"
               onCheckedChange={(enabled) => {
                 if (enabled && selectedMount) {
                   handleEnableStorage(selectedMount);
@@ -233,12 +234,14 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
             variant="outline"
             className="w-full h-11 justify-between"
             disabled={!usage}
+            aria-label="Toggle service storage breakdown"
+            aria-expanded={showCommon}
           >
             <span>Service Storage Breakdown</span>
             {showCommon ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </Collapsible.Trigger>
@@ -282,12 +285,14 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
             variant="outline"
             className="w-full h-11 justify-between"
             disabled={!isStorageDetected}
+            aria-label="Toggle advanced storage details"
+            aria-expanded={showAdvanced}
           >
             <span>Advanced Details</span>
             {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </Collapsible.Trigger>
@@ -322,8 +327,9 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
                 className="w-full h-11"
                 onClick={handleScanStorage}
                 disabled={scanning}
+                aria-label={scanning ? 'Scanning for storage devices' : 'Scan for storage devices'}
               >
-                <RefreshCw className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')} />
+                <RefreshCw className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')} aria-hidden="true" />
                 {scanning ? 'Scanning...' : 'Scan for Storage'}
               </Button>
             </CardContent>
@@ -332,4 +338,6 @@ export function StorageSettingsMobile({ className }: StorageSettingsMobileProps)
       </Collapsible.Root>
     </div>
   );
-}
+});
+
+StorageSettingsMobile.displayName = 'StorageSettingsMobile';

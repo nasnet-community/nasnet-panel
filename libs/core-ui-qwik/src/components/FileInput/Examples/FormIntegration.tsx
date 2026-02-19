@@ -1,8 +1,9 @@
 import { component$, useSignal, useStore, $ } from "@builder.io/qwik";
-import { ConfigFileInput, VPNConfigFileSection } from "../index";
+
+import { Button } from "../../button";
 import { Form } from "../../Form";
 import { Field } from "../../Form/Field";
-import { Button } from "../../button";
+import { ConfigFileInput, VPNConfigFileSection } from "../index";
 
 interface VPNFormData {
   serverName: string;

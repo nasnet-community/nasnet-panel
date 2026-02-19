@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { InterfaceEditForm } from './InterfaceEditForm';
+
 import { UPDATE_INTERFACE } from '@nasnet/api-client/queries';
+
+import { InterfaceEditForm } from './InterfaceEditForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const mockInterface = {
   id: '*1',

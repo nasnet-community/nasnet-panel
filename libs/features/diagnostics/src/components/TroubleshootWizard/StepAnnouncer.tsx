@@ -1,5 +1,5 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/StepAnnouncer.tsx
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { TROUBLESHOOT_MESSAGES } from '../../i18n/troubleshoot-messages';
 import type { DiagnosticStep } from '../../types/troubleshoot.types';
 
@@ -16,7 +16,7 @@ interface StepAnnouncerProps {
  * ARIA live region for screen reader announcements
  * Announces step progress, results, and fix application status
  */
-export function StepAnnouncer({
+export const StepAnnouncer = memo(function StepAnnouncer({
   currentStep,
   currentStepIndex,
   totalSteps,
@@ -83,4 +83,4 @@ export function StepAnnouncer({
       {announcement}
     </div>
   );
-}
+});

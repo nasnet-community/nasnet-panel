@@ -7,11 +7,15 @@
  */
 
 import { useState } from 'react';
+
+import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
+import { Button } from '@nasnet/ui/primitives';
+
+import { RouteDeleteConfirmation } from './RouteDeleteConfirmation';
+
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button } from '@nasnet/ui/primitives';
-import { RouteDeleteConfirmation } from './RouteDeleteConfirmation';
-import { RouteType, RouteScope, type Route } from '@nasnet/api-client/queries';
+
 
 /**
  * Mock route data for stories

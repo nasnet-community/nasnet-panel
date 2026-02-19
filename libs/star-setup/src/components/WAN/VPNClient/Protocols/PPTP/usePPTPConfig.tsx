@@ -1,10 +1,11 @@
 import { $, useSignal, useContext } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { PptpClientConfig } from "@nas-net/star-context";
-import type { AuthMethod } from "@nas-net/star-context";
 import { useNetworks } from "@utils/useNetworks";
 import { useSubnets } from "@utils/useSubnets";
+
+import type { QRL } from "@builder.io/qwik";
+import type { PptpClientConfig , AuthMethod } from "@nas-net/star-context";
+
 
 export interface UsePPTPConfigResult {
   serverAddress: { value: string };

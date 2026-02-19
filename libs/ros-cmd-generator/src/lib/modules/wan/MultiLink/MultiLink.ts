@@ -1,5 +1,3 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { VPNClient, WANLinks } from "@nas-net/star-context";
 import {
     PCCMangle,
     NTHMangle,
@@ -8,8 +6,12 @@ import {
     FailoverNetwatch,
     combineMultiWANInterfaces,
     type MultiWANInterface,
-} from "@nas-net/ros-cmd-generator";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
+} from "./MultiLinkUtil";
+import { mergeMultipleConfigs } from "../../../utils/ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../../../generator";
+import type { VPNClient, WANLinks } from "@nas-net/star-context";
+
 
 
 

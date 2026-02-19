@@ -1,6 +1,6 @@
 import { component$ } from "@builder.io/qwik";
-import { Spacer } from "@nas-net/core-ui-qwik";
-import { Box } from "@nas-net/core-ui-qwik";
+import { Spacer , Box } from "@nas-net/core-ui-qwik";
+
 
 export const SpacerBasic = component$(() => {
   return (

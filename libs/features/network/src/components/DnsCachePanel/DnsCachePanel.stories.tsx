@@ -5,10 +5,13 @@
  * Task 8.5: Create Storybook stories
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { ApolloProvider } from '@apollo/client';
+
 import { createMockClient } from '@nasnet/api-client/core';
+
 import { DnsCachePanel } from './DnsCachePanel';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Mock GraphQL responses
 const mockCacheStatsLoading = {

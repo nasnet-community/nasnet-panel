@@ -1,5 +1,9 @@
+import { mergeMultipleConfigs } from "../../../utils/ConfigGeneratorUtil";
+import { extractBridgeNames } from "../../lan/Networks/NetworksUtil";
+import { DomesticCheckIPs, ForeignCheckIPs, combineMultiWANInterfaces } from "../MultiLink/MultiLinkUtil";
+
+import type { RouterConfig } from "../../../generator";
 import type { Networks, Subnets, WANLinks, VPNClient } from "@nas-net/star-context";
-import  { type RouterConfig, extractBridgeNames, mergeMultipleConfigs, DomesticCheckIPs, ForeignCheckIPs, combineMultiWANInterfaces } from "@nas-net/ros-cmd-generator";
 
 export const BaseDNSSettins = (): RouterConfig => {
     const config: RouterConfig = {

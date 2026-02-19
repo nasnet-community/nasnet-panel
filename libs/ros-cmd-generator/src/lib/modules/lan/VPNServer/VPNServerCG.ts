@@ -1,5 +1,3 @@
-import type { VPNServer, VPNServerSubnets, RouterModels } from "@nas-net/star-context";
-
 import { 
     type RouterConfig,
     WireguardServerWrapper,
@@ -22,6 +20,9 @@ import {
     CommandShortner,
     VSInboundTraffic,
 } from "../";
+
+import type { VPNServer, VPNServerSubnets, RouterModels } from "@nas-net/star-context";
+
 
 // Helper function to check if master router is CHR
 const isMasterCHR = (routerModels?: RouterModels[]): boolean => {

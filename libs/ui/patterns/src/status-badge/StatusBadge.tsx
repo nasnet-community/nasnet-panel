@@ -17,19 +17,19 @@ const badgeVariants = cva(
     variants: {
       variant: {
         // Lease statuses
-        bound: 'bg-success/10 text-success ring-success/20 dark:bg-success/20 dark:text-green-400',
-        waiting: 'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
-        offered: 'bg-info/10 text-info ring-info/20 dark:bg-info/20 dark:text-sky-400',
-        busy: 'bg-error/10 text-error ring-error/20 dark:bg-error/20 dark:text-red-400',
+        bound: 'bg-success/10 text-success ring-success/20',
+        waiting: 'bg-warning/10 text-warning ring-warning/20',
+        offered: 'bg-info/10 text-info ring-info/20',
+        busy: 'bg-error/10 text-error ring-error/20',
 
         // Client statuses
-        searching: 'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
-        requesting: 'bg-info/10 text-info ring-info/20 dark:bg-info/20 dark:text-sky-400',
-        stopped: 'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
+        searching: 'bg-warning/10 text-warning ring-warning/20',
+        requesting: 'bg-info/10 text-info ring-info/20',
+        stopped: 'bg-muted text-muted-foreground ring-border',
 
         // Generic
-        static: 'bg-purple-50 text-purple-700 ring-purple-600/20 dark:bg-purple-500/20 dark:text-purple-400 dark:ring-purple-500/20',
-        default: 'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
+        static: 'bg-accent text-accent-foreground ring-border',
+        default: 'bg-muted text-muted-foreground ring-border',
       },
     },
     defaultVariants: {
@@ -56,6 +56,8 @@ const StatusBadgeBase = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
     return (
       <span
         ref={ref}
+        role="status"
+        aria-label={`Status: ${displayLabel}`}
         className={cn(badgeVariants({ variant: badgeVariant as any }), className)}
         {...props}
       >

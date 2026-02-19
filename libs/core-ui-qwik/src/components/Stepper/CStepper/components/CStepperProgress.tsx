@@ -1,7 +1,8 @@
 import { component$, useSignal, useTask$, $, useVisibleTask$ } from "@builder.io/qwik";
+
 import type { CStepMeta } from "../types";
-import type { QRL } from "@builder.io/qwik";
-import type { JSX } from "@builder.io/qwik";
+import type { QRL , JSX } from "@builder.io/qwik";
+
 
 export interface CStepperProgressProps {
   steps: CStepMeta[];

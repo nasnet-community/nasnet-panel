@@ -1,6 +1,6 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { Tooltip } from "@nas-net/core-ui-qwik";
-import { Button } from "@nas-net/core-ui-qwik";
+import { Tooltip , Button } from "@nas-net/core-ui-qwik";
+
 
 export default component$(() => {
   const isOpen = useSignal(false);

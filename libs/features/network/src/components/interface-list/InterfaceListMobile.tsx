@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Button, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent, Checkbox } from '@nasnet/ui/primitives';
 import { InterfaceListFilters } from './InterfaceListFilters';
 import { BatchActionsToolbar } from './BatchActionsToolbar';
@@ -21,7 +22,7 @@ export interface InterfaceListMobileProps {
  * Interface List Mobile Presenter
  * Displays interfaces as cards optimized for mobile/touch
  */
-export function InterfaceListMobile({
+export const InterfaceListMobile = memo(function InterfaceListMobile({
   interfaces,
   allInterfaces,
   loading,
@@ -52,12 +53,12 @@ export function InterfaceListMobile({
     return (
       <div className="space-y-4 p-4">
         <InterfaceListFilters filters={filters} onChange={onFilterChange} />
-        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10">
+        <div className="p-8 text-center border rounded-lg border-destructive bg-destructive/10" role="alert">
           <p className="text-destructive font-medium">Failed to load interfaces</p>
           <p className="text-sm text-muted-foreground mt-2">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-4">
+          <Button onClick={onRefresh} className="mt-4 min-h-[44px]" aria-label="Retry loading interfaces">
             Retry
           </Button>
         </div>
@@ -104,6 +105,10 @@ export function InterfaceListMobile({
                 isSelected ? 'border-primary bg-primary/5' : ''
               }`}
               onClick={() => onOpenDetail(iface.id)}
+              role="button"
+              aria-label={`View details for ${iface.name} interface`}
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenDetail(iface.id); } }}
             >
               <CardHeader className="flex-row items-start justify-between space-y-0 pb-2">
                 <div className="flex items-start gap-3 flex-1">
@@ -176,4 +181,4 @@ export function InterfaceListMobile({
       )}
     </div>
   );
-}
+});

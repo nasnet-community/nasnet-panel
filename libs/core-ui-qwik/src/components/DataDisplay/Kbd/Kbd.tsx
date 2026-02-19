@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { KbdProps } from "./Kbd.types";
+
 import { useKbd } from "./hooks/useKbd";
+
+import type { KbdProps } from "./Kbd.types";
 
 export const Kbd = component$<KbdProps>((props) => {
   const {

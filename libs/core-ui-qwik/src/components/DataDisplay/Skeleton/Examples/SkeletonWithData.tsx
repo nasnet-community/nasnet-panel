@@ -1,4 +1,5 @@
 import { component$, useSignal, useTask$, $ } from "@builder.io/qwik";
+
 import { SkeletonText, SkeletonAvatar } from "../index";
 
 interface User {

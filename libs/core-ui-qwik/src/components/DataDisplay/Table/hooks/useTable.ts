@@ -1,11 +1,12 @@
 import { useSignal, $ } from "@builder.io/qwik";
-import type { Signal } from "@builder.io/qwik";
+
 import type {
   TableProps,
   TableColumn,
   SortState,
   SortDirection,
 } from "../Table.types";
+import type { Signal } from "@builder.io/qwik";
 
 export interface UseTableReturn<T = any> {
   tableData: Signal<T[]>;

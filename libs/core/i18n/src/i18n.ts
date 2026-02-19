@@ -111,7 +111,7 @@ i18n
 
     // Missing key handling
     saveMissing: import.meta.env?.DEV ?? false,
-    missingKeyHandler: (lngs, ns, key, fallbackValue) => {
+    missingKeyHandler: (lngs, ns, key, _fallbackValue) => {
       if (import.meta.env?.DEV) {
         console.warn(`[i18n] Missing translation: ${ns}:${key} (lang: ${lngs.join(', ')})`);
       }

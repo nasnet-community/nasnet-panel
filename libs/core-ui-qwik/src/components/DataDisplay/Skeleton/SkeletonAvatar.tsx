@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { SkeletonAvatarProps } from "./Skeleton.types";
+
 import { Skeleton } from "./Skeleton";
+
+import type { SkeletonAvatarProps } from "./Skeleton.types";
 
 /**
  * SkeletonAvatar component for displaying avatar placeholders

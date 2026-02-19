@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { ListItemProps } from "./List.types";
+
 import { useListItem } from "./hooks/useListItem";
+
+import type { ListItemProps } from "./List.types";
 
 /**
  * ListItem component for list items

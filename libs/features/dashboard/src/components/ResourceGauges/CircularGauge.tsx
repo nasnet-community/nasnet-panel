@@ -8,6 +8,7 @@
  * - WCAG AAA accessible with proper ARIA attributes
  */
 
+import { memo } from 'react';
 import { cn } from '@nasnet/ui/utils';
 
 /**
@@ -56,7 +57,7 @@ const SIZES = {
  * - Full WCAG AAA accessibility support
  * - Responsive sizing
  */
-export function CircularGauge({
+export const CircularGauge = memo(function CircularGauge({
   value,
   label,
   sublabel,
@@ -98,7 +99,7 @@ export function CircularGauge({
     <>
       <div className="relative" style={{ width: diameter, height: diameter }}>
         {/* Background circle */}
-        <svg className="w-full h-full -rotate-90">
+        <svg className="w-full h-full -rotate-90" role="img" aria-label={`${label} gauge at ${clampedValue}%`}>
           {/* Base track (muted gray) */}
           <circle
             cx={diameter / 2}
@@ -173,4 +174,4 @@ export function CircularGauge({
       {content}
     </div>
   );
-}
+});

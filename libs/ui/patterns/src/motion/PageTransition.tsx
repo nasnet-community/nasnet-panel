@@ -5,12 +5,12 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo, memo } from 'react';
 
 import { useRouterState } from '@tanstack/react-router';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 
-import { useAnimation, useAnimationOptional } from './AnimationProvider';
+import { useAnimationOptional } from './AnimationProvider';
 import {
   pageFade,
   pageSlideUp,
@@ -70,7 +70,7 @@ const variantMap: Record<PageTransitionVariant, Variants> = {
  * </PageTransition>
  * ```
  */
-export function PageTransition({
+export const PageTransition = memo(function PageTransition({
   children,
   variant = 'fade',
   variants: customVariants,
@@ -114,7 +114,9 @@ export function PageTransition({
       </motion.div>
     </AnimatePresence>
   );
-}
+});
+
+PageTransition.displayName = 'PageTransition';
 
 // ============================================================================
 // PageTransitionWrapper Component
@@ -150,7 +152,7 @@ export interface PageTransitionWrapperProps {
  * }
  * ```
  */
-export function PageTransitionWrapper({
+export const PageTransitionWrapper = memo(function PageTransitionWrapper({
   children,
   pageKey,
   variant = 'fade',
@@ -176,7 +178,9 @@ export function PageTransitionWrapper({
       {children}
     </motion.div>
   );
-}
+});
+
+PageTransitionWrapper.displayName = 'PageTransitionWrapper';
 
 // ============================================================================
 // usePageTransition Hook

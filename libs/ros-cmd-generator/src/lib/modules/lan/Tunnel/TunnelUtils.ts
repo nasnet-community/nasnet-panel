@@ -1,5 +1,5 @@
-import { type RouterConfig, CommandShortner } from "@nas-net/ros-cmd-generator";
-import { SubnetToFirstUsableIP } from "@nas-net/ros-cmd-generator/";
+import { SubnetToFirstUsableIP, type RouterConfig, CommandShortner } from "../../index";
+
 import type {
     IpipTunnelConfig,
     EoipTunnelConfig,

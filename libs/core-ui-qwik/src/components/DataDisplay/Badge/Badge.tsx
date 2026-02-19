@@ -1,7 +1,9 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { BadgeProps, BadgeGroupProps } from "./Badge.types";
-import { useBadge } from "./hooks/useBadge";
+
 import { BadgeContent } from "./BadgeContent";
+import { useBadge } from "./hooks/useBadge";
+
+import type { BadgeProps, BadgeGroupProps } from "./Badge.types";
 
 /**
  * Badge/Tag component for displaying short status descriptors

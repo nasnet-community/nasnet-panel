@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -21,7 +22,7 @@ export interface BridgeDetailDesktopProps {
   isSubmitting: boolean;
 }
 
-export function BridgeDetailDesktop({
+export const BridgeDetailDesktop = memo(function BridgeDetailDesktop({
   bridge,
   loading,
   error,
@@ -80,4 +81,4 @@ export function BridgeDetailDesktop({
       </SheetContent>
     </Sheet>
   );
-}
+});

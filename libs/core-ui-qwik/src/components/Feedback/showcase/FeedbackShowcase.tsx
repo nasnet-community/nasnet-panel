@@ -9,21 +9,23 @@ import {
   HiBookOpenOutline,
   HiCommandLineOutline,
 } from "@qwikest/icons/heroicons";
-import { Card } from "../../Card/Card";
-import { DeviceSimulator } from "./components/DeviceSimulator";
-import { ThemeEditor } from "./components/ThemeEditor";
-import { PerformanceMonitor } from "./components/PerformanceMonitor";
+
 import { AccessibilityScanner } from "./components/AccessibilityScanner";
 import { CodeGenerator } from "./components/CodeGenerator";
-import { ComponentGallery } from "./sections/ComponentGallery";
-import { MobileFeaturesSection } from "./sections/MobileFeaturesSection";
-import { ThemeSystemSection } from "./sections/ThemeSystemSection";
-import { BestPracticesSection } from "./sections/BestPracticesSection";
-import { HeroSection } from "./sections/HeroSection";
-import { useShowcaseTheme } from "./hooks/useShowcaseTheme";
+import { DeviceSimulator } from "./components/DeviceSimulator";
+import { PerformanceMonitor } from "./components/PerformanceMonitor";
+import { ThemeEditor } from "./components/ThemeEditor";
+import { DEFAULT_THEME, KEYBOARD_SHORTCUTS } from "./constants";
 import { useDeviceSimulator } from "./hooks/useDeviceSimulator";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { DEFAULT_THEME, KEYBOARD_SHORTCUTS } from "./constants";
+import { useShowcaseTheme } from "./hooks/useShowcaseTheme";
+import { BestPracticesSection } from "./sections/BestPracticesSection";
+import { ComponentGallery } from "./sections/ComponentGallery";
+import { HeroSection } from "./sections/HeroSection";
+import { MobileFeaturesSection } from "./sections/MobileFeaturesSection";
+import { ThemeSystemSection } from "./sections/ThemeSystemSection";
+import { Card } from "../../Card/Card";
+
 import type { ShowcaseTheme } from "./types";
 
 export const FeedbackShowcase = component$(() => {

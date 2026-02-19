@@ -6,7 +6,7 @@
  * Story: NAS-7.12 - Implement Port Knocking - Task 4
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@nasnet/ui/utils';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -61,7 +61,7 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
 // Main Component
 // ============================================================================
 
-export function PortKnockSequenceManagerDesktop({
+export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceManagerDesktop({
   className,
   onEdit,
   onCreate,
@@ -180,7 +180,7 @@ export function PortKnockSequenceManagerDesktop({
                     {sequence.protectedProtocol.toUpperCase()}:{sequence.protectedPort}
                   </Badge>
                   {sequence.protectedPort === 22 && (
-                    <ShieldAlert className="h-4 w-4 text-amber-500" aria-label="SSH Protected" />
+                    <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH Protected" />
                   )}
                 </div>
               </TableCell>
@@ -264,7 +264,7 @@ export function PortKnockSequenceManagerDesktop({
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded">
+                <div className="mt-2 p-2 bg-warning/10 border border-warning/30 rounded">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>
@@ -283,6 +283,6 @@ export function PortKnockSequenceManagerDesktop({
       </Dialog>
     </>
   );
-}
+});
 
 PortKnockSequenceManagerDesktop.displayName = 'PortKnockSequenceManagerDesktop';

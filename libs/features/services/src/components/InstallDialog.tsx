@@ -62,7 +62,7 @@ export interface InstallDialogProps {
  * - Step 3: Installing with real-time progress
  * - Step 4: Complete with success message
  */
-export function InstallDialog({
+export const InstallDialog = React.memo(function InstallDialog({
   open,
   onClose,
   routerId,
@@ -230,8 +230,11 @@ export function InstallDialog({
                     <button
                       key={service.id}
                       onClick={() => setSelectedServiceId(service.id)}
+                      aria-label={`Select ${service.name}`}
+                      aria-pressed={selectedServiceId === service.id}
                       className={`
-                        w-full p-4 text-left rounded-lg border-2 transition-all
+                        w-full p-4 text-left rounded-lg border-2 transition-all min-h-[44px]
+                        focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none
                         ${
                           selectedServiceId === service.id
                             ? 'border-primary bg-primary/5'
@@ -333,7 +336,7 @@ export function InstallDialog({
                     {progress?.percent || 0}%
                   </span>
                 </div>
-                <Progress value={progress?.percent || 0} />
+                <Progress value={progress?.percent || 0} aria-label="Installation progress" />
               </div>
 
               {progress?.bytesDownloaded && progress?.totalBytes && (
@@ -348,7 +351,7 @@ export function InstallDialog({
           {/* Step 4: Complete */}
           {step === 'complete' && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="32"
@@ -357,7 +360,8 @@ export function InstallDialog({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="text-green-600 dark:text-green-400"
+                  className="text-success"
+                  aria-hidden="true"
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
@@ -401,7 +405,9 @@ export function InstallDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+InstallDialog.displayName = 'InstallDialog';
 
 /**
  * Format bytes to human-readable string

@@ -103,7 +103,8 @@ export function DnsStaticEntriesListMobile({
                       size="sm"
                       onClick={() => onEdit(entry)}
                       disabled={loading}
-                      className="flex-1 h-9" // 36px touch target
+                      className="flex-1 h-11"
+                      aria-label={`Edit DNS entry ${entry.name}`}
                     >
                       <Edit2 className="h-4 w-4 mr-2" />
                       Edit
@@ -113,7 +114,8 @@ export function DnsStaticEntriesListMobile({
                       size="sm"
                       onClick={() => setEntryToDelete(entry)}
                       disabled={loading}
-                      className="flex-1 h-9" // 36px touch target
+                      className="flex-1 h-11"
+                      aria-label={`Delete DNS entry ${entry.name}`}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete

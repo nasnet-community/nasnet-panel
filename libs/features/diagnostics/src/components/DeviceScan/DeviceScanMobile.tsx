@@ -3,7 +3,7 @@
 // =============================================================================
 // Mobile presenter for device scanning with bottom sheet detail view
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Button, Progress, Card, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
 import { InterfaceSelector, SubnetInput } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
@@ -43,7 +43,7 @@ export interface DeviceScanMobileProps {
 // Component
 // -----------------------------------------------------------------------------
 
-export function DeviceScanMobile({
+export const DeviceScanMobile = memo(function DeviceScanMobile({
   status,
   progress,
   devices,
@@ -107,6 +107,7 @@ export function DeviceScanMobile({
               onClick={stopScan}
               className="flex-1"
               size="lg"
+              aria-label="Stop device scan"
             >
               Stop Scan
             </Button>
@@ -116,12 +117,13 @@ export function DeviceScanMobile({
               disabled={!routerId}
               className="flex-1"
               size="lg"
+              aria-label="Start device scan"
             >
               Start Scan
             </Button>
           )}
           {isComplete && (
-            <Button variant="outline" onClick={reset} size="lg">
+            <Button variant="outline" onClick={reset} size="lg" aria-label="Start a new scan">
               New Scan
             </Button>
           )}
@@ -147,7 +149,7 @@ export function DeviceScanMobile({
 
       {/* Error State */}
       {error && (
-        <Card className="p-4 bg-destructive/10">
+        <Card className="p-4 bg-destructive/10" role="alert">
           <p className="font-medium text-destructive">Scan failed</p>
           <p className="text-sm text-destructive">{error}</p>
         </Card>
@@ -203,4 +205,6 @@ export function DeviceScanMobile({
       </div>
     </div>
   );
-}
+});
+
+DeviceScanMobile.displayName = 'DeviceScanMobile';

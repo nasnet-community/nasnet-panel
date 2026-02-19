@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Box } from "../index";
 
 export default component$(() => {

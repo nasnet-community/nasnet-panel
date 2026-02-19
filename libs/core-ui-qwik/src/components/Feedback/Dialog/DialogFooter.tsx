@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { DialogFooterProps } from "./Dialog.types";
+
 import { cn } from "../utils/theme";
+
+import type { DialogFooterProps } from "./Dialog.types";
 
 /**
  * DialogFooter Component

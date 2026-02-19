@@ -1,5 +1,7 @@
 import { useSignal, $ } from "@builder.io/qwik";
+
 import { DEVICE_CONFIGS } from "../constants";
+
 import type { DeviceSize, DeviceConfig } from "../types";
 
 export const useDeviceSimulator = () => {

@@ -202,7 +202,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         {/* Header with status */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {isProcessing && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
+            {isProcessing && <Loader2 className="h-5 w-5 animate-spin text-primary" role="status" aria-label="Applying changes" />}
             {status === 'COMPLETED' && <CheckCircle className="h-5 w-5 text-success" />}
             {(status === 'FAILED' || status === 'PARTIAL_FAILURE') && (
               <XCircle className="h-5 w-5 text-error" />
@@ -220,7 +220,10 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           <Progress
             value={progressPercent}
             className="h-2"
-            aria-label={`Progress: ${Math.round(progressPercent)}%`}
+            aria-label={`Applying changes: ${Math.round(progressPercent)}% complete`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progressPercent)}
           />
           <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>{Math.round(progressPercent)}% complete</span>
@@ -334,7 +337,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
           {/* Cancel button during processing */}
           {isProcessing && onCancel && (
-            <Button variant="outline" size="sm" onClick={onCancel}>
+            <Button variant="outline" size="sm" onClick={onCancel} aria-label="Cancel applying changes">
               <X className="h-4 w-4 mr-1" />
               Cancel
             </Button>
@@ -342,7 +345,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
 
           {/* Retry button after failure */}
           {status === 'FAILED' && onRetry && (
-            <Button variant="default" size="sm" onClick={onRetry}>
+            <Button variant="default" size="sm" onClick={onRetry} aria-label="Retry applying changes">
               <RotateCcw className="h-4 w-4 mr-1" />
               Retry
             </Button>
@@ -350,7 +353,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
 
           {/* Force rollback button */}
           {status === 'FAILED' && onForceRollback && (
-            <Button variant="outline" size="sm" onClick={onForceRollback}>
+            <Button variant="outline" size="sm" onClick={onForceRollback} aria-label="Force rollback of all changes">
               <RotateCcw className="h-4 w-4 mr-1" />
               Force Rollback
             </Button>

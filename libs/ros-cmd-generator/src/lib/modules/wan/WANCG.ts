@@ -1,10 +1,11 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import { DNS } from "./DNS";
+import { MainTableRoute } from "./MultiLink";
+import { VPNClientWrapper } from "./VPNClient";
+import { generateWANLinksConfig } from "./WAN";
+import { mergeMultipleConfigs } from "../../utils/ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../../generator";
 import type { WANState, Networks, Subnets, LTE, RouterModels } from "@nas-net/star-context";
-import { VPNClientWrapper } from "@nas-net/ros-cmd-generator";
-import { generateWANLinksConfig } from "@nas-net/ros-cmd-generator";
-import { MainTableRoute } from "@nas-net/ros-cmd-generator";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
-import { DNS } from "@nas-net/ros-cmd-generator";
 
 
 export const WANCG = (WANState: WANState, networks: Networks, subnets?: Subnets, availableLTEInterfaces?: LTE[], routerModels?: RouterModels[]): RouterConfig => {

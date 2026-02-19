@@ -1,9 +1,10 @@
-import { $, useSignal } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { $, useSignal , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { WireguardServerConfig } from "@nas-net/star-context";
-import type { VSNetwork } from "@nas-net/star-context";
+
 import { validatePort, getAllVPNServerPorts } from "../../utils/portValidation";
+
+import type { WireguardServerConfig , VSNetwork } from "@nas-net/star-context";
+
 
 // Define ViewMode type if it doesn't exist
 type ViewMode = "easy" | "advanced";

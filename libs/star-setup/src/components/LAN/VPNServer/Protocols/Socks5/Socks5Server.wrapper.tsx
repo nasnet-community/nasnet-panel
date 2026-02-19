@@ -1,8 +1,9 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import { Socks5ServerAdvanced } from "./Socks5ServerAdvanced";
 import { Socks5ServerEasy } from "./Socks5ServerEasy";
+
 import type { Mode } from "@nas-net/star-context";
 
 export const Socks5ServerWrapper = component$(() => {

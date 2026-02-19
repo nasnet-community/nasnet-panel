@@ -5,7 +5,7 @@
  * 2-column grid with sidebar filters and hover states.
  */
 
-import * as React from 'react';
+import { memo } from 'react';
 import { Plus } from 'lucide-react';
 
 import { Button, Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
@@ -27,7 +27,7 @@ import type { TemplatesBrowserProps } from './types';
  * - Hover states
  * - Dense information display
  */
-export function TemplatesBrowserDesktop({
+function TemplatesBrowserDesktopComponent({
   routerId,
   onInstall,
   onViewDetails,
@@ -47,7 +47,7 @@ export function TemplatesBrowserDesktop({
   return (
     <div className={cn('flex h-full', className)}>
       {/* Left Sidebar - Filters */}
-      <aside className="w-80 border-r bg-muted/10 p-6 overflow-y-auto">
+      <aside className="w-80 border-r border-border bg-muted/10 p-6 overflow-y-auto" aria-label="Template filters">
         <h2 className="text-lg font-semibold mb-6">Filters</h2>
         <TemplateFilters
           filters={filters}
@@ -58,9 +58,9 @@ export function TemplatesBrowserDesktop({
       </aside>
 
       {/* Main Content - Templates Grid */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto" aria-label="Service templates">
         {/* Header */}
-        <div className="border-b bg-background p-6 sticky top-0 z-10">
+        <div className="border-b border-border bg-background p-6 sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Service Templates</h1>
@@ -76,7 +76,7 @@ export function TemplatesBrowserDesktop({
         {/* Error State */}
         {error && (
           <div className="p-6">
-            <Card className="border-destructive">
+            <Card className="border-destructive" role="alert">
               <CardContent className="p-6">
                 <h3 className="font-semibold text-destructive mb-2">
                   Failed to load templates
@@ -84,7 +84,12 @@ export function TemplatesBrowserDesktop({
                 <p className="text-sm text-muted-foreground mb-4">
                   {error.message}
                 </p>
-                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refetch()}
+                  className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   Retry
                 </Button>
               </CardContent>
@@ -94,7 +99,7 @@ export function TemplatesBrowserDesktop({
 
         {/* Loading State */}
         {loading && !error && (
-          <div className="p-6 grid grid-cols-2 gap-6">
+          <div className="p-6 grid grid-cols-2 gap-6" role="status" aria-label="Loading templates">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-64 w-full rounded-lg" />
             ))}
@@ -125,7 +130,7 @@ export function TemplatesBrowserDesktop({
 
         {/* Templates Grid */}
         {!loading && !error && templates.length > 0 && (
-          <div className="p-6 grid grid-cols-2 gap-6">
+          <div className="p-6 grid grid-cols-2 gap-6" role="list" aria-label="Service templates list">
             {templates.map((template) => (
               <ServiceTemplateCard
                 key={template.id}
@@ -169,3 +174,6 @@ export function TemplatesBrowserDesktop({
     </div>
   );
 }
+
+export const TemplatesBrowserDesktop = memo(TemplatesBrowserDesktopComponent);
+TemplatesBrowserDesktop.displayName = 'TemplatesBrowserDesktop';

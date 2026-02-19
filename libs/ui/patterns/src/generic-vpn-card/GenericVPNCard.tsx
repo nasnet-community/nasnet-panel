@@ -1,8 +1,16 @@
 /**
  * GenericVPNCard Component
- * Displays generic VPN interface information (L2TP, PPTP, SSTP)
- * Story 0-4-4: Other VPN Type Viewer
+ *
+ * Displays generic VPN interface information (L2TP, PPTP, SSTP).
+ * Story 0-4-4: Other VPN Type Viewer.
+ *
+ * @example
+ * ```tsx
+ * <GenericVPNCard vpnInterface={l2tpInterface} />
+ * ```
  */
+
+import React, { memo } from 'react';
 
 import type { VPNInterface } from '@nasnet/core/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
@@ -26,7 +34,7 @@ export interface GenericVPNCardProps {
  * <GenericVPNCard vpnInterface={l2tpInterface} />
  * ```
  */
-export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
+function GenericVPNCardComponent({ vpnInterface, onClick }: GenericVPNCardProps) {
   // Determine status for display
   const status = vpnInterface.disabled ? 'offline' : vpnInterface.running ? 'online' : 'warning';
 
@@ -40,21 +48,25 @@ export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
   const protocolLabel = vpnInterface.type.toUpperCase();
 
   return (
-    <Card 
-      onClick={onClick} 
+    <Card
+      onClick={onClick}
+      onKeyDown={onClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      role={onClick ? 'button' : undefined}
       className={`rounded-card-sm md:rounded-card-lg shadow-sm transition-all ${
-        onClick ? 'cursor-pointer hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800/50' : ''
+        onClick ? 'cursor-pointer hover:shadow-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none' : ''
       }`}
+      aria-label={`${vpnInterface.name} ${protocolLabel} VPN - ${statusLabel}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <CardTitle className="text-lg font-semibold text-foreground">
               {vpnInterface.name}
             </CardTitle>
             <div className="mt-2 flex items-center gap-2">
               <StatusIndicator status={status} label={statusLabel} />
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
                 {protocolLabel}
               </span>
             </div>
@@ -62,18 +74,18 @@ export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-0 pt-0">
-        <div className="divide-y divide-slate-200 dark:divide-slate-700">
+        <div className="divide-y divide-border">
           <div className="flex justify-between items-start py-3">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Remote Server</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50 text-right">
+            <span className="text-sm font-medium text-muted-foreground">Remote Server</span>
+            <span className="text-sm font-semibold text-foreground text-right">
               {vpnInterface.connectTo || 'Not configured'}
             </span>
           </div>
 
           {vpnInterface.user && (
             <div className="flex justify-between items-center py-3">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Username</span>
-              <span className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-50">
+              <span className="text-sm font-medium text-muted-foreground">Username</span>
+              <span className="text-sm font-mono font-semibold text-foreground">
                 {vpnInterface.user}
               </span>
             </div>
@@ -81,8 +93,8 @@ export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
 
           {vpnInterface.comment && (
             <div className="flex justify-between items-start py-3">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Comment</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 italic text-right max-w-xs">
+              <span className="text-sm font-medium text-muted-foreground">Comment</span>
+              <span className="text-xs text-muted-foreground italic text-right max-w-xs">
                 {vpnInterface.comment}
               </span>
             </div>
@@ -90,8 +102,8 @@ export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
 
           {'verifyServerCertificate' in vpnInterface && vpnInterface.verifyServerCertificate !== undefined && (
             <div className="flex justify-between items-center py-3">
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Verify Certificate</span>
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              <span className="text-sm font-medium text-muted-foreground">Verify Certificate</span>
+              <span className="text-sm font-semibold text-foreground">
                 {vpnInterface.verifyServerCertificate ? 'Yes' : 'No'}
               </span>
             </div>
@@ -101,3 +113,6 @@ export function GenericVPNCard({ vpnInterface, onClick }: GenericVPNCardProps) {
     </Card>
   );
 }
+
+export const GenericVPNCard = memo(GenericVPNCardComponent);
+GenericVPNCard.displayName = 'GenericVPNCard';

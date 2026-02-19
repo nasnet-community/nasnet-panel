@@ -1,7 +1,9 @@
 import { component$, type QRL } from "@builder.io/qwik";
-import type { L2TPCredentials } from "@utils/supabaseClient";
+
 import { useL2TPPromoBanner } from "./useL2TPPromoBanner";
 import { ErrorMessage } from "../../components";
+
+import type { L2TPCredentials } from "@utils/supabaseClient";
 
 interface L2TPPromoBannerProps {
   onCredentialsReceived$: QRL<(credentials: L2TPCredentials) => void>;

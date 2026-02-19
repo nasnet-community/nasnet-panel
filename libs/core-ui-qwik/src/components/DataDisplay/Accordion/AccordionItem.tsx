@@ -4,8 +4,10 @@ import {
   useContext,
   useContextProvider,
 } from "@builder.io/qwik";
-import { useAccordionItem } from "./hooks/useAccordionItem";
+
 import { AccordionContext, AccordionItemContext } from "./AccordionContext";
+import { useAccordionItem } from "./hooks/useAccordionItem";
+
 import type { AccordionItemProps } from "./Accordion.types";
 
 export const AccordionItem = component$<AccordionItemProps>((props) => {

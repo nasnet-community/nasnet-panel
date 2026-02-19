@@ -129,7 +129,7 @@ export interface VirtualizedTableProps<T> {
 /**
  * A high-performance virtualized table component
  */
-export function VirtualizedTable<T>({
+function VirtualizedTableInner<T>({
   data,
   columns,
   enableSorting = false,
@@ -247,6 +247,29 @@ export function VirtualizedTable<T>({
     [onRowClick, enableRowSelection]
   );
 
+  // Keyboard navigation between rows
+  const handleRowKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTableRowElement>, row: Row<T>) => {
+      const target = event.currentTarget;
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        const next = target.nextElementSibling as HTMLElement | null;
+        next?.focus();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        const prev = target.previousElementSibling as HTMLElement | null;
+        prev?.focus();
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onRowClick?.(row);
+        if (enableRowSelection) {
+          row.toggleSelected(!row.getIsSelected());
+        }
+      }
+    },
+    [onRowClick, enableRowSelection]
+  );
+
   // Get row class
   const getRowClassName = useCallback(
     (row: Row<T>) => {
@@ -267,8 +290,9 @@ export function VirtualizedTable<T>({
       return (
         <th
           key={header.id}
+          scope="col"
           className={cn(
-            'px-4 py-2 text-left text-sm font-medium text-muted-foreground border-b',
+            'px-4 py-2 text-left text-sm font-medium text-muted-foreground border-b border-border',
             isSortable && 'cursor-pointer select-none hover:bg-muted/50',
             headerClassName
           )}
@@ -278,13 +302,22 @@ export function VirtualizedTable<T>({
           }}
           onClick={isSortable ? header.column.getToggleSortingHandler() : undefined}
           colSpan={header.colSpan}
+          aria-sort={
+            isSortable
+              ? sortDirection === 'asc'
+                ? 'ascending'
+                : sortDirection === 'desc'
+                  ? 'descending'
+                  : 'none'
+              : undefined
+          }
         >
           <div className="flex items-center gap-2">
             {header.isPlaceholder
               ? null
               : flexRender(header.column.columnDef.header, header.getContext())}
             {isSortable && (
-              <span className="text-xs">
+              <span className="text-xs" aria-hidden="true">
                 {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : '↕'}
               </span>
             )}
@@ -301,7 +334,7 @@ export function VirtualizedTable<T>({
       return (
         <td
           key={cell.id}
-          className={cn('px-4 py-2 text-sm border-b', cellClassName)}
+          className={cn('px-4 py-2 text-sm border-b border-border', cellClassName)}
           style={{
             width: cell.column.getSize(),
             minWidth: cell.column.getSize(),
@@ -323,14 +356,17 @@ export function VirtualizedTable<T>({
         <tr
           key={row.id}
           className={cn(
-            'border-b transition-colors',
+            'border-b border-border transition-colors',
             isSelected && 'bg-primary/10',
             onRowClick && 'cursor-pointer hover:bg-muted/50',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             getRowClassName(row)
           )}
           style={style}
+          tabIndex={0}
           onClick={(e) => handleRowClick(row, e)}
           onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
+          onKeyDown={(e) => handleRowKeyDown(e, row)}
           data-state={isSelected ? 'selected' : undefined}
           aria-selected={isSelected}
         >
@@ -338,7 +374,7 @@ export function VirtualizedTable<T>({
         </tr>
       );
     },
-    [handleRowClick, onRowDoubleClick, getRowClassName, renderCell]
+    [handleRowClick, handleRowKeyDown, onRowDoubleClick, getRowClassName, renderCell]
   );
 
   // Loading state
@@ -443,7 +479,9 @@ export function VirtualizedTable<T>({
   );
 }
 
-VirtualizedTable.displayName = 'VirtualizedTable';
+VirtualizedTableInner.displayName = 'VirtualizedTable';
+
+export const VirtualizedTable = React.memo(VirtualizedTableInner) as typeof VirtualizedTableInner;
 
 /**
  * Utility type for creating column definitions with better type inference

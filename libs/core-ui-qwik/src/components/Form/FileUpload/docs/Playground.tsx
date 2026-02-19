@@ -3,7 +3,9 @@ import {
   PlaygroundTemplate,
   type PropertyControl,
 } from "@nas-net/core-ui-qwik";
+
 import { FileUpload } from "../FileUpload";
+
 import type { FileInfo } from "../FileUpload.types";
 
 /**

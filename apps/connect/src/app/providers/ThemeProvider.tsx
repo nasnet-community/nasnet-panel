@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 
-import { useThemeStore, type ThemeState } from '@nasnet/state/stores';
+import { useThemeStore, type ThemeStore } from '@nasnet/state/stores';
 
 /**
  * ThemeProvider Component
@@ -27,9 +27,9 @@ import { useThemeStore, type ThemeState } from '@nasnet/state/stores';
  * ```
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useThemeStore((state: ThemeState) => state.theme);
-  const resolvedTheme = useThemeStore((state: ThemeState) => state.resolvedTheme);
-  const setResolvedTheme = useThemeStore((state: ThemeState) => state._setResolvedTheme);
+  const theme = useThemeStore((state: ThemeStore) => state.theme);
+  const resolvedTheme = useThemeStore((state: ThemeStore) => state.resolvedTheme);
+  const setResolvedTheme = useThemeStore((state: ThemeStore) => state._setResolvedTheme);
 
   // Listen for system theme changes when in 'system' mode
   useEffect(() => {
@@ -74,13 +74,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useLayoutEffect(() => {
     const root = document.documentElement;
 
-    // Apply both .dark class (for Tailwind dark: variants) and data-theme attribute (for CSS variables)
+    // Apply .dark class (for Tailwind dark: variants), data-theme attribute (for CSS variables),
+    // and color-scheme property (for native element theming: scrollbars, form controls, etc.)
     if (resolvedTheme === 'dark') {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'dark');
+      root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
       root.setAttribute('data-theme', 'light');
+      root.style.colorScheme = 'light';
     }
   }, [resolvedTheme]);
 

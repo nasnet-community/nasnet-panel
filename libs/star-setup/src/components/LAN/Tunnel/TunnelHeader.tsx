@@ -1,10 +1,10 @@
 import { component$, type Signal, type QRL, useSignal, useTask$, $ } from "@builder.io/qwik";
+import { SegmentedControl } from "@nas-net/core-ui-qwik";
 import {
   HiCubeTransparentOutline,
   HiCheckCircleOutline,
   HiXCircleOutline,
 } from "@qwikest/icons/heroicons";
-import { SegmentedControl } from "@nas-net/core-ui-qwik";
 
 interface TunnelHeaderProps {
   tunnelsEnabled: Signal<boolean>;

@@ -317,6 +317,7 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          aria-label="Passthrough"
                         />
                       </div>
                     )}
@@ -426,27 +427,37 @@ export const MangleRuleEditorMobile = memo(function MangleRuleEditorMobile({
               />
             </FormField>
 
-            <div className="flex items-center justify-between h-11">
+            <label htmlFor="mangle-disabled-switch" className="flex items-center justify-between h-11 cursor-pointer">
               <span className="text-sm font-medium">Disabled</span>
               <Controller
                 name="disabled"
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    id="mangle-disabled-switch"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Disabled"
+                  />
                 )}
               />
-            </div>
+            </label>
 
-            <div className="flex items-center justify-between h-11">
+            <label htmlFor="mangle-log-switch" className="flex items-center justify-between h-11 cursor-pointer">
               <span className="text-sm font-medium">Log Packets</span>
               <Controller
                 name="log"
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    id="mangle-log-switch"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Log Packets"
+                  />
                 )}
               />
-            </div>
+            </label>
           </Card>
         </div>
 

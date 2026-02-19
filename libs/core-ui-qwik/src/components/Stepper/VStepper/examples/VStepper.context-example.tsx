@@ -1,11 +1,13 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
-import { VStepper } from "../VStepper";
-import type { StepItem } from "../types";
+
 import { 
   createVStepperContext, 
   useVStepperContext,
   useProvideVStepperContext 
 } from "../hooks/useVStepperContext";
+import { VStepper } from "../VStepper";
+
+import type { StepItem } from "../types";
 
 // Define data interface for our stepper context
 interface FormData {

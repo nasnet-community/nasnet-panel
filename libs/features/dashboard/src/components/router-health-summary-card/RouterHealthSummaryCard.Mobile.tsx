@@ -94,7 +94,7 @@ export function RouterHealthSummaryCardMobile({
             className={cn(
               'flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium',
               getHealthBgClass(healthStatus),
-              healthStatus === 'warning' ? 'text-black' : 'text-white'
+              healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
             )}
             role="meter"
             aria-valuenow={healthStatus === 'healthy' ? 100 : healthStatus === 'warning' ? 50 : 0}

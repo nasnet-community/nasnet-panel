@@ -4,11 +4,14 @@
  * Demonstrates VLAN form in create and edit modes with validation.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { VlanForm } from './VlanForm';
 import { MockedProvider } from '@apollo/client/testing';
-import { CHECK_VLAN_ID_AVAILABLE } from '@nasnet/api-client/queries';
 import { fn } from '@storybook/test';
+
+import { CHECK_VLAN_ID_AVAILABLE } from '@nasnet/api-client/queries';
+
+import { VlanForm } from './VlanForm';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof VlanForm> = {
   title: 'Features/Network/VlanForm',

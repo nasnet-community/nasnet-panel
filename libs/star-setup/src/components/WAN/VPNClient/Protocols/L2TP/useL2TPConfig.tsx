@@ -1,10 +1,11 @@
 import { $, useSignal, useContext } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
-import type { L2tpClientConfig } from "@nas-net/star-context";
-import type { AuthMethod } from "@nas-net/star-context";
 import { useNetworks } from "@utils/useNetworks";
 import { useSubnets } from "@utils/useSubnets";
+
+import type { QRL } from "@builder.io/qwik";
+import type { L2tpClientConfig , AuthMethod } from "@nas-net/star-context";
+
 
 export interface UseL2TPConfigResult {
   serverAddress: { value: string };

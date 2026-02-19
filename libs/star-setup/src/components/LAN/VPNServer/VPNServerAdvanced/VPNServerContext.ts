@@ -1,6 +1,6 @@
 import { createStepperContext } from "@nas-net/core-ui-qwik";
-import type { VPNType } from "@nas-net/star-context";
-import type { VSCredentials } from "@nas-net/star-context";
+
+import type { VPNType , VSCredentials } from "@nas-net/star-context";
 
 // Context data for VPN Server settings
 export interface VPNServerContextData {

@@ -3,7 +3,9 @@ import {
   PlaygroundTemplate,
   type PropertyControl,
 } from "@nas-net/core-ui-qwik";
+
 import { Autocomplete } from "../Autocomplete";
+
 import type { AutocompleteOption } from "../Autocomplete.types";
 
 /**

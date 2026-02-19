@@ -1,6 +1,6 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Drawer } from "@nas-net/core-ui-qwik";
-import { Button } from "@nas-net/core-ui-qwik";
+import { Drawer , Button } from "@nas-net/core-ui-qwik";
+
 
 export const FixedBasicDrawer = component$(() => {
   const isDrawerOpen = useSignal(false);

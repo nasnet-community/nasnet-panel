@@ -1,8 +1,10 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
+
 import { Graph } from "../Graph";
 import { createNode, networkNodeTypes } from "../Node/NodeTypes";
-import type { GraphNode, GraphConnection } from "../types";
+
 import type { NetworkNodeType } from "../Node/NodeTypes";
+import type { GraphNode, GraphConnection } from "../types";
 
 /**
  * Example component showcasing all available node types in the graph library

@@ -1,9 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import type { NumberInputProps } from "./NumberInput.types";
-import { useNumberInput } from "./hooks/useNumberInput";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
+
 import { FormErrorMessage } from "../FormErrorMessage";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
+import { useNumberInput } from "./hooks/useNumberInput";
+
+import type { NumberInputProps } from "./NumberInput.types";
 
 export const NumberInput = component$<NumberInputProps>((props) => {
   const {

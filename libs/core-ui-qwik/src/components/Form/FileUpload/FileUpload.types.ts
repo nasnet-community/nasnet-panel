@@ -1,5 +1,5 @@
-import type { QRL, NoSerialize } from "@builder.io/qwik";
-import type { QwikIntrinsicElements } from "@builder.io/qwik";
+import type { QRL, NoSerialize , QwikIntrinsicElements } from "@builder.io/qwik";
+
 
 export type FileUploadSize = "sm" | "md" | "lg";
 export type FileUploadVariant = "default" | "bordered" | "filled";

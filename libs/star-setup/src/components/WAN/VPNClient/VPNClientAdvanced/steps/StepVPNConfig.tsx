@@ -1,21 +1,23 @@
 import { component$, $, useSignal, useContext } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import { IKEv2Config } from "../../Protocols/IKeV2/IKEv2Config";
+import { L2TPConfig } from "../../Protocols/L2TP/L2TPConfig";
+import { OpenVPNConfig } from "../../Protocols/OpenVPN/OpenVPNConfig";
+import { PPTPConfig } from "../../Protocols/PPTP/PPTPConfig";
+import { SSTPConfig } from "../../Protocols/SSTP/SSTPConfig";
+import { WireguardConfig } from "../../Protocols/Wireguard/WireguardConfig";
+import { VPNBox } from "../components/VPNBox/VPNBox";
+import { VPNBoxContent } from "../components/VPNBox/VPNBoxContent";
+
+// Protocol-specific configuration components
+
+import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
 import type {
   VPNClientAdvancedState,
   VPNConfig,
   VPNClientConfig,
 } from "../types/VPNClientAdvancedTypes";
-import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
-import { VPNBox } from "../components/VPNBox/VPNBox";
-import { VPNBoxContent } from "../components/VPNBox/VPNBoxContent";
-import { StarContext } from "@nas-net/star-context";
-
-// Protocol-specific configuration components
-import { WireguardConfig } from "../../Protocols/Wireguard/WireguardConfig";
-import { OpenVPNConfig } from "../../Protocols/OpenVPN/OpenVPNConfig";
-import { L2TPConfig } from "../../Protocols/L2TP/L2TPConfig";
-import { PPTPConfig } from "../../Protocols/PPTP/PPTPConfig";
-import { SSTPConfig } from "../../Protocols/SSTP/SSTPConfig";
-import { IKEv2Config } from "../../Protocols/IKeV2/IKEv2Config";
 
 export interface StepVPNConfigProps {
   wizardState: VPNClientAdvancedState;

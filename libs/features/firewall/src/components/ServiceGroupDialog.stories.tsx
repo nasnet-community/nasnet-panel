@@ -11,14 +11,18 @@
  * @module @nasnet/features/firewall/components
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { fn } from '@storybook/test';
+
+import { fn, within, waitFor, userEvent } from '@storybook/test';
+import { vi } from 'vitest';
 
 import type { ServiceGroup, ServicePortDefinition } from '@nasnet/core/types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { ServiceGroupDialog } from './ServiceGroupDialog';
 import * as useCustomServicesModule from '../hooks/useCustomServices';
+
+
 
 // ============================================================================
 // Mock Data
@@ -508,9 +512,3 @@ export const Playground: Story = {
   },
 };
 
-// ============================================================================
-// Helper imports for play function
-// ============================================================================
-
-import { within, waitFor, userEvent } from '@storybook/test';
-import { vi } from 'vitest';

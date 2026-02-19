@@ -17,7 +17,7 @@
  * @see NAS-7.2: Implement NAT Configuration - Task 9
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNATUIStore } from '@nasnet/state/stores';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -72,7 +72,7 @@ interface EmptyStateProps {
   onPortForward: () => void;
 }
 
-function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: EmptyStateProps) {
+const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: EmptyStateProps) {
   const { t } = useTranslation('firewall');
 
   // Chain-specific empty states
@@ -86,11 +86,11 @@ function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: Empt
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button onClick={onQuickMasquerade}>
+          <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
             <Zap className="h-4 w-4 mr-2" />
             Quick Masquerade
           </Button>
-          <Button variant="outline" onClick={onAddRule}>
+          <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
             <Plus className="h-4 w-4 mr-2" />
             Add Custom Rule
           </Button>
@@ -109,11 +109,11 @@ function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: Empt
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button onClick={onPortForward}>
+          <Button onClick={onPortForward} aria-label="Port Forward Wizard">
             <Globe className="h-4 w-4 mr-2" />
             Port Forward Wizard
           </Button>
-          <Button variant="outline" onClick={onAddRule}>
+          <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
             <Plus className="h-4 w-4 mr-2" />
             Add Custom Rule
           </Button>
@@ -132,22 +132,22 @@ function EmptyState({ chain, onAddRule, onQuickMasquerade, onPortForward }: Empt
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
-        <Button onClick={onQuickMasquerade}>
+        <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
           <Zap className="h-4 w-4 mr-2" />
           Quick Masquerade
         </Button>
-        <Button onClick={onPortForward}>
+        <Button onClick={onPortForward} aria-label="Port Forward Wizard">
           <Globe className="h-4 w-4 mr-2" />
           Port Forward Wizard
         </Button>
-        <Button variant="outline" onClick={onAddRule}>
+        <Button variant="outline" onClick={onAddRule} aria-label="Add NAT Rule">
           <Plus className="h-4 w-4 mr-2" />
           Add NAT Rule
         </Button>
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -234,17 +234,17 @@ export function NATRulesPage() {
           <div className="flex gap-2">
             {!isMobile && (
               <>
-                <Button variant="outline" onClick={handleQuickMasquerade}>
+                <Button variant="outline" onClick={handleQuickMasquerade} aria-label="Quick Masquerade">
                   <Zap className="h-4 w-4 mr-2" />
                   Quick Masquerade
                 </Button>
-                <Button variant="outline" onClick={handlePortForward}>
+                <Button variant="outline" onClick={handlePortForward} aria-label="Port Forward Wizard">
                   <Globe className="h-4 w-4 mr-2" />
                   Port Forward Wizard
                 </Button>
               </>
             )}
-            <Button onClick={handleAddRule}>
+            <Button onClick={handleAddRule} aria-label="Add NAT Rule">
               <Plus className="h-4 w-4 mr-2" />
               Add NAT Rule
             </Button>
@@ -254,11 +254,11 @@ export function NATRulesPage() {
         {/* Mobile Action Buttons */}
         {isMobile && (
           <div className="flex gap-2 px-4 pb-4">
-            <Button variant="outline" size="sm" onClick={handleQuickMasquerade} className="flex-1">
+            <Button variant="outline" size="sm" onClick={handleQuickMasquerade} className="flex-1" aria-label="Masquerade">
               <Zap className="h-4 w-4 mr-2" />
               Masquerade
             </Button>
-            <Button variant="outline" size="sm" onClick={handlePortForward} className="flex-1">
+            <Button variant="outline" size="sm" onClick={handlePortForward} className="flex-1" aria-label="Port Forward">
               <Globe className="h-4 w-4 mr-2" />
               Port Forward
             </Button>
@@ -285,11 +285,11 @@ export function NATRulesPage() {
             {/* All Chains Tab */}
             <TabsContent value="all" className="p-4 m-0">
               {isLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                   <div className="animate-pulse space-y-4">
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                    <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                    <div className="h-16 bg-muted rounded" />
+                    <div className="h-16 bg-muted rounded" />
+                    <div className="h-16 bg-muted rounded" />
                   </div>
                 </div>
               ) : !filteredRules || filteredRules.length === 0 ? (
@@ -309,10 +309,10 @@ export function NATRulesPage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-4 m-0">
                 {isLoading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
                     <div className="animate-pulse space-y-4">
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-                      <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+                      <div className="h-16 bg-muted rounded" />
+                      <div className="h-16 bg-muted rounded" />
                     </div>
                   </div>
                 ) : !filteredRules || filteredRules.length === 0 ? (

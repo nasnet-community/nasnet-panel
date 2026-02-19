@@ -3,10 +3,9 @@ import {
   component$,
   useContext,
   type PropFunction,
-} from "@builder.io/qwik";
-import type { QwikJSX } from "@builder.io/qwik";
-import { LuNetwork, LuLink } from "@qwikest/icons/lucide";
+ type QwikJSX } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+import { LuNetwork, LuLink } from "@qwikest/icons/lucide";
 
 export type RouterModeType = "AP Mode" | "Trunk Mode";
 

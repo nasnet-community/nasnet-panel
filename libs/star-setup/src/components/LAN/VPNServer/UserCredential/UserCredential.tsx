@@ -1,12 +1,5 @@
 import { $, component$, useContext } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import type { VSCredentials } from "@nas-net/star-context";
-import type { VPNType } from "@nas-net/star-context";
-import { VPN_PROTOCOLS } from "../Protocols/constants";
-import { Card } from "@nas-net/core-ui-qwik";
-import { Field } from "@nas-net/core-ui-qwik";
-import { Input, Checkbox } from "@nas-net/core-ui-qwik";
-import { useUserCredential } from "./useUserCredential";
+import { Card , Field , Input, Checkbox } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
 import {
   HiUserOutline,
@@ -16,6 +9,13 @@ import {
   HiCheckCircleOutline,
   HiCheckOutline,
 } from "@qwikest/icons/heroicons";
+
+import { useUserCredential } from "./useUserCredential";
+import { VPN_PROTOCOLS } from "../Protocols/constants";
+
+import type { QRL } from "@builder.io/qwik";
+import type { VPNType , VSCredentials } from "@nas-net/star-context";
+
 
 interface UserCredentialProps {
   user: VSCredentials;

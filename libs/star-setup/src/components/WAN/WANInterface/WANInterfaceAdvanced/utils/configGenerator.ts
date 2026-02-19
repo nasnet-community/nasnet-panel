@@ -4,13 +4,11 @@ import type {
 } from "../types";
 import type {
   WANState,
-} from "@nas-net/star-context";
-import type {
+
   Ethernet,
   Wireless,
   Sfp,
-  LTE,
-} from "@nas-net/star-context";
+  LTE} from "@nas-net/star-context";
 
 // Convert advanced state to StarContext WANState format
 export function generateWANState(

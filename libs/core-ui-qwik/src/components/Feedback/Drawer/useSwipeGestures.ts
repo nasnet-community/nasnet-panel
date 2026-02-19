@@ -1,6 +1,7 @@
 import { $, useStore, useVisibleTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { DrawerPlacement, SwipeGestureState } from "./Drawer.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseSwipeGesturesParams {
   isOpen: boolean;

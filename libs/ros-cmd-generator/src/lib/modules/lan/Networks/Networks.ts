@@ -1,7 +1,4 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { Subnets, SubnetConfig, WANLinks, VPNClient } from "@nas-net/star-context";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
-import {
+import { mergeMultipleConfigs ,
     SubnetToRange,
     SubnetToFirstIP,
     SubnetToNetwork,
@@ -9,7 +6,11 @@ import {
     SubnetToTunnelGatewayIP,
     SubnetToTunnelDHCPRange,
     shouldSkipMangleRules,
-} from "@nas-net/ros-cmd-generator";
+} from "../../index";
+
+import type { RouterConfig } from "../../index";
+import type { Subnets, SubnetConfig, WANLinks, VPNClient } from "@nas-net/star-context";
+
 
 type NetworkType = "Domestic" | "Foreign" | "VPN" | "Split";
 

@@ -1,4 +1,5 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizard.tsx
+import { memo } from 'react';
 import { TroubleshootWizardDesktop } from './TroubleshootWizardDesktop';
 import { TroubleshootWizardMobile } from './TroubleshootWizardMobile';
 import type { ISPInfo } from '../../types/troubleshoot.types';
@@ -32,7 +33,7 @@ export interface TroubleshootWizardProps {
  * />
  * ```
  */
-export function TroubleshootWizard({
+export const TroubleshootWizard = memo(function TroubleshootWizard({
   routerId,
   autoStart = false,
   onClose,
@@ -40,7 +41,7 @@ export function TroubleshootWizard({
   className,
 }: TroubleshootWizardProps) {
   return (
-    <div className={className}>
+    <div className={className} role="region" aria-label="Internet troubleshooting wizard">
       {/* Desktop Presenter (>1024px) */}
       <div className="hidden lg:block">
         <TroubleshootWizardDesktop
@@ -62,4 +63,4 @@ export function TroubleshootWizard({
       </div>
     </div>
   );
-}
+});

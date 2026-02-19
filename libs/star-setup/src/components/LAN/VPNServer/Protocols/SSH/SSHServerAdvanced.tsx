@@ -1,9 +1,10 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+import { ServerCard , SectionTitle } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
+
 import { useSSHServer } from "./useSSHServer";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { SectionTitle } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown } from "../../components/NetworkSelection";
+
 import type { BaseNetworksType } from "@nas-net/star-context";
 
 export const SSHServerAdvanced = component$(() => {

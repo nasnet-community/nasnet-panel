@@ -1,6 +1,7 @@
 import { useId, useSignal, useTask$, $ } from "@builder.io/qwik";
-import type { Signal, QRL } from "@builder.io/qwik";
+
 import type { AccordionProps } from "../Accordion.types";
+import type { Signal, QRL } from "@builder.io/qwik";
 
 export interface UseAccordionReturn {
   accordionId: string;

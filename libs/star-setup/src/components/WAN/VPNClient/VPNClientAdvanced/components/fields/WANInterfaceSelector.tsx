@@ -1,6 +1,7 @@
 import { component$, useContext, useComputed$, type QRL } from "@builder.io/qwik";
 import { UnifiedSelect } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import type { WANInterfaceType } from "@nas-net/star-context";
 
 export interface WANInterfaceSelectorProps {

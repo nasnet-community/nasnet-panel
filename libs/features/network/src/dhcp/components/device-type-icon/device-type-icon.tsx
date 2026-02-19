@@ -83,12 +83,12 @@ const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, LucideIcon> = {
  * Uses Tailwind color classes for text colors
  */
 const CATEGORY_COLORS: Record<FingerprintDeviceCategory, string> = {
-  mobile: 'text-blue-500',
-  computer: 'text-green-500',
-  iot: 'text-orange-500',
-  network: 'text-purple-500',
-  entertainment: 'text-pink-500',
-  other: 'text-gray-500',
+  mobile: 'text-info',
+  computer: 'text-success',
+  iot: 'text-warning',
+  network: 'text-accent-foreground',
+  entertainment: 'text-primary',
+  other: 'text-muted-foreground',
 };
 
 /**
@@ -130,7 +130,7 @@ export interface DeviceTypeIconProps {
  * />
  * ```
  */
-export function DeviceTypeIcon({
+export const DeviceTypeIcon = React.memo(function DeviceTypeIcon({
   deviceType,
   deviceCategory,
   confidence,
@@ -139,17 +139,27 @@ export function DeviceTypeIcon({
   onClick,
 }: DeviceTypeIconProps) {
   const Icon = DEVICE_TYPE_ICONS[deviceType] || HelpCircle;
-  const colorClass = CATEGORY_COLORS[deviceCategory] || 'text-gray-500';
+  const colorClass = CATEGORY_COLORS[deviceCategory] || 'text-muted-foreground';
 
-  const icon = (
-    <Icon
-      className={cn(
-        'h-5 w-5',
-        colorClass,
-        onClick && 'cursor-pointer hover:opacity-75 transition-opacity',
-        className
-      )}
+  const icon = onClick ? (
+    <button
+      type="button"
       onClick={onClick}
+      className={cn(
+        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded',
+        'cursor-pointer hover:opacity-75 transition-opacity',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+      )}
+      aria-label={`View ${formatDeviceType(deviceType)} details`}
+    >
+      <Icon
+        className={cn('h-5 w-5', colorClass, className)}
+        aria-hidden="true"
+      />
+    </button>
+  ) : (
+    <Icon
+      className={cn('h-5 w-5', colorClass, className)}
       aria-hidden={showTooltip ? 'true' : undefined}
     />
   );
@@ -177,7 +187,9 @@ export function DeviceTypeIcon({
       </Tooltip>
     </TooltipProvider>
   );
-}
+});
+
+DeviceTypeIcon.displayName = 'DeviceTypeIcon';
 
 /**
  * Format device type for human-readable display

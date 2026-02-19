@@ -1,8 +1,11 @@
 import { component$, useContext } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { UsefulServicesEasy } from "./UsefulServicesEasy/UsefulServicesEasy";
-import { UsefulServicesAdvanced } from "./UsefulServicesAdvanced/UsefulServicesAdvanced";
 import { StarContext } from "@nas-net/star-context";
+
+import { UsefulServicesAdvanced } from "./UsefulServicesAdvanced/UsefulServicesAdvanced";
+import { UsefulServicesEasy } from "./UsefulServicesEasy/UsefulServicesEasy";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
+
 
 export type UsefulServicesMode = "easy" | "advanced";
 

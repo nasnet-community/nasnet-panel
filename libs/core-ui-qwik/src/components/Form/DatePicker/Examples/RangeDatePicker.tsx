@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { DatePicker } from "../index";
+
 import type { DateRange } from "../DatePicker.types";
 
 export default component$(() => {

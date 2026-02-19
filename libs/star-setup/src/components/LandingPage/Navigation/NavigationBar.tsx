@@ -1,7 +1,7 @@
 import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { Link, useLocation } from "@builder.io/qwik-city";
-import { LuMenu, LuX, LuRouter } from "@qwikest/icons/lucide";
 import { Button } from "@nas-net/core-ui-qwik";
+import { LuMenu, LuX, LuRouter } from "@qwikest/icons/lucide";
 
 export const NavigationBar = component$(() => {
   const location = useLocation();

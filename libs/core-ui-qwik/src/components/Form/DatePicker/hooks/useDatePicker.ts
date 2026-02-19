@@ -1,4 +1,12 @@
 import { $, useTask$ } from "@builder.io/qwik";
+
+import { useCalendarPopup } from "./useCalendarPopup";
+import { useCalendarState } from "./useCalendarState";
+import { useDateFormatter } from "./useDateFormatter";
+import { useInputState } from "./useInputState";
+import { useSelectionHandlers } from "./useSelectionHandlers";
+import { useStyles } from "./useStyles";
+
 import type {
   DatePickerProps,
   SingleDatePickerProps,
@@ -6,12 +14,6 @@ import type {
   DateTimePickerProps,
   DateRange,
 } from "../DatePicker.types";
-import { useDateFormatter } from "./useDateFormatter";
-import { useCalendarState } from "./useCalendarState";
-import { useInputState } from "./useInputState";
-import { useCalendarPopup } from "./useCalendarPopup";
-import { useSelectionHandlers } from "./useSelectionHandlers";
-import { useStyles } from "./useStyles";
 
 export type UseDatePickerProps = DatePickerProps;
 

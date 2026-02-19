@@ -56,6 +56,7 @@ export function HelpSheet({ content, open, onOpenChange }: HelpSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
+        aria-label={content.title || 'Help information'}
         className={cn(
           // Auto height with max constraint
           'h-auto max-h-[80vh]',

@@ -1,6 +1,8 @@
 import { $, useSignal, useTask$ } from "@builder.io/qwik";
-import type { HStepperProps, StepperMode } from "./HSteppertypes";
+
 import { useBaseStepper } from "../shared/hooks/useBaseStepper";
+
+import type { HStepperProps, StepperMode } from "./HSteppertypes";
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });

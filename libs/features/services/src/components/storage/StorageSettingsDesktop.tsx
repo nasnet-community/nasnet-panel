@@ -82,7 +82,7 @@ function formatBytes(bytes: string): string {
  * StorageSettingsDesktop component
  * Desktop-optimized storage settings UI with two-column layout
  */
-export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProps) {
+export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop({ className }: StorageSettingsDesktopProps) {
   const {
     externalMounts,
     flashStorage,
@@ -130,7 +130,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <HardDrive className="h-5 w-5" />
+                <HardDrive className="h-5 w-5" aria-hidden="true" />
                 <CardTitle>Storage Configuration</CardTitle>
               </div>
               <Badge
@@ -157,7 +157,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
             {/* Detection Warning */}
             {!isStorageDetected && (
               <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-                <AlertTriangle className="h-5 w-5 text-warning" />
+                <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
                 <p className="text-sm text-muted-foreground">
                   No external storage detected. Connect a USB drive or disk.
                 </p>
@@ -171,13 +171,14 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
                   Enable External Storage
                 </Label>
                 <Tooltip {...{ content: "Store service binaries on external storage instead of flash" } as any}>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
                 </Tooltip>
               </div>
               <Switch
                 id="storage-enabled-desktop"
                 checked={isStorageConfigured}
                 disabled={!isStorageDetected || configuring}
+                aria-label="Enable external storage"
                 onCheckedChange={(enabled) => {
                   if (enabled && selectedMount) {
                     handleEnableStorage(selectedMount);
@@ -221,6 +222,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
             >
               <RefreshCw
                 className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')}
+                aria-hidden="true"
               />
               {scanning ? 'Scanning...' : 'Scan for Storage Devices'}
             </Button>
@@ -264,7 +266,7 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
 
             {/* Total Summary */}
             {usage && (
-              <div className="pt-4 border-t space-y-2">
+              <div className="pt-4 border-t border-border space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Capacity:</span>
                   <span className="font-medium">
@@ -290,12 +292,14 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
             variant="outline"
             className="w-full justify-between"
             disabled={!usage}
+            aria-label="Toggle service storage breakdown"
+            aria-expanded={showCommon}
           >
             <span>Service Storage Breakdown</span>
             {showCommon ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </Collapsible.Trigger>
@@ -364,12 +368,14 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
             variant="outline"
             className="w-full justify-between"
             disabled={!isStorageDetected}
+            aria-label="Toggle advanced storage details"
+            aria-expanded={showAdvanced}
           >
             <span>Advanced Storage Details</span>
             {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         </Collapsible.Trigger>
@@ -428,4 +434,6 @@ export function StorageSettingsDesktop({ className }: StorageSettingsDesktopProp
       </Collapsible.Root>
     </div>
   );
-}
+});
+
+StorageSettingsDesktop.displayName = 'StorageSettingsDesktop';

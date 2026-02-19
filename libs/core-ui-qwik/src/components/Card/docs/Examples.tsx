@@ -1,10 +1,11 @@
 import { component$ } from "@builder.io/qwik";
 import { DocExample } from "@nas-net/core-ui-qwik";
-import { Card } from "../Card";
 import {
   HiEllipsisHorizontalSolid,
   HiXMarkSolid,
 } from "@qwikest/icons/heroicons";
+
+import { Card } from "../Card";
 
 export default component$(() => {
   return (

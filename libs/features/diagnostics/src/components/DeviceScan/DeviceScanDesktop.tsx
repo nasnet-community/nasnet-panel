@@ -3,7 +3,7 @@
 // =============================================================================
 // Desktop presenter for device scanning with full table and inline detail panel
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Button, Progress, Card } from '@nasnet/ui/primitives';
 import { InterfaceSelector, SubnetInput } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
@@ -43,7 +43,7 @@ export interface DeviceScanDesktopProps {
 // Component
 // -----------------------------------------------------------------------------
 
-export function DeviceScanDesktop({
+export const DeviceScanDesktop = memo(function DeviceScanDesktop({
   status,
   progress,
   devices,
@@ -98,16 +98,16 @@ export function DeviceScanDesktop({
         </div>
         <div className="flex gap-2">
           {isScanning ? (
-            <Button variant="destructive" onClick={stopScan}>
+            <Button variant="destructive" onClick={stopScan} aria-label="Stop device scan">
               Stop Scan
             </Button>
           ) : (
-            <Button onClick={handleStartScan} disabled={!routerId}>
+            <Button onClick={handleStartScan} disabled={!routerId} aria-label="Start device scan">
               Start Scan
             </Button>
           )}
           {isComplete && (
-            <Button variant="outline" onClick={reset}>
+            <Button variant="outline" onClick={reset} aria-label="Start a new scan">
               New Scan
             </Button>
           )}
@@ -133,7 +133,7 @@ export function DeviceScanDesktop({
 
       {/* Error State */}
       {error && (
-        <div className="rounded-md bg-destructive/10 p-4 text-destructive">
+        <div className="rounded-md bg-destructive/10 p-4 text-destructive" role="alert">
           <p className="font-medium">Scan failed</p>
           <p className="text-sm">{error}</p>
         </div>
@@ -187,4 +187,6 @@ export function DeviceScanDesktop({
       </div>
     </Card>
   );
-}
+});
+
+DeviceScanDesktop.displayName = 'DeviceScanDesktop';

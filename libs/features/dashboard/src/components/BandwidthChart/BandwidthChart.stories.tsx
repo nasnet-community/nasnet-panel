@@ -3,14 +3,16 @@
  * Demonstrates all component states and variations
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
+
 import { BandwidthChart } from './BandwidthChart';
 import { BandwidthChartDesktop } from './BandwidthChartDesktop';
 import { BandwidthChartMobile } from './BandwidthChartMobile';
 import { BANDWIDTH_HISTORY_QUERY, BANDWIDTH_SUBSCRIPTION } from './graphql';
 import { GraphQLTimeRange, GraphQLAggregationType } from './types';
+
 import type { UseBandwidthHistoryReturn } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Generate mock data for stories
 function generateMockData(count: number, startTime: Date) {

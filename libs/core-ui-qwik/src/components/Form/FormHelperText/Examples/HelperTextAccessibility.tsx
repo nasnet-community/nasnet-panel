@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import { FormHelperText } from "../index";
+
 import { Field } from "../../Field";
+import { FormHelperText } from "../index";
 
 export default component$(() => {
   const passwordFieldId = "password-field";

@@ -1,5 +1,6 @@
 import { $, component$, useSignal, useVisibleTask$, type Signal, type QRL } from "@builder.io/qwik";
 import { LuChevronLeft, LuChevronRight, LuInfo, LuCpu, LuImage, LuUsb, LuNetwork, LuContainer, LuSatellite, LuSignal, LuCheckCircle, LuXCircle, LuExpand, LuX } from "@qwikest/icons/lucide";
+
 import { type RouterData, hasUSBPort, has25GigPort, isDockerCapable, isStarlinkMiniCompatible, isDomesticLinkAlternative } from "./Constants";
 
 interface RouterDetailsModalProps {

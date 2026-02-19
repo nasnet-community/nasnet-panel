@@ -1,10 +1,11 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
+import { useWireguardServer } from "./useWireguardServer";
 import { WireguardServerAdvanced } from "./WireguardServerAdvanced";
 import { WireguardServerEasy } from "./WireguardServerEasy";
+
 import type { Mode } from "@nas-net/star-context";
-import { useWireguardServer } from "./useWireguardServer";
 
 interface WireguardServerWrapperProps {
   hook?: ReturnType<typeof useWireguardServer>;

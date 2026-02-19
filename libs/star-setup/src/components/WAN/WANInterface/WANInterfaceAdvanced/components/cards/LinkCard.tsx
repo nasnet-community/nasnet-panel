@@ -1,8 +1,10 @@
 import { component$, type QRL, Slot } from "@builder.io/qwik";
+
+import { LinkCardHeader } from "./LinkCardHeader";
+import { getCardStyleByStatus } from "../../utils/displayFormatters";
+
 import type { WANWizardState } from "../../types";
 import type { LinkStatus } from "../../utils/linkHelpers";
-import { getCardStyleByStatus } from "../../utils/displayFormatters";
-import { LinkCardHeader } from "./LinkCardHeader";
 
 export interface LinkCardProps {
   link: WANWizardState["links"][0];

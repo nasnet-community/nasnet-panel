@@ -7,11 +7,14 @@
  * @module @nasnet/features/firewall/components
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { RawRulesTable } from './RawRulesTable';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import type { RawRule } from '@nasnet/core/types';
+
+import { RawRulesTable } from './RawRulesTable';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const queryClient = new QueryClient({
   defaultOptions: {

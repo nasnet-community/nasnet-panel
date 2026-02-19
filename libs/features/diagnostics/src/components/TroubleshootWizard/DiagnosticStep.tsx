@@ -1,4 +1,5 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/DiagnosticStep.tsx
+import { memo } from 'react';
 import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@nasnet/ui/utils';
 import type { DiagnosticStep as DiagnosticStepType } from '../../types/troubleshoot.types';
@@ -16,7 +17,7 @@ interface DiagnosticStepProps {
   onClick?: () => void;
 }
 
-export function DiagnosticStep({
+export const DiagnosticStep = memo(function DiagnosticStep({
   step,
   isActive,
   stepNumber,
@@ -63,14 +64,14 @@ export function DiagnosticStep({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg border-2 transition-all',
+        'flex items-center gap-3 p-3 rounded-lg border-2 transition-all min-h-[44px]',
         getStatusColor(),
         isActive && 'ring-2 ring-primary ring-offset-2',
-        onClick && 'cursor-pointer hover:shadow-md',
+        onClick && 'cursor-pointer hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         step.status === 'pending' && 'opacity-60'
       )}
       onClick={onClick}
-      role="status"
+      role="listitem"
       aria-label={getAriaLabel()}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={
@@ -90,7 +91,7 @@ export function DiagnosticStep({
       {/* Step Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-medium text-sm truncate">{step.name}</h3>
+          <h3 className="font-medium text-sm truncate text-foreground">{step.name}</h3>
           {step.result?.executionTimeMs && step.status !== 'running' && (
             <span className="text-xs text-muted-foreground whitespace-nowrap">
               {(step.result.executionTimeMs / 1000).toFixed(1)}s
@@ -126,4 +127,4 @@ export function DiagnosticStep({
       </div>
     </div>
   );
-}
+});

@@ -175,8 +175,8 @@ export const CollapsibleSidebar = React.forwardRef<
         ref={ref}
         className={cn(
           'relative flex flex-col h-full',
-          'bg-slate-50 dark:bg-slate-800',
-          'border-slate-200 dark:border-slate-700',
+          'bg-sidebar',
+          'border-border',
           position === 'left' ? 'border-r' : 'border-l',
           // Transition
           !prefersReducedMotion && 'transition-all ease-out',
@@ -208,17 +208,18 @@ export const CollapsibleSidebar = React.forwardRef<
               togglePositionClasses[togglePosition],
               // Button styles
               'w-6 h-6 rounded-full',
-              'bg-white dark:bg-slate-700',
-              'border border-slate-300 dark:border-slate-600',
+              'bg-card',
+              'border border-border',
               'shadow-sm',
               'flex items-center justify-center',
               // Interaction
-              'hover:bg-slate-100 dark:hover:bg-slate-600',
-              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+              'hover:bg-accent',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               'active:scale-95',
               // Transition
               !prefersReducedMotion && 'transition-all duration-150'
             )}
+            aria-expanded={!isCollapsed}
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (${
               typeof navigator !== 'undefined' &&
@@ -264,7 +265,7 @@ function CollapseIcon({
   return (
     <svg
       className={cn(
-        'w-4 h-4 text-slate-500 dark:text-slate-400',
+        'w-4 h-4 text-muted-foreground',
         !prefersReducedMotion && 'transition-transform duration-200',
         shouldRotate && 'rotate-180'
       )}

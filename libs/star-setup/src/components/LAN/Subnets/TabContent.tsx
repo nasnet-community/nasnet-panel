@@ -1,8 +1,6 @@
 import {
   component$,
 } from "@builder.io/qwik";
-import type { SubnetConfig } from "./types";
-import { SubnetCard } from "./SubnetCard";
 import {
   LuShield,
   LuNetwork,
@@ -12,6 +10,9 @@ import {
   LuLock
 } from "@qwikest/icons/lucide";
 
+import { SubnetCard } from "./SubnetCard";
+
+import type { SubnetConfig } from "./types";
 import type { QRL } from "@builder.io/qwik";
 
 interface TabContentProps {

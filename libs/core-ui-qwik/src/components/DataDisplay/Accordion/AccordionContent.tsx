@@ -1,5 +1,7 @@
 import { component$, Slot, useContext } from "@builder.io/qwik";
+
 import { AccordionContext, AccordionItemContext } from "./AccordionContext";
+
 import type { AccordionContentProps } from "./Accordion.types";
 
 export const AccordionContent = component$<AccordionContentProps>((props) => {

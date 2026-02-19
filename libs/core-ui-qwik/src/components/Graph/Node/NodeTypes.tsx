@@ -17,6 +17,7 @@ import {
   LuCloud,
   LuHardDrive,
 } from "@qwikest/icons/lucide";
+
 import type { GraphNode } from "../types";
 
 export type NetworkNodeType =

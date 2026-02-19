@@ -5,6 +5,7 @@
  * Desktop layout (>=640px) with data table sorted by response time
  */
 
+import * as React from 'react';
 import { Button } from '@nasnet/ui/primitives/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives/card';
 import {
@@ -77,21 +78,22 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
             onClick={runBenchmark}
             disabled={isLoading}
             className="gap-2"
+            aria-label="Run DNS server benchmark"
           >
             <PlayCircle className="h-4 w-4" />
             {isLoading ? 'Running...' : 'Run Benchmark'}
           </Button>
           {result && !isLoading && (
-            <Button variant="outline" onClick={reset}>
+            <Button variant="outline" onClick={reset} aria-label="Clear benchmark results">
               Clear Results
             </Button>
           )}
         </div>
 
         {isLoading && (
-          <div className="space-y-2">
-            <Progress value={progress} className="w-full" />
-            <p className="text-sm text-semantic-info">Testing DNS servers...</p>
+          <div className="space-y-2" role="status" aria-live="polite">
+            <Progress value={progress} className="w-full" aria-label={`Benchmark progress: ${progress}%`} />
+            <p className="text-sm text-info">Testing DNS servers...</p>
           </div>
         )}
 
@@ -124,7 +126,7 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
                       {server.server}
                     </TableCell>
                     <TableCell>
-                      <span className={server.success ? 'text-semantic-success font-medium' : 'text-muted-foreground'}>
+                      <span className={server.success ? 'text-success font-medium' : 'text-muted-foreground'}>
                         {formatTime(server.responseTimeMs)}
                       </span>
                     </TableCell>
@@ -133,7 +135,7 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
                     </TableCell>
                     <TableCell>
                       {server.error && (
-                        <span className="text-sm text-semantic-error">{server.error}</span>
+                        <span className="text-sm text-error">{server.error}</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -147,5 +149,3 @@ export function DnsBenchmarkDesktop({ deviceId, autoRun = false, onSuccess, onEr
   );
 }
 
-// Add React import for useEffect
-import * as React from 'react';

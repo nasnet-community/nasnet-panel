@@ -1,10 +1,8 @@
 import { component$ } from "@builder.io/qwik";
+import { ServerCard , ServerFormField , UnifiedSelect , Input } from "@nas-net/core-ui-qwik";
 import { HiServerOutline } from "@qwikest/icons/heroicons";
+
 import { useL2TPServer } from "./useL2TPServer";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { ServerFormField } from "@nas-net/core-ui-qwik";
-import { UnifiedSelect } from "@nas-net/core-ui-qwik";
-import { Input } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown } from "../../components/NetworkSelection";
 // import { FormField } from "../../../../WAN/VPNClient/components/FormField";
 

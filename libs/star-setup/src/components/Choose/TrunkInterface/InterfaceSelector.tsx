@@ -1,9 +1,12 @@
 import { $, component$, useContext, type PropFunction } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
 import { LuCable, LuWifi, LuRouter } from "@qwikest/icons/lucide";
 import { track } from "@vercel/analytics";
-import { StarContext } from "@nas-net/star-context";
-import type { TrunkInterfaceType, InterfaceType } from "@nas-net/star-context";
+
 import { useInterfaceManagement } from "../../../hooks/useInterfaceManagement";
+
+import type { TrunkInterfaceType, InterfaceType } from "@nas-net/star-context";
+
 
 interface InterfaceSelectorProps {
   interfaceType: TrunkInterfaceType;

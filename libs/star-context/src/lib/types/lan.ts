@@ -1,8 +1,8 @@
 import type { Ethernet, Sfp } from "./common";
 // import type { BaseNetworksType } from "./common";
+import type { Subnets } from "../utils/Subnets";
 import type { Tunnel } from "../utils/TunnelType";
 import type { VPNServer } from "../utils/VPNServerType";
-import type { Subnets } from "../utils/Subnets";
 
 export type WirelessInterfaceType = "Master" | "Slave";
 

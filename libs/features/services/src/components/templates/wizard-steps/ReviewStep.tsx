@@ -5,10 +5,10 @@
  * Review configuration and estimated resources before installation.
  */
 
-import * as React from 'react';
-import { Info, Server, HardDrive, Cpu, Network } from 'lucide-react';
+import { memo } from 'react';
+import { Info, Server, Cpu } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle, Badge, Separator } from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Badge } from '@nasnet/ui/primitives';
 import type { ServiceTemplate } from '@nasnet/api-client/generated';
 
 /**
@@ -30,7 +30,7 @@ export interface ReviewStepProps {
  * - Resource estimates
  * - Prerequisites check
  */
-export function ReviewStep({ template, variables }: ReviewStepProps) {
+function ReviewStepComponent({ template, variables }: ReviewStepProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -44,7 +44,7 @@ export function ReviewStep({ template, variables }: ReviewStepProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Server className="h-4 w-4" />
+            <Server className="h-4 w-4" aria-hidden="true" />
             Services ({template.services.length})
           </CardTitle>
         </CardHeader>
@@ -85,7 +85,7 @@ export function ReviewStep({ template, variables }: ReviewStepProps) {
                 return (
                   <div
                     key={key}
-                    className="flex items-center justify-between py-2 border-b last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-border last:border-0"
                   >
                     <span className="text-sm font-medium">
                       {variable?.label || key}
@@ -110,7 +110,7 @@ export function ReviewStep({ template, variables }: ReviewStepProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Cpu className="h-4 w-4" />
+              <Cpu className="h-4 w-4" aria-hidden="true" />
               Estimated Resources
             </CardTitle>
           </CardHeader>
@@ -147,10 +147,10 @@ export function ReviewStep({ template, variables }: ReviewStepProps) {
 
       {/* Prerequisites Warning */}
       {template.prerequisites && template.prerequisites.length > 0 && (
-        <Card className="border-warning">
+        <Card className="border-warning" role="alert">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-warning">
-              <Info className="h-4 w-4" />
+              <Info className="h-4 w-4" aria-hidden="true" />
               Prerequisites
             </CardTitle>
           </CardHeader>
@@ -166,3 +166,6 @@ export function ReviewStep({ template, variables }: ReviewStepProps) {
     </div>
   );
 }
+
+export const ReviewStep = memo(ReviewStepComponent);
+ReviewStep.displayName = 'ReviewStep';

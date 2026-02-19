@@ -1,5 +1,6 @@
-import type { PropFunction } from "@builder.io/qwik";
 import { $, useSignal } from "@builder.io/qwik";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 /**
  * Hook to safely handle callback functions in Qwik

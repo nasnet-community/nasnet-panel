@@ -131,8 +131,8 @@ export const IPInputMobile = memo(function IPInputMobile({
           className={cn(
             // 44px minimum height for touch targets (WCAG 2.5.5)
             'h-11 min-h-[44px] text-base font-mono pr-10',
-            'focus:ring-2 focus:ring-primary focus:ring-offset-0',
-            hasError && 'border-destructive focus:ring-destructive'
+            'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            hasError && 'border-destructive focus-visible:ring-destructive'
           )}
         />
 

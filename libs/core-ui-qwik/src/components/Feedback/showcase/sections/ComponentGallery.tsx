@@ -8,16 +8,19 @@ import {
   HiMegaphoneOutline,
   HiWindowOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
 import { Alert } from "../../Alert/Alert";
-import { Toast } from "../../Toast/Toast";
 import { Dialog } from "../../Dialog/Dialog";
 import { Drawer } from "../../Drawer/Drawer";
-import { Popover } from "../../Popover/Popover";
 import { ErrorMessage } from "../../ErrorMessage/ErrorMessage";
+import { Popover } from "../../Popover/Popover";
 import { PromoBanner } from "../../PromoBanner/PromoBanner";
-import type { DeviceSize } from "../types";
+import { Toast } from "../../Toast/Toast";
 import { COMPONENT_CATEGORIES } from "../constants";
+
+import type { DeviceSize } from "../types";
+
 
 interface ComponentGalleryProps {
   device: DeviceSize;

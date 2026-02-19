@@ -9,6 +9,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { useEmailChannelForm, type UseEmailChannelFormOptions } from '../hooks/useEmailChannelForm';
 import { EmailChannelFormDesktop } from './EmailChannelFormDesktop';
@@ -47,7 +48,7 @@ export interface EmailChannelFormProps extends UseEmailChannelFormOptions {
  * />
  * ```
  */
-export function EmailChannelForm(props: EmailChannelFormProps) {
+export const EmailChannelForm = memo(function EmailChannelForm(props: EmailChannelFormProps) {
   const { className, ...hookOptions } = props;
 
   // Platform detection (mobile: <640px)
@@ -66,4 +67,4 @@ export function EmailChannelForm(props: EmailChannelFormProps) {
       )}
     </div>
   );
-}
+});

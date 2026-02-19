@@ -5,6 +5,7 @@
  * Dense form layout optimized for mouse/keyboard interaction.
  */
 
+import { memo } from 'react';
 import {
   Badge,
   Button,
@@ -40,7 +41,7 @@ export interface RouteFormDesktopProps {
   mode: 'create' | 'edit';
 }
 
-export function RouteFormDesktop({
+function RouteFormDesktopComponent({
   form,
   reachabilityInfo,
   tableOptions,
@@ -143,9 +144,9 @@ export function RouteFormDesktop({
             )}
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
-              <div className="rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
+              <div role="alert" className="rounded-md border border-warning/50 bg-warning/10 p-3 text-sm">
                 <div className="flex gap-2">
-                  <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
                   <div className="space-y-1">
                     <p className="font-medium">Gateway Reachability Warning</p>
                     <p className="text-muted-foreground">{reachabilityInfo.message}</p>
@@ -228,10 +229,11 @@ export function RouteFormDesktop({
               Routing Mark
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                 title="Routing marks are used for policy-based routing"
+                aria-label="Routing mark information"
               >
-                <Info className="h-4 w-4" />
+                <Info className="h-4 w-4" aria-hidden="true" />
               </button>
             </Label>
             <Input
@@ -307,3 +309,5 @@ export function RouteFormDesktop({
     </form>
   );
 }
+
+export const RouteFormDesktop = memo(RouteFormDesktopComponent);

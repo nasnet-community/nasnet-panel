@@ -1,4 +1,3 @@
-import type { RouterInfo, RouterCredentials, AuthResult, ScanResult } from '@shared/routeros';
 import { authenticate, testBasicConnectivity, getRouterOSVersion, testCommonCredentials } from '@/services/auth';
 import { 
   addManualRouterToStorage, 
@@ -6,6 +5,8 @@ import {
   getStoredManualRouters,
   getManualRouterFromStorage 
 } from '@/utils/storage';
+
+import type { RouterInfo, RouterCredentials, AuthResult, ScanResult } from '@shared/routeros';
 
 /**
  * Service for managing manually added routers

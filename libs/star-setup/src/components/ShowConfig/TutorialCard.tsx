@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { PropFunction, QwikJSX } from "@builder.io/qwik";
 
 interface TutorialCardProps {

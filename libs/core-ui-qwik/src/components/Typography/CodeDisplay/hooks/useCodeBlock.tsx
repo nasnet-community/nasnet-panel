@@ -1,4 +1,5 @@
 import { useSignal, useVisibleTask$, $ } from "@builder.io/qwik";
+
 import { type CodeBlockProps, type CodeTheme } from "../CodeDisplay.types";
 
 export function useCodeBlock({

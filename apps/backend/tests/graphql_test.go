@@ -17,6 +17,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/vektah/gqlparser/v2/ast"
 
 	"backend/graph"
 	"backend/graph/resolver"
@@ -31,7 +32,7 @@ func createTestGraphQLServer() *handler.Server {
 
 	srv := handler.New(schema)
 	srv.AddTransport(transport.POST{})
-	srv.SetQueryCache(lru.New(100))
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](100))
 	srv.Use(extension.Introspection{})
 
 	return srv

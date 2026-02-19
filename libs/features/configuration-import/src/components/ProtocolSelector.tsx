@@ -4,6 +4,7 @@
  * Disabled options are grayed out based on IP services status
  */
 
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Plug, Terminal, MonitorDot, Check, AlertCircle } from 'lucide-react';
 import type { ExecutionProtocol } from '@nasnet/api-client/queries';
@@ -98,7 +99,7 @@ const PROTOCOL_INFO: Record<ExecutionProtocol, { name: string; description: stri
  * />
  * ```
  */
-export function ProtocolSelector({
+export const ProtocolSelector = memo(function ProtocolSelector({
   value,
   onChange,
   apiEnabled,
@@ -137,10 +138,10 @@ export function ProtocolSelector({
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100">
+        <h3 className="text-sm font-medium text-foreground">
           Select Connection Method
         </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           Choose how to apply the configuration to your router
         </p>
       </div>
@@ -158,24 +159,27 @@ export function ProtocolSelector({
               type="button"
               onClick={() => !isDisabled && onChange(protocol.id)}
               disabled={isDisabled}
+              aria-label={`${protocol.name}: ${protocol.description}${isSelected ? ' (selected)' : ''}${!protocol.enabled ? ' (unavailable)' : ''}`}
+              aria-pressed={isSelected}
               whileHover={!isDisabled ? { scale: 1.02 } : {}}
               whileTap={!isDisabled ? { scale: 0.98 } : {}}
               className={`
-                relative p-4 rounded-xl border-2 text-left transition-all
+                relative p-4 rounded-xl border-2 text-left transition-all min-h-[44px]
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                 ${
                   isSelected
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-primary-glow'
+                    ? 'border-primary bg-primary/5 shadow-primary-glow'
                     : isDisabled
-                    ? 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 opacity-50 cursor-not-allowed'
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-300 hover:shadow-md cursor-pointer'
+                    ? 'border-border bg-muted opacity-50 cursor-not-allowed'
+                    : 'border-border bg-card hover:border-primary/60 hover:shadow-md cursor-pointer'
                 }
               `}
             >
               {/* Selected indicator */}
               {isSelected && (
                 <div className="absolute top-2 right-2">
-                  <div className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
+                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" aria-hidden="true" />
                   </div>
                 </div>
               )}
@@ -183,7 +187,7 @@ export function ProtocolSelector({
               {/* Recommended badge */}
               {protocol.recommended && protocol.enabled && (
                 <div className="absolute -top-2 left-3">
-                  <span className="px-2 py-0.5 text-[10px] font-medium bg-secondary-500 text-white rounded-full">
+                  <span className="px-2 py-0.5 text-[10px] font-medium bg-secondary text-secondary-foreground rounded-full">
                     Recommended
                   </span>
                 </div>
@@ -195,14 +199,14 @@ export function ProtocolSelector({
                   w-10 h-10 rounded-lg flex items-center justify-center mb-3
                   ${
                     isSelected
-                      ? 'bg-primary-500 text-white'
+                      ? 'bg-primary text-primary-foreground'
                       : isDisabled
-                      ? 'bg-slate-200 dark:bg-slate-700 text-slate-400'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                      ? 'bg-muted text-muted-foreground'
+                      : 'bg-muted text-muted-foreground'
                   }
                 `}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5" aria-hidden="true" />
               </div>
 
               {/* Text */}
@@ -210,10 +214,10 @@ export function ProtocolSelector({
                 <h4
                   className={`font-medium ${
                     isSelected
-                      ? 'text-primary-700 dark:text-primary-300'
+                      ? 'text-primary'
                       : isDisabled
-                      ? 'text-slate-400 dark:text-slate-500'
-                      : 'text-slate-900 dark:text-slate-100'
+                      ? 'text-muted-foreground'
+                      : 'text-foreground'
                   }`}
                 >
                   {protocol.name}
@@ -221,8 +225,8 @@ export function ProtocolSelector({
                 <p
                   className={`text-xs mt-0.5 ${
                     isDisabled
-                      ? 'text-slate-400 dark:text-slate-500'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'text-muted-foreground'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {protocol.description}
@@ -230,17 +234,18 @@ export function ProtocolSelector({
               </div>
 
               {/* Status indicator */}
-              <div className="mt-3 flex items-center gap-1.5">
+              <div className="mt-3 flex items-center gap-1.5" role="status">
                 <span
+                  aria-hidden="true"
                   className={`w-1.5 h-1.5 rounded-full ${
-                    protocol.enabled ? 'bg-success' : 'bg-slate-300 dark:bg-slate-600'
+                    protocol.enabled ? 'bg-success' : 'bg-muted-foreground/30'
                   }`}
                 />
                 <span
                   className={`text-xs ${
                     protocol.enabled
                       ? 'text-success'
-                      : 'text-slate-400 dark:text-slate-500'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {isLoading ? 'Checking...' : protocol.enabled ? 'Available' : 'Disabled'}
@@ -253,21 +258,21 @@ export function ProtocolSelector({
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="flex items-center justify-center gap-2 py-2 text-slate-500 dark:text-slate-400">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+        <div className="flex items-center justify-center gap-2 py-2 text-muted-foreground" role="status" aria-label="Checking available services">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" aria-hidden="true" />
           <span className="text-sm">Checking available services...</span>
         </div>
       )}
 
       {/* No protocols available warning */}
       {hasNoEnabledProtocols && (
-        <div className="flex items-start gap-3 p-3 bg-warning-light/50 dark:bg-warning/10 border border-warning/30 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/30 rounded-lg" role="alert">
+          <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
-            <p className="text-sm font-medium text-warning-dark dark:text-warning">
+            <p className="text-sm font-medium text-warning">
               No connection methods available
             </p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Please enable API, SSH, or Telnet service on your router to apply configuration.
             </p>
           </div>
@@ -275,5 +280,5 @@ export function ProtocolSelector({
       )}
     </div>
   );
-}
+});
 

@@ -1,10 +1,11 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import { mergeMultipleConfigs } from "../../../index";
+
+import type { RouterConfig } from "../../../index";
 import type {
     SSHServerConfig,
     VSCredentials,
     // VSNetwork
 } from "@nas-net/star-context";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
 
 
 export const SSHServer = (config: SSHServerConfig): RouterConfig => {

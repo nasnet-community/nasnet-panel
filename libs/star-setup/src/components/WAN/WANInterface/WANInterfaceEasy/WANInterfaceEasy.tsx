@@ -1,12 +1,14 @@
 import { $, component$, useContext } from "@builder.io/qwik";
-import { StarContext } from "@nas-net/star-context";
-import { useWANInterface } from "./useWANInterface";
-import { Header } from "./Header";
-import { InterfaceTypeSelector } from "./InterfaceTypeSelector";
-import { InterfaceSelector } from "./InterfaceSelector";
-import { WirelessSettings } from "./WirelessSettings";
-import { LTESettings } from "./LTESettings";
 import { Button } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import { Header } from "./Header";
+import { InterfaceSelector } from "./InterfaceSelector";
+import { InterfaceTypeSelector } from "./InterfaceTypeSelector";
+import { LTESettings } from "./LTESettings";
+import { useWANInterface } from "./useWANInterface";
+import { WirelessSettings } from "./WirelessSettings";
+
 import type { WANInterfaceProps } from "./types";
 
 export const WANInterfaceEasy = component$<WANInterfaceProps>(

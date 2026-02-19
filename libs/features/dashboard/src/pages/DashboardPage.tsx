@@ -15,7 +15,7 @@
  * @see Story 4.1: TanStack Router Setup
  */
 
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 import { CachedDataBadge } from '../components/cached-data-badge';
 import { DashboardLayout } from '../components/dashboard-layout';
@@ -32,7 +32,7 @@ const MOCK_ROUTER_IDS = ['router-uuid-1', 'router-uuid-2', 'router-uuid-3'];
  * Displays health summaries for all configured routers.
  * Auto-refreshes via subscriptions with polling fallback.
  */
-export function DashboardPage() {
+export const DashboardPage = memo(function DashboardPage() {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   // Handle manual refresh
@@ -89,7 +89,9 @@ export function DashboardPage() {
       </DashboardLayout>
     </div>
   );
-}
+});
+
+DashboardPage.displayName = 'DashboardPage';
 
 /**
  * Export for route configuration

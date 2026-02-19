@@ -11,10 +11,13 @@
  * @see Story 4.2: shadcn/ui Design System for Card component usage
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { DashboardLayout } from './DashboardLayout';
+
 import { Card } from '@nasnet/ui/primitives';
+
+import { DashboardLayout } from './DashboardLayout';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta = {
   title: 'Features/Dashboard/DashboardLayout',

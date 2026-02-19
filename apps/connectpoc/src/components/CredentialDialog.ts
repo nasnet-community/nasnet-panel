@@ -1,5 +1,6 @@
-import type { RouterInfo, RouterCredentials } from '@shared/routeros';
 import { authenticate } from '@/services/auth';
+
+import type { RouterInfo, RouterCredentials } from '@shared/routeros';
 
 /**
  * Credential Dialog Component

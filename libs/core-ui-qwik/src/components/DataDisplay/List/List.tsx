@@ -1,11 +1,13 @@
 import { component$, Slot } from "@builder.io/qwik";
+
+import { useList } from "./hooks/useList";
+
 import type {
   ListProps,
   ListItemProps,
   ListTermProps,
   ListDescriptionProps,
 } from "./List.types";
-import { useList } from "./hooks/useList";
 
 /**
  * List component for displaying ordered, unordered, and definition lists

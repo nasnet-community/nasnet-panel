@@ -1,10 +1,12 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { FieldProps } from "./Field.types";
-import { useField } from "./hooks/useField";
-import { FieldLabel } from "./FieldLabel";
+
 import { FieldInput } from "./FieldInput";
-import { FieldToggle } from "./FieldToggle";
+import { FieldLabel } from "./FieldLabel";
 import { FieldMessage } from "./FieldMessage";
+import { FieldToggle } from "./FieldToggle";
+import { useField } from "./hooks/useField";
+
+import type { FieldProps } from "./Field.types";
 
 /**
  * Field component for form inputs with various layout options and styling.

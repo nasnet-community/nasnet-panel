@@ -5,6 +5,7 @@
  * timestamp/severity/message
  * Per Task #9: Added queued alert status display
  */
+import { memo } from 'react';
 import { useAlerts, useAcknowledgeAlert } from '../hooks/useAlerts';
 import { severityConfig } from '../schemas/alert-rule.schema';
 import { formatDistanceToNow } from 'date-fns';
@@ -20,7 +21,7 @@ interface AlertListProps {
 /**
  * AlertList displays a list of alerts with filtering
  */
-export function AlertList({ deviceId, severity, acknowledged = false, limit = 50 }: AlertListProps) {
+export const AlertList = memo(function AlertList({ deviceId, severity, acknowledged = false, limit = 50 }: AlertListProps) {
   const { data, loading, error } = useAlerts({
     deviceId,
     severity,
@@ -49,7 +50,7 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
 
   if (error) {
     return (
-      <div className="p-4 bg-destructive/10 text-destructive rounded-md">
+      <div className="p-4 bg-destructive/10 text-destructive rounded-md" role="alert">
         Failed to load alerts: {error.message}
       </div>
     );
@@ -137,7 +138,8 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
                 <button
                   onClick={() => handleAcknowledge(alert.id)}
                   disabled={acknowledging}
-                  className="px-3 py-1.5 text-sm border rounded-md hover:bg-muted disabled:opacity-50 transition-colors whitespace-nowrap"
+                  aria-label={`Acknowledge alert: ${alert.title}`}
+                  className="px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted disabled:opacity-50 transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   {acknowledging ? 'Acknowledging...' : 'Acknowledge'}
                 </button>
@@ -150,11 +152,14 @@ export function AlertList({ deviceId, severity, acknowledged = false, limit = 50
       {/* Pagination Info */}
       {data?.alerts?.pageInfo?.hasNextPage && (
         <div className="text-center pt-4">
-          <button className="text-sm text-primary hover:underline">
+          <button
+            aria-label={`Load more alerts, ${data.alerts.totalCount - alerts.length} remaining`}
+            className="text-sm text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none rounded"
+          >
             Load More ({data.alerts.totalCount - alerts.length} remaining)
           </button>
         </div>
       )}
     </div>
   );
-}
+});

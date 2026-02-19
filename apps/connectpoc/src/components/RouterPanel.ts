@@ -1,13 +1,15 @@
-import type { RouterInfo, RouterCredentials } from '@shared/routeros';
 import { testConnection, logout } from '@/services/auth';
-import { WiFiManager } from './WiFiManager';
-import { VPNManager } from './VPNManager';
-import { FirewallManager } from './FirewallManager';
-import { DHCPManager } from './DHCPManager';
-import { NetworkMonitor } from './NetworkMonitor';
-import { LogsViewer } from './LogsViewer';
 import { getSystemInfo, getRouterboardInfo, getRouterHealth, formatBytes, getPercentageClass } from '@/services/system';
 import type { SystemInfo, RouterboardInfo } from '@/services/system';
+
+import { DHCPManager } from './DHCPManager';
+import { FirewallManager } from './FirewallManager';
+import { LogsViewer } from './LogsViewer';
+import { NetworkMonitor } from './NetworkMonitor';
+import { VPNManager } from './VPNManager';
+import { WiFiManager } from './WiFiManager';
+
+import type { RouterInfo, RouterCredentials } from '@shared/routeros';
 
 /**
  * Router Management Panel Component

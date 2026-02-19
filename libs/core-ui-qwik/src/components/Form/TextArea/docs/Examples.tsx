@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicTextArea from "../Examples/BasicTextArea";
-import TextAreaSizes from "../Examples/TextAreaSizes";
-import TextAreaStates from "../Examples/TextAreaStates";
 import TextAreaAutoResize from "../Examples/TextAreaAutoResize";
 import TextAreaCharCount from "../Examples/TextAreaCharCount";
 import TextAreaCustomResize from "../Examples/TextAreaCustomResize";
+import TextAreaSizes from "../Examples/TextAreaSizes";
+import TextAreaStates from "../Examples/TextAreaStates";
 
 /**
  * TextArea component examples documentation using the standard template

@@ -62,7 +62,7 @@ const ROW_HEIGHT = 32;
  * - Copy to clipboard
  * - JetBrains Mono font for logs
  */
-export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
+function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
   const { className, onEntryClick } = props;
 
   const {
@@ -141,21 +141,21 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   Actions
-                  <ChevronDown className="ml-2 h-4 w-4" />
+                  <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleCopy}>
-                  <Copy className="mr-2 h-4 w-4" />
+                  <Copy className="mr-2 h-4 w-4" aria-hidden="true" />
                   {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={refreshLogs}>
-                  <RefreshCw className="mr-2 h-4 w-4" />
+                  <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
                   Refresh Logs
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={clearLogs} className="text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
                   Clear Logs
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -167,7 +167,7 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
         <div className="flex items-center gap-2 mt-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
               type="text"
               placeholder="Search logs..."
@@ -179,10 +179,10 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
             {hasSearch && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Clear search"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -191,9 +191,9 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
+                <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
                 {levelFilter || 'All Levels'}
-                <ChevronDown className="ml-2 h-4 w-4" />
+                <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -231,7 +231,7 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-4 text-sm text-muted-foreground">Loading logs...</div>
+          <div className="p-4 text-sm text-muted-foreground" role="status">Loading logs...</div>
         )}
 
         {/* Empty state */}
@@ -247,6 +247,8 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
         {searchResults.length > 0 && (
           <div
             ref={parentRef}
+            role="log"
+            aria-label="Service log entries"
             className="h-[500px] border-t border-border overflow-auto scrollbar-thin"
           >
             <div
@@ -303,3 +305,6 @@ export function ServiceLogViewerDesktop(props: ServiceLogViewerProps) {
     </Card>
   );
 }
+
+export const ServiceLogViewerDesktop = React.memo(ServiceLogViewerDesktopComponent);
+ServiceLogViewerDesktop.displayName = 'ServiceLogViewerDesktop';

@@ -1,6 +1,6 @@
 import { component$, $, useSignal } from "@builder.io/qwik";
-import { ToastContainer } from "@nas-net/core-ui-qwik";
-import { useToast } from "@nas-net/core-ui-qwik";
+import { ToastContainer , useToast } from "@nas-net/core-ui-qwik";
+
 import type { ToastPosition } from "@nas-net/core-ui-qwik";
 
 export const PositionToast = component$(() => {

@@ -1,11 +1,13 @@
 import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { TableProps, TableColumn } from "./Table.types";
-import { useTable } from "./hooks/useTable";
-import { TableHead } from "./components/TableHead";
+
+import { MobileTableCard } from "./components/MobileTableCard";
 import { TableBody } from "./components/TableBody";
 import { TableCell } from "./components/TableCell";
+import { TableHead } from "./components/TableHead";
 import { TableRow } from "./components/TableRow";
-import { MobileTableCard } from "./components/MobileTableCard";
+import { useTable } from "./hooks/useTable";
+
+import type { TableProps, TableColumn } from "./Table.types";
 
 /**
  * Helper function to get the value from a row using a column definition

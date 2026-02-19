@@ -4,11 +4,14 @@
  * Demonstrates VLAN topology visualization.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { VlanTopology } from './VlanTopology';
 import { MockedProvider } from '@apollo/client/testing';
-import { GET_VLANS } from '@nasnet/api-client/queries';
 import { fn } from '@storybook/test';
+
+import { GET_VLANS } from '@nasnet/api-client/queries';
+
+import { VlanTopology } from './VlanTopology';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof VlanTopology> = {
   title: 'Features/Network/VlanTopology',

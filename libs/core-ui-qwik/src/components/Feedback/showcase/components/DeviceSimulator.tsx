@@ -5,8 +5,10 @@ import {
   HiComputerDesktopOutline,
   HiChevronDownOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
 import { DEVICE_CONFIGS } from "../constants";
+
 import type { DeviceSize } from "../types";
 
 interface DeviceSimulatorProps {

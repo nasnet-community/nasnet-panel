@@ -1,3 +1,25 @@
+import { generateDomesticIPScriptOneTime } from "./DomesticIPS";
+import {
+    Timezone,
+    AReboot,
+    AUpdate,
+    IPAddressUpdateFunc,
+    Clock,
+    update,
+    UPNP,
+    NATPMP,
+    CloudDDNS,
+    Certificate,
+    NTP,
+    Graph,
+    DDNS,
+    Logging,
+} from "./ExtraUtil";
+import { PublicCert } from "../../utils/Certificate";
+import { mergeMultipleConfigs } from "../../utils/ConfigGeneratorUtil";
+import { mapNetworkToRoutingTable } from "../lan/Networks/NetworksUtil";
+
+import type { RouterConfig } from "../../generator";
 import type {
     services,
     RouterIdentityRomon,
@@ -12,27 +34,6 @@ import type {
     Networks,
     RouterModels,
 } from "@nas-net/star-context";
-import {
-    Timezone,
-    AReboot,
-    AUpdate,
-    IPAddressUpdateFunc,
-    Clock,
-    update,
-    UPNP,
-    NATPMP,
-    PublicCert,
-    mergeMultipleConfigs,
-    type RouterConfig,
-    CloudDDNS,
-    Certificate,
-    NTP,
-    Graph,
-    DDNS,
-    mapNetworkToRoutingTable,
-    generateDomesticIPScriptOneTime,
-    Logging,
-} from "@nas-net/ros-cmd-generator";
 
 // Helper function to check if master router is CHR
 const isMasterCHR = (routerModels?: RouterModels[]): boolean => {

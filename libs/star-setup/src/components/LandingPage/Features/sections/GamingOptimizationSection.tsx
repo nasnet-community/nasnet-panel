@@ -1,6 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
-import { LuCpu, LuZap, LuAward } from "@qwikest/icons/lucide";
 import { Badge, Graph, createNode } from "@nas-net/core-ui-qwik";
+import { LuCpu, LuZap, LuAward } from "@qwikest/icons/lucide";
+
 import type { GraphConnection, GraphNode } from "@nas-net/core-ui-qwik";
 
 export const GamingOptimizationSection = component$(() => {

@@ -254,11 +254,11 @@ export const PortInputMobile = memo(function PortInputMobile(
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-invalid={hasError}
-              aria-describedby={cn(
-                hasError && errorId,
-                helpText && helpId,
-                ariaDescribedBy
-              )}
+              aria-describedby={
+                [hasError && errorId, helpText && helpId, ariaDescribedBy]
+                  .filter(Boolean)
+                  .join(' ') || undefined
+              }
               aria-label={!label ? 'Port number' : undefined}
               aria-autocomplete={showSuggestions ? 'list' : undefined}
               aria-controls={showSuggestions ? suggestionsId : undefined}
@@ -434,11 +434,11 @@ export const PortInputMobile = memo(function PortInputMobile(
             )}
             aria-label="Add port"
             aria-invalid={hasError}
-            aria-describedby={cn(
-              hasError && errorId,
-              helpText && helpId,
-              ariaDescribedBy
-            )}
+            aria-describedby={
+              [hasError && errorId, helpText && helpId, ariaDescribedBy]
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
             aria-autocomplete={showSuggestions ? 'list' : undefined}
             aria-controls={showSuggestions ? suggestionsId : undefined}
           />

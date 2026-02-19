@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { Input, Button, Badge } from '@nasnet/ui/primitives';
 import { Plus, X } from 'lucide-react';
 
@@ -14,13 +14,14 @@ export interface ArrayFieldProps {
  * Array input field for TEXT_ARRAY type
  * Allows adding/removing string items
  */
-export function ArrayField({
+export const ArrayField = React.memo(function ArrayField({
   value = [],
   onChange,
   placeholder,
   disabled,
   pattern,
 }: ArrayFieldProps) {
+  const errorId = useId();
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -68,11 +69,11 @@ export function ArrayField({
             placeholder={placeholder || 'Enter value and press Enter or click Add'}
             disabled={disabled}
             aria-invalid={!!error}
-            aria-describedby={error ? 'array-field-error' : undefined}
+            aria-describedby={error ? errorId : undefined}
           />
           {error && (
             <p
-              id="array-field-error"
+              id={errorId}
               className="mt-1 text-sm text-destructive"
               role="alert"
             >
@@ -84,11 +85,12 @@ export function ArrayField({
           type="button"
           variant="outline"
           size="icon"
+          className="min-h-[44px] min-w-[44px]"
           onClick={handleAdd}
           disabled={disabled || !inputValue.trim()}
           aria-label="Add item"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
 
@@ -101,10 +103,10 @@ export function ArrayField({
                 type="button"
                 onClick={() => handleRemove(index)}
                 disabled={disabled}
-                className="ml-1 rounded-full hover:bg-destructive/20"
+                className="ml-1 rounded-full p-0.5 hover:bg-destructive/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                 aria-label={`Remove ${item}`}
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
             </Badge>
           ))}
@@ -112,4 +114,4 @@ export function ArrayField({
       )}
     </div>
   );
-}
+});

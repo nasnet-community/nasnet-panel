@@ -210,7 +210,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                   className="w-full min-h-[44px]"
                   disabled={traceroute.isRunning}
                 >
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
                   Advanced Options
                 </Button>
               </SheetTrigger>
@@ -335,11 +335,11 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       {statusMessage && (
         <Alert variant={traceroute.error ? 'destructive' : 'default'}>
           {traceroute.error ? (
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
           ) : traceroute.result?.reachedDestination ? (
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           )}
           <AlertTitle>{traceroute.error ? 'Error' : 'Status'}</AlertTitle>
           <AlertDescription className="text-sm">{statusMessage}</AlertDescription>
@@ -366,7 +366,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                   className="min-h-[44px] min-w-[44px]"
                   aria-label="Copy results"
                 >
-                  {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
                 </Button>
                 {traceroute.result && (
                   <Button
@@ -376,7 +376,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                     className="min-h-[44px] min-w-[44px]"
                     aria-label="Download JSON"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 )}
               </div>

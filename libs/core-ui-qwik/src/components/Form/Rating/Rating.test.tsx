@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
-import { createDOM } from "@builder.io/qwik/testing";
 import { $ } from "@builder.io/qwik";
+import { createDOM } from "@builder.io/qwik/testing";
+import { describe, it, expect, vi } from "vitest";
+
 import { Rating } from "./Rating";
 
 describe("Rating Component", () => {

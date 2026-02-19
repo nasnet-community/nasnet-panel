@@ -7,6 +7,7 @@ import {
   HiCubeOutline,
   HiChartBarOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
 import { usePerformanceMonitor } from "../hooks/usePerformanceMonitor";
 

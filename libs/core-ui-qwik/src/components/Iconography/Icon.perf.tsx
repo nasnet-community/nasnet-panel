@@ -1,6 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL, JSXNode, SVGProps } from "@builder.io/qwik";
-import { Icon } from "./index";
+
 import {
   HomeIcon,
   SettingsIcon,
@@ -16,6 +15,10 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
 } from "./icons";
+
+import { Icon } from "./index";
+
+import type { QRL, JSXNode, SVGProps } from "@builder.io/qwik";
 
 /**
  * Performance test component for the Icon system

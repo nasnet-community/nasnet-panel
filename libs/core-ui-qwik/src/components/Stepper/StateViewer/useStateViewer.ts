@@ -2,7 +2,9 @@ import { $, useSignal, useTask$ } from "@builder.io/qwik";
 // TODO: These imports are from star-setup library, need to be refactored
 import { ConfigGenerator } from "@nas-net/ros-cmd-generator";
 import { SlaveCG } from "@nas-net/ros-cmd-generator";
+
 import { extractStateFromConfig } from "./configParser";
+
 import type { SlaveRouterOption, RouterOption } from "./type";
 import type { RouterModels } from "@nas-net/star-context";
 

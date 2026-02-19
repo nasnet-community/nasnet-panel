@@ -1,6 +1,7 @@
 import { component$, Slot, useVisibleTask$ } from "@builder.io/qwik";
-import type { TooltipContentProps } from "./Tooltip.types";
+
 import type { CSSProperties } from "./tooltip-utils";
+import type { TooltipContentProps } from "./Tooltip.types";
 
 export const TooltipContent = component$<TooltipContentProps>((props) => {
   const {

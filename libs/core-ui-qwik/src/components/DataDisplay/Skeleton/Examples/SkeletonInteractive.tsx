@@ -1,4 +1,5 @@
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+
 import { Skeleton, SkeletonAvatar, SkeletonText } from "../index";
 
 export const SkeletonInteractive = component$(() => {

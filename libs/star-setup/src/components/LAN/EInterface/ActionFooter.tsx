@@ -4,6 +4,7 @@ import {
   HiInformationCircleOutline,
   HiArrowPathOutline,
 } from "@qwikest/icons/heroicons";
+
 import type { PropFunction } from "@builder.io/qwik";
 
 interface ActionFooterProps {

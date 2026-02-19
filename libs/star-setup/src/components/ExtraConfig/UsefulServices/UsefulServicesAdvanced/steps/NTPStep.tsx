@@ -1,8 +1,8 @@
 import { component$, useSignal, $, useTask$, useContext } from "@builder.io/qwik";
-import { useStepperContext } from "@nas-net/core-ui-qwik";
-import { Card, CardHeader, CardBody, Input, Button } from "@nas-net/core-ui-qwik";
-import { UsefulServicesStepperContextId } from "../UsefulServicesAdvanced";
+import { useStepperContext , Card, CardHeader, CardBody, Input, Button } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
+
+import { UsefulServicesStepperContextId } from "../UsefulServicesAdvanced";
 
 export const NTPStep = component$(() => {
   // Get stepper and star contexts

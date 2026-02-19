@@ -3,10 +3,10 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
 import Basic from "../Examples/Basic";
-import WithIcons from "../Examples/WithIcons";
-import WithHeader from "../Examples/WithHeader";
 import NestedItems from "../Examples/NestedItems";
 import Responsive from "../Examples/Responsive";
+import WithHeader from "../Examples/WithHeader";
+import WithIcons from "../Examples/WithIcons";
 
 export default component$(() => {
   const examples = [

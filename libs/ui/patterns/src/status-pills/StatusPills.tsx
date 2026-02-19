@@ -97,9 +97,9 @@ function getVariantConfig(variant: StatusPillVariant) {
     case 'neutral':
     default:
       return {
-        bg: 'bg-slate-50 dark:bg-slate-800',
-        border: 'border-slate-200 dark:border-slate-700',
-        text: 'text-slate-600 dark:text-slate-400',
+        bg: 'bg-muted',
+        border: 'border-border',
+        text: 'text-muted-foreground',
         icon: undefined,
         iconColor: '',
         showDot: false,
@@ -112,7 +112,7 @@ function getVariantConfig(variant: StatusPillVariant) {
  * StatusPills Component
  * Displays a horizontally scrollable row of status indicator pills
  */
-export function StatusPills({
+function StatusPillsBase({
   pills,
   className = '',
 }: StatusPillsProps) {
@@ -130,24 +130,25 @@ export function StatusPills({
             key={pill.id}
             onClick={pill.onClick}
             disabled={!isClickable}
+            aria-label={`${pill.label}: ${pill.variant}`}
             className={`
               flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border
               transition-all duration-200
               ${config.bg} ${config.border}
               ${isClickable ? 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5 active:scale-95' : 'cursor-default'}
-              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
             `}
           >
             {/* Status dot for success/warning/error */}
             {config.showDot && (
-              <span className={`w-2 h-2 rounded-full ${config.dotColor} ${pill.variant === 'success' ? 'animate-pulse' : ''}`} />
+              <span className={`w-2 h-2 rounded-full ${config.dotColor} ${pill.variant === 'success' ? 'animate-pulse' : ''}`} aria-hidden="true" />
             )}
-            
+
             {/* Icon for non-dot variants */}
             {!config.showDot && IconComponent && (
-              <IconComponent className={`w-3.5 h-3.5 ${config.iconColor}`} />
+              <IconComponent className={`w-3.5 h-3.5 ${config.iconColor}`} aria-hidden="true" />
             )}
-            
+
             {/* Label */}
             <span className={`text-sm font-medium ${config.text} whitespace-nowrap`}>
               {pill.label}
@@ -159,9 +160,7 @@ export function StatusPills({
   );
 }
 
-
-
-
+export const StatusPills = React.memo(StatusPillsBase);
 
 
 

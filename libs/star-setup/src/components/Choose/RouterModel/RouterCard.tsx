@@ -1,4 +1,5 @@
 import { $, component$, type QRL } from "@builder.io/qwik";
+import { Badge } from "@nas-net/core-ui-qwik";
 import { 
   LuRouter, 
   LuWifi, 
@@ -7,7 +8,7 @@ import {
   LuCpu,
   LuMemoryStick
 } from "@qwikest/icons/lucide";
-import { Badge } from "@nas-net/core-ui-qwik";
+
 import { type RouterData } from "./Constants";
 import { RouterCardCapabilities } from "./RouterCardCapabilities";
 

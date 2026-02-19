@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { TableHeadProps } from "../Table.types";
 
 export const TableHead = component$<TableHeadProps>((props) => {

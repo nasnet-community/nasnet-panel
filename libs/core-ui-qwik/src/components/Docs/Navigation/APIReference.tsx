@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { APIReferenceTemplate, type APIReferenceTemplateProps } from "../templates/APIReferenceTemplate";
 
 export interface NavigationAPIDetail {

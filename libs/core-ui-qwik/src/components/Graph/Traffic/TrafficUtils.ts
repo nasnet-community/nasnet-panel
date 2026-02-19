@@ -1,4 +1,5 @@
 import { nodeColors } from "../Node/NodeTypes";
+
 import type { GraphConnection, GraphTrafficType } from "../types";
 
 /**

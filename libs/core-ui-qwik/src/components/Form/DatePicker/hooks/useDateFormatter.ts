@@ -1,7 +1,9 @@
 import { $ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import type { DatePickerProps, DateTimePickerProps } from "../DatePicker.types";
+
 import { dateUtils } from "../utils/dateUtils";
+
+import type { DatePickerProps, DateTimePickerProps } from "../DatePicker.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseDateFormatterResult {
   formatDate$: QRL<(date: Date | null) => Promise<string>>;

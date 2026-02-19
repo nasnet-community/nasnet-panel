@@ -1,10 +1,11 @@
-import { component$ } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { component$ , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import { OpenVPNServerAdvanced } from "./OpenVPNServerAdvanced";
 import { OpenVPNServerEasy } from "./OpenVPNServerEasy";
-import type { Mode } from "@nas-net/star-context";
 import { useOpenVPNServer } from "./useOpenVPNServer";
+
+import type { Mode } from "@nas-net/star-context";
 
 interface OpenVPNServerWrapperProps {
   hook?: ReturnType<typeof useOpenVPNServer>;

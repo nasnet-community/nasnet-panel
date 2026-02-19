@@ -1,9 +1,12 @@
 import { $, useContext, useSignal, useStore, useTask$ } from "@builder.io/qwik";
-import type { NetworkKey, Networks as LocalNetworks, ExtraWirelessInterface } from "./type";
-import { generatePasswordFromAPI, generateSSIDFromAPI } from "@utils/api";
 import { StarContext } from "@nas-net/star-context";
-import type { WirelessConfig, WifiTarget, Networks } from "@nas-net/star-context";
+import { generatePasswordFromAPI, generateSSIDFromAPI } from "@utils/api";
+
 import { getExtraNetworks, isBaseNetwork } from "./networkUtils";
+
+import type { NetworkKey, Networks as LocalNetworks, ExtraWirelessInterface } from "./type";
+import type { WirelessConfig, WifiTarget, Networks } from "@nas-net/star-context";
+
 
 // Helper to determine wireless network based on enabled base networks
 export const determineWirelessNetwork = (networks: Networks): { wifiTarget: WifiTarget; networkName: string } => {

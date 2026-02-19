@@ -7,8 +7,9 @@ import {
   LuHome,
   LuGlobe
 } from "@qwikest/icons/lucide";
-import type { DOHConfig } from "@nas-net/star-context";
+
 import type { DOHNetworkInfo, DNSPreset } from "./types";
+import type { DOHConfig } from "@nas-net/star-context";
 
 interface DOHConfigurationProps {
   dohConfig: DOHConfig;

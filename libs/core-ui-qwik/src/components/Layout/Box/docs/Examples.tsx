@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
-import { BoxBasic } from "./examples/BoxBasic";
-import { BoxPolymorphic } from "./examples/BoxPolymorphic";
-import { BoxSpacing } from "./examples/BoxSpacing";
-import { BoxBorders } from "./examples/BoxBorders";
+
 import { BoxBackgrounds } from "./examples/BoxBackgrounds";
+import { BoxBasic } from "./examples/BoxBasic";
+import { BoxBorders } from "./examples/BoxBorders";
+import { BoxPolymorphic } from "./examples/BoxPolymorphic";
 import { BoxShadows } from "./examples/BoxShadows";
+import { BoxSpacing } from "./examples/BoxSpacing";
 import MobileResponsiveBox from "../Examples/MobileResponsiveBox";
 import TouchAccessibilityBox from "../Examples/TouchAccessibilityBox";
 

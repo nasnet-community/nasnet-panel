@@ -1,18 +1,20 @@
 import { component$, useSignal, useTask$, $ } from "@builder.io/qwik";
-import type { SliderProps, SliderMark } from "./Slider.types";
+
 import { isRangeSlider } from "./Slider.types";
-import { FormLabel } from "../FormLabel";
-import { FormHelperText } from "../FormHelperText";
 import { FormErrorMessage } from "../FormErrorMessage";
-import { SingleThumb } from "./components/SingleThumb";
+import { FormHelperText } from "../FormHelperText";
+import { FormLabel } from "../FormLabel";
 import { RangeThumb } from "./components/RangeThumb";
-import { SliderTrack } from "./components/SliderTrack";
+import { SingleThumb } from "./components/SingleThumb";
 import { SliderMarks } from "./components/SliderMarks";
 import { SliderTicks } from "./components/SliderTicks";
-import { useSliderState } from "./hooks/useSliderState";
-import { useSliderUtilities } from "./hooks/useSliderUtilities";
+import { SliderTrack } from "./components/SliderTrack";
 import { useSliderEvents } from "./hooks/useSliderEvents";
+import { useSliderState } from "./hooks/useSliderState";
 import { useSliderStyles } from "./hooks/useSliderStyles";
+import { useSliderUtilities } from "./hooks/useSliderUtilities";
+
+import type { SliderProps, SliderMark } from "./Slider.types";
 
 /**
  * Slider component for selecting numeric values with a draggable thumb.

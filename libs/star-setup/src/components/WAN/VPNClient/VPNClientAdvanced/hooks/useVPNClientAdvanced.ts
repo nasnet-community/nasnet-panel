@@ -1,16 +1,17 @@
 import { $, useSignal, useStore, useContext, type QRL } from "@builder.io/qwik";
+import { generateUniqueId } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+import { useNetworks } from "@utils/useNetworks";
+import { useSubnets } from "@utils/useSubnets";
+
 import type {
   VPNConfig,
   VPNClientAdvancedState,
   MultiVPNConfig,
   VPNType,
 } from "../types/VPNClientAdvancedTypes";
-import { StarContext } from "@nas-net/star-context";
-import { generateUniqueId } from "@nas-net/core-ui-qwik";
-import { useNetworks } from "@utils/useNetworks";
-import { useSubnets } from "@utils/useSubnets";
-import type { VPNClient } from "@nas-net/star-context";
-import type { MultiLinkConfig } from "@nas-net/star-context";
+import type { VPNClient , MultiLinkConfig } from "@nas-net/star-context";
+
 
 export interface UseVPNClientAdvancedReturn {
   state: VPNClientAdvancedState;

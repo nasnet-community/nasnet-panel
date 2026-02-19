@@ -1,12 +1,13 @@
 import { component$, $ } from "@builder.io/qwik";
+import { TimePicker } from "@nas-net/core-ui-qwik";
+import { FrequencySelector, type FrequencyValue } from "@nas-net/core-ui-qwik";
 import {
   HiCheckCircleOutline,
   HiXCircleOutline,
 } from "@qwikest/icons/heroicons";
-import { TimePicker } from "@nas-net/core-ui-qwik";
-import { FrequencySelector, type FrequencyValue } from "@nas-net/core-ui-qwik";
-import type { Signal } from "@builder.io/qwik";
+
 import type { TimeConfig } from "./type";
+import type { Signal } from "@builder.io/qwik";
 
 interface UpdateCardProps {
   autoUpdateEnabled: Signal<boolean>;

@@ -6,13 +6,14 @@
  * gateway reachability checking, and platform-specific presenters.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
-import { MockedProvider } from '@apollo/client/testing';
 import { gql } from '@apollo/client';
+import { MockedProvider } from '@apollo/client/testing';
+import { fn } from '@storybook/test';
 
 import { RouteForm } from './RouteForm';
+
 import type { InterfaceOption } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 /**
  * GraphQL query for gateway reachability checking
@@ -558,7 +559,7 @@ export const VpnRoute: Story = {
         </div>
       </MockedProvider>
     ),
-  },
+  ],
   parameters: {
     docs: {
       description: {

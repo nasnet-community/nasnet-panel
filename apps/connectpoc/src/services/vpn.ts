@@ -1,3 +1,5 @@
+import { makeRouterOSRequest } from './api';
+
 import type { 
   ApiResponse,
   WireGuardInterface,
@@ -12,7 +14,6 @@ import type {
   OpenVPNServer,
   PPPProfile
 } from '@shared/routeros';
-import { makeRouterOSRequest } from './api';
 
 /**
  * VPN management service for MikroTik RouterOS

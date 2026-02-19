@@ -1,4 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { Rating } from "../Rating";
 
 export const BasicRatingExample = component$(() => {

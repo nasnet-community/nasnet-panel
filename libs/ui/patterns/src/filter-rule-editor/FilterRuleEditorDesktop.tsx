@@ -405,7 +405,11 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   name="disabled"
                   control={control}
                   render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-label="Disabled"
+                    />
                   )}
                 />
               </FormField>
@@ -415,7 +419,11 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                   name="log"
                   control={control}
                   render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-label="Log Packets"
+                    />
                   )}
                 />
               </FormField>

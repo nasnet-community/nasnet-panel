@@ -24,7 +24,6 @@ import {
   clearStoredUUID,
   forceRegenerateUUID,
 } from "./api";
-
 import { verifyApplicationEnvironment } from "./securityDetection";
 
 export interface SecurityTestResults {

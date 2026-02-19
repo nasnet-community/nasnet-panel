@@ -1,11 +1,9 @@
+import { mergeMultipleConfigs } from "../../../utils/ConfigGeneratorUtil";
+import { ScriptAndScheduler, SchedulerGenerator } from "../../../utils/ScriptSchedule";
+import { DNSForeward } from "../DNS/DNS";
+
+import type { RouterConfig } from "../../../generator";
 import type { VPNClientType, VPNClient, WANInterfaceType } from "@nas-net/star-context";
-import {
-    type RouterConfig,
-    DNSForeward,
-    mergeMultipleConfigs,
-    ScriptAndScheduler,
-    SchedulerGenerator
-} from "@nas-net/ros-cmd-generator";
 
 // Check if a string is a Fully Qualified Domain Name (FQDN) vs an IP address
 export const isFQDN = (address: string): boolean => {

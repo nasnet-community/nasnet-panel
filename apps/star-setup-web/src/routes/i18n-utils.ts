@@ -1,16 +1,18 @@
 import "@angular/localize/init";
 import { loadTranslations } from "@angular/localize";
 import { $, getLocale, useOnDocument, withLocale } from "@builder.io/qwik";
-import type { RenderOptions } from "@builder.io/qwik/server";
+
 
 // You must declare all your locales here
+import AR from "../locales/message.ar.json";
 import EN from "../locales/message.en.json";
+import FA from "../locales/message.fa.json";
 import IT from "../locales/message.it.json";
 import RU from "../locales/message.ru.json";
-import FA from "../locales/message.fa.json";
-import ZH from "../locales/message.zh.json";
-import AR from "../locales/message.ar.json";
 import TR from "../locales/message.tr.json";
+import ZH from "../locales/message.zh.json";
+
+import type { RenderOptions } from "@builder.io/qwik/server";
 
 // Make sure it's obvious when the default locale was selected
 const DEFAULT_LOCALE = "en";

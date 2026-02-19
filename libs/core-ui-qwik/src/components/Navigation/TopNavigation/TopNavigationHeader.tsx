@@ -1,8 +1,11 @@
-import type { QRL } from "@builder.io/qwik";
 import { component$ } from "@builder.io/qwik";
-import type { JSXChildren } from "@builder.io/qwik";
-import type { TopNavigationItem } from "./TopNavigation.types";
+
 import { TopNavigationItemComponent } from "./TopNavigationItem";
+
+import type { TopNavigationItem } from "./TopNavigation.types";
+import type { QRL , JSXChildren } from "@builder.io/qwik";
+
+
 
 export interface TopNavigationHeaderProps {
   logo?: JSXChildren;

@@ -1,10 +1,12 @@
-import type { WirelessInterface, WirelessSecurityProfile } from '@shared/routeros';
 import { 
   getWirelessInterfaces,
   getSecurityProfiles,
   toggleWirelessInterface
 } from '@/services/wireless';
+
 import { WiFiConfigDialog } from './WiFiConfigDialog';
+
+import type { WirelessInterface, WirelessSecurityProfile } from '@shared/routeros';
 
 /**
  * WiFi Manager Component

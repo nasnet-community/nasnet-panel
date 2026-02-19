@@ -1,7 +1,9 @@
 import { component$, $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { TabNavigationProps } from "./TabNavigation.types";
+
 import { useTabStyles } from "./hooks/useTabStyles";
 import { TabItem } from "./TabItem";
+
+import type { TabNavigationProps } from "./TabNavigation.types";
 
 /**
  * TabNavigation component for switching between different views or sections.

@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { StateEntry } from "./StateEntry";
+
 import type { StateHistoryProps } from "./type";
 
 export const StateHistory = component$((props: StateHistoryProps) => {

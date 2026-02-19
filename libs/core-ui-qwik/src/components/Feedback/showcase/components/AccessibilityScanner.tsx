@@ -7,7 +7,9 @@ import {
   HiXCircleOutline,
   HiCheckCircleOutline,
 } from "@qwikest/icons/heroicons";
+
 import { Card } from "../../../Card/Card";
+
 import type { AccessibilityIssue } from "../types";
 
 interface AccessibilityScannerProps {

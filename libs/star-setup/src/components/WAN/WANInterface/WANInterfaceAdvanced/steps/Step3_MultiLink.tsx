@@ -1,7 +1,8 @@
 import { component$, $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { WANWizardState, MultiLinkUIConfig } from "../types";
-import type { UseWANAdvancedReturn } from "../hooks/useWANAdvanced";
 import { Select, Input, FormLabel, FormHelperText } from "@nas-net/core-ui-qwik";
+
+import type { UseWANAdvancedReturn } from "../hooks/useWANAdvanced";
+import type { WANWizardState, MultiLinkUIConfig } from "../types";
 
 export interface Step3Props {
   wizardState: WANWizardState;

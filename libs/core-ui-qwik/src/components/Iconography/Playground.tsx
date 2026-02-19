@@ -1,6 +1,6 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import Icon from "./Icon";
-import type { IconSize, IconColor } from "./Icon.types";
 import {
   HomeIcon,
   SettingsIcon,
@@ -17,6 +17,8 @@ import {
   PlusIcon,
   EmailIcon,
 } from "./icons";
+
+import type { IconSize, IconColor } from "./Icon.types";
 
 /**
  * Playground component for the Icon system.

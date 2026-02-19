@@ -1,6 +1,5 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import type { JSX } from "@builder.io/qwik/jsx-runtime";
-import { Select } from "../index";
+
 import { Avatar } from "../../DataDisplay/Avatar/Avatar";
 import Icon from "../../Iconography/Icon";
 import {
@@ -13,6 +12,9 @@ import {
   RemoveCircleIcon,
   CubeIcon,
 } from "../../Iconography/icons";
+import { Select } from "../index";
+
+import type { JSX } from "@builder.io/qwik/jsx-runtime";
 
 export default component$(() => {
   const selectedUser = useSignal<string>("");

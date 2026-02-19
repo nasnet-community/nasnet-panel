@@ -1,12 +1,13 @@
 import { component$, useSignal, useStore, $ } from "@builder.io/qwik";
+
+import { Button } from "../../button";
+import { Alert } from "../Alert";
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "../Dialog";
 import { Drawer, DrawerHeader, DrawerContent, DrawerFooter } from "../Drawer";
-import { Popover, PopoverTrigger, PopoverContent } from "../Popover";
-import { Alert } from "../Alert";
 import { ErrorMessage } from "../ErrorMessage";
+import { Popover, PopoverTrigger, PopoverContent } from "../Popover";
 import { PromoBanner } from "../PromoBanner";
 import { useToast } from "../Toast";
-import { Button } from "../../button";
 
 /**
  * ThemeSwitchingTest - Tests all components with light/dark theme toggling

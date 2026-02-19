@@ -1,13 +1,15 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import { CalendarDay } from "./CalendarDay";
 import { dateUtils } from "./utils/dateUtils";
+
 import type {
   DateRange,
   DatePickerView,
   MonthNavigationDirection,
 } from "./DatePicker.types";
-import type { QRL } from "@builder.io/qwik";
-import type { JSX } from "@builder.io/qwik";
+import type { QRL , JSX } from "@builder.io/qwik";
+
 
 export interface DaysViewProps {
   viewDate: Date;

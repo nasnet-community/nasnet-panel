@@ -1,12 +1,14 @@
 import { component$, $ } from "@builder.io/qwik";
+import { Input } from "@nas-net/core-ui-qwik";
 import {
   HiLockClosedOutline,
   HiChevronDownOutline,
   HiChevronUpOutline,
 } from "@qwikest/icons/heroicons";
+
 import { useGRE } from "./useGRE";
+
 import type { GreTunnelConfig } from "@nas-net/star-context";
-import { Input } from "@nas-net/core-ui-qwik";
 
 export const GREProtocol = component$(() => {
   const { greTunnels, expandedSections, toggleSection, updateTunnelField } =

@@ -1,6 +1,6 @@
 import { ROUTES } from '@nasnet/core/constants';
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
-import { BackButton , StatusIndicator } from '@nasnet/ui/patterns';
+import { BackButton, StatusIndicator } from '@nasnet/ui/patterns';
 
 
 export interface RouterHeaderProps {
@@ -34,9 +34,9 @@ export interface RouterHeaderProps {
 export function RouterHeader({ routerId }: RouterHeaderProps) {
   const getRouter = useRouterStore((state) => state.getRouter);
   const currentRouterIp = useConnectionStore((state) => state.currentRouterIp);
-  
+
   const router = getRouter(routerId);
-  
+
   // Determine connection status
   const isConnected = !!currentRouterIp;
   const status = isConnected ? 'online' : 'offline';
@@ -47,7 +47,7 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
       <div className="flex items-start gap-3 md:gap-4">
         {/* Back Button */}
         <BackButton to={ROUTES.ROUTER_LIST} ariaLabel="Back to router list" />
-        
+
         {/* Router Information */}
         <div className="flex-1 min-w-0">
           {/* Title and Status Row */}
@@ -55,32 +55,32 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
             <h1 className="text-xl md:text-2xl font-display font-bold text-foreground truncate">
               {router?.name || `Router ${routerId}`}
             </h1>
-            <StatusIndicator 
-              status={status} 
+            <StatusIndicator
+              status={status}
               label={statusLabel}
               size="sm"
               pulse={isConnected}
               className="mt-1 md:mt-0"
             />
           </div>
-          
+
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-muted">
             {/* Router ID */}
             <span className="font-mono">ID: {routerId}</span>
-            
+
             {/* IP Address */}
             {router?.ipAddress && (
               <>
-                <span className="hidden md:inline text-slate-300 dark:text-slate-700">•</span>
+                <span className="hidden md:inline text-muted-foreground" aria-hidden="true">•</span>
                 <span className="font-mono">{router.ipAddress}</span>
               </>
             )}
-            
+
             {/* Router Model (if available) */}
             {router?.model && (
               <>
-                <span className="hidden md:inline text-slate-300 dark:text-slate-700">•</span>
+                <span className="hidden md:inline text-muted-foreground" aria-hidden="true">•</span>
                 <span className="hidden lg:inline">{router.model}</span>
               </>
             )}
@@ -90,31 +90,3 @@ export function RouterHeader({ routerId }: RouterHeaderProps) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -2,14 +2,14 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
-import Basic from "../Examples/Basic";
-import WithIcons from "../Examples/WithIcons";
-import Variants from "../Examples/Variants";
-import Sizes from "../Examples/Sizes";
-import VerticalOrientation from "../Examples/VerticalOrientation";
-import WithState from "../Examples/WithState";
 import AccessibleUsage from "../Examples/AccessibleUsage";
+import Basic from "../Examples/Basic";
 import MobileOptimized from "../Examples/MobileOptimized";
+import Sizes from "../Examples/Sizes";
+import Variants from "../Examples/Variants";
+import VerticalOrientation from "../Examples/VerticalOrientation";
+import WithIcons from "../Examples/WithIcons";
+import WithState from "../Examples/WithState";
 
 export default component$(() => {
   const examples = [

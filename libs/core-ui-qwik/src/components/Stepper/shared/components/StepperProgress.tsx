@@ -1,4 +1,5 @@
 import { component$, type QRL, type JSX } from "@builder.io/qwik";
+
 import type { BaseStepMeta } from "../types";
 
 export interface StepperProgressProps<S extends BaseStepMeta = BaseStepMeta> {

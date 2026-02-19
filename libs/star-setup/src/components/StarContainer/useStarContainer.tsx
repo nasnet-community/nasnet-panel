@@ -7,9 +7,7 @@ import {
   useVisibleTask$,
   component$,
 } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
 import { StarContext } from "@nas-net/star-context";
-import type { Mode } from "@nas-net/star-context";
 import {
   LuSettings2,
   LuGlobe,
@@ -17,13 +15,16 @@ import {
   LuWrench,
   LuClipboardList,
 } from "@qwikest/icons/lucide";
+import { track } from "@vercel/analytics";
+
 import { Choose } from "../Choose/Choose";
-import { WAN } from "../WAN/WAN";
-import { LAN } from "../LAN/LAN";
 import { ExtraConfig } from "../ExtraConfig/ExtraConfig";
+import { LAN } from "../LAN/LAN";
 import { ShowConfig } from "../ShowConfig/ShowConfig";
+import { WAN } from "../WAN/WAN";
 
 import type { Signal, QRL } from "@builder.io/qwik";
+import type { Mode } from "@nas-net/star-context";
 
 interface StarContainerReturn {
   activeStep: Signal<number>;

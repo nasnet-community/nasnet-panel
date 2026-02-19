@@ -26,9 +26,9 @@ const STATUS_COLOR_CLASSES = {
     bg: 'bg-semantic-error/10',
   },
   gray: {
-    dot: 'bg-gray-400 dark:bg-gray-500',
-    text: 'text-gray-500 dark:text-gray-400',
-    bg: 'bg-gray-100 dark:bg-gray-800',
+    dot: 'bg-muted-foreground',
+    text: 'text-muted-foreground',
+    bg: 'bg-muted',
   },
 } as const;
 
@@ -92,7 +92,7 @@ function MockDesktopIndicator({ state }: { state: MockConnectionState }) {
       className={cn(
         'flex items-center gap-2 px-3 py-1.5 rounded-md',
         'transition-colors duration-200',
-        state.showManualRetry && 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800'
+        state.showManualRetry && 'cursor-pointer hover:bg-muted'
       )}
       role="button"
       tabIndex={state.showManualRetry ? 0 : -1}
@@ -130,7 +130,7 @@ function MockDesktopIndicator({ state }: { state: MockConnectionState }) {
       )}
 
       {state.isReconnecting && (
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-muted-foreground">
           {state.reconnectAttempts}/{state.maxReconnectAttempts}
         </span>
       )}

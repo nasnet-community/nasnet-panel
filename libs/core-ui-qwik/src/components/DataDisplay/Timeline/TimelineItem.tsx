@@ -5,12 +5,14 @@ import {
   useSignal,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import type { TimelineItemProps } from "./Timeline.types";
+
+import { useTimelineItem } from "./hooks/useTimelineItem";
 import { TimelineContext } from "./Timeline";
-import { TimelineDot } from "./TimelineDot";
 import { TimelineConnector } from "./TimelineConnector";
 import { TimelineContent } from "./TimelineContent";
-import { useTimelineItem } from "./hooks/useTimelineItem";
+import { TimelineDot } from "./TimelineDot";
+
+import type { TimelineItemProps } from "./Timeline.types";
 
 /**
  * TimelineItem component for individual timeline entries

@@ -1,5 +1,6 @@
 import { useContext, useSignal, useStore } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import type { TimeConfig } from "./type";
 import type { FrequencyValue } from "@nas-net/core-ui-qwik";
 

@@ -6,7 +6,7 @@
  * 44px minimum touch targets, simplified UI.
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -46,7 +46,7 @@ function getRouteTypeBadge(type: RouteType) {
   }
 }
 
-export function RouteListMobile({
+function RouteListMobileComponent({
   routes,
   loading = false,
   error,
@@ -120,6 +120,7 @@ export function RouteListMobile({
             onFiltersChange({ ...filters, searchText: e.target.value })
           }
           className="min-h-[44px]"
+          aria-label="Search routes"
         />
 
         <Select
@@ -128,7 +129,7 @@ export function RouteListMobile({
             onFiltersChange({ ...filters, table: value === 'all' ? undefined : value })
           }
         >
-          <SelectTrigger className="min-h-[44px]">
+          <SelectTrigger className="min-h-[44px]" aria-label="Filter by routing table">
             <SelectValue placeholder="All tables" />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +151,7 @@ export function RouteListMobile({
             })
           }
         >
-          <SelectTrigger className="min-h-[44px]">
+          <SelectTrigger className="min-h-[44px]" aria-label="Filter by route type">
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
@@ -170,7 +171,8 @@ export function RouteListMobile({
             onChange={(e) =>
               onFiltersChange({ ...filters, activeOnly: e.target.checked })
             }
-            className="h-5 w-5 rounded border-gray-300"
+            className="h-5 w-5 rounded border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Show active routes only"
           />
           <span className="text-sm">Active only</span>
         </label>
@@ -178,8 +180,8 @@ export function RouteListMobile({
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4" />
+        <div role="alert" className="flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <p>{error}</p>
         </div>
       )}
@@ -333,8 +335,9 @@ function RouteCard({
             className="w-full min-h-[44px]"
             onClick={() => onEdit?.(route)}
             disabled={!isStatic}
+            aria-label={`Edit route ${route.destination}`}
           >
-            <Edit className="mr-2 h-4 w-4" />
+            <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
             Edit
           </Button>
           <div className="flex gap-2">
@@ -343,6 +346,7 @@ function RouteCard({
               className="flex-1 min-h-[44px]"
               onClick={() => onToggleDisabled?.(route)}
               disabled={!isStatic}
+              aria-label={`${route.disabled ? 'Enable' : 'Disable'} route ${route.destination}`}
             >
               {route.disabled ? 'Enable' : 'Disable'}
             </Button>
@@ -351,8 +355,9 @@ function RouteCard({
               className="flex-1 min-h-[44px]"
               onClick={() => onDelete?.(route)}
               disabled={!isStatic}
+              aria-label={`Delete route ${route.destination}`}
             >
-              <Trash className="mr-2 h-4 w-4" />
+              <Trash className="mr-2 h-4 w-4" aria-hidden="true" />
               Delete
             </Button>
           </div>
@@ -361,3 +366,5 @@ function RouteCard({
     </Card>
   );
 }
+
+export const RouteListMobile = memo(RouteListMobileComponent);

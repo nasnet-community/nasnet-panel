@@ -1,13 +1,15 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { OpenVpnClientConfig } from "@nas-net/star-context";
-import {
+import { ScriptGenerator ,
     CommandShortner,
     mergeConfigurations,
     mergeMultipleConfigs,
-} from "@nas-net/ros-cmd-generator";
-// import { GenerateOpenVPNCertificateScript } from "@nas-net/ros-cmd-generator";
-import { BaseVPNConfig, GenerateVCInterfaceName } from "@nas-net/ros-cmd-generator";
-import { ScriptGenerator } from "@nas-net/ros-cmd-generator/";
+ BaseVPNConfig, GenerateVCInterfaceName } from "../../../index";
+
+
+
+import type { RouterConfig } from "../../../index";
+import type { OpenVpnClientConfig } from "@nas-net/star-context";
+// import { GenerateOpenVPNCertificateScript } from "../../../index";
+
 
 
 export interface OpenVPNImportConfig {

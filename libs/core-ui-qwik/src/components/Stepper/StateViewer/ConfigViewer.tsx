@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import type { ConfigViewerProps } from "./type";
 
 export const ConfigViewer = component$((props: ConfigViewerProps) => {

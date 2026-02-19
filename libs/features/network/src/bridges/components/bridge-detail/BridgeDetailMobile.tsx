@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ export interface BridgeDetailMobileProps {
   isSubmitting: boolean;
 }
 
-export function BridgeDetailMobile({
+export const BridgeDetailMobile = memo(function BridgeDetailMobile({
   bridge,
   loading,
   error,
@@ -80,4 +81,4 @@ export function BridgeDetailMobile({
       </DialogContent>
     </Dialog>
   );
-}
+});

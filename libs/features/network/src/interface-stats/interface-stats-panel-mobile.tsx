@@ -6,6 +6,7 @@
  * ADR-018: Headless + Platform Presenters
  */
 
+import { memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives';
@@ -49,7 +50,7 @@ function formatBitsPerSecBigInt(bytesPerSec: bigint): string {
  * - Simplified visualizations
  * - Vertical spacing for readability
  */
-export function InterfaceStatsPanelMobile({
+export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile({
   routerId,
   interfaceId,
   interfaceName,
@@ -112,12 +113,12 @@ export function InterfaceStatsPanelMobile({
 
   return (
     <div className={className}>
-      <Card>
+      <Card role="region" aria-label={`${interfaceName} statistics`}>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Activity className="h-5 w-5 text-primary" />
+                <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
                 {interfaceName}
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
@@ -226,4 +227,4 @@ export function InterfaceStatsPanelMobile({
       </Card>
     </div>
   );
-}
+});

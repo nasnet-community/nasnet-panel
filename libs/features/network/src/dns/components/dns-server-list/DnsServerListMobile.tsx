@@ -105,8 +105,9 @@ export function DnsServerListMobile({
       <Button
         onClick={onAdd}
         variant="outline"
-        className="w-full h-11" // 44px touch target
+        className="w-full h-11"
         disabled={loading}
+        aria-label="Add a new DNS server"
       >
         <Plus className="h-5 w-5 mr-2" />
         Add DNS Server

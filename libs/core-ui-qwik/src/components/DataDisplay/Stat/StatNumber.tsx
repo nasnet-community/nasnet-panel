@@ -3,8 +3,10 @@ import {
   useSignal,
   useTask$,
 } from "@builder.io/qwik";
-import type { StatNumberProps } from "./Stat.types";
+
 import { useStat } from "./hooks/useStat";
+
+import type { StatNumberProps } from "./Stat.types";
 
 export const StatNumber = component$<StatNumberProps>((props) => {
   const {

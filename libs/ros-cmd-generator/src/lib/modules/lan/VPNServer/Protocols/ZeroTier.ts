@@ -1,4 +1,4 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import type { RouterConfig } from "../../../index";
 import type { ZeroTierServerConfig } from "@nas-net/star-context";
 
 

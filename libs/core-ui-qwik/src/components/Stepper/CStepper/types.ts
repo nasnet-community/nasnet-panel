@@ -1,6 +1,6 @@
-import type { JSX } from "@builder.io/qwik";
-import type { Signal, QRL, ContextId } from "@builder.io/qwik";
 import type { StepHelpContent } from "../shared/types/base";
+import type { JSX , Signal, QRL, ContextId } from "@builder.io/qwik";
+
 
 export interface CStepMeta {
   id: number;

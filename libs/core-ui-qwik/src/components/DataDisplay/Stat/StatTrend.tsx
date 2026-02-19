@@ -1,4 +1,5 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
+
 import type { StatTrendProps } from "./Stat.types";
 
 export const StatTrend = component$<StatTrendProps>((props) => {

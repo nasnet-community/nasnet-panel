@@ -1,7 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
 import { Card, CardBody, Button } from "@nas-net/core-ui-qwik";
 import { LuDownload, LuCheckCircle, LuRouter } from "@qwikest/icons/lucide";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 interface EasyModeDownloadCardProps {
   onROSDownload$: PropFunction<() => void>;

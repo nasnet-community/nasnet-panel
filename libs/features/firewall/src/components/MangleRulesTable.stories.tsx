@@ -7,11 +7,14 @@
  * @module @nasnet/features/firewall
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MangleRulesTable } from './MangleRulesTable';
+
 import type { MangleRule } from '@nasnet/core/types';
+
+import { MangleRulesTable } from './MangleRulesTable';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Create a wrapper with QueryClient for React Query hooks
 const queryClient = new QueryClient({

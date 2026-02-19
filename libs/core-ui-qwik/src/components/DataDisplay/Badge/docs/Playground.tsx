@@ -1,7 +1,5 @@
 ﻿import { component$, useSignal } from "@builder.io/qwik";
-import { PlaygroundTemplate } from "@nas-net/core-ui-qwik";
-import { Badge } from "@nas-net/core-ui-qwik";
-import { Card } from "@nas-net/core-ui-qwik";
+import { PlaygroundTemplate , Badge , Card } from "@nas-net/core-ui-qwik";
 import { HiCheckCircleSolid } from "@qwikest/icons/heroicons";
 
 export default component$(() => {

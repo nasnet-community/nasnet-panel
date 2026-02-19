@@ -155,10 +155,11 @@ export function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6">
-        <p className="text-semantic-error mb-4">Failed to load templates</p>
+        <p className="text-destructive mb-4" role="alert">Failed to load templates</p>
         <button
           onClick={() => refetch()}
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label="Retry loading templates"
         >
           Retry
         </button>

@@ -67,8 +67,8 @@ export function InterfaceGridTablet({ deviceId, className }: InterfaceGridProps)
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="flex items-center justify-between">
           <span>Failed to load interfaces: {error.message}</span>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={() => refetch()} aria-label="Retry loading interfaces">
+            <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
             Retry
           </Button>
         </AlertDescription>
@@ -81,7 +81,7 @@ export function InterfaceGridTablet({ deviceId, className }: InterfaceGridProps)
     return (
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-          <Network className="h-12 w-12 text-muted-foreground mb-4" />
+          <Network className="h-12 w-12 text-muted-foreground mb-4" aria-hidden="true" />
           <p className="text-lg font-medium">No interfaces found</p>
           <p className="text-sm text-muted-foreground">
             The router doesn't have any network interfaces configured.
@@ -94,7 +94,7 @@ export function InterfaceGridTablet({ deviceId, className }: InterfaceGridProps)
   return (
     <div className={className}>
       {/* Grid of interface cards - 3 columns on tablet */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3" role="list" aria-label="Network interfaces">
         {visibleInterfaces.map((iface) => (
           <InterfaceStatusCardDesktop
             key={iface.id}

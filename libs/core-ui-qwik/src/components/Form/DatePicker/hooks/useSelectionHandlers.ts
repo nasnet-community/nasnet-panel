@@ -1,5 +1,5 @@
 import { $, useComputed$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type {
   DatePickerProps,
   SingleDatePickerProps,
@@ -7,6 +7,7 @@ import type {
   DateTimePickerProps,
   DateRange,
 } from "../DatePicker.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseSelectionHandlersResult {
   handleDateSelect$: QRL<(date: Date) => void>;

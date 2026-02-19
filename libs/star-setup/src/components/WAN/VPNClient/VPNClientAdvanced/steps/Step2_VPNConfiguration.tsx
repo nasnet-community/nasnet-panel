@@ -1,16 +1,18 @@
 import { component$, $, useSignal, useTask$, type QRL } from "@builder.io/qwik";
 import { Card, Input, ProgressBar } from "@nas-net/core-ui-qwik";
-import type { VPNClientAdvancedState } from "../types/VPNClientAdvancedTypes";
-import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
-import { useVPNClientValidation } from "../hooks/useVPNClientValidation";
+
 
 // Import protocol-specific fields from Advanced components
-import { WireguardFields } from "../components/fields/WireguardFields";
-import { OpenVPNFields } from "../components/fields/OpenVPNFields";
-import { L2TPFields } from "../components/fields/L2TPFields";
 import { IKEv2Fields } from "../components/fields/IKEv2Fields";
+import { L2TPFields } from "../components/fields/L2TPFields";
+import { OpenVPNFields } from "../components/fields/OpenVPNFields";
 import { PPTPFields } from "../components/fields/PPTPFields";
 import { SSTFields } from "../components/fields/SSTFields";
+import { WireguardFields } from "../components/fields/WireguardFields";
+import { useVPNClientValidation } from "../hooks/useVPNClientValidation";
+
+import type { UseVPNClientAdvancedReturn } from "../hooks/useVPNClientAdvanced";
+import type { VPNClientAdvancedState } from "../types/VPNClientAdvancedTypes";
 
 export interface Step2VPNConfigurationProps {
   wizardState: VPNClientAdvancedState;

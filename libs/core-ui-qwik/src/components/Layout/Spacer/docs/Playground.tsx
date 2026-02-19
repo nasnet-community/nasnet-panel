@@ -3,8 +3,8 @@ import {
   PlaygroundTemplate,
   type PropertyControl,
 } from "@nas-net/core-ui-qwik";
-import { Spacer } from "@nas-net/core-ui-qwik";
-import { Box } from "@nas-net/core-ui-qwik";
+import { Spacer , Box } from "@nas-net/core-ui-qwik";
+
 
 export const SpacerPlayground = component$(() => {
   // Define the Spacer component that will be rendered in the playground

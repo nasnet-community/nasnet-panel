@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { CardFooterProps } from "./Card.types";
 
 export const CardFooter = component$<CardFooterProps>((props) => {

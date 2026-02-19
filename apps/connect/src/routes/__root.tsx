@@ -19,7 +19,7 @@ import { useDefaultCommands } from '../app/hooks/useDefaultCommands';
 import { Providers } from '../app/providers';
 
 
-function RootComponent() {
+function RootInner() {
   // Enable connection toast notifications
   useConnectionToast();
 
@@ -36,17 +36,32 @@ function RootComponent() {
   useAlertNotifications();
 
   return (
-    <Providers>
-      <AppShell header={<AppHeader />} banner={<ConnectionBanner />}>
+    <AppShell header={<AppHeader />} banner={<ConnectionBanner />}>
+      {/* Skip to main content link for keyboard/screen reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground"
+      >
+        Skip to main content
+      </a>
+      <main id="main-content">
         <Outlet />
-        <Toaster />
-        {/* Command Palette - opens with Cmd+K or via SearchFAB on mobile */}
-        <CommandPalette />
-        {/* Shortcuts Overlay - opens with ? key (desktop only) */}
-        <ShortcutsOverlay />
-        {/* Search FAB - visible on mobile only */}
-        <SearchFAB />
-      </AppShell>
+      </main>
+      <Toaster />
+      {/* Command Palette - opens with Cmd+K or via SearchFAB on mobile */}
+      <CommandPalette />
+      {/* Shortcuts Overlay - opens with ? key (desktop only) */}
+      <ShortcutsOverlay />
+      {/* Search FAB - visible on mobile only */}
+      <SearchFAB />
+    </AppShell>
+  );
+}
+
+function RootComponent() {
+  return (
+    <Providers>
+      <RootInner />
       {/* Only show devtools in development */}
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
     </Providers>
@@ -56,13 +71,13 @@ function RootComponent() {
 // Root-level error boundary
 function RootErrorComponent({ error }: { error: Error }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-background" role="alert" aria-live="assertive">
       <div className="max-w-md p-8 bg-card text-card-foreground rounded-lg shadow-lg border border-border">
         <h1 className="text-2xl font-bold text-error mb-4">Application Error</h1>
         <p className="text-muted-foreground mb-4">{error.message}</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover"
+          className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Reload Application
         </button>
@@ -85,7 +100,7 @@ function NotFoundComponent() {
         <p className="text-xl text-muted-foreground mt-4">Page not found</p>
         <a
           href="/"
-          className="mt-6 inline-block px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover"
+          className="mt-6 inline-block min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Go Home
         </a>

@@ -1,4 +1,5 @@
 import { $, useSignal } from "@builder.io/qwik";
+
 import type { UseNewsletterParams, UseNewsletterReturn, NewsletterSubscription } from "./Newsletter.types";
 
 /**

@@ -1,5 +1,7 @@
 import { component$, $ } from "@builder.io/qwik";
+
 import { NetworkInput } from "../NetworkInput";
+
 import type { RangeInputProps } from "../NetworkInput.types";
 
 /**

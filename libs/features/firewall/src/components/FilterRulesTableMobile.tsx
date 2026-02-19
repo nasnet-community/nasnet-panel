@@ -15,7 +15,7 @@
  * @see NAS-7.1: Implement Filter Rules - Task 4
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -50,7 +50,7 @@ import { Pencil, Copy, Trash2 } from 'lucide-react';
 // Action Badge Component (Refactored to use Badge with semantic variants)
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
+const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
   const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
@@ -69,7 +69,7 @@ function ActionBadge({ action }: { action: string }) {
       {action}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Rule Card Component
@@ -87,7 +87,7 @@ interface RuleCardProps {
   highlightRef?: React.RefObject<HTMLDivElement>;
 }
 
-function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: RuleCardProps) {
+const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: RuleCardProps) {
   const { t } = useTranslation('firewall');
   const isUnused = (rule.packets ?? 0) === 0;
   const showRelativeBar = useCounterSettingsStore((state) => state.showRelativeBar);
@@ -114,7 +114,7 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs text-slate-500">#{rule.order}</span>
+              <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
               <Badge variant="secondary" className="text-xs">
                 {rule.chain}
               </Badge>
@@ -132,15 +132,19 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+          <div className="text-sm text-muted-foreground mb-3">
             {matchers.join(' ')}
           </div>
         )}
 
         {/* Counters - Replaced with CounterCell */}
         <div
-          className="mb-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/70 p-2 -mx-2 rounded"
+          className="mb-3 cursor-pointer hover:bg-muted p-2 -mx-2 rounded"
           onClick={() => onShowStats(rule)}
+          role="button"
+          tabIndex={0}
+          aria-label={`View traffic statistics for rule ${rule.order ?? ''}`}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onShowStats(rule); }}
         >
           <CounterCell
             packets={rule.packets ?? 0}
@@ -154,18 +158,19 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-slate-600 dark:text-slate-400 italic mb-3">
+          <div className="text-sm text-muted-foreground italic mb-3">
             {rule.comment}
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="Rule actions">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
-            className="flex-1"
+            className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Edit rule"
           >
             <Pencil className="h-4 w-4 mr-1" />
             Edit
@@ -174,6 +179,8 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
             variant="outline"
             size="sm"
             onClick={() => onDuplicate(rule)}
+            className="min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Duplicate rule"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -181,7 +188,8 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
+            className="text-destructive hover:text-destructive/80 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Delete rule"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -189,7 +197,7 @@ function RuleCard({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onS
       </CardContent>
     </Card>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -214,7 +222,7 @@ export interface FilterRulesTableMobileProps {
  * @param props - Component props
  * @returns Mobile filter rules table component
  */
-export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMobileProps) {
+export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ className, chain }: FilterRulesTableMobileProps) {
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const pollingInterval = useCounterSettingsStore((state) => state.pollingInterval);
@@ -322,9 +330,9 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
     return (
       <div className={`p-4 space-y-4 ${className || ''}`}>
         <div className="animate-pulse space-y-4">
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-32 bg-muted rounded" />
+          <div className="h-32 bg-muted rounded" />
+          <div className="h-32 bg-muted rounded" />
         </div>
       </div>
     );
@@ -333,7 +341,7 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
+      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
         Error loading filter rules: {error.message}
       </div>
     );
@@ -342,7 +350,7 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
+      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
         {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
       </div>
     );
@@ -350,7 +358,7 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
 
   return (
     <>
-      <div className={`space-y-3 ${className || ''}`}>
+      <div className={`space-y-3 ${className || ''}`} role="list" aria-label="Filter rules">
         {sortedRules.map((rule) => (
           <RuleCard
             key={rule.id}
@@ -391,7 +399,7 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">This will:</p>
-            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>
@@ -401,7 +409,7 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
             <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
               Cancel
             </Button>
-            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <Button variant="destructive" onClick={confirmDelete}>
               Delete Rule
             </Button>
           </DialogFooter>
@@ -423,4 +431,6 @@ export function FilterRulesTableMobile({ className, chain }: FilterRulesTableMob
       )}
     </>
   );
-}
+});
+
+FilterRulesTableMobile.displayName = 'FilterRulesTableMobile';

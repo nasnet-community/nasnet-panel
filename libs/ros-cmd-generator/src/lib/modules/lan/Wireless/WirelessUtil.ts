@@ -1,3 +1,6 @@
+import { CommandShortner } from "../../index";
+
+import type { RouterConfig } from "../../index";
 import type {
     WirelessConfig,
     WifiTarget, 
@@ -5,8 +8,6 @@ import type {
     RouterModels,
     WANLinks,
 } from "@nas-net/star-context";
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import { CommandShortner } from "@nas-net/ros-cmd-generator";
 
 export interface AvailableBands {
     has2_4: boolean;

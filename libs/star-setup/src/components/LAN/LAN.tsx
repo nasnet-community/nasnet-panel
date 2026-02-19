@@ -2,14 +2,16 @@ import {
   component$,
   $,
 } from "@builder.io/qwik";
-import { Wireless } from "./Wireless/Wireless";
-import { VPNServer } from "./VPNServer/VPNServer";
-import { Tunnel } from "./Tunnel/Tunnel";
-import { Subnets } from "./Subnets";
 import { VStepper } from "@nas-net/core-ui-qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
+
 import EInterface from "./EInterface/EInterface";
+import { Subnets } from "./Subnets";
+import { Tunnel } from "./Tunnel/Tunnel";
 import { useLAN } from "./useLAN";
+import { VPNServer } from "./VPNServer/VPNServer";
+import { Wireless } from "./Wireless/Wireless";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
 
 // Define step components outside the main component to avoid serialization issues
 const EInterfaceStep = component$((props: StepProps) => (

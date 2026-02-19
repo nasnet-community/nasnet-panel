@@ -1,9 +1,11 @@
 import { $ } from "@builder.io/qwik";
-import type { FileUploadProps } from "../FileUpload.types";
-import { useFileState } from "./useFileState";
+
 import { useFileFormatter } from "./useFileFormatter";
-import { useFileValidation } from "./useFileValidation";
+import { useFileState } from "./useFileState";
 import { useFileUploader } from "./useFileUploader";
+import { useFileValidation } from "./useFileValidation";
+
+import type { FileUploadProps } from "../FileUpload.types";
 
 export function useFileUpload(props: FileUploadProps) {
   const {

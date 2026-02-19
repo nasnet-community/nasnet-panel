@@ -1,11 +1,11 @@
 import { component$, type Signal, type QRL, $, useSignal, useTask$, type JSXNode } from "@builder.io/qwik";
+import { SegmentedControl } from "@nas-net/core-ui-qwik";
 import {
   HiWifiOutline,
   HiExclamationTriangleOutline,
   HiCheckCircleOutline,
   HiXCircleOutline,
 } from "@qwikest/icons/heroicons";
-import { SegmentedControl } from "@nas-net/core-ui-qwik";
 
 interface WirelessHeaderProps {
   wirelessEnabled: Signal<boolean>;

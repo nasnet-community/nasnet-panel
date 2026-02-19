@@ -1,6 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Card } from "../Card";
+
 import { Button } from "../../button/Button";
+import { Card } from "../Card";
 
 /**
  * LoadingCardExample - Interactive loading state demonstration

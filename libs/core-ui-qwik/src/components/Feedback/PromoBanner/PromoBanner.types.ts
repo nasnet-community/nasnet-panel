@@ -1,5 +1,5 @@
-import type { QRL } from "@builder.io/qwik";
 import type { FeedbackStatus, FeedbackSize } from "../utils/theme";
+import type { QRL } from "@builder.io/qwik";
 
 export interface VPNCredentials {
   server: string;

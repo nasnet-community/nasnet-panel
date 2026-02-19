@@ -1,6 +1,8 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { ListProps } from "./List.types";
+
 import { List } from "./List";
+
+import type { ListProps } from "./List.types";
 
 /**
  * UnorderedList convenience component

@@ -1,5 +1,6 @@
 import { $, useContext, useSignal } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
 import type { GameConfig } from "@nas-net/star-context";
 
 export const useGameLogic = () => {

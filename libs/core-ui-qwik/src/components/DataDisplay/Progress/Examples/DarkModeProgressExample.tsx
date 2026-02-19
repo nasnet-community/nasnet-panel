@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import { Spinner } from "../Spinner";
+
 import { ProgressBar } from "../ProgressBar";
+import { Spinner } from "../Spinner";
 
 export const DarkModeProgressExample = component$(() => {
   return (

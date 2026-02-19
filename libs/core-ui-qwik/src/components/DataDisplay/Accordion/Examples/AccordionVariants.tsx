@@ -1,8 +1,9 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Accordion } from "../Accordion";
+import { AccordionContent } from "../AccordionContent";
 import { AccordionItem } from "../AccordionItem";
 import { AccordionTrigger } from "../AccordionTrigger";
-import { AccordionContent } from "../AccordionContent";
 
 export const AccordionVariants = component$(() => {
   return (

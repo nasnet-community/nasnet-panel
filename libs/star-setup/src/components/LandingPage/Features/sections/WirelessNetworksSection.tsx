@@ -1,5 +1,6 @@
 import { component$, $ } from "@builder.io/qwik";
 import { Badge, Graph, createNode } from "@nas-net/core-ui-qwik";
+
 import type { GraphConnection, GraphNode } from "@nas-net/core-ui-qwik";
 
 export const WirelessNetworksSection = component$(() => {

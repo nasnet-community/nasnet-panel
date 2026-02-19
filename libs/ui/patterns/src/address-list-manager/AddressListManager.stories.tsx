@@ -13,7 +13,9 @@
  * @see NAS-7.3: Implement Address Lists
  */
 
-import { action } from '@storybook/addon-actions';
+import { fn } from '@storybook/test';
+
+const action = (name: string) => fn().mockName(name);
 
 import { AddressListManager } from './AddressListManager';
 

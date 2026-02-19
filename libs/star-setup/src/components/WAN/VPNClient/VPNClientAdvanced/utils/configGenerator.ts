@@ -1,4 +1,15 @@
+import {
+  WireguardClient,
+  OpenVPNClient,
+  PPTPClient,
+  L2TPClient,
+  SSTPClient,
+  IKeV2Client,
+  isFQDN,
+ GenerateOpenVPNImportScript , mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
+
 import type { AdvancedVPNState, VPNConfig } from "../types/AdvancedVPNState";
+import type { RouterConfig } from "@nas-net/ros-cmd-generator";
 import type {
   VPNClient,
   WireguardClientConfig,
@@ -8,18 +19,6 @@ import type {
   SstpClientConfig,
   Ike2ClientConfig,
 } from "@nas-net/star-context";
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import {
-  WireguardClient,
-  OpenVPNClient,
-  PPTPClient,
-  L2TPClient,
-  SSTPClient,
-  IKeV2Client,
-  isFQDN,
-} from "@nas-net/ros-cmd-generator";
-import { GenerateOpenVPNImportScript } from "@nas-net/ros-cmd-generator";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
 
 // Convert AdvancedVPNState to StarContext VPNClient format
 export function convertToStarContextVPNClient( state: AdvancedVPNState ): VPNClient | undefined {

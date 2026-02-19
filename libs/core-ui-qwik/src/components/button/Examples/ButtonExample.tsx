@@ -1,10 +1,11 @@
 import { component$ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiArrowRightOutline,
   HiCheckOutline,
   HiExclamationTriangleOutline,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const BasicButtonExample = component$(() => {
   return (

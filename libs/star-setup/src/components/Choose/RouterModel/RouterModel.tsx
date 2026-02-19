@@ -1,14 +1,15 @@
 import { $, component$, useContext, useSignal, type PropFunction } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
-import { LuPlus } from "@qwikest/icons/lucide";
 import { StarContext } from "@nas-net/star-context";
-import { getMasterRouters, type RouterData } from "./Constants";
 import { type RouterInterfaces, type CPUArch } from "@nas-net/star-context";
+import { LuPlus } from "@qwikest/icons/lucide";
+import { track } from "@vercel/analytics";
+
 import { ClassyRouterCard } from "./ClassyRouterCard";
 import { ClassyTabs } from "./ClassyTabs";
-import { RouterDetailsModal } from "./RouterDetailsModal";
+import { getMasterRouters, type RouterData } from "./Constants";
 import { CustomRouterModal } from "./CustomRouterModal";
 import { categorizeRouters } from "./RouterCategories";
+import { RouterDetailsModal } from "./RouterDetailsModal";
 
 interface RouterModelProps {
   isComplete?: boolean;

@@ -1,8 +1,8 @@
-import { $, useSignal, useStore } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
-import type { PptpServerConfig } from "@nas-net/star-context";
-import type { AuthMethod } from "@nas-net/star-context";
+import { $, useSignal, useStore , useContext } from "@builder.io/qwik";
 import { StarContext } from "@nas-net/star-context";
+
+import type { PptpServerConfig , AuthMethod } from "@nas-net/star-context";
+
 
 // Define ViewMode type
 type ViewMode = "easy" | "advanced";

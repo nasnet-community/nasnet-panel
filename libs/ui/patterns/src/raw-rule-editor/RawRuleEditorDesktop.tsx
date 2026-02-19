@@ -416,7 +416,11 @@ export const RawRuleEditorDesktop = memo(function RawRuleEditorDesktop({
                   name="disabled"
                   control={control}
                   render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-label="Disabled"
+                    />
                   )}
                 />
               </FormField>

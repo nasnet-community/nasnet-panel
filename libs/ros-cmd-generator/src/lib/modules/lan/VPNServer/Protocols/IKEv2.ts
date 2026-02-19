@@ -1,4 +1,3 @@
-import type { Ikev2ServerConfig, SubnetConfig, VSCredentials, VSNetwork } from "@nas-net/star-context";
 import {
     type RouterConfig,
     CommandShortner,
@@ -7,7 +6,9 @@ import {
     VSAddressList,
     generateIPPool,
     SubnetToRange,
-} from "@nas-net/ros-cmd-generator";
+} from "../../../index";
+
+import type { Ikev2ServerConfig, SubnetConfig, VSCredentials, VSNetwork } from "@nas-net/star-context";
 
 // Main IKEv2 Server Function - Optimized for maximum compatibility and speed
 

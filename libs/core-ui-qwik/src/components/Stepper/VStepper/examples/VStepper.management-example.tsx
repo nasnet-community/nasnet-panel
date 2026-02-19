@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { VStepper } from "../VStepper";
+
 import type { StepItem } from "../types";
 
 // Simple step content component

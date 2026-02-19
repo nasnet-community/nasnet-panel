@@ -1,10 +1,11 @@
 import { $, useSignal } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type {
   DatePickerProps,
   MonthNavigationDirection,
   DatePickerView,
 } from "../DatePicker.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface UseCalendarStateResult {
   currentView: { value: DatePickerView };

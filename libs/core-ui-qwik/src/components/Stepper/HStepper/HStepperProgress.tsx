@@ -1,8 +1,10 @@
 import { component$ } from "@builder.io/qwik";
-import type { StepItem } from "./HSteppertypes";
-import { LuCheck } from "@qwikest/icons/lucide";
 import { Toggle } from "@nas-net/core-ui-qwik";
+import { LuCheck } from "@qwikest/icons/lucide";
+
 import { useGlobalHelpSettings } from "../shared/hooks/useGlobalHelpSettings";
+
+import type { StepItem } from "./HSteppertypes";
 
 interface StepperProgressProps {
   steps: StepItem[];

@@ -91,7 +91,10 @@ export function SafetyConfirmationCountdown({
             urgencyLevel === 'urgent' && '[&>div]:bg-warning',
             urgencyLevel === 'critical' && '[&>div]:bg-destructive'
           )}
-          aria-label="Countdown progress"
+          aria-label={`Countdown progress: ${formattedTime} remaining`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
         />
       </div>
 
@@ -103,6 +106,8 @@ export function SafetyConfirmationCountdown({
           urgencyLevel === 'urgent' && 'text-warning',
           urgencyLevel === 'critical' && 'text-destructive'
         )}
+        aria-live="assertive"
+        aria-atomic="true"
       >
         {isComplete
           ? 'Countdown complete. You may now confirm.'

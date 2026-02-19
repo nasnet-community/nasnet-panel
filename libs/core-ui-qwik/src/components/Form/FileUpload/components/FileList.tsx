@@ -1,6 +1,8 @@
 import { component$, type QRL } from "@builder.io/qwik";
-import type { FileInfo } from "../FileUpload.types";
+
 import { FileListItem } from "./FileListItem";
+
+import type { FileInfo } from "../FileUpload.types";
 
 export interface FileListProps {
   files: FileInfo[];

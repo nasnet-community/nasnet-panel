@@ -15,7 +15,7 @@
  * @see NAS-7.1: Implement Filter Rules - Task 4
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from '@tanstack/react-router';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -71,7 +71,7 @@ import { useCounterSettingsStore } from '@nasnet/features/firewall';
 // Action Badge Component (Refactored to use Badge with semantic variants)
 // ============================================================================
 
-function ActionBadge({ action }: { action: string }) {
+const ActionBadge = memo(function ActionBadge({ action }: { action: string }) {
   // Map actions to Badge semantic variants
   const variantMap: Record<string, 'default' | 'success' | 'error' | 'warning' | 'info'> = {
     accept: 'success',
@@ -90,25 +90,25 @@ function ActionBadge({ action }: { action: string }) {
       {action}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Chain Badge Component
 // ============================================================================
 
-function ChainBadge({ chain }: { chain: string }) {
+const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
     <Badge variant="secondary" className="font-mono text-xs">
       {chain}
     </Badge>
   );
-}
+});
 
 // ============================================================================
 // Matchers Summary Component
 // ============================================================================
 
-function MatchersSummary({ rule }: { rule: FilterRule }) {
+const MatchersSummary = memo(function MatchersSummary({ rule }: { rule: FilterRule }) {
   const matchers: string[] = [];
 
   if (rule.protocol && rule.protocol !== 'all') matchers.push(`proto:${rule.protocol}`);
@@ -123,7 +123,7 @@ function MatchersSummary({ rule }: { rule: FilterRule }) {
   }
 
   if (matchers.length === 0) {
-    return <span className="text-slate-500 dark:text-slate-400">any</span>;
+    return <span className="text-muted-foreground">any</span>;
   }
 
   if (matchers.length <= 2) {
@@ -138,7 +138,7 @@ function MatchersSummary({ rule }: { rule: FilterRule }) {
       </Badge>
     </span>
   );
-}
+});
 
 // ============================================================================
 // Sortable Row Component
@@ -156,7 +156,7 @@ interface SortableRowProps {
   highlightRef?: React.RefObject<HTMLTableRowElement>;
 }
 
-function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: SortableRowProps) {
+const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats, isHighlighted, highlightRef }: SortableRowProps) {
   const {
     attributes,
     listeners,
@@ -188,11 +188,11 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
         }
       }}
       style={style}
-      className={`${rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
+      className={`${rule.disabled ? 'opacity-50 bg-muted' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''} ${isHighlighted ? 'animate-highlight bg-warning/20' : ''}`}
     >
       {/* Drag handle */}
       <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
-        <GripVertical className="h-4 w-4 text-slate-400" />
+        <GripVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       </TableCell>
 
       {/* Position */}
@@ -215,8 +215,12 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 
       {/* Traffic (Counter Cell) */}
       <TableCell
-        className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/70"
+        className="cursor-pointer hover:bg-muted"
         onClick={() => onShowStats(rule)}
+        role="button"
+        tabIndex={0}
+        aria-label={`View traffic statistics for rule ${rule.order ?? ''}`}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onShowStats(rule); }}
       >
         <CounterCell
           packets={rule.packets ?? 0}
@@ -239,12 +243,13 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 
       {/* Actions */}
       <TableCell>
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="group" aria-label="Rule actions">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onEdit(rule)}
             aria-label="Edit rule"
+            className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Pencil className="h-4 w-4" />
           </Button>
@@ -253,6 +258,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
             size="sm"
             onClick={() => onDuplicate(rule)}
             aria-label="Duplicate rule"
+            className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -260,7 +266,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
             variant="ghost"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400"
+            className="text-destructive hover:text-destructive/80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Delete rule"
           >
             <Trash2 className="h-4 w-4" />
@@ -269,7 +275,7 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
       </TableCell>
     </TableRow>
   );
-}
+});
 
 // ============================================================================
 // Main Component
@@ -294,7 +300,7 @@ export interface FilterRulesTableDesktopProps {
  * @param props - Component props
  * @returns Filter rules table component
  */
-export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDesktopProps) {
+export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDesktopProps) {
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const pollingInterval = useCounterSettingsStore((state) => state.pollingInterval);
@@ -428,9 +434,9 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
     return (
       <div className={`p-4 ${className || ''}`}>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-10 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
         </div>
       </div>
     );
@@ -439,7 +445,7 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
+      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
         Error loading filter rules: {error.message}
       </div>
     );
@@ -448,7 +454,7 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
+      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
         {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
       </div>
     );
@@ -462,17 +468,17 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <Table>
+          <Table aria-label="Filter rules">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8" />
-                <TableHead>#</TableHead>
-                <TableHead>Chain</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Matchers</TableHead>
-                <TableHead className="hidden lg:table-cell">Traffic</TableHead>
-                <TableHead>Enabled</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="w-8" scope="col"><span className="sr-only">Drag handle</span></TableHead>
+                <TableHead scope="col">#</TableHead>
+                <TableHead scope="col">Chain</TableHead>
+                <TableHead scope="col">Action</TableHead>
+                <TableHead scope="col">Matchers</TableHead>
+                <TableHead scope="col" className="hidden lg:table-cell">Traffic</TableHead>
+                <TableHead scope="col">Enabled</TableHead>
+                <TableHead scope="col">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -524,7 +530,7 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm font-semibold mb-2">This will:</p>
-            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>
@@ -556,4 +562,6 @@ export function FilterRulesTableDesktop({ className, chain }: FilterRulesTableDe
       )}
     </>
   );
-}
+});
+
+FilterRulesTableDesktop.displayName = 'FilterRulesTableDesktop';

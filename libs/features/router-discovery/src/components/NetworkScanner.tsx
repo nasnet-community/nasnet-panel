@@ -110,7 +110,7 @@ export function NetworkScanner({
         <div>
           <label
             htmlFor="subnet"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-foreground mb-2"
           >
             Network Subnet
           </label>
@@ -122,17 +122,19 @@ export function NetworkScanner({
               onChange={(e) => setSubnet(e.target.value)}
               disabled={isScanning}
               placeholder="192.168.88.0/24"
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white disabled:opacity-50"
+              className="flex-1 px-3 py-2 border border-border rounded-md shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50"
+              aria-describedby="subnet-help"
             />
             <button
               onClick={handleStartScan}
               disabled={isScanning}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label={isScanning ? 'Scanning network' : 'Scan network'}
+              className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isScanning ? 'Scanning...' : 'Scan Network'}
             </button>
           </div>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p id="subnet-help" className="mt-1 text-sm text-muted-foreground">
             Enter subnet in CIDR notation (e.g., 192.168.88.0/24)
           </p>
         </div>
@@ -145,14 +147,16 @@ export function NetworkScanner({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md"
+            className="p-4 bg-destructive/10 border border-destructive/20 rounded-md"
+            role="alert"
           >
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-red-400"
+                  className="h-5 w-5 text-destructive"
                   viewBox="0 0 20 20"
                   fill="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     fillRule="evenodd"
@@ -162,10 +166,10 @@ export function NetworkScanner({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                <h3 className="text-sm font-medium text-destructive">
                   Scan Failed
                 </h3>
-                <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                <p className="mt-1 text-sm text-destructive/80">
                   {error}
                 </p>
               </div>
@@ -181,25 +185,27 @@ export function NetworkScanner({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+            className="p-6 bg-accent border border-border rounded-lg"
+            role="status"
+            aria-label="Network scan in progress"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                <h3 className="text-lg font-semibold text-foreground">
                   Scanning Network...
                 </h3>
                 <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" aria-hidden="true" />
+                  <span className="text-sm font-medium text-muted-foreground">
                     {scanProgress.scannedHosts} / {scanProgress.totalHosts}
                   </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-muted rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow={Math.round((scanProgress.scannedHosts / scanProgress.totalHosts) * 100)} aria-valuemin={0} aria-valuemax={100}>
                 <motion.div
-                  className="h-full bg-blue-600 dark:bg-blue-400"
+                  className="h-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{
                     width: `${
@@ -212,18 +218,18 @@ export function NetworkScanner({
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-muted-foreground">
                     Current IP:
                   </span>
-                  <p className="font-mono text-blue-900 dark:text-blue-100">
+                  <p className="font-mono text-foreground">
                     {scanProgress.currentIp}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-muted-foreground">
                     Routers Found:
                   </span>
-                  <p className="font-semibold text-blue-900 dark:text-blue-100">
+                  <p className="font-semibold text-foreground">
                     {scanProgress.foundRouters}
                   </p>
                 </div>
@@ -241,35 +247,37 @@ export function NetworkScanner({
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-foreground">
               Found {scanResults.length} Router{scanResults.length !== 1 ? 's' : ''}
             </h3>
-            <div className="grid gap-3">
+            <div className="grid gap-3" role="list" aria-label="Discovered routers">
               {scanResults.map((result) => (
                 <motion.button
                   key={result.ipAddress}
+                  role="listitem"
                   onClick={() => handleSelectRouter(result)}
-                  className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md transition-all text-left"
+                  aria-label={`Select router ${result.ipAddress}${result.model ? `, model ${result.model}` : ''}`}
+                  className="min-h-[44px] p-4 bg-card border border-border rounded-lg hover:border-primary hover:shadow-md transition-all text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                      <p className="font-mono font-semibold text-gray-900 dark:text-white">
+                      <p className="font-mono font-semibold text-foreground">
                         {result.ipAddress}
                       </p>
                       {result.model && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           Model: {result.model}
                         </p>
                       )}
                       {result.routerOsVersion && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           RouterOS: {result.routerOsVersion}
                         </p>
                       )}
                       {result.macAddress && (
-                        <p className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                        <p className="text-xs font-mono text-muted-foreground">
                           MAC: {result.macAddress}
                         </p>
                       )}
@@ -281,7 +289,7 @@ export function NetworkScanner({
                         </span>
                       )}
                       {result.responseTime !== undefined && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-muted-foreground">
                           {result.responseTime}ms
                         </span>
                       )}
@@ -296,12 +304,13 @@ export function NetworkScanner({
 
       {/* No Results Message */}
       {!isScanning && scanResults.length === 0 && !error && scanProgress && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-8 text-muted-foreground" role="status">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"

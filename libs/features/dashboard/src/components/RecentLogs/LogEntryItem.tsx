@@ -4,6 +4,7 @@
  * Story NAS-5.6: Recent Logs with Filtering
  */
 
+import { memo } from 'react';
 import { Badge, cn } from '@nasnet/ui/primitives';
 
 import { SEVERITY_CONFIG, TOPIC_LABELS } from './constants';
@@ -18,7 +19,7 @@ import type { LogEntryItemProps } from './types';
  * @param isNew - Whether this is a newly arrived entry (triggers highlight animation)
  * @param compact - Whether to use compact mode (mobile)
  */
-export function LogEntryItem({ entry, isNew, compact }: LogEntryItemProps) {
+export const LogEntryItem = memo(function LogEntryItem({ entry, isNew, compact }: LogEntryItemProps) {
   const severityConfig = SEVERITY_CONFIG[entry.severity];
   const SeverityIcon = severityConfig.icon;
 
@@ -64,4 +65,4 @@ export function LogEntryItem({ entry, isNew, compact }: LogEntryItemProps) {
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { $, useVisibleTask$ } from "@builder.io/qwik";
+
 import type { useSliderState } from "./useSliderState";
 import type { useSliderUtilities } from "./useSliderUtilities";
 import type { SliderProps } from "../Slider.types";

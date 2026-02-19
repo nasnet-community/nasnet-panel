@@ -16,6 +16,7 @@
  * @see Docs/design/PLATFORM_PRESENTER_GUIDE.md
  */
 
+import { memo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
 import { MangleRulesTableDesktop } from './MangleRulesTableDesktop';
 import { MangleRulesTableMobile } from './MangleRulesTableMobile';
@@ -35,7 +36,7 @@ export interface MangleRulesTableProps {
  * @param props - Component props
  * @returns Platform-appropriate mangle rules table
  */
-export function MangleRulesTable({ className, chain }: MangleRulesTableProps) {
+export const MangleRulesTable = memo(function MangleRulesTable({ className, chain }: MangleRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -44,4 +45,4 @@ export function MangleRulesTable({ className, chain }: MangleRulesTableProps) {
   ) : (
     <MangleRulesTableDesktop className={className} chain={chain} />
   );
-}
+});

@@ -1,5 +1,6 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { APIReferenceTemplate } from "@nas-net/core-ui-qwik";
+
 import type { PropDetail } from "@nas-net/core-ui-qwik";
 
 export default component$(() => {

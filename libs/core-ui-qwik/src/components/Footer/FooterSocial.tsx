@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { SOCIAL_LINKS } from "./constants";
 
 export const FooterSocial = component$(() => (

@@ -1,5 +1,6 @@
 import { component$, $ } from "@builder.io/qwik";
 import { HiCpuChipOutline } from "@qwikest/icons/heroicons";
+
 import type { Signal, PropFunction } from "@builder.io/qwik";
 
 interface EInterfaceHeaderProps {

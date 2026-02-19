@@ -138,7 +138,7 @@ export function HelpPopover({
                 'inline-flex items-center gap-1.5',
                 'text-sm text-primary hover:text-primary/80',
                 'transition-colors duration-150',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 rounded'
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded'
               )}
             >
               <span>Learn more</span>

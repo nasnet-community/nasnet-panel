@@ -1,6 +1,11 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { Subnets, MasterSlaveInterfaceType, ExtraConfigState, RouterModels, WirelessConfig, Band } from "@nas-net/star-context";
 import {
+    Slave,
+    Master,
+    WirelessBridge,
+    WirelessInterfaceList,
+    WirelessSteering,
+    WirelessSteeringAssignment,
+    detectAvailableBands,
     mergeMultipleConfigs,
     BaseExtra,
     IdentityRomon,
@@ -9,17 +14,11 @@ import {
     AReboot,
     AUpdate,
     NTP,
-    Graph
-} from "@nas-net/ros-cmd-generator";
-import {
-    Slave,
-    Master,
-    WirelessBridge,
-    WirelessInterfaceList,
-    WirelessSteering,
-    WirelessSteeringAssignment,
-    detectAvailableBands
-} from "@nas-net/ros-cmd-generator/";
+    Graph,
+    type RouterConfig,
+} from "../../index";
+
+import type { Subnets, MasterSlaveInterfaceType, ExtraConfigState, RouterModels, WirelessConfig, Band } from "@nas-net/star-context";
 
 
 const extractThirdOctet = (subnet: string): number => {

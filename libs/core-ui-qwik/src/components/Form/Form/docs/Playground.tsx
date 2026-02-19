@@ -3,9 +3,10 @@ import {
   PlaygroundTemplate,
   type PropertyControl,
 } from "@nas-net/core-ui-qwik";
-import { Form } from "../Form";
-import { Field } from "../../Field";
+
 import { Checkbox } from "../../Checkbox";
+import { Field } from "../../Field";
+import { Form } from "../Form";
 
 /**
  * Form component playground using the standard template

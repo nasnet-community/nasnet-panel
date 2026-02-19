@@ -1,12 +1,13 @@
 import { $, useContext, useSignal, type QRL } from "@builder.io/qwik";
-import { track } from "@vercel/analytics";
 import { StarContext } from "@nas-net/star-context";
+import { useNetworks } from "@utils/useNetworks";
+import { useSubnets } from "@utils/useSubnets";
+import { track } from "@vercel/analytics";
+
 import type {
   OpenVpnClientConfig,
   OpenVpnClientCertificates,
 } from "@nas-net/star-context";
-import { useNetworks } from "@utils/useNetworks";
-import { useSubnets } from "@utils/useSubnets";
 
 export interface UseOpenVPNConfigResult {
   config: { value: string };

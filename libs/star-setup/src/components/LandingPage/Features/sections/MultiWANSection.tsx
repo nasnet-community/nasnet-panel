@@ -1,7 +1,7 @@
 import { $, component$, useSignal } from "@builder.io/qwik";
+import { Badge , Graph, createNode } from "@nas-net/core-ui-qwik";
 import { LuGlobe, LuHome, LuActivity } from "@qwikest/icons/lucide";
-import { Badge } from "@nas-net/core-ui-qwik";
-import { Graph, createNode } from "@nas-net/core-ui-qwik";
+
 import type { GraphNode, GraphConnection } from "@nas-net/core-ui-qwik";
 
 export const MultiWANSection = component$(() => {

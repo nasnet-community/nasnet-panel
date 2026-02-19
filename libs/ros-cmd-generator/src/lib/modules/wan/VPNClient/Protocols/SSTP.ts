@@ -1,11 +1,12 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { SstpClientConfig } from "@nas-net/star-context";
 import {
     CommandShortner,
     mergeConfigurations,
     mergeMultipleConfigs,
-} from "@nas-net/ros-cmd-generator";
-import { BaseVPNConfig, GenerateVCInterfaceName } from "@nas-net/ros-cmd-generator";
+ BaseVPNConfig, GenerateVCInterfaceName } from "../../../index";
+
+import type { RouterConfig } from "../../../index";
+import type { SstpClientConfig } from "@nas-net/star-context";
+
 
 
 // SSTP Client

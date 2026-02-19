@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiPlusMini,
   HiPencilMini,
@@ -8,6 +7,8 @@ import {
   HiArrowUpTrayMini,
   HiShareMini,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const HorizontalButtonGroupExample = component$(() => {
   return (

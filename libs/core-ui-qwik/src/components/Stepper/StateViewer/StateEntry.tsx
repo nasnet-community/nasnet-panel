@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { StateEntryProps } from "./type";
+
 import { JsonViewer } from "./JsonViewer";
+
+import type { StateEntryProps } from "./type";
 
 export const StateEntry = component$((props: StateEntryProps) => {
   return (

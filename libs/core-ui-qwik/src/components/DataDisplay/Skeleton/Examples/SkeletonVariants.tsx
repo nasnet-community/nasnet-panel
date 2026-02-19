@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Skeleton, SkeletonAvatar, SkeletonCard } from "../index";
 
 export const SkeletonVariants = component$(() => {

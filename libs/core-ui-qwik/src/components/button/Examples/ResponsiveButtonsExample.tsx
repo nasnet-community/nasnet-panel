@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiArrowDownTrayMini,
   HiArrowUpTrayMini,
@@ -8,6 +7,8 @@ import {
   HiPlusMini,
   HiTrashMini,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const FullWidthButtonExample = component$(() => {
   return (

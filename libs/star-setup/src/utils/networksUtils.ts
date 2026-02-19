@@ -3,12 +3,12 @@ import type {
   NetworkName,
   BaseNetworks,
   VPNClientNetworks,
-} from "@nas-net/star-context";
-import type {
+
   WANLinkType
-} from "@nas-net/star-context";
-import type { VPNClient } from "@nas-net/star-context";
-import type { WANLinks } from "@nas-net/star-context";
+, VPNClient , WANLinks } from "@nas-net/star-context";
+
+
+
 
 /**
  * Generates the Networks configuration based on the current state

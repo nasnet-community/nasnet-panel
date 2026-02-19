@@ -1,12 +1,13 @@
 import { component$, useTask$ } from "@builder.io/qwik";
 import { useStepperContext } from "@nas-net/core-ui-qwik";
-import { TunnelContextId } from "../Tunnel";
 import {
   HiServerOutline,
   HiLockClosedOutline,
   HiCubeOutline,
   HiGlobeAltOutline,
 } from "@qwikest/icons/heroicons";
+
+import { TunnelContextId } from "../Tunnel";
 
 export const TunnelSummaryStep = component$(() => {
   const stepper = useStepperContext(TunnelContextId);

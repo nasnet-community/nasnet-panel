@@ -3,7 +3,7 @@
  * Dashboard Pro style with sortable columns and improved badges
  */
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { ChevronUp, ChevronDown, ChevronsUpDown, Network } from 'lucide-react';
 
@@ -23,7 +23,7 @@ interface ARPTableProps {
 type SortColumn = 'ip' | 'mac' | 'interface' | 'status';
 type SortDirection = 'asc' | 'desc' | null;
 
-export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTableProps) {
+export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed = false, className }: ARPTableProps) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -77,12 +77,12 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
 
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) {
-      return <ChevronsUpDown className="ml-1 h-3 w-3 text-slate-400" />;
+      return <ChevronsUpDown className="ml-1 h-3 w-3 text-muted-foreground" aria-hidden="true" />;
     }
     return sortDirection === 'asc' ? (
-      <ChevronUp className="ml-1 h-3 w-3 text-primary-500" />
+      <ChevronUp className="ml-1 h-3 w-3 text-primary" aria-hidden="true" />
     ) : (
-      <ChevronDown className="ml-1 h-3 w-3 text-primary-500" />
+      <ChevronDown className="ml-1 h-3 w-3 text-primary" aria-hidden="true" />
     );
   };
 
@@ -121,11 +121,11 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
           onToggle={() => setIsCollapsed(!isCollapsed)}
         />
         {!isCollapsed && (
-          <div className="text-center py-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-            <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Network className="w-6 h-6 text-slate-400" />
+          <div className="text-center py-8 bg-card rounded-xl border border-border">
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+              <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
+            <p className="text-muted-foreground text-sm">
               No ARP entries found
             </p>
           </div>
@@ -145,15 +145,16 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
       />
 
       {!isCollapsed && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="bg-card rounded-xl border border-border overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full" aria-label="ARP table entries">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                <tr className="border-b border-border bg-muted">
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('ip')}
-                      className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide hover:text-slate-900 dark:hover:text-white"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      aria-label={`Sort by IP Address${sortColumn === 'ip' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       IP Address
                       <SortIcon column="ip" />
@@ -162,7 +163,8 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('mac')}
-                      className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide hover:text-slate-900 dark:hover:text-white"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      aria-label={`Sort by MAC Address${sortColumn === 'mac' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       MAC Address
                       <SortIcon column="mac" />
@@ -171,7 +173,8 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
                   <th className="text-left px-4 py-3 hidden sm:table-cell">
                     <button
                       onClick={() => handleSort('interface')}
-                      className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide hover:text-slate-900 dark:hover:text-white"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      aria-label={`Sort by Interface${sortColumn === 'interface' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       Interface
                       <SortIcon column="interface" />
@@ -180,7 +183,8 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('status')}
-                      className="flex items-center text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide hover:text-slate-900 dark:hover:text-white"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      aria-label={`Sort by Status${sortColumn === 'status' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       Status
                       <SortIcon column="status" />
@@ -188,19 +192,19 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-border">
                 {sortedEntries.map((entry) => (
                   <tr
                     key={entry.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    className="hover:bg-muted transition-colors"
                   >
-                    <td className="px-4 py-3 font-mono text-sm text-slate-900 dark:text-white">
+                    <td className="px-4 py-3 font-mono text-sm text-foreground">
                       {entry.ipAddress}
                     </td>
-                    <td className="px-4 py-3 font-mono text-sm text-slate-600 dark:text-slate-300">
+                    <td className="px-4 py-3 font-mono text-sm text-muted-foreground">
                       {formatMACAddress(entry.macAddress)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                    <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell">
                       {entry.interface}
                     </td>
                     <td className="px-4 py-3">
@@ -215,4 +219,6 @@ export function ARPTable({ entries, defaultCollapsed = false, className }: ARPTa
       )}
     </div>
   );
-}
+});
+
+ARPTable.displayName = 'ARPTable';

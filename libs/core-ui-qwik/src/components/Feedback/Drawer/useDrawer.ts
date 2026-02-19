@@ -6,14 +6,17 @@ import {
   useStore,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import type { DrawerPlacement, DrawerSize } from "./Drawer.types";
-import type { FeedbackSize } from "../utils/theme";
+
 import {
   getResponsiveSizeClasses,
   getSafeAreaClasses,
   cn,
 } from "../utils/theme";
+
+import type { DrawerPlacement, DrawerSize } from "./Drawer.types";
+import type { FeedbackSize } from "../utils/theme";
+import type { QRL } from "@builder.io/qwik";
+
 
 export interface UseDrawerParams {
   isOpen: boolean;

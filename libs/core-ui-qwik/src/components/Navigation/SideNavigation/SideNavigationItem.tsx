@@ -1,11 +1,13 @@
-import type { QRL } from "@builder.io/qwik";
 import { component$ } from "@builder.io/qwik";
+
+import { useSideNavigationItemState } from "./hooks/useSideNavigationItemState";
+import { useSideNavigationItemStyles } from "./hooks/useSideNavigationItemStyles";
+
 import type {
   SideNavigationItem,
   SideNavigationProps,
 } from "./SideNavigation.types";
-import { useSideNavigationItemState } from "./hooks/useSideNavigationItemState";
-import { useSideNavigationItemStyles } from "./hooks/useSideNavigationItemStyles";
+import type { QRL } from "@builder.io/qwik";
 
 /**
  * SideNavigationItemComponent renders an individual navigation item

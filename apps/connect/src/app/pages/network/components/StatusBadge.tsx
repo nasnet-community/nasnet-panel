@@ -3,6 +3,8 @@
  * Dashboard Pro style with pulse animation for running state
  */
 
+import { memo } from 'react';
+
 import { type InterfaceStatus } from '@nasnet/core/types';
 
 import { cn } from '@/lib/utils';
@@ -14,7 +16,7 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-export function StatusBadge({
+export const StatusBadge = memo(function StatusBadge({
   status,
   size = 'md',
   showLabel = true,
@@ -34,12 +36,14 @@ export function StatusBadge({
 
   return (
     <span
+      role="status"
+      aria-label={isRunning ? 'Running' : 'Disabled'}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full font-medium',
         sizeClasses[size],
         isRunning
           ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+          : 'bg-muted text-muted-foreground',
         className
       )}
     >
@@ -48,7 +52,7 @@ export function StatusBadge({
           className={cn(
             'rounded-full',
             dotSizeClasses[size],
-            isRunning ? 'bg-emerald-500' : 'bg-slate-400 dark:bg-slate-500'
+            isRunning ? 'bg-emerald-500' : 'bg-muted-foreground'
           )}
         />
         {isRunning && (
@@ -63,4 +67,6 @@ export function StatusBadge({
       {showLabel && (isRunning ? 'Running' : 'Disabled')}
     </span>
   );
-}
+});
+
+StatusBadge.displayName = 'StatusBadge';

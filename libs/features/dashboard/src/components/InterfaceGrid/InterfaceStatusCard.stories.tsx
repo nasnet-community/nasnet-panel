@@ -4,9 +4,10 @@
  * Demonstrates all states and variants of the InterfaceStatusCard component.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { InterfaceStatusCard } from './InterfaceStatusCard';
+
 import type { InterfaceGridData } from './types';
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof InterfaceStatusCard> = {
   title: 'Dashboard/InterfaceStatusCard',

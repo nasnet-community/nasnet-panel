@@ -1,5 +1,6 @@
-import type { ApiResponse } from '@shared/routeros';
 import { makeRouterOSRequest } from './api';
+
+import type { ApiResponse } from '@shared/routeros';
 
 /**
  * DHCP Management Service

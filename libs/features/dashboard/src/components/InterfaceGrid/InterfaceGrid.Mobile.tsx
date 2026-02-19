@@ -69,7 +69,7 @@ export function InterfaceGridMobile({ deviceId, className }: InterfaceGridProps)
             onClick={() => refetch()}
             className="w-full"
           >
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
             Retry
           </Button>
         </AlertDescription>
@@ -82,7 +82,7 @@ export function InterfaceGridMobile({ deviceId, className }: InterfaceGridProps)
     return (
       <Card className={className}>
         <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-          <Network className="h-10 w-10 text-muted-foreground mb-3" />
+          <Network className="h-10 w-10 text-muted-foreground mb-3" aria-hidden="true" />
           <p className="text-base font-medium">No interfaces found</p>
           <p className="text-xs text-muted-foreground">
             No network interfaces configured.
@@ -95,7 +95,7 @@ export function InterfaceGridMobile({ deviceId, className }: InterfaceGridProps)
   return (
     <div className={className}>
       {/* Grid of interface cards - 2 columns on mobile */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2" role="list" aria-label="Network interfaces">
         {visibleInterfaces.map((iface) => (
           <InterfaceStatusCardMobile
             key={iface.id}

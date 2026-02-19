@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+
 import type { CheckboxSize } from "./Checkbox.types";
+import type { QRL } from "@builder.io/qwik";
 
 export interface CheckboxInputProps {
   id: string;

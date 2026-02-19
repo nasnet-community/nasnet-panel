@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import type { GatewayInfo } from '@nasnet/api-client/queries';
 import { GatewayStatusCardDesktop } from './GatewayStatusCardDesktop';
@@ -34,7 +35,7 @@ export interface GatewayStatusCardProps {
  * );
  * ```
  */
-export function GatewayStatusCard(props: GatewayStatusCardProps) {
+function GatewayStatusCardComponent(props: GatewayStatusCardProps) {
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
@@ -43,3 +44,6 @@ export function GatewayStatusCard(props: GatewayStatusCardProps) {
     <GatewayStatusCardDesktop {...props} />
   );
 }
+
+export const GatewayStatusCard = memo(GatewayStatusCardComponent);
+GatewayStatusCard.displayName = 'GatewayStatusCard';

@@ -9,9 +9,11 @@ import {
   LuAlertTriangle,
   LuInfo
 } from "@qwikest/icons/lucide";
-import { useDNS } from "./useDNS";
-import { NetworkDNSCard } from "./NetworkDNSCard";
+
 import { DOHConfiguration } from "./DOHConfiguration";
+import { NetworkDNSCard } from "./NetworkDNSCard";
+import { useDNS } from "./useDNS";
+
 import type { DNSStepProps } from "./types";
 
 export const DNS = component$<DNSStepProps>(({ onComplete$, onDisabled$ }) => {

@@ -101,7 +101,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                 className="min-h-[44px]"
               />
               {errors.hostname && (
-                <p className="text-sm text-error" role="alert">
+                <p className="text-sm text-destructive" role="alert">
                   {errors.hostname.message}
                 </p>
               )}
@@ -172,6 +172,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                 type="submit"
                 disabled={!isValid || isLoading}
                 className="flex-1 min-h-[44px]"
+                aria-label="Run DNS lookup"
               >
                 {isLoading ? 'Looking up...' : 'Lookup'}
               </Button>
@@ -181,6 +182,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                   variant="outline"
                   onClick={handleReset}
                   className="min-h-[44px]"
+                  aria-label="Clear results"
                 >
                   Clear
                 </Button>
@@ -198,8 +200,8 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
           </CardHeader>
           <CardContent>
             {isLoading && (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              <div className="flex items-center justify-center py-12" role="status" aria-label="Loading DNS results">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" aria-hidden="true" />
               </div>
             )}
 

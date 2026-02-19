@@ -104,8 +104,8 @@ export function LogSettingsDialog({ trigger }: LogSettingsDialogProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="ghost" size="sm" className="gap-2">
-            <Settings className="h-4 w-4" />
+          <Button variant="ghost" size="sm" className="gap-2 min-h-[44px] min-w-[44px]" aria-label="Log Settings">
+            <Settings className="h-4 w-4" aria-hidden="true" />
             <span className="sr-only md:not-sr-only">Log Settings</span>
           </Button>
         )}
@@ -184,9 +184,9 @@ function RulesTab({
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-8 text-center">
-        <AlertCircle className="h-8 w-8 text-error" />
+        <AlertCircle className="h-8 w-8 text-error" aria-hidden="true" />
         <p className="text-sm text-muted-foreground">{error.message}</p>
-        <Button variant="outline" size="sm" onClick={onRefetch}>
+        <Button variant="outline" size="sm" onClick={onRefetch} aria-label="Retry loading rules">
           Retry
         </Button>
       </div>
@@ -205,7 +205,7 @@ function RulesTab({
           onClick={() => setShowAddForm(true)}
           className="gap-2"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4" aria-hidden="true" />
           Add Rule
         </Button>
       </div>
@@ -234,6 +234,7 @@ function RulesTab({
                       })
                     }
                     disabled={toggleRule.isPending}
+                    aria-label={`Toggle rule ${rule.topics}`}
                   />
                   <Button
                     variant="ghost"
@@ -248,9 +249,10 @@ function RulesTab({
                       }
                     }}
                     disabled={deleteRule.isPending}
-                    className="text-error hover:text-error"
+                    className="text-error hover:text-error min-h-[44px] min-w-[44px]"
+                    aria-label={`Delete rule ${rule.topics}`}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -315,7 +317,7 @@ function AddRuleForm({ routerIp, onClose }: AddRuleFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Topics Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Topics</label>
+            <label id="topics-label" className="text-sm font-medium">Topics</label>
             <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
               {LOG_TOPICS.map((topic) => (
                 <Button
@@ -340,7 +342,7 @@ function AddRuleForm({ routerIp, onClose }: AddRuleFormProps) {
 
           {/* Action Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Action (Destination)</label>
+            <label htmlFor="rule-action" className="text-sm font-medium">Action (Destination)</label>
             <Select value={action} onValueChange={setAction}>
               <SelectTrigger>
                 <SelectValue />
@@ -356,8 +358,9 @@ function AddRuleForm({ routerIp, onClose }: AddRuleFormProps) {
 
           {/* Prefix */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Prefix (Optional)</label>
+            <label htmlFor="rule-prefix" className="text-sm font-medium">Prefix (Optional)</label>
             <Input
+              id="rule-prefix"
               value={prefix}
               onChange={(e) => setPrefix(e.target.value)}
               placeholder="e.g., FW-"
@@ -373,7 +376,7 @@ function AddRuleForm({ routerIp, onClose }: AddRuleFormProps) {
               disabled={topics.length === 0 || createRule.isPending}
               className="gap-2"
             >
-              <Save className="h-4 w-4" />
+              <Save className="h-4 w-4" aria-hidden="true" />
               Add Rule
             </Button>
           </div>
@@ -415,7 +418,7 @@ function DestinationsTab({
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-8 text-center">
-        <AlertCircle className="h-8 w-8 text-error" />
+        <AlertCircle className="h-8 w-8 text-error" aria-hidden="true" />
         <p className="text-sm text-muted-foreground">{error.message}</p>
       </div>
     );
@@ -585,7 +588,7 @@ function ActionConfigForm({ action, routerIp, onSave }: ActionConfigFormProps) {
         disabled={updateAction.isPending}
         className="w-full gap-2"
       >
-        <Save className="h-4 w-4" />
+        <Save className="h-4 w-4" aria-hidden="true" />
         Save Changes
       </Button>
     </div>

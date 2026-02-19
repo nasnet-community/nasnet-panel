@@ -1,5 +1,5 @@
+import type { RouterConfig } from "../../generator";
 import type { StarState } from "@nas-net/star-context";
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
 
 // const performUUIDObfuscation = (uuid: string): string => {
 //     const hexMap =

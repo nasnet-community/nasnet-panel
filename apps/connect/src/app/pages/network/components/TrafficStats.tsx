@@ -3,6 +3,8 @@
  * Dashboard Pro style with visual bars and compact layout
  */
 
+import { memo } from 'react';
+
 import { ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react';
 
 import { type TrafficStatistics } from '@nasnet/core/types';
@@ -16,7 +18,7 @@ interface TrafficStatsProps {
   className?: string;
 }
 
-export function TrafficStats({
+export const TrafficStats = memo(function TrafficStats({
   stats,
   variant = 'default',
   className,
@@ -52,19 +54,19 @@ export function TrafficStats({
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2 text-sm">
               <ArrowDown className="w-4 h-4 text-emerald-500" />
-              <span className="text-slate-600 dark:text-slate-300">Download</span>
+              <span className="text-foreground">Download</span>
             </div>
-            <span className="text-sm font-mono text-slate-900 dark:text-white">
+            <span className="text-sm font-mono text-foreground">
               {formatBytes(stats.rxBytes)}
             </span>
           </div>
-          <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full w-full" />
           </div>
-          <div className="flex justify-between mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>{formatNumber(stats.rxPackets)} packets</span>
             {stats.rxErrors > 0 && (
-              <span className="text-red-500">{stats.rxErrors} errors</span>
+              <span className="text-destructive">{stats.rxErrors} errors</span>
             )}
           </div>
         </div>
@@ -74,19 +76,19 @@ export function TrafficStats({
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2 text-sm">
               <ArrowUp className="w-4 h-4 text-purple-500" />
-              <span className="text-slate-600 dark:text-slate-300">Upload</span>
+              <span className="text-foreground">Upload</span>
             </div>
-            <span className="text-sm font-mono text-slate-900 dark:text-white">
+            <span className="text-sm font-mono text-foreground">
               {formatBytes(stats.txBytes)}
             </span>
           </div>
-          <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-purple-400 to-purple-500 rounded-full w-full" />
           </div>
-          <div className="flex justify-between mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>{formatNumber(stats.txPackets)} packets</span>
             {stats.txErrors > 0 && (
-              <span className="text-red-500">{stats.txErrors} errors</span>
+              <span className="text-destructive">{stats.txErrors} errors</span>
             )}
           </div>
         </div>
@@ -94,8 +96,8 @@ export function TrafficStats({
 
       {/* Issues Alert */}
       {hasIssues && (
-        <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg" role="alert">
+          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-xs">
             <p className="font-medium text-amber-800 dark:text-amber-300">
               Interface has issues
@@ -111,33 +113,33 @@ export function TrafficStats({
 
       {/* Detailed Stats Grid */}
       {variant === 'detailed' && (
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">RX Packets</p>
-            <p className="text-sm font-mono text-slate-900 dark:text-white">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
+          <div className="bg-muted rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-1">RX Packets</p>
+            <p className="text-sm font-mono text-foreground">
               {formatNumber(stats.rxPackets)}
             </p>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">TX Packets</p>
-            <p className="text-sm font-mono text-slate-900 dark:text-white">
+          <div className="bg-muted rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-1">TX Packets</p>
+            <p className="text-sm font-mono text-foreground">
               {formatNumber(stats.txPackets)}
             </p>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">RX Drops</p>
+          <div className="bg-muted rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-1">RX Drops</p>
             <p className={cn(
               'text-sm font-mono',
-              stats.rxDrops > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'
+              stats.rxDrops > 0 ? 'text-destructive' : 'text-foreground'
             )}>
               {formatNumber(stats.rxDrops)}
             </p>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">TX Drops</p>
+          <div className="bg-muted rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-1">TX Drops</p>
             <p className={cn(
               'text-sm font-mono',
-              stats.txDrops > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'
+              stats.txDrops > 0 ? 'text-destructive' : 'text-foreground'
             )}>
               {formatNumber(stats.txDrops)}
             </p>
@@ -146,4 +148,6 @@ export function TrafficStats({
       )}
     </div>
   );
-}
+});
+
+TrafficStats.displayName = 'TrafficStats';

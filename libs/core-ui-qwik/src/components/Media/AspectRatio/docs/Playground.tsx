@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { AspectRatio } from "..";
+
 import type { AspectRatioPreset, OverflowMode } from "../AspectRatio.types";
 
 export default component$(() => {

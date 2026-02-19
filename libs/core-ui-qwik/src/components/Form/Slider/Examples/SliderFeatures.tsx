@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Slider } from "..";
+
 import type { SliderMark } from "../Slider.types";
 
 /**

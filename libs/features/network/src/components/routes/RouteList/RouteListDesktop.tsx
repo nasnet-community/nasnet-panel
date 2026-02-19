@@ -6,7 +6,7 @@
  * Uses DataTable with sorting, filtering, and row actions.
  */
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import {
   Badge,
   Button,
@@ -53,7 +53,7 @@ function getRouteTypeBadge(type: RouteType) {
   }
 }
 
-export function RouteListDesktop({
+function RouteListDesktopComponent({
   routes,
   loading = false,
   error,
@@ -254,6 +254,7 @@ export function RouteListDesktop({
               onFiltersChange({ ...filters, searchText: e.target.value })
             }
             className="max-w-sm"
+            aria-label="Search routes"
           />
 
           <Select
@@ -262,7 +263,7 @@ export function RouteListDesktop({
               onFiltersChange({ ...filters, table: value === 'all' ? undefined : value })
             }
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48" aria-label="Filter by routing table">
               <SelectValue placeholder="All tables" />
             </SelectTrigger>
             <SelectContent>
@@ -284,7 +285,7 @@ export function RouteListDesktop({
               })
             }
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-48" aria-label="Filter by route type">
               <SelectValue placeholder="All types" />
             </SelectTrigger>
             <SelectContent>
@@ -304,7 +305,8 @@ export function RouteListDesktop({
               onChange={(e) =>
                 onFiltersChange({ ...filters, activeOnly: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-300"
+              className="h-4 w-4 rounded border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="Show active routes only"
             />
             <span className="text-sm">Active only</span>
           </label>
@@ -312,8 +314,8 @@ export function RouteListDesktop({
 
         {/* Error message */}
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-            <AlertCircle className="h-4 w-4" />
+          <div role="alert" className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <p>{error}</p>
           </div>
         )}
@@ -336,3 +338,5 @@ export function RouteListDesktop({
     </Card>
   );
 }
+
+export const RouteListDesktop = memo(RouteListDesktopComponent);

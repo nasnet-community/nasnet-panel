@@ -1,6 +1,7 @@
 import { $, component$, type QRL, useSignal } from "@builder.io/qwik";
-import { Container as FormContainer } from "../../Form/Container/Container";
+
 import { Spinner } from "../../DataDisplay/Progress/Spinner";
+import { Container as FormContainer } from "../../Form/Container/Container";
 
 export interface VPNConfigFileSectionProps {
   protocolName: string;

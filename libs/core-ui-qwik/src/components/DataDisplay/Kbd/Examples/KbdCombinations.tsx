@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { KbdGroup } from "../index";
 
 export const KbdCombinations = component$(() => {

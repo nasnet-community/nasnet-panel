@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { getIconSizeClasses, cn } from "../../utils/theme";
+
 import type { FeedbackSize } from "../../utils/theme";
 
 interface LoadingSpinnerProps {

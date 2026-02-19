@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 import { Breadcrumbs } from "..";
 
 export default component$(() => {

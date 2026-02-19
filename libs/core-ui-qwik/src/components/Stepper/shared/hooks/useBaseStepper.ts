@@ -1,11 +1,13 @@
 import { $, useSignal, useTask$, useVisibleTask$ } from "@builder.io/qwik";
+
+import { useStepperHelp } from "./useStepperHelp";
+
 import type { 
   BaseStepMeta, 
   BaseStepperProps, 
   UseBaseStepperOptions, 
   UseBaseStepperReturn 
 } from "../types";
-import { useStepperHelp } from "./useStepperHelp";
 
 /**
  * Base stepper hook with shared logic for all stepper types

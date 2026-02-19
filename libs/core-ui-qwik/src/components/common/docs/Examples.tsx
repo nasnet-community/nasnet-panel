@@ -3,10 +3,15 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import example components
 import {
-  BasicVisuallyHiddenExample,
-  SkipLinkExample,
-  ScreenReaderAnnouncementExample,
-} from "../Examples/VisuallyHiddenExample";
+  ResponsiveUtilitiesExample,
+  MobileOptimizedExample,
+  TouchFriendlyExample,
+} from "../Examples/ResponsiveExample";
+import {
+  TypeDefinitionsExample,
+  ValidationStateExample,
+  OptionInterfaceExample,
+} from "../Examples/TypesExample";
 import {
   ClassNamesBasicExample,
   ConditionalClassesExample,
@@ -14,15 +19,10 @@ import {
   ThemeAwareClassesExample,
 } from "../Examples/UtilityExamples";
 import {
-  TypeDefinitionsExample,
-  ValidationStateExample,
-  OptionInterfaceExample,
-} from "../Examples/TypesExample";
-import {
-  ResponsiveUtilitiesExample,
-  MobileOptimizedExample,
-  TouchFriendlyExample,
-} from "../Examples/ResponsiveExample";
+  BasicVisuallyHiddenExample,
+  SkipLinkExample,
+  ScreenReaderAnnouncementExample,
+} from "../Examples/VisuallyHiddenExample";
 
 export default component$(() => {
   const examples = [

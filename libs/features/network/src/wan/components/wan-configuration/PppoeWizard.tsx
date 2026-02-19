@@ -11,7 +11,7 @@
  * Story: NAS-6.8 - Implement WAN Link Configuration (Phase 3: PPPoE)
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useStepper, VStepper } from '@nasnet/ui/patterns';
 import type { StepConfig } from '@nasnet/ui/patterns';
 import { Button } from '@nasnet/ui/primitives';
@@ -58,7 +58,7 @@ export interface PppoeWizardProps {
  * />
  * ```
  */
-export function PppoeWizard({
+export const PppoeWizard = memo(function PppoeWizard({
   routerId,
   onComplete,
   onCancel,
@@ -200,13 +200,15 @@ export function PppoeWizard({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center pt-6 border-t">
+      <div className="flex justify-between items-center pt-6 border-t border-border">
         <div>
           {stepper.currentIndex > 0 && !configurationResult && (
             <Button
               variant="outline"
               onClick={stepper.prev}
               disabled={loading}
+              aria-label="Go to previous step"
+              className="min-h-[44px]"
             >
               Back
             </Button>
@@ -214,7 +216,13 @@ export function PppoeWizard({
         </div>
 
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleCancel} disabled={loading}>
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={loading}
+            aria-label="Cancel PPPoE wizard"
+            className="min-h-[44px]"
+          >
             Cancel
           </Button>
 
@@ -222,6 +230,8 @@ export function PppoeWizard({
             <Button
               onClick={stepper.next}
               disabled={!stepper.canProceed || loading}
+              aria-label="Go to next step"
+              className="min-h-[44px]"
             >
               Next
             </Button>
@@ -231,7 +241,7 @@ export function PppoeWizard({
 
       {/* Error Display */}
       {error && (
-        <div className="rounded-lg bg-error/10 border border-error p-4">
+        <div className="rounded-lg bg-error/10 border border-error p-4" role="alert">
           <p className="text-sm text-error font-medium">
             Configuration Error
           </p>
@@ -242,4 +252,4 @@ export function PppoeWizard({
       )}
     </div>
   );
-}
+});

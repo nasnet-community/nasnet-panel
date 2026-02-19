@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import type { PromoBannerProps } from "./PromoBanner.types";
+
 import { usePromoBanner } from "./usePromoBanner";
 import {
   cn,
@@ -8,6 +8,8 @@ import {
   getResponsiveSizeClasses,
   getSurfaceElevation,
 } from "../utils/theme";
+
+import type { PromoBannerProps } from "./PromoBanner.types";
 
 /**
  * PromoBanner component for displaying promotional content with optional action.

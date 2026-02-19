@@ -1,4 +1,5 @@
 import { component$, useSignal, useStore, $, type QRL } from "@builder.io/qwik";
+
 import { Rating } from "../Rating";
 
 /**

@@ -1,8 +1,10 @@
 import { $, component$, useComputed$ } from "@builder.io/qwik";
+
 import { games } from "./GameData";
-import { useGameLogic } from "./useGame";
-import type { GameTableProps } from "./type";
 import { buildNetworkOptions, groupNetworkOptions } from "./NetworkOptionsHelper";
+import { useGameLogic } from "./useGame";
+
+import type { GameTableProps } from "./type";
 
 export const GameTable = component$<GameTableProps>(
   ({ searchQuery, currentPage, itemsPerPage, context }) => {

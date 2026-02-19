@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { ExamplesTemplate, type Example } from "../templates/ExamplesTemplate";
+
 import { DocsSideNavigation, type DocsSideNavigationCategory } from "./";
 
 export interface NavigationExample extends Example {

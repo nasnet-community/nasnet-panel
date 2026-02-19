@@ -3,11 +3,11 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import example components
 import { BasicInput } from "../Examples/BasicInput";
+import { FormIntegration } from "../Examples/FormIntegration";
 import { InputSizes } from "../Examples/InputSizes";
 import { InputStates } from "../Examples/InputStates";
 import { InputWithSlots } from "../Examples/InputWithSlots";
 import { RadioInputDemo } from "../Examples/RadioInputDemo";
-import { FormIntegration } from "../Examples/FormIntegration";
 
 export default component$(() => {
   const examples = [

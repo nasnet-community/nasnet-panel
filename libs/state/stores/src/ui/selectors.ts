@@ -161,7 +161,7 @@ export function createCombinedSelector<
 
 // Theme selectors
 export { selectResolvedTheme, selectThemeMode } from './theme.store';
-export type { ThemeState } from './theme.store';
+export type { ThemeState, ThemeActions, ThemeStore } from './theme.store';
 
 // Sidebar selectors
 export { selectSidebarCollapsed, selectSidebarToggle } from './sidebar.store';

@@ -1,6 +1,7 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { JSXChildren, QRL } from "@builder.io/qwik";
 import { HiXMarkSolid } from "@qwikest/icons/heroicons";
+
+import type { JSXChildren, QRL } from "@builder.io/qwik";
 
 export interface BadgeContentProps {
   startIcon?: JSXChildren;

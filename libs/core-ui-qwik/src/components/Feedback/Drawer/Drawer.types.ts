@@ -1,5 +1,5 @@
-import type { QRL } from "@builder.io/qwik";
 import type { FeedbackSize } from "../utils/theme";
+import type { QRL } from "@builder.io/qwik";
 
 export type DrawerPlacement = "left" | "right" | "top" | "bottom";
 export type DrawerSize = "xs" | "sm" | "md" | "lg" | "xl" | "full";

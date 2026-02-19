@@ -4,7 +4,7 @@ import {
   Slot,
   useContextProvider,
 } from "@builder.io/qwik";
-import type { PopoverProps } from "./Popover.types";
+
 import { PopoverContext, usePopover } from "./usePopover";
 import {
   cn,
@@ -13,6 +13,8 @@ import {
   getResponsiveSizeClasses,
   getAnimationClasses,
 } from "../utils/theme";
+
+import type { PopoverProps } from "./Popover.types";
 
 /**
  * Popover Component - A container that combines trigger and content

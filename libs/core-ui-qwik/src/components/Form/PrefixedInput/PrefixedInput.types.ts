@@ -1,5 +1,5 @@
-import type { QRL } from "@builder.io/qwik";
 import type { InputProps } from "../../Input/Input";
+import type { QRL } from "@builder.io/qwik";
 
 // Visual variants for modern design
 export type PrefixedInputVariant = 

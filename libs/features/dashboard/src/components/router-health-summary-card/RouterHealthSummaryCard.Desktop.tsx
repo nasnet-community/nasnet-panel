@@ -115,7 +115,7 @@ export function RouterHealthSummaryCardDesktop({
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium',
                 getHealthBgClass(healthStatus),
-                healthStatus === 'warning' ? 'text-black' : 'text-white'
+                healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
               )}
               role="meter"
               aria-valuenow={healthStatus === 'healthy' ? 100 : healthStatus === 'warning' ? 50 : 0}
@@ -244,7 +244,7 @@ export function RouterHealthSummaryCardDesktopSkeleton({ className }: { classNam
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4 border-t">
+      <CardFooter className="pt-4 border-t border-border">
         <div className="h-3 bg-muted rounded w-full" />
       </CardFooter>
     </Card>

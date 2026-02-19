@@ -4,7 +4,7 @@
  * Epic 0.6, Story 0.6.2
  */
 
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import {
   useNATRules,
   useDeleteNATRule,
@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
   Button,
+  Badge,
   toast,
   DropdownMenu,
   DropdownMenuContent,
@@ -31,39 +32,35 @@ import { MoreVertical, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
 import type { NATRule } from '@nasnet/core/types';
 
 /**
- * Action badge with color coding for NAT actions
- * - masquerade: blue
- * - dst-nat: purple
- * - src-nat: teal
- * - redirect: orange
+ * Action badge using Badge component with semantic variants for NAT actions
  */
-function NATActionBadge({ action }: { action: string }) {
-  const colors: Record<string, string> = {
-    masquerade: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    'dst-nat': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    'src-nat': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
-    redirect: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+const NATActionBadge = memo(function NATActionBadge({ action }: { action: string }) {
+  const variantMap: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
+    masquerade: 'info',
+    'dst-nat': 'secondary',
+    'src-nat': 'default',
+    redirect: 'warning',
   };
 
-  const colorClass = colors[action] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const variant = variantMap[action] || 'outline';
 
   return (
-    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${colorClass}`}>
+    <Badge variant={variant} className="text-xs">
       {action}
-    </span>
+    </Badge>
   );
-}
+});
 
 /**
  * Chain badge component
  */
-function ChainBadge({ chain }: { chain: string }) {
+const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
-    <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
+    <Badge variant="secondary" className="font-mono text-xs">
       {chain}
-    </span>
+    </Badge>
   );
-}
+});
 
 export interface NATRulesTableProps {
   className?: string;
@@ -76,7 +73,7 @@ export interface NATRulesTableProps {
  *
  * Features:
  * - Displays all NAT rules (srcnat/dstnat)
- * - Color-coded actions (masquerade=blue, dst-nat=purple, src-nat=teal)
+ * - Color-coded actions using Badge semantic variants
  * - Shows to-addresses and to-ports for port forwarding rules
  * - Visual distinction for disabled rules (muted, strikethrough)
  * - Row actions: Edit, Delete (with SafetyConfirmation), Toggle disable
@@ -86,7 +83,7 @@ export interface NATRulesTableProps {
  * @param props - Component props
  * @returns NAT rules table component
  */
-export function NATRulesTable({ className, chain, onEditRule }: NATRulesTableProps) {
+export const NATRulesTable = memo(function NATRulesTable({ className, chain, onEditRule }: NATRulesTableProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: allRules, isLoading, error } = useNATRules(routerIp);
   const { showDisabledRules } = useNATUIStore();
@@ -191,9 +188,9 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
     return (
       <div className={`p-4 ${className || ''}`}>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-10 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
+          <div className="h-16 bg-muted rounded" />
         </div>
       </div>
     );
@@ -202,7 +199,7 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
+      <div className={`p-4 text-destructive ${className || ''}`} role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -211,7 +208,7 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
   // Empty state
   if (!sortedRules || sortedRules.length === 0) {
     return (
-      <div className={`p-8 text-center text-slate-500 dark:text-slate-400 ${className || ''}`}>
+      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -220,41 +217,50 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
   return (
     <>
       <div className={className}>
-        <Table>
+        <Table aria-label="NAT rules">
           <TableHeader>
             <TableRow>
               <TableHead
-                className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+                scope="col"
+                className="cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('order')}
+                aria-sort={sortColumn === 'order' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                role="columnheader"
               >
                 # {sortColumn === 'order' && (sortDirection === 'asc' ? '↑' : '↓')}
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+                scope="col"
+                className="cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('chain')}
+                aria-sort={sortColumn === 'chain' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                role="columnheader"
               >
                 Chain {sortColumn === 'chain' && (sortDirection === 'asc' ? '↑' : '↓')}
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
+                scope="col"
+                className="cursor-pointer hover:text-foreground"
                 onClick={() => handleSort('action')}
+                aria-sort={sortColumn === 'action' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                role="columnheader"
               >
                 Action {sortColumn === 'action' && (sortDirection === 'asc' ? '↑' : '↓')}
               </TableHead>
-              <TableHead>Protocol</TableHead>
-              <TableHead>Src Address</TableHead>
-              <TableHead>Dst Address</TableHead>
-              <TableHead>To Addresses</TableHead>
-              <TableHead>To Ports</TableHead>
-              <TableHead>Comment</TableHead>
-              <TableHead className="w-[80px]">Actions</TableHead>
+              <TableHead scope="col">Protocol</TableHead>
+              <TableHead scope="col">Src Address</TableHead>
+              <TableHead scope="col">Dst Address</TableHead>
+              <TableHead scope="col">To Addresses</TableHead>
+              <TableHead scope="col">To Ports</TableHead>
+              <TableHead scope="col">Comment</TableHead>
+              <TableHead scope="col" className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedRules.map((rule) => (
               <TableRow
                 key={rule.id}
-                className={rule.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''}
+                className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}
               >
                 <TableCell className="font-mono text-xs">{rule.order}</TableCell>
                 <TableCell>
@@ -279,31 +285,36 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
                   {rule.toPorts || '-'}
                 </TableCell>
                 <TableCell
-                  className={`text-sm text-slate-600 dark:text-slate-400 ${rule.disabled ? 'line-through' : ''}`}
+                  className={`text-sm text-muted-foreground ${rule.disabled ? 'line-through' : ''}`}
                 >
                   {rule.comment || ''}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        aria-label={`Actions for rule ${rule.order}`}
+                      >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(rule)}>
-                        <Edit className="h-4 w-4 mr-2" />
+                        <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggle(rule.id, !rule.disabled)}>
                         {rule.disabled ? (
                           <>
-                            <Eye className="h-4 w-4 mr-2" />
+                            <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
                             Enable
                           </>
                         ) : (
                           <>
-                            <EyeOff className="h-4 w-4 mr-2" />
+                            <EyeOff className="h-4 w-4 mr-2" aria-hidden="true" />
                             Disable
                           </>
                         )}
@@ -313,7 +324,7 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
                         onClick={() => handleDelete(rule.id)}
                         className="text-destructive"
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
+                        <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -344,4 +355,6 @@ export function NATRulesTable({ className, chain, onEditRule }: NATRulesTablePro
       />
     </>
   );
-}
+});
+
+NATRulesTable.displayName = 'NATRulesTable';

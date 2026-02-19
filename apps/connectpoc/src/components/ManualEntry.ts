@@ -1,9 +1,10 @@
-import type { RouterCredentials, RouterInfo } from '@shared/routeros';
 import { 
   testManualConnection, 
   addManualRouter, 
   getConnectionSuggestions
 } from '@/services/manual-router';
+
+import type { RouterCredentials, RouterInfo } from '@shared/routeros';
 
 /**
  * Manual Router Entry Component

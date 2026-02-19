@@ -10,7 +10,7 @@
 
 import { Controller } from 'react-hook-form';
 import { X, AlertCircle, CheckCircle2, Bell, Server, Shield, Eye, EyeOff, Tag as TagIcon } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
 import {
   Select,
@@ -35,7 +35,7 @@ export interface NtfyChannelFormDesktopProps {
 // Component
 // ============================================================================
 
-export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps) {
+function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopProps) {
   const {
     form,
     tags,
@@ -96,7 +96,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
         <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-muted-foreground" />
+          <Bell className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">
@@ -112,7 +112,8 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-5 w-5 rounded border-gray-300"
+              className="h-5 w-5 rounded border-border"
+              aria-label="Enable ntfy.sh notifications"
             />
           )}
         />
@@ -121,7 +122,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
       {/* Server Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Server className="h-4 w-4 text-muted-foreground" />
+          <Server className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Server Configuration</h3>
         </div>
 
@@ -159,7 +160,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
               </Select>
             </div>
             {errors.serverUrl && (
-              <p className="text-sm text-destructive">{errors.serverUrl.message}</p>
+              <p className="text-sm text-destructive" role="alert">{errors.serverUrl.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
               Use https://ntfy.sh or your self-hosted instance
@@ -178,7 +179,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
               error={!!errors.topic}
             />
             {errors.topic && (
-              <p className="text-sm text-destructive">{errors.topic.message}</p>
+              <p className="text-sm text-destructive" role="alert">{errors.topic.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
               Letters, numbers, hyphens, and underscores only
@@ -216,7 +217,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
               )}
             />
             {errors.priority && (
-              <p className="text-sm text-destructive">{errors.priority.message}</p>
+              <p className="text-sm text-destructive" role="alert">{errors.priority.message}</p>
             )}
             <p className="text-xs text-muted-foreground">
               Higher priority = more prominent notifications
@@ -229,7 +230,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <Shield className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <h3 className="text-lg font-semibold">Authentication (Optional)</h3>
           </div>
           <Button
@@ -254,7 +255,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
                 error={!!errors.username}
               />
               {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.username.message}</p>
               )}
             </div>
 
@@ -272,18 +273,18 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOff className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4 w-4" aria-hidden="true" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-destructive" role="alert">{errors.password.message}</p>
               )}
             </div>
           </div>
@@ -293,7 +294,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
       {/* Tags (Optional) */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <TagIcon className="h-4 w-4 text-muted-foreground" />
+          <TagIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Tags (Optional)</h3>
         </div>
 
@@ -304,6 +305,7 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
             onChange={(e) => setTagInput(e.target.value)}
             onKeyDown={handleTagKeyDown}
             placeholder="Enter tag and press Enter"
+            aria-label="Tag name"
             disabled={tags.length >= 10}
           />
           <Button
@@ -325,10 +327,10 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
                 <button
                   type="button"
                   onClick={() => removeTag(index)}
-                  className="ml-1 hover:text-destructive"
+                  className="ml-1 hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={`Remove ${tag}`}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3" aria-hidden="true" />
                 </button>
               </Badge>
             ))}
@@ -344,11 +346,11 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
 
       {/* Test Result */}
       {testResult && (
-        <Alert variant={testResult.success ? 'default' : 'destructive'}>
+        <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
           {testResult.success ? (
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
           )}
           <AlertDescription>{testResult.message}</AlertDescription>
         </Alert>
@@ -371,3 +373,6 @@ export function NtfyChannelFormDesktop({ ntfyForm }: NtfyChannelFormDesktopProps
     </form>
   );
 }
+
+export const NtfyChannelFormDesktop = memo(NtfyChannelFormDesktopComponent);
+NtfyChannelFormDesktop.displayName = 'NtfyChannelFormDesktop';

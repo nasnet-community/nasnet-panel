@@ -1,16 +1,18 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { DrawerProps } from "./Drawer.types";
-import { useDrawer } from "./useDrawer";
-import { useSwipeGestures } from "./useSwipeGestures";
-import { DrawerHeader } from "./DrawerHeader";
+
 import { DrawerContent } from "./DrawerContent";
 import { DrawerFooter } from "./DrawerFooter";
+import { DrawerHeader } from "./DrawerHeader";
+import { useDrawer } from "./useDrawer";
+import { useSwipeGestures } from "./useSwipeGestures";
 import {
   getBackdropClasses,
   getSurfaceElevation,
   getMobileDrawerAnimation,
   cn,
 } from "../utils/theme";
+
+import type { DrawerProps } from "./Drawer.types";
 
 /**
  * Drawer component for sliding panels that appear from the edge of the screen.

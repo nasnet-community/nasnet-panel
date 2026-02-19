@@ -1,9 +1,10 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicRadioGroup from "../Examples/BasicRadioGroup";
 import RadioGroupDirections from "../Examples/RadioGroupDirections";
-import RadioGroupStates from "../Examples/RadioGroupStates";
 import RadioGroupInForm from "../Examples/RadioGroupInForm";
+import RadioGroupStates from "../Examples/RadioGroupStates";
 
 /**
  * RadioGroup component examples documentation using the standard template

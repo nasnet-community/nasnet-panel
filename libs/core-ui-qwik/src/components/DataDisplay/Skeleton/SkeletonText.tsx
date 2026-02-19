@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { SkeletonTextProps } from "./Skeleton.types";
+
 import { Skeleton } from "./Skeleton";
+
+import type { SkeletonTextProps } from "./Skeleton.types";
 
 /**
  * SkeletonText component for displaying multiple lines of text placeholders

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   CardHeader,
@@ -39,7 +40,7 @@ export interface ServiceConfigFormDesktopProps {
  * - Denser layout with more information density
  * - Keyboard shortcuts support
  */
-export function ServiceConfigFormDesktop({
+export const ServiceConfigFormDesktop = React.memo(function ServiceConfigFormDesktop({
   formState,
   title = 'Service Configuration',
   description,
@@ -60,7 +61,8 @@ export function ServiceConfigFormDesktop({
     return (
       <Card>
         <CardContent className="flex items-center justify-center p-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
+          <span className="sr-only">Loading configuration...</span>
         </CardContent>
       </Card>
     );
@@ -155,19 +157,20 @@ export function ServiceConfigFormDesktop({
                 onCancel?.();
               }}
               disabled={isSubmitting}
+              aria-label="Reset form"
             >
-              <RotateCcw className="mr-2 h-4 w-4" />
+              <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
               Reset
             </Button>
-            <Button type="submit" disabled={isSubmitting || isValidating}>
+            <Button type="submit" disabled={isSubmitting || isValidating} aria-label={isSubmitting ? 'Applying configuration' : 'Save configuration'}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                   Applying...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Configuration
                 </>
               )}
@@ -177,4 +180,4 @@ export function ServiceConfigFormDesktop({
       </form>
     </Card>
   );
-}
+});

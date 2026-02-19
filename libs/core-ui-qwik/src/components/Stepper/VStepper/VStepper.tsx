@@ -1,13 +1,15 @@
 import { component$ } from "@builder.io/qwik";
-import { useVStepper } from "./useVStepper";
-import type { VStepperProps } from "./types";
-import { Step } from "./Step";
+
+import { VStepperManagement } from "./components/VStepperManagement";
 import { Desktop } from "./Desktop";
 import { Mobile } from "./Mobile";
-import { VStepperManagement } from "./components/VStepperManagement";
+import { Step } from "./Step";
+import { useVStepper } from "./useVStepper";
 import { StepperManagement, StepperErrors } from "../shared/components";
-import { useStepperHelp } from "../shared/hooks/useStepperHelp";
 import { StepperHelpModal } from "../shared/components/StepperHelpModal";
+import { useStepperHelp } from "../shared/hooks/useStepperHelp";
+
+import type { VStepperProps } from "./types";
 import type { BaseStepMeta } from "../shared/types/base";
 
 export const VStepper = component$((props: VStepperProps) => {

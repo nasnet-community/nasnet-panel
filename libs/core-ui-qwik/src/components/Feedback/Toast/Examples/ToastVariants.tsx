@@ -1,5 +1,7 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+
 import { Toast } from "../Toast";
+
 import type { ToastStatus } from "../Toast.types";
 
 /**

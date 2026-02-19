@@ -1,6 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { Drawer } from "../Drawer";
 import { Button } from "@nas-net/core-ui-qwik";
+
+import { Drawer } from "../Drawer";
 
 /**
  * Example showing mobile-optimized drawer with native-like behavior.

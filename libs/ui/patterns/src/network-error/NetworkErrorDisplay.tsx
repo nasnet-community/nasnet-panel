@@ -227,6 +227,7 @@ export function NetworkErrorDisplay({
             variant="outline"
             onClick={onRetry}
             disabled={isRetrying}
+            aria-label={isRetrying ? 'Retrying connection' : 'Retry connection'}
           >
             {isRetrying ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
@@ -308,6 +309,7 @@ export function NetworkErrorDisplay({
                     variant="default"
                     onClick={onRetry}
                     disabled={isRetrying}
+                    aria-label={isRetrying ? 'Retrying connection' : 'Retry connection now'}
                   >
                     {isRetrying ? (
                       <>
@@ -333,8 +335,9 @@ export function NetworkErrorDisplay({
                 {showTroubleshooting && (
                   <button
                     onClick={() => setShowTips(!showTips)}
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
                     aria-expanded={showTips}
+                    aria-label={showTips ? 'Hide troubleshooting tips' : 'Show troubleshooting tips'}
                   >
                     {showTips ? (
                       <>
@@ -353,8 +356,9 @@ export function NetworkErrorDisplay({
                 {technicalMessage && (
                   <button
                     onClick={() => setShowDetails(!showDetails)}
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto"
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
                     aria-expanded={showDetails}
+                    aria-label={showDetails ? 'Hide technical details' : 'Show technical details'}
                   >
                     {showDetails ? 'Hide details' : 'Show details'}
                   </button>

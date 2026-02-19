@@ -1,13 +1,15 @@
 import { component$, useVisibleTask$, $, useSignal, useContext } from "@builder.io/qwik";
-import { useEInterface } from "./useEInterface";
-import type { Ethernet } from "@nas-net/star-context";
-import type { StepProps} from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
 import {
   isInterfaceOccupied,
   getOccupiedInterfacesForRouter,
   getInterfaceUsage
 } from "@utils/InterfaceManagementUtils";
+
+import { useEInterface } from "./useEInterface";
+
+import type { StepProps} from "@nas-net/core-ui-qwik";
+import type { Ethernet } from "@nas-net/star-context";
 
 export default component$<StepProps>(({ isComplete, onComplete$ }) => {
   const starContext = useContext(StarContext);

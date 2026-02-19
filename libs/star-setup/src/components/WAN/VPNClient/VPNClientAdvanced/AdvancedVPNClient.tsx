@@ -8,13 +8,15 @@ import {
 } from "@builder.io/qwik";
 import { CStepper, type CStepMeta } from "@nas-net/core-ui-qwik";
 import { SegmentedControl } from "@nas-net/core-ui-qwik";
+
+import { useVPNClientEnabled } from "../useVPNClientEnabled";
 import { useVPNClientAdvanced } from "./hooks/useVPNClientAdvanced";
 import { useVPNClientValidation } from "./hooks/useVPNClientValidation";
-import { useVPNClientEnabled } from "../useVPNClientEnabled";
 import { Step1_VPNProtocols } from "./steps/Step1_VPNProtocols";
-import { StepPriorities } from "./steps/StepPriorities";
 import { Step2_VPNConfiguration } from "./steps/Step2_VPNConfiguration";
 import { Step3_Summary } from "./steps/Step3_Summary";
+import { StepPriorities } from "./steps/StepPriorities";
+
 import type { L2TPCredentials } from "@utils/supabaseClient";
 // Removed unused VPNClientAdvancedState import
 

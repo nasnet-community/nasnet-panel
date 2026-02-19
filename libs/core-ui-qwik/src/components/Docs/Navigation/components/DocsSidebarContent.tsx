@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
-import type { DocsSideNavigationCategory } from "../types";
+
 import { CategoryItem } from "./CategoryItem";
+
+import type { DocsSideNavigationCategory } from "../types";
+import type { PropFunction } from "@builder.io/qwik";
 
 export interface DocsSidebarContentProps {
   categories: DocsSideNavigationCategory[];

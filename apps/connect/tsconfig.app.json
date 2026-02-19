@@ -47,6 +47,8 @@
     "**/*.spec.jsx",
     "**/*.test.jsx",
     "**/__tests__/**",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
     "../../libs/**/*.test.ts",
     "../../libs/**/*.test.tsx",
     "../../libs/**/*.spec.ts",

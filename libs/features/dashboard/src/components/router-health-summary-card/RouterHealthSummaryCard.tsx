@@ -14,6 +14,7 @@
  * @see Story 4.3: Responsive Layout for platform detection
  */
 
+import { memo } from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { useRouterHealthCard, type UseRouterHealthCardProps } from './useRouterHealthCard';
 import { RouterHealthSummaryCardMobile } from './RouterHealthSummaryCard.Mobile';
@@ -69,7 +70,7 @@ export interface RouterHealthSummaryCardProps extends UseRouterHealthCardProps {
  * />
  * ```
  */
-export function RouterHealthSummaryCard({
+export const RouterHealthSummaryCard = memo(function RouterHealthSummaryCard({
   routerId,
   pollInterval,
   enableSubscription,
@@ -101,7 +102,9 @@ export function RouterHealthSummaryCard({
   ) : (
     <RouterHealthSummaryCardDesktop state={state} onRefresh={handleRefresh} className={className} />
   );
-}
+});
+
+RouterHealthSummaryCard.displayName = 'RouterHealthSummaryCard';
 
 /**
  * Export presenters for direct use (rare, typically use auto-detecting wrapper)

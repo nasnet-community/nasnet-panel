@@ -4,10 +4,13 @@
  * Demonstrates VLAN list in various states and configurations.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { VlanList } from './VlanList';
 import { MockedProvider } from '@apollo/client/testing';
+
 import { GET_VLANS, VLAN_CHANGED } from '@nasnet/api-client/queries';
+
+import { VlanList } from './VlanList';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof VlanList> = {
   title: 'Features/Network/VlanList',

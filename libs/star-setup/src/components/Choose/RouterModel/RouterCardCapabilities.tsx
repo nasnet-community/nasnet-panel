@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { LuWifi, LuSmartphone, LuZap, LuCrown, LuUsb, LuNetwork, LuContainer, LuSatellite, LuSignal } from "@qwikest/icons/lucide";
+
 import { type RouterData, hasUSBPort, has25GigPort, isDockerCapable, isStarlinkMiniCompatible, isDomesticLinkAlternative } from "./Constants";
 
 interface RouterCardCapabilitiesProps {

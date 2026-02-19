@@ -1,5 +1,5 @@
-import type { Networks } from "@nas-net/star-context";
-import type { WifiTarget } from "@nas-net/star-context";
+import type { Networks , WifiTarget } from "@nas-net/star-context";
+
 
 export interface NetworkOption {
   name: string;

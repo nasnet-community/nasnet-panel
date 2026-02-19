@@ -6,11 +6,13 @@
  * alert rules as reusable templates.
  */
 
-import type { Meta, StoryObj } from '@storybook/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { fn } from '@storybook/test';
+
 import { SaveTemplateDialog } from './SaveTemplateDialog';
 import { SAVE_CUSTOM_ALERT_RULE_TEMPLATE } from '../../hooks/useAlertRuleTemplates';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
 // Meta Configuration

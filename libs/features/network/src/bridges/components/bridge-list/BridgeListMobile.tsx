@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Card, CardContent } from '@nasnet/ui/primitives';
 import { Button } from '@nasnet/ui/primitives';
 import { Badge } from '@nasnet/ui/primitives';
@@ -18,7 +18,7 @@ export interface BridgeListMobileProps extends UseBridgeListReturn {
   routerId: string;
 }
 
-export function BridgeListMobile({
+export const BridgeListMobile = memo(function BridgeListMobile({
   bridges,
   loading,
   error,
@@ -74,6 +74,7 @@ export function BridgeListMobile({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-8"
+          aria-label="Search bridges"
         />
       </div>
 
@@ -116,13 +117,15 @@ export function BridgeListMobile({
       )}
 
       {/* Bridge Cards */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3" role="list" aria-label="Bridge list">
         {bridges.map((bridge: Bridge) => (
           <Card
             key={bridge.id}
             className="cursor-pointer transition-colors hover:bg-accent"
             onClick={() => setSelectedBridgeId(bridge.id)}
             style={{ minHeight: '44px' }} // 44px minimum touch target
+            role="listitem"
+            aria-label={`Bridge ${bridge.name}`}
           >
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
@@ -257,4 +260,4 @@ export function BridgeListMobile({
       )}
     </div>
   );
-}
+});

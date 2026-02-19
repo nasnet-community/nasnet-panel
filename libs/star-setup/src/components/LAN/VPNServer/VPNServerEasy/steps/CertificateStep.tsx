@@ -1,8 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-import { Card } from "@nas-net/core-ui-qwik";
-import { Field } from "@nas-net/core-ui-qwik";
-import { Input } from "@nas-net/core-ui-qwik";
+import { Card , Field , Input } from "@nas-net/core-ui-qwik";
 import { 
   HiLockClosedOutline, 
   HiEyeOutline, 
@@ -10,6 +7,8 @@ import {
   HiCheckCircleOutline,
   HiXCircleOutline
 } from "@qwikest/icons/heroicons";
+
+import type { QRL } from "@builder.io/qwik";
 
 interface CertificateStepProps {
   certificatePassphrase: { value: string };

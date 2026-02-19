@@ -1,10 +1,11 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
+
 import { type CodeBlockProps } from "./CodeDisplay.types";
+import { CodeBlockCaption } from "./components/CodeBlockCaption";
+import { CodeBlockTitle } from "./components/CodeBlockTitle";
+import { CopyButton } from "./components/CopyButton";
 import { useCodeBlock } from "./hooks/useCodeBlock";
 import { highlightStyles } from "./styles/codeBlockStyles";
-import { CodeBlockTitle } from "./components/CodeBlockTitle";
-import { CodeBlockCaption } from "./components/CodeBlockCaption";
-import { CopyButton } from "./components/CopyButton";
 
 export const CodeBlock = component$<CodeBlockProps>(
   ({

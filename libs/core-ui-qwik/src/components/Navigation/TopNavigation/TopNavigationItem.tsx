@@ -1,12 +1,14 @@
-import type { QRL } from "@builder.io/qwik";
 import { component$, $ } from "@builder.io/qwik";
+
+import { useDropdownState } from "./hooks/useDropdownState";
+import { useTopNavigationStyles } from "./hooks/useTopNavigationStyles";
+import { TopNavigationDropdown } from "./TopNavigationDropdown";
+
 import type {
   TopNavigationItem,
   TopNavigationProps,
 } from "./TopNavigation.types";
-import { TopNavigationDropdown } from "./TopNavigationDropdown";
-import { useTopNavigationStyles } from "./hooks/useTopNavigationStyles";
-import { useDropdownState } from "./hooks/useDropdownState";
+import type { QRL } from "@builder.io/qwik";
 
 export interface TopNavigationItemComponentProps {
   item: TopNavigationItem;

@@ -1,10 +1,12 @@
 import { component$ } from "@builder.io/qwik";
-import type { CalendarViewProps } from "./DatePicker.types";
+
 import { CalendarHeader } from "./CalendarHeader";
 import { DaysView } from "./DaysView";
+import { useCalendarView } from "./hooks/useCalendarView";
 import { MonthsView } from "./MonthsView";
 import { YearsView } from "./YearsView";
-import { useCalendarView } from "./hooks/useCalendarView";
+
+import type { CalendarViewProps } from "./DatePicker.types";
 
 /**
  * Calendar view component used by DatePicker for date selection.

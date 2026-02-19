@@ -1,4 +1,5 @@
 import { component$, type QRL } from "@builder.io/qwik";
+
 import type { VPNClientConfig } from "../../types/VPNClientAdvancedTypes";
 
 export interface VPNBoxHeaderProps {

@@ -1,5 +1,4 @@
-import type { Networks } from "@nas-net/star-context";
-import type { WANState } from "@nas-net/star-context";
+import type { Networks , WANState } from "@nas-net/star-context";
 
 export interface NetworkOption {
   value: string;

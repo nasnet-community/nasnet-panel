@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -50,7 +51,7 @@ export interface InterfaceEditFormProps {
  * Interface Edit Form Component
  * Provides form for editing interface settings with validation
  */
-export function InterfaceEditForm({
+export const InterfaceEditForm = memo(function InterfaceEditForm({
   routerId,
   interface: iface,
   onSuccess,
@@ -129,6 +130,7 @@ export function InterfaceEditForm({
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  aria-label="Toggle interface enabled state"
                 />
               </FormControl>
             </FormItem>
@@ -196,15 +198,16 @@ export function InterfaceEditForm({
               variant="outline"
               onClick={onCancel}
               disabled={loading}
+              className="min-h-[44px]"
             >
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} className="min-h-[44px]">
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </form>
     </Form>
   );
-}
+});

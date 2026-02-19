@@ -5,17 +5,20 @@
  */
 
 import { 
+  type FastScanConfig,
+  type FastScanProgress
+} from '@/services/fast-scanner';
+import { 
   detectActiveSubnets, 
   getFastestScanSubnets,
   type DetectedSubnet,
   type SubnetDetectionResult 
 } from '@/utils/subnet-detector';
-import { 
-  type FastScanConfig,
-  type FastScanProgress
-} from '@/services/fast-scanner';
-import type { ScanResult } from '@shared/routeros';
+
 import { getDefaultCredentials } from './auth-config';
+
+import type { ScanResult } from '@shared/routeros';
+
 
 export interface ProgressiveResult {
   readonly ip: string;

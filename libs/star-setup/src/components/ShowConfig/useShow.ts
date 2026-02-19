@@ -1,6 +1,6 @@
 import { $ } from "@builder.io/qwik";
-import { ConfigGenerator } from "@nas-net/ros-cmd-generator";
-import { SlaveCG } from "@nas-net/ros-cmd-generator";
+import { ConfigGenerator , SlaveCG } from "@nas-net/ros-cmd-generator";
+
 // import { removeEmptyArrays, formatConfig, removeEmptyLines } from "~/components/Star/ConfigGenerator/utils";
 import type { StarState } from "@nas-net/star-context";
 import type { RouterModels } from "@nas-net/star-context";

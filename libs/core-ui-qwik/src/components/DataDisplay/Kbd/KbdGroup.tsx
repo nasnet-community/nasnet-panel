@@ -1,7 +1,9 @@
 import { component$ } from "@builder.io/qwik";
-import type { KbdGroupProps } from "./Kbd.types";
-import { Kbd } from "./Kbd";
+
 import { useKbdGroup } from "./hooks/useKbdGroup";
+import { Kbd } from "./Kbd";
+
+import type { KbdGroupProps } from "./Kbd.types";
 
 export const KbdGroup = component$<KbdGroupProps>((props) => {
   const {

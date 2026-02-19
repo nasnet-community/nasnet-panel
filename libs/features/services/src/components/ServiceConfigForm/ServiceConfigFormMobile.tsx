@@ -1,3 +1,4 @@
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
 import { Button } from '@nasnet/ui/primitives';
 import { Loader2, Save } from 'lucide-react';
@@ -25,7 +26,7 @@ export interface ServiceConfigFormMobileProps {
  * - Bottom sticky action buttons
  * - Simplified layout for small screens
  */
-export function ServiceConfigFormMobile({
+export const ServiceConfigFormMobile = React.memo(function ServiceConfigFormMobile({
   formState,
   title = 'Configuration',
   readOnly,
@@ -43,7 +44,8 @@ export function ServiceConfigFormMobile({
   if (loading.schema || loading.config) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" aria-hidden="true" />
+        <span className="sr-only">Loading configuration...</span>
       </div>
     );
   }
@@ -91,20 +93,21 @@ export function ServiceConfigFormMobile({
         ))}
 
         {!readOnly && (
-          <div className="fixed bottom-0 left-0 right-0 border-t bg-background p-4">
+          <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-4">
             <Button
               type="submit"
-              className="w-full h-11"
+              className="w-full min-h-[44px]"
               disabled={isSubmitting || isValidating}
+              aria-label={isSubmitting ? 'Applying configuration' : 'Save configuration'}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                   Applying...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-4 w-4" />
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Configuration
                 </>
               )}
@@ -114,4 +117,4 @@ export function ServiceConfigFormMobile({
       </form>
     </div>
   );
-}
+});

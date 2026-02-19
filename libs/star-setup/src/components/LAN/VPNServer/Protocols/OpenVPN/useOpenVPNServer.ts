@@ -1,18 +1,18 @@
-import { $, useSignal } from "@builder.io/qwik";
-import { useContext } from "@builder.io/qwik";
+import { $, useSignal , useContext } from "@builder.io/qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import { validatePort, getAllVPNServerPorts } from "../../utils/portValidation";
+
 import type {
   OpenVpnServerConfig,
   OvpnAuthMethod,
   OvpnCipher,
   VSNetwork,
-} from "@nas-net/star-context";
-import type {
+
   LayerMode,
   AuthMethod,
-  NetworkProtocol,
-} from "@nas-net/star-context";
-import { StarContext } from "@nas-net/star-context";
-import { validatePort, getAllVPNServerPorts } from "../../utils/portValidation";
+  NetworkProtocol} from "@nas-net/star-context";
+
 
 // Define ViewMode type
 type ViewMode = "easy" | "advanced";

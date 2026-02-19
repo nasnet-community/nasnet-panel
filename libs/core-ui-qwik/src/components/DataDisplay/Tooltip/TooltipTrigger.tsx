@@ -1,4 +1,5 @@
 import { component$, useVisibleTask$, Slot } from "@builder.io/qwik";
+
 import type { TooltipTriggerProps } from "./Tooltip.types";
 
 export const TooltipTrigger = component$<TooltipTriggerProps>((props) => {

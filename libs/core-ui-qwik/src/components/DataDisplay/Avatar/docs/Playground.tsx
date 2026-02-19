@@ -1,6 +1,6 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Avatar } from "@nas-net/core-ui-qwik";
-import { Card } from "@nas-net/core-ui-qwik";
+import { Avatar , Card } from "@nas-net/core-ui-qwik";
+
 
 export default component$(() => {
   // State for playground controls

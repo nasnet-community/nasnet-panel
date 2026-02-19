@@ -1,7 +1,9 @@
 import { useSignal, $, useTask$ } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
-import type { VStepperProps, StepItem } from "./types";
+
 import { useBaseStepper } from "../shared/hooks/useBaseStepper";
+
+import type { VStepperProps, StepItem } from "./types";
 
 /**
  * Legacy implementation for backward compatibility

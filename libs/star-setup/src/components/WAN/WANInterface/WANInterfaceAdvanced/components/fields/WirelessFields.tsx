@@ -1,6 +1,7 @@
 import { component$, type QRL } from "@builder.io/qwik";
-import type { WirelessCredentials } from "@nas-net/star-context";
 import { Input, FormField, PasswordField } from "@nas-net/core-ui-qwik";
+
+import type { WirelessCredentials } from "@nas-net/star-context";
 
 export interface WirelessFieldsProps {
   credentials?: WirelessCredentials;

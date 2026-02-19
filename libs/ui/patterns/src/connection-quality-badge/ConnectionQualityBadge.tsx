@@ -7,6 +7,8 @@
  * @see NAS-4.9: Implement Connection & Auth Stores
  */
 
+import { memo } from 'react';
+
 import { Signal, SignalHigh, SignalLow, SignalMedium, Zap } from 'lucide-react';
 
 import { Badge , cn } from '@nasnet/ui/primitives';
@@ -73,7 +75,7 @@ const QUALITY_COLORS: Record<QualityLevel, string> = {
   good: 'bg-semantic-success/80 text-white',
   moderate: 'bg-semantic-warning text-white',
   poor: 'bg-semantic-error text-white',
-  unknown: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+  unknown: 'bg-muted text-muted-foreground',
 };
 
 /**
@@ -143,7 +145,7 @@ function QualityIcon({ quality, className }: { quality: QualityLevel; className?
  * <ConnectionQualityBadge size="sm" />
  * ```
  */
-export function ConnectionQualityBadge({
+export const ConnectionQualityBadge = memo(function ConnectionQualityBadge({
   showLatency = true,
   showIcon = true,
   className,
@@ -186,7 +188,7 @@ export function ConnectionQualityBadge({
       )}
     </Badge>
   );
-}
+});
 
 // ===== Standalone Hook =====
 

@@ -1,5 +1,4 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
-import { Button } from "../Button";
 import {
   HiCheckCircleOutline,
   HiArrowDownTrayMini,
@@ -8,6 +7,8 @@ import {
   HiSparklesOutline,
   HiXCircleOutline,
 } from "@qwikest/icons/heroicons";
+
+import { Button } from "../Button";
 
 export const ComplexLoadingStatesExample = component$(() => {
   const isLoading = useSignal(false);

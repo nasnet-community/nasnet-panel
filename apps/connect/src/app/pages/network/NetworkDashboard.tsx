@@ -57,7 +57,7 @@ export function NetworkDashboard() {
   // Show loading state
   if (isLoadingInterfaces) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-background" role="status" aria-label="Loading network dashboard">
         <LoadingSkeleton />
       </div>
     );
@@ -66,14 +66,14 @@ export function NetworkDashboard() {
   // Show error state
   if (interfacesError) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
+      <div className="min-h-screen bg-background p-4" role="alert">
         <ErrorDisplay error={interfacesError} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-background">
       <div className="px-4 py-4 md:px-6 md:py-6 space-y-4 max-w-7xl mx-auto">
         
         {/* Section 1: DHCP Pool Status */}
@@ -89,15 +89,18 @@ export function NetworkDashboard() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Network className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">Interfaces</h2>
-              <span className="px-2 py-0.5 text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-full">
+              <Network className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <h2 className="text-sm font-semibold text-foreground">Interfaces</h2>
+              <span className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full">
                 {linkUpInterfaces.length}/{interfaces?.length || 0}
               </span>
             </div>
-            <button className="text-xs text-primary-500 hover:text-primary-600 font-medium flex items-center gap-0.5">
+            <button
+              className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-0.5 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+              aria-label="View all interfaces"
+            >
               View All
-              <ChevronRight className="w-3 h-3" />
+              <ChevronRight className="w-3 h-3" aria-hidden="true" />
             </button>
           </div>
           
@@ -108,8 +111,8 @@ export function NetworkDashboard() {
           </div>
           
           {(!interfaces || interfaces.length === 0) && (
-            <div className="bg-white dark:bg-slate-900 rounded-xl p-8 text-center border border-slate-200 dark:border-slate-800">
-              <p className="text-slate-500 dark:text-slate-400">No interfaces found</p>
+            <div className="bg-card rounded-xl p-8 text-center border border-border">
+              <p className="text-muted-foreground">No interfaces found</p>
             </div>
           )}
         </div>

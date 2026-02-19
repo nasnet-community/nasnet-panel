@@ -1,9 +1,8 @@
 import { component$, useSignal, $ } from "@builder.io/qwik";
+import { ServerCard , ServerFormField , Input } from "@nas-net/core-ui-qwik";
 import { HiServerOutline, HiLockClosedOutline } from "@qwikest/icons/heroicons";
-import { ServerCard } from "@nas-net/core-ui-qwik";
-import { ServerFormField } from "@nas-net/core-ui-qwik";
+
 import { useOpenVPNServer } from "./useOpenVPNServer";
-import { Input } from "@nas-net/core-ui-qwik";
 import { NetworkDropdown, type ExtendedNetworks } from "../../components/NetworkSelection";
 
 export const OpenVPNServerEasy = component$(() => {

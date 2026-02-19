@@ -1,7 +1,9 @@
 import { component$, $ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
 import { useStepperContext } from "@nas-net/core-ui-qwik";
+
 import { VPNServerContextId } from "./VPNServerAdvanced/VPNServerContext";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 interface ActionFooterProps {
   /**

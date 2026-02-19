@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
+import AdvancedFileUpload from "../Examples/AdvancedFileUpload";
 import BasicFileUpload from "../Examples/BasicFileUpload";
 import FileUploadLayouts from "../Examples/FileUploadLayouts";
 import FileUploadStates from "../Examples/FileUploadStates";
 import FileUploadValidation from "../Examples/FileUploadValidation";
 import FileUploadVariants from "../Examples/FileUploadVariants";
-import AdvancedFileUpload from "../Examples/AdvancedFileUpload";
 
 /**
  * FileUpload component examples documentation using the standard template

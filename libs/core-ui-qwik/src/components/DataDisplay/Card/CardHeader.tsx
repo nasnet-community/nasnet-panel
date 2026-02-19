@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { CardHeaderProps } from "./Card.types";
 
 export const CardHeader = component$<CardHeaderProps>((props) => {

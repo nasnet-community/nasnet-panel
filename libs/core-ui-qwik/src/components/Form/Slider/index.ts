@@ -6,6 +6,7 @@
  */
 
 import { Slider } from "./Slider";
+
 import type {
   SliderProps,
   SingleSliderProps,

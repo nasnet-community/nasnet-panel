@@ -178,10 +178,15 @@ export function SafetyConfirmationMobile({
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
             className="h-12 w-full text-base"
+            aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
             {isProcessing ? (
               <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <Loader2
+                  className="mr-2 h-5 w-5 animate-spin"
+                  role="status"
+                  aria-label="Processing"
+                />
                 Processing...
               </>
             ) : (
@@ -198,6 +203,7 @@ export function SafetyConfirmationMobile({
             }}
             disabled={isProcessing}
             className="h-12 w-full text-base"
+            aria-label="Cancel operation"
           >
             Cancel
           </Button>

@@ -1,7 +1,9 @@
 import { component$, useStore, $, useSignal, type QRL } from "@builder.io/qwik";
+
 import { CStepper } from "../CStepper";
-import type { CStepMeta } from "../types";
 import { useStepperContext, createStepperContext } from "../hooks/useStepperContext";
+
+import type { CStepMeta } from "../types";
 
 // Define a custom data interface for our stepper
 interface UserFormData {

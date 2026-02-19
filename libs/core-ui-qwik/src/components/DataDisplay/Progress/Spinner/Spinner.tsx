@@ -1,6 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import type { SpinnerProps } from "./Spinner.types";
+
 import { useSpinner } from "./useSpinner";
+
+import type { SpinnerProps } from "./Spinner.types";
 
 /**
  * Spinner component for indicating loading states

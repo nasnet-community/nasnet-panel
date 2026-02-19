@@ -1,4 +1,5 @@
 import { component$, Slot } from "@builder.io/qwik";
+
 import type { PopoverTriggerProps } from "./Popover.types";
 
 /**

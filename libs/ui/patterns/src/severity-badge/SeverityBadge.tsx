@@ -27,11 +27,11 @@ const severityBadgeVariants = cva(
   {
     variants: {
       severity: {
-        debug: 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-800',
-        info: 'text-info bg-info/10 dark:text-sky-400 dark:bg-info/20',
-        warning: 'text-warning bg-warning/10 dark:text-amber-400 dark:bg-warning/20',
-        error: 'text-error bg-error/10 dark:text-red-400 dark:bg-error/20',
-        critical: 'text-error bg-error/20 dark:text-red-300 dark:bg-error/30 font-bold ring-1 ring-inset ring-error/30',
+        debug: 'text-muted-foreground bg-muted',
+        info: 'text-info bg-info/10',
+        warning: 'text-warning bg-warning/10',
+        error: 'text-error bg-error/10',
+        critical: 'text-error bg-error/20 font-bold ring-1 ring-inset ring-error/30',
       },
     },
     defaultVariants: {
@@ -73,7 +73,7 @@ export interface SeverityBadgeProps
  * />
  * ```
  */
-export function SeverityBadge({
+function SeverityBadgeBase({
   severity,
   onRemove,
   className,
@@ -90,7 +90,7 @@ export function SeverityBadge({
         onClick={onRemove}
         className={cn(
           severityBadgeVariants({ severity }),
-          'hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all',
+          'hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all',
           className
         )}
         aria-label={`Remove ${displayText} filter`}
@@ -114,3 +114,5 @@ export function SeverityBadge({
     </span>
   );
 }
+
+export const SeverityBadge = React.memo(SeverityBadgeBase);

@@ -136,9 +136,9 @@ export function ConnectionsPage() {
   // Early return if no router selected
   if (!routerId) {
     return (
-      <div className="flex items-center justify-center h-full p-8">
+      <div className="flex items-center justify-center h-full p-8" role="status" aria-label="No router selected">
         <div className="text-center">
-          <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
           <h2 className="text-xl font-semibold mb-2">No Router Selected</h2>
           <p className="text-muted-foreground">
             Please select a router to view connection tracking.
@@ -160,19 +160,19 @@ export function ConnectionsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-        <TabsList className="bg-slate-100 dark:bg-slate-800">
+        <TabsList className="bg-muted" aria-label="Connection tracking tabs">
           <TabsTrigger
             value="list"
             className="flex items-center gap-2"
           >
-            <Activity className="w-4 h-4" />
+            <Activity className="w-4 h-4" aria-hidden="true" />
             <span>Connections</span>
           </TabsTrigger>
           <TabsTrigger
             value="settings"
             className="flex items-center gap-2"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-4 h-4" aria-hidden="true" />
             <span>Settings</span>
           </TabsTrigger>
         </TabsList>

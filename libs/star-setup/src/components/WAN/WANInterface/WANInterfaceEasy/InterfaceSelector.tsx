@@ -1,8 +1,9 @@
-import type { InterfaceSelectorProps } from "./types";
 import { component$, useResource$, Resource, useContext } from "@builder.io/qwik";
 import { Select } from "@nas-net/core-ui-qwik";
 import { StarContext } from "@nas-net/star-context";
 import { getMasterOccupiedInterfaces, getUsedLTEInterfaces } from "@utils/InterfaceManagementUtils";
+
+import type { InterfaceSelectorProps } from "./types";
 
 const interfaceDisplayNames: Record<string, string> = {
   ether1: "Ethernet 1",

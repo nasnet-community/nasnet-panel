@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { Input, FormField } from "@nas-net/core-ui-qwik";
+
 import type { WirelessSettingsProps } from "./types";
 
 export const WirelessSettings = component$<WirelessSettingsProps>(

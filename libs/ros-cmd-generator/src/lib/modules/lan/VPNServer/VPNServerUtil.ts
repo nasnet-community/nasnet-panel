@@ -1,5 +1,6 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import { SubnetToFirstIP } from "@nas-net/ros-cmd-generator";
+import { SubnetToFirstIP } from "../../index";
+
+import type { RouterConfig } from "../../index";
 import type { VPNServer } from "@nas-net/star-context";
 // import type { Credentials } from "@nas-net/star-context";
 

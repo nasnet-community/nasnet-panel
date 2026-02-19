@@ -1,4 +1,5 @@
 import { component$, $, useSignal, useId } from "@builder.io/qwik";
+
 import type { PrefixedInputProps, VariantConfig, AnimationConfig } from "./PrefixedInput.types";
 
 /**

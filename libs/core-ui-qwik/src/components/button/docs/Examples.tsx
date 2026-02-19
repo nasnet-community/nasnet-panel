@@ -3,24 +3,6 @@ import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
 import {
-  BasicButtonExample,
-  ButtonStateExample,
-  ButtonIconExample,
-  ButtonTypeExample,
-  ButtonWithEventExample,
-} from "../Examples/ButtonExample";
-import {
-  SemanticVariantsBasicExample,
-  SemanticVariantsWithIconsExample,
-} from "../Examples/SemanticVariantsExample";
-import {
-  ResponsiveButtonExample,
-} from "../Examples/ResponsiveButtonsExample";
-import {
-  HorizontalButtonGroupExample,
-  ResponsiveButtonGroupExample,
-} from "../Examples/ButtonGroupExample";
-import {
   IconOnlyAccessibilityExample,
 } from "../Examples/AccessibilityExample";
 import {
@@ -28,6 +10,17 @@ import {
   ButtonStateTransitionsExample,
   CompoundButtonExample,
 } from "../Examples/AdvancedStatesExample";
+import {
+  BasicButtonExample,
+  ButtonStateExample,
+  ButtonIconExample,
+  ButtonTypeExample,
+  ButtonWithEventExample,
+} from "../Examples/ButtonExample";
+import {
+  HorizontalButtonGroupExample,
+  ResponsiveButtonGroupExample,
+} from "../Examples/ButtonGroupExample";
 import {
   CTAButtonExample,
   GradientButtonExample,
@@ -39,6 +32,13 @@ import {
   ButtonRadiusShowcase,
   InteractiveButtonExample,
 } from "../Examples/ModernVariantsExample";
+import {
+  ResponsiveButtonExample,
+} from "../Examples/ResponsiveButtonsExample";
+import {
+  SemanticVariantsBasicExample,
+  SemanticVariantsWithIconsExample,
+} from "../Examples/SemanticVariantsExample";
 
 export default component$(() => {
   const examples = [

@@ -1,7 +1,9 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
-import type { ChooseState, WirelessConfig, Subnets } from "@nas-net/star-context";
-import { mergeMultipleConfigs } from "@nas-net/ros-cmd-generator";
 import { generateBaseNetworkVLANs, generateAdditionalNetworkVLANs, generateVPNClientNetworkVLANs, generateWirelessTrunkInterface, addTrunkInterfaceToBridge, commentTrunkInterface } from "./MasterUtil";
+import { mergeMultipleConfigs } from "../../index";
+
+
+import type { RouterConfig } from "../../index";
+import type { ChooseState, WirelessConfig, Subnets } from "@nas-net/star-context";
 
 
 

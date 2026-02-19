@@ -1,10 +1,12 @@
 import { component$, useSignal, $, useVisibleTask$ } from "@builder.io/qwik";
-import type { NewsletterProps } from "./Newsletter.types";
-import { useNewsletter } from "./useNewsletter";
-import { NewsletterLogo } from "./NewsletterLogo";
+
 import { BackgroundLogo } from "./BackgroundLogo";
-import { Input } from "../../Input/Input";
+import { NewsletterLogo } from "./NewsletterLogo";
+import { useNewsletter } from "./useNewsletter";
 import { Button } from "../../button/Button";
+import { Input } from "../../Input/Input";
+
+import type { NewsletterProps } from "./Newsletter.types";
 
 /**
  * Premium Newsletter component with advanced visual design.

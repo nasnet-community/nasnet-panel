@@ -14,7 +14,7 @@
  * @see NAS-7.11: Implement Connection Rate Limiting - Task 6
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRateLimitingUIStore } from '@nasnet/state/stores';
 import { useConnectionStore } from '@nasnet/state/stores';
@@ -87,7 +87,7 @@ function EmptyState({ tab, onAddRule }: EmptyStateProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <Button onClick={onAddRule}>
+          <Button onClick={onAddRule} aria-label="Add rate limit rule" className="min-h-[44px]">
             <Plus className="h-4 w-4 mr-2" />
             {t('rateLimiting.buttons.addRateLimit')}
           </Button>
@@ -123,7 +123,7 @@ function EmptyState({ tab, onAddRule }: EmptyStateProps) {
  *
  * @returns Rate limiting page component
  */
-export function RateLimitingPage() {
+export const RateLimitingPage = memo(function RateLimitingPage() {
   const { t } = useTranslation('firewall');
   const platform = usePlatform();
   const isMobile = platform === 'mobile';
@@ -186,7 +186,7 @@ export function RateLimitingPage() {
           {/* Header Actions - Dynamic based on selected tab */}
           <div className="flex gap-2">
             {selectedTab === 'rate-limits' && (
-              <Button onClick={handleAddRule}>
+              <Button onClick={handleAddRule} aria-label="Add new rate limit rule" className="min-h-[44px]">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('rateLimiting.buttons.addRateLimit')}
               </Button>
@@ -198,18 +198,20 @@ export function RateLimitingPage() {
                   variant="outline"
                   onClick={handleRefresh}
                   disabled={isRefreshing}
+                  aria-label="Refresh statistics"
+                  className="min-h-[44px]"
                 >
                   <RefreshCw
                     className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`}
                   />
                   {t('rateLimiting.statistics.refresh')}
                 </Button>
-                <Button variant="outline" onClick={handleExportCSV}>
+                <Button variant="outline" onClick={handleExportCSV} aria-label="Export statistics as CSV" className="min-h-[44px]">
                   <Download className="h-4 w-4 mr-2" />
                   {t('rateLimiting.statistics.exportCSV')}
                 </Button>
                 {hasBlockedIPs && (
-                  <Button variant="destructive" onClick={handleClearBlockedIPs}>
+                  <Button variant="destructive" onClick={handleClearBlockedIPs} aria-label="Clear all blocked IPs" className="min-h-[44px]">
                     {t('rateLimiting.buttons.clear')}
                   </Button>
                 )}
@@ -329,7 +331,9 @@ export function RateLimitingPage() {
       </Sheet>
     </div>
   );
-}
+});
+
+RateLimitingPage.displayName = 'RateLimitingPage';
 
 /**
  * Export for route configuration

@@ -2,14 +2,14 @@
 import { ExamplesTemplate } from "@nas-net/core-ui-qwik";
 
 // Import examples
+import AccessibleCard from "../Examples/AccessibleCard";
 import { BasicCard } from "../Examples/BasicCard";
 import { CardVariants } from "../Examples/CardVariants";
-import { MediaCard } from "../Examples/MediaCard";
+import ElevationAndRadius from "../Examples/ElevationAndRadius";
 import InteractiveCard from "../Examples/InteractiveCard";
 import LayoutOptions from "../Examples/LayoutOptions";
-import ElevationAndRadius from "../Examples/ElevationAndRadius";
 import LinkCard from "../Examples/LinkCard";
-import AccessibleCard from "../Examples/AccessibleCard";
+import { MediaCard } from "../Examples/MediaCard";
 
 export default component$(() => {
   const examples = [

@@ -1,12 +1,14 @@
 import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
+import { generateUniqueId } from "@nas-net/core-ui-qwik";
 import {
   getL2TPCredentials,
   getReferrerFromURL,
   getOrCreateSessionId,
   type L2TPCredentials,
 } from "@utils/supabaseClient";
-import { generateUniqueId } from "@nas-net/core-ui-qwik";
+
+import type { QRL } from "@builder.io/qwik";
+
 
 declare global {
   interface Window {

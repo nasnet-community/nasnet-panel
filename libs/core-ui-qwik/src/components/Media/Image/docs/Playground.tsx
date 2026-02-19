@@ -1,5 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
+
 import { Image } from "..";
+
 import type { ImageFit, PlaceholderType } from "../Image.types";
 
 export default component$(() => {

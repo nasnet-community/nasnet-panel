@@ -32,7 +32,7 @@ const MobileAppShell = React.forwardRef<HTMLDivElement, MobileAppShellProps>(
     return (
       <div
         ref={ref}
-        className={cn('flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900', className)}
+        className={cn('flex min-h-screen flex-col bg-background', className)}
       >
         {/* Status Banner */}
         {statusBanner && (
@@ -48,13 +48,13 @@ const MobileAppShell = React.forwardRef<HTMLDivElement, MobileAppShellProps>(
         <div className="flex flex-1 overflow-hidden">
           {/* Desktop Sidebar */}
           {sidebar && showSidebarOnDesktop && (
-            <aside className="hidden md:block w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 overflow-y-auto">
+            <aside className="hidden md:block w-64 border-r border-border bg-sidebar overflow-y-auto">
               {sidebar}
             </aside>
           )}
 
           {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto pb-20 md:pb-0 bg-slate-50 dark:bg-slate-900">
+          <main id="main-content" className="flex-1 overflow-y-auto pb-20 md:pb-0 bg-background">
             {children}
           </main>
         </div>

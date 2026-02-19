@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { useSignal } from "@builder.io/qwik";
+import { component$ , useSignal } from "@builder.io/qwik";
+
 import { PinInput } from "../PinInput";
 
 export const BasicPinInput = component$(() => {

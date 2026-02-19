@@ -2,10 +2,11 @@ import { useContext, $, useSignal } from "@builder.io/qwik";
 import {
   StarContext,
   type StarContextType,
-} from "@nas-net/star-context";
-import type { Ethernet, EthernetInterfaceConfig } from "@nas-net/star-context";
-import { useInterfaceManagement } from "../../../hooks/useInterfaceManagement";
+ type Ethernet, type EthernetInterfaceConfig } from "@nas-net/star-context";
 import { useNetworks } from "@utils/useNetworks";
+
+import { useInterfaceManagement } from "../../../hooks/useInterfaceManagement";
+
 
 export const useEInterface = () => {
   const ctx = useContext<StarContextType>(StarContext);

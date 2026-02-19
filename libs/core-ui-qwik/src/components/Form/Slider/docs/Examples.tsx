@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicSlider from "../Examples/BasicSlider";
-import SliderVariants from "../Examples/SliderVariants";
-import SliderStates from "../Examples/SliderStates";
 import RangeSlider from "../Examples/RangeSlider";
 import SliderFeatures from "../Examples/SliderFeatures";
 import SliderIntegration from "../Examples/SliderIntegration";
+import SliderStates from "../Examples/SliderStates";
+import SliderVariants from "../Examples/SliderVariants";
 
 /**
  * Slider component examples documentation using the standard template

@@ -260,6 +260,13 @@ export function useResourceList<TConfig = unknown>(
   // Select query based on mode
   const query = mode === 'card' ? RESOURCES_CARD_QUERY : RESOURCES_LIST_QUERY;
 
+  // Stabilize dependencies to prevent unnecessary re-renders.
+  // Object references for filter/sort/pagination change every render;
+  // serializing to a key lets useMemo compare by value instead.
+  const filterKey = JSON.stringify(filter);
+  const sortKey = JSON.stringify(sort);
+  const paginationKey = JSON.stringify(pagination);
+
   // Build variables
   const variables = useMemo(() => ({
     routerId: filter.routerId || '',
@@ -279,7 +286,8 @@ export function useResourceList<TConfig = unknown>(
       search: filter.search,
     },
     sort: sort ? { field: sort.field, direction: sort.direction } : undefined,
-  }), [filter, sort, pagination]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [filterKey, sortKey, paginationKey]);
 
   // Execute query
   const {

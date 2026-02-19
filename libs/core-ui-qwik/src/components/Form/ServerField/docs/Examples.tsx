@@ -2,9 +2,9 @@ import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, DocExample } from "@nas-net/core-ui-qwik";
 
 import BasicExample from "../Examples/Basic";
-import VariantsExample from "../Examples/Variants";
 import ErrorStatesExample from "../Examples/ErrorStates";
 import IntegrationExample from "../Examples/Integration";
+import VariantsExample from "../Examples/Variants";
 
 // Code examples as strings
 const basicExampleCode = `import { component$ } from '@builder.io/qwik';

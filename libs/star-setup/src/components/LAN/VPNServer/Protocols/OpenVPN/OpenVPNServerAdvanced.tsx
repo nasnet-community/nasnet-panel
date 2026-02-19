@@ -1,19 +1,15 @@
 import { component$, $, useComputed$ } from "@builder.io/qwik";
-import { useOpenVPNServer } from "./useOpenVPNServer";
-import { Card } from "@nas-net/core-ui-qwik";
-import { Field as FormField } from "@nas-net/core-ui-qwik";
-import { InterfaceNameInput } from "@nas-net/core-ui-qwik";
-import { Input } from "@nas-net/core-ui-qwik";
-import { ServerButton } from "@nas-net/core-ui-qwik";
-import { TabNavigation } from "@nas-net/core-ui-qwik";
-import { UnifiedSelect as Select } from "@nas-net/core-ui-qwik";
-import { NetworkDropdown } from "../../components/NetworkSelection";
-import type { ExtendedNetworks } from "../../components/NetworkSelection";
+import { Card , Field as FormField , InterfaceNameInput , Input , ServerButton , TabNavigation , UnifiedSelect as Select } from "@nas-net/core-ui-qwik";
 import {
   HiServerOutline,
   HiPlusCircleOutline,
   HiTrashOutline,
 } from "@qwikest/icons/heroicons";
+
+import { type useOpenVPNServer } from "./useOpenVPNServer";
+import { NetworkDropdown } from "../../components/NetworkSelection";
+
+import type { ExtendedNetworks } from "../../components/NetworkSelection";
 
 interface OpenVPNServerAdvancedProps {
   hook: ReturnType<typeof useOpenVPNServer>;

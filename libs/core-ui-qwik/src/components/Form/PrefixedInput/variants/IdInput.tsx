@@ -1,5 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+
 import { PrefixedInput } from "../PrefixedInput";
+
 import type { IdInputProps } from "../PrefixedInput.types";
 
 /**

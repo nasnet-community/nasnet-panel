@@ -81,6 +81,7 @@ export function DnsServerListDesktop({
         variant="outline"
         className="w-full"
         disabled={loading}
+        aria-label="Add a new DNS server"
       >
         <Plus className="h-4 w-4 mr-2" />
         Add DNS Server

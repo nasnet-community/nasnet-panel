@@ -205,7 +205,7 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
   if (Object.keys(variables).length === 0) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <AlertDescription className="text-sm">
           Fill in the variables above to preview the resolved conditions
         </AlertDescription>
@@ -225,7 +225,7 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <AlertDescription className="text-sm">{error.message}</AlertDescription>
       </Alert>
     );
@@ -234,7 +234,7 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
   if (!validationInfo?.isValid) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <AlertDescription>
           <p className="font-medium mb-2">Validation Errors:</p>
           <ul className="list-disc list-inside space-y-1 text-sm">
@@ -253,8 +253,8 @@ function PreviewSection({ templateId, variables }: PreviewSectionProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <CheckCircle2 className="h-4 w-4 text-green-600" />
-        <span className="text-sm font-medium text-green-600">
+        <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
+        <span className="text-sm font-medium text-success">
           Preview Valid - Ready to Apply
         </span>
       </div>
@@ -399,7 +399,7 @@ function FormContent({ template, form, onSubmit, loading }: FormContentProps) {
             disabled={loading}
             className="w-full sm:w-auto min-h-[44px]"
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
             {loading ? 'Creating Alert Rule...' : 'Apply Template'}
           </Button>
         </DialogFooter>
@@ -533,7 +533,7 @@ export function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
   if (templateError || !template) {
     const errorContent = (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="h-4 w-4" aria-hidden="true" />
         <AlertDescription>
           {templateError?.message || 'Failed to load template'}
         </AlertDescription>

@@ -1,9 +1,11 @@
-import type { RouterConfig } from "@nas-net/ros-cmd-generator";
+import { GetWANInterface } from "./WANInterfaceUtils";
+import { CommandShortner } from "../../../utils/ConfigGeneratorUtil";
+
+import type { RouterConfig } from "../../../generator";
 import type {
     WANLinkConfig,
     WANLink,
 } from "@nas-net/star-context";
-import { CommandShortner, GetWANInterface } from "@nas-net/ros-cmd-generator";
 
 export const WANIfaceList = ( InterfaceName: string, Network: string ): RouterConfig => {
     const config: RouterConfig = {

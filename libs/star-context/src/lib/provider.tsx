@@ -5,11 +5,13 @@ import {
   $,
   Slot,
 } from "@builder.io/qwik";
+
 import {
   StarContext,
   type StarState,
   type StarContextType,
 } from "./context";
+
 import type { Mode, FirmwareType, RouterModeType, WANLinkType } from "./types/choose";
 
 export const StarContextProvider = component$(() => {

@@ -1,11 +1,12 @@
 ﻿import { component$ } from "@builder.io/qwik";
 import { ExamplesTemplate, type Example } from "@nas-net/core-ui-qwik";
+
 import BasicDatePicker from "../Examples/BasicDatePicker";
+import DatePickerFeatures from "../Examples/DatePickerFeatures";
 import DatePickerSizes from "../Examples/DatePickerSizes";
 import DatePickerStates from "../Examples/DatePickerStates";
-import DatePickerFeatures from "../Examples/DatePickerFeatures";
-import RangeDatePicker from "../Examples/RangeDatePicker";
 import DateTimePicker from "../Examples/DateTimePicker";
+import RangeDatePicker from "../Examples/RangeDatePicker";
 
 /**
  * DatePicker component examples documentation using the standard template

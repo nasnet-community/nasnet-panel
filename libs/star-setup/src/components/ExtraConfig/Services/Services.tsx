@@ -7,11 +7,7 @@ import {
   useSignal,
   useComputed$,
 } from "@builder.io/qwik";
-import type { StepProps } from "@nas-net/core-ui-qwik";
-import { StarContext } from "@nas-net/star-context";
-import type { ServiceType, services } from "@nas-net/star-context";
-import { Select } from "@nas-net/core-ui-qwik";
-import {
+import { Select ,
   Input,
   Dialog,
   DialogHeader,
@@ -19,6 +15,12 @@ import {
   DialogFooter,
   Button,
 } from "@nas-net/core-ui-qwik";
+import { StarContext } from "@nas-net/star-context";
+
+import type { StepProps } from "@nas-net/core-ui-qwik";
+import type { ServiceType, services } from "@nas-net/star-context";
+
+
 
 // Add scoped styles to fix dropdown positioning
 const dropdownStyles = `
