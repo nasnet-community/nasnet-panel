@@ -1,1 +1,0 @@
-export { useSkeleton } from "./useSkeleton";

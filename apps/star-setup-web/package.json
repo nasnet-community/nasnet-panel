@@ -1,9 +1,0 @@
-{
-  "name": "star-setup-web",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@nas-net/core-ui-qwik": "file:../../libs/core-ui-qwik",
-    "@nas-net/star-setup": "file:../../libs/star-setup"
-  }
-}
